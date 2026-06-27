@@ -7,6 +7,7 @@ import StatsSection from '@/components/StatsSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
+import PricingSection from '@/components/PricingSection';
 import CTASection from '@/components/CTASection';
 
 export default function Home() {
@@ -28,6 +29,9 @@ export default function Home() {
 
       {/* Testimonials Section */}
       <TestimonialsSection />
+
+      {/* Pricing Section */}
+      <PricingSection />
 
       {/* Newsletter Section */}
       <NewsletterSection />
