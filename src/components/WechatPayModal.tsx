@@ -91,7 +91,7 @@ export default function WechatPayModal({
                 ⚠️ 请在支付完成后，将订单号发送到以下邮箱确认：
               </p>
               <p className="text-white text-sm mt-2">
-                📧 support@imagentx.top
+                📧 meteor@stu.gpnu.edu.cn
               </p>
             </div>
 
