@@ -2,6 +2,7 @@ import Header from '@/components/Header';
 import EnhancedFooter from '@/components/EnhancedFooter';
 import HeroSection from '@/components/HeroSection';
 import ProductShowcase from '@/components/ProductShowcase';
+import ProductDemo from '@/components/ProductDemo';
 import FeaturesSection from '@/components/FeaturesSection';
 import FeaturesGrid from '@/components/FeaturesGrid';
 import FeaturesList from '@/components/FeaturesList';
@@ -32,6 +33,9 @@ export default function Home() {
 
       {/* Products Section */}
       <ProductShowcase />
+
+      {/* Product Demo */}
+      <ProductDemo />
 
       {/* Features Section */}
       <FeaturesSection />
