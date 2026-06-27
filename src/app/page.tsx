@@ -9,6 +9,7 @@ import PartnersSection from '@/components/PartnersSection';
 import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
 import PricingSection from '@/components/PricingSection';
+import FeaturesComparison from '@/components/FeaturesComparison';
 import CTASection from '@/components/CTASection';
 
 export default function Home() {
@@ -36,6 +37,9 @@ export default function Home() {
 
       {/* Pricing Section */}
       <PricingSection />
+
+      {/* Features Comparison */}
+      <FeaturesComparison />
 
       {/* Newsletter Section */}
       <NewsletterSection />
