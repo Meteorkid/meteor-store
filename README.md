@@ -4,36 +4,36 @@
 
 ## 产品列表
 
-| 产品 | 描述 | 国际价格 | 国内价格 |
-|------|------|----------|----------|
-| **OmniCrawl** | 万能爬虫框架 | $29-199/月 | ¥199-1399/月 |
-| **Ex-Memory** | 前任记忆智能体 | $9-39/月 | ¥59-269/月 |
-| **Skeleton Anatomy** | 3D 骨骼解剖平台 | $19-199/年 | ¥129-1399/年 |
-| **UI Design System** | AI Agent 设计系统 | $9-99/月 | ¥59-689/月 |
-| **Statux** | CLI 状态栏工具 | 免费 / $9 买断 | 免费 / ¥59 买断 |
-| **XIsland** | macOS Dynamic Island for AI | 免费 / $12 买断 | 免费 / ¥79 买断 |
-| **Tollow** | 智能追踪工具 | 免费 / $15/月 | 免费 / ¥99/月 |
-| **XNook** | macOS 工具中心 | 免费 / $9 买断 | 免费 / ¥59 买断 |
-| **Chakra Visualizer** | 手势忍术特效 | 免费 / $5/月 | 免费 / ¥35/月 |
+| 产品 | 描述 | 价格 |
+|------|------|------|
+| **OmniCrawl** | 万能爬虫框架 | ¥199-1399/月 |
+| **Ex-Memory** | 前任记忆智能体 | ¥59-269/月 |
+| **Skeleton Anatomy** | 3D 骨骼解剖平台 | ¥129-1399/年 |
+| **UI Design System** | AI Agent 设计系统 | ¥59-689/月 |
+| **Statux** | CLI 状态栏工具 | 免费 / ¥59 买断 |
+| **XIsland** | macOS Dynamic Island for AI | 免费 / ¥79 买断 |
+| **Tollow** | 智能追踪工具 | 免费 / ¥99/月 |
+| **XNook** | macOS 工具中心 | 免费 / ¥59 买断 |
+| **Chakra Visualizer** | 手势忍术特效 | 免费 / ¥35/月 |
 
 ## 技术栈
 
 - **框架**: Next.js 16 + TypeScript
 - **样式**: Tailwind CSS 4
-- **国际支付**: Lemon Squeezy（信用卡、PayPal）
-- **国内支付**: 支付宝、微信支付
+- **支付**: 支付宝、微信支付
 - **部署**: Vercel
 
 ## 支付方式
 
-### 🌍 国际支付（Lemon Squeezy）
-- 信用卡 / 借记卡（Visa、Mastercard、AMEX）
-- PayPal
-- 自动处理全球税务
+### 💙 支付宝
+- 支持花呗/信用卡
+- 扫码支付
+- 手机网站支付
 
-### 🇨🇳 国内支付
-- 支付宝
-- 微信支付
+### 💚 微信支付
+- 扫码支付
+- JSAPI 支付
+- H5 支付
 
 ## 快速开始
 
@@ -84,34 +84,19 @@ git push origin main
 
 ## 支付系统配置
 
-### 国际支付 - Lemon Squeezy
-
-1. 注册 [Lemon Squeezy](https://www.lemonsqueezy.com) 账号
-2. 创建你的产品和变体
-3. 获取 API Key 和 Store ID
-4. 获取每个产品的 Variant ID
-5. 更新 `.env.local` 文件
-
-### 国内支付 - 支付宝
+### 支付宝
 
 1. 注册 [支付宝开放平台](https://open.alipay.com) 账号
 2. 创建应用并获取 App ID
 3. 配置密钥
 4. 更新 `.env.local` 文件
 
-### 国内支付 - 微信支付
+### 微信支付
 
 1. 注册 [微信商户平台](https://pay.weixin.qq.com) 账号
 2. 创建应用并获取 App ID 和 Mch ID
 3. 配置密钥和证书
 4. 更新 `.env.local` 文件
-
-### 创建产品
-
-1. 登录支付平台 Dashboard
-2. 点击 "Products" → "New Product"
-3. 为每个产品创建对应的变体（不同价格方案）
-4. 复制每个变体的 ID 到环境变量
 
 ## 项目结构
 
@@ -122,6 +107,9 @@ meteor-store/
 │   │   ├── page.tsx              # 首页
 │   │   ├── layout.tsx            # 根布局
 │   │   ├── globals.css           # 全局样式
+│   │   ├── api/
+│   │   │   └── payment/
+│   │   │       └── route.ts      # 支付 API
 │   │   └── products/
 │   │       ├── page.tsx          # 产品列表页
 │   │       └── [id]/
@@ -135,7 +123,6 @@ meteor-store/
 │   ├── data/
 │   │   └── products.ts          # 产品数据
 │   └── lib/
-│       ├── lemonsqueezy.ts      # Lemon Squeezy 集成
 │       └── payment.ts           # 支付配置
 ├── public/                       # 静态资源
 ├── .env.example                  # 环境变量示例
@@ -156,7 +143,7 @@ meteor-store/
 
 ### 接入其他支付方式
 
-修改 `src/lib/payment.ts` 或创建新的支付模块。
+修改 `src/app/api/payment/route.ts` 或创建新的支付模块。
 
 ## 支持
 

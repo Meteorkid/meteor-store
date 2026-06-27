@@ -1,30 +1,5 @@
 // 支付配置
 export const PAYMENT_CONFIG = {
-  // 国际支付 - Lemon Squeezy
-  lemonsqueezy: {
-    apiKey: process.env.LEMON_SQUEEZY_API_KEY || '',
-    storeId: process.env.LEMON_SQUEEZY_STORE_ID || '',
-    variants: {
-      'omnicrawl-starter': process.env.LEMON_SQUEEZY_OMNICRAWL_STARTER || '',
-      'omnicrawl-pro': process.env.LEMON_SQUEEZY_OMNICRAWL_PRO || '',
-      'omnicrawl-enterprise': process.env.LEMON_SQUEEZY_OMNICRAWL_ENTERPRISE || '',
-      'ex-memory-basic': process.env.LEMON_SQUEEZY_EXMEMORY_BASIC || '',
-      'ex-memory-premium': process.env.LEMON_SQUEEZY_EXMEMORY_PREMIUM || '',
-      'ex-memory-ultimate': process.env.LEMON_SQUEEZY_EXMEMORY_ULTIMATE || '',
-      'skeleton-student': process.env.LEMON_SQUEEZY_SKELETON_STUDENT || '',
-      'skeleton-professional': process.env.LEMON_SQUEEZY_SKELETON_PROFESSIONAL || '',
-      'skeleton-institution': process.env.LEMON_SQUEEZY_SKELETON_INSTITUTION || '',
-      'uidesign-solo': process.env.LEMON_SQUEEZY_UIDESIGN_SOLO || '',
-      'uidesign-team': process.env.LEMON_SQUEEZY_UIDESIGN_TEAM || '',
-      'uidesign-enterprise': process.env.LEMON_SQUEEZY_UIDESIGN_ENTERPRISE || '',
-      'statux-pro': process.env.LEMON_SQUEEZY_STATUX_PRO || '',
-      'xisland-pro': process.env.LEMON_SQUEEZY_XISLAND_PRO || '',
-      'tollow-pro': process.env.LEMON_SQUEEZY_TOLLOW_PRO || '',
-      'xnook-pro': process.env.LEMON_SQUEEZY_XNOOK_PRO || '',
-      'chakra-premium': process.env.LEMON_SQUEEZY_CHAKRA_PREMIUM || '',
-    },
-  },
-
   // 国内支付 - 支付宝
   alipay: {
     appId: process.env.ALIPAY_APP_ID || '',
@@ -44,10 +19,45 @@ export const PAYMENT_CONFIG = {
 };
 
 // 支付方式类型
-export type PaymentMethod = 'lemonsqueezy' | 'alipay' | 'wechat';
+export type PaymentMethod = 'alipay' | 'wechat';
 
-// 获取产品 ID 映射
-export function getProductIdMapping(productName: string, planName: string): string {
+// 人民币价格映射（基于美元价格，汇率 1:7）
+export const PRICE_CNY_MAP: Record<string, number> = {
+  // OmniCrawl
+  'omnicrawl-starter': 199,
+  'omnicrawl-pro': 549,
+  'omnicrawl-enterprise': 1399,
+  // Ex-Memory
+  'ex-memory-basic': 59,
+  'ex-memory-premium': 129,
+  'ex-memory-ultimate': 269,
+  // Skeleton Anatomy
+  'skeleton-student': 129,
+  'skeleton-professional': 349,
+  'skeleton-institution': 1399,
+  // UI Design System
+  'uidesign-solo': 59,
+  'uidesign-team': 199,
+  'uidesign-enterprise': 689,
+  // Statux
+  'statux-pro': 59,
+  // XIsland
+  'xisland-pro': 79,
+  // Tollow
+  'tollow-pro': 99,
+  // XNook
+  'xnook-pro': 59,
+  // Chakra Visualizer
+  'chakra-premium': 35,
+};
+
+// 获取人民币价格
+export function getPriceCNY(productId: string): number {
+  return PRICE_CNY_MAP[productId] || 0;
+}
+
+// 生成产品 ID
+export function generateProductId(productName: string, planName: string): string {
   const mapping: Record<string, Record<string, string>> = {
     'omnicrawl': {
       'starter': 'omnicrawl-starter',
@@ -89,20 +99,9 @@ export function getProductIdMapping(productName: string, planName: string): stri
   return mapping[productName]?.[planName.toLowerCase()] || '';
 }
 
-// 生成 Lemon Squeezy 结账链接
-export function getLemonSqueezyCheckoutUrl(productId: string): string {
-  const variantId = PAYMENT_CONFIG.lemonsqueezy.variants[productId as keyof typeof PAYMENT_CONFIG.lemonsqueezy.variants];
-  if (!variantId) {
-    console.error(`No variant ID found for product: ${productId}`);
-    return '#';
-  }
-  return `https://store.lemonsqueezy.com/checkout/buy/${variantId}`;
-}
-
 // 检查是否配置了支付
 export function isPaymentConfigured(): boolean {
   return !!(
-    PAYMENT_CONFIG.lemonsqueezy.apiKey ||
     PAYMENT_CONFIG.alipay.appId ||
     PAYMENT_CONFIG.wechat.appId
   );
