@@ -1,5 +1,5 @@
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import EnhancedFooter from '@/components/EnhancedFooter';
 import HeroSection from '@/components/HeroSection';
 import ProductShowcase from '@/components/ProductShowcase';
 import FeaturesSection from '@/components/FeaturesSection';
@@ -38,7 +38,7 @@ export default function Home() {
       {/* CTA Section */}
       <CTASection />
 
-      <Footer />
+      <EnhancedFooter />
     </div>
   );
 }
