@@ -5,6 +5,7 @@ import ProductShowcase from '@/components/ProductShowcase';
 import FeaturesSection from '@/components/FeaturesSection';
 import StatsSection from '@/components/StatsSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
+import PartnersSection from '@/components/PartnersSection';
 import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
 import PricingSection from '@/components/PricingSection';
@@ -20,6 +21,9 @@ export default function Home() {
 
       {/* Stats Section */}
       <StatsSection />
+
+      {/* Partners Section */}
+      <PartnersSection />
 
       {/* Products Section */}
       <ProductShowcase />
