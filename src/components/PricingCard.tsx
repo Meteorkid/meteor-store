@@ -40,34 +40,34 @@ export default function PricingCard({
       <div
         className={`relative rounded-2xl border p-6 transition-all duration-300 ${
           isPopular
-            ? 'border-purple-500 bg-gradient-to-br from-purple-500/10 to-pink-500/10 scale-105'
-            : 'border-white/10 bg-white/5 hover:border-white/20'
+            ? 'border-primary bg-gradient-to-br from-primary/10 to-pink-500/10 scale-105 shadow-lg'
+            : 'border-border bg-card hover:border-primary/50'
         }`}
       >
         {isPopular && (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs font-medium text-white">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-primary to-pink-500 rounded-full text-xs font-medium text-primary-foreground">
             最受欢迎
           </div>
         )}
 
-        <h3 className="text-lg font-semibold text-white mb-2">{name}</h3>
+        <h3 className="text-lg font-semibold text-card-foreground mb-2">{name}</h3>
 
         <div className="flex items-baseline gap-1 mb-6">
           {price === 0 ? (
-            <span className="text-3xl font-bold text-green-400">免费</span>
+            <span className="text-3xl font-bold text-success">免费</span>
           ) : (
             <>
-              <span className="text-3xl font-bold text-white">${price}</span>
-              {period && <span className="text-gray-400">/{period}</span>}
+              <span className="text-3xl font-bold text-card-foreground">${price}</span>
+              {period && <span className="text-muted-foreground">/{period}</span>}
             </>
           )}
         </div>
 
         <ul className="space-y-3 mb-6">
           {features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-2 text-sm text-gray-300">
+            <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
               <svg
-                className={`w-5 h-5 flex-shrink-0 ${isPopular ? 'text-purple-400' : 'text-green-400'}`}
+                className={`w-5 h-5 flex-shrink-0 ${isPopular ? 'text-primary' : 'text-success'}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -83,8 +83,8 @@ export default function PricingCard({
           onClick={handlePurchase}
           className={`w-full py-3 rounded-lg font-medium transition-all duration-300 ${
             isPopular
-              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90'
-              : 'bg-white/10 text-white hover:bg-white/20'
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
           }`}
         >
           {price === 0 ? '开始使用' : '立即购买'}

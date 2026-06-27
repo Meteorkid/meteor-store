@@ -1,21 +1,108 @@
 @import "tailwindcss";
+@import "../styles/tokens.css";
 
+/* Meteor Store 设计系统 - 基于 frontend-design-system */
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
+  /* 语义化颜色 */
+  --background: var(--color-1);
+  --foreground: var(--color-16);
+
+  /* 主色调 - 紫色渐变 */
+  --primary: var(--purple-6);
+  --primary-foreground: var(--purple-0);
+
+  /* 次要颜色 */
+  --secondary: var(--gray-2);
+  --secondary-foreground: var(--gray-9);
+
+  /* 强调色 */
+  --accent: var(--violet-6);
+  --accent-foreground: var(--violet-0);
+
+  /* 卡片 */
+  --card: var(--color-1);
+  --card-foreground: var(--color-16);
+
+  /* 弹窗 */
+  --popover: var(--color-1);
+  --popover-foreground: var(--color-16);
+
+  /* 边框 */
+  --border: var(--gray-3);
+  --input: var(--gray-3);
+
+  /* 破坏性操作 */
+  --destructive: var(--red-6);
+  --destructive-foreground: var(--red-0);
+
+  /* 成功 */
+  --success: var(--green-6);
+  --success-foreground: var(--green-0);
+
+  /* 警告 */
+  --warning: var(--yellow-6);
+  --warning-foreground: var(--yellow-9);
+
+  /* 信息 */
+  --info: var(--blue-6);
+  --info-foreground: var(--blue-0);
+
+  /* 圆角 */
+  --radius: var(--radius-3);
+
+  /* 阴影 */
+  --shadow: var(--shadow-2);
+  --shadow-lg: var(--shadow-4);
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--color-16);
+    --foreground: var(--color-1);
+
+    --card: var(--color-15);
+    --card-foreground: var(--color-1);
+
+    --popover: var(--color-15);
+    --popover-foreground: var(--color-1);
+
+    --border: var(--gray-8);
+    --input: var(--gray-8);
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --font-sans: var(--font-neo-grotesque);
+  --font-mono: var(--font-monospace-code);
+
+  --radius: var(--radius-3);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* Smooth scrolling */
