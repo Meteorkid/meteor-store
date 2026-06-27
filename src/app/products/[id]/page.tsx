@@ -102,6 +102,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 period={plan.period}
                 features={plan.features}
                 isPopular={index === 1}
+                productId={product.id}
+                productName={product.name}
               />
             ))}
           </div>
