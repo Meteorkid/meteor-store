@@ -11,6 +11,7 @@ import FAQSection from '@/components/FAQSection';
 import PricingSection from '@/components/PricingSection';
 import FeaturesComparison from '@/components/FeaturesComparison';
 import CTASection from '@/components/CTASection';
+import BackToTop from '@/components/BackToTop';
 
 export default function Home() {
   return (
@@ -51,6 +52,9 @@ export default function Home() {
       <CTASection />
 
       <EnhancedFooter />
+
+      {/* Back to top button */}
+      <BackToTop />
     </div>
   );
 }
