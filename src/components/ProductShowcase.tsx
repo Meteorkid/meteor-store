@@ -1,18 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import ProductCard from './ProductCard';
+import AdvancedProductCard from './AdvancedProductCard';
 import { products } from '@/data/products';
 
 const categories = ['全部', '爬虫', 'AI', '设计', '工具', '游戏'];
 
 export default function ProductShowcase() {
   const [activeCategory, setActiveCategory] = useState('全部');
-  
-  const filteredProducts = activeCategory === '全部' 
-    ? products 
+
+  const filteredProducts = activeCategory === '全部'
+    ? products
     : products.filter(p => p.category === activeCategory);
-  
+
   return (
     <section id="products" className="py-20">
       <div className="container mx-auto px-4">
@@ -25,7 +25,7 @@ export default function ProductShowcase() {
             选择适合你的工具
           </p>
         </div>
-        
+
         {/* Category filter */}
         <div className="flex flex-wrap justify-center gap-2 mb-12 scroll-animate" style={{ animationDelay: '0.1s' }}>
           {categories.map((category) => (
@@ -42,20 +42,20 @@ export default function ProductShowcase() {
             </button>
           ))}
         </div>
-        
+
         {/* Products grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map((product, index) => (
-            <div 
-              key={product.id} 
+            <div
+              key={product.id}
               className="scroll-animate"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <ProductCard product={product} />
+              <AdvancedProductCard product={product} />
             </div>
           ))}
         </div>
-        
+
         {/* View all button */}
         <div className="text-center mt-12 scroll-animate" style={{ animationDelay: '0.5s' }}>
           <a
