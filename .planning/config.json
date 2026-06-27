@@ -1,0 +1,31 @@
+{
+  "project": {
+    "name": "Meteor Store",
+    "type": "frontend",
+    "framework": "nextjs",
+    "version": "16.0.0"
+  },
+  "workflow": {
+    "autoInit": true,
+    "phaseExecution": "sequential",
+    "reviewRequired": true,
+    "commitAfterPhase": true
+  },
+  "design": {
+    "style": "modern-minimal",
+    "colorScheme": "purple-gradient",
+    "animations": true,
+    "responsive": true
+  },
+  "quality": {
+    "typescript": true,
+    "eslint": true,
+    "prettier": true,
+    "testing": "jest"
+  },
+  "deployment": {
+    "platform": "vercel",
+    "domain": "imagentx.top",
+    "autoDeploy": true
+  }
+}
