@@ -11,6 +11,7 @@ import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
 import PricingSection from '@/components/PricingSection';
 import FeaturesComparison from '@/components/FeaturesComparison';
+import CTABanner from '@/components/CTABanner';
 import CTASection from '@/components/CTASection';
 import BackToTop from '@/components/BackToTop';
 
@@ -51,6 +52,9 @@ export default function Home() {
 
       {/* FAQ Section */}
       <FAQSection />
+
+      {/* CTA Banner */}
+      <CTABanner />
 
       {/* CTA Section */}
       <CTASection />
