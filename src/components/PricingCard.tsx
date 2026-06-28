@@ -11,6 +11,8 @@ interface PricingCardProps {
   isPopular?: boolean;
   productId?: string;
   productName?: string;
+  /** 提供 href 时点击跳转到产品页，不弹支付窗口 */
+  href?: string;
 }
 
 export default function PricingCard({
@@ -21,17 +23,22 @@ export default function PricingCard({
   isPopular,
   productId,
   productName,
+  href,
 }: PricingCardProps) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const handlePurchase = () => {
     if (price === 0) {
-      // Free tier - redirect to GitHub
       window.open('https://github.com/Meteorkid', '_blank');
       return;
     }
 
-    // Show payment modal
+    // 有 href 时跳转到产品页
+    if (href) {
+      window.location.href = href;
+      return;
+    }
+
     setShowPaymentModal(true);
   };
 
