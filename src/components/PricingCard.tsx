@@ -36,9 +36,10 @@ export default function PricingCard({
       return;
     }
 
-    // 有 href 时跳转到产品页
+    // 有 href 时跳转到产品页，年付状态通过 URL 参数传递
     if (href) {
-      window.location.href = href;
+      const url = isAnnual ? `${href}?annual=true` : href;
+      window.location.href = url;
       return;
     }
 

@@ -7,6 +7,7 @@ import { products } from '@/data/products';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ annual?: string }>;
 }
 
 export async function generateStaticParams() {
@@ -31,8 +32,10 @@ export async function generateMetadata({ params }: ProductPageProps) {
   };
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({ params, searchParams }: ProductPageProps) {
   const { id } = await params;
+  const { annual } = await searchParams;
+  const isAnnual = annual === 'true';
   const product = products.find((p) => p.id === id);
 
   if (!product) {
@@ -98,12 +101,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <PricingCard
                 key={plan.name}
                 name={plan.name}
-                price={plan.price}
-                period={plan.period}
+                price={
+                  isAnnual && plan.period === '月'
+                    ? Math.floor(plan.price * 0.8)
+                    : plan.price
+                }
+                period={
+                  isAnnual && plan.period === '月'
+                    ? '月 (年付)'
+                    : plan.period
+                }
                 features={plan.features}
                 isPopular={index === 1}
                 productId={product.id}
                 productName={product.name}
+                isAnnual={isAnnual && plan.period === '月'}
               />
             ))}
           </div>

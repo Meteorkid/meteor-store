@@ -91,14 +91,22 @@ export default function PricingSection() {
             >
               <PricingCard
                 name={plan.name}
-                price={isAnnual ? Math.floor(plan.basePrice * ANNUAL_DISCOUNT) : plan.basePrice}
-                period={isAnnual ? '月 (年付)' : plan.period}
+                price={
+                  isAnnual && plan.period === '月'
+                    ? Math.floor(plan.basePrice * ANNUAL_DISCOUNT)
+                    : plan.basePrice
+                }
+                period={
+                  isAnnual && plan.period === '月'
+                    ? '月 (年付)'
+                    : plan.period
+                }
                 features={plan.features}
                 isPopular={plan.isPopular}
                 productName={plan.productName}
                 productId={plan.productId}
                 href={plan.href}
-                isAnnual={isAnnual}
+                isAnnual={isAnnual && plan.period === '月'}
               />
             </div>
           ))}
