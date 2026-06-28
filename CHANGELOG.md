@@ -7,6 +7,34 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-06-28
+
+### Fixed
+
+- **mkdirSync 执行顺序**：数据库目录创建移到 SQLite 构造之前，修复首次运行崩溃
+- **createdAt 默认值**：从字面量字符串 `'now'` 改为创建订单时显式写入 ISO 时间戳
+- **年付折扣仅显示不扣款**：新增 `isAnnual` 参数透传到 API，服务端实际计算折扣价
+- **微信支付无 DB 记录**：改为先调用 API 服务端建订单，再打开支付弹窗
+- **支付宝回调 TOCTOU 竞态**：条件 UPDATE `AND status='pending'` + 检查 `changes > 0`，防止重复发邮件
+- **邮件 HTML 注入**：新增 `escapeHtml()` 转义所有动态内容
+- **ESLint 6 errors → 0**：修复 unused vars、unescaped entities、empty interface、no-html-link-for-pages 等
+
+### Changed
+
+- **年付折扣常量化**：提取 `ANNUAL_DISCOUNT = 0.8`，PricingSection 和 API 路由共享同一常量
+- **消除冗余查找**：API 路由直接用 `product.pricing.find()` 替代 `findPrice()` 二次查找
+- **PricingSection 使用 findProduct**：从直接 import products 数组改为使用共享工具函数
+
+### Added
+
+- **外围页面**：`/docs`（产品文档入口）、`/privacy`（隐私政策）、`/terms`（服务条款）、`/contact`（联系我们）、`/blog`（博客占位）
+- **测试框架**：Vitest 安装配置，新增 `test` 脚本
+- **单元测试**：17 个测试覆盖 products.ts（findProduct/findPrice）和 escapeHtml 函数
+
+### Removed
+
+- `src/app/checkout/` 空目录
+
 ## [0.5.0] - 2026-06-28
 
 ### Added
