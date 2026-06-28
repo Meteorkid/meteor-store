@@ -15,7 +15,8 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
 
   let order = null;
   if (orderId) {
-    order = await db.select().from(orders).where(eq(orders.id, orderId)).get();
+    const [result] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+    order = result || null;
   }
 
   const product = order ? findProduct(order.productId) : null;

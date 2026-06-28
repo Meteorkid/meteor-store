@@ -41,9 +41,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 计算实际价格：年付时应用折扣
+    // 年付折扣仅适用于月付方案，买断和年付方案不适用
+    const isMonthly = tier.period === '月';
+    const validAnnual = isAnnual && isMonthly;
+
+    // 计算实际价格：年付月付方案时应用折扣 × 12 个月
     const basePrice = tier.price;
-    const priceCNY = isAnnual ? Math.floor(basePrice * ANNUAL_DISCOUNT) : basePrice;
+    const priceCNY = validAnnual
+      ? Math.floor(basePrice * ANNUAL_DISCOUNT * 12)
+      : basePrice;
+    const billingPeriod = validAnnual ? 'annual' : 'monthly';
     const now = new Date().toISOString();
 
     // 免费产品直接创建订单并返回成功
@@ -58,6 +65,7 @@ export async function POST(request: NextRequest) {
         paymentMethod: 'free',
         status: 'paid',
         paidAt: now,
+        billingPeriod: 'monthly',
         createdAt: now,
       });
       return NextResponse.json({
@@ -79,6 +87,7 @@ export async function POST(request: NextRequest) {
       email,
       amountCny: priceCNY,
       paymentMethod,
+      billingPeriod,
       createdAt: now,
     });
 
@@ -118,7 +127,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const order = await db.select().from(orders).where(eq(orders.id, orderId)).get();
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
 
   if (!order) {
     return NextResponse.json(
@@ -133,6 +142,7 @@ export async function GET(request: NextRequest) {
     productId: order.productId,
     planName: order.planName,
     amount: order.amountCny,
+    billingPeriod: order.billingPeriod,
     paidAt: order.paidAt,
   });
 }

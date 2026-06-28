@@ -28,16 +28,21 @@ export async function POST(request: NextRequest) {
       out_trade_no,
       total_amount,
       app_id,
+      seller_id,
     } = params;
 
-    // 2. 业务校验：核对 app_id
+    // 2. 业务校验：核对 app_id 和 seller_id
     if (app_id !== process.env.ALIPAY_APP_ID) {
       console.error('Alipay notify: app_id mismatch', app_id);
       return new NextResponse('fail', { status: 400 });
     }
+    if (process.env.ALIPAY_SELLER_ID && seller_id !== process.env.ALIPAY_SELLER_ID) {
+      console.error('Alipay notify: seller_id mismatch', seller_id);
+      return new NextResponse('fail', { status: 400 });
+    }
 
     // 3. 查询订单
-    const order = await db.select().from(orders).where(eq(orders.id, out_trade_no)).get();
+    const [order] = await db.select().from(orders).where(eq(orders.id, out_trade_no)).limit(1);
 
     if (!order) {
       console.error('Alipay notify: order not found', out_trade_no);
@@ -72,7 +77,9 @@ export async function POST(request: NextRequest) {
         ));
 
       // 只有实际更新了记录才发邮件，避免重复发送
-      if (updateResult.changes > 0) {
+      // Neon HTTP 驱动返回 rowCount 属性
+      const rowCount = (updateResult as { rowCount: number }).rowCount ?? 0;
+      if (rowCount > 0) {
         console.log(`Payment success: ${out_trade_no}, amount: ${total_amount}`);
 
         sendOrderConfirmation({

@@ -67,7 +67,7 @@ export default function PricingCard({
             <span className="text-3xl font-bold text-success">免费</span>
           ) : (
             <>
-              <span className="text-3xl font-bold text-card-foreground">${price}</span>
+              <span className="text-3xl font-bold text-card-foreground">¥{price}</span>
               {period && <span className="text-muted-foreground">/{period}</span>}
             </>
           )}

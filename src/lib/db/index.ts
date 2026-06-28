@@ -1,10 +1,31 @@
-import { mkdirSync } from 'fs';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
 import { orders } from './schema';
 
-// 确保 data 目录存在，必须在 Database 构造之前
-mkdirSync('data', { recursive: true });
+// 延迟初始化，避免 build 时因缺少 DATABASE_URL 而崩溃
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _db: any = null;
 
-const sqlite = new Database('data/meteor-store.db');
-export const db = drizzle(sqlite, { schema: { orders } });
+function getDb() {
+  if (!_db) {
+    const url = process.env.DATABASE_URL;
+    if (!url) {
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+    const sql = neon(url);
+    _db = drizzle(sql, { schema: { orders } });
+  }
+  return _db;
+}
+
+// 导出代理对象，所有调用会延迟到实际使用时
+export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+  get(_target, prop) {
+    const instance = getDb();
+    const value = (instance as Record<string | symbol, unknown>)[prop];
+    if (typeof value === 'function') {
+      return value.bind(instance);
+    }
+    return value;
+  },
+});

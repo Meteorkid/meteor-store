@@ -32,7 +32,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <span className="text-success font-semibold">免费</span>
           ) : (
             <>
-              <span className="text-2xl font-bold text-card-foreground">${minPrice}</span>
+              <span className="text-2xl font-bold text-card-foreground">¥{minPrice}</span>
               <span className="text-muted-foreground text-sm">起</span>
             </>
           )}

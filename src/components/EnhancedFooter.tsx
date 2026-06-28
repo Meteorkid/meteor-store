@@ -11,21 +11,16 @@ const productLinks = [
 const resourceLinks = [
   { name: '文档', href: '/docs' },
   { name: '博客', href: '/blog' },
-  { name: '更新日志', href: '/changelog' },
-  { name: 'API 参考', href: '/api' },
 ];
 
 const companyLinks = [
-  { name: '关于我们', href: '/about' },
   { name: '联系我们', href: '/contact' },
-  { name: '合作伙伴', href: '/partners' },
-  { name: '工作机会', href: '/careers' },
+  { name: '反馈建议', href: '/feedback' },
 ];
 
 const legalLinks = [
   { name: '隐私政策', href: '/privacy' },
   { name: '服务条款', href: '/terms' },
-  { name: 'Cookie 政策', href: '/cookies' },
 ];
 
 export default function EnhancedFooter() {

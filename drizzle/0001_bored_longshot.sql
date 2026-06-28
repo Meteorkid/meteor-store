@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "billing_period" text DEFAULT 'monthly' NOT NULL;

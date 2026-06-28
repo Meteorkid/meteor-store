@@ -37,8 +37,9 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
     const planName = escapeHtml(data.planName);
     const orderId = escapeHtml(data.orderId);
 
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
     const { error } = await getResend().emails.send({
-      from: 'Meteor Store <onboarding@resend.dev>',
+      from: `Meteor Store <${fromEmail}>`,
       to: data.email,
       subject: `订单确认 - ${productName} ${planName}`,
       html: `
