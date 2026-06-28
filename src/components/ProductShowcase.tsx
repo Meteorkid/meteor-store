@@ -4,7 +4,13 @@ import { useState } from 'react';
 import AdvancedProductCard from './AdvancedProductCard';
 import { products } from '@/data/products';
 
-const categories = ['全部', '爬虫', 'AI', '设计', '工具', '游戏'];
+const categories = [
+  { label: '全部', value: '全部' },
+  { label: '爬虫', value: 'developer' },
+  { label: 'AI', value: 'ai' },
+  { label: '设计', value: 'design' },
+  { label: '工具', value: 'utility' },
+];
 
 export default function ProductShowcase() {
   const [activeCategory, setActiveCategory] = useState('全部');
@@ -17,7 +23,7 @@ export default function ProductShowcase() {
     <section id="products" className="py-20">
       <div className="container mx-auto px-4">
         {/* Section header */}
-        <div className="text-center mb-12 scroll-animate">
+        <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             精选产品
           </h2>
@@ -27,18 +33,18 @@ export default function ProductShowcase() {
         </div>
 
         {/* Category filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12 scroll-animate" style={{ animationDelay: '0.1s' }}>
-          {categories.map((category) => (
+        <div className="flex flex-wrap justify-center gap-2 mb-12">
+          {categories.map((cat) => (
             <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
+              key={cat.value}
+              onClick={() => setActiveCategory(cat.value)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeCategory === category
+                activeCategory === cat.value
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
               }`}
             >
-              {category}
+              {cat.label}
             </button>
           ))}
         </div>
@@ -48,7 +54,6 @@ export default function ProductShowcase() {
           {filteredProducts.map((product, index) => (
             <div
               key={product.id}
-              className="scroll-animate"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <AdvancedProductCard product={product} />
@@ -57,7 +62,7 @@ export default function ProductShowcase() {
         </div>
 
         {/* View all button */}
-        <div className="text-center mt-12 scroll-animate" style={{ animationDelay: '0.5s' }}>
+        <div className="text-center mt-12">
           <a
             href="/products"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"

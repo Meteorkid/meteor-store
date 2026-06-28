@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface WechatPayModalProps {
   isOpen: boolean;
@@ -20,6 +20,13 @@ export default function WechatPayModal({
   orderId,
 }: WechatPayModalProps) {
   const [step, setStep] = useState<'qrcode' | 'confirm'>('qrcode');
+
+  // 每次 modal 打开时重置到二维码步骤
+  useEffect(() => {
+    if (isOpen) {
+      setStep('qrcode');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

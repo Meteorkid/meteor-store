@@ -13,39 +13,43 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
-  
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !hasAnimated.current) {
           hasAnimated.current = true;
-          
+
           const duration = 2000;
           const steps = 60;
           const increment = value / steps;
           let current = 0;
-          
-          const timer = setInterval(() => {
+
+          timerRef.current = setInterval(() => {
             current += increment;
             if (current >= value) {
               setCount(value);
-              clearInterval(timer);
+              clearInterval(timerRef.current!);
             } else {
               setCount(current);
             }
           }, duration / steps);
-          
-          return () => clearInterval(timer);
         }
       },
       { threshold: 0.5 }
     );
-    
+
     if (ref.current) {
       observer.observe(ref.current);
     }
-    
-    return () => observer.disconnect();
+
+    return () => {
+      observer.disconnect();
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, [value]);
   
   return (

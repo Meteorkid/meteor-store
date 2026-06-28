@@ -1,32 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import GlowButton from './GlowButton';
 
 export default function HeroSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    // Add parallax effect on scroll
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const elements = container.querySelectorAll('.parallax');
-      
-      elements.forEach((el) => {
-        const speed = parseFloat((el as HTMLElement).dataset.speed || '0.5');
-        (el as HTMLElement).style.transform = `translateY(${scrollY * speed}px)`;
-      });
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
   return (
-    <section ref={containerRef} className="relative overflow-hidden min-h-screen flex items-center">
+    <section className="relative overflow-hidden min-h-screen flex items-center">
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/20" />
       

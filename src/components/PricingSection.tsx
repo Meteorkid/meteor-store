@@ -8,6 +8,8 @@ const pricingPlans = [
     name: 'Basic',
     price: 29,
     period: '月',
+    productName: 'Meteor Store',
+    productId: 'plan_basic',
     features: [
       '基础功能',
       '1 个项目',
@@ -20,6 +22,8 @@ const pricingPlans = [
     name: 'Pro',
     price: 99,
     period: '月',
+    productName: 'Meteor Store',
+    productId: 'plan_pro',
     features: [
       '所有 Basic 功能',
       '无限项目',
@@ -34,6 +38,8 @@ const pricingPlans = [
     name: 'Enterprise',
     price: 299,
     period: '月',
+    productName: 'Meteor Store',
+    productId: 'plan_enterprise',
     features: [
       '所有 Pro 功能',
       '专属客户经理',
@@ -99,6 +105,8 @@ export default function PricingSection() {
                 period={plan.period}
                 features={plan.features}
                 isPopular={plan.isPopular}
+                productName={plan.productName}
+                productId={plan.productId}
               />
             </div>
           ))}
