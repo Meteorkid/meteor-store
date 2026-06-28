@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { verifyAlipayNotify } from '@/lib/alipay';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
       out_trade_no,
       total_amount,
       app_id,
-      seller_id,
     } = params;
 
     // 2. 业务校验：核对 app_id
@@ -60,25 +59,32 @@ export async function POST(request: NextRequest) {
 
     // 6. 只处理成功的交易
     if (trade_status === 'TRADE_SUCCESS' || trade_status === 'TRADE_FINISHED') {
-      // 更新订单状态
-      await db.update(orders)
+      // 原子更新：仅当 status 仍为 pending 时才更新，防止 TOCTOU 竞态
+      const updateResult = await db.update(orders)
         .set({
           status: 'paid',
           alipayTradeNo: params.trade_no || null,
           paidAt: new Date().toISOString(),
         })
-        .where(eq(orders.id, out_trade_no));
+        .where(and(
+          eq(orders.id, out_trade_no),
+          eq(orders.status, 'pending'),
+        ));
 
-      console.log(`Payment success: ${out_trade_no}, amount: ${total_amount}`);
+      // 只有实际更新了记录才发邮件，避免重复发送
+      if (updateResult.changes > 0) {
+        console.log(`Payment success: ${out_trade_no}, amount: ${total_amount}`);
 
-      // 发送确认邮件（异步，不阻塞回调响应）
-      sendOrderConfirmation({
-        email: order.email,
-        orderId: order.id,
-        productId: order.productId,
-        planName: order.planName,
-        amount: order.amountCny,
-      }).catch((err) => console.error('Failed to send confirmation email:', err));
+        sendOrderConfirmation({
+          email: order.email,
+          orderId: order.id,
+          productId: order.productId,
+          planName: order.planName,
+          amount: order.amountCny,
+        }).catch((err) => console.error('Failed to send confirmation email:', err));
+      } else {
+        console.log('Alipay notify: order already processed (concurrent)', out_trade_no);
+      }
     }
 
     return new NextResponse('success', { status: 200 });

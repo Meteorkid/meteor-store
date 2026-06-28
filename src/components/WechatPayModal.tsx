@@ -22,11 +22,13 @@ export default function WechatPayModal({
   const [step, setStep] = useState<'qrcode' | 'confirm'>('qrcode');
 
   // 每次 modal 打开时重置到二维码步骤（useLayoutEffect 在绘制前同步执行，避免一帧闪烁）
+  /* eslint-disable react-hooks/set-state-in-effect -- intentionally reset state on open */
   useLayoutEffect(() => {
     if (isOpen) {
       setStep('qrcode');
     }
   }, [isOpen]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!isOpen) return null;
 

@@ -130,7 +130,7 @@ export async function createAlipayMobileOrder(params: {
 
 // 验证回调通知
 export function verifyAlipayNotify(params: Record<string, string>): boolean {
-  const { sign, sign_type, ...rest } = params;
+  const { sign, ...rest } = params;
   return verify(rest, sign || '');
 }
 

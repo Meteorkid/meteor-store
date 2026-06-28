@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import PricingCard from './PricingCard';
-import { products } from '@/data/products';
+import { findProduct } from '@/lib/products';
+
+// 年付折扣率，与 API 路由保持一致
+const ANNUAL_DISCOUNT = 0.8;
 
 // 从产品目录选取 3 个推荐产品及其中间档方案
 const featuredProducts = [
@@ -13,13 +16,13 @@ const featuredProducts = [
 
 const plans = featuredProducts
   .map(({ productId, tierIndex }) => {
-    const product = products.find((p) => p.id === productId);
+    const product = findProduct(productId);
     if (!product) return null;
     const tier = product.pricing[tierIndex];
     if (!tier) return null;
     return {
       name: tier.name,
-      price: tier.price,
+      basePrice: tier.price,
       period: tier.period || '月',
       productName: product.name,
       productId: product.id,
@@ -30,7 +33,7 @@ const plans = featuredProducts
   })
   .filter(Boolean) as Array<{
   name: string;
-  price: number;
+  basePrice: number;
   period: string;
   productName: string;
   productId: string;
@@ -73,7 +76,7 @@ export default function PricingSection() {
             </button>
             <span className={`text-sm ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
               年付
-              <span className="ml-1 text-xs text-success">省 20%</span>
+              <span className="ml-1 text-xs text-success">省 {Math.round((1 - ANNUAL_DISCOUNT) * 100)}%</span>
             </span>
           </div>
         </div>
@@ -88,13 +91,14 @@ export default function PricingSection() {
             >
               <PricingCard
                 name={plan.name}
-                price={isAnnual ? Math.floor(plan.price * 0.8) : plan.price}
+                price={isAnnual ? Math.floor(plan.basePrice * ANNUAL_DISCOUNT) : plan.basePrice}
                 period={isAnnual ? '月 (年付)' : plan.period}
                 features={plan.features}
                 isPopular={plan.isPopular}
                 productName={plan.productName}
                 productId={plan.productId}
                 href={plan.href}
+                isAnnual={isAnnual}
               />
             </div>
           ))}

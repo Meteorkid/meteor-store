@@ -1,10 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
 
 export default function PageTransition({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {

@@ -12,6 +12,16 @@ function getResend() {
   return resendClient;
 }
 
+/** 转义 HTML 特殊字符，防止注入 */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 interface OrderEmailData {
   email: string;
   orderId: string;
@@ -21,39 +31,35 @@ interface OrderEmailData {
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
-  const { email, orderId, productId, planName, amount } = data;
+  try {
+    const product = findProduct(data.productId);
+    const productName = escapeHtml(product?.name || data.productId);
+    const planName = escapeHtml(data.planName);
+    const orderId = escapeHtml(data.orderId);
 
-  if (!process.env.RESEND_API_KEY) {
-    console.log('RESEND_API_KEY not configured, skipping email');
-    return;
-  }
-
-  const product = findProduct(productId);
-  const productName = product?.name || productId;
-
-  const resend = getResend();
-
-  await resend.emails.send({
-    from: 'Meteor Store <noreply@imagentx.top>',
-    to: email,
-    subject: `订单确认 - ${productName} ${planName}`,
-    html: `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #7c3aed;">🎉 支付成功！</h1>
-        <p>感谢你购买 <strong>${productName}</strong> 的 <strong>${planName}</strong> 方案。</p>
-
-        <div style="background: #f3f4f6; border-radius: 8px; padding: 16px; margin: 20px 0;">
-          <p style="margin: 4px 0;"><strong>订单号：</strong>${orderId}</p>
-          <p style="margin: 4px 0;"><strong>产品：</strong>${productName} - ${planName}</p>
-          <p style="margin: 4px 0;"><strong>金额：</strong>¥${amount}</p>
+    const { error } = await getResend().emails.send({
+      from: 'Meteor Store <onboarding@resend.dev>',
+      to: data.email,
+      subject: `订单确认 - ${productName} ${planName}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #333;">🎉 支付成功！</h1>
+          <p>感谢您购买 <strong>${productName}</strong> 的 <strong>${planName}</strong> 方案。</p>
+          <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
+            <p><strong>订单号：</strong>${orderId}</p>
+            <p><strong>产品：</strong>${productName}</p>
+            <p><strong>方案：</strong>${planName}</p>
+            <p><strong>支付金额：</strong>¥${data.amount}</p>
+          </div>
+          <p style="color: #666; font-size: 14px;">如有问题，请回复此邮件联系我们。</p>
         </div>
+      `,
+    });
 
-        <p>如有任何问题，请回复此邮件联系我们。</p>
-
-        <p style="color: #6b7280; font-size: 12px; margin-top: 40px;">
-          Meteor Store · agentx.top
-        </p>
-      </div>
-    `,
-  });
+    if (error) {
+      console.error('Failed to send order confirmation:', error);
+    }
+  } catch (err) {
+    console.error('sendOrderConfirmation error:', err);
+  }
 }

@@ -11,6 +11,7 @@ interface PaymentModalProps {
   planName: string;
   price: number;
   period?: string;
+  isAnnual?: boolean;
 }
 
 export default function PaymentModal({
@@ -21,6 +22,7 @@ export default function PaymentModal({
   planName,
   price,
   period,
+  isAnnual,
 }: PaymentModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<'alipay' | 'wechat'>('alipay');
   const [email, setEmail] = useState('');
@@ -50,6 +52,7 @@ export default function PaymentModal({
           paymentMethod: 'alipay',
           email,
           isMobile,
+          isAnnual,
         }),
       });
 
@@ -67,15 +70,40 @@ export default function PaymentModal({
     }
   };
 
-  const handleWechatPayment = () => {
+  const handleWechatPayment = async () => {
     if (!email) {
       alert('请输入邮箱地址');
       return;
     }
 
-    const newOrderId = `MS${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-    setOrderId(newOrderId);
-    setShowWechatModal(true);
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productName: productId,
+          planName,
+          paymentMethod: 'wechat',
+          email,
+          isAnnual,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.orderId) {
+        setOrderId(data.orderId);
+        setShowWechatModal(true);
+      } else {
+        alert(`订单创建失败: ${data.error}`);
+      }
+    } catch {
+      alert('网络错误，请重试');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {

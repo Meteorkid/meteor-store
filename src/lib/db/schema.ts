@@ -10,5 +10,5 @@ export const orders = sqliteTable('orders', {
   status: text('status').default('pending').notNull(), // pending | paid | failed | refunded
   alipayTradeNo: text('alipay_trade_no'),              // 支付宝交易号
   paidAt: text('paid_at'),                             // ISO 时间
-  createdAt: text('created_at').default('now').notNull(),
+  createdAt: text('created_at').notNull(),
 });

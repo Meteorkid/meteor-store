@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import AdvancedProductCard from './AdvancedProductCard';
 import { products } from '@/data/products';
 
@@ -51,7 +52,7 @@ export default function ProductShowcase() {
 
         {/* Products grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map((product, index) => (
+          {filteredProducts.map((product) => (
             <div key={product.id}>
               <AdvancedProductCard product={product} />
             </div>
@@ -60,7 +61,7 @@ export default function ProductShowcase() {
 
         {/* View all button */}
         <div className="text-center mt-12">
-          <a
+          <Link
             href="/products"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
           >
@@ -68,7 +69,7 @@ export default function ProductShowcase() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
-          </a>
+          </Link>
         </div>
       </div>
     </section>

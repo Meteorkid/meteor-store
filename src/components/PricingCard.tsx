@@ -13,6 +13,8 @@ interface PricingCardProps {
   productName?: string;
   /** 提供 href 时点击跳转到产品页，不弹支付窗口 */
   href?: string;
+  /** 是否年付（用于传递给支付接口） */
+  isAnnual?: boolean;
 }
 
 export default function PricingCard({
@@ -24,6 +26,7 @@ export default function PricingCard({
   productId,
   productName,
   href,
+  isAnnual,
 }: PricingCardProps) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
@@ -107,6 +110,7 @@ export default function PricingCard({
         planName={name}
         price={price}
         period={period}
+        isAnnual={isAnnual}
       />
     </>
   );

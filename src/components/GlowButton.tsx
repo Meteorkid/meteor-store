@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- polymorphic component needs any for prop spread */
 'use client';
 
 import { ButtonHTMLAttributes, AnchorHTMLAttributes, forwardRef } from 'react';

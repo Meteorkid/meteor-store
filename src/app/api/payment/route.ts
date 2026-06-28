@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { createAlipayOrder, createAlipayMobileOrder } from '@/lib/alipay';
-import { findProduct, findPrice } from '@/lib/products';
+import { findProduct } from '@/lib/products';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
+
+// 年付折扣率，与 PricingSection 保持一致
+const ANNUAL_DISCOUNT = 0.8;
 
 // 创建支付订单
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { productName, planName, paymentMethod, email, isMobile } = body;
+    const { productName, planName, paymentMethod, email, isMobile, isAnnual } = body;
 
     // 验证参数
     if (!productName || !planName || !paymentMethod || !email) {
@@ -19,7 +22,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 从产品目录查找价格（productName 作为产品 ID 使用）
+    // 从产品目录查找（单次查找，避免冗余）
     const product = findProduct(productName);
     if (!product) {
       return NextResponse.json(
@@ -28,13 +31,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const priceCNY = findPrice(productName, planName);
-    if (priceCNY === undefined) {
+    const tier = product.pricing.find(
+      (t) => t.name.toLowerCase() === planName.toLowerCase()
+    );
+    if (!tier) {
       return NextResponse.json(
         { error: '方案不存在' },
         { status: 400 }
       );
     }
+
+    // 计算实际价格：年付时应用折扣
+    const basePrice = tier.price;
+    const priceCNY = isAnnual ? Math.floor(basePrice * ANNUAL_DISCOUNT) : basePrice;
+    const now = new Date().toISOString();
 
     // 免费产品直接创建订单并返回成功
     if (priceCNY === 0) {
@@ -47,7 +57,8 @@ export async function POST(request: NextRequest) {
         amountCny: 0,
         paymentMethod: 'free',
         status: 'paid',
-        paidAt: new Date().toISOString(),
+        paidAt: now,
+        createdAt: now,
       });
       return NextResponse.json({
         success: true,
@@ -68,6 +79,7 @@ export async function POST(request: NextRequest) {
       email,
       amountCny: priceCNY,
       paymentMethod,
+      createdAt: now,
     });
 
     // 创建支付宝订单
