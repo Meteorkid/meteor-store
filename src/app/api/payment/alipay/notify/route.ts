@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       params[key] = value.toString();
     });
 
-    console.log('Alipay notify:', params);
+    console.log('Alipay notify:', { out_trade_no: params.out_trade_no, trade_status: params.trade_status });
 
     // 1. 验证签名
     const isValid = verifyAlipayNotify(params);
@@ -36,7 +36,11 @@ export async function POST(request: NextRequest) {
       console.error('Alipay notify: app_id mismatch', app_id);
       return new NextResponse('fail', { status: 400 });
     }
-    if (process.env.ALIPAY_SELLER_ID && seller_id !== process.env.ALIPAY_SELLER_ID) {
+    if (!process.env.ALIPAY_SELLER_ID) {
+      console.error('Alipay notify: ALIPAY_SELLER_ID not configured');
+      return new NextResponse('fail', { status: 500 });
+    }
+    if (seller_id !== process.env.ALIPAY_SELLER_ID) {
       console.error('Alipay notify: seller_id mismatch', seller_id);
       return new NextResponse('fail', { status: 400 });
     }

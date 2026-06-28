@@ -1,29 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { db } from '@/lib/db';
 import { feedbacks } from '@/lib/db/schema';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
-const VALID_TYPES = ['bug', 'feature', 'question', 'other'];
+const FeedbackSchema = z.object({
+  email: z.string().email().max(254).optional(),
+  type: z.enum(['bug', 'feature', 'question', 'other']),
+  content: z.string().min(1).max(5000),
+});
 
 export async function POST(request: NextRequest) {
+  // 速率限制：每 IP 每分钟最多 5 次
+  const ip = getClientIp(request);
+  const { limited } = rateLimit(`feedback:${ip}`, 5, 60_000);
+  if (limited) {
+    return NextResponse.json({ error: '请求过于频繁，请稍后再试' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
-    const { email, type, content } = body;
 
-    if (!type || !content) {
+    const parsed = FeedbackSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: '反馈类型和内容为必填项' },
+        { error: parsed.error.issues[0].message },
         { status: 400 }
       );
     }
 
-    if (!VALID_TYPES.includes(type)) {
-      return NextResponse.json(
-        { error: '无效的反馈类型' },
-        { status: 400 }
-      );
-    }
-
-    const id = `FB${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    const { email, type, content } = parsed.data;
+    const id = crypto.randomUUID();
     const now = new Date().toISOString();
 
     await db.insert(feedbacks).values({

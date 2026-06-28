@@ -1,26 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
+import { z } from 'zod';
 import { createAlipayOrder, createAlipayMobileOrder } from '@/lib/alipay';
 import { findProduct } from '@/lib/products';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 // 年付折扣率，与 PricingSection 保持一致
 const ANNUAL_DISCOUNT = 0.8;
 
+// Zod 校验 schema
+const PaymentSchema = z.object({
+  productName: z.string().min(1).max(100),
+  planName: z.string().min(1).max(100),
+  paymentMethod: z.literal('alipay'),
+  email: z.string().email().max(254),
+  isMobile: z.boolean().optional(),
+  isAnnual: z.boolean().optional(),
+});
+
 // 创建支付订单
 export async function POST(request: NextRequest) {
+  // 速率限制：每 IP 每分钟最多 10 次
+  const ip = getClientIp(request);
+  const { limited } = rateLimit(`payment:${ip}`, 10, 60_000);
+  if (limited) {
+    return NextResponse.json({ error: '请求过于频繁，请稍后再试' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
-    const { productName, planName, paymentMethod, email, isMobile, isAnnual } = body;
 
-    // 验证参数
-    if (!productName || !planName || !paymentMethod || !email) {
+    // Zod 校验
+    const parsed = PaymentSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: '缺少必要参数' },
+        { error: parsed.error.issues[0].message },
         { status: 400 }
       );
     }
+
+    const { productName, planName, email, isMobile, isAnnual } = parsed.data;
 
     // 从产品目录查找（单次查找，避免冗余）
     const product = findProduct(productName);
@@ -51,11 +72,11 @@ export async function POST(request: NextRequest) {
       ? Math.floor(basePrice * ANNUAL_DISCOUNT * 12)
       : basePrice;
     const billingPeriod = validAnnual ? 'annual' : 'monthly';
-    const now = new Date().toISOString();
 
     // 免费产品直接创建订单并返回成功
     if (priceCNY === 0) {
-      const orderId = generateOrderId();
+      const orderId = crypto.randomUUID();
+      const now = new Date().toISOString();
       await db.insert(orders).values({
         id: orderId,
         productId: productName,
@@ -76,36 +97,38 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 校验支付渠道，非法渠道不建单
-    if (paymentMethod !== 'alipay') {
+    // 先生成订单号，用于支付宝回调关联
+    const orderId = crypto.randomUUID();
+    const now = new Date().toISOString();
+
+    // 先创建支付宝订单，成功后再写库（避免孤儿 pending 订单）
+    const subject = `${product.name} - ${planName}`;
+    const body_text = `购买 ${product.name} 的 ${planName} 方案`;
+
+    let payUrl: string;
+    try {
+      payUrl = isMobile
+        ? await createAlipayMobileOrder({ orderId, amount: priceCNY, subject, body: body_text })
+        : await createAlipayOrder({ orderId, amount: priceCNY, subject, body: body_text });
+    } catch (err) {
+      console.error('Alipay SDK error:', err);
       return NextResponse.json(
-        { error: '暂仅支持支付宝支付' },
-        { status: 400 }
+        { error: '支付渠道创建失败，请稍后重试' },
+        { status: 502 }
       );
     }
 
-    // 生成订单号
-    const orderId = generateOrderId();
-
-    // 写入数据库
+    // 支付宝订单创建成功，写入数据库
     await db.insert(orders).values({
       id: orderId,
       productId: productName,
       planName,
       email,
       amountCny: priceCNY,
-      paymentMethod,
+      paymentMethod: 'alipay',
       billingPeriod,
       createdAt: now,
     });
-
-    // 创建支付宝订单
-    const subject = `${product.name} - ${planName}`;
-    const body_text = `购买 ${product.name} 的 ${planName} 方案`;
-
-    const payUrl = isMobile
-      ? await createAlipayMobileOrder({ orderId, amount: priceCNY, subject, body: body_text })
-      : await createAlipayOrder({ orderId, amount: priceCNY, subject, body: body_text });
 
     return NextResponse.json({
       success: true,
@@ -123,38 +146,43 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// 查询支付状态
+// 查询支付状态（仅返回脱敏信息）
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const orderId = searchParams.get('orderId');
+  try {
+    const { searchParams } = new URL(request.url);
+    const orderId = searchParams.get('orderId');
 
-  if (!orderId) {
+    if (!orderId) {
+      return NextResponse.json(
+        { error: '缺少订单号' },
+        { status: 400 }
+      );
+    }
+
+    const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+
+    if (!order) {
+      return NextResponse.json(
+        { error: '订单不存在' },
+        { status: 404 }
+      );
+    }
+
+    // 不返回 email 等敏感字段
+    return NextResponse.json({
+      orderId: order.id,
+      status: order.status,
+      productId: order.productId,
+      planName: order.planName,
+      amount: order.amountCny,
+      billingPeriod: order.billingPeriod,
+      paidAt: order.paidAt,
+    });
+  } catch (error) {
+    console.error('Payment query error:', error);
     return NextResponse.json(
-      { error: '缺少订单号' },
-      { status: 400 }
+      { error: '查询失败' },
+      { status: 500 }
     );
   }
-
-  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-
-  if (!order) {
-    return NextResponse.json(
-      { error: '订单不存在' },
-      { status: 404 }
-    );
-  }
-
-  return NextResponse.json({
-    orderId: order.id,
-    status: order.status,
-    productId: order.productId,
-    planName: order.planName,
-    amount: order.amountCny,
-    billingPeriod: order.billingPeriod,
-    paidAt: order.paidAt,
-  });
-}
-
-function generateOrderId(): string {
-  return `MS${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 }
