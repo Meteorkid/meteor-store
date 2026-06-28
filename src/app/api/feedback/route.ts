@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       createdAt: now,
     });
 
-    return NextResponse.json({ success: true, id });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Feedback error:', error);
     return NextResponse.json(

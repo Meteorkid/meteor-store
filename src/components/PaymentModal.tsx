@@ -1,9 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-
-// 年付折扣率，与 API 路由 / PricingSection 保持一致
-const ANNUAL_DISCOUNT = 0.8;
+import { ANNUAL_DISCOUNT } from '@/lib/constants';
 
 interface PaymentModalProps {
   isOpen: boolean;

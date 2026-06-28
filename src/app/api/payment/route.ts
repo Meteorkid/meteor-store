@@ -6,9 +6,7 @@ import { findProduct } from '@/lib/products';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
-
-// 年付折扣率，与 PricingSection 保持一致
-const ANNUAL_DISCOUNT = 0.8;
+import { ANNUAL_DISCOUNT } from '@/lib/constants';
 
 // Zod 校验 schema
 const PaymentSchema = z.object({
@@ -126,6 +124,7 @@ export async function POST(request: NextRequest) {
       email,
       amountCny: priceCNY,
       paymentMethod: 'alipay',
+      status: 'pending',
       billingPeriod,
       createdAt: now,
     });

@@ -13,8 +13,11 @@ interface SuccessPageProps {
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   const { orderId } = await searchParams;
 
+  // 校验 orderId 格式（UUID），防止注入
+  const isValidOrderId = orderId && /^[0-9a-f-]{36}$/i.test(orderId);
+
   let order = null;
-  if (orderId) {
+  if (isValidOrderId) {
     const [result] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
     order = result || null;
   }
@@ -74,7 +77,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
               <div className="text-6xl mb-6">❓</div>
               <h1 className="text-3xl font-bold text-white mb-4">未找到订单</h1>
               <p className="text-gray-400 mb-8">
-                {orderId ? `订单 ${orderId} 不存在` : '请通过支付完成后的链接访问此页面'}
+                {orderId ? '订单号格式无效' : '请通过支付完成后的链接访问此页面'}
               </p>
             </>
           )}

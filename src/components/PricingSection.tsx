@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import PricingCard from './PricingCard';
 import { findProduct } from '@/lib/products';
-
-// 年付折扣率，与 API 路由保持一致
-const ANNUAL_DISCOUNT = 0.8;
+import { ANNUAL_DISCOUNT } from '@/lib/constants';
 
 // 从产品目录选取 3 个推荐产品及其中间档方案
 const featuredProducts = [
