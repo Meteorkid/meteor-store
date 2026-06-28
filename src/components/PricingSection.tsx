@@ -105,7 +105,7 @@ export default function PricingSection() {
               <PricingCard
                 name={plan.name}
                 price={isAnnual ? Math.floor(plan.price * 0.8) : plan.price}
-                period={plan.period}
+                period={isAnnual ? '月 (年付)' : plan.period}
                 features={plan.features}
                 isPopular={plan.isPopular}
                 productName={plan.productName}

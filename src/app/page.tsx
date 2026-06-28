@@ -4,8 +4,6 @@ import HeroSection from '@/components/HeroSection';
 import ProductShowcase from '@/components/ProductShowcase';
 import ProductDemo from '@/components/ProductDemo';
 import FeaturesSection from '@/components/FeaturesSection';
-import FeaturesGrid from '@/components/FeaturesGrid';
-import FeaturesList from '@/components/FeaturesList';
 import StatsSection from '@/components/StatsSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import PartnersSection from '@/components/PartnersSection';
@@ -13,7 +11,6 @@ import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
 import PricingSection from '@/components/PricingSection';
 import FeaturesComparison from '@/components/FeaturesComparison';
-import CTABanner from '@/components/CTABanner';
 import CTASection from '@/components/CTASection';
 import BackToTop from '@/components/BackToTop';
 
@@ -38,13 +35,15 @@ export default function Home() {
       <ProductDemo />
 
       {/* Features Section */}
-      <FeaturesSection />
-
-      {/* Features Grid */}
-      <FeaturesGrid />
+      <FeaturesSection layout="grid" featureCount={6} />
 
       {/* Features List */}
-      <FeaturesList />
+      <FeaturesSection
+        layout="list"
+        title="核心优势"
+        subtitle="我们致力于提供最优质的开发者工具和 AI 应用"
+        featureCount={4}
+      />
 
       {/* Testimonials Section */}
       <TestimonialsSection />
@@ -61,11 +60,9 @@ export default function Home() {
       {/* FAQ Section */}
       <FAQSection />
 
-      {/* CTA Banner */}
-      <CTABanner />
-
-      {/* CTA Section */}
-      <CTASection />
+      {/* CTA Sections */}
+      <CTASection variant="bold" />
+      <CTASection variant="subtle" />
 
       <EnhancedFooter />
 

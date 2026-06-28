@@ -4,27 +4,32 @@ import { useState, useEffect } from 'react';
 
 export default function BackToTop() {
   const [isVisible, setIsVisible] = useState(false);
-  
+
   useEffect(() => {
+    let rafId: number | null = null;
+
     const toggleVisibility = () => {
-      if (window.scrollY > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        setIsVisible(window.scrollY > 300);
+        rafId = null;
+      });
     };
-    
-    window.addEventListener('scroll', toggleVisibility);
-    return () => window.removeEventListener('scroll', toggleVisibility);
+
+    window.addEventListener('scroll', toggleVisibility, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', toggleVisibility);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, []);
-  
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth',
     });
   };
-  
+
   return (
     <button
       onClick={scrollToTop}

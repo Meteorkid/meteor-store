@@ -1,14 +1,24 @@
 'use client';
 
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+import { ButtonHTMLAttributes, AnchorHTMLAttributes, forwardRef } from 'react';
 
-interface GlowButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+type GlowButtonBaseProps = {
   variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
-}
+};
 
-const GlowButton = forwardRef<HTMLButtonElement, GlowButtonProps>(
-  ({ className = '', variant = 'primary', size = 'md', children, ...props }, ref) => {
+type GlowButtonAsButton = GlowButtonBaseProps & {
+  renderAs?: 'button';
+} & ButtonHTMLAttributes<HTMLButtonElement>;
+
+type GlowButtonAsAnchor = GlowButtonBaseProps & {
+  renderAs: 'a';
+} & AnchorHTMLAttributes<HTMLAnchorElement>;
+
+type GlowButtonProps = GlowButtonAsButton | GlowButtonAsAnchor;
+
+const GlowButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, GlowButtonProps>(
+  ({ className = '', variant = 'primary', size = 'md', renderAs: Component = 'button', children, ...props }, ref) => {
     const variantStyles = {
       primary: 'bg-gradient-to-r from-purple-6 to-pink-6 text-white',
       secondary: 'bg-secondary text-secondary-foreground',
@@ -22,13 +32,13 @@ const GlowButton = forwardRef<HTMLButtonElement, GlowButtonProps>(
     };
 
     return (
-      <button
+      <Component
         ref={ref}
         className={`button-glow relative inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 hover:scale-105 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
-        {...props}
+        {...(props as any)}
       >
         <span className="relative z-10">{children}</span>
-      </button>
+      </Component>
     );
   }
 );
