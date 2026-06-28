@@ -1,22 +1,83 @@
 import Link from 'next/link';
+import { eq } from 'drizzle-orm';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { db } from '@/lib/db';
+import { orders } from '@/lib/db/schema';
+import { findProduct } from '@/lib/products';
 
-export default function SuccessPage() {
+interface SuccessPageProps {
+  searchParams: Promise<{ orderId?: string; tradeNo?: string }>;
+}
+
+export default async function SuccessPage({ searchParams }: SuccessPageProps) {
+  const { orderId } = await searchParams;
+
+  let order = null;
+  if (orderId) {
+    order = await db.select().from(orders).where(eq(orders.id, orderId)).get();
+  }
+
+  const product = order ? findProduct(order.productId) : null;
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
 
       <main className="container mx-auto px-4 py-20">
         <div className="max-w-md mx-auto text-center">
-          <div className="text-6xl mb-6">🎉</div>
-          <h1 className="text-3xl font-bold text-white mb-4">支付成功！</h1>
-          <p className="text-gray-400 mb-8">
-            感谢你的购买！你的订单已成功处理。
-          </p>
-          <p className="text-gray-400 mb-8">
-            我们已向你的邮箱发送了确认邮件和产品访问信息。
-          </p>
+          {order?.status === 'paid' ? (
+            <>
+              <div className="text-6xl mb-6">🎉</div>
+              <h1 className="text-3xl font-bold text-white mb-4">支付成功！</h1>
+              <p className="text-gray-400 mb-8">
+                感谢你的购买！你的订单已成功处理。
+              </p>
+
+              {/* 订单详情 */}
+              <div className="bg-white/5 rounded-lg p-4 mb-8 text-left">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-400">订单号</span>
+                  <span className="text-white font-mono">{order.id}</span>
+                </div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-400">产品</span>
+                  <span className="text-white">{product?.name || order.productId} - {order.planName}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">金额</span>
+                  <span className="text-white">¥{order.amountCny}</span>
+                </div>
+              </div>
+
+              <p className="text-gray-400 text-sm mb-8">
+                确认邮件已发送至你的邮箱，请注意查收。
+              </p>
+            </>
+          ) : order ? (
+            <>
+              <div className="text-6xl mb-6">⏳</div>
+              <h1 className="text-3xl font-bold text-white mb-4">支付处理中</h1>
+              <p className="text-gray-400 mb-8">
+                你的订单正在处理中，请稍后刷新查看状态。
+              </p>
+              <div className="bg-white/5 rounded-lg p-4 mb-8 text-left">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">订单号</span>
+                  <span className="text-white font-mono">{order.id}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-6xl mb-6">❓</div>
+              <h1 className="text-3xl font-bold text-white mb-4">未找到订单</h1>
+              <p className="text-gray-400 mb-8">
+                {orderId ? `订单 ${orderId} 不存在` : '请通过支付完成后的链接访问此页面'}
+              </p>
+            </>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/"

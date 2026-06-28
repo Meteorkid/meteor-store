@@ -6,6 +6,7 @@ import WechatPayModal from './WechatPayModal';
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
+  productId: string;
   productName: string;
   planName: string;
   price: number;
@@ -15,6 +16,7 @@ interface PaymentModalProps {
 export default function PaymentModal({
   isOpen,
   onClose,
+  productId,
   productName,
   planName,
   price,
@@ -28,9 +30,6 @@ export default function PaymentModal({
 
   if (!isOpen) return null;
 
-  // 计算人民币价格（按 1:7 汇率）
-  const priceCNY = Math.round(price * 7);
-
   const handleAlipayPayment = async () => {
     if (!email) {
       alert('请输入邮箱地址');
@@ -40,17 +39,13 @@ export default function PaymentModal({
     setLoading(true);
 
     try {
-      // 检测是否是移动端
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-      // 调用支付 API
       const response = await fetch('/api/payment', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productName,
+          productName: productId,  // 传产品 ID 而非展示名
           planName,
           paymentMethod: 'alipay',
           email,
@@ -61,12 +56,11 @@ export default function PaymentModal({
       const data = await response.json();
 
       if (data.success && data.payUrl) {
-        // 跳转到支付宝支付页面
         window.location.href = data.payUrl;
       } else {
         alert(`支付创建失败: ${data.error}`);
       }
-    } catch (error) {
+    } catch {
       alert('网络错误，请重试');
     } finally {
       setLoading(false);
@@ -79,7 +73,6 @@ export default function PaymentModal({
       return;
     }
 
-    // 生成订单号
     const newOrderId = `MS${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
     setOrderId(newOrderId);
     setShowWechatModal(true);
@@ -120,12 +113,9 @@ export default function PaymentModal({
           {/* Price Display */}
           <div className="bg-white/5 rounded-lg p-4 mb-6">
             <div className="flex items-baseline justify-center gap-1">
-              <span className="text-4xl font-bold text-white">¥{priceCNY}</span>
+              <span className="text-4xl font-bold text-white">¥{price}</span>
               {period && <span className="text-gray-400">/{period}</span>}
             </div>
-            <p className="text-center text-gray-500 text-sm mt-1">
-              原价 ${price} USD
-            </p>
           </div>
 
           {/* Payment Method Toggle */}
@@ -193,7 +183,7 @@ export default function PaymentModal({
         onClose={() => setShowWechatModal(false)}
         productName={productName}
         planName={planName}
-        priceCNY={priceCNY}
+        priceCNY={price}
         orderId={orderId}
       />
     </>

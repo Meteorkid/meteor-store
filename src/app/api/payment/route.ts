@@ -1,91 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
 import { createAlipayOrder, createAlipayMobileOrder } from '@/lib/alipay';
-
-// 人民币价格映射
-const PRICE_CNY_MAP: Record<string, number> = {
-  // OmniCrawl
-  'omnicrawl-starter': 199,
-  'omnicrawl-pro': 549,
-  'omnicrawl-enterprise': 1399,
-  // Ex-Memory
-  'ex-memory-basic': 59,
-  'ex-memory-premium': 129,
-  'ex-memory-ultimate': 269,
-  // Skeleton Anatomy
-  'skeleton-student': 129,
-  'skeleton-professional': 349,
-  'skeleton-institution': 1399,
-  // UI Design System
-  'uidesign-solo': 59,
-  'uidesign-team': 199,
-  'uidesign-enterprise': 689,
-  // Statux
-  'statux-pro': 59,
-  // XIsland
-  'xisland-pro': 79,
-  // Tollow
-  'tollow-pro': 99,
-  // XNook
-  'xnook-pro': 59,
-  // Chakra Visualizer
-  'chakra-premium': 35,
-};
-
-// 产品名称映射
-const PRODUCT_NAME_MAP: Record<string, string> = {
-  'omnicrawl': 'OmniCrawl 万能爬虫框架',
-  'ex-memory': 'Ex-Memory 前任记忆智能体',
-  'skeleton-anatomy': 'Skeleton Anatomy 3D 骨骼解剖平台',
-  'ui-design-system': 'UI Design System AI Agent 设计系统',
-  'statux': 'Statux CLI 状态栏工具',
-  'xisland': 'XIsland macOS Dynamic Island',
-  'tollow': 'Tollow 智能追踪工具',
-  'xnook': 'XNook macOS 工具中心',
-  'chakra-visualizer': 'Chakra Visualizer 手势忍术特效',
-};
-
-// 生成产品 ID
-function generateProductId(productName: string, planName: string): string {
-  const mapping: Record<string, Record<string, string>> = {
-    'omnicrawl': {
-      'starter': 'omnicrawl-starter',
-      'pro': 'omnicrawl-pro',
-      'enterprise': 'omnicrawl-enterprise',
-    },
-    'ex-memory': {
-      'basic': 'ex-memory-basic',
-      'premium': 'ex-memory-premium',
-      'ultimate': 'ex-memory-ultimate',
-    },
-    'skeleton-anatomy': {
-      'student': 'skeleton-student',
-      'professional': 'skeleton-professional',
-      'institution': 'skeleton-institution',
-    },
-    'ui-design-system': {
-      'solo': 'uidesign-solo',
-      'team': 'uidesign-team',
-      'enterprise': 'uidesign-enterprise',
-    },
-    'statux': {
-      'pro': 'statux-pro',
-    },
-    'xisland': {
-      'pro': 'xisland-pro',
-    },
-    'tollow': {
-      'pro': 'tollow-pro',
-    },
-    'xnook': {
-      'pro': 'xnook-pro',
-    },
-    'chakra-visualizer': {
-      'premium': 'chakra-premium',
-    },
-  };
-
-  return mapping[productName]?.[planName.toLowerCase()] || '';
-}
+import { findProduct, findPrice } from '@/lib/products';
+import { db } from '@/lib/db';
+import { orders } from '@/lib/db/schema';
 
 // 创建支付订单
 export async function POST(request: NextRequest) {
@@ -101,44 +19,64 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 生成产品 ID
-    const productId = generateProductId(productName, planName);
-    if (!productId) {
+    // 从产品目录查找价格（productName 作为产品 ID 使用）
+    const product = findProduct(productName);
+    if (!product) {
       return NextResponse.json(
         { error: '产品不存在' },
         { status: 400 }
       );
     }
 
-    // 获取人民币价格
-    const priceCNY = PRICE_CNY_MAP[productId];
-    if (!priceCNY) {
+    const priceCNY = findPrice(productName, planName);
+    if (priceCNY === undefined) {
       return NextResponse.json(
-        { error: '价格未配置' },
+        { error: '方案不存在' },
         { status: 400 }
       );
     }
 
-    // 生成订单号
-    const orderId = `MS${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    // 免费产品直接创建订单并返回成功
+    if (priceCNY === 0) {
+      const orderId = generateOrderId();
+      await db.insert(orders).values({
+        id: orderId,
+        productId: productName,
+        planName,
+        email,
+        amountCny: 0,
+        paymentMethod: 'free',
+        status: 'paid',
+        paidAt: new Date().toISOString(),
+      });
+      return NextResponse.json({
+        success: true,
+        orderId,
+        amount: 0,
+        message: '免费产品获取成功',
+      });
+    }
 
-    // 获取产品名称
-    const productFullName = PRODUCT_NAME_MAP[productName] || productName;
+    // 生成订单号
+    const orderId = generateOrderId();
+
+    // 写入数据库
+    await db.insert(orders).values({
+      id: orderId,
+      productId: productName,
+      planName,
+      email,
+      amountCny: priceCNY,
+      paymentMethod,
+    });
 
     // 创建支付宝订单
+    const subject = `${product.name} - ${planName}`;
+    const body_text = `购买 ${product.name} 的 ${planName} 方案`;
+
     const payUrl = isMobile
-      ? await createAlipayMobileOrder({
-          orderId,
-          amount: priceCNY,
-          subject: `${productFullName} - ${planName}`,
-          body: `购买 ${productFullName} 的 ${planName} 方案`,
-        })
-      : await createAlipayOrder({
-          orderId,
-          amount: priceCNY,
-          subject: `${productFullName} - ${planName}`,
-          body: `购买 ${productFullName} 的 ${planName} 方案`,
-        });
+      ? await createAlipayMobileOrder({ orderId, amount: priceCNY, subject, body: body_text })
+      : await createAlipayOrder({ orderId, amount: priceCNY, subject, body: body_text });
 
     return NextResponse.json({
       success: true,
@@ -168,10 +106,25 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // TODO: 查询实际支付状态
+  const order = await db.select().from(orders).where(eq(orders.id, orderId)).get();
+
+  if (!order) {
+    return NextResponse.json(
+      { error: '订单不存在' },
+      { status: 404 }
+    );
+  }
+
   return NextResponse.json({
-    orderId,
-    status: 'pending',
-    message: '支付状态查询功能开发中',
+    orderId: order.id,
+    status: order.status,
+    productId: order.productId,
+    planName: order.planName,
+    amount: order.amountCny,
+    paidAt: order.paidAt,
   });
+}
+
+function generateOrderId(): string {
+  return `MS${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 }

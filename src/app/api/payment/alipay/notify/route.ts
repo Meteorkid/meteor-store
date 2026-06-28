@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
 import { verifyAlipayNotify } from '@/lib/alipay';
+import { db } from '@/lib/db';
+import { orders } from '@/lib/db/schema';
+import { sendOrderConfirmation } from '@/lib/email';
 
 // 支付宝异步通知回调
 export async function POST(request: NextRequest) {
   try {
-    // 解析表单数据
     const formData = await request.formData();
     const params: Record<string, string> = {};
     formData.forEach((value, key) => {
@@ -13,29 +16,71 @@ export async function POST(request: NextRequest) {
 
     console.log('Alipay notify:', params);
 
-    // 验证签名
+    // 1. 验证签名
     const isValid = verifyAlipayNotify(params);
     if (!isValid) {
       console.error('Invalid alipay notify signature');
       return new NextResponse('fail', { status: 400 });
     }
 
-    // 检查支付状态
-    const { trade_status, out_trade_no, total_amount } = params;
+    const {
+      trade_status,
+      out_trade_no,
+      total_amount,
+      app_id,
+      seller_id,
+    } = params;
 
-    // 只处理成功的交易
-    if (trade_status === 'TRADE_SUCCESS' || trade_status === 'TRADE_FINISHED') {
-      // TODO: 更新订单状态
-      console.log(`Payment success: ${out_trade_no}, amount: ${total_amount}`);
-
-      // 这里可以：
-      // 1. 更新数据库订单状态
-      // 2. 发送确认邮件
-      // 3. 激活用户权限
-      // 4. 记录交易日志
+    // 2. 业务校验：核对 app_id
+    if (app_id !== process.env.ALIPAY_APP_ID) {
+      console.error('Alipay notify: app_id mismatch', app_id);
+      return new NextResponse('fail', { status: 400 });
     }
 
-    // 返回 success 告诉支付宝已收到通知
+    // 3. 查询订单
+    const order = await db.select().from(orders).where(eq(orders.id, out_trade_no)).get();
+
+    if (!order) {
+      console.error('Alipay notify: order not found', out_trade_no);
+      return new NextResponse('fail', { status: 400 });
+    }
+
+    // 4. 幂等处理：已支付的订单不重复处理
+    if (order.status === 'paid') {
+      console.log('Alipay notify: order already paid', out_trade_no);
+      return new NextResponse('success', { status: 200 });
+    }
+
+    // 5. 校验金额
+    const expectedAmount = order.amountCny.toFixed(2);
+    if (total_amount !== expectedAmount) {
+      console.error('Alipay notify: amount mismatch', { expected: expectedAmount, received: total_amount });
+      return new NextResponse('fail', { status: 400 });
+    }
+
+    // 6. 只处理成功的交易
+    if (trade_status === 'TRADE_SUCCESS' || trade_status === 'TRADE_FINISHED') {
+      // 更新订单状态
+      await db.update(orders)
+        .set({
+          status: 'paid',
+          alipayTradeNo: params.trade_no || null,
+          paidAt: new Date().toISOString(),
+        })
+        .where(eq(orders.id, out_trade_no));
+
+      console.log(`Payment success: ${out_trade_no}, amount: ${total_amount}`);
+
+      // 发送确认邮件（异步，不阻塞回调响应）
+      sendOrderConfirmation({
+        email: order.email,
+        orderId: order.id,
+        productId: order.productId,
+        planName: order.planName,
+        amount: order.amountCny,
+      }).catch((err) => console.error('Failed to send confirmation email:', err));
+    }
+
     return new NextResponse('success', { status: 200 });
   } catch (error) {
     console.error('Alipay notify error:', error);
@@ -48,12 +93,10 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const out_trade_no = searchParams.get('out_trade_no');
   const trade_no = searchParams.get('trade_no');
-  const result = searchParams.get('result');
 
-  // 跳转到成功页面
   const successUrl = new URL('/success', request.url);
-  successUrl.searchParams.set('orderId', out_trade_no || '');
-  successUrl.searchParams.set('tradeNo', trade_no || '');
+  if (out_trade_no) successUrl.searchParams.set('orderId', out_trade_no);
+  if (trade_no) successUrl.searchParams.set('tradeNo', trade_no);
 
   return NextResponse.redirect(successUrl);
 }

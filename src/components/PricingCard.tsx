@@ -102,6 +102,7 @@ export default function PricingCard({
       <PaymentModal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
+        productId={productId || ''}
         productName={productName || ''}
         planName={name}
         price={price}

@@ -2,62 +2,46 @@
 
 import { useState } from 'react';
 import PricingCard from './PricingCard';
+import { products } from '@/data/products';
 
-const pricingPlans = [
-  {
-    name: 'Basic',
-    price: 29,
-    period: '月',
-    productName: 'Ex-Memory',
-    productId: 'ex-memory',
-    href: '/products/ex-memory',
-    features: [
-      '基础功能',
-      '1 个项目',
-      '社区支持',
-      '基础文档',
-    ],
-    isPopular: false,
-  },
-  {
-    name: 'Pro',
-    price: 99,
-    period: '月',
-    productName: 'OmniCrawl',
-    productId: 'omnicrawl',
-    href: '/products/omnicrawl',
-    features: [
-      '所有 Basic 功能',
-      '无限项目',
-      '优先支持',
-      '高级文档',
-      'API 访问',
-      '自定义域名',
-    ],
-    isPopular: true,
-  },
-  {
-    name: 'Enterprise',
-    price: 299,
-    period: '月',
-    productName: 'Skeleton Anatomy',
-    productId: 'skeleton-anatomy',
-    href: '/products/skeleton-anatomy',
-    features: [
-      '所有 Pro 功能',
-      '专属客户经理',
-      '定制开发',
-      'SLA 保障',
-      '私有部署',
-      '培训服务',
-    ],
-    isPopular: false,
-  },
+// 从产品目录选取 3 个推荐产品及其中间档方案
+const featuredProducts = [
+  { productId: 'omnicrawl', tierIndex: 1 },   // Pro
+  { productId: 'ex-memory', tierIndex: 1 },   // Premium
+  { productId: 'skeleton-anatomy', tierIndex: 1 }, // Professional
 ];
+
+const plans = featuredProducts
+  .map(({ productId, tierIndex }) => {
+    const product = products.find((p) => p.id === productId);
+    if (!product) return null;
+    const tier = product.pricing[tierIndex];
+    if (!tier) return null;
+    return {
+      name: tier.name,
+      price: tier.price,
+      period: tier.period || '月',
+      productName: product.name,
+      productId: product.id,
+      href: `/products/${product.id}`,
+      features: tier.features,
+      isPopular: true,
+    };
+  })
+  .filter(Boolean) as Array<{
+  name: string;
+  price: number;
+  period: string;
+  productName: string;
+  productId: string;
+  href: string;
+  features: string[];
+  isPopular: boolean;
+}>;
 
 export default function PricingSection() {
   const [isAnnual, setIsAnnual] = useState(false);
-  
+
   return (
     <section id="pricing" className="py-20">
       <div className="container mx-auto px-4">
@@ -69,7 +53,7 @@ export default function PricingSection() {
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             选择适合你的方案
           </p>
-          
+
           {/* Billing toggle */}
           <div className="flex items-center justify-center gap-4 mt-8">
             <span className={`text-sm ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
@@ -93,12 +77,12 @@ export default function PricingSection() {
             </span>
           </div>
         </div>
-        
+
         {/* Pricing cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {pricingPlans.map((plan, index) => (
-            <div 
-              key={plan.name}
+          {plans.map((plan, index) => (
+            <div
+              key={plan.productId}
               className="scroll-animate"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -115,14 +99,14 @@ export default function PricingSection() {
             </div>
           ))}
         </div>
-        
+
         {/* Enterprise CTA */}
         <div className="text-center mt-12 scroll-animate" style={{ animationDelay: '0.4s' }}>
           <p className="text-muted-foreground mb-4">
             需要更大的规模？
           </p>
           <a
-            href="/contact"
+            href="mailto:meteor@stu.gpnu.edu.cn"
             className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
           >
             联系我们获取定制方案
