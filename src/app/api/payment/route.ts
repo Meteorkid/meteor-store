@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
         paymentMethod: 'free',
         status: 'paid',
         paidAt: now,
-        billingPeriod: 'monthly',
+        billingPeriod: validAnnual ? 'annual' : 'monthly',
         createdAt: now,
       });
       return NextResponse.json({
@@ -147,6 +147,13 @@ export async function POST(request: NextRequest) {
 
 // 查询支付状态（仅返回脱敏信息）
 export async function GET(request: NextRequest) {
+  // 速率限制：每 IP 每分钟最多 20 次
+  const ip = getClientIp(request);
+  const { limited } = rateLimit(`payment-get:${ip}`, 20, 60_000);
+  if (limited) {
+    return NextResponse.json({ error: '请求过于频繁，请稍后再试' }, { status: 429 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get('orderId');

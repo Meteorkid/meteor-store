@@ -11,6 +11,7 @@ export const orders = pgTable('orders', {
   alipayTradeNo: text('alipay_trade_no'),              // 支付宝交易号
   paidAt: text('paid_at'),                             // ISO 时间
   billingPeriod: text('billing_period').default('monthly').notNull(), // monthly | annual
+  deliveryStatus: text('delivery_status').default('pending').notNull(), // pending | emailed | failed
   createdAt: text('created_at').notNull(),
 });
 

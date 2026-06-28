@@ -1,3 +1,4 @@
+import { Resend } from 'resend';
 import { findProduct } from './products';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -5,8 +6,6 @@ let resendClient: any = null;
 
 function getResend() {
   if (!resendClient) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Resend } = require('resend');
     resendClient = new Resend(process.env.RESEND_API_KEY);
   }
   return resendClient;
@@ -31,36 +30,30 @@ interface OrderEmailData {
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
-  try {
-    const product = findProduct(data.productId);
-    const productName = escapeHtml(product?.name || data.productId);
-    const planName = escapeHtml(data.planName);
-    const orderId = escapeHtml(data.orderId);
+  const product = findProduct(data.productId);
+  const productName = escapeHtml(product?.name || data.productId);
+  const planName = escapeHtml(data.planName);
+  const orderId = escapeHtml(data.orderId);
 
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-    const { error } = await getResend().emails.send({
-      from: `Meteor Store <${fromEmail}>`,
-      to: data.email,
-      subject: `订单确认 - ${productName} ${planName}`,
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">🎉 支付成功！</h1>
-          <p>感谢您购买 <strong>${productName}</strong> 的 <strong>${planName}</strong> 方案。</p>
-          <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
-            <p><strong>订单号：</strong>${orderId}</p>
-            <p><strong>产品：</strong>${productName}</p>
-            <p><strong>方案：</strong>${planName}</p>
-            <p><strong>支付金额：</strong>¥${data.amount}</p>
-          </div>
-          <p style="color: #666; font-size: 14px;">如有问题，请回复此邮件联系我们。</p>
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+  const { error } = await getResend().emails.send({
+    from: `Meteor Store <${fromEmail}>`,
+    to: data.email,
+    subject: `订单确认 - ${productName} ${planName}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">🎉 支付成功！</h1>
+        <p>感谢您购买 <strong>${productName}</strong> 的 <strong>${planName}</strong> 方案。</p>
+        <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
+          <p><strong>订单号：</strong>${orderId}</p>
+          <p><strong>产品：</strong>${productName}</p>
+          <p><strong>方案：</strong>${planName}</p>
+          <p><strong>支付金额：</strong>¥${data.amount}</p>
         </div>
-      `,
-    });
+        <p style="color: #666; font-size: 14px;">如有问题，请回复此邮件联系我们。</p>
+      </div>
+    `,
+  });
 
-    if (error) {
-      console.error('Failed to send order confirmation:', error);
-    }
-  } catch (err) {
-    console.error('sendOrderConfirmation error:', err);
-  }
+  if (error) throw new Error(`Email send failed: ${error.message}`);
 }

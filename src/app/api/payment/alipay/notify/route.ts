@@ -86,13 +86,24 @@ export async function POST(request: NextRequest) {
       if (rowCount > 0) {
         console.log(`Payment success: ${out_trade_no}, amount: ${total_amount}`);
 
-        sendOrderConfirmation({
-          email: order.email,
-          orderId: order.id,
-          productId: order.productId,
-          planName: order.planName,
-          amount: order.amountCny,
-        }).catch((err) => console.error('Failed to send confirmation email:', err));
+        // 发送确认邮件，失败时记录 delivery_status 以便重试
+        try {
+          await sendOrderConfirmation({
+            email: order.email,
+            orderId: order.id,
+            productId: order.productId,
+            planName: order.planName,
+            amount: order.amountCny,
+          });
+          await db.update(orders)
+            .set({ deliveryStatus: 'emailed' })
+            .where(eq(orders.id, out_trade_no));
+        } catch (err) {
+          console.error('Delivery failed:', err);
+          await db.update(orders)
+            .set({ deliveryStatus: 'failed' })
+            .where(eq(orders.id, out_trade_no));
+        }
       } else {
         console.log('Alipay notify: order already processed (concurrent)', out_trade_no);
       }

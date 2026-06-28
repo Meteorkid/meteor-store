@@ -7,7 +7,7 @@ import { orders } from '@/lib/db/schema';
 import { findProduct } from '@/lib/products';
 
 interface SuccessPageProps {
-  searchParams: Promise<{ orderId?: string; tradeNo?: string }>;
+  searchParams: Promise<{ orderId?: string }>;
 }
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {

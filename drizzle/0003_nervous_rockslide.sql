@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "delivery_status" text DEFAULT 'pending' NOT NULL;
