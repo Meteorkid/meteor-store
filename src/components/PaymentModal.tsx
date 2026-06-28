@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import WechatPayModal from './WechatPayModal';
+
+// 年付折扣率，与 API 路由 / PricingSection 保持一致
+const ANNUAL_DISCOUNT = 0.8;
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -10,6 +12,8 @@ interface PaymentModalProps {
   productName: string;
   planName: string;
   price: number;
+  /** 方案原价（未打折），用于年付总额计算，避免前端取整口径与后端不一致 */
+  basePrice: number;
   period?: string;
   isAnnual?: boolean;
 }
@@ -21,14 +25,12 @@ export default function PaymentModal({
   productName,
   planName,
   price,
+  basePrice,
   period,
   isAnnual,
 }: PaymentModalProps) {
-  const [paymentMethod, setPaymentMethod] = useState<'alipay' | 'wechat'>('alipay');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showWechatModal, setShowWechatModal] = useState(false);
-  const [orderId, setOrderId] = useState('');
 
   if (!isOpen) return null;
 
@@ -62,42 +64,6 @@ export default function PaymentModal({
         window.location.href = data.payUrl;
       } else {
         alert(`支付创建失败: ${data.error}`);
-      }
-    } catch {
-      alert('网络错误，请重试');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleWechatPayment = async () => {
-    if (!email) {
-      alert('请输入邮箱地址');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch('/api/payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productName: productId,
-          planName,
-          paymentMethod: 'wechat',
-          email,
-          isAnnual,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success && data.orderId) {
-        setOrderId(data.orderId);
-        setShowWechatModal(true);
-      } else {
-        alert(`订单创建失败: ${data.error}`);
       }
     } catch {
       alert('网络错误，请重试');
@@ -140,34 +106,29 @@ export default function PaymentModal({
 
           {/* Price Display */}
           <div className="bg-white/5 rounded-lg p-4 mb-6">
-            <div className="flex items-baseline justify-center gap-1">
-              <span className="text-4xl font-bold text-white">¥{price}</span>
-              {period && <span className="text-gray-400">/{period}</span>}
-            </div>
+            {isAnnual ? (
+              <div className="text-center">
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-2xl font-bold text-white">¥{price}</span>
+                  <span className="text-gray-400">/月 × 12</span>
+                </div>
+                <div className="mt-1 text-lg font-semibold text-green-400">
+                  = ¥{Math.floor(basePrice * ANNUAL_DISCOUNT * 12)}/年
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-4xl font-bold text-white">¥{price}</span>
+                {period && <span className="text-gray-400">/{period}</span>}
+              </div>
+            )}
           </div>
 
-          {/* Payment Method Toggle */}
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setPaymentMethod('alipay')}
-              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                paymentMethod === 'alipay'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
-              }`}
-            >
-              💙 支付宝
-            </button>
-            <button
-              onClick={() => setPaymentMethod('wechat')}
-              className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                paymentMethod === 'wechat'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
-              }`}
-            >
-              💚 微信支付
-            </button>
+          {/* 支付方式（仅支付宝） */}
+          <div className="mb-6">
+            <div className="py-3 px-4 rounded-lg bg-blue-500/10 border border-blue-500/30 text-center">
+              <span className="text-blue-400 font-medium">💙 支付宝</span>
+            </div>
           </div>
 
           {/* Email Input */}
@@ -187,15 +148,11 @@ export default function PaymentModal({
 
           {/* Submit Button */}
           <button
-            onClick={paymentMethod === 'alipay' ? handleAlipayPayment : handleWechatPayment}
+            onClick={handleAlipayPayment}
             disabled={loading || !email}
-            className={`w-full py-3 rounded-lg font-medium transition-all ${
-              paymentMethod === 'alipay'
-                ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                : 'bg-green-500 hover:bg-green-600 text-white'
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
+            className="w-full py-3 rounded-lg font-medium transition-all bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '处理中...' : `使用${paymentMethod === 'alipay' ? '支付宝' : '微信支付'}支付`}
+            {loading ? '处理中...' : '使用支付宝支付'}
           </button>
 
           {/* Footer */}
@@ -204,16 +161,6 @@ export default function PaymentModal({
           </p>
         </div>
       </div>
-
-      {/* 微信支付弹窗 */}
-      <WechatPayModal
-        isOpen={showWechatModal}
-        onClose={() => setShowWechatModal(false)}
-        productName={productName}
-        planName={planName}
-        priceCNY={price}
-        orderId={orderId}
-      />
     </>
   );
 }

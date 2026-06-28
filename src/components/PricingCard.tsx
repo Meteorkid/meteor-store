@@ -6,6 +6,8 @@ import PaymentModal from './PaymentModal';
 interface PricingCardProps {
   name: string;
   price: number;
+  /** 方案原价（未打折），用于支付弹窗年付总额计算 */
+  basePrice?: number;
   period?: string;
   features: string[];
   isPopular?: boolean;
@@ -20,6 +22,7 @@ interface PricingCardProps {
 export default function PricingCard({
   name,
   price,
+  basePrice,
   period,
   features,
   isPopular,
@@ -110,6 +113,7 @@ export default function PricingCard({
         productName={productName || ''}
         planName={name}
         price={price}
+        basePrice={basePrice ?? price}
         period={period}
         isAnnual={isAnnual}
       />

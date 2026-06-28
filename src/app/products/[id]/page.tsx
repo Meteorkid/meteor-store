@@ -106,6 +106,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                     ? Math.floor(plan.price * 0.8)
                     : plan.price
                 }
+                basePrice={plan.price}
                 period={
                   isAnnual && plan.period === '月'
                     ? '月 (年付)'

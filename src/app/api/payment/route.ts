@@ -76,6 +76,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // 校验支付渠道，非法渠道不建单
+    if (paymentMethod !== 'alipay') {
+      return NextResponse.json(
+        { error: '暂仅支持支付宝支付' },
+        { status: 400 }
+      );
+    }
+
     // 生成订单号
     const orderId = generateOrderId();
 
@@ -91,39 +99,21 @@ export async function POST(request: NextRequest) {
       createdAt: now,
     });
 
-    // 按支付渠道创建订单
+    // 创建支付宝订单
     const subject = `${product.name} - ${planName}`;
     const body_text = `购买 ${product.name} 的 ${planName} 方案`;
 
-    if (paymentMethod === 'alipay') {
-      const payUrl = isMobile
-        ? await createAlipayMobileOrder({ orderId, amount: priceCNY, subject, body: body_text })
-        : await createAlipayOrder({ orderId, amount: priceCNY, subject, body: body_text });
+    const payUrl = isMobile
+      ? await createAlipayMobileOrder({ orderId, amount: priceCNY, subject, body: body_text })
+      : await createAlipayOrder({ orderId, amount: priceCNY, subject, body: body_text });
 
-      return NextResponse.json({
-        success: true,
-        orderId,
-        payUrl,
-        amount: priceCNY,
-        message: '订单创建成功',
-      });
-    }
-
-    if (paymentMethod === 'wechat') {
-      // 微信支付暂未接入，返回提示
-      return NextResponse.json({
-        success: true,
-        orderId,
-        payUrl: null,
-        amount: priceCNY,
-        message: '微信支付暂未开放，请选择支付宝支付',
-      });
-    }
-
-    return NextResponse.json(
-      { error: '不支持的支付方式' },
-      { status: 400 }
-    );
+    return NextResponse.json({
+      success: true,
+      orderId,
+      payUrl,
+      amount: priceCNY,
+      message: '订单创建成功',
+    });
   } catch (error) {
     console.error('Payment error:', error);
     return NextResponse.json(

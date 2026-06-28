@@ -96,6 +96,7 @@ export default function PricingSection() {
                     ? Math.floor(plan.basePrice * ANNUAL_DISCOUNT)
                     : plan.basePrice
                 }
+                basePrice={plan.basePrice}
                 period={
                   isAnnual && plan.period === '月'
                     ? '月 (年付)'
