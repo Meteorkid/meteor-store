@@ -1,25 +1,35 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 /**
  * 全局初始化组件：
  * 1. 滚动动画 — IntersectionObserver 驱动
- * 2. 路由切换加载进度条
+ * 2. 路由切换加载进度条（DOM 直接操作，无 React state）
  */
 export default function ScrollAnimateInit() {
   const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const observedRef = useRef<WeakSet<Element>>(new WeakSet());
-  const [loading, setLoading] = useState(false);
+  const barRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // 路由变化时显示进度条
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+  // 路由变化时显示进度条（DOM 直接操作，避免 effect 内 setState）
   useEffect(() => {
-    setLoading(true);
-    const t = setTimeout(() => setLoading(false), 400);
+    let bar = barRef.current;
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.className = 'fixed top-0 left-0 right-0 z-[100] h-[2px]';
+      bar.innerHTML =
+        '<div class="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-violet-500 animate-loading-bar"></div>';
+      document.body.appendChild(bar);
+      barRef.current = bar;
+    }
+    bar.style.display = '';
+    const t = setTimeout(() => {
+      if (bar) bar.style.display = 'none';
+    }, 400);
     return () => clearTimeout(t);
   }, [pathname, searchParams]);
 
@@ -81,17 +91,11 @@ export default function ScrollAnimateInit() {
       mutationObserver.disconnect();
       timeouts.forEach((id) => clearTimeout(id));
       timeouts.clear();
+      // 清理进度条 DOM
+      barRef.current?.remove();
+      barRef.current = null;
     };
   }, []);
 
-  return (
-    <>
-      {/* 路由切换进度条 */}
-      {loading && (
-        <div className="fixed top-0 left-0 right-0 z-[100] h-[2px]">
-          <div className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-violet-500 animate-loading-bar" />
-        </div>
-      )}
-    </>
-  );
+  return null;
 }

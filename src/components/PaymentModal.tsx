@@ -33,7 +33,7 @@ export default function PaymentModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  useEffect(() => { onCloseRef.current = onClose; });
 
   // Focus trap + Escape key
   const handleKeyDown = useCallback((e: KeyboardEvent) => {

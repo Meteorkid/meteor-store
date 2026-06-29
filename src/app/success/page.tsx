@@ -54,9 +54,16 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
                 </div>
               </div>
 
-              <p className="text-gray-400 text-sm mb-8">
-                确认邮件已发送至你的邮箱，请注意查收。
-              </p>
+              {/* 交付状态 */}
+              <div className="text-sm mb-8">
+                {order.deliveryStatus === 'emailed' ? (
+                  <p className="text-green-400">✅ 确认邮件已发送至你的邮箱，请注意查收。</p>
+                ) : order.deliveryStatus === 'failed' ? (
+                  <p className="text-yellow-400">⚠️ 邮件发送失败，请联系 support@imagentx.top 处理。</p>
+                ) : (
+                  <p className="text-gray-400">⏳ 邮件正在发送中，请稍候。</p>
+                )}
+              </div>
             </>
           ) : order ? (
             <>
