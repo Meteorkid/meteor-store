@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
         status: 'paid',
         paidAt: now,
         billingPeriod: validAnnual ? 'annual' : 'monthly',
+        accessToken: crypto.randomUUID(),
         createdAt: now,
       });
       return NextResponse.json({
@@ -126,6 +127,7 @@ export async function POST(request: NextRequest) {
       paymentMethod: 'alipay',
       status: 'pending',
       billingPeriod,
+      accessToken: crypto.randomUUID(),
       createdAt: now,
     });
 

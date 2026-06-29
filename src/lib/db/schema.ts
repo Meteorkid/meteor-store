@@ -12,12 +12,13 @@ export const orders = pgTable('orders', {
   paidAt: text('paid_at'),                             // ISO 时间
   billingPeriod: text('billing_period').default('monthly').notNull(), // monthly | annual
   deliveryStatus: text('delivery_status').default('pending').notNull(), // pending | emailed | failed
+  accessToken: text('access_token').notNull(),  // 订单详情页访问凭证
   createdAt: text('created_at').notNull(),
 });
 
 export const licenseKeys = pgTable('license_keys', {
   id: text('id').primaryKey(),
-  orderId: text('order_id').notNull(),
+  orderId: text('order_id').notNull().unique(),
   productId: text('product_id').notNull(),
   planName: text('plan_name').notNull(),
   email: text('email').notNull(),

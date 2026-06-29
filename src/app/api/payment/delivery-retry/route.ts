@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
             planName: order.planName,
             amount: order.amountCny,
             licenseKey,
+            accessToken: order.accessToken,
           });
           await db.update(orders)
             .set({ deliveryStatus: 'emailed' })

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { db } from '@/lib/db';
@@ -9,15 +9,21 @@ import { findProduct } from '@/lib/products';
 
 interface OrderDetailPageProps {
   params: Promise<{ orderId: string }>;
+  searchParams: Promise<{ token?: string }>;
 }
 
-export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
+export default async function OrderDetailPage({ params, searchParams }: OrderDetailPageProps) {
   const { orderId } = await params;
+  const { token } = await searchParams;
 
+  // 校验 orderId 格式（UUID）+ 必须携带 token
   const isValidOrderId = orderId && /^[0-9a-f-]{36}$/i.test(orderId);
-  if (!isValidOrderId) notFound();
+  if (!isValidOrderId || !token) notFound();
 
-  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  // 同时校验 orderId 和 token
+  const [order] = await db.select().from(orders).where(
+    and(eq(orders.id, orderId), eq(orders.accessToken, token))
+  ).limit(1);
   if (!order) notFound();
 
   const product = findProduct(order.productId);
