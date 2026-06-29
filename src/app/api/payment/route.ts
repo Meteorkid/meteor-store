@@ -6,7 +6,7 @@ import { findProduct } from '@/lib/products';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
-import { ANNUAL_DISCOUNT } from '@/lib/constants';
+import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 
 // Zod 校验 schema
 const PaymentSchema = z.object({
@@ -20,6 +20,11 @@ const PaymentSchema = z.object({
 
 // 创建支付订单
 export async function POST(request: NextRequest) {
+  // ICP 备案期间暂停销售
+  if (!SHOW_PRICING) {
+    return NextResponse.json({ error: '销售暂停中，敬请期待' }, { status: 503 });
+  }
+
   // 速率限制：每 IP 每分钟最多 10 次
   const ip = getClientIp(request);
   const { limited } = rateLimit(`payment:${ip}`, 10, 60_000);

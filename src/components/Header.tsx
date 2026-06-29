@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { SHOW_PRICING } from '@/lib/constants';
 
 const navLinks = [
   { label: '产品', href: '/products' },
-  { label: '定价', href: '/#pricing' },
+  ...(SHOW_PRICING ? [{ label: '定价', href: '/#pricing' }] : []),
   { label: '文档', href: '/docs' },
   { label: '博客', href: '/blog' },
 ];
@@ -60,12 +61,21 @@ export default function Header() {
             GitHub
           </Link>
           <div className="w-px h-5 bg-border mx-2" />
-          <Link
-            href="/#pricing"
-            className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-lg hover:opacity-90 transition-opacity"
-          >
-            开始使用
-          </Link>
+          {SHOW_PRICING ? (
+            <Link
+              href="/#pricing"
+              className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-lg hover:opacity-90 transition-opacity"
+            >
+              开始使用
+            </Link>
+          ) : (
+            <Link
+              href="/products"
+              className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-lg hover:opacity-90 transition-opacity"
+            >
+              浏览产品
+            </Link>
+          )}
         </nav>
 
         {/* Mobile Hamburger */}
@@ -122,11 +132,11 @@ export default function Header() {
           </Link>
           <div className="h-px bg-border my-4" />
           <Link
-            href="/#pricing"
+            href={SHOW_PRICING ? '/#pricing' : '/products'}
             onClick={() => setMobileOpen(false)}
             className="px-6 py-3 text-lg font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-xl text-center hover:opacity-90 transition-opacity"
           >
-            开始使用
+            {SHOW_PRICING ? '开始使用' : '浏览产品'}
           </Link>
         </nav>
       </div>

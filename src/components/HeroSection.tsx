@@ -2,6 +2,7 @@
 
 import GlowButton from './GlowButton';
 import ParticleBackground from './ParticleBackground';
+import { SHOW_PRICING } from '@/lib/constants';
 
 export default function HeroSection() {
   return (
@@ -59,7 +60,7 @@ export default function HeroSection() {
             className="text-sm text-white/30 mb-10 animate-fade-in-up"
             style={{ animationDelay: '0.25s' }}
           >
-            已服务 1000+ 开发者 · 开源驱动 · 终身免费更新
+            {SHOW_PRICING ? '已服务 1000+ 开发者 · 开源驱动 · 终身免费更新' : '开源驱动 · 社区驱动 · 欢迎贡献'}
           </p>
 
           {/* CTA Buttons */}

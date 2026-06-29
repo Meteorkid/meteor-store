@@ -4,7 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PricingCard from '@/components/PricingCard';
 import { products } from '@/data/products';
-import { ANNUAL_DISCOUNT } from '@/lib/constants';
+import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -95,33 +95,35 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         </div>
 
         {/* Pricing */}
-        <div id="pricing" className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">定价方案</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {product.pricing.map((plan, index) => (
-              <PricingCard
-                key={plan.name}
-                name={plan.name}
-                price={
-                  isAnnual && plan.period === '月'
-                    ? Math.floor(plan.price * ANNUAL_DISCOUNT)
-                    : plan.price
-                }
-                basePrice={plan.price}
-                period={
-                  isAnnual && plan.period === '月'
-                    ? '月 (年付)'
-                    : plan.period
-                }
-                features={plan.features}
-                isPopular={index === 1}
-                productId={product.id}
-                productName={product.name}
-                isAnnual={isAnnual && plan.period === '月'}
-              />
-            ))}
+        {SHOW_PRICING && (
+          <div id="pricing" className="mb-16">
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">定价方案</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {product.pricing.map((plan, index) => (
+                <PricingCard
+                  key={plan.name}
+                  name={plan.name}
+                  price={
+                    isAnnual && plan.period === '月'
+                      ? Math.floor(plan.price * ANNUAL_DISCOUNT)
+                      : plan.price
+                  }
+                  basePrice={plan.price}
+                  period={
+                    isAnnual && plan.period === '月'
+                      ? '月 (年付)'
+                      : plan.period
+                  }
+                  features={plan.features}
+                  isPopular={index === 1}
+                  productId={product.id}
+                  productName={product.name}
+                  isAnnual={isAnnual && plan.period === '月'}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* GitHub Link */}
         <div className="text-center">

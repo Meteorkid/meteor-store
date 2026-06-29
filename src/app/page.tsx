@@ -14,6 +14,7 @@ import PricingSection from '@/components/PricingSection';
 import FeaturesComparison from '@/components/FeaturesComparison';
 import CTASection from '@/components/CTASection';
 import BackToTop from '@/components/BackToTop';
+import { SHOW_PRICING } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: 'Meteor Store — 开发者工具与 AI 应用',
@@ -62,10 +63,10 @@ export default function Home() {
       <TestimonialsSection />
 
       {/* Pricing Section */}
-      <PricingSection />
+      {SHOW_PRICING && <PricingSection />}
 
       {/* Features Comparison */}
-      <FeaturesComparison />
+      {SHOW_PRICING && <FeaturesComparison />}
 
       {/* Newsletter Section */}
       <NewsletterSection />

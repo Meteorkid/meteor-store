@@ -1,6 +1,7 @@
 'use client';
 
 import GlowButton from './GlowButton';
+import { SHOW_PRICING } from '@/lib/constants';
 
 interface CTASectionProps {
   variant?: 'bold' | 'subtle';
@@ -48,7 +49,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
             >
               {isBold
                 ? '浏览我们的产品矩阵，找到适合你的工具'
-                : '免费开始，按需升级，无隐藏费用'}
+                : SHOW_PRICING ? '免费开始，按需升级，无隐藏费用' : '所有产品开源免费，欢迎使用'}
             </p>
 
             {/* CTA Buttons */}
@@ -81,7 +82,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
                 isBold ? 'text-white/60' : 'text-muted-foreground'
               }`}
             >
-              {['开源驱动', '终身免费更新', '30 天退款保证'].map((item) => (
+              {(SHOW_PRICING ? ['开源驱动', '终身免费更新', '30 天退款保证'] : ['开源驱动', '终身免费更新']).map((item) => (
                 <div key={item} className="flex items-center gap-1.5">
                   <svg
                     className={`w-4 h-4 ${isBold ? 'text-white/80' : 'text-success'}`}

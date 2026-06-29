@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { Product } from '@/data/products';
+import { SHOW_PRICING } from '@/lib/constants';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const minPrice = Math.min(...product.pricing.map(p => p.price));
+  const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map(p => p.price)) : 0;
 
   return (
     <Link
@@ -27,16 +28,18 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="text-muted-foreground text-sm mb-4">{product.tagline}</p>
 
         {/* Price */}
-        <div className="flex items-baseline gap-1">
-          {minPrice === 0 ? (
-            <span className="text-success font-semibold">免费</span>
-          ) : (
-            <>
-              <span className="text-2xl font-bold text-card-foreground">¥{minPrice}</span>
-              <span className="text-muted-foreground text-sm">起</span>
-            </>
-          )}
-        </div>
+        {SHOW_PRICING && (
+          <div className="flex items-baseline gap-1">
+            {minPrice === 0 ? (
+              <span className="text-success font-semibold">免费</span>
+            ) : (
+              <>
+                <span className="text-2xl font-bold text-card-foreground">¥{minPrice}</span>
+                <span className="text-muted-foreground text-sm">起</span>
+              </>
+            )}
+          </div>
+        )}
 
         {/* CTA */}
         <div className="mt-4 flex items-center gap-2 text-primary group-hover:text-primary/80 transition-colors">

@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import { db } from '@/lib/db';
 import { orders, licenseKeys } from '@/lib/db/schema';
 import { findProduct } from '@/lib/products';
+import { SHOW_PRICING } from '@/lib/constants';
 
 interface OrderDetailPageProps {
   params: Promise<{ orderId: string }>;
@@ -13,6 +14,20 @@ interface OrderDetailPageProps {
 }
 
 export default async function OrderDetailPage({ params, searchParams }: OrderDetailPageProps) {
+  // ICP 备案期间隐藏订单详情页
+  if (!SHOW_PRICING) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <Header />
+        <main className="container mx-auto px-4 py-20 text-center">
+          <h1 className="text-2xl font-bold mb-4">页面维护中</h1>
+          <p className="text-gray-400">该功能暂不可用，请稍后再试。</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   const { orderId } = await params;
   const { token } = await searchParams;
 

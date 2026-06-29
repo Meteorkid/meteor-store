@@ -3,6 +3,7 @@
 import { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Product } from '@/data/products';
+import { SHOW_PRICING } from '@/lib/constants';
 
 const categoryColors: Record<string, string> = {
   developer: 'text-blue-400 bg-blue-400/10',
@@ -24,7 +25,7 @@ interface AdvancedProductCardProps {
 
 export default function AdvancedProductCard({ product }: AdvancedProductCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const minPrice = Math.min(...product.pricing.map((p) => p.price));
+  const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map((p) => p.price)) : 0;
 
   useEffect(() => {
     const card = cardRef.current;
@@ -99,16 +100,18 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
 
           {/* Price + CTA row */}
           <div className="flex items-center justify-between">
-            <div className="flex items-baseline gap-1">
-              {minPrice === 0 ? (
-                <span className="text-emerald-400 font-semibold text-sm">免费</span>
-              ) : (
-                <>
-                  <span className="text-xl font-bold text-white">¥{minPrice}</span>
-                  <span className="text-xs text-white/30">起</span>
-                </>
-              )}
-            </div>
+            {SHOW_PRICING && (
+              <div className="flex items-baseline gap-1">
+                {minPrice === 0 ? (
+                  <span className="text-emerald-400 font-semibold text-sm">免费</span>
+                ) : (
+                  <>
+                    <span className="text-xl font-bold text-white">¥{minPrice}</span>
+                    <span className="text-xs text-white/30">起</span>
+                  </>
+                )}
+              </div>
+            )}
 
             <span className="text-xs text-white/30 group-hover:text-primary transition-colors flex items-center gap-1">
               详情
