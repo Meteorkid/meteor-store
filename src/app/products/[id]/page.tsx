@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PricingCard from '@/components/PricingCard';
 import { products } from '@/data/products';
+import { ANNUAL_DISCOUNT } from '@/lib/constants';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -103,7 +104,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                 name={plan.name}
                 price={
                   isAnnual && plan.period === '月'
-                    ? Math.floor(plan.price * 0.8)
+                    ? Math.floor(plan.price * ANNUAL_DISCOUNT)
                     : plan.price
                 }
                 basePrice={plan.price}

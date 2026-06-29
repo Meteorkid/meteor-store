@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import PricingCard from './PricingCard';
 import { findProduct } from '@/lib/products';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
@@ -12,36 +12,36 @@ const featuredProducts = [
   { productId: 'skeleton-anatomy', tierIndex: 1 }, // Professional
 ];
 
-const plans = featuredProducts
-  .map(({ productId, tierIndex }) => {
-    const product = findProduct(productId);
-    if (!product) return null;
-    const tier = product.pricing[tierIndex];
-    if (!tier) return null;
-    return {
-      name: tier.name,
-      basePrice: tier.price,
-      period: tier.period || '月',
-      productName: product.name,
-      productId: product.id,
-      href: `/products/${product.id}`,
-      features: tier.features,
-      isPopular: true,
-    };
-  })
-  .filter(Boolean) as Array<{
-  name: string;
-  basePrice: number;
-  period: string;
-  productName: string;
-  productId: string;
-  href: string;
-  features: string[];
-  isPopular: boolean;
-}>;
-
 export default function PricingSection() {
   const [isAnnual, setIsAnnual] = useState(false);
+
+  const plans = useMemo(() => featuredProducts
+    .map(({ productId, tierIndex }) => {
+      const product = findProduct(productId);
+      if (!product) return null;
+      const tier = product.pricing[tierIndex];
+      if (!tier) return null;
+      return {
+        name: tier.name,
+        basePrice: tier.price,
+        period: tier.period || '月',
+        productName: product.name,
+        productId: product.id,
+        href: `/products/${product.id}`,
+        features: tier.features,
+        isPopular: true,
+      };
+    })
+    .filter(Boolean) as Array<{
+    name: string;
+    basePrice: number;
+    period: string;
+    productName: string;
+    productId: string;
+    href: string;
+    features: string[];
+    isPopular: boolean;
+  }>, []);
 
   return (
     <section id="pricing" className="py-20">
@@ -62,6 +62,8 @@ export default function PricingSection() {
             </span>
             <button
               onClick={() => setIsAnnual(!isAnnual)}
+              role="switch"
+              aria-checked={isAnnual}
               className={`relative w-12 h-6 rounded-full transition-colors ${
                 isAnnual ? 'bg-primary' : 'bg-secondary'
               }`}

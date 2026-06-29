@@ -46,6 +46,7 @@ export default function EnhancedFooter() {
                 href="https://github.com/Meteorkid"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="GitHub"
                 className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -54,6 +55,7 @@ export default function EnhancedFooter() {
               </a>
               <a
                 href="mailto:meteor@stu.gpnu.edu.cn"
+                aria-label="发送邮件"
                 className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

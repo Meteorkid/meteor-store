@@ -12,94 +12,88 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
-        <div className={`relative overflow-hidden rounded-3xl p-12 md:p-16 text-center scroll-animate ${
-          isBold
-            ? 'bg-gradient-to-r from-primary via-pink-500 to-violet-500'
-            : 'bg-gradient-to-r from-primary/20 to-pink-500/20 border border-border'
-        }`}>
-          {/* Background pattern */}
-          <div className={`absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:${isBold ? '20px_20px' : '30px_30px'}] ${isBold ? '' : 'opacity-5'}`} />
+        <div
+          className={`relative overflow-hidden rounded-3xl p-12 md:p-16 text-center scroll-animate ${
+            isBold
+              ? 'bg-gradient-to-br from-primary via-primary/80 to-purple-600'
+              : 'bg-white/[0.02] border border-white/[0.06]'
+          }`}
+        >
+          {/* Background grid */}
+          {isBold && (
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:24px_24px]" />
+          )}
 
-          {/* Floating elements (bold only) */}
+          {/* Floating orbs */}
           {isBold && (
             <>
-              <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-float" />
-              <div className="absolute bottom-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-xl animate-float" style={{ animationDelay: '1s' }} />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-400/20 rounded-full blur-[60px]" />
             </>
           )}
 
           <div className="relative">
-            {/* Badge */}
-            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 ${
-              isBold
-                ? 'bg-white/20 backdrop-blur-sm'
-                : 'bg-primary/10 border border-primary/20'
-            }`}>
-              {isBold && <span className="w-2 h-2 rounded-full bg-white animate-pulse" />}
-              <span className={`text-sm ${isBold ? 'text-white' : 'text-primary'}`}>限时优惠</span>
-            </div>
-
-            {/* Heading */}
-            <h2 className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-6 ${
-              isBold ? 'text-white' : 'text-foreground'
-            }`}>
+            <h2
+              className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-4 ${
+                isBold ? 'text-white' : 'text-foreground'
+              }`}
+            >
               {isBold ? '准备好提升效率了吗？' : '准备好开始了吗？'}
             </h2>
 
-            {/* Description */}
-            <p className={`text-lg mb-8 max-w-2xl mx-auto ${
-              isBold ? 'text-white/80' : 'text-muted-foreground'
-            }`}>
+            <p
+              className={`text-lg mb-8 max-w-xl mx-auto ${
+                isBold ? 'text-white/70' : 'text-muted-foreground'
+              }`}
+            >
               {isBold
-                ? '立即选择适合你的产品，开始你的高效工作之旅'
-                : '立即选择适合你的产品，提升你的工作效率'
-              }
+                ? '浏览我们的产品矩阵，找到适合你的工具'
+                : '免费开始，按需升级，无隐藏费用'}
             </p>
 
-            {/* CTA buttons */}
+            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <GlowButton
                 variant="primary"
                 size="lg"
                 renderAs="a"
-                href="#products"
+                href="/products"
                 className={isBold ? 'bg-white text-primary hover:bg-white/90' : ''}
               >
-                立即开始
+                浏览全部产品
               </GlowButton>
               <GlowButton
                 variant="ghost"
                 size="lg"
                 renderAs="a"
-                href="/products"
-                className={isBold ? 'border-white text-white hover:bg-white/10' : ''}
+                href="https://github.com/Meteorkid"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={isBold ? 'border-white/30 text-white hover:bg-white/10' : ''}
               >
-                查看全部产品
+                GitHub 开源
               </GlowButton>
             </div>
 
-            {/* Trust badges */}
-            <div className={`mt-12 flex flex-wrap justify-center gap-8 text-sm ${
-              isBold ? 'text-white/80' : 'text-muted-foreground'
-            }`}>
-              <div className="flex items-center gap-2">
-                <svg className={`w-5 h-5 ${isBold ? '' : 'text-success'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>30 天退款保证</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className={`w-5 h-5 ${isBold ? '' : 'text-success'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>终身免费更新</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className={`w-5 h-5 ${isBold ? '' : 'text-success'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>24/7 技术支持</span>
-              </div>
+            {/* Trust Badges */}
+            <div
+              className={`mt-10 flex flex-wrap justify-center gap-6 text-sm ${
+                isBold ? 'text-white/60' : 'text-muted-foreground'
+              }`}
+            >
+              {['开源驱动', '终身免费更新', '30 天退款保证'].map((item) => (
+                <div key={item} className="flex items-center gap-1.5">
+                  <svg
+                    className={`w-4 h-4 ${isBold ? 'text-white/80' : 'text-success'}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{item}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

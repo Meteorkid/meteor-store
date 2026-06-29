@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import ScrollAnimateInit from "@/components/ScrollAnimateInit";
 import "./globals.css";
@@ -14,9 +15,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Meteor Store - 高质量的开发者工具和 AI 应用",
-  description: "从爬虫框架到 AI 记忆系统，从 3D 解剖平台到设计工具，我们提供一系列精心打造的工具，帮助你提升效率。",
-  keywords: ["开发者工具", "AI 应用", "爬虫框架", "设计工具", "macOS 应用"],
+  title: {
+    default: "Meteor Store — 开发者工具与 AI 应用",
+    template: "%s | Meteor Store",
+  },
+  description:
+    "精心打造的开发者工具矩阵：智能爬虫框架、AI 记忆系统、3D 解剖图谱、设计系统、状态管理库。开源驱动，终身免费更新。",
+  keywords: [
+    "开发者工具",
+    "AI 应用",
+    "爬虫框架",
+    "设计工具",
+    "macOS 应用",
+    "开源工具",
+    "Next.js",
+    "React 组件库",
+  ],
+  authors: [{ name: "Meteor Store" }],
+  creator: "Meteor Store",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -25,9 +41,39 @@ export const metadata: Metadata = {
     apple: "/favicon.png",
   },
   openGraph: {
-    title: "Meteor Store - 高质量的开发者工具和 AI 应用",
-    description: "从爬虫框架到 AI 记忆系统，从 3D 解剖平台到设计工具，我们提供一系列精心打造的工具，帮助你提升效率。",
     type: "website",
+    locale: "zh_CN",
+    url: "https://www.imagentx.top",
+    siteName: "Meteor Store",
+    title: "Meteor Store — 开发者工具与 AI 应用",
+    description:
+      "精心打造的开发者工具矩阵：智能爬虫、AI 记忆、3D 解剖、设计系统。开源驱动，终身免费更新。",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Meteor Store — 开发者工具与 AI 应用",
+    description:
+      "精心打造的开发者工具矩阵：智能爬虫、AI 记忆、3D 解剖、设计系统。",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Meteor Store",
+  url: "https://www.imagentx.top",
+  logo: "https://www.imagentx.top/favicon.png",
+  description:
+    "精心打造的开发者工具矩阵：智能爬虫框架、AI 记忆系统、3D 解剖图谱、设计系统。",
+  sameAs: ["https://github.com/Meteorkid"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "meteor@stu.gpnu.edu.cn",
+    contactType: "customer service",
   },
 };
 
@@ -41,8 +87,16 @@ export default function RootLayout({
       lang="zh-CN"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-black text-white">
-        <ScrollAnimateInit />
+        <Suspense>
+          <ScrollAnimateInit />
+        </Suspense>
         {children}
       </body>
     </html>

@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 
 const stats = [
-  { label: '精品工具', value: 9, suffix: '+' },
-  { label: '活跃用户', value: 1000, suffix: '+' },
-  { label: '用户评分', value: 4.9, suffix: '' },
-  { label: '技术支持', value: 24, suffix: '/7' },
+  { label: '精品工具', value: 9, suffix: '+', icon: '⚡' },
+  { label: '活跃用户', value: 1000, suffix: '+', icon: '👥' },
+  { label: '用户评分', value: 4.9, suffix: '', icon: '⭐' },
+  { label: '响应延迟', value: 50, suffix: 'ms', icon: '🚀' },
 ];
 
 function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
@@ -16,6 +16,9 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
+    // 先清除旧的 interval，避免 value 变化时泄漏
+    if (timerRef.current) clearInterval(timerRef.current);
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !hasAnimated.current) {
@@ -40,38 +43,40 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
       { threshold: 0.5 }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
+    if (ref.current) observer.observe(ref.current);
 
     return () => {
       observer.disconnect();
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [value]);
-  
+
   return (
-    <div ref={ref} className="text-4xl md:text-5xl font-bold text-foreground mb-2">
-      {value % 1 === 0 ? Math.floor(count) : count.toFixed(1)}{suffix}
+    <div ref={ref} className="text-3xl md:text-4xl font-bold text-white mb-1">
+      {value % 1 === 0 ? Math.floor(count) : count.toFixed(1)}
+      <span className="text-primary">{suffix}</span>
     </div>
   );
 }
 
 export default function StatsSection() {
   return (
-    <section className="py-20 bg-gradient-to-b from-secondary/5 to-transparent">
+    <section className="py-16 relative">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {stats.map((stat, index) => (
-            <div 
+            <div
               key={stat.label}
-              className="text-center scroll-animate"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className="group relative p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm hover:border-primary/20 hover:bg-white/[0.04] transition-all duration-300 text-center scroll-animate"
+              style={{ animationDelay: `${index * 0.08}s` }}
             >
+              <div className="text-2xl mb-3 group-hover:scale-110 transition-transform duration-300">
+                {stat.icon}
+              </div>
               <AnimatedNumber value={stat.value} suffix={stat.suffix} />
-              <div className="text-muted-foreground">{stat.label}</div>
+              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>

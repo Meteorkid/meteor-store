@@ -45,8 +45,6 @@ export default function FeedbackForm() {
       setEmail('');
       setType('');
       setContent('');
-
-      setTimeout(() => setStatus('idle'), 3000);
     } catch (err) {
       setStatus('error');
       setErrorMsg(err instanceof Error ? err.message : '提交失败，请稍后重试');

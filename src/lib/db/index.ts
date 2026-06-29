@@ -2,11 +2,12 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { orders } from './schema';
 
-// 延迟初始化，避免 build 时因缺少 DATABASE_URL 而崩溃
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let _db: any = null;
+type DrizzleDB = ReturnType<typeof drizzle>;
 
-function getDb() {
+// 延迟初始化，避免 build 时因缺少 DATABASE_URL 而崩溃
+let _db: DrizzleDB | null = null;
+
+function getDb(): DrizzleDB {
   if (!_db) {
     const url = process.env.DATABASE_URL;
     if (!url) {
@@ -19,10 +20,10 @@ function getDb() {
 }
 
 // 导出代理对象，所有调用会延迟到实际使用时
-export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+export const db = new Proxy({} as DrizzleDB, {
   get(_target, prop) {
     const instance = getDb();
-    const value = (instance as Record<string | symbol, unknown>)[prop];
+    const value = (instance as unknown as Record<string | symbol, unknown>)[prop];
     if (typeof value === 'function') {
       return value.bind(instance);
     }

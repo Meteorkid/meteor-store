@@ -24,7 +24,7 @@ export default function ParticleBackground() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    // Set canvas size
+    // Set canvas size (resize 只更新尺寸，不重建粒子)
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;

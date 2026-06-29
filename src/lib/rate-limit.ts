@@ -42,12 +42,31 @@ export function rateLimit(
 }
 
 /**
- * 从请求中提取客户端 IP
+ * 从请求中提取客户端 IP（仅使用 Vercel 可信反向代理注入的头）
+ * Vercel 的 x-forwarded-for 是可信的，取链中最后一个非内网 IP
  */
 export function getClientIp(request: Request): string {
   const xff = request.headers.get('x-forwarded-for');
-  if (xff) return xff.split(',')[0].trim();
+  if (xff) {
+    // 取链中最后一个非内网 IP（Vercel 代理链尾端是客户端真实 IP）
+    const ips = xff.split(',').map(ip => ip.trim());
+    for (let i = ips.length - 1; i >= 0; i--) {
+      if (!isPrivateIp(ips[i])) return ips[i];
+    }
+  }
   const real = request.headers.get('x-real-ip');
-  if (real) return real;
-  return '127.0.0.1';
+  if (real && !isPrivateIp(real)) return real;
+  return 'unknown';
+}
+
+function isPrivateIp(ip: string): boolean {
+  if (ip === '127.0.0.1' || ip === '::1' || ip === 'unknown') return true;
+  if (ip.startsWith('10.')) return true;
+  if (ip.startsWith('192.168.')) return true;
+  // 172.16.0.0/12
+  if (ip.startsWith('172.')) {
+    const second = parseInt(ip.split('.')[1], 10);
+    return second >= 16 && second <= 31;
+  }
+  return false;
 }

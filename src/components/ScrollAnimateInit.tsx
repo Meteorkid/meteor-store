@@ -1,19 +1,32 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 /**
- * 全局滚动动画初始化：使用单一共享 IntersectionObserver 为所有带
- * scroll-animate 类的元素添加 visible 类，触发淡入动画。
+ * 全局初始化组件：
+ * 1. 滚动动画 — IntersectionObserver 驱动
+ * 2. 路由切换加载进度条
  */
 export default function ScrollAnimateInit() {
   const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const observedRef = useRef<WeakSet<Element>>(new WeakSet());
+  const [loading, setLoading] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
+  // 路由变化时显示进度条
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    setLoading(true);
+    const t = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(t);
+  }, [pathname, searchParams]);
+
+  // 滚动动画
   useEffect(() => {
     const timeouts = timeoutsRef.current;
 
-    // 单一共享 observer，处理所有 scroll-animate 元素
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -22,7 +35,6 @@ export default function ScrollAnimateInit() {
           const el = entry.target;
           observer.unobserve(el);
 
-          // 读取 JS 属性获取 delay，兼容 React style 对象
           const delayStr = (el as HTMLElement).style.animationDelay;
           const delayMs = delayStr ? parseFloat(delayStr) * 1000 : 0;
 
@@ -40,17 +52,16 @@ export default function ScrollAnimateInit() {
       { threshold: 0.1 }
     );
 
-    // 观察单个元素（去重）
     const observeElement = (el: Element) => {
       if (observedRef.current.has(el)) return;
       observedRef.current.add(el);
       observer.observe(el);
     };
 
-    // 初始扫描
-    document.querySelectorAll('.scroll-animate').forEach(observeElement);
+    // 限定查询范围到主内容区域
+    const root = document.getElementById('__next') || document.body;
+    root.querySelectorAll('.scroll-animate').forEach(observeElement);
 
-    // 监听动态添加的元素（仅监听 body 直接子节点变化，避免 subtree: true 的性能开销）
     const mutationObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
@@ -63,7 +74,7 @@ export default function ScrollAnimateInit() {
       }
     });
 
-    mutationObserver.observe(document.body, { childList: true, subtree: true });
+    mutationObserver.observe(root, { childList: true, subtree: true });
 
     return () => {
       observer.disconnect();
@@ -73,5 +84,14 @@ export default function ScrollAnimateInit() {
     };
   }, []);
 
-  return null;
+  return (
+    <>
+      {/* 路由切换进度条 */}
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 z-[100] h-[2px]">
+          <div className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-violet-500 animate-loading-bar" />
+        </div>
+      )}
+    </>
+  );
 }

@@ -1,8 +1,7 @@
 import { Resend } from 'resend';
 import { findProduct } from './products';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let resendClient: any = null;
+let resendClient: Resend | null = null;
 
 function getResend() {
   if (!resendClient) {

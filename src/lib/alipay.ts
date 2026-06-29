@@ -53,6 +53,9 @@ export async function createAlipayOrder(params: {
   subject: string;
   body: string;
 }) {
+  if (!ALIPAY_CONFIG.appId || !ALIPAY_CONFIG.privateKey) {
+    throw new Error('Alipay configuration missing: APP_ID or PRIVATE_KEY not set');
+  }
   const { orderId, amount, subject, body } = params;
 
   // 构建请求参数
@@ -96,6 +99,9 @@ export async function createAlipayMobileOrder(params: {
   subject: string;
   body: string;
 }) {
+  if (!ALIPAY_CONFIG.appId || !ALIPAY_CONFIG.privateKey) {
+    throw new Error('Alipay configuration missing: APP_ID or PRIVATE_KEY not set');
+  }
   const { orderId, amount, subject, body } = params;
 
   const bizContent = {
@@ -135,34 +141,3 @@ export function verifyAlipayNotify(params: Record<string, string>): boolean {
   return verify(rest, sign);
 }
 
-// 查询订单状态
-export async function queryAlipayOrder(orderId: string) {
-  const bizContent = {
-    out_trade_no: orderId,
-  };
-
-  const requestParams: Record<string, string> = {
-    app_id: ALIPAY_CONFIG.appId,
-    method: 'alipay.trade.query',
-    charset: 'utf-8',
-    sign_type: 'RSA2',
-    timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
-    version: '1.0',
-    biz_content: JSON.stringify(bizContent),
-  };
-
-  const signature = sign(requestParams);
-  requestParams.sign = signature;
-
-  const response = await fetch(ALIPAY_CONFIG.gateway, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: Object.entries(requestParams)
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-      .join('&'),
-  });
-
-  return await response.json();
-}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
 
 interface PaymentModalProps {
@@ -29,25 +29,66 @@ export default function PaymentModal({
 }: PaymentModalProps) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const modalRef = useRef<HTMLDivElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  // Focus trap + Escape key
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onCloseRef.current();
+      return;
+    }
+    if (e.key !== 'Tab' || !modalRef.current) return;
+    const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+      'input, button, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+      // Auto-focus email input
+      setTimeout(() => emailInputRef.current?.focus(), 100);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, handleKeyDown]);
 
   if (!isOpen) return null;
 
   const handleAlipayPayment = async () => {
     if (!email) {
-      alert('请输入邮箱地址');
+      setError('请输入邮箱地址');
       return;
     }
+    setError('');
 
     setLoading(true);
 
     try {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
       const response = await fetch('/api/payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productName: productId,  // 传产品 ID 而非展示名
+          productName: productId,
           planName,
           paymentMethod: 'alipay',
           email,
@@ -61,10 +102,10 @@ export default function PaymentModal({
       if (data.success && data.payUrl) {
         window.location.href = data.payUrl;
       } else {
-        alert(`支付创建失败: ${data.error}`);
+        setError(`支付创建失败: ${data.error}`);
       }
     } catch {
-      alert('网络错误，请重试');
+      setError('网络错误，请重试');
     } finally {
       setLoading(false);
     }
@@ -72,6 +113,7 @@ export default function PaymentModal({
 
   const handleClose = () => {
     setEmail('');
+    setError('');
     onClose();
   };
 
@@ -85,10 +127,17 @@ export default function PaymentModal({
         />
 
         {/* Modal */}
-        <div className="relative w-full max-w-md mx-4 bg-gray-900 rounded-2xl border border-white/10 p-6 shadow-2xl">
+        <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="支付"
+          className="relative w-full max-w-md mx-4 bg-gray-900 rounded-2xl border border-white/10 p-6 shadow-2xl"
+        >
           {/* Close button */}
           <button
             onClick={handleClose}
+            aria-label="关闭"
             className="absolute top-4 right-4 text-gray-400 hover:text-white"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,13 +184,17 @@ export default function PaymentModal({
               邮箱地址（用于接收购买凭证）
             </label>
             <input
+              ref={emailInputRef}
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setError(''); }}
               placeholder="your@email.com"
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
             />
+            {error && (
+              <p className="text-red-400 text-sm mt-2">{error}</p>
+            )}
           </div>
 
           {/* Submit Button */}

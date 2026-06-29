@@ -1,38 +1,38 @@
 'use client';
 
-const partners = [
-  { name: 'Vercel', logo: '▲' },
-  { name: 'GitHub', logo: '⚛️' },
-  { name: 'Google', logo: 'G' },
-  { name: 'Microsoft', logo: '🪟' },
-  { name: 'Apple', logo: '' },
-  { name: 'Meta', logo: '∞' },
+const techStack = [
+  { name: 'Next.js', icon: '⚡' },
+  { name: 'React', icon: '⚛️' },
+  { name: 'TypeScript', icon: '📘' },
+  { name: 'Tailwind CSS', icon: '🎨' },
+  { name: 'Node.js', icon: '🟢' },
+  { name: 'PostgreSQL', icon: '🐘' },
+  { name: 'Vercel', icon: '▲' },
+  { name: 'GitHub', icon: '🐙' },
 ];
 
 export default function PartnersSection() {
   return (
-    <section className="py-20">
+    <section className="py-16 border-t border-b border-white/5">
       <div className="container mx-auto px-4">
-        {/* Section header */}
-        <div className="text-center mb-12 scroll-animate">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            受到信赖
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            被全球领先企业使用
+        <div className="text-center mb-10 scroll-animate">
+          <p className="text-sm text-white/30 uppercase tracking-widest font-medium">
+            基于现代技术栈构建
           </p>
         </div>
-        
-        {/* Partners grid */}
-        <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
-          {partners.map((partner, index) => (
-            <div 
-              key={partner.name}
-              className="flex items-center gap-2 text-2xl font-bold text-muted-foreground hover:text-foreground transition-colors scroll-animate"
-              style={{ animationDelay: `${index * 0.1}s` }}
+
+        {/* Marquee-style row */}
+        <div className="flex flex-wrap justify-center items-center gap-x-10 gap-y-4">
+          {techStack.map((tech, i) => (
+            <div
+              key={tech.name}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-white/10 hover:bg-white/[0.05] transition-all duration-300 group scroll-animate"
+              style={{ animationDelay: `${i * 0.05}s` }}
             >
-              <span>{partner.logo}</span>
-              <span>{partner.name}</span>
+              <span className="text-lg group-hover:scale-110 transition-transform">{tech.icon}</span>
+              <span className="text-sm text-white/40 group-hover:text-white/70 transition-colors font-medium">
+                {tech.name}
+              </span>
             </div>
           ))}
         </div>

@@ -53,9 +53,26 @@ export async function POST(request: NextRequest) {
       return new NextResponse('fail', { status: 400 });
     }
 
-    // 4. 幂等处理：已支付的订单不重复处理
+    // 4. 已支付订单：幂等处理，但如果邮件未送达则重试
     if (order.status === 'paid') {
       console.log('Alipay notify: order already paid', out_trade_no);
+      if (order.deliveryStatus === 'failed' || order.deliveryStatus === 'pending') {
+        try {
+          await sendOrderConfirmation({
+            email: order.email,
+            orderId: order.id,
+            productId: order.productId,
+            planName: order.planName,
+            amount: order.amountCny,
+          });
+          await db.update(orders)
+            .set({ deliveryStatus: 'emailed' })
+            .where(eq(orders.id, out_trade_no));
+          console.log(`Delivery retry succeeded: ${out_trade_no}`);
+        } catch (err) {
+          console.error('Delivery retry failed:', err);
+        }
+      }
       return new NextResponse('success', { status: 200 });
     }
 

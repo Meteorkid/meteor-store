@@ -1,21 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import { ANNUAL_DISCOUNT } from '@/lib/constants';
 import PaymentModal from './PaymentModal';
 
 interface PricingCardProps {
   name: string;
   price: number;
-  /** 方案原价（未打折），用于支付弹窗年付总额计算 */
   basePrice?: number;
   period?: string;
   features: string[];
   isPopular?: boolean;
   productId?: string;
   productName?: string;
-  /** 提供 href 时点击跳转到产品页，不弹支付窗口 */
   href?: string;
-  /** 是否年付（用于传递给支付接口） */
   isAnnual?: boolean;
 }
 
@@ -39,7 +37,6 @@ export default function PricingCard({
       return;
     }
 
-    // 有 href 时跳转到产品页，年付状态通过 URL 参数传递
     if (href) {
       const url = isAnnual ? `${href}?annual=true` : href;
       window.location.href = url;
@@ -52,60 +49,75 @@ export default function PricingCard({
   return (
     <>
       <div
-        className={`relative rounded-2xl border p-6 transition-all duration-300 ${
+        className={`group relative rounded-2xl border p-6 transition-all duration-300 ${
           isPopular
-            ? 'border-primary bg-gradient-to-br from-primary/10 to-pink-500/10 scale-105 shadow-lg'
-            : 'border-border bg-card hover:border-primary/50'
+            ? 'border-primary/50 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent shadow-xl shadow-primary/10 scale-[1.02]'
+            : 'border-white/[0.06] bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]'
         }`}
       >
+        {/* Popular Badge */}
         {isPopular && (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-primary to-pink-500 rounded-full text-xs font-medium text-primary-foreground">
-            最受欢迎
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-[11px] font-semibold text-white tracking-wide uppercase">
+              推荐
+            </span>
           </div>
         )}
 
-        <h3 className="text-lg font-semibold text-card-foreground mb-2">{name}</h3>
+        {/* Plan Name */}
+        <h3 className={`text-sm font-medium mb-4 ${isPopular ? 'text-primary' : 'text-muted-foreground'}`}>
+          {name}
+        </h3>
 
-        <div className="flex items-baseline gap-1 mb-6">
+        {/* Price */}
+        <div className="mb-6">
           {price === 0 ? (
-            <span className="text-3xl font-bold text-success">免费</span>
+            <span className="text-3xl font-bold text-emerald-400">免费</span>
           ) : (
             <>
-              <span className="text-3xl font-bold text-card-foreground">¥{price}</span>
-              {period && <span className="text-muted-foreground">/{period}</span>}
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-bold text-white">¥{price}</span>
+                {period && <span className="text-sm text-white/40">/{period}</span>}
+              </div>
+              {isAnnual && basePrice && (
+                <p className="text-sm text-emerald-400 mt-1">
+                  = ¥{Math.floor(basePrice * ANNUAL_DISCOUNT * 12)}/年
+                </p>
+              )}
             </>
           )}
         </div>
 
-        <ul className="space-y-3 mb-6">
-          {features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+        {/* Features */}
+        <ul className="space-y-3 mb-8">
+          {features.map((feature, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-sm">
               <svg
-                className={`w-5 h-5 flex-shrink-0 ${isPopular ? 'text-primary' : 'text-success'}`}
+                className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isPopular ? 'text-primary' : 'text-emerald-400'}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              {feature}
+              <span className="text-white/60">{feature}</span>
             </li>
           ))}
         </ul>
 
+        {/* CTA Button */}
         <button
           onClick={handlePurchase}
-          className={`w-full py-3 rounded-lg font-medium transition-all duration-300 ${
+          className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
             isPopular
-              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 shadow-lg shadow-primary/20'
+              : 'bg-white/[0.06] text-white hover:bg-white/[0.1] border border-white/[0.06]'
           }`}
         >
-          {price === 0 ? '开始使用' : '立即购买'}
+          {price === 0 ? '免费开始' : '立即购买'}
         </button>
       </div>
 
-      {/* Payment Modal */}
       <PaymentModal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}

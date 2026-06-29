@@ -40,7 +40,7 @@ export default function Footer() {
             <h3 className="text-foreground font-semibold mb-4">资源</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="https://github.com/Meteorkid" target="_blank" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                <Link href="https://github.com/Meteorkid" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
                   GitHub
                 </Link>
               </li>
@@ -50,9 +50,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                <a href="mailto:meteor@stu.gpnu.edu.cn" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
                   支持
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
