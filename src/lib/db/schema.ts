@@ -15,6 +15,17 @@ export const orders = pgTable('orders', {
   createdAt: text('created_at').notNull(),
 });
 
+export const licenseKeys = pgTable('license_keys', {
+  id: text('id').primaryKey(),
+  orderId: text('order_id').notNull(),
+  productId: text('product_id').notNull(),
+  planName: text('plan_name').notNull(),
+  email: text('email').notNull(),
+  key: text('key').notNull().unique(),
+  status: text('status').default('active').notNull(), // active | revoked
+  createdAt: text('created_at').notNull(),
+});
+
 export const feedbacks = pgTable('feedbacks', {
   id: text('id').primaryKey(),                        // FB{timestamp}{random}
   email: text('email'),                               // 可选

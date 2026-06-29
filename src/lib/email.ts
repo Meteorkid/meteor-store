@@ -26,6 +26,7 @@ interface OrderEmailData {
   productId: string;
   planName: string;
   amount: number;
+  licenseKey?: string;
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
@@ -49,6 +50,15 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
           <p><strong>方案：</strong>${planName}</p>
           <p><strong>支付金额：</strong>¥${data.amount}</p>
         </div>
+        ${data.licenseKey ? `
+        <div style="background: #1a1a2e; color: #e0e0e0; padding: 20px; border-radius: 8px; margin: 16px 0; text-align: center;">
+          <p style="margin: 0 0 8px; font-size: 14px; color: #aaa;">您的激活码</p>
+          <p style="margin: 0; font-size: 24px; font-family: monospace; letter-spacing: 2px; color: #10b981;">
+            <strong>${data.licenseKey}</strong>
+          </p>
+        </div>
+        <p style="color: #666; font-size: 13px;">请妥善保管您的激活码，这是使用产品的唯一凭证。</p>
+        ` : ''}
         <p style="color: #666; font-size: 14px;">如有问题，请回复此邮件联系我们。</p>
       </div>
     `,

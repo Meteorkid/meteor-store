@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { db } from '@/lib/db';
-import { orders } from '@/lib/db/schema';
+import { orders, licenseKeys } from '@/lib/db/schema';
 import { findProduct } from '@/lib/products';
 
 interface SuccessPageProps {
@@ -17,9 +17,14 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   const isValidOrderId = orderId && /^[0-9a-f-]{36}$/i.test(orderId);
 
   let order = null;
+  let license = null;
   if (isValidOrderId) {
     const [result] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
     order = result || null;
+    if (order) {
+      const [keyResult] = await db.select().from(licenseKeys).where(eq(licenseKeys.orderId, orderId)).limit(1);
+      license = keyResult || null;
+    }
   }
 
   const product = order ? findProduct(order.productId) : null;
@@ -55,7 +60,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
               </div>
 
               {/* 交付状态 */}
-              <div className="text-sm mb-8">
+              <div className="text-sm mb-6">
                 {order.deliveryStatus === 'emailed' ? (
                   <p className="text-green-400">✅ 确认邮件已发送至你的邮箱，请注意查收。</p>
                 ) : order.deliveryStatus === 'failed' ? (
@@ -64,6 +69,16 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
                   <p className="text-gray-400">⏳ 邮件正在发送中，请稍候。</p>
                 )}
               </div>
+
+              {/* License Key */}
+              {license && (
+                <div className="bg-gray-900 rounded-lg p-4 mb-6">
+                  <p className="text-xs text-gray-500 mb-2">你的激活码</p>
+                  <p className="text-xl font-mono tracking-widest text-green-400 select-all">
+                    {license.key}
+                  </p>
+                </div>
+              )}
             </>
           ) : order ? (
             <>

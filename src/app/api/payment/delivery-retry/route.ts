@@ -3,6 +3,7 @@ import { eq, and, or } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
 import { sendOrderConfirmation } from '@/lib/email';
+import { createLicenseKey, getLicenseKeyByOrderId } from '@/lib/license';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 /**
@@ -62,12 +63,22 @@ export async function POST(request: NextRequest) {
     const results = await Promise.allSettled(
       failedOrders.map(async (order) => {
         try {
+          let licenseKey = (await getLicenseKeyByOrderId(order.id))?.key;
+          if (!licenseKey) {
+            licenseKey = await createLicenseKey({
+              orderId: order.id,
+              productId: order.productId,
+              planName: order.planName,
+              email: order.email,
+            });
+          }
           await sendOrderConfirmation({
             email: order.email,
             orderId: order.id,
             productId: order.productId,
             planName: order.planName,
             amount: order.amountCny,
+            licenseKey,
           });
           await db.update(orders)
             .set({ deliveryStatus: 'emailed' })

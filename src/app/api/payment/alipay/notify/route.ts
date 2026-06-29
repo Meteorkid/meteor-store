@@ -4,6 +4,7 @@ import { verifyAlipayNotify } from '@/lib/alipay';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
 import { sendOrderConfirmation } from '@/lib/email';
+import { createLicenseKey, getLicenseKeyByOrderId } from '@/lib/license';
 
 // 支付宝异步通知回调
 export async function POST(request: NextRequest) {
@@ -58,12 +59,22 @@ export async function POST(request: NextRequest) {
       console.log('Alipay notify: order already paid', out_trade_no);
       if (order.deliveryStatus === 'failed' || order.deliveryStatus === 'pending') {
         try {
+          let licenseKey = (await getLicenseKeyByOrderId(order.id))?.key;
+          if (!licenseKey) {
+            licenseKey = await createLicenseKey({
+              orderId: order.id,
+              productId: order.productId,
+              planName: order.planName,
+              email: order.email,
+            });
+          }
           await sendOrderConfirmation({
             email: order.email,
             orderId: order.id,
             productId: order.productId,
             planName: order.planName,
             amount: order.amountCny,
+            licenseKey,
           });
           await db.update(orders)
             .set({ deliveryStatus: 'emailed' })
@@ -103,14 +114,21 @@ export async function POST(request: NextRequest) {
       if (rowCount > 0) {
         console.log(`Payment success: ${out_trade_no}, amount: ${total_amount}`);
 
-        // 发送确认邮件，失败时记录 delivery_status 以便重试
+        // 生成 License Key 并发送确认邮件
         try {
+          const licenseKey = await createLicenseKey({
+            orderId: order.id,
+            productId: order.productId,
+            planName: order.planName,
+            email: order.email,
+          });
           await sendOrderConfirmation({
             email: order.email,
             orderId: order.id,
             productId: order.productId,
             planName: order.planName,
             amount: order.amountCny,
+            licenseKey,
           });
           await db.update(orders)
             .set({ deliveryStatus: 'emailed' })
