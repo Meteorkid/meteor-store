@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
+import { CheckIconSm } from './CheckIcon';
 import PaymentModal from './PaymentModal';
 
 interface PricingCardProps {
@@ -92,14 +93,7 @@ export default function PricingCard({
         <ul className="space-y-3 mb-8">
           {features.map((feature, i) => (
             <li key={i} className="flex items-start gap-2.5 text-sm">
-              <svg
-                className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isPopular ? 'text-primary' : 'text-emerald-400'}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <CheckIconSm className={isPopular ? 'text-primary' : 'text-emerald-400'} />
               <span className="text-white/60">{feature}</span>
             </li>
           ))}

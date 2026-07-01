@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 const stats = [
   { label: '精品工具', value: 9, suffix: '+', icon: '⚡' },
@@ -10,13 +10,11 @@ const stats = [
 ];
 
 function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
-  const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    // 先清除旧的 interval，避免 value 变化时泄漏
     if (timerRef.current) clearInterval(timerRef.current);
 
     const observer = new IntersectionObserver(
@@ -28,14 +26,20 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
           const steps = 60;
           const increment = value / steps;
           let current = 0;
+          const useFixed = value % 1 === 0;
 
           timerRef.current = setInterval(() => {
             current += increment;
             if (current >= value) {
-              setCount(value);
+              current = value;
               clearInterval(timerRef.current!);
-            } else {
-              setCount(current);
+            }
+            // 直接操作 DOM，避免 re-render
+            if (ref.current) {
+              const textNode = ref.current.childNodes[0];
+              if (textNode) {
+                textNode.textContent = useFixed ? String(Math.floor(current)) : current.toFixed(1);
+              }
             }
           }, duration / steps);
         }
@@ -53,7 +57,7 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
 
   return (
     <div ref={ref} className="text-3xl md:text-4xl font-bold text-white mb-1">
-      {value % 1 === 0 ? Math.floor(count) : count.toFixed(1)}
+      {'0'}
       <span className="text-primary">{suffix}</span>
     </div>
   );

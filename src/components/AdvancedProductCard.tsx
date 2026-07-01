@@ -3,21 +3,7 @@
 import { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Product } from '@/data/products';
-import { SHOW_PRICING } from '@/lib/constants';
-
-const categoryColors: Record<string, string> = {
-  developer: 'text-blue-400 bg-blue-400/10',
-  ai: 'text-purple-400 bg-purple-400/10',
-  design: 'text-pink-400 bg-pink-400/10',
-  utility: 'text-emerald-400 bg-emerald-400/10',
-};
-
-const categoryLabels: Record<string, string> = {
-  developer: '开发者工具',
-  ai: 'AI 工具',
-  design: '设计工具',
-  utility: '实用工具',
-};
+import { SHOW_PRICING, categoryColors, categoryLabels } from '@/lib/constants';
 
 interface AdvancedProductCardProps {
   product: Product;

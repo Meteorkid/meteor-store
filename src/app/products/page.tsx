@@ -1,13 +1,15 @@
-'use client';
-
-import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { products, categories } from '@/data/products';
+import CategoryFilter from '@/components/CategoryFilter';
+import { products } from '@/data/products';
 
-export default function ProductsPage() {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+interface Props {
+  searchParams: Promise<{ category?: string }>;
+}
+
+export default async function ProductsPage({ searchParams }: Props) {
+  const { category: selectedCategory = 'all' } = await searchParams;
 
   const filteredProducts = selectedCategory === 'all'
     ? products
@@ -25,22 +27,7 @@ export default function ProductsPage() {
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                selectedCategory === category.id
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
-              }`}
-            >
-              <span className="mr-2">{category.icon}</span>
-              {category.name}
-            </button>
-          ))}
-        </div>
+        <CategoryFilter selected={selectedCategory} />
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

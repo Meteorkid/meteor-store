@@ -3,13 +3,18 @@
 
 const hits = new Map<string, { count: number; resetAt: number }>();
 
-// 每 5 分钟清理一次过期条目，避免内存泄漏
-setInterval(() => {
+let lastCleanup = Date.now();
+const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 分钟
+
+/** 惰性清理过期条目，避免 setInterval 在 serverless 环境中失效 */
+function lazyCleanup() {
   const now = Date.now();
+  if (now - lastCleanup < CLEANUP_INTERVAL) return;
+  lastCleanup = now;
   for (const [key, value] of hits) {
     if (value.resetAt <= now) hits.delete(key);
   }
-}, 5 * 60 * 1000);
+}
 
 /**
  * 检查是否超过速率限制
@@ -23,6 +28,8 @@ export function rateLimit(
   limit: number,
   windowMs: number,
 ): { limited: boolean; remaining: number; resetAt: number } {
+  lazyCleanup();
+
   const now = Date.now();
   const entry = hits.get(key);
 

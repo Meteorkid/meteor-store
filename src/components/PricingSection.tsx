@@ -32,16 +32,7 @@ export default function PricingSection() {
         isPopular: true,
       };
     })
-    .filter(Boolean) as Array<{
-    name: string;
-    basePrice: number;
-    period: string;
-    productName: string;
-    productId: string;
-    href: string;
-    features: string[];
-    isPopular: boolean;
-  }>, []);
+    .filter((p): p is NonNullable<typeof p> => p !== null), []);
 
   return (
     <section id="pricing" className="py-20">

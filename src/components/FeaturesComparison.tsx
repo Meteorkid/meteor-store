@@ -1,5 +1,7 @@
 'use client';
 
+import { CheckIconSm } from './CheckIcon';
+
 const plans = [
   {
     name: 'Basic',
@@ -93,9 +95,7 @@ export default function FeaturesComparison() {
                 {plan.features.map((f) => (
                   <li key={f.name} className="flex items-center gap-2.5 text-sm">
                     {f.included ? (
-                      <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
+                      <CheckIconSm />
                     ) : (
                       <svg className="w-4 h-4 text-white/15 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

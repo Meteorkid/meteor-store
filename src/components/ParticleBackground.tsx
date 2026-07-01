@@ -16,14 +16,15 @@ export default function ParticleBackground() {
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
   const animationRef = useRef<number>(0);
-  
+  const isVisibleRef = useRef(false);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+
     // Set canvas size (resize 只更新尺寸，不重建粒子)
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -31,12 +32,16 @@ export default function ParticleBackground() {
     };
     resize();
     window.addEventListener('resize', resize);
-    
+
+    // 移动端减少粒子数量，低端设备跳过连线
+    const isMobile = window.innerWidth < 768;
+    const maxParticles = isMobile ? 30 : 50;
+
     // Create particles
     const createParticles = () => {
       const particles: Particle[] = [];
-      const count = Math.min(100, Math.floor((canvas.width * canvas.height) / 15000));
-      
+      const count = Math.min(maxParticles, Math.floor((canvas.width * canvas.height) / 20000));
+
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * canvas.width,
@@ -49,68 +54,83 @@ export default function ParticleBackground() {
       }
       return particles;
     };
-    
+
     particlesRef.current = createParticles();
-    
+
     // Mouse move handler
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
     };
     window.addEventListener('mousemove', handleMouseMove);
-    
-    // Animation loop
+
+    // Animation loop — 仅在 canvas 可见时运行
     const animate = () => {
+      if (!isVisibleRef.current) {
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
       ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
+
       particlesRef.current.forEach((particle, i) => {
         // Update position
         particle.x += particle.vx;
         particle.y += particle.vy;
-        
+
         // Bounce off edges
         if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
         if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
-        
+
         // Mouse interaction
         const dx = mouseRef.current.x - particle.x;
         const dy = mouseRef.current.y - particle.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (dist < 150) {
           particle.vx += dx * 0.0001;
           particle.vy += dy * 0.0001;
         }
-        
+
         // Draw particle
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fillStyle = particle.color;
         ctx.fill();
-        
-        // Draw connections
-        particlesRef.current.slice(i + 1).forEach((other) => {
-          const dx = particle.x - other.x;
-          const dy = particle.y - other.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(other.x, other.y);
-            ctx.strokeStyle = `rgba(139, 92, 246, ${0.2 * (1 - dist / 120)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        });
+
+        // Draw connections (移动端跳过连线计算)
+        if (!isMobile) {
+          particlesRef.current.slice(i + 1).forEach((other) => {
+            const dx = particle.x - other.x;
+            const dy = particle.y - other.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 120) {
+              ctx.beginPath();
+              ctx.moveTo(particle.x, particle.y);
+              ctx.lineTo(other.x, other.y);
+              ctx.strokeStyle = `rgba(139, 92, 246, ${0.2 * (1 - dist / 120)})`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          });
+        }
       });
-      
+
       animationRef.current = requestAnimationFrame(animate);
     };
-    
-    animate();
-    
+
+    // IntersectionObserver: 离屏暂停，回屏恢复
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0 },
+    );
+    observer.observe(canvas);
+
+    animationRef.current = requestAnimationFrame(animate);
+
     return () => {
+      observer.disconnect();
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
       if (animationRef.current) {

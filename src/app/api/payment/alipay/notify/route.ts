@@ -15,7 +15,10 @@ export async function POST(request: NextRequest) {
       params[key] = value.toString();
     });
 
-    console.log('Alipay notify:', { out_trade_no: params.out_trade_no, trade_status: params.trade_status });
+    // 仅在非生产环境输出完整通知参数，避免生产日志泄露业务数据
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Alipay notify:', { out_trade_no: params.out_trade_no, trade_status: params.trade_status });
+    }
 
     // 1. 验证签名
     const isValid = verifyAlipayNotify(params);

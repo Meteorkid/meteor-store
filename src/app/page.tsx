@@ -20,12 +20,6 @@ export const metadata: Metadata = {
   title: 'Meteor Store — 开发者工具与 AI 应用',
   description:
     '精心打造的开发者工具矩阵：智能爬虫框架 OmniCrawl、AI 记忆系统 Ex-Memory、3D 解剖图谱 Skeleton Anatomy。开源驱动，终身免费更新。',
-  openGraph: {
-    title: 'Meteor Store — 开发者工具与 AI 应用',
-    description:
-      '精心打造的开发者工具矩阵：智能爬虫、AI 记忆、3D 解剖、设计系统。开源驱动，终身免费更新。',
-    url: 'https://www.imagentx.top',
-  },
 };
 
 export default function Home() {

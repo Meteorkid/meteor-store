@@ -2,17 +2,11 @@ import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { products } from '@/data/products';
+import { categoryLabels } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: '文档 - Meteor Store',
   description: 'Meteor Store 产品使用文档与开发指南',
-};
-
-const categoryLabels: Record<string, string> = {
-  ai: 'AI 工具',
-  developer: '开发者工具',
-  design: '设计工具',
-  utility: '实用工具',
 };
 
 export default function DocsPage() {
