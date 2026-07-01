@@ -62,7 +62,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
         ` : ''}
         ${data.accessToken ? `
         <p style="color: #666; font-size: 13px; margin-top: 16px;">
-          <a href="https://meteor-store.meteorkids-projects.vercel.app/orders/${orderId}?token=${escapeHtml(data.accessToken)}" style="color: #8b5cf6;">查看订单详情</a>
+          <a href="${(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.imagentx.top')}/orders/${orderId}?token=${escapeHtml(data.accessToken)}" style="color: #8b5cf6;">查看订单详情</a>
         </p>
         ` : ''}
         <p style="color: #666; font-size: 14px;">如有问题，请回复此邮件联系我们。</p>

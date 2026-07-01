@@ -34,11 +34,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Meteor Store" }],
   creator: "Meteor Store",
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.png", type: "image/png" },
-    ],
-    apple: "/favicon.png",
+    icon: "/favicon.svg",
   },
   openGraph: {
     type: "website",
@@ -66,7 +62,7 @@ const jsonLd = {
   "@type": "Organization",
   name: "Meteor Store",
   url: "https://www.imagentx.top",
-  logo: "https://www.imagentx.top/favicon.png",
+  logo: "https://www.imagentx.top/favicon.svg",
   description:
     "精心打造的开发者工具矩阵：智能爬虫框架、AI 记忆系统、3D 解剖图谱、设计系统。",
   sameAs: ["https://github.com/Meteorkid"],

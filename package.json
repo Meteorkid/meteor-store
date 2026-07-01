@@ -20,7 +20,6 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "resend": "^6.16.0",
-    "ws": "^8.21.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -28,7 +27,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^6.0.3",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Header from '@/components/Header';
-import EnhancedFooter from '@/components/EnhancedFooter';
+import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
 import ProductShowcase from '@/components/ProductShowcase';
 import ProductDemo from '@/components/ProductDemo';
@@ -78,7 +78,7 @@ export default function Home() {
       <CTASection variant="bold" />
       <CTASection variant="subtle" />
 
-      <EnhancedFooter />
+      <Footer showSocial />
 
       {/* Back to top button */}
       <BackToTop />
