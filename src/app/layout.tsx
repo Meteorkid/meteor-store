@@ -44,12 +44,22 @@ export const metadata: Metadata = {
     title: "Meteor Store — 开发者工具与 AI 应用",
     description:
       "精心打造的开发者工具矩阵：智能爬虫、AI 记忆、3D 解剖、设计系统。开源驱动，终身免费更新。",
+    images: [
+      {
+        url: "https://www.imagentx.top/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Meteor Store — 开发者工具与 AI 应用",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Meteor Store — 开发者工具与 AI 应用",
     description:
       "精心打造的开发者工具矩阵：智能爬虫、AI 记忆、3D 解剖、设计系统。",
+    images: ["https://www.imagentx.top/og-image.png"],
+    site: "@Meteorkid",
   },
   robots: {
     index: true,

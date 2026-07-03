@@ -1,33 +1,43 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { SHOW_PRICING } from '@/lib/constants';
 
-const faqs = [
+const allFaqs = [
   {
     question: '如何购买产品？',
     answer: '选择你想要的产品和方案，点击「立即购买」，通过支付宝完成支付。支付成功后，确认邮件会自动发送到你的邮箱。',
+    commercial: true,
   },
   {
     question: '购买后如何获取产品？',
     answer: '支付成功后，我们会通过邮件发送产品下载链接和激活码。你也可以在订单详情页面查看购买记录。',
+    commercial: true,
   },
   {
     question: '是否支持退款？',
     answer: '是的，我们提供 30 天退款保证。如果你对产品不满意，可以在购买后 30 天内联系我们申请全额退款。',
+    commercial: true,
   },
   {
     question: '产品是否提供更新？',
     answer: '是的，所有产品都提供终身免费更新。我们会持续改进产品并添加新功能。',
+    commercial: false,
   },
   {
     question: '如何获取技术支持？',
     answer: '你可以通过邮件联系我们获取技术支持，或在 GitHub 上提交 Issue。我们会在 24 小时内回复。',
+    commercial: false,
   },
   {
     question: '是否支持企业购买？',
     answer: '是的，我们提供企业版产品和批量购买优惠。请通过邮件联系我们获取定制方案。',
+    commercial: true,
   },
 ];
+
+// 备案期间隐藏销售相关 FAQ
+const faqs = SHOW_PRICING ? allFaqs : allFaqs.filter(f => !f.commercial);
 
 function FAQItem({ faq, isOpen, onToggle }: {
   faq: { question: string; answer: string };

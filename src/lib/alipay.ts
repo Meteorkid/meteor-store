@@ -1,23 +1,26 @@
 import crypto from 'crypto';
 
-// 支付宝配置
-const ALIPAY_CONFIG = {
-  appId: process.env.ALIPAY_APP_ID || '',
-  privateKey: process.env.ALIPAY_PRIVATE_KEY || '',
-  alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY || '',
-  gateway: process.env.ALIPAY_GATEWAY || 'https://openapi.alipay.com/gateway.do',
-  notifyUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/api/payment/alipay/notify`,
-  returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
-};
+// 惰性加载支付宝配置，避免模块加载时环境变量未注入导致静默失败
+function getAlipayConfig() {
+  return {
+    appId: process.env.ALIPAY_APP_ID || '',
+    privateKey: process.env.ALIPAY_PRIVATE_KEY || '',
+    alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY || '',
+    gateway: process.env.ALIPAY_GATEWAY || 'https://openapi.alipay.com/gateway.do',
+    notifyUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/api/payment/alipay/notify`,
+    returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
+  };
+}
 
 // 生成签名
 function sign(params: Record<string, string>): string {
+  const config = getAlipayConfig();
   // 1. 按照 key 的 ASCII 码从小到大排序
   const sortedKeys = Object.keys(params).sort();
 
   // 2. 拼接字符串
   const signStr = sortedKeys
-    .filter(key => key !== 'sign' && key !== 'sign_type' && params[key])
+    .filter(key => key !== 'sign' && key !== 'sign_type' && params[key] !== undefined && params[key] !== '')
     .map(key => `${key}=${params[key]}`)
     .join('&');
 
@@ -25,17 +28,18 @@ function sign(params: Record<string, string>): string {
   const signature = crypto
     .createSign('RSA-SHA256')
     .update(signStr)
-    .sign(ALIPAY_CONFIG.privateKey, 'base64');
+    .sign(config.privateKey, 'base64');
 
   return signature;
 }
 
 // 验证签名
 function verify(params: Record<string, string>, signature: string): boolean {
+  const config = getAlipayConfig();
   const sortedKeys = Object.keys(params).sort();
 
   const signStr = sortedKeys
-    .filter(key => key !== 'sign' && key !== 'sign_type' && params[key])
+    .filter(key => key !== 'sign' && key !== 'sign_type' && params[key] !== undefined && params[key] !== '')
     .map(key => `${key}=${params[key]}`)
     .join('&');
 
@@ -43,7 +47,7 @@ function verify(params: Record<string, string>, signature: string): boolean {
     .createVerify('RSA-SHA256')
     .update(signStr);
 
-  return verifier.verify(ALIPAY_CONFIG.alipayPublicKey, signature, 'base64');
+  return verifier.verify(config.alipayPublicKey, signature, 'base64');
 }
 
 // 创建电脑网站支付订单
@@ -53,7 +57,8 @@ export async function createAlipayOrder(params: {
   subject: string;
   body: string;
 }) {
-  if (!ALIPAY_CONFIG.appId || !ALIPAY_CONFIG.privateKey) {
+  const config = getAlipayConfig();
+  if (!config.appId || !config.privateKey) {
     throw new Error('Alipay configuration missing: APP_ID or PRIVATE_KEY not set');
   }
   const { orderId, amount, subject, body } = params;
@@ -69,14 +74,14 @@ export async function createAlipayOrder(params: {
   };
 
   const requestParams: Record<string, string> = {
-    app_id: ALIPAY_CONFIG.appId,
+    app_id: config.appId,
     method: 'alipay.trade.page.pay',
     charset: 'utf-8',
     sign_type: 'RSA2',
     timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
     version: '1.0',
-    notify_url: ALIPAY_CONFIG.notifyUrl,
-    return_url: ALIPAY_CONFIG.returnUrl,
+    notify_url: config.notifyUrl,
+    return_url: config.returnUrl,
     biz_content: JSON.stringify(bizContent),
   };
 
@@ -89,7 +94,7 @@ export async function createAlipayOrder(params: {
     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
     .join('&');
 
-  return `${ALIPAY_CONFIG.gateway}?${queryString}`;
+  return `${config.gateway}?${queryString}`;
 }
 
 // 创建手机网站支付订单
@@ -99,7 +104,8 @@ export async function createAlipayMobileOrder(params: {
   subject: string;
   body: string;
 }) {
-  if (!ALIPAY_CONFIG.appId || !ALIPAY_CONFIG.privateKey) {
+  const config = getAlipayConfig();
+  if (!config.appId || !config.privateKey) {
     throw new Error('Alipay configuration missing: APP_ID or PRIVATE_KEY not set');
   }
   const { orderId, amount, subject, body } = params;
@@ -113,14 +119,14 @@ export async function createAlipayMobileOrder(params: {
   };
 
   const requestParams: Record<string, string> = {
-    app_id: ALIPAY_CONFIG.appId,
+    app_id: config.appId,
     method: 'alipay.trade.wap.pay',
     charset: 'utf-8',
     sign_type: 'RSA2',
     timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
     version: '1.0',
-    notify_url: ALIPAY_CONFIG.notifyUrl,
-    return_url: ALIPAY_CONFIG.returnUrl,
+    notify_url: config.notifyUrl,
+    return_url: config.returnUrl,
     biz_content: JSON.stringify(bizContent),
   };
 
@@ -131,7 +137,7 @@ export async function createAlipayMobileOrder(params: {
     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
     .join('&');
 
-  return `${ALIPAY_CONFIG.gateway}?${queryString}`;
+  return `${config.gateway}?${queryString}`;
 }
 
 // 验证回调通知
@@ -140,4 +146,3 @@ export function verifyAlipayNotify(params: Record<string, string>): boolean {
   if (!sign) return false;
   return verify(rest, sign);
 }
-

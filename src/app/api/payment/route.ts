@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -80,6 +81,7 @@ export async function POST(request: NextRequest) {
     if (priceCNY === 0) {
       const orderId = crypto.randomUUID();
       const now = new Date().toISOString();
+      const accessToken = crypto.randomUUID();
       await db.insert(orders).values({
         id: orderId,
         productId: productName,
@@ -90,9 +92,39 @@ export async function POST(request: NextRequest) {
         status: 'paid',
         paidAt: now,
         billingPeriod: validAnnual ? 'annual' : 'monthly',
-        accessToken: crypto.randomUUID(),
+        accessToken,
         createdAt: now,
       });
+
+      // 免费产品也需要生成 license key 和发送确认邮件
+      try {
+        const { createLicenseKey } = await import('@/lib/license');
+        const { sendOrderConfirmation } = await import('@/lib/email');
+        const licenseKey = await createLicenseKey({
+          orderId,
+          productId: productName,
+          planName,
+          email,
+        });
+        await sendOrderConfirmation({
+          email,
+          orderId,
+          productId: productName,
+          planName,
+          amount: 0,
+          licenseKey,
+          accessToken,
+        });
+        await db.update(orders)
+          .set({ deliveryStatus: 'emailed' })
+          .where(eq(orders.id, orderId));
+      } catch (err) {
+        console.error('Free order delivery failed:', err);
+        await db.update(orders)
+          .set({ deliveryStatus: 'failed' })
+          .where(eq(orders.id, orderId));
+      }
+
       return NextResponse.json({
         success: true,
         orderId,
@@ -104,8 +136,23 @@ export async function POST(request: NextRequest) {
     // 先生成订单号，用于支付宝回调关联
     const orderId = crypto.randomUUID();
     const now = new Date().toISOString();
+    const accessToken = crypto.randomUUID();
 
-    // 先创建支付宝订单，成功后再写库（避免孤儿 pending 订单）
+    // 先写数据库（pending 状态），再调支付宝，避免用户付款后无订单记录
+    await db.insert(orders).values({
+      id: orderId,
+      productId: productName,
+      planName,
+      email,
+      amountCny: priceCNY,
+      paymentMethod: 'alipay',
+      status: 'pending',
+      billingPeriod,
+      accessToken,
+      createdAt: now,
+    });
+
+    // 再创建支付宝订单
     const subject = `${product.name} - ${planName}`;
     const body_text = `购买 ${product.name} 的 ${planName} 方案`;
 
@@ -116,25 +163,15 @@ export async function POST(request: NextRequest) {
         : await createAlipayOrder({ orderId, amount: priceCNY, subject, body: body_text });
     } catch (err) {
       console.error('Alipay SDK error:', err);
+      // 支付宝创建失败，标记订单为 failed，避免孤儿 pending 订单
+      await db.update(orders)
+        .set({ status: 'failed' })
+        .where(eq(orders.id, orderId));
       return NextResponse.json(
         { error: '支付渠道创建失败，请稍后重试' },
         { status: 502 }
       );
     }
-
-    // 支付宝订单创建成功，写入数据库
-    await db.insert(orders).values({
-      id: orderId,
-      productId: productName,
-      planName,
-      email,
-      amountCny: priceCNY,
-      paymentMethod: 'alipay',
-      status: 'pending',
-      billingPeriod,
-      accessToken: crypto.randomUUID(),
-      createdAt: now,
-    });
 
     return NextResponse.json({
       success: true,

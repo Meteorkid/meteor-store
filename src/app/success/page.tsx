@@ -7,8 +7,10 @@ import { orders, licenseKeys } from '@/lib/db/schema';
 import { findProduct } from '@/lib/products';
 import { SHOW_PRICING } from '@/lib/constants';
 
+import { and } from 'drizzle-orm';
+
 interface SuccessPageProps {
-  searchParams: Promise<{ orderId?: string }>;
+  searchParams: Promise<{ orderId?: string; token?: string }>;
 }
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
@@ -26,15 +28,20 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
     );
   }
 
-  const { orderId } = await searchParams;
+  const { orderId, token } = await searchParams;
 
-  // 校验 orderId 格式（UUID），防止注入
-  const isValidOrderId = orderId && /^[0-9a-f-]{36}$/i.test(orderId);
+  // 校验 orderId 和 token 格式（UUID），防止注入
+  const uuidPattern = /^[0-9a-f-]{36}$/i;
+  const isValidOrderId = orderId && uuidPattern.test(orderId);
+  const isValidToken = token && uuidPattern.test(token);
 
   let order = null;
   let license = null;
-  if (isValidOrderId) {
-    const [result] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  if (isValidOrderId && isValidToken) {
+    // 必须同时校验 accessToken，防止枚举泄露 license key
+    const [result] = await db.select().from(orders).where(
+      and(eq(orders.id, orderId), eq(orders.accessToken, token))
+    ).limit(1);
     order = result || null;
     if (order) {
       const [keyResult] = await db.select().from(licenseKeys).where(eq(licenseKeys.orderId, orderId)).limit(1);
