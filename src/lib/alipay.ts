@@ -45,8 +45,9 @@ function sign(params: Record<string, string>): string {
   const sortedKeys = Object.keys(params).sort();
 
   // 2. 拼接字符串
+  // 注意：请求签名只排除 sign，sign_type 必须参与签名（与回调验签不同）
   const signStr = sortedKeys
-    .filter(key => key !== 'sign' && key !== 'sign_type' && params[key] !== undefined && params[key] !== '')
+    .filter(key => key !== 'sign' && params[key] !== undefined && params[key] !== '')
     .map(key => `${key}=${params[key]}`)
     .join('&');
 
