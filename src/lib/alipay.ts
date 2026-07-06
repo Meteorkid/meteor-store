@@ -1,11 +1,24 @@
 import crypto from 'crypto';
 
+/**
+ * 将密钥规范化为 PEM 格式。
+ * 环境变量中的密钥可能是：完整 PEM（含 \n 转义或真实换行）、或裸 base64（支付宝控制台复制的格式）。
+ * Node crypto 只接受 PEM，裸 base64 会报 "DECODER routines::unsupported"。
+ */
+function normalizeKey(key: string, type: 'PRIVATE' | 'PUBLIC'): string {
+  if (!key) return '';
+  const k = key.trim().replace(/\\n/g, '\n');
+  if (k.includes('-----BEGIN')) return k;
+  const body = k.replace(/\s+/g, '').match(/.{1,64}/g)?.join('\n') ?? '';
+  return `-----BEGIN ${type} KEY-----\n${body}\n-----END ${type} KEY-----`;
+}
+
 // 惰性加载支付宝配置，避免模块加载时环境变量未注入导致静默失败
 function getAlipayConfig() {
   return {
     appId: process.env.ALIPAY_APP_ID || '',
-    privateKey: process.env.ALIPAY_PRIVATE_KEY || '',
-    alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY || '',
+    privateKey: normalizeKey(process.env.ALIPAY_PRIVATE_KEY || '', 'PRIVATE'),
+    alipayPublicKey: normalizeKey(process.env.ALIPAY_PUBLIC_KEY || '', 'PUBLIC'),
     gateway: process.env.ALIPAY_GATEWAY || 'https://openapi.alipay.com/gateway.do',
     notifyUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/api/payment/alipay/notify`,
     returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
