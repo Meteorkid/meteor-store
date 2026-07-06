@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { eq, and, or } from 'drizzle-orm';
 import { db } from '@/lib/db';
@@ -13,10 +14,13 @@ import { rateLimit, getClientIp } from '@/lib/rate-limit';
  * Body: { orderId?: string } — 指定单个订单；不传则批量重试所有失败订单
  */
 export async function POST(request: NextRequest) {
-  // 简单 token 鉴权
-  const authHeader = request.headers.get('authorization');
+  // token 鉴权（常数时间比较，防时序侧信道）
+  const authHeader = request.headers.get('authorization') || '';
   const secret = process.env.DELIVERY_RETRY_SECRET;
-  if (!secret || authHeader !== `Bearer ${secret}`) {
+  const expected = `Bearer ${secret}`;
+  const a = Buffer.from(authHeader);
+  const b = Buffer.from(expected);
+  if (!secret || a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
     return NextResponse.json({ error: '未授权' }, { status: 401 });
   }
 

@@ -150,8 +150,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 先生成订单号，用于支付宝回调关联
-    const orderId = crypto.randomUUID();
+    // 先生成订单号（带碰撞检查），用于支付宝回调关联
+    const orderId = await generateOrderId();
     const now = new Date().toISOString();
     const accessToken = crypto.randomUUID();
 
