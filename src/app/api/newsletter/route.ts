@@ -39,11 +39,17 @@ export async function POST(request: NextRequest) {
     const { Resend } = await import('resend');
     const resend = new Resend(apiKey);
 
+    // 尝试创建联系人（Resend 会自动处理重复）
     const { error } = await resend.contacts.create({
       email,
       audienceId,
       unsubscribed: false,
     });
+
+    // 如果是重复订阅错误，返回成功
+    if (error?.message?.includes('already exists')) {
+      return NextResponse.json({ success: true, message: '您已订阅过' });
+    }
 
     if (error) {
       console.error('Resend contacts.create error:', error);

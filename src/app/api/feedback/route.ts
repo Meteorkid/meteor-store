@@ -10,6 +10,21 @@ const FeedbackSchema = z.object({
   content: z.string().min(1).max(5000),
 });
 
+/**
+ * 清理用户输入，移除潜在的 XSS 内容
+ * 保留原始文本用于分析，但移除 HTML 标签
+ */
+function sanitizeInput(input: string): string {
+  // 移除 HTML 标签，保留文本内容
+  return input
+    .replace(/<[^>]*>/g, '')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .trim();
+}
+
 export async function POST(request: NextRequest) {
   // 速率限制：每 IP 每分钟最多 5 次
   const ip = getClientIp(request);
@@ -33,11 +48,14 @@ export async function POST(request: NextRequest) {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
 
+    // 清理内容，移除潜在的 XSS 内容
+    const sanitizedContent = sanitizeInput(content);
+
     await db.insert(feedbacks).values({
       id,
       email: email || null,
       type,
-      content,
+      content: sanitizedContent,
       createdAt: now,
     });
 

@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
         .limit(1);
       failedOrders = order ? [order] : [];
     } else {
+      // 批量重试时限制最多 50 个订单，避免超时
       failedOrders = await db.select().from(orders)
         .where(and(
           eq(orders.status, 'paid'),
@@ -53,7 +54,8 @@ export async function POST(request: NextRequest) {
             eq(orders.deliveryStatus, 'failed'),
             eq(orders.deliveryStatus, 'pending'),
           ),
-        ));
+        ))
+        .limit(50);
     }
 
     if (failedOrders.length === 0) {

@@ -57,8 +57,18 @@ export async function POST(request: NextRequest) {
       return new NextResponse('fail', { status: 400 });
     }
 
-    // 4. 已支付订单：幂等处理，但如果邮件未送达则重试
+    // 4. 已支付订单：幂等处理，但仍校验金额（纵深防御）
     if (order.status === 'paid') {
+      // 纵深防御：即使已支付，也校验金额一致性
+      const expectedAmountPaid = order.amountCny.toFixed(2);
+      if (total_amount !== expectedAmountPaid) {
+        console.error('Alipay notify: amount mismatch on paid order', {
+          orderId: out_trade_no,
+          expected: expectedAmountPaid,
+          received: total_amount,
+        });
+        // 记录告警但仍返回 success，避免支付宝重试
+      }
       console.log('Alipay notify: order already paid', out_trade_no);
       if (order.deliveryStatus === 'failed' || order.deliveryStatus === 'pending') {
         try {
@@ -157,14 +167,20 @@ export async function POST(request: NextRequest) {
 }
 
 // 支付宝同步回调（用户支付完成后跳转）
+// 注意：同步回调不校验签名（支付宝文档说明），但会验证订单是否存在
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const out_trade_no = searchParams.get('out_trade_no');
-  const trade_no = searchParams.get('trade_no');
 
+  // 只传递 orderId，不传递未验证的 trade_no
   const successUrl = new URL('/success', request.url);
-  if (out_trade_no) successUrl.searchParams.set('orderId', out_trade_no);
-  if (trade_no) successUrl.searchParams.set('tradeNo', trade_no);
+  if (out_trade_no) {
+    // 校验 UUID 格式，防止注入
+    const uuidPattern = /^[0-9a-f-]{36}$/i;
+    if (uuidPattern.test(out_trade_no)) {
+      successUrl.searchParams.set('orderId', out_trade_no);
+    }
+  }
 
   return NextResponse.redirect(successUrl);
 }

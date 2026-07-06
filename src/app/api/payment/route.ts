@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { createAlipayOrder, createAlipayMobileOrder } from '@/lib/alipay';
 import { findProduct } from '@/lib/products';
@@ -8,6 +8,23 @@ import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
+
+/**
+ * 生成唯一订单 ID，带碰撞重试
+ */
+async function generateOrderId(maxRetries = 3): Promise<string> {
+  for (let i = 0; i < maxRetries; i++) {
+    const orderId = crypto.randomUUID();
+    // 检查是否已存在
+    const [existing] = await db.select({ id: orders.id })
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .limit(1);
+    if (!existing) return orderId;
+    console.warn(`Order ID collision: ${orderId}, retry ${i + 1}/${maxRetries}`);
+  }
+  throw new Error('Failed to generate unique order ID after retries');
+}
 
 // Zod 校验 schema
 const PaymentSchema = z.object({
@@ -79,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     // 免费产品直接创建订单并返回成功
     if (priceCNY === 0) {
-      const orderId = crypto.randomUUID();
+      const orderId = await generateOrderId();
       const now = new Date().toISOString();
       const accessToken = crypto.randomUUID();
       await db.insert(orders).values({
@@ -189,7 +206,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// 查询支付状态（仅返回脱敏信息）
+// 查询支付状态（需要 accessToken 鉴权）
 export async function GET(request: NextRequest) {
   // 速率限制：每 IP 每分钟最多 20 次
   const ip = getClientIp(request);
@@ -201,15 +218,28 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get('orderId');
+    const token = searchParams.get('token');
 
-    if (!orderId) {
+    if (!orderId || !token) {
       return NextResponse.json(
-        { error: '缺少订单号' },
+        { error: '缺少订单号或访问令牌' },
         { status: 400 }
       );
     }
 
-    const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+    // 校验 UUID 格式
+    const uuidPattern = /^[0-9a-f-]{36}$/i;
+    if (!uuidPattern.test(orderId) || !uuidPattern.test(token)) {
+      return NextResponse.json(
+        { error: '参数格式无效' },
+        { status: 400 }
+      );
+    }
+
+    // 需同时匹配 orderId 和 accessToken，防止枚举
+    const [order] = await db.select().from(orders)
+      .where(and(eq(orders.id, orderId), eq(orders.accessToken, token)))
+      .limit(1);
 
     if (!order) {
       return NextResponse.json(

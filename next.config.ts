@@ -10,9 +10,11 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
+      // Next.js 需要 unsafe-inline 用于 SSR hydration，后续可迁移到 nonce-based
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https:",
+      // 限制图片来源为自有域名和常用 CDN
+      "img-src 'self' data: https://www.imagentx.top https://imagentx.top",
       "font-src 'self'",
       "connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com",
       "frame-ancestors 'none'",

@@ -1,5 +1,5 @@
 // 简易内存速率限制器（适用于单实例 serverless）
-// 生产环境建议换用 @upstash/ratelimit + Redis
+// 注意：Vercel Serverless 冷启动会重置计数器，生产环境建议换用 @upstash/ratelimit + Redis
 
 const hits = new Map<string, { count: number; resetAt: number }>();
 
@@ -49,23 +49,8 @@ export function rateLimit(
 }
 
 /**
- * 从请求中提取客户端 IP（仅使用 Vercel 可信反向代理注入的头）
- * Vercel 的 x-forwarded-for 是可信的，取链中最后一个非内网 IP
+ * 判断是否为内网/私有 IP
  */
-export function getClientIp(request: Request): string {
-  const xff = request.headers.get('x-forwarded-for');
-  if (xff) {
-    // 取链中最后一个非内网 IP（Vercel 代理链尾端是客户端真实 IP）
-    const ips = xff.split(',').map(ip => ip.trim());
-    for (let i = ips.length - 1; i >= 0; i--) {
-      if (!isPrivateIp(ips[i])) return ips[i];
-    }
-  }
-  const real = request.headers.get('x-real-ip');
-  if (real && !isPrivateIp(real)) return real;
-  return 'unknown';
-}
-
 function isPrivateIp(ip: string): boolean {
   if (ip === '127.0.0.1' || ip === '::1' || ip === 'unknown') return true;
   if (ip.startsWith('10.')) return true;
@@ -76,4 +61,42 @@ function isPrivateIp(ip: string): boolean {
     return second >= 16 && second <= 31;
   }
   return false;
+}
+
+/**
+ * 验证 IP 格式是否合法
+ */
+function isValidIp(ip: string): boolean {
+  // IPv4 格式校验
+  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+  if (!ipv4Regex.test(ip)) return false;
+  return ip.split('.').every(part => {
+    const num = parseInt(part, 10);
+    return num >= 0 && num <= 255;
+  });
+}
+
+/**
+ * 从请求中提取客户端 IP
+ * 优先使用 Vercel 注入的 x-forwarded-for，但会校验格式防止伪造
+ */
+export function getClientIp(request: Request): string {
+  const isVercel = process.env.VERCEL === '1';
+
+  // 仅在 Vercel 环境信任代理头
+  if (isVercel) {
+    const xff = request.headers.get('x-forwarded-for');
+    if (xff) {
+      // 取链中最后一个非内网 IP（Vercel 代理链尾端是客户端真实 IP）
+      const ips = xff.split(',').map(ip => ip.trim());
+      for (let i = ips.length - 1; i >= 0; i--) {
+        if (!isPrivateIp(ips[i]) && isValidIp(ips[i])) return ips[i];
+      }
+    }
+    const real = request.headers.get('x-real-ip');
+    if (real && !isPrivateIp(real) && isValidIp(real)) return real;
+  }
+
+  // 非 Vercel 环境或无代理头时，返回 unknown（限流效果减弱但安全）
+  return 'unknown';
 }
