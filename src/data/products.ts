@@ -15,6 +15,15 @@ export interface Product {
   category: 'ai' | 'developer' | 'design' | 'utility';
   icon: string;
   gradient: string;
+  platforms: string[];
+  media?: {
+    cover: string;
+    demo?: string;
+    screenshots: {
+      src: string;
+      alt: string;
+    }[];
+  };
 }
 
 export const products: Product[] = [
@@ -55,6 +64,14 @@ export const products: Product[] = [
     category: 'developer',
     icon: '🕷️',
     gradient: 'from-purple-500 to-pink-500',
+    platforms: ['Python', 'CLI', 'API'],
+    media: {
+      cover: '/products/omnicrawl/cover.webp',
+      screenshots: [
+        { src: '/products/omnicrawl/screenshot-1.webp', alt: 'OmniCrawl 核心特性与对比表格' },
+        { src: '/products/omnicrawl/screenshot-2.webp', alt: 'OmniCrawl 安装与快速开始' },
+      ],
+    },
   },
   {
     id: 'ex-memory',
@@ -93,6 +110,14 @@ export const products: Product[] = [
     category: 'ai',
     icon: '💔',
     gradient: 'from-red-500 to-orange-500',
+    platforms: ['Web', 'Mobile', 'API'],
+    media: {
+      cover: '/products/ex-memory/cover.webp',
+      screenshots: [
+        { src: '/products/ex-memory/screenshot-1.webp', alt: 'Ex-Memory 记忆镜像对话界面' },
+        { src: '/products/ex-memory/screenshot-2.webp', alt: 'Ex-Memory 模型配置界面' },
+      ],
+    },
   },
   {
     id: 'skeleton-anatomy',
@@ -131,6 +156,14 @@ export const products: Product[] = [
     category: 'design',
     icon: '🦴',
     gradient: 'from-gray-500 to-blue-500',
+    platforms: ['Web', '3D', 'Mobile'],
+    media: {
+      cover: '/products/skeleton-anatomy/cover.webp',
+      screenshots: [
+        { src: '/products/skeleton-anatomy/screenshot-1.webp', alt: 'Skeleton Anatomy 三维骨骼总览' },
+        { src: '/products/skeleton-anatomy/screenshot-2.webp', alt: 'Skeleton Anatomy 骨骼详情界面' },
+      ],
+    },
   },
   {
     id: 'ui-design-system',
@@ -169,6 +202,14 @@ export const products: Product[] = [
     category: 'design',
     icon: '🎨',
     gradient: 'from-blue-500 to-cyan-500',
+    platforms: ['AI Agent', 'Design', 'CLI'],
+    media: {
+      cover: '/products/ui-design-system/cover.webp',
+      screenshots: [
+        { src: '/products/ui-design-system/screenshot-1.webp', alt: 'UI Design System 首页架构展示' },
+        { src: '/products/ui-design-system/screenshot-2.webp', alt: 'UI Design System 组件浏览' },
+      ],
+    },
   },
   {
     id: 'statux',
@@ -200,6 +241,14 @@ export const products: Product[] = [
     category: 'developer',
     icon: '📊',
     gradient: 'from-green-500 to-emerald-500',
+    platforms: ['macOS', 'iTerm2', 'CLI'],
+    media: {
+      cover: '/products/statux/cover.webp',
+      screenshots: [
+        { src: '/products/statux/screenshot-1.webp', alt: 'Statux 终端状态栏实时显示' },
+        { src: '/products/statux/screenshot-2.webp', alt: 'Statux 会话统计与成本追踪' },
+      ],
+    },
   },
   {
     id: 'xisland',
@@ -231,19 +280,27 @@ export const products: Product[] = [
     category: 'developer',
     icon: '🏝️',
     gradient: 'from-indigo-500 to-purple-500',
+    platforms: ['macOS', 'Menu Bar', 'AI Agent'],
+    media: {
+      cover: '/products/xisland/cover.webp',
+      screenshots: [
+        { src: '/products/xisland/screenshot-1.webp', alt: 'XIsland 收起状态界面' },
+        { src: '/products/xisland/screenshot-2.webp', alt: 'XIsland 权限审批界面' },
+      ],
+    },
   },
   {
     id: 'tollow',
     name: 'Tollow',
-    tagline: '智能追踪工具',
-    description: '智能追踪与分析工具，帮助你更好地理解和优化你的工作流程。',
+    tagline: '沉浸式打字练习',
+    description: '面向长文本阅读与输入训练的沉浸式打字应用，可从书库选择内容或上传文档，并通过练习数据了解输入表现。',
     features: [
-      '智能追踪',
-      '数据分析',
-      '可视化报告',
-      '自动化工作流',
-      '多平台支持',
-      '隐私保护',
+      '长文本沉浸式输入',
+      '内置练习书库',
+      '支持上传个人文档',
+      '速度与准确率统计',
+      '练习记录分析',
+      '响应式 Web 界面',
     ],
     pricing: [
       {
@@ -262,6 +319,14 @@ export const products: Product[] = [
     category: 'utility',
     icon: '📈',
     gradient: 'from-yellow-500 to-orange-500',
+    platforms: ['Web', 'Typing', 'Analytics'],
+    media: {
+      cover: '/products/tollow/cover.webp',
+      screenshots: [
+        { src: '/products/tollow/screenshot-1.webp', alt: 'Tollow 沉浸式打字练习界面' },
+        { src: '/products/tollow/screenshot-2.webp', alt: 'Tollow 练习数据统计' },
+      ],
+    },
   },
   {
     id: 'xnook',
@@ -293,6 +358,14 @@ export const products: Product[] = [
     category: 'utility',
     icon: '📱',
     gradient: 'from-pink-500 to-rose-500',
+    platforms: ['macOS', 'Menu Bar', 'Utility'],
+    media: {
+      cover: '/products/xnook/cover.webp',
+      screenshots: [
+        { src: '/products/xnook/screenshot-1.webp', alt: 'XNook 收起状态界面' },
+        { src: '/products/xnook/screenshot-2.webp', alt: 'XNook 日历与文件托盘界面' },
+      ],
+    },
   },
   {
     id: 'chakra-visualizer',
@@ -324,6 +397,14 @@ export const products: Product[] = [
     category: 'utility',
     icon: '🌀',
     gradient: 'from-cyan-500 to-blue-500',
+    platforms: ['Web', 'WebGL', 'Camera'],
+    media: {
+      cover: '/products/chakra-visualizer/cover.webp',
+      screenshots: [
+        { src: '/products/chakra-visualizer/screenshot-1.webp', alt: 'Chakra Visualizer 忍术特效界面' },
+        { src: '/products/chakra-visualizer/screenshot-2.webp', alt: 'Chakra Visualizer 手势捕捉' },
+      ],
+    },
   },
 ];
 
