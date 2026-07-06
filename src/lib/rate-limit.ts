@@ -1,51 +1,72 @@
-// 简易内存速率限制器（适用于单实例 serverless）
-// 注意：Vercel Serverless 冷启动会重置计数器，生产环境建议换用 @upstash/ratelimit + Redis
+// 基于 Redis 的速率限制器（适用于 Vercel Serverless）
+// 使用 @upstash/ratelimit + @upstash/redis，支持分布式限流
 
-const hits = new Map<string, { count: number; resetAt: number }>();
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
-let lastCleanup = Date.now();
-const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 分钟
+// Redis 客户端（惰性初始化）
+let redis: Redis | null = null;
+let limiter: Ratelimit | null = null;
 
-/** 惰性清理过期条目，避免 setInterval 在 serverless 环境中失效 */
-function lazyCleanup() {
-  const now = Date.now();
-  if (now - lastCleanup < CLEANUP_INTERVAL) return;
-  lastCleanup = now;
-  for (const [key, value] of hits) {
-    if (value.resetAt <= now) hits.delete(key);
+function getLimiter(): Ratelimit | null {
+  // 如果环境变量未配置，返回 null（降级为无限制）
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    console.warn('UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not configured, rate limiting disabled');
+    return null;
   }
+
+  if (!redis) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+  }
+
+  if (!limiter) {
+    limiter = new Ratelimit({
+      redis,
+      // 滑动窗口限流：60 秒内最多 10 次请求
+      limiter: Ratelimit.slidingWindow(10, '60 s'),
+      // 保留限流结果 120 秒
+      ephemeralCache: new Map(),
+    });
+  }
+
+  return limiter;
 }
 
 /**
  * 检查是否超过速率限制
  * @param key 限流键（如 IP + 路由）
- * @param limit 时间窗口内允许的最大请求数
- * @param windowMs 时间窗口（毫秒）
+ * @param limit 时间窗口内允许的最大请求数（仅作为 fallback）
+ * @param windowMs 时间窗口（毫秒）（仅作为 fallback）
  * @returns { limited: boolean, remaining: number, resetAt: number }
  */
-export function rateLimit(
+export async function rateLimit(
   key: string,
   limit: number,
   windowMs: number,
-): { limited: boolean; remaining: number; resetAt: number } {
-  lazyCleanup();
+): Promise<{ limited: boolean; remaining: number; resetAt: number }> {
+  const limiterInstance = getLimiter();
 
-  const now = Date.now();
-  const entry = hits.get(key);
-
-  if (!entry || entry.resetAt <= now) {
-    hits.set(key, { count: 1, resetAt: now + windowMs });
-    return { limited: false, remaining: limit - 1, resetAt: now + windowMs };
+  // 降级：如果 Redis 未配置，返回不限制
+  if (!limiterInstance) {
+    return { limited: false, remaining: limit, resetAt: Date.now() + windowMs };
   }
 
-  entry.count++;
-  const remaining = Math.max(0, limit - entry.count);
+  try {
+    const result = await limiterInstance.limit(key);
 
-  if (entry.count > limit) {
-    return { limited: true, remaining: 0, resetAt: entry.resetAt };
+    return {
+      limited: !result.success,
+      remaining: result.remaining,
+      resetAt: result.reset,
+    };
+  } catch (error) {
+    // Redis 出错时降级为不限制，避免影响正常请求
+    console.error('Rate limit error:', error);
+    return { limited: false, remaining: limit, resetAt: Date.now() + windowMs };
   }
-
-  return { limited: false, remaining, resetAt: entry.resetAt };
 }
 
 /**

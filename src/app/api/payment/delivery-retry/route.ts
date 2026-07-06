@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
   // 限流：每 IP 每分钟最多 5 次
   const ip = getClientIp(request);
-  const { limited } = rateLimit(`delivery-retry:${ip}`, 5, 60_000);
+  const { limited } = await rateLimit(`delivery-retry:${ip}`, 5, 60_000);
   if (limited) {
     return NextResponse.json({ error: '请求过于频繁' }, { status: 429 });
   }
