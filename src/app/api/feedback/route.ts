@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/db';
@@ -12,17 +13,11 @@ const FeedbackSchema = z.object({
 
 /**
  * 清理用户输入，移除潜在的 XSS 内容
- * 保留原始文本用于分析，但移除 HTML 标签
+ * 只剥离字面 HTML 标签；不反转义实体，避免把 &lt;script&gt; 这类
+ * 实体编码文本还原成真正的尖括号后重新引入危险内容
  */
-function sanitizeInput(input: string): string {
-  // 移除 HTML 标签，保留文本内容
-  return input
-    .replace(/<[^>]*>/g, '')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .trim();
+export function sanitizeInput(input: string): string {
+  return input.replace(/<[^>]*>/g, '').trim();
 }
 
 export async function POST(request: NextRequest) {

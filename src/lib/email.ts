@@ -72,3 +72,29 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
 
   if (error) throw new Error(`Email send failed: ${error.message}`);
 }
+
+/**
+ * 向管理员发送异常告警（如支付金额不一致）。
+ * 未配置 ALERT_EMAIL 时静默跳过，避免因告警本身缺配置而抛错影响主流程。
+ */
+export async function sendAdminAlert(subject: string, details: Record<string, string>) {
+  const alertEmail = process.env.ALERT_EMAIL;
+  if (!alertEmail) return;
+
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const rows = Object.entries(details)
+    .map(([key, value]) => `<tr><td style="padding:4px 8px;color:#666;">${escapeHtml(key)}</td><td style="padding:4px 8px;">${escapeHtml(value)}</td></tr>`)
+    .join('');
+
+  try {
+    await getResend().emails.send({
+      from: `Meteor Store Alert <${fromEmail}>`,
+      to: alertEmail,
+      subject: `[告警] ${subject}`,
+      html: `<table style="font-family: sans-serif; font-size: 14px;">${rows}</table>`,
+    });
+  } catch (err) {
+    // 告警发送失败不应影响主流程，仅记录日志
+    console.error('Admin alert email failed:', err);
+  }
+}

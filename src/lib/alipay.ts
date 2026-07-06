@@ -26,6 +26,12 @@ function normalizeKey(key: string, type: 'PRIVATE' | 'PUBLIC'): string {
   throw new Error('ALIPAY_PRIVATE_KEY 无法解析：既不是有效的 PKCS#8 也不是 PKCS#1 格式');
 }
 
+// 支付宝要求 timestamp 为北京时间（UTC+8），而非服务器本地/UTC 时间
+function getAlipayTimestamp(): string {
+  const beijingMs = Date.now() + 8 * 60 * 60 * 1000;
+  return new Date(beijingMs).toISOString().slice(0, 19).replace('T', ' ');
+}
+
 // 惰性加载支付宝配置，避免模块加载时环境变量未注入导致静默失败
 function getAlipayConfig() {
   return {
@@ -105,7 +111,7 @@ export async function createAlipayOrder(params: {
     method: 'alipay.trade.page.pay',
     charset: 'utf-8',
     sign_type: 'RSA2',
-    timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
+    timestamp: getAlipayTimestamp(),
     version: '1.0',
     notify_url: config.notifyUrl,
     return_url: config.returnUrl,
@@ -150,7 +156,7 @@ export async function createAlipayMobileOrder(params: {
     method: 'alipay.trade.wap.pay',
     charset: 'utf-8',
     sign_type: 'RSA2',
-    timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
+    timestamp: getAlipayTimestamp(),
     version: '1.0',
     notify_url: config.notifyUrl,
     return_url: config.returnUrl,

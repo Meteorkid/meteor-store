@@ -43,9 +43,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '销售暂停中，敬请期待' }, { status: 503 });
   }
 
-  // 速率限制：每 IP 每分钟最多 10 次
+  // 速率限制：每 IP 每分钟最多 10 次（资金敏感接口，Redis 异常时 fail-closed）
   const ip = getClientIp(request);
-  const { limited } = await rateLimit(`payment:${ip}`, 10, 60_000);
+  const { limited } = await rateLimit(`payment:${ip}`, 10, 60_000, { failClosed: true });
   if (limited) {
     return NextResponse.json({ error: '请求过于频繁，请稍后再试' }, { status: 429 });
   }
@@ -228,7 +228,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 校验 UUID 格式
-    const uuidPattern = /^[0-9a-f-]{36}$/i;
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidPattern.test(orderId) || !uuidPattern.test(token)) {
       return NextResponse.json(
         { error: '参数格式无效' },

@@ -4,50 +4,63 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
-// Redis 客户端（惰性初始化）
+// Redis 客户端（惰性初始化，全局单例）
 let redis: Redis | null = null;
-let limiter: Ratelimit | null = null;
 
-function getLimiter(): Ratelimit | null {
-  // 如果环境变量未配置，返回 null（降级为无限制）
+function getRedis(): Redis | null {
   if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-    console.warn('UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not configured, rate limiting disabled');
     return null;
   }
-
   if (!redis) {
     redis = new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL,
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     });
   }
+  return redis;
+}
 
-  if (!limiter) {
-    limiter = new Ratelimit({
-      redis,
-      // 滑动窗口限流：60 秒内最多 10 次请求
-      limiter: Ratelimit.slidingWindow(10, '60 s'),
-      // 保留限流结果 120 秒
-      ephemeralCache: new Map(),
-    });
+// 按 (limit, windowMs) 组合缓存 Ratelimit 实例，
+// 否则所有调用方共享同一限流器会导致各路由声明的阈值互相覆盖失效
+const limiters = new Map<string, Ratelimit>();
+
+function getLimiter(limit: number, windowMs: number): Ratelimit | null {
+  const redisClient = getRedis();
+  if (!redisClient) {
+    console.warn('UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not configured, rate limiting disabled');
+    return null;
   }
 
+  const cacheKey = `${limit}:${windowMs}`;
+  let limiter = limiters.get(cacheKey);
+  if (!limiter) {
+    limiter = new Ratelimit({
+      redis: redisClient,
+      limiter: Ratelimit.slidingWindow(limit, `${windowMs} ms`),
+      ephemeralCache: new Map(),
+    });
+    limiters.set(cacheKey, limiter);
+  }
   return limiter;
 }
 
 /**
  * 检查是否超过速率限制
  * @param key 限流键（如 IP + 路由）
- * @param limit 时间窗口内允许的最大请求数（仅作为 fallback）
- * @param windowMs 时间窗口（毫秒）（仅作为 fallback）
+ * @param limit 时间窗口内允许的最大请求数
+ * @param windowMs 时间窗口（毫秒）
+ * @param options.failClosed Redis 配置了但请求异常（网络抖动等）时，是否拒绝请求而非放行。
+ *   用于支付、发货重试等资金/成本敏感接口；默认 false（fail-open）。
+ *   注意：Redis 完全未配置（本地开发/测试等场景）始终视为限流关闭，不受此选项影响。
  * @returns { limited: boolean, remaining: number, resetAt: number }
  */
 export async function rateLimit(
   key: string,
   limit: number,
   windowMs: number,
+  options: { failClosed?: boolean } = {},
 ): Promise<{ limited: boolean; remaining: number; resetAt: number }> {
-  const limiterInstance = getLimiter();
+  const limiterInstance = getLimiter(limit, windowMs);
 
   // 降级：如果 Redis 未配置，返回不限制
   if (!limiterInstance) {
@@ -63,8 +76,12 @@ export async function rateLimit(
       resetAt: result.reset,
     };
   } catch (error) {
-    // Redis 出错时降级为不限制，避免影响正常请求
     console.error('Rate limit error:', error);
+    if (options.failClosed) {
+      // 敏感接口：Redis 异常时拒绝请求，避免限流失效期间被刷单/刷量
+      return { limited: true, remaining: 0, resetAt: Date.now() + windowMs };
+    }
+    // 低风险接口：Redis 出错时降级为不限制，避免影响正常请求
     return { limited: false, remaining: limit, resetAt: Date.now() + windowMs };
   }
 }

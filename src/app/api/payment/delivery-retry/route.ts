@@ -7,6 +7,9 @@ import { sendOrderConfirmation } from '@/lib/email';
 import { createLicenseKey, getLicenseKeyByOrderId } from '@/lib/license';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
+// 批量重试涉及多个邮件发送 IO，显式延长 Vercel 函数超时时间
+export const maxDuration = 60;
+
 /**
  * 手动重试邮件交付
  * 用法：POST /api/payment/delivery-retry
@@ -24,9 +27,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '未授权' }, { status: 401 });
   }
 
-  // 限流：每 IP 每分钟最多 5 次
+  // 限流：每 IP 每分钟最多 5 次（涉及批量发信成本，Redis 异常时 fail-closed）
   const ip = getClientIp(request);
-  const { limited } = await rateLimit(`delivery-retry:${ip}`, 5, 60_000);
+  const { limited } = await rateLimit(`delivery-retry:${ip}`, 5, 60_000, { failClosed: true });
   if (limited) {
     return NextResponse.json({ error: '请求过于频繁' }, { status: 429 });
   }

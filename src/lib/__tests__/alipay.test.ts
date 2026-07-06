@@ -19,6 +19,9 @@ describe('alipay', () => {
   async function importAlipay() {
     vi.doMock('crypto', () => ({
       default: {
+        // normalizeKey 会调用 createPrivateKey 探测 PKCS#8/PKCS#1 格式，
+        // 测试用的私钥本身不是真实 PEM，这里 stub 成功以隔离签名逻辑的测试
+        createPrivateKey: vi.fn(() => ({})),
         createSign: vi.fn(() => ({
           update: vi.fn().mockReturnThis(),
           sign: mockSign,
@@ -59,6 +62,25 @@ describe('alipay', () => {
       });
 
       expect(url).toContain('99.50');
+    });
+
+    it('should encode timestamp as Beijing time (UTC+8), not raw UTC', async () => {
+      // 2024-01-01T00:00:00.000Z UTC == 2024-01-01 08:00:00 北京时间
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-01-01T00:00:00.000Z'));
+
+      const { createAlipayOrder } = await importAlipay();
+      const url = await createAlipayOrder({
+        orderId: 'test-order-tz',
+        amount: 10,
+        subject: 'Test',
+        body: 'Test body',
+      });
+
+      expect(url).toContain(encodeURIComponent('2024-01-01 08:00:00'));
+      expect(url).not.toContain(encodeURIComponent('2024-01-01 00:00:00'));
+
+      vi.useRealTimers();
     });
 
     it('should include notify_url and return_url', async () => {

@@ -3,7 +3,7 @@ import { eq, and } from 'drizzle-orm';
 import { verifyAlipayNotify } from '@/lib/alipay';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
-import { sendOrderConfirmation } from '@/lib/email';
+import { sendOrderConfirmation, sendAdminAlert } from '@/lib/email';
 import { createLicenseKey, getLicenseKeyByOrderId } from '@/lib/license';
 
 // 支付宝异步通知回调
@@ -67,7 +67,12 @@ export async function POST(request: NextRequest) {
           expected: expectedAmountPaid,
           received: total_amount,
         });
-        // 记录告警但仍返回 success，避免支付宝重试
+        // 仍返回 success 避免支付宝重试，但主动告警管理员，避免异常淹没在日志里
+        void sendAdminAlert('支付宝通知金额不一致（已支付订单）', {
+          orderId: out_trade_no,
+          expected: expectedAmountPaid,
+          received: total_amount,
+        });
       }
       console.log('Alipay notify: order already paid', out_trade_no);
       if (order.deliveryStatus === 'failed' || order.deliveryStatus === 'pending') {
@@ -105,6 +110,11 @@ export async function POST(request: NextRequest) {
     const expectedAmount = order.amountCny.toFixed(2);
     if (total_amount !== expectedAmount) {
       console.error('Alipay notify: amount mismatch', { expected: expectedAmount, received: total_amount });
+      void sendAdminAlert('支付宝通知金额不一致', {
+        orderId: out_trade_no,
+        expected: expectedAmount,
+        received: total_amount,
+      });
       return new NextResponse('fail', { status: 400 });
     }
 
@@ -176,7 +186,7 @@ export async function GET(request: NextRequest) {
   const successUrl = new URL('/success', request.url);
   if (out_trade_no) {
     // 校验 UUID 格式，防止注入
-    const uuidPattern = /^[0-9a-f-]{36}$/i;
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (uuidPattern.test(out_trade_no)) {
       successUrl.searchParams.set('orderId', out_trade_no);
     }
