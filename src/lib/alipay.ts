@@ -10,7 +10,20 @@ function normalizeKey(key: string, type: 'PRIVATE' | 'PUBLIC'): string {
   const k = key.trim().replace(/\\n/g, '\n');
   if (k.includes('-----BEGIN')) return k;
   const body = k.replace(/\s+/g, '').match(/.{1,64}/g)?.join('\n') ?? '';
-  return `-----BEGIN ${type} KEY-----\n${body}\n-----END ${type} KEY-----`;
+  if (type === 'PUBLIC') {
+    return `-----BEGIN PUBLIC KEY-----\n${body}\n-----END PUBLIC KEY-----`;
+  }
+  // 私钥可能是 PKCS#8（PRIVATE KEY）或 PKCS#1（RSA PRIVATE KEY，支付宝密钥工具默认格式），逐一尝试
+  for (const header of ['PRIVATE KEY', 'RSA PRIVATE KEY']) {
+    const pem = `-----BEGIN ${header}-----\n${body}\n-----END ${header}-----`;
+    try {
+      crypto.createPrivateKey(pem);
+      return pem;
+    } catch {
+      // 尝试下一种格式
+    }
+  }
+  throw new Error('ALIPAY_PRIVATE_KEY 无法解析：既不是有效的 PKCS#8 也不是 PKCS#1 格式');
 }
 
 // 惰性加载支付宝配置，避免模块加载时环境变量未注入导致静默失败
