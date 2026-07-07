@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createKonamiMatcher, isLateNight, useReducedMotion } from '@/lib/motion';
+import { createKonamiMatcher, createWordMatcher, isLateNight, useReducedMotion } from '@/lib/motion';
 
 // ---------- 轻量 toast（零依赖，屏幕阅读器可感知） ----------
 export function showToast(message: string, duration = 4200) {
@@ -33,6 +33,26 @@ export function showToast(message: string, duration = 4200) {
 /** 触发全屏流星雨爆发（MeteorShower 监听此事件） */
 export function triggerMeteorBurst() {
   window.dispatchEvent(new CustomEvent('meteor:burst'));
+}
+
+/** 从指定位置放出一颗 DOM 流星（不依赖 Hero 画布，任何页面可用） */
+function spawnStreakAt(x: number, y: number) {
+  const angle = -8 - Math.random() * 24; // 向右下方
+  const streak = document.createElement('div');
+  streak.setAttribute('aria-hidden', 'true');
+  streak.style.cssText = [
+    'position:fixed', `top:${y}px`, `left:${x}px`, 'width:90px', 'height:2px',
+    'background:linear-gradient(90deg,transparent,#c4b5fd,#fff)', 'border-radius:2px',
+    'z-index:9998', 'pointer-events:none', `transform:rotate(${angle}deg)`,
+    'transition:transform 1.1s cubic-bezier(.2,.6,.3,1), opacity .4s ease .7s', 'opacity:1',
+  ].join(';');
+  document.body.appendChild(streak);
+  const dist = 300 + Math.random() * 260;
+  requestAnimationFrame(() => {
+    streak.style.transform = `rotate(${angle}deg) translateX(${dist}px)`;
+    streak.style.opacity = '0';
+  });
+  setTimeout(() => streak.remove(), 1300);
 }
 
 // ---------- window.meteor 控制台 API ----------
@@ -112,9 +132,10 @@ export default function EasterEggs() {
     }
   }, [reducedMotion]);
 
-  // Konami 秘技（键盘）+ Logo 连点 7 次（移动端）
+  // Konami 秘技（键盘）+ "meteor" 咒语 + Logo 连点 7 次（移动端）
   useEffect(() => {
     const matcher = createKonamiMatcher();
+    const wordMatcher = createWordMatcher('meteor');
     const fireKonami = () => {
       const count = Number(sessionStorage.getItem('meteor:konami') || '0') + 1;
       sessionStorage.setItem('meteor:konami', String(count));
@@ -127,6 +148,10 @@ export default function EasterEggs() {
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
       if (matcher(e.key)) fireKonami();
+      if (wordMatcher(e.key)) {
+        triggerMeteorBurst();
+        showToast('☄ 你用键盘敲出了咒语。这个召唤术只有内行知道。');
+      }
     };
 
     let logoTaps = 0;
@@ -143,11 +168,31 @@ export default function EasterEggs() {
       }
     };
 
+    // 双击页面空白处：从点击点放出几颗小流星
+    let lastSpark = 0;
+    const onDblClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('a, button, input, textarea, select, [role="button"], canvas')) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const now = Date.now();
+      if (now - lastSpark < 600) return; // 节流
+      lastSpark = now;
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => spawnStreakAt(e.clientX + (Math.random() - 0.5) * 40, e.clientY + (Math.random() - 0.5) * 30), i * 90);
+      }
+      if (!sessionStorage.getItem('meteor:spark-hinted')) {
+        sessionStorage.setItem('meteor:spark-hinted', '1');
+        showToast('☄ 双击召唤流星——你发现了一个小秘密');
+      }
+    };
+
     window.addEventListener('keydown', onKeyDown);
     document.addEventListener('click', onClick);
+    document.addEventListener('dblclick', onDblClick);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
       document.removeEventListener('click', onClick);
+      document.removeEventListener('dblclick', onDblClick);
       clearTimeout(logoTimer);
     };
   }, []);

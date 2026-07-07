@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Product } from '@/data/products';
 import { SHOW_PRICING } from '@/lib/constants';
 import ProductVisual from '@/components/ProductVisual';
+import ProductMark from '@/components/ProductMark';
 
 interface ProductCardProps {
   product: Product;
@@ -28,7 +29,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             <h3 className="text-xl font-bold text-white">{product.name}</h3>
             <p className="mt-1 text-sm text-gray-400">{product.tagline}</p>
           </div>
-          <span className="text-2xl">{product.icon}</span>
+          <ProductMark product={product} size="sm" />
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2">

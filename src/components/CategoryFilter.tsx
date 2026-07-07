@@ -34,7 +34,6 @@ export default function CategoryFilter({ selected }: CategoryFilterProps) {
               : 'bg-white/10 text-gray-300 hover:bg-white/20'
           }`}
         >
-          <span className="mr-2">{category.icon}</span>
           {category.name}
         </button>
       ))}

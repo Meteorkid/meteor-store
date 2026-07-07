@@ -62,4 +62,21 @@ describe('runCommand', () => {
   it('konami 命令返回爆发动作', () => {
     expect(runCommand('konami').action).toBe('burst');
   });
+
+  it('白嫖/free/star 引导去 GitHub 点星', () => {
+    for (const cmd of ['白嫖', 'free', 'star']) {
+      const { lines } = runCommand(cmd);
+      expect(lines.join('\n')).toContain('github.com/Meteorkid');
+      expect(lines.join('\n')).toContain('⭐');
+    }
+  });
+
+  it('白嫖出现在 help 列表里', () => {
+    expect(runCommand('help').lines.join('\n')).toContain('白嫖');
+  });
+
+  it('meteor/流星 命令触发爆发', () => {
+    expect(runCommand('meteor').action).toBe('burst');
+    expect(runCommand('流星').action).toBe('burst');
+  });
 });

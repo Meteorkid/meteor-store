@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -11,7 +13,8 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       // Next.js 需要 unsafe-inline 用于 SSR hydration，后续可迁移到 nonce-based
-      "script-src 'self' 'unsafe-inline'",
+      // unsafe-eval 仅开发模式：React DevTools 调试功能需要，生产不放行
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline'",
       // 限制图片来源为自有域名和常用 CDN
       "img-src 'self' data: https://www.imagentx.top https://imagentx.top",

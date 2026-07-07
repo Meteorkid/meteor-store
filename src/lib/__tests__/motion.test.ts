@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { isLateNight, createKonamiMatcher, createFrameGuard } from '../motion';
+import { isLateNight, createKonamiMatcher, createFrameGuard, createWordMatcher } from '../motion';
 
 describe('isLateNight', () => {
   it('凌晨 0 点到 5 点为深夜', () => {
@@ -53,6 +53,36 @@ describe('createKonamiMatcher', () => {
     const feed = createKonamiMatcher();
     KONAMI.forEach(k => feed(k));
     expect(KONAMI.map(k => feed(k)).pop()).toBe(true);
+  });
+});
+
+describe('createWordMatcher', () => {
+  it('连续敲出目标单词返回 true', () => {
+    const feed = createWordMatcher('meteor');
+    const results = 'meteor'.split('').map(k => feed(k));
+    expect(results.pop()).toBe(true);
+    expect(results.every(r => r === false)).toBe(true);
+  });
+
+  it('大小写不敏感', () => {
+    const feed = createWordMatcher('meteor');
+    expect('METEOR'.split('').map(k => feed(k)).pop()).toBe(true);
+  });
+
+  it('被打断后需重新开始，且重复字母开头能续上', () => {
+    const feed = createWordMatcher('meteor');
+    'met'.split('').forEach(k => feed(k));
+    feed('x'); // 打断
+    expect('meteor'.split('').map(k => feed(k)).pop()).toBe(true);
+    // mmeteor：第二个 m 应作为新起点
+    expect('mmeteor'.split('').map(k => feed(k)).pop()).toBe(true);
+  });
+
+  it('功能键（多字符 key）不参与匹配且重置进度', () => {
+    const feed = createWordMatcher('meteor');
+    'met'.split('').forEach(k => feed(k));
+    feed('Shift');
+    expect('eor'.split('').map(k => feed(k)).pop()).toBe(false);
   });
 });
 

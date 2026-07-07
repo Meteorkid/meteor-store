@@ -7,8 +7,12 @@ const CHARS = '.,-~:;=!*#$@';
 
 /**
  * ASCII 字符实时渲染的旋转莫比乌斯环——数学艺术 × donut.c 致敬。
- * 纯 Canvas 数学计算，零依赖；鼠标横移微调转速；移动端降分辨率、帧率上限 30fps；
- * prefers-reduced-motion 时渲染静态单帧。
+ * 交互与动态：
+ * - 鼠标视差跟随：指针位置驱动视角倾斜（缓动插值，跟手但不晃眼）
+ * - 环带流光：一道亮度波沿环面循环流动，用光展示"单面无限"的拓扑之美
+ * - 色相呼吸：紫–粉基调随时间缓慢漂移
+ * - 高亮字符辉光：最亮的字符带柔光，形成光晕层次
+ * 纯 Canvas 零依赖；移动端降分辨率 + 30fps；prefers-reduced-motion 渲染静态单帧。
  */
 export default function AsciiMobius({ className = '' }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,37 +39,41 @@ export default function AsciiMobius({ className = '' }: { className?: string }) 
     // 莫比乌斯环参数
     const R = 1.05;       // 主半径
     const W = 0.42;       // 带宽的一半
-    const STEP_U = isMobile ? 0.045 : 0.03;
-    const STEP_V = 0.12;
-    const TILT = 0.55;    // 固定 X 轴倾角
-    const light = { x: 0.4, y: -0.7, z: -0.6 }; // 归一化光源方向（近似）
+    const STEP_U = isMobile ? 0.045 : 0.028;
+    const STEP_V = 0.11;
+    const BASE_TILT = 0.55;
+    const light = { x: 0.4, y: -0.7, z: -0.6 };
 
-    let speedFactor = 1;
+    // 鼠标视差目标与当前值（缓动插值）
+    const view = { tilt: BASE_TILT, yaw: 0 };
+    const target = { tilt: BASE_TILT, yaw: 0 };
     const onMouseMove = (e: MouseEvent) => {
-      // 鼠标横移 ±20% 转速
-      speedFactor = 0.8 + (e.clientX / window.innerWidth) * 0.4;
+      const nx = e.clientX / window.innerWidth - 0.5;   // -0.5 ~ 0.5
+      const ny = e.clientY / window.innerHeight - 0.5;
+      target.yaw = nx * 0.9;                // 左右扭头 ±0.45rad，明显跟手
+      target.tilt = BASE_TILT + ny * 0.7;   // 上下俯仰
     };
     if (!reducedMotion) window.addEventListener('mousemove', onMouseMove, { passive: true });
 
-    const cosT = Math.cos(TILT), sinT = Math.sin(TILT);
-
-    function renderFrame(angle: number) {
+    function renderFrame(angle: number, shimmerPhase: number, hueBase: number) {
       if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const zbuf = new Float32Array(cols * rows);
-      const chbuf = new Array<number>(cols * rows).fill(-1);
+      const chbuf = new Int16Array(cols * rows).fill(-1);
+      const ubuf = new Float32Array(cols * rows);
       const cosA = Math.cos(angle), sinA = Math.sin(angle);
+      const cosT = Math.cos(view.tilt), sinT = Math.sin(view.tilt);
+      const cosY = Math.cos(view.yaw), sinY = Math.sin(view.yaw);
 
       for (let u = 0; u < Math.PI * 2; u += STEP_U) {
         const cu = Math.cos(u), su = Math.sin(u);
         const ch = Math.cos(u / 2), sh = Math.sin(u / 2);
         for (let v = -1; v <= 1; v += STEP_V) {
           const w = v * W;
-          // 参数方程
           const px = (R + w * ch) * cu;
           const py = (R + w * ch) * su;
           const pz = w * sh;
-          // 数值法向量（对 u、v 的偏导叉积，用解析近似）
+          // 解析偏导叉积求法向量
           const du = { x: -(R + w * ch) * su - w * sh * 0.5 * cu, y: (R + w * ch) * cu - w * sh * 0.5 * su, z: w * ch * 0.5 };
           const dv = { x: W * ch * cu, y: W * ch * su, z: W * sh };
           let nx = du.y * dv.z - du.z * dv.y;
@@ -74,18 +82,23 @@ export default function AsciiMobius({ className = '' }: { className?: string }) 
           const nlen = Math.hypot(nx, ny, nz) || 1;
           nx /= nlen; ny /= nlen; nz /= nlen;
 
-          // 旋转：绕 Y（动画角）再绕 X（固定倾角）
-          const rx = px * cosA + pz * sinA;
-          const rz0 = -px * sinA + pz * cosA;
-          const ry = py * cosT - rz0 * sinT;
-          const rz = py * sinT + rz0 * cosT;
+          // 旋转链：绕 Y（自转）→ 绕 X（俯仰）→ 绕 Y（鼠标偏航）
+          let rx = px * cosA + pz * sinA;
+          let rz = -px * sinA + pz * cosA;
+          let ry = py * cosT - rz * sinT;
+          rz = py * sinT + rz * cosT;
+          const rx2 = rx * cosY + rz * sinY;
+          rz = -rx * sinY + rz * cosY;
+          rx = rx2;
 
-          const nx1 = nx * cosA + nz * sinA;
-          const nz0 = -nx * sinA + nz * cosA;
-          const ny1 = ny * cosT - nz0 * sinT;
-          const nz1 = ny * sinT + nz0 * cosT;
+          let nx1 = nx * cosA + nz * sinA;
+          let nz1 = -nx * sinA + nz * cosA;
+          const ny1 = ny * cosT - nz1 * sinT;
+          nz1 = ny * sinT + nz1 * cosT;
+          const nx2 = nx1 * cosY + nz1 * sinY;
+          nz1 = -nx1 * sinY + nz1 * cosY;
+          nx1 = nx2;
 
-          // 透视投影
           const K = 3.2;
           const invZ = 1 / (rz + K);
           const sx = Math.floor(cols / 2 + rx * invZ * cols * 0.85);
@@ -96,26 +109,40 @@ export default function AsciiMobius({ className = '' }: { className?: string }) 
           if (invZ <= zbuf[idx]) continue;
           zbuf[idx] = invZ;
 
-          // 亮度 = 法向量 · 光源（莫比乌斯是单面曲面，取绝对值让"背面"也发光）
-          const lum = Math.abs(nx1 * light.x + ny1 * light.y + nz1 * light.z);
+          // 基础亮度（单面曲面取绝对值）+ 流光波（沿 u 循环流动的高光带）
+          let lum = Math.abs(nx1 * light.x + ny1 * light.y + nz1 * light.z);
+          const wave = Math.pow(Math.max(0, Math.cos(u - shimmerPhase)), 6);
+          lum = Math.min(1, lum * 0.8 + wave * 0.55);
           chbuf[idx] = Math.min(CHARS.length - 1, Math.floor(lum * CHARS.length));
+          ubuf[idx] = u;
         }
       }
 
+      const glowThreshold = CHARS.length - 3;
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
-          const ci = chbuf[y * cols + x];
+          const idx = y * cols + x;
+          const ci = chbuf[idx];
           if (ci < 0) continue;
           const lum = ci / (CHARS.length - 1);
-          // 紫→粉渐变着色，亮处更白
-          ctx.fillStyle = `hsla(${280 - lum * 40}, ${70 + lum * 20}%, ${38 + lum * 42}%, ${0.55 + lum * 0.45})`;
+          // 色相沿环面渐变 + 整体呼吸漂移
+          const hue = hueBase - lum * 40 + Math.sin(ubuf[idx]) * 12;
+          // 高亮字符加辉光（移动端跳过，省性能）
+          if (!isMobile && ci >= glowThreshold) {
+            ctx.shadowColor = `hsla(${hue}, 90%, 70%, 0.9)`;
+            ctx.shadowBlur = 9;
+          } else {
+            ctx.shadowBlur = 0;
+          }
+          ctx.fillStyle = `hsla(${hue}, ${70 + lum * 20}%, ${38 + lum * 45}%, ${0.5 + lum * 0.5})`;
           ctx.fillText(CHARS[ci], x * cellW, y * cellH);
         }
       }
+      ctx.shadowBlur = 0;
     }
 
     if (reducedMotion) {
-      renderFrame(0.8); // 静态单帧：挑一个好看的角度
+      renderFrame(0.8, 1.2, 280); // 静态单帧：挑一个流光恰好在前侧的角度
       return;
     }
 
@@ -124,17 +151,25 @@ export default function AsciiMobius({ className = '' }: { className?: string }) 
     observer.observe(canvas);
 
     let angle = 0;
+    let shimmer = 0;
+    let t = 0;
     let raf = 0;
     let lastFrame = 0;
-    const frameInterval = isMobile ? 1000 / 30 : 0; // 移动端 30fps 上限
+    const frameInterval = isMobile ? 1000 / 30 : 0;
 
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
       if (!visible) return;
       if (frameInterval && now - lastFrame < frameInterval) return;
       lastFrame = now;
-      angle += 0.012 * speedFactor;
-      renderFrame(angle);
+      // 视角向鼠标目标缓动（0.07 的插值系数：跟手且稳）
+      view.tilt += (target.tilt - view.tilt) * 0.07;
+      view.yaw += (target.yaw - view.yaw) * 0.07;
+      angle += 0.014;
+      shimmer += 0.045;  // 流光比自转快，肉眼可辨的环面行光
+      t += 0.008;
+      const hueBase = 285 + Math.sin(t) * 18; // 紫–粉呼吸
+      renderFrame(angle, shimmer, hueBase);
     };
     raf = requestAnimationFrame(loop);
 

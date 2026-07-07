@@ -45,6 +45,30 @@ export function createFrameGuard(onDegrade: () => void, minFps = 25, badFramesLi
   };
 }
 
+/**
+ * 键盘咒语匹配器：在页面任意处（非输入框）连续敲出目标单词时返回 true。
+ * 用于 "meteor" 之类的隐藏召唤咒语。
+ */
+export function createWordMatcher(word: string) {
+  const target = word.toLowerCase();
+  let index = 0;
+
+  return function feed(key: string): boolean {
+    if (key.length !== 1) { index = 0; return false; }
+    const k = key.toLowerCase();
+    if (k === target[index]) {
+      index++;
+      if (index === target.length) {
+        index = 0;
+        return true;
+      }
+    } else {
+      index = k === target[0] ? 1 : 0;
+    }
+    return false;
+  };
+}
+
 /** Konami 秘技序列匹配器：喂入 KeyboardEvent.key，命中完整序列时返回 true */
 export function createKonamiMatcher() {
   const SEQUENCE = [

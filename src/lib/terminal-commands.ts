@@ -17,6 +17,7 @@ const HELP_LINES = [
   '  hug      需要的时候用',
   '  晚安      深夜专用',
   '  emo      也是给你的',
+  '  白嫖      真的可以',
   '  clear    清屏',
   '  exit     退出（试试就知道）',
   '  …以及一些没写在这里的',
@@ -55,9 +56,25 @@ export function runCommand(rawInput: string): CommandResult {
       }
       return { lines: [`cat: ${arg || '?'}: 没有那个文件（但你的好奇心我给满分）`] };
 
+    case '白嫖':
+    case 'free':
+    case 'star':
+      return {
+        lines: [
+          '可以白嫖！开源的部分随便用，不用不好意思。',
+          '但如果它帮到了你，麻烦去 GitHub 给我点颗小星星 ⭐',
+          '→ https://github.com/Meteorkid',
+          '星星不要钱，但对一个攒学费的大学生来说，比钱还提气。',
+        ],
+      };
+
+    case 'meteor':
+    case '流星':
+      return { lines: ['☄ 你召唤了一场流星雨。'], action: 'burst' };
+
     case 'sudo':
       if (arg === 'give-me-discount') {
-        return { lines: ['权限不足 :)', '但心意收到了。学生党可以邮件我，真的会给折扣。'] };
+        return { lines: ['权限不足 :)', '但心意收到了。学生党可以邮件我，真的会给折扣。', '实在不行还可以试试 白嫖 这条命令。'] };
       }
       if (arg.startsWith('rm')) {
         return { lines: ['⚠ 别！这可是我的学费啊！！', '（进程已被店主的求生欲终止）'] };

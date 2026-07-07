@@ -4,6 +4,7 @@ import { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Product } from '@/data/products';
 import { SHOW_PRICING, categoryColors, categoryLabels } from '@/lib/constants';
+import ProductMark from './ProductMark';
 
 interface AdvancedProductCardProps {
   product: Product;
@@ -60,9 +61,9 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
         />
 
         <div className="relative">
-          {/* Icon */}
-          <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
-            {product.icon}
+          {/* 产品标识：与评论区头像统一的渐变缩写方块 */}
+          <div className="mb-4 group-hover:scale-110 transition-transform duration-300 w-fit">
+            <ProductMark product={product} size="md" />
           </div>
 
           {/* Category badge */}

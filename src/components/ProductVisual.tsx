@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Product } from '@/data/products';
+import ProductMark from './ProductMark';
 
 interface ProductVisualProps {
   product: Product;
@@ -48,7 +49,7 @@ export default function ProductVisual({
             <span className="rounded-full border border-white/15 bg-black/25 px-3 py-1 text-xs text-white/70 backdrop-blur">
               METEOR LAB
             </span>
-            <span className="text-3xl drop-shadow-lg">{product.icon}</span>
+            <ProductMark product={product} size="md" className="drop-shadow-lg" />
           </div>
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
