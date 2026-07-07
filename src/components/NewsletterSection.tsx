@@ -58,7 +58,7 @@ export default function NewsletterSection() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span>订阅成功！感谢你的关注。</span>
+                <span>收到！比收到花呗还款提醒还开心。</span>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
@@ -66,7 +66,7 @@ export default function NewsletterSection() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder="you@example.com（不会拿去换学费的，放心）"
                   required
                   aria-label="邮箱地址"
                   className="flex-1 px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-foreground placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"

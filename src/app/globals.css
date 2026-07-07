@@ -292,3 +292,44 @@ html {
 .animate-loading-bar {
   animation: loadingBar 1.5s ease-in-out infinite;
 }
+
+/* /story 信纸逐段展开 */
+@keyframes storyReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.story-reveal {
+  opacity: 0;
+  animation: storyReveal 0.9s ease forwards;
+}
+
+/* Footer 版权行眨眼彩蛋 */
+.footer-wink .wink-alt {
+  display: none;
+}
+.footer-wink:hover .wink-default {
+  display: none;
+}
+.footer-wink:hover .wink-alt {
+  display: inline;
+}
+
+/* 减少动画偏好：所有装饰性动画一票否决（无障碍关怀） */
+@media (prefers-reduced-motion: reduce) {
+  .story-reveal,
+  .animate-fade-in-up,
+  .animate-scale-up,
+  .animate-float,
+  .animate-pulse-glow {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

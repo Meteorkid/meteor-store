@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { products } from '@/data/products';
 import { SHOW_PRICING } from '@/lib/constants';
+import FooterCopyright from './FooterCopyright';
 
 const productLinks = products.map((p) => ({
   name: p.name,
@@ -10,6 +11,7 @@ const productLinks = products.map((p) => ({
 const resourceLinks = [
   { name: '文档', href: '/docs' },
   { name: '博客', href: '/blog' },
+  { name: '本店店主的一封信 ☄', href: '/story' },
 ];
 
 const companyLinks = [
@@ -118,9 +120,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
         {/* Bottom bar */}
         <div className="border-t border-border mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-muted-foreground text-sm">
-              © {new Date().getFullYear()} Meteor Store. All rights reserved.
-            </p>
+            <FooterCopyright />
             <div className="flex gap-6">
               {legalLinks.map((link) => (
                 <Link key={link.name} href={link.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">

@@ -1,7 +1,8 @@
 'use client';
 
 import GlowButton from './GlowButton';
-import ParticleBackground from './ParticleBackground';
+import MeteorShower from './MeteorShower';
+import AsciiMobius from './AsciiMobius';
 import { SHOW_PRICING } from '@/lib/constants';
 
 export default function HeroSection() {
@@ -15,8 +16,18 @@ export default function HeroSection() {
         <div className="absolute top-[30%] right-[10%] w-[30%] h-[30%] bg-violet-500/8 rounded-full blur-[80px] animate-float" style={{ animationDelay: '4s' }} />
       </div>
 
-      {/* Particle Effect */}
-      <ParticleBackground />
+      {/* 流星雨氛围层（Meteor Store 的品牌本命） */}
+      <MeteorShower />
+
+      {/* ASCII 莫比乌斯环：数学艺术 × donut.c，Hero 的视觉主角
+          径向遮罩让边缘淡出，避免字符压住副标题文字 */}
+      <div
+        className="hidden md:block absolute top-[44%] left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-80 [mask-image:radial-gradient(ellipse_at_center,transparent_26%,black_44%,black_62%,transparent_82%)]"
+        style={{ width: 'min(88vw, 920px)', aspectRatio: '4 / 3' }}
+        aria-hidden="true"
+      >
+        <AsciiMobius className="w-full h-full" />
+      </div>
 
       {/* Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.04)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { eq } from 'drizzle-orm';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import MeteorConfetti from '@/components/MeteorConfetti';
 import { db } from '@/lib/db';
 import { orders, licenseKeys } from '@/lib/db/schema';
 import { findProduct } from '@/lib/products';
@@ -59,10 +60,16 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
         <div className="max-w-md mx-auto text-center">
           {order?.status === 'paid' ? (
             <>
+              <MeteorConfetti />
               <div className="text-6xl mb-6">🎉</div>
               <h1 className="text-3xl font-bold text-white mb-4">支付成功！</h1>
-              <p className="text-gray-400 mb-8">
+              <p className="text-gray-400 mb-4">
                 感谢你的购买！你的订单已成功处理。
+              </p>
+              <p className="text-purple-300/80 text-sm mb-8 leading-relaxed">
+                你刚刚为一个大学生的下学期学费添了一块砖 🧱
+                <br />
+                这不是营销话术，是真的。—— 店主
               </p>
 
               {/* 订单详情 */}

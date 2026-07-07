@@ -7,7 +7,8 @@ import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 const FeedbackSchema = z.object({
   email: z.string().email().max(254).optional(),
-  type: z.enum(['bug', 'feature', 'question', 'other']),
+  // night-whisper: 深夜树洞（前端 0:00–5:00 才展示该选项，后端始终接受）
+  type: z.enum(['bug', 'feature', 'question', 'other', 'night-whisper']),
   content: z.string().min(1).max(5000),
 });
 

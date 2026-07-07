@@ -1,3 +1,5 @@
+import LoadingQuip from './LoadingQuip';
+
 export default function PageSkeleton() {
   return (
     <div className="min-h-screen">
@@ -30,6 +32,7 @@ export default function PageSkeleton() {
               <div className="w-32 h-12 rounded-lg bg-secondary animate-pulse" />
               <div className="w-32 h-12 rounded-lg bg-secondary animate-pulse" />
             </div>
+            <LoadingQuip />
           </div>
         </div>
       </section>

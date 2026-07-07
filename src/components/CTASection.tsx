@@ -1,6 +1,7 @@
 'use client';
 
 import GlowButton from './GlowButton';
+import InfiniteTunnel from './InfiniteTunnel';
 import { SHOW_PRICING } from '@/lib/constants';
 
 interface CTASectionProps {
@@ -16,14 +17,12 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
         <div
           className={`relative overflow-hidden rounded-3xl p-12 md:p-16 text-center scroll-animate ${
             isBold
-              ? 'bg-gradient-to-br from-primary via-primary/80 to-purple-600'
+              ? 'bg-gradient-to-br from-[#12002a] via-[#1a0533] to-black border border-purple-500/20'
               : 'bg-white/[0.02] border border-white/[0.06]'
           }`}
         >
-          {/* Background grid */}
-          {isBold && (
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:24px_24px]" />
-          )}
+          {/* 无限隧道背景：进入工具矩阵的纵深感 */}
+          {isBold && <InfiniteTunnel />}
 
           {/* Floating orbs */}
           {isBold && (
@@ -39,7 +38,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
                 isBold ? 'text-white' : 'text-foreground'
               }`}
             >
-              {isBold ? '准备好提升效率了吗？' : '准备好开始了吗？'}
+              {isBold ? '进入工具矩阵' : '准备好开始了吗？'}
             </h2>
 
             <p

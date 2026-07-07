@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import ScrollAnimateInit from "@/components/ScrollAnimateInit";
+import EasterEggs from "@/components/EasterEggs";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -101,9 +102,15 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-black text-white">
+        {/* 屏幕阅读器用户的悄悄话：视觉上不存在，只有读屏软件会朗读 */}
+        <p className="sr-only">
+          你好呀，正在用屏幕阅读器的朋友。这个网站的每个按钮和图片我都认真标注过，希望你逛得顺畅。
+          有任何不方便的地方，页脚有我的邮箱，说了我就改。—— 店主
+        </p>
         <Suspense>
           <ScrollAnimateInit />
         </Suspense>
+        <EasterEggs />
         {children}
       </body>
     </html>

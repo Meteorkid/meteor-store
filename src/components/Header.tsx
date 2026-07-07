@@ -46,7 +46,8 @@ export default function Header() {
     >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
+        {/* data-meteor-logo: 移动端连点 7 次触发流星雨秘技（见 EasterEggs） */}
+        <Link href="/" className="flex items-center gap-2 group" data-meteor-logo>
           <span className="text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12">🚀</span>
           <span className="text-xl font-bold gradient-text">Meteor Store</span>
         </Link>

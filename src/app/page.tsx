@@ -10,6 +10,7 @@ import TestimonialsSection from '@/components/TestimonialsSection';
 import PartnersSection from '@/components/PartnersSection';
 import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
+import TerminalSection from '@/components/TerminalSection';
 import PricingSection from '@/components/PricingSection';
 import FeaturesComparison from '@/components/FeaturesComparison';
 import CTASection from '@/components/CTASection';
@@ -67,6 +68,9 @@ export default function Home() {
 
       {/* FAQ Section */}
       <FAQSection />
+
+      {/* 店主的终端 — 彩蛋区 & 作者小序入口 */}
+      <TerminalSection />
 
       {/* CTA Sections */}
       <CTASection variant="bold" />
