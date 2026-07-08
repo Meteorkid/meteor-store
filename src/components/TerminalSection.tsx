@@ -95,7 +95,7 @@ export default function TerminalSection() {
   };
 
   return (
-    <section className="py-24 relative" aria-labelledby="terminal-heading">
+    <section id="terminal" className="py-24 relative" aria-labelledby="terminal-heading">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <h2 id="terminal-heading" className="text-3xl md:text-4xl font-bold mb-3">
@@ -107,7 +107,7 @@ export default function TerminalSection() {
         </div>
 
         <div
-          className="max-w-2xl mx-auto rounded-xl overflow-hidden border border-white/10 bg-[#0a0a0f] shadow-2xl shadow-purple-950/30 cursor-text"
+          className="glass max-w-2xl mx-auto rounded-xl overflow-hidden !bg-[rgba(10,10,18,0.72)] shadow-2xl shadow-purple-950/30 cursor-text"
           onClick={activate}
         >
           {/* macOS 风格标题栏 */}

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { SHOW_PRICING } from '@/lib/constants';
 
-const allFaqs = [
+export const allFaqs = [
   {
     question: '如何购买产品？',
     answer: '选择你想要的产品和方案，点击「立即购买」，通过支付宝完成支付。支付成功后，确认邮件会自动发送到你的邮箱。',
@@ -96,7 +96,7 @@ export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-secondary/5 to-transparent">
+    <section id="faq" className="py-20 bg-gradient-to-b from-secondary/5 to-transparent">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 scroll-animate">
           <p className="text-sm text-primary uppercase tracking-widest font-medium mb-4">FAQ</p>

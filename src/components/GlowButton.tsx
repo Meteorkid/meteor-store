@@ -35,7 +35,7 @@ const GlowButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, GlowButtonP
     return (
       <Component
         ref={ref}
-        className={`button-glow relative inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 hover:scale-105 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        className={`button-glow relative inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 hover:scale-105 active:scale-[0.97] active:duration-100 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
         {...(props as any)}
       >
         <span className="relative z-10">{children}</span>

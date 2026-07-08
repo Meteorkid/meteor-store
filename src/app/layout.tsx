@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import ScrollAnimateInit from "@/components/ScrollAnimateInit";
 import EasterEggs from "@/components/EasterEggs";
+import SpotlightSearch from "@/components/SpotlightSearch";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -111,6 +112,7 @@ export default function RootLayout({
           <ScrollAnimateInit />
         </Suspense>
         <EasterEggs />
+        <SpotlightSearch />
         {children}
       </body>
     </html>

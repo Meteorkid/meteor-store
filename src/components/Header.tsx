@@ -40,7 +40,7 @@ export default function Header() {
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         scrolled
-          ? 'border-b border-border bg-background/80 backdrop-blur-xl shadow-lg shadow-black/10'
+          ? 'border-b border-border bg-background/70 backdrop-blur-xl backdrop-saturate-150 shadow-lg shadow-black/10'
           : 'bg-transparent'
       }`}
     >
@@ -71,6 +71,18 @@ export default function Header() {
           >
             GitHub
           </Link>
+          {/* Spotlight 搜索入口 */}
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('spotlight:open'))}
+            aria-label="搜索（快捷键 ⌘K）"
+            title="搜索 ⌘K"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5 transition-all duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+            </svg>
+            <kbd className="text-[10px] border border-white/15 rounded px-1 py-0.5 font-mono text-white/40">⌘K</kbd>
+          </button>
           <div className="w-px h-5 bg-border mx-2" />
           {SHOW_PRICING ? (
             <Link
@@ -89,7 +101,17 @@ export default function Header() {
           )}
         </nav>
 
-        {/* Mobile Hamburger */}
+        {/* Mobile: 搜索 + Hamburger */}
+        <div className="md:hidden flex items-center gap-1">
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('spotlight:open'))}
+          aria-label="搜索"
+          className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+        >
+          <svg className="w-5 h-5 text-foreground/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+          </svg>
+        </button>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
@@ -113,6 +135,7 @@ export default function Header() {
             />
           </div>
         </button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}

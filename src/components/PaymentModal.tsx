@@ -132,7 +132,7 @@ export default function PaymentModal({
           role="dialog"
           aria-modal="true"
           aria-label="支付"
-          className="relative w-full max-w-md mx-4 bg-gray-900 rounded-2xl border border-white/10 p-6 shadow-2xl"
+          className="glass-lg relative w-full max-w-md mx-4 bg-[rgba(20,16,34,0.8)] rounded-2xl p-6 animate-spotlight-in"
         >
           {/* Close button */}
           <button

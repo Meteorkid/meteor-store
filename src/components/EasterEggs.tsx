@@ -11,12 +11,14 @@ export function showToast(message: string, duration = 4200) {
   el.textContent = message;
   el.style.cssText = [
     'position:fixed', 'bottom:24px', 'left:50%', 'transform:translateX(-50%) translateY(16px)',
-    'max-width:min(90vw,420px)', 'padding:12px 20px', 'border-radius:12px',
-    'background:rgba(20,10,40,0.92)', 'border:1px solid rgba(139,92,246,0.35)',
+    'max-width:min(90vw,420px)', 'padding:12px 20px', 'border-radius:14px',
+    // 液态玻璃：模糊+饱和+顶部高光内描边
+    'background:rgba(24,16,44,0.6)', 'border:1px solid rgba(255,255,255,0.1)',
+    'backdrop-filter:blur(20px) saturate(1.6)', '-webkit-backdrop-filter:blur(20px) saturate(1.6)',
     'color:#e9d5ff', 'font-size:14px', 'line-height:1.6', 'z-index:9999',
-    'box-shadow:0 8px 32px rgba(139,92,246,0.25)', 'backdrop-filter:blur(8px)',
-    'opacity:0', 'transition:opacity .3s ease, transform .3s ease', 'pointer-events:none',
-    'text-align:center',
+    'box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.45)',
+    'opacity:0', 'transition:opacity .3s cubic-bezier(0.32,0.72,0,1), transform .3s cubic-bezier(0.32,0.72,0,1)',
+    'pointer-events:none', 'text-align:center',
   ].join(';');
   document.body.appendChild(el);
   requestAnimationFrame(() => {

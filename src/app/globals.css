@@ -217,7 +217,7 @@ html {
   .scroll-animate {
     opacity: 0;
     transform: translateY(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.6s var(--ease-out-spring), transform 0.6s var(--ease-out-spring);
   }
 
   .scroll-animate.visible {
@@ -239,7 +239,7 @@ html {
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.6s ease forwards;
+  animation: fadeInUp 0.5s var(--ease-out-spring) forwards;
 }
 
 /* Scale Up Animation */
@@ -255,7 +255,7 @@ html {
 }
 
 .animate-scale-up {
-  animation: scaleUp 0.3s ease forwards;
+  animation: scaleUp var(--duration-base) var(--ease-out-spring) forwards;
 }
 
 /* Float Animation */
@@ -311,7 +311,7 @@ html {
 
 .story-reveal {
   opacity: 0;
-  animation: storyReveal 0.9s ease forwards;
+  animation: storyReveal 0.8s var(--ease-out-spring) forwards;
 }
 
 /* Footer 版权行眨眼彩蛋 */
@@ -325,13 +325,102 @@ html {
   display: inline;
 }
 
+/* ========== 液态玻璃材质系统（Apple Liquid Glass 的 Web 近似） ========== */
+
+/* 苹果风格缓动与时长阶梯（P3 动画体系的地基） */
+:root {
+  --ease-out-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-in-spring: cubic-bezier(0.2, 0.9, 0.3, 1);
+  --duration-micro: 120ms;
+  --duration-base: 240ms;
+  --duration-page: 400ms;
+}
+
+/* 玻璃基础配方：模糊+饱和提升+顶部高光内描边+柔和外阴影 */
+.glass {
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  background: rgba(20, 16, 34, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 8px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* 悬浮层（Spotlight/Modal）：更深模糊，背景色由组件按需覆盖 */
+.glass-lg {
+  backdrop-filter: blur(32px) saturate(1.8);
+  -webkit-backdrop-filter: blur(32px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 24px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(139, 92, 246, 0.06);
+}
+
+/* 移动端 blur 减半，省 GPU */
+@media (max-width: 767px) {
+  .glass { backdrop-filter: blur(10px) saturate(1.4); -webkit-backdrop-filter: blur(10px) saturate(1.4); }
+  .glass-lg { backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); }
+}
+
+/* 降低透明度偏好：玻璃退化为实色面板（无障碍） */
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-lg {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgb(24, 20, 38) !important;
+  }
+}
+
+/* Spotlight 入场：spring 缩放上浮 */
+@keyframes spotlightIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-spotlight-in {
+  animation: spotlightIn 180ms var(--ease-out-spring) forwards;
+}
+@keyframes spotlightFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-spotlight-fade {
+  animation: spotlightFade 150ms ease forwards;
+}
+
+/* 页面过渡（View Transitions，渐进增强：Chrome 126+ 跨文档导航生效） */
+@view-transition {
+  navigation: auto;
+}
+@keyframes vtOut {
+  to { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes vtIn {
+  from { opacity: 0; transform: translateY(8px); }
+}
+::view-transition-old(root) {
+  animation: vtOut 200ms var(--ease-out-spring) both;
+}
+::view-transition-new(root) {
+  animation: vtIn 260ms var(--ease-out-spring) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 /* 减少动画偏好：所有装饰性动画一票否决（无障碍关怀） */
 @media (prefers-reduced-motion: reduce) {
   .story-reveal,
   .animate-fade-in-up,
   .animate-scale-up,
   .animate-float,
-  .animate-pulse-glow {
+  .animate-pulse-glow,
+  .animate-spotlight-in,
+  .animate-spotlight-fade {
     animation: none;
     opacity: 1;
     transform: none;
