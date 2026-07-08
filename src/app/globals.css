@@ -93,6 +93,10 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
 
+  /* Open Color 原始色暴露给 Tailwind：from-purple-6/to-pink-6 等渐变类依赖它们 */
+  --color-purple-6: var(--purple-6);
+  --color-pink-6: var(--pink-6);
+
   --font-sans: var(--font-neo-grotesque);
   --font-mono: var(--font-monospace-code);
 

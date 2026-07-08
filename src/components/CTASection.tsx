@@ -53,13 +53,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <GlowButton
-                variant="primary"
-                size="lg"
-                renderAs="a"
-                href="/products"
-                className={isBold ? 'bg-white text-primary hover:bg-white/90' : ''}
-              >
+              <GlowButton variant="primary" size="lg" renderAs="a" href="/products">
                 浏览全部产品
               </GlowButton>
               <GlowButton
