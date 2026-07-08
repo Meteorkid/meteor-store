@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { SHOW_PRICING } from '@/lib/constants';
 
 const navLinks = [
+  { label: '首页', href: '/' },
   { label: '产品', href: '/products' },
   ...(SHOW_PRICING ? [{ label: '定价', href: '/#pricing' }] : []),
   { label: '文档', href: '/docs' },
