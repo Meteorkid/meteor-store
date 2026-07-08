@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import ProductMark from '@/components/ProductMark';
 import { products } from '@/data/products';
 import { categoryLabels } from '@/lib/constants';
 
@@ -36,10 +35,7 @@ export default function DocsPage() {
                       href={`/products/${product.id}`}
                       className="block p-6 bg-white/5 rounded-xl border border-white/10 hover:border-purple-500/50 transition-colors"
                     >
-                      <div className="flex items-center gap-3 mb-2">
-                        <ProductMark product={product} size="sm" />
-                        <h3 className="text-lg font-semibold">{product.name}</h3>
-                      </div>
+                      <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
                       <p className="text-gray-400 text-sm">{product.tagline}</p>
                     </a>
                   ))}

@@ -4,7 +4,7 @@ import { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Product } from '@/data/products';
 import { SHOW_PRICING, categoryColors, categoryLabels } from '@/lib/constants';
-import ProductMark from './ProductMark';
+import ProductVisual from './ProductVisual';
 
 interface AdvancedProductCardProps {
   product: Product;
@@ -49,7 +49,7 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
     <Link href={`/products/${product.id}`} className="group relative block">
       <div
         ref={cardRef}
-        className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 transition-all duration-300 hover:border-white/10 hover:shadow-2xl hover:shadow-primary/5"
+        className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 transition-all duration-300 hover:border-white/10 hover:shadow-2xl hover:shadow-primary/5"
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Glow effect */}
@@ -61,10 +61,8 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
         />
 
         <div className="relative">
-          {/* 产品标识：与评论区头像统一的渐变缩写方块 */}
-          <div className="mb-4 group-hover:scale-110 transition-transform duration-300 w-fit">
-            <ProductMark product={product} size="md" />
-          </div>
+          {/* 产品截图：与产品页一致的视觉呈现 */}
+          <ProductVisual product={product} demoOnHover className="mb-4" />
 
           {/* Category badge */}
           <div

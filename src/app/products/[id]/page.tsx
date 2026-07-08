@@ -5,7 +5,6 @@ import Footer from '@/components/Footer';
 import PricingCard from '@/components/PricingCard';
 import ProductGallery from '@/components/ProductGallery';
 import ProductVisual from '@/components/ProductVisual';
-import ProductMark from '@/components/ProductMark';
 import { products } from '@/data/products';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 
@@ -45,7 +44,6 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         <section className="mb-20 grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
           <div>
             <div className="mb-5 flex items-center gap-3">
-              <ProductMark product={product} size="lg" />
               <div className="flex flex-wrap gap-2">
                 {product.platforms.map((platform) => (
                   <span key={platform} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-300">
