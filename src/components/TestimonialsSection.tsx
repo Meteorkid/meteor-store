@@ -1,5 +1,7 @@
 'use client';
 
+import GlassCard from './GlassCard';
+
 const testimonials = [
   {
     name: 'Alex Chen',
@@ -75,10 +77,9 @@ export default function TestimonialsSection() {
         {/* Testimonials grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {testimonials.map((t, index) => (
-            <div
+            <GlassCard
               key={t.name}
-              className="group relative p-6 rounded-2xl border border-border bg-card hover:border-primary/30 transition-all duration-300 scroll-animate"
-              style={{ animationDelay: `${index * 0.08}s` }}
+              className="group p-6 rounded-2xl hover:border-t-white/[0.25] scroll-animate"
             >
               {/* Stars */}
               <div className="flex gap-0.5 mb-4">
@@ -104,7 +105,7 @@ export default function TestimonialsSection() {
                   <div className="text-xs text-muted-foreground">{t.role} · {t.company}</div>
                 </div>
               </div>
-            </div>
+            </GlassCard>
           ))}
         </div>
       </div>

@@ -17,8 +17,8 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
         <div
           className={`relative overflow-hidden rounded-3xl p-12 md:p-16 text-center scroll-animate ${
             isBold
-              ? 'bg-gradient-to-br from-[#12002a] via-[#1a0533] to-black border border-purple-500/20'
-              : 'bg-white/[0.02] border border-white/[0.06]'
+              ? 'bg-gradient-to-br from-[#12002a] via-[#1a0533] to-black border-t border-l border-r border-b border-t-white/[0.15] border-l-white/[0.08] border-r-white/[0.05] border-b-white/[0.02] backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_8px_40px_rgba(0,0,0,0.4)]'
+              : 'backdrop-blur-xl bg-white/[0.03] border-t border-l border-r border-b border-t-white/[0.12] border-l-white/[0.06] border-r-white/[0.04] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_4px_24px_rgba(0,0,0,0.25)]'
           }`}
         >
           {/* 无限隧道背景：进入工具矩阵的纵深感 */}

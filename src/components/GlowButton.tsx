@@ -23,7 +23,7 @@ const GlowButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, GlowButtonP
     const variantStyles = {
       primary: 'bg-gradient-to-r from-purple-6 to-pink-6 text-white',
       secondary: 'bg-secondary text-secondary-foreground',
-      ghost: 'bg-transparent text-foreground border border-border',
+      ghost: 'backdrop-blur-xl bg-white/[0.04] text-foreground border-t border-l border-r border-b border-t-white/[0.15] border-l-white/[0.08] border-r-white/[0.05] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] hover:bg-white/[0.08]',
     };
 
     const sizeStyles = {

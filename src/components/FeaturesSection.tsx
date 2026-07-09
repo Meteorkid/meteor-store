@@ -1,6 +1,7 @@
 'use client';
 
 import CheckIcon from './CheckIcon';
+import GlassCard from './GlassCard';
 
 interface Feature {
   icon: React.ReactNode;
@@ -96,10 +97,10 @@ export default function FeaturesSection({
         {layout === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
-              <div
+              <GlassCard
                 key={feature.title}
-                className="group relative p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04] transition-all duration-300 scroll-animate"
-                style={{ animationDelay: `${index * 0.08}s` }}
+                className="group p-6 rounded-2xl scroll-animate"
+                tilt
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   {feature.icon}
@@ -121,7 +122,7 @@ export default function FeaturesSection({
                     ))}
                   </ul>
                 )}
-              </div>
+              </GlassCard>
             ))}
           </div>
         ) : (

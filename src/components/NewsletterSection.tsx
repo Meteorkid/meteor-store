@@ -39,7 +39,7 @@ export default function NewsletterSection() {
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
-        <div className="relative overflow-hidden rounded-3xl bg-white/[0.02] border border-white/[0.06] p-10 md:p-14 text-center scroll-animate">
+        <div className="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-linear-to-br from-white/[0.05] via-white/[0.02] to-white/[0.01] border-t border-l border-r border-b border-t-white/[0.15] border-l-white/[0.08] border-r-white/[0.05] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.10),inset_0_-1px_0_rgba(0,0,0,0.15),0_4px_24px_rgba(0,0,0,0.25)] p-10 md:p-14 text-center scroll-animate">
           {/* Background grid */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:24px_24px]" />
 
@@ -69,7 +69,7 @@ export default function NewsletterSection() {
                   placeholder="you@example.com（不会拿去换学费的，放心）"
                   required
                   aria-label="邮箱地址"
-                  className="flex-1 px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-foreground placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                  className="flex-1 px-4 py-3 rounded-lg backdrop-blur-md bg-white/[0.04] border-t border-l border-r border-b border-t-white/[0.12] border-l-white/[0.06] border-r-white/[0.05] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] text-foreground placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-t-primary/40 text-sm transition-all"
                 />
                 <GlowButton type="submit" variant="primary" size="md" disabled={isSubmitting}>
                   {isSubmitting ? '提交中...' : '订阅'}

@@ -58,10 +58,10 @@ function FAQItem({ faq, isOpen, onToggle }: {
       <button
         onClick={onToggle}
         aria-expanded={isOpen}
-        className={`w-full text-left p-5 rounded-xl border transition-all duration-300 ${
+        className={`w-full text-left p-5 rounded-xl transition-all duration-300 backdrop-blur-sm ${
           isOpen
-            ? 'border-primary/30 bg-white/[0.03]'
-            : 'border-white/[0.06] bg-transparent hover:border-white/10 hover:bg-white/[0.02]'
+            ? 'bg-white/[0.04] border-t border-l border-r border-b border-t-purple-400/30 border-l-purple-400/15 border-r-purple-400/10 border-b-purple-400/5 shadow-[inset_0_1px_0_rgba(168,85,247,0.12)]'
+            : 'bg-transparent border-t border-l border-r border-b border-t-white/[0.08] border-l-white/[0.04] border-r-white/[0.03] border-b-white/[0.02] hover:border-t-white/[0.15] hover:bg-white/[0.02]'
         }`}
       >
         <div className="flex items-center justify-between gap-4">

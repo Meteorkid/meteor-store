@@ -14,7 +14,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-3 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_24px_70px_rgba(91,33,182,0.22)]"
+      className="group relative overflow-hidden rounded-[1.75rem] p-3 transition-all duration-300 hover:-translate-y-1 backdrop-blur-xl bg-linear-to-br from-white/[0.06] via-white/[0.03] to-white/[0.01] border-t border-l border-r border-b border-t-white/[0.12] border-l-white/[0.06] border-r-white/[0.04] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_4px_24px_rgba(0,0,0,0.3)] hover:border-t-white/[0.22] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_24px_70px_rgba(91,33,182,0.22)]"
     >
       {/* Background gradient */}
       <div className={`absolute inset-0 bg-gradient-to-br ${product.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />

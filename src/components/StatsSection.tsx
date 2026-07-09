@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import GlassCard from './GlassCard';
 
 const statIcon = (path: string) => (
   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} aria-hidden="true">
@@ -75,10 +76,10 @@ export default function StatsSection() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {stats.map((stat, index) => (
-            <div
+            <GlassCard
               key={stat.label}
-              className="group relative p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm hover:border-primary/20 hover:bg-white/[0.04] transition-all duration-300 text-center scroll-animate"
-              style={{ animationDelay: `${index * 0.08}s` }}
+              className="group p-6 rounded-2xl text-center scroll-animate"
+              tilt
             >
               <div className="mb-3 flex justify-center text-primary/80 group-hover:scale-110 group-hover:text-primary transition-all duration-300">
                 {stat.icon}
@@ -87,7 +88,7 @@ export default function StatsSection() {
               <div className="text-xs text-white/40 uppercase tracking-wider mt-1">
                 {stat.label}
               </div>
-            </div>
+            </GlassCard>
           ))}
         </div>
       </div>

@@ -50,10 +50,10 @@ export default function PricingCard({
   return (
     <>
       <div
-        className={`group relative rounded-2xl border p-6 transition-all duration-300 ${
+        className={`group relative rounded-2xl p-6 transition-all duration-300 backdrop-blur-xl ${
           isPopular
-            ? 'border-primary/50 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent shadow-xl shadow-primary/10 scale-[1.02]'
-            : 'border-white/[0.06] bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]'
+            ? 'bg-gradient-to-b from-primary/10 via-primary/5 to-transparent border-t border-l border-r border-b border-t-purple-400/40 border-l-purple-400/20 border-r-purple-400/10 border-b-purple-400/5 shadow-xl shadow-primary/10 scale-[1.02] [box-shadow:inset_0_1px_0_rgba(168,85,247,0.2),0_8px_40px_rgba(139,92,246,0.15)]'
+            : 'bg-linear-to-b from-white/[0.05] to-white/[0.01] border-t border-l border-r border-b border-t-white/[0.12] border-l-white/[0.06] border-r-white/[0.04] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_4px_24px_rgba(0,0,0,0.25)] hover:border-t-white/[0.20]'
         }`}
       >
         {/* Popular Badge */}
