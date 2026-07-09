@@ -347,21 +347,51 @@ html {
   animation: loadingBar 1.5s ease-in-out infinite;
 }
 
-/* /story 信纸逐段展开 */
-@keyframes storyReveal {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* /story 呼吸分隔符 */
+.story-divider {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.scroll-animate.visible .story-divider {
+  opacity: 1;
 }
 
-.story-reveal {
+/* /story 签名区流星划线 */
+.story-meteor-line {
+  position: relative;
+  height: 2px;
+  margin: 0 auto;
+  max-width: 180px;
+  overflow: hidden;
+}
+.story-meteor-line__track {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(192, 132, 252, 0.5), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.story-meteor-line__glow {
+  position: absolute;
+  top: -3px;
+  width: 24px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.8), transparent);
   opacity: 0;
-  animation: storyReveal 0.8s var(--ease-out-spring) forwards;
+  transform: translateX(-24px);
+}
+.story-meteor-line.animate .story-meteor-line__track {
+  transform: scaleX(1);
+}
+.story-meteor-line.animate .story-meteor-line__glow {
+  animation: meteor-glow-slide 1.2s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+@keyframes meteor-glow-slide {
+  0%   { opacity: 1; transform: translateX(-24px); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(180px); }
 }
 
 /* Footer 版权行眨眼彩蛋 */
@@ -542,7 +572,6 @@ html {
 
 /* 减少动画偏好：所有装饰性动画一票否决（无障碍关怀） */
 @media (prefers-reduced-motion: reduce) {
-  .story-reveal,
   .animate-fade-in-up,
   .animate-scale-up,
   .animate-float,
@@ -558,5 +587,16 @@ html {
     opacity: 1;
     transform: none;
     filter: none;
+  }
+  .scroll-animate {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .story-meteor-line__track {
+    transform: scaleX(1);
+  }
+  .story-meteor-line__glow {
+    display: none;
   }
 }
