@@ -91,6 +91,7 @@ export const products: Product[] = [
     platforms: ['Python', 'CLI', 'API'],
     media: {
       cover: '/products/omnicrawl/cover.webp',
+      demo: '/products/omnicrawl/demo.gif',
       screenshots: [
         { src: '/products/omnicrawl/screenshot-1.webp', alt: 'OmniCrawl 核心特性与对比表格' },
         { src: '/products/omnicrawl/screenshot-2.webp', alt: 'OmniCrawl 安装与快速开始' },
@@ -145,6 +146,7 @@ export const products: Product[] = [
     platforms: ['Web', 'Mobile', 'API'],
     media: {
       cover: '/products/ex-memory/cover.webp',
+      demo: '/products/ex-memory/demo.gif',
       screenshots: [
         { src: '/products/ex-memory/screenshot-1.webp', alt: 'Ex-Memory 记忆镜像对话界面' },
         { src: '/products/ex-memory/screenshot-2.webp', alt: 'Ex-Memory 模型配置界面' },
@@ -199,6 +201,7 @@ export const products: Product[] = [
     platforms: ['Web', '3D', 'Mobile'],
     media: {
       cover: '/products/skeleton-anatomy/cover.webp',
+      demo: '/products/skeleton-anatomy/demo.gif',
       screenshots: [
         { src: '/products/skeleton-anatomy/screenshot-1.webp', alt: 'Skeleton Anatomy 三维骨骼总览' },
         { src: '/products/skeleton-anatomy/screenshot-2.webp', alt: 'Skeleton Anatomy 骨骼详情界面' },
@@ -253,6 +256,7 @@ export const products: Product[] = [
     platforms: ['AI Agent', 'Design', 'CLI'],
     media: {
       cover: '/products/ui-design-system/cover.webp',
+      demo: '/products/ui-design-system/demo.gif',
       screenshots: [
         { src: '/products/ui-design-system/screenshot-1.webp', alt: 'UI Design System 首页架构展示' },
         { src: '/products/ui-design-system/screenshot-2.webp', alt: 'UI Design System 组件浏览' },
@@ -300,6 +304,7 @@ export const products: Product[] = [
     platforms: ['macOS', 'iTerm2', 'CLI'],
     media: {
       cover: '/products/statux/cover.webp',
+      demo: '/products/statux/demo.gif',
       screenshots: [
         { src: '/products/statux/screenshot-1.webp', alt: 'Statux 终端状态栏实时显示' },
         { src: '/products/statux/screenshot-2.webp', alt: 'Statux 会话统计与成本追踪' },
@@ -348,6 +353,7 @@ export const products: Product[] = [
     platforms: ['macOS', 'Menu Bar', 'AI Agent'],
     media: {
       cover: '/products/xisland/cover.webp',
+      demo: '/products/xisland/demo.gif',
       screenshots: [
         { src: '/products/xisland/screenshot-1.webp', alt: 'XIsland 收起状态界面' },
         { src: '/products/xisland/screenshot-2.webp', alt: 'XIsland 权限审批界面' },
@@ -396,6 +402,7 @@ export const products: Product[] = [
     platforms: ['Web', 'Typing', 'Analytics'],
     media: {
       cover: '/products/tollow/cover.webp',
+      demo: '/products/tollow/demo.gif',
       screenshots: [
         { src: '/products/tollow/screenshot-1.webp', alt: 'Tollow 沉浸式打字练习界面' },
         { src: '/products/tollow/screenshot-2.webp', alt: 'Tollow 练习数据统计' },
@@ -444,6 +451,7 @@ export const products: Product[] = [
     platforms: ['macOS', 'Menu Bar', 'Utility'],
     media: {
       cover: '/products/xnook/cover.webp',
+      demo: '/products/xnook/demo.gif',
       screenshots: [
         { src: '/products/xnook/screenshot-1.webp', alt: 'XNook 收起状态界面' },
         { src: '/products/xnook/screenshot-2.webp', alt: 'XNook 日历与文件托盘界面' },
@@ -491,9 +499,133 @@ export const products: Product[] = [
     platforms: ['Web', 'WebGL', 'Camera'],
     media: {
       cover: '/products/chakra-visualizer/cover.webp',
+      demo: '/products/chakra-visualizer/demo.gif',
       screenshots: [
         { src: '/products/chakra-visualizer/screenshot-1.webp', alt: 'Chakra Visualizer 忍术特效界面' },
         { src: '/products/chakra-visualizer/screenshot-2.webp', alt: 'Chakra Visualizer 手势捕捉' },
+      ],
+    },
+  },
+  {
+    id: 'webgl-fluid-sim',
+    name: 'WebGL Fluid Sim',
+    tagline: 'GPU 流体模拟',
+    description: '基于 WebGL 的实时流体动力学模拟，支持手势交互、摄像头背景叠加、多种水纹模式，中英双语界面。GPU 加速渲染，丝滑 60fps。',
+    features: [
+      'GPU 加速 Navier-Stokes 流体求解',
+      '手势控制：触摸/鼠标拖动产生流体扰动',
+      '摄像头背景叠加模式',
+      '多种流体预设与水纹效果',
+      '中英双语界面',
+      '移动端完整支持',
+    ],
+    pricing: [
+      {
+        name: 'Free',
+        price: 0,
+        features: ['完整功能', '开源', '社区支持'],
+      },
+    ],
+    github: 'https://github.com/Meteorkid/webgl-fluid-sim',
+    quickstart: {
+      command: 'git clone https://gitee.com/Meteorkid/webgl-fluid-sim.git && cd webgl-fluid-sim && open index.html',
+      note: '纯前端，直接打开 HTML 即可体验',
+    },
+    downloads: [
+      { label: 'Gitee 克隆', url: 'https://gitee.com/Meteorkid/webgl-fluid-sim', icon: 'gitee', note: '国内推荐' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/webgl-fluid-sim', icon: 'github' },
+    ],
+    category: 'utility',
+    icon: '🌊',
+    gradient: 'from-sky-500 to-indigo-500',
+    platforms: ['Web', 'WebGL', 'Mobile'],
+    media: {
+      cover: '/products/webgl-fluid-sim/cover.webp',
+      demo: '/products/webgl-fluid-sim/demo.gif',
+      screenshots: [
+        { src: '/products/webgl-fluid-sim/screenshot-1.webp', alt: 'WebGL Fluid Sim 流体模拟效果' },
+      ],
+    },
+  },
+  {
+    id: 'claude-phone-control',
+    name: 'Claude Phone Control',
+    tagline: '手机远程控制 Claude Code',
+    description: '用手机浏览器远程控制 Mac/Windows 上的 Claude Code。基于 AoE + Tailscale Funnel，一行命令启动，扫码即连，支持完整的终端交互。',
+    features: [
+      '一行命令启动，扫码即用',
+      '支持 macOS 和 Windows',
+      '基于 Tailscale Funnel 安全隧道',
+      '完整终端交互能力',
+      '密码保护连接安全',
+      '自动生成二维码',
+    ],
+    pricing: [
+      {
+        name: 'Free',
+        price: 0,
+        features: ['完整功能', '开源', '社区支持'],
+      },
+    ],
+    github: 'https://github.com/Meteorkid/claude-phone-control',
+    quickstart: {
+      command: 'git clone https://gitee.com/Meteorkid/claude-phone-control.git && cd claude-phone-control && bash macos/phone-control.sh',
+      note: '需要先安装 Tailscale，Windows 用户运行 PowerShell 脚本',
+    },
+    downloads: [
+      { label: 'Gitee 克隆', url: 'https://gitee.com/Meteorkid/claude-phone-control', icon: 'gitee', note: '国内推荐' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/claude-phone-control', icon: 'github' },
+    ],
+    category: 'developer',
+    icon: '📲',
+    gradient: 'from-emerald-500 to-teal-500',
+    platforms: ['macOS', 'Windows', 'Mobile'],
+    media: {
+      cover: '/products/claude-phone-control/cover.webp',
+      demo: '/products/claude-phone-control/demo.gif',
+      screenshots: [
+        { src: '/products/claude-phone-control/screenshot-1.webp', alt: 'Claude Phone Control 终端启动界面' },
+      ],
+    },
+  },
+  {
+    id: 'cursor-source-analyzer',
+    name: 'Cursor Source Analyzer',
+    tagline: 'Cursor AI 架构解析',
+    description: '交互式可视化分析 Cursor AI 代码编辑器的内部架构、AI 集成机制、代码库索引系统和上下文管理。9 大分析维度，ReactFlow 交互式架构图。',
+    features: [
+      '9 大分析维度覆盖 Cursor 核心架构',
+      'ReactFlow 交互式架构图（dagre 自动布局）',
+      '全局搜索 Cmd+K，跨页面加权评分',
+      '深色/浅色主题切换',
+      'Cursor vs Claude Code vs Copilot 对比',
+      '所有数据标注来源与置信度',
+    ],
+    pricing: [
+      {
+        name: 'Free',
+        price: 0,
+        features: ['完整功能', '开源', '社区支持'],
+      },
+    ],
+    github: 'https://github.com/Meteorkid/cursor-source-analyzer',
+    quickstart: {
+      command: 'git clone https://gitee.com/Meteorkid/cursor-source-analyzer.git && cd cursor-source-analyzer && npm install && npm run dev',
+      note: '本地启动后可交互浏览 Cursor 架构分析',
+    },
+    downloads: [
+      { label: 'Gitee 克隆', url: 'https://gitee.com/Meteorkid/cursor-source-analyzer', icon: 'gitee', note: '国内推荐' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/cursor-source-analyzer', icon: 'github' },
+    ],
+    category: 'developer',
+    icon: '🔬',
+    gradient: 'from-amber-500 to-orange-500',
+    platforms: ['Web', 'React', 'TypeScript'],
+    media: {
+      cover: '/products/cursor-source-analyzer/cover.webp',
+      demo: '/products/cursor-source-analyzer/demo.gif',
+      screenshots: [
+        { src: '/products/cursor-source-analyzer/screenshot-1.webp', alt: 'Cursor Source Analyzer 架构概览' },
       ],
     },
   },
