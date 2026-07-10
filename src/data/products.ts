@@ -1,3 +1,10 @@
+export interface DownloadLink {
+  label: string;
+  url: string;
+  icon: 'gitee' | 'pypi' | 'npm' | 'dmg' | 'zip' | 'github';
+  note?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -18,6 +25,8 @@ export interface Product {
     download?: string;
     note?: string;
   };
+  /** 国内下载源 */
+  downloads?: DownloadLink[];
   category: 'ai' | 'developer' | 'design' | 'utility';
   icon: string;
   gradient: string;
@@ -68,9 +77,14 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/omnicrawl',
     quickstart: {
-      command: 'pip install git+https://github.com/Meteorkid/omnicrawl.git',
-      note: '需要 Python 3.10+，安装后 import omnicrawl 即可开爬',
+      command: 'pip install omnicrawl',
+      note: '国内可用清华镜像：pip install omnicrawl -i https://pypi.tuna.tsinghua.edu.cn/simple',
     },
+    downloads: [
+      { label: 'PyPI 安装', url: 'https://pypi.org/project/omnicrawl/', icon: 'pypi', note: '推荐，国内镜像源秒装' },
+      { label: 'Gitee 源码', url: 'https://gitee.com/Meteorkid/omnicrawl', icon: 'gitee' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/omnicrawl', icon: 'github' },
+    ],
     category: 'developer',
     icon: '🕷️',
     gradient: 'from-purple-500 to-pink-500',
@@ -118,9 +132,13 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/ex-memory',
     quickstart: {
-      command: 'git clone https://github.com/Meteorkid/ex-memory.git && cd ex-memory',
+      command: 'git clone https://gitee.com/Meteorkid/ex-memory.git && cd ex-memory',
       note: '按 README 配置你的 LLM API Key，聊天记录只在本地处理',
     },
+    downloads: [
+      { label: 'Gitee 克隆', url: 'https://gitee.com/Meteorkid/ex-memory', icon: 'gitee', note: '国内推荐' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/ex-memory', icon: 'github' },
+    ],
     category: 'ai',
     icon: '💔',
     gradient: 'from-red-500 to-orange-500',
@@ -168,9 +186,13 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/skeleton-anatomy',
     quickstart: {
-      command: 'git clone https://github.com/Meteorkid/skeleton-anatomy.git && cd skeleton-anatomy && npm install && npm run dev',
+      command: 'git clone https://gitee.com/Meteorkid/skeleton-anatomy.git && cd skeleton-anatomy && npm install && npm run dev',
       note: '本地跑起来后浏览器打开即可旋转骨骼',
     },
+    downloads: [
+      { label: 'Gitee 克隆', url: 'https://gitee.com/Meteorkid/skeleton-anatomy', icon: 'gitee', note: '国内推荐' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/skeleton-anatomy', icon: 'github' },
+    ],
     category: 'design',
     icon: '🦴',
     gradient: 'from-gray-500 to-blue-500',
@@ -218,9 +240,13 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/ui-design-system',
     quickstart: {
-      command: 'git clone https://github.com/Meteorkid/ui-design-system.git ~/.claude/skills/ui-design-system',
+      command: 'git clone https://gitee.com/Meteorkid/ui-design-system.git ~/.claude/skills/ui-design-system',
       note: '装进 Claude Code 的 skills 目录，下次会话即可生效',
     },
+    downloads: [
+      { label: 'Gitee 克隆', url: 'https://gitee.com/Meteorkid/ui-design-system', icon: 'gitee', note: '国内推荐' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/ui-design-system', icon: 'github' },
+    ],
     category: 'design',
     icon: '🎨',
     gradient: 'from-blue-500 to-cyan-500',
@@ -261,9 +287,13 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/statux',
     quickstart: {
-      command: 'git clone https://github.com/Meteorkid/statux.git && cd statux',
+      command: 'git clone https://gitee.com/Meteorkid/statux.git && cd statux',
       note: '按 README 一步配置 iTerm2 状态栏',
     },
+    downloads: [
+      { label: 'Gitee 克隆', url: 'https://gitee.com/Meteorkid/statux', icon: 'gitee', note: '国内推荐' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/statux', icon: 'github' },
+    ],
     category: 'developer',
     icon: '📊',
     gradient: 'from-green-500 to-emerald-500',
@@ -304,9 +334,14 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/XIsland',
     quickstart: {
-      download: 'https://github.com/Meteorkid/XIsland/releases',
+      download: 'https://gitee.com/Meteorkid/XIsland/releases',
       note: '下载最新版 DMG，拖进「应用程序」即可',
     },
+    downloads: [
+      { label: '下载 DMG (Gitee)', url: 'https://gitee.com/Meteorkid/XIsland/releases', icon: 'dmg', note: '国内高速下载' },
+      { label: 'Gitee 源码', url: 'https://gitee.com/Meteorkid/XIsland', icon: 'gitee' },
+      { label: 'GitHub Releases', url: 'https://github.com/Meteorkid/XIsland/releases', icon: 'github' },
+    ],
     category: 'developer',
     icon: '🏝️',
     gradient: 'from-indigo-500 to-purple-500',
@@ -347,9 +382,14 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/Tollow',
     quickstart: {
-      command: 'git clone https://github.com/Meteorkid/Tollow.git && cd Tollow && npm install && npm run dev',
+      command: 'git clone https://gitee.com/Meteorkid/Tollow.git && cd Tollow && npm install && npm run dev',
       note: '本地启动后选一本书，直接开始沉浸式打字',
     },
+    downloads: [
+      { label: 'npm 安装', url: 'https://www.npmjs.com/package/tollow', icon: 'npm', note: '国内可用 npmmirror' },
+      { label: 'Gitee 克隆', url: 'https://gitee.com/Meteorkid/Tollow', icon: 'gitee', note: '国内推荐' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/Tollow', icon: 'github' },
+    ],
     category: 'utility',
     icon: '📈',
     gradient: 'from-yellow-500 to-orange-500',
@@ -390,9 +430,14 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/XNook',
     quickstart: {
-      download: 'https://github.com/Meteorkid/XNook/releases',
+      download: 'https://gitee.com/Meteorkid/XNook/releases',
       note: '下载最新版 DMG，拖进「应用程序」即可',
     },
+    downloads: [
+      { label: '下载 DMG (Gitee)', url: 'https://gitee.com/Meteorkid/XNook/releases', icon: 'dmg', note: '国内高速下载' },
+      { label: 'Gitee 源码', url: 'https://gitee.com/Meteorkid/XNook', icon: 'gitee' },
+      { label: 'GitHub Releases', url: 'https://github.com/Meteorkid/XNook/releases', icon: 'github' },
+    ],
     category: 'utility',
     icon: '📱',
     gradient: 'from-pink-500 to-rose-500',
@@ -433,9 +478,13 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/Chakra-Visualizer',
     quickstart: {
-      command: 'git clone https://github.com/Meteorkid/Chakra-Visualizer.git && cd Chakra-Visualizer && npm install && npm run dev',
+      command: 'git clone https://gitee.com/Meteorkid/Chakra-Visualizer.git && cd Chakra-Visualizer && npm install && npm run dev',
       note: '允许摄像头权限后，结印就能放忍术',
     },
+    downloads: [
+      { label: 'Gitee 克隆', url: 'https://gitee.com/Meteorkid/Chakra-Visualizer', icon: 'gitee', note: '国内推荐' },
+      { label: 'GitHub 源码', url: 'https://github.com/Meteorkid/Chakra-Visualizer', icon: 'github' },
+    ],
     category: 'utility',
     icon: '🌀',
     gradient: 'from-cyan-500 to-blue-500',

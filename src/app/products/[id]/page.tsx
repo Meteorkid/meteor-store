@@ -6,6 +6,7 @@ import PricingCard from '@/components/PricingCard';
 import ProductGallery from '@/components/ProductGallery';
 import ProductVisual from '@/components/ProductVisual';
 import InstallCommand from '@/components/InstallCommand';
+import DownloadSection from '@/components/DownloadSection';
 import ProductDemoEmbed from '@/components/ProductDemoEmbed';
 import { products } from '@/data/products';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
@@ -58,12 +59,18 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             <p className="mt-4 text-xl text-violet-200">{product.tagline}</p>
             <p className="mt-5 text-lg leading-8 text-gray-400">{product.description}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href={product.github} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-gray-200">
-                在 GitHub 上查看
+              {product.downloads?.[0] ? (
+                <a href={product.downloads[0].url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                  {product.downloads[0].label}
+                </a>
+              ) : null}
+              <a href={product.github} target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+                GitHub 源码
               </a>
               {product.demo && (
                 <a href={product.demo} target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10">
-                  打开在线演示
+                  在线演示
                 </a>
               )}
             </div>
@@ -72,6 +79,8 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         </section>
 
         <InstallCommand product={product} />
+
+        <DownloadSection product={product} />
 
         <ProductGallery product={product} />
 
