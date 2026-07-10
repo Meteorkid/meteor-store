@@ -11,7 +11,7 @@ const cursive = Dancing_Script({
   preload: true,
 });
 
-const LETTER: Array<string | { type: 'em'; text: string }> = [
+const LETTER: Array<string | { type: 'em'; text: string; href?: string }> = [
   '你好呀，陌生人。',
   '先自我介绍：我是这家店的店主，一名大二的计算机系学生。白天在教室里努力（假装）听课，晚上在办公室里玩vibe coding。',
   '如果你去我们学院打听"那个人是谁"，可能会得到很多答案：科创部的负责人吧、艺术团的、新媒体部的……都是我。不是我贪心，是我发现大学有个 bug：只要你愿意干活，就没人拦着你多干几份。我至今没提交这个 bug，因为我是既得利益者。',
@@ -48,7 +48,7 @@ const LETTER: Array<string | { type: 'em'; text: string }> = [
   { type: 'em', text: '最后——' },
   { type: 'em', text: '无论你是谁、从哪里来、爱着谁、正在经历什么——你在这里都是受欢迎的。' },
   { type: 'em', text: '我始终相信，满怀希望，就会所向披靡。' },
-  { type: 'em', text: '另外，如果你也是攒不出钱的学生：直接写邮件给我，工具免费给你。' },
+  { type: 'em', text: '另外，如果你也是攒不出钱的学生：用教育邮箱验证一下，工具免费给你。', href: '/student' },
   { type: 'em', text: '我以前很喜欢一句话："因为淋过雨，所以想给别人撑一把伞。"' },
   { type: 'em', text: '但现在我更希望，有一天我能把伞递得更早一点。' },
   { type: 'em', text: '早到那些人还没被雨淋湿。' },
@@ -95,13 +95,20 @@ export default function StoryLetter() {
     }
 
     if (isEm) {
+      const obj = para as { text: string; href?: string };
       elements.push(
         <p
           key={i}
           className="scroll-animate text-purple-200/90 font-medium text-base md:text-lg py-1"
           style={{ animationDelay: stagger }}
         >
-          {(para as { text: string }).text}
+          {obj.href ? (
+            <Link href={obj.href} className="underline decoration-purple-400/40 underline-offset-4 hover:decoration-purple-300 transition-colors">
+              {obj.text}
+            </Link>
+          ) : (
+            obj.text
+          )}
         </p>,
       );
     } else {

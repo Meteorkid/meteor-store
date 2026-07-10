@@ -5,6 +5,7 @@ import ScrollAnimateInit from "@/components/ScrollAnimateInit";
 import EasterEggs from "@/components/EasterEggs";
 import SpotlightSearch from "@/components/SpotlightSearch";
 import FilmGrain from "@/components/FilmGrain";
+import { AuthProvider } from "@/components/AuthProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -112,10 +113,12 @@ export default function RootLayout({
         <Suspense>
           <ScrollAnimateInit />
         </Suspense>
-        <EasterEggs />
-        <SpotlightSearch />
-        <FilmGrain />
-        {children}
+        <AuthProvider>
+          <EasterEggs />
+          <SpotlightSearch />
+          <FilmGrain />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

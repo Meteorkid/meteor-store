@@ -12,6 +12,12 @@ export interface Product {
   }[];
   github: string;
   demo?: string;
+  /** 快速上手：终端安装命令（可复制）或应用下载页 */
+  quickstart?: {
+    command?: string;
+    download?: string;
+    note?: string;
+  };
   category: 'ai' | 'developer' | 'design' | 'utility';
   icon: string;
   gradient: string;
@@ -61,6 +67,10 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/omnicrawl',
+    quickstart: {
+      command: 'pip install git+https://github.com/Meteorkid/omnicrawl.git',
+      note: '需要 Python 3.10+，安装后 import omnicrawl 即可开爬',
+    },
     category: 'developer',
     icon: '🕷️',
     gradient: 'from-purple-500 to-pink-500',
@@ -107,6 +117,10 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/ex-memory',
+    quickstart: {
+      command: 'git clone https://github.com/Meteorkid/ex-memory.git && cd ex-memory',
+      note: '按 README 配置你的 LLM API Key，聊天记录只在本地处理',
+    },
     category: 'ai',
     icon: '💔',
     gradient: 'from-red-500 to-orange-500',
@@ -153,6 +167,10 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/skeleton-anatomy',
+    quickstart: {
+      command: 'git clone https://github.com/Meteorkid/skeleton-anatomy.git && cd skeleton-anatomy && npm install && npm run dev',
+      note: '本地跑起来后浏览器打开即可旋转骨骼',
+    },
     category: 'design',
     icon: '🦴',
     gradient: 'from-gray-500 to-blue-500',
@@ -199,6 +217,10 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/ui-design-system',
+    quickstart: {
+      command: 'git clone https://github.com/Meteorkid/ui-design-system.git ~/.claude/skills/ui-design-system',
+      note: '装进 Claude Code 的 skills 目录，下次会话即可生效',
+    },
     category: 'design',
     icon: '🎨',
     gradient: 'from-blue-500 to-cyan-500',
@@ -238,6 +260,10 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/statux',
+    quickstart: {
+      command: 'git clone https://github.com/Meteorkid/statux.git && cd statux',
+      note: '按 README 一步配置 iTerm2 状态栏',
+    },
     category: 'developer',
     icon: '📊',
     gradient: 'from-green-500 to-emerald-500',
@@ -277,6 +303,10 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/XIsland',
+    quickstart: {
+      download: 'https://github.com/Meteorkid/XIsland/releases',
+      note: '下载最新版 DMG，拖进「应用程序」即可',
+    },
     category: 'developer',
     icon: '🏝️',
     gradient: 'from-indigo-500 to-purple-500',
@@ -316,6 +346,10 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/Tollow',
+    quickstart: {
+      command: 'git clone https://github.com/Meteorkid/Tollow.git && cd Tollow && npm install && npm run dev',
+      note: '本地启动后选一本书，直接开始沉浸式打字',
+    },
     category: 'utility',
     icon: '📈',
     gradient: 'from-yellow-500 to-orange-500',
@@ -355,6 +389,10 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/XNook',
+    quickstart: {
+      download: 'https://github.com/Meteorkid/XNook/releases',
+      note: '下载最新版 DMG，拖进「应用程序」即可',
+    },
     category: 'utility',
     icon: '📱',
     gradient: 'from-pink-500 to-rose-500',
@@ -394,6 +432,10 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/Chakra-Visualizer',
+    quickstart: {
+      command: 'git clone https://github.com/Meteorkid/Chakra-Visualizer.git && cd Chakra-Visualizer && npm install && npm run dev',
+      note: '允许摄像头权限后，结印就能放忍术',
+    },
     category: 'utility',
     icon: '🌀',
     gradient: 'from-cyan-500 to-blue-500',

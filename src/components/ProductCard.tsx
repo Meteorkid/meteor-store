@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import { Product } from '@/data/products';
 import { SHOW_PRICING } from '@/lib/constants';
 import ProductVisual from '@/components/ProductVisual';
+import TransitionLink from '@/components/TransitionLink';
 
 interface ProductCardProps {
   product: Product;
@@ -12,19 +12,19 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map(p => p.price)) : 0;
 
   return (
-    <Link
+    <TransitionLink
       href={`/products/${product.id}`}
       className="group relative overflow-hidden rounded-[1.75rem] p-3 transition-all duration-300 hover:-translate-y-1 backdrop-blur-xl bg-linear-to-br from-white/[0.06] via-white/[0.03] to-white/[0.01] border-t border-l border-r border-b border-t-white/[0.12] border-l-white/[0.06] border-r-white/[0.04] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_4px_24px_rgba(0,0,0,0.3)] hover:border-t-white/[0.22] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_24px_70px_rgba(91,33,182,0.22)]"
     >
       {/* Background gradient */}
       <div className={`absolute inset-0 bg-gradient-to-br ${product.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
 
-      <ProductVisual product={product} demoOnHover priority={priority} />
+      <ProductVisual product={product} demoOnHover priority={priority} transitionName={`product-visual-${product.id}`} />
 
       <div className="relative px-3 pb-3 pt-5">
         {/* Title */}
         <div className="mb-2">
-          <h3 className="text-xl font-bold text-white">{product.name}</h3>
+          <h3 className="text-xl font-bold text-white" style={{ viewTransitionName: `product-title-${product.id}` }}>{product.name}</h3>
           <p className="mt-1 text-sm text-gray-400">{product.tagline}</p>
         </div>
 
@@ -63,6 +63,6 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
           </svg>
         </div>
       </div>
-    </Link>
+    </TransitionLink>
   );
 }

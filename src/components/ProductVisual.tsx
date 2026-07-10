@@ -6,6 +6,7 @@ interface ProductVisualProps {
   priority?: boolean;
   demoOnHover?: boolean;
   className?: string;
+  transitionName?: string;
 }
 
 export default function ProductVisual({
@@ -13,10 +14,12 @@ export default function ProductVisual({
   priority = false,
   demoOnHover = false,
   className = '',
+  transitionName,
 }: ProductVisualProps) {
   return (
     <div
       className={`relative aspect-[16/10] overflow-hidden rounded-[1.4rem] border border-white/10 bg-zinc-950 shadow-2xl ${className}`}
+      style={transitionName ? { viewTransitionName: transitionName } : undefined}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${product.gradient} opacity-25`} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.18),transparent_36%),linear-gradient(to_bottom,transparent_55%,rgba(0,0,0,0.35))]" />

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SHOW_PRICING } from '@/lib/constants';
+import { useAuth } from './AuthProvider';
+import UserMenu from './UserMenu';
 
 const navLinks = [
   { label: '首页', href: '/' },
@@ -10,11 +12,13 @@ const navLinks = [
   ...(SHOW_PRICING ? [{ label: '定价', href: '/#pricing' }] : []),
   { label: '文档', href: '/docs' },
   { label: '博客', href: '/blog' },
+  { label: '开源', href: '/open-source' },
 ];
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     let rafId = 0;
@@ -85,21 +89,7 @@ export default function Header() {
             <kbd className="text-[10px] border border-white/15 rounded px-1 py-0.5 font-mono text-white/40">⌘K</kbd>
           </button>
           <div className="w-px h-5 bg-border mx-2" />
-          {SHOW_PRICING ? (
-            <Link
-              href="/#pricing"
-              className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-lg hover:opacity-90 transition-opacity"
-            >
-              开始使用
-            </Link>
-          ) : (
-            <Link
-              href="/products"
-              className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-lg hover:opacity-90 transition-opacity"
-            >
-              浏览产品
-            </Link>
-          )}
+          <UserMenu />
         </nav>
 
         {/* Mobile: 搜索 + Hamburger */}
@@ -166,13 +156,33 @@ export default function Header() {
             GitHub
           </Link>
           <div className="h-px bg-border my-4" />
-          <Link
-            href={SHOW_PRICING ? '/#pricing' : '/products'}
-            onClick={() => setMobileOpen(false)}
-            className="px-6 py-3 text-lg font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-xl text-center hover:opacity-90 transition-opacity"
-          >
-            {SHOW_PRICING ? '开始使用' : '浏览产品'}
-          </Link>
+          {user ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 px-4 py-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white">
+                  {(user.name?.[0] || user.email[0]).toUpperCase()}
+                </span>
+                <div>
+                  <p className="text-sm font-medium text-white">{user.name || '用户'}</p>
+                  <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { logout(); setMobileOpen(false); }}
+                className="w-full px-6 py-3 text-lg font-medium text-red-400 hover:bg-white/5 rounded-xl text-center transition-colors"
+              >
+                退出登录
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              onClick={() => setMobileOpen(false)}
+              className="px-6 py-3 text-lg font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-xl text-center hover:opacity-90 transition-opacity block"
+            >
+              登录 / 注册
+            </Link>
+          )}
         </nav>
       </div>
     </header>

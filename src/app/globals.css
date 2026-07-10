@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
+@plugin "@tailwindcss/typography";
 
 /* Meteor Store 设计系统 - 基于 frontend-design-system */
 :root {
@@ -558,6 +559,47 @@ html {
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* 共享元素过渡：产品卡片 → 详情页 Hero morphing */
+::view-transition-group(product-visual-*),
+::view-transition-group(product-title-*) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.15, 1);
+}
+
+::view-transition-old(product-visual-*),
+::view-transition-new(product-visual-*) {
+  animation: none;
+  mix-blend-mode: normal;
+  object-fit: cover;
+}
+
+::view-transition-old(product-title-*) {
+  animation: vtSharedOut 200ms ease-out both;
+}
+::view-transition-new(product-title-*) {
+  animation: vtSharedIn 280ms ease-out 80ms both;
+}
+
+@keyframes vtSharedOut {
+  to { opacity: 0; }
+}
+@keyframes vtSharedIn {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(product-visual-*),
+  ::view-transition-group(product-title-*) {
+    animation: none;
+  }
+  ::view-transition-old(product-visual-*),
+  ::view-transition-new(product-visual-*),
+  ::view-transition-old(product-title-*),
+  ::view-transition-new(product-title-*) {
     animation: none;
   }
 }

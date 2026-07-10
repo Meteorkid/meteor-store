@@ -1,10 +1,10 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import Link from 'next/link';
 import { Product } from '@/data/products';
 import { SHOW_PRICING, categoryColors, categoryLabels } from '@/lib/constants';
 import ProductVisual from './ProductVisual';
+import TransitionLink from './TransitionLink';
 
 interface AdvancedProductCardProps {
   product: Product;
@@ -46,7 +46,7 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
   }, []);
 
   return (
-    <Link href={`/products/${product.id}`} className="group relative block">
+    <TransitionLink href={`/products/${product.id}`} className="group relative block">
       <div
         ref={cardRef}
         className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 transition-all duration-300 hover:border-white/10 hover:shadow-2xl hover:shadow-primary/5"
@@ -62,7 +62,7 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
 
         <div className="relative">
           {/* 产品截图：与产品页一致的视觉呈现 */}
-          <ProductVisual product={product} demoOnHover className="mb-4" />
+          <ProductVisual product={product} demoOnHover className="mb-4" transitionName={`product-visual-${product.id}`} />
 
           {/* Category badge */}
           <div
@@ -74,7 +74,7 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
           </div>
 
           {/* Title */}
-          <h3 className="text-lg font-semibold text-white mb-1.5 group-hover:text-primary transition-colors">
+          <h3 className="text-lg font-semibold text-white mb-1.5 group-hover:text-primary transition-colors" style={{ viewTransitionName: `product-title-${product.id}` }}>
             {product.name}
           </h3>
 
@@ -112,6 +112,6 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
           </div>
         </div>
       </div>
-    </Link>
+    </TransitionLink>
   );
 }

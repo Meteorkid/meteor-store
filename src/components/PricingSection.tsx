@@ -104,20 +104,25 @@ export default function PricingSection() {
           ))}
         </div>
 
-        {/* Enterprise CTA */}
-        <div className="text-center mt-12 scroll-animate" style={{ animationDelay: '0.4s' }}>
-          <p className="text-muted-foreground mb-4">
+        {/* Student + Enterprise CTA */}
+        <div className="text-center mt-12 scroll-animate space-y-4" style={{ animationDelay: '0.4s' }}>
+          <div>
+            <a
+              href="/student"
+              className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-5 py-2 text-sm font-medium text-violet-300 transition-colors hover:bg-violet-500/20"
+            >
+              🎓 学生？用教育邮箱验证，全部免费
+            </a>
+          </div>
+          <p className="text-muted-foreground">
             需要更大的规模？
+            <a
+              href="mailto:meteor@stu.gpnu.edu.cn"
+              className="ml-2 text-primary hover:text-primary/80 transition-colors"
+            >
+              联系我们获取定制方案 →
+            </a>
           </p>
-          <a
-            href="mailto:meteor@stu.gpnu.edu.cn"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
-          >
-            联系我们获取定制方案
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </a>
         </div>
       </div>
     </section>

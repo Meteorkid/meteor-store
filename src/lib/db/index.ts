@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
-import { orders, licenseKeys, feedbacks } from './schema';
+import { orders, licenseKeys, feedbacks, users } from './schema';
 
 type DrizzleDB = ReturnType<typeof drizzle>;
 
@@ -14,7 +14,7 @@ function getDb(): DrizzleDB {
       throw new Error('DATABASE_URL environment variable is not set');
     }
     const sql = neon(url);
-    _db = drizzle(sql, { schema: { orders, licenseKeys, feedbacks } });
+    _db = drizzle(sql, { schema: { orders, licenseKeys, feedbacks, users } });
   }
   return _db;
 }
