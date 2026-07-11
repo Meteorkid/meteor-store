@@ -306,8 +306,8 @@ export const products: Product[] = [
       cover: '/products/statux/cover.webp',
       demo: '/products/statux/demo.gif',
       screenshots: [
-        { src: '/products/statux/screenshot-1.webp', alt: 'Statux 终端状态栏实时显示' },
-        { src: '/products/statux/screenshot-2.webp', alt: 'Statux 会话统计与成本追踪' },
+        { src: '/products/statux/screenshot-1.webp', alt: 'Statux --help 命令帮助' },
+        { src: '/products/statux/screenshot-2.webp', alt: 'Statux TUI 配置界面' },
       ],
     },
   },
@@ -355,8 +355,8 @@ export const products: Product[] = [
       cover: '/products/xisland/cover.webp',
       demo: '/products/xisland/demo.gif',
       screenshots: [
-        { src: '/products/xisland/screenshot-1.webp', alt: 'XIsland 收起状态界面' },
-        { src: '/products/xisland/screenshot-2.webp', alt: 'XIsland 权限审批界面' },
+        { src: '/products/xisland/screenshot-1.webp', alt: 'XIsland 展开面板 — 多代理实时状态' },
+        { src: '/products/xisland/screenshot-2.webp', alt: 'XIsland 提问面板 — 交互式决策' },
       ],
     },
   },
@@ -404,8 +404,8 @@ export const products: Product[] = [
       cover: '/products/tollow/cover.webp',
       demo: '/products/tollow/demo.gif',
       screenshots: [
-        { src: '/products/tollow/screenshot-1.webp', alt: 'Tollow 沉浸式打字练习界面' },
-        { src: '/products/tollow/screenshot-2.webp', alt: 'Tollow 练习数据统计' },
+        { src: '/products/tollow/screenshot-1.webp', alt: 'Tollow 精选书单 — 论语、道德经、唐诗三百首' },
+        { src: '/products/tollow/screenshot-2.webp', alt: 'Tollow 打字练习 — 论语 WPM/准确率统计' },
       ],
     },
   },
@@ -453,8 +453,8 @@ export const products: Product[] = [
       cover: '/products/xnook/cover.webp',
       demo: '/products/xnook/demo.gif',
       screenshots: [
-        { src: '/products/xnook/screenshot-1.webp', alt: 'XNook 收起状态界面' },
-        { src: '/products/xnook/screenshot-2.webp', alt: 'XNook 日历与文件托盘界面' },
+        { src: '/products/xnook/screenshot-1.webp', alt: 'XNook 设置面板 — 灵动岛联动配置' },
+        { src: '/products/xnook/screenshot-2.webp', alt: 'XNook 收缩药丸 — 菜单栏常驻' },
       ],
     },
   },
