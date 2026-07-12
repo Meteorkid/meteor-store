@@ -454,7 +454,7 @@ export const products: Product[] = [
       demo: '/products/xnook/demo.gif',
       screenshots: [
         { src: '/products/xnook/screenshot-1.webp', alt: 'XNook 收起药丸 — 媒体播放状态' },
-        { src: '/products/xnook/screenshot-2.webp', alt: 'XNook 设置面板 — 通用设置与静音时段' },
+        { src: '/products/xnook/screenshot-2.webp', alt: 'XNook 展开面板 — 媒体播放+日历+文件托盘' },
       ],
     },
   },
