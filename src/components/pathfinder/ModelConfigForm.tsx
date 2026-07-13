@@ -11,6 +11,7 @@ import {
 } from '@/lib/pathfinder/client-config';
 import {
   getTrustedModelProvider,
+  MODEL_PROVIDER_GROUPS,
   TRUSTED_MODEL_PROVIDERS,
 } from '@/lib/pathfinder/model-providers';
 
@@ -28,6 +29,7 @@ export default function ModelConfigForm({ initialConfig }: Props) {
   const [model, setModel] = useState(initialConfig?.model ?? '');
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(Boolean(initialConfig));
+  const selectedProvider = getTrustedModelProvider(baseUrl) ?? TRUSTED_MODEL_PROVIDERS[0];
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -83,14 +85,28 @@ export default function ModelConfigForm({ initialConfig }: Props) {
           aria-describedby="pathfinder-base-url-hint"
           className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-purple-5 focus:ring-2 focus:ring-purple-5/30"
         >
-          {TRUSTED_MODEL_PROVIDERS.map((provider) => (
-            <option key={provider.id} value={provider.baseUrl} className="bg-gray-9 text-foreground">
-              {provider.name}
-            </option>
+          {MODEL_PROVIDER_GROUPS.map((group) => (
+            <optgroup key={group} label={group}>
+              {TRUSTED_MODEL_PROVIDERS
+                .filter((provider) => provider.group === group)
+                .map((provider) => (
+                  <option key={provider.id} value={provider.baseUrl} className="bg-gray-9 text-foreground">
+                    {provider.name}
+                  </option>
+                ))}
+            </optgroup>
           ))}
         </select>
         <p id="pathfinder-base-url-hint" className="mt-1.5 text-xs text-muted-foreground">
-          将使用 <code>{baseUrl}</code>，系统会在其后调用 <code>/chat/completions</code>。
+          将使用 <code>{baseUrl}</code>，系统会在其后调用 <code>/chat/completions</code>。{' '}
+          <a
+            href={selectedProvider.docsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-purple-3 underline-offset-2 hover:underline"
+          >
+            查看 {selectedProvider.name} 的模型目录
+          </a>
         </p>
       </Field>
 
@@ -103,7 +119,7 @@ export default function ModelConfigForm({ initialConfig }: Props) {
           autoComplete="off"
           spellCheck={false}
           required
-          placeholder="填写服务商提供的模型 ID"
+          placeholder="按所选服务商的模型目录填写模型 ID"
           className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-purple-5 focus:ring-2 focus:ring-purple-5/30"
         />
       </Field>
