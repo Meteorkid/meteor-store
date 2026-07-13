@@ -13,6 +13,8 @@ const navLinks = [
   { label: '文档', href: '/docs' },
   { label: '博客', href: '/blog' },
   { label: '开源', href: '/open-source' },
+  // 公益学习路径入口：克制、独立、不影响主商城
+  { label: '公益学习路径', href: '/pathfinder' },
 ];
 
 export default function Header() {

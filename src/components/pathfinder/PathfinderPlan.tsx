@@ -1,0 +1,184 @@
+'use client';
+
+import { useState } from 'react';
+import type { PathfinderPlan } from '@/lib/pathfinder/schema';
+import type { PathfinderResource } from '@/data/pathfinder-resources';
+
+interface Props {
+  plan: PathfinderPlan;
+  resources: PathfinderResource[];
+  source: 'model' | 'fallback';
+  onRegenerate: () => void;
+}
+
+export default function PathfinderPlanView({ plan, resources, source, onRegenerate }: Props) {
+  const [copied, setCopied] = useState(false);
+
+  // 生成可复制的本周行动摘要文本
+  const summaryText = buildShareText(plan);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(summaryText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // 降级方案：选中 textarea
+    }
+  };
+
+  return (
+    <section
+      aria-label="生成的学习路径"
+      className="glass-card rounded-3xl p-6 sm:p-8 space-y-6 animate-fade-in-up"
+    >
+      {/* 来源标识 */}
+      <div className="flex items-center gap-2 text-xs">
+        {source === 'fallback' ? (
+          <span className="px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-300 border border-yellow-500/30">
+            基础路径模式 · 确定性结果
+          </span>
+        ) : (
+          <span className="px-2 py-1 rounded-md bg-green-500/15 text-green-300 border border-green-500/30">
+            AI 生成路径
+          </span>
+        )}
+      </div>
+
+      {/* 路径说明 */}
+      <div>
+        <h3 className="text-base font-semibold text-foreground mb-2">路径说明</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+          {plan.summary}
+        </p>
+      </div>
+
+      {/* 今天就能开始的 3 个小任务 */}
+      <div>
+        <h3 className="text-base font-semibold text-foreground mb-3">今天就能开始的 3 个小任务</h3>
+        <ol className="space-y-2">
+          {plan.todaySteps.map((step, i) => (
+            <li
+              key={i}
+              className="flex gap-3 items-start text-sm text-foreground bg-black/15 rounded-xl px-4 py-3"
+            >
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-6/30 border border-purple-5/40 flex items-center justify-center text-xs font-bold text-purple-200">
+                {i + 1}
+              </span>
+              <span className="leading-relaxed">{step}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      {/* 7 天行动计划 */}
+      <div>
+        <h3 className="text-base font-semibold text-foreground mb-3">7 天行动计划</h3>
+        <ul className="space-y-2">
+          {plan.weekPlan.map((item) => (
+            <li
+              key={item.day}
+              className="flex items-center justify-between gap-3 text-sm bg-black/15 rounded-xl px-4 py-3"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-violet-6/20 border border-violet-5/30 flex items-center justify-center text-xs font-semibold text-violet-200">
+                  D{item.day}
+                </span>
+                <span className="text-foreground truncate">{item.title}</span>
+              </div>
+              <span className="flex-shrink-0 text-xs text-muted-foreground bg-black/20 px-2 py-1 rounded-md">
+                约 {item.minutes} 分钟
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* 免费资源建议 */}
+      {resources.length > 0 && (
+        <div>
+          <h3 className="text-base font-semibold text-foreground mb-3">免费资源建议</h3>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {resources.map((r) => (
+              <li key={r.id}>
+                <a
+                  href={r.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block bg-black/15 hover:bg-black/25 border border-white/10 hover:border-purple-5/40 rounded-xl p-4 transition group"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-medium text-foreground group-hover:text-purple-200 transition">
+                      {r.name}
+                    </span>
+                    {r.lowBandwidth && (
+                      <span className="flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">
+                        低流量
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{r.reason}</p>
+                  <span className="text-[11px] text-purple-300/70 mt-2 inline-block">
+                    {r.kind} · 打开新窗口 →
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* 鼓励语 */}
+      <div className="bg-purple-6/10 border border-purple-5/20 rounded-xl px-4 py-3 text-center">
+        <p className="text-sm text-foreground italic">“{plan.encouragement}”</p>
+      </div>
+
+      {/* 可复制的本周行动摘要 */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-base font-semibold text-foreground">我的本周行动摘要</h3>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="text-xs px-3 py-1.5 rounded-lg bg-purple-6/20 border border-purple-5/30 text-foreground hover:bg-purple-6/30 transition"
+            aria-label="复制行动摘要"
+          >
+            {copied ? '已复制' : '复制'}
+          </button>
+        </div>
+        <pre className="text-xs text-muted-foreground bg-black/20 rounded-xl p-4 overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
+          {summaryText}
+        </pre>
+      </div>
+
+      <button
+        type="button"
+        onClick={onRegenerate}
+        className="w-full py-2.5 px-4 rounded-xl bg-transparent border border-white/15 text-foreground hover:bg-white/5 transition text-sm"
+      >
+        调整条件后重新生成
+      </button>
+    </section>
+  );
+}
+
+/** 构造可分享的纯文本摘要 */
+function buildShareText(plan: PathfinderPlan): string {
+  const lines: string[] = [];
+  lines.push('📋 我的学习路径摘要');
+  lines.push('');
+  lines.push('【路径说明】');
+  lines.push(plan.summary);
+  lines.push('');
+  lines.push('【今天就能开始】');
+  plan.todaySteps.forEach((s, i) => lines.push(`${i + 1}. ${s}`));
+  lines.push('');
+  lines.push('【7 天计划】');
+  plan.weekPlan.forEach((d) => lines.push(`Day ${d.day}：${d.title}（约 ${d.minutes} 分钟）`));
+  lines.push('');
+  lines.push('【鼓励】');
+  lines.push(plan.encouragement);
+  lines.push('');
+  lines.push('—— 由 Meteor Pathfinder 星途导航生成');
+  return lines.join('\n');
+}

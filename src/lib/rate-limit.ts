@@ -23,6 +23,7 @@ function getRedis(): Redis | null {
 // 按 (limit, windowMs) 组合缓存 Ratelimit 实例，
 // 否则所有调用方共享同一限流器会导致各路由声明的阈值互相覆盖失效
 const limiters = new Map<string, Ratelimit>();
+const memoryWindows = new Map<string, { count: number; resetAt: number }>();
 
 function getLimiter(limit: number, windowMs: number): Ratelimit | null {
   const redisClient = getRedis();
@@ -51,19 +52,21 @@ function getLimiter(limit: number, windowMs: number): Ratelimit | null {
  * @param windowMs 时间窗口（毫秒）
  * @param options.failClosed Redis 配置了但请求异常（网络抖动等）时，是否拒绝请求而非放行。
  *   用于支付、发货重试等资金/成本敏感接口；默认 false（fail-open）。
- *   注意：Redis 完全未配置（本地开发/测试等场景）始终视为限流关闭，不受此选项影响。
+ * @param options.fallback Redis 不可用时的降级策略。`memory` 在单个运行实例内保留固定窗口限流，
+ *   适合成本或资源敏感的公开接口；默认 `none` 保持既有 fail-open 行为。
  * @returns { limited: boolean, remaining: number, resetAt: number }
  */
 export async function rateLimit(
   key: string,
   limit: number,
   windowMs: number,
-  options: { failClosed?: boolean } = {},
+  options: { failClosed?: boolean; fallback?: 'none' | 'memory' } = {},
 ): Promise<{ limited: boolean; remaining: number; resetAt: number }> {
   const limiterInstance = getLimiter(limit, windowMs);
 
-  // 降级：如果 Redis 未配置，返回不限制
+  // Redis 未配置时按调用方要求使用进程内降级限流，或保持既有不限制行为。
   if (!limiterInstance) {
+    if (options.fallback === 'memory') return memoryRateLimit(key, limit, windowMs);
     return { limited: false, remaining: limit, resetAt: Date.now() + windowMs };
   }
 
@@ -81,9 +84,43 @@ export async function rateLimit(
       // 敏感接口：Redis 异常时拒绝请求，避免限流失效期间被刷单/刷量
       return { limited: true, remaining: 0, resetAt: Date.now() + windowMs };
     }
+    if (options.fallback === 'memory') return memoryRateLimit(key, limit, windowMs);
     // 低风险接口：Redis 出错时降级为不限制，避免影响正常请求
     return { limited: false, remaining: limit, resetAt: Date.now() + windowMs };
   }
+}
+
+/** 无 Redis 时的实例内固定窗口限流；实例重启会自然清空。 */
+function memoryRateLimit(
+  key: string,
+  limit: number,
+  windowMs: number,
+): { limited: boolean; remaining: number; resetAt: number } {
+  const now = Date.now();
+
+  if (memoryWindows.size >= 10_000) {
+    for (const [windowKey, value] of memoryWindows) {
+      if (value.resetAt <= now) memoryWindows.delete(windowKey);
+    }
+    // 活跃键过多时淘汰最早的窗口，避免恶意伪造 key 导致内存持续增长。
+    const oldestKey = memoryWindows.keys().next().value;
+    if (memoryWindows.size >= 10_000 && oldestKey) memoryWindows.delete(oldestKey);
+  }
+
+  const windowKey = `${key}:${limit}:${windowMs}`;
+  const existing = memoryWindows.get(windowKey);
+  if (!existing || existing.resetAt <= now) {
+    const resetAt = now + windowMs;
+    memoryWindows.set(windowKey, { count: 1, resetAt });
+    return { limited: false, remaining: Math.max(0, limit - 1), resetAt };
+  }
+
+  if (existing.count >= limit) {
+    return { limited: true, remaining: 0, resetAt: existing.resetAt };
+  }
+
+  existing.count += 1;
+  return { limited: false, remaining: Math.max(0, limit - existing.count), resetAt: existing.resetAt };
 }
 
 /**

@@ -35,6 +35,19 @@ describe('rateLimit', () => {
     expect(mockLimit).not.toHaveBeenCalled();
   });
 
+  it('uses a per-instance fallback limit when requested and Redis is not configured', async () => {
+    const { rateLimit } = await importRateLimit();
+    const key = `memory-${Date.now()}`;
+
+    const first = await rateLimit(key, 2, 60_000, { fallback: 'memory' });
+    const second = await rateLimit(key, 2, 60_000, { fallback: 'memory' });
+    const third = await rateLimit(key, 2, 60_000, { fallback: 'memory' });
+
+    expect(first.limited).toBe(false);
+    expect(second.limited).toBe(false);
+    expect(third.limited).toBe(true);
+  });
+
   it('creates a distinct limiter per (limit, windowMs) combination instead of sharing one instance', async () => {
     process.env.UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
     process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
