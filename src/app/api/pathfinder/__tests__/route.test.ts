@@ -31,6 +31,9 @@ function normalInput() {
     stage: '高中',
     device: '仅手机',
     weeklyHours: 7,
+    dailyMinutes: 30,
+    budget: 0,
+    hasMentor: false,
     network: '普通网络',
     constraints: ['时间碎片化'],
   };
@@ -97,7 +100,7 @@ describe('POST /api/pathfinder 危机优先级', () => {
       choices: [{ message: { content: JSON.stringify({
         summary: '说明',
         todaySteps: ['a', 'b', 'c'],
-        weekPlan: [{ day: 1, title: '任务', minutes: 20 }],
+        weekPlan: [{ day: 1, title: '任务', minutes: 20, cost: 0, device: '手机', network: '普通', evidence: '笔记' }],
         resourceIds: ['python-docs-zh'],
         encouragement: '加油',
       }) } }],

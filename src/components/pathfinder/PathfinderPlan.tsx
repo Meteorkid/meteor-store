@@ -1,21 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { PathfinderPlan } from '@/lib/pathfinder/schema';
 import type { PathfinderResource } from '@/data/pathfinder-resources';
+import { generatePlanB } from '@/lib/pathfinder/plan-b';
+import type { RealityConstraints } from '@/lib/pathfinder/contract';
 
 interface Props {
   plan: PathfinderPlan;
   resources: PathfinderResource[];
-  source: 'model' | 'fallback';
+  source: 'model' | 'fallback' | 'preset';
+  realityConstraints: RealityConstraints;
   onRegenerate: () => void;
 }
 
-export default function PathfinderPlanView({ plan, resources, source, onRegenerate }: Props) {
+export default function PathfinderPlanView({ plan, resources, source, realityConstraints, onRegenerate }: Props) {
   const [copied, setCopied] = useState(false);
+  const [remainingMinutes, setRemainingMinutes] = useState(Math.min(10, realityConstraints.dailyMinutes));
 
   // 生成可复制的本周行动摘要文本
   const summaryText = buildShareText(plan);
+  const todayTask = plan.weekPlan.find((item) => item.day === 1) ?? plan.weekPlan[0];
+  const planB = useMemo(
+    () => generatePlanB({ remainingMinutes, constraints: realityConstraints, originalPlan: plan.weekPlan }),
+    [plan.weekPlan, realityConstraints, remainingMinutes],
+  );
 
   const handleCopy = async () => {
     try {
@@ -34,7 +43,16 @@ export default function PathfinderPlanView({ plan, resources, source, onRegenera
     >
       {/* 来源标识 */}
       <div className="flex items-center gap-2 text-xs">
-        {source === 'fallback' ? (
+        {source === 'preset' ? (
+          <>
+            <span className="px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-300 border border-yellow-500/30">
+              典型场景演示
+            </span>
+            <span className="px-2 py-1 rounded-md bg-white/5 text-muted-foreground border border-white/10">
+              静态预置 · 非实时 AI 生成
+            </span>
+          </>
+        ) : source === 'fallback' ? (
           <span className="px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-300 border border-yellow-500/30">
             基础路径模式 · 确定性结果
           </span>
@@ -54,8 +72,15 @@ export default function PathfinderPlanView({ plan, resources, source, onRegenera
       </div>
 
       {/* 今天就能开始的 3 个小任务 */}
-      <div>
-        <h3 className="text-base font-semibold text-foreground mb-3">今天就能开始的 3 个小任务</h3>
+      <div id="today" className="scroll-mt-24">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h3 className="text-base font-semibold text-foreground">今天就能开始</h3>
+          {todayTask && (
+            <span className="text-xs px-2 py-1 rounded-md bg-green-500/15 text-green-300 border border-green-500/30">
+              第一步约 {todayTask.minutes} 分钟 · {todayTask.evidence}
+            </span>
+          )}
+        </div>
         <ol className="space-y-2">
           {plan.todaySteps.map((step, i) => (
             <li
@@ -86,12 +111,47 @@ export default function PathfinderPlanView({ plan, resources, source, onRegenera
                 </span>
                 <span className="text-foreground truncate">{item.title}</span>
               </div>
-              <span className="flex-shrink-0 text-xs text-muted-foreground bg-black/20 px-2 py-1 rounded-md">
-                约 {item.minutes} 分钟
-              </span>
+              <div className="flex flex-wrap justify-end gap-1.5 flex-shrink-0">
+                <ContractTag>{item.minutes} 分钟</ContractTag>
+                <ContractTag>{item.cost === 0 ? '免费' : `${item.cost} 元`}</ContractTag>
+                <ContractTag>{item.device}</ContractTag>
+                <ContractTag>{item.network}</ContractTag>
+                <ContractTag>{item.evidence}</ContractTag>
+              </div>
             </li>
           ))}
         </ul>
+      </div>
+
+      <div id="plan-b" className="scroll-mt-24 rounded-2xl border border-purple-5/20 bg-purple-6/10 p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-foreground">计划被打断时</h3>
+            <p className="mt-1 text-xs text-muted-foreground">剩余时间变少时，只保留仍符合原来设备、网络和预算条件的任务。</p>
+          </div>
+          <span className="text-sm font-medium text-purple-200">本周只剩 {remainingMinutes} 分钟</span>
+        </div>
+        <input
+          type="range"
+          min={5}
+          max={Math.max(5, realityConstraints.dailyMinutes)}
+          step={5}
+          value={remainingMinutes}
+          onChange={(event) => setRemainingMinutes(Number(event.target.value))}
+          className="mt-4 w-full accent-purple-5"
+          aria-label="调整本周剩余时间"
+        />
+        <p className="mt-3 text-sm text-foreground/90">{planB.summary}</p>
+        {planB.tasks.length > 0 && (
+          <ul className="mt-3 space-y-2">
+            {planB.tasks.map((item) => (
+              <li key={`${item.day}-${item.title}`} className="flex items-center justify-between gap-3 rounded-xl bg-black/15 px-3 py-2 text-sm">
+                <span className="text-foreground">D{item.day} · {item.title}</span>
+                <ContractTag>{item.minutes} 分钟</ContractTag>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* 免费资源建议 */}
@@ -174,11 +234,19 @@ function buildShareText(plan: PathfinderPlan): string {
   plan.todaySteps.forEach((s, i) => lines.push(`${i + 1}. ${s}`));
   lines.push('');
   lines.push('【7 天计划】');
-  plan.weekPlan.forEach((d) => lines.push(`Day ${d.day}：${d.title}（约 ${d.minutes} 分钟）`));
+  plan.weekPlan.forEach((d) => lines.push(`Day ${d.day}：${d.title}（${d.minutes} 分钟 · ${d.cost === 0 ? '免费' : `${d.cost} 元`} · ${d.device} · ${d.network} · ${d.evidence}）`));
   lines.push('');
   lines.push('【鼓励】');
   lines.push(plan.encouragement);
   lines.push('');
   lines.push('—— 由 Meteor Pathfinder 星途导航生成');
   return lines.join('\n');
+}
+
+function ContractTag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-[10px] text-muted-foreground bg-black/20 px-1.5 py-1 rounded-md whitespace-nowrap">
+      {children}
+    </span>
+  );
 }

@@ -6,16 +6,10 @@ import {
   DEVICE_VALUES,
   NETWORK_VALUES,
   CONSTRAINT_VALUES,
+  type PathfinderInput,
 } from '@/lib/pathfinder/schema';
 
-export interface PathfinderFormValue {
-  goal: string;
-  stage: (typeof STAGE_VALUES)[number];
-  device: (typeof DEVICE_VALUES)[number];
-  weeklyHours: number;
-  network: (typeof NETWORK_VALUES)[number];
-  constraints: (typeof CONSTRAINT_VALUES)[number][];
-}
+export type PathfinderFormValue = PathfinderInput;
 
 interface Props {
   initialGoal?: string;
@@ -34,6 +28,9 @@ export default function PathfinderForm({
   const [stage, setStage] = useState<(typeof STAGE_VALUES)[number]>('高中');
   const [device, setDevice] = useState<(typeof DEVICE_VALUES)[number]>('仅手机');
   const [weeklyHours, setWeeklyHours] = useState(7);
+  const [dailyMinutes, setDailyMinutes] = useState(30);
+  const [budget, setBudget] = useState(0);
+  const [hasMentor, setHasMentor] = useState(false);
   const [network, setNetwork] = useState<(typeof NETWORK_VALUES)[number]>('普通网络');
   const [constraints, setConstraints] = useState<(typeof CONSTRAINT_VALUES)[number][]>([
     '时间碎片化',
@@ -63,7 +60,17 @@ export default function PathfinderForm({
       return;
     }
     try {
-      await onSubmit({ goal: goal.trim(), stage, device, weeklyHours, network, constraints });
+      await onSubmit({
+        goal: goal.trim(),
+        stage,
+        device,
+        weeklyHours,
+        dailyMinutes,
+        budget,
+        hasMentor,
+        network,
+        constraints,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : '提交失败');
     }
@@ -130,9 +137,82 @@ export default function PathfinderForm({
         />
       </Field>
 
+      <Field label={`每天可投入时间：${dailyMinutes} 分钟`} id={`${idPrefix}-daily-minutes`}>
+        <input
+          id={`${idPrefix}-daily-minutes`}
+          type="range"
+          min={10}
+          max={120}
+          step={5}
+          value={dailyMinutes}
+          onChange={(e) => setDailyMinutes(Number(e.target.value))}
+          className="w-full accent-purple-5"
+          aria-valuemin={10}
+          aria-valuemax={120}
+          aria-valuenow={dailyMinutes}
+        />
+      </Field>
+
+      <fieldset>
+        <legend className="block text-sm font-medium mb-3 text-foreground">每月学习预算</legend>
+        <div className="grid grid-cols-4 gap-2">
+          {[0, 50, 100, 200].map((amount) => {
+            const checked = budget === amount;
+            return (
+              <label
+                key={amount}
+                className={`cursor-pointer text-sm px-2 py-2 rounded-xl border text-center transition select-none ${
+                  checked
+                    ? 'bg-purple-6/30 border-purple-5 text-foreground'
+                    : 'bg-black/10 border-white/10 text-muted-foreground hover:border-white/30'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name={`${idPrefix}-budget`}
+                  value={amount}
+                  checked={checked}
+                  onChange={() => setBudget(amount)}
+                  className="sr-only"
+                />
+                {amount === 0 ? '零预算' : `${amount} 元`}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+
       <Field label="网络条件" id={`${idPrefix}-network`}>
         <Select value={network} onChange={(v) => setNetwork(v as typeof network)} id={`${idPrefix}-network`} options={NETWORK_VALUES as readonly string[]} />
       </Field>
+
+      <fieldset>
+        <legend className="block text-sm font-medium mb-3 text-foreground">是否有可求助的人</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {[false, true].map((value) => {
+            const checked = hasMentor === value;
+            return (
+              <label
+                key={String(value)}
+                className={`cursor-pointer text-sm px-3 py-2 rounded-xl border text-center transition select-none ${
+                  checked
+                    ? 'bg-purple-6/30 border-purple-5 text-foreground'
+                    : 'bg-black/10 border-white/10 text-muted-foreground hover:border-white/30'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name={`${idPrefix}-mentor`}
+                  checked={checked}
+                  onChange={() => setHasMentor(value)}
+                  className="sr-only"
+                />
+                {value ? '有，可以偶尔请教' : '暂时没有'}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
 
       <fieldset>
         <legend className="block text-sm font-medium mb-3 text-foreground">
@@ -179,7 +259,7 @@ export default function PathfinderForm({
         disabled={loading || disabled}
         className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-purple-6 to-violet-6 text-white font-semibold text-base shadow-lg shadow-purple-6/30 hover:shadow-purple-6/50 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-purple-5 focus:ring-offset-2 focus:ring-offset-background"
       >
-        {loading ? '正在生成路径...' : '生成我的路径'}
+        {loading ? '正在生成路径...' : '按我的现实条件生成'}
       </button>
     </form>
   );

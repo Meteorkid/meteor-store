@@ -12,9 +12,11 @@
 import {
   PathfinderInput,
   PathfinderPlan,
+  PathfinderTask,
   PathfinderPlanSchema,
   looksLikeCrisis,
 } from './schema';
+import { repair, toRealityConstraints, validate } from './contract';
 import { RESOURCE_IDS, resolveResources } from '@/data/pathfinder-resources';
 
 /** 模型调用需要的配置 */
@@ -51,7 +53,8 @@ export function buildSystemPrompt(): string {
 2. 每项任务要小、明确、可验证，避免笼统的"努力学习"。
 3. 资源只能从给定列表中选择 id，不要编造 URL、机构或政策。
 4. 优先选择免费、低带宽、手机可访问的资源。
-5. 不作升学、就业、医疗或心理诊断承诺。
+5. 每项 weekPlan 任务都必须填写 cost、device、network、evidence；cost 为元，免费任务填写 0。
+6. 不作升学、就业、医疗或心理诊断承诺。
 
 【危机处理】
 若用户输入疑似涉及伤害自己、被霸凌、心理危机或医疗问题，
@@ -64,7 +67,15 @@ export function buildSystemPrompt(): string {
   "summary": "整体路径说明，1-3 句话",
   "todaySteps": ["今天能做的第 1 件事", "第 2 件", "第 3 件"],
   "weekPlan": [
-    { "day": 1, "title": "任务标题", "minutes": 30 }
+    {
+      "day": 1,
+      "title": "任务标题",
+      "minutes": 15,
+      "cost": 0,
+      "device": "手机",
+      "network": "低流量",
+      "evidence": "笔记"
+    }
   ],
   "resourceIds": ["资源 id 列表"],
   "encouragement": "一句鼓励"
@@ -81,6 +92,9 @@ export function buildUserPrompt(input: PathfinderInput): string {
 当前阶段：${input.stage}
 可用设备：${input.device}
 每周可投入时间：${input.weeklyHours} 小时
+每天可投入时间：${input.dailyMinutes} 分钟
+每月学习预算：${input.budget} 元
+是否有可求助的人：${input.hasMentor ? '有' : '暂无'}
 网络条件：${input.network}
 现实限制：${input.constraints.join('、')}
 
@@ -112,7 +126,18 @@ export async function generatePlan(
     const raw = await callModel(input, config);
     const parsed = parseModelOutput(raw);
     if (parsed.ok) {
-      return { ok: true, source: 'model', plan: parsed.plan };
+      const plan = applyRealityContract(parsed.plan, input);
+      if (plan) {
+        return { ok: true, source: 'model', plan };
+      }
+      if (options.runtime === 'development') {
+        return { ok: true, source: 'fallback', plan: buildFallbackPlan(input) };
+      }
+      return {
+        ok: false,
+        error: '生成的路径与当前现实条件不匹配，请调整条件后重试。',
+        detail: 'reality contract removed all tasks',
+      };
     }
     // 解析失败：开发环境给兜底，生产环境报错
     if (options.runtime === 'development') {
@@ -221,8 +246,10 @@ function extractJson(raw: string): string {
  * 不在生产环境使用，避免伪装 AI 生成
  */
 export function buildFallbackPlan(input: PathfinderInput): PathfinderPlan {
-  const minutesPerDay = Math.max(15, Math.min(90, Math.round((input.weeklyHours * 60) / 7)));
+  const minutesPerDay = Math.min(input.dailyMinutes, Math.max(10, Math.round((input.weeklyHours * 60) / 7)));
   const isLowBandwidth = input.network === '流量有限';
+  const taskDevice: PathfinderTask['device'] = input.device === '仅手机' ? '手机' : '电脑';
+  const taskNetwork: PathfinderTask['network'] = isLowBandwidth ? '低流量' : input.network === '稳定网络' ? '稳定' : '普通';
 
   const todaySteps = [
     `打开手机浏览器，搜索与"${input.goal.slice(0, 12)}"相关的免费入门资料`,
@@ -233,7 +260,12 @@ export function buildFallbackPlan(input: PathfinderInput): PathfinderPlan {
   const weekPlan = Array.from({ length: 7 }, (_, i) => ({
     day: i + 1,
     title: `第 ${i + 1} 天：${input.goal.slice(0, 10)} 的入门练习`,
-    minutes: minutesPerDay,
+    // 第一天是可立即启动的动作，最多占用 15 分钟；后续仍受 dailyMinutes 限制。
+    minutes: i === 0 ? Math.min(minutesPerDay, 15) : minutesPerDay,
+    cost: 0,
+    device: taskDevice,
+    network: taskNetwork,
+    evidence: (i % 2 === 0 ? '笔记' : '完成记录') as PathfinderTask['evidence'],
   }));
 
   // 兜底资源：优先低带宽
@@ -241,13 +273,15 @@ export function buildFallbackPlan(input: PathfinderInput): PathfinderPlan {
     ? ['python-docs-zh', 'mdn-web-docs', 'free-programming-books']
     : ['python-docs-zh', 'w3schools', 'chinese-mooc'];
 
-  return {
+  const plan: PathfinderPlan = {
     summary: `[基础路径模式] 基于你每周 ${input.weeklyHours} 小时、${input.device} 的条件，先从免费入门资料开始，建立稳定的学习节奏。`,
     todaySteps,
     weekPlan,
     resourceIds: fallbackResourceIds.filter((id) => RESOURCE_IDS.includes(id)),
     encouragement: '资源有限也能开始第一步，今天写下的每行字都是路径的一部分。',
   };
+
+  return applyRealityContract(plan, input) ?? plan;
 }
 
 /** 危机输入的引导性结果，不进行诊断 */
@@ -260,13 +294,27 @@ export function buildCrisisPlan(): PathfinderPlan {
       '今天尽量不独处，找一个能陪伴你的人或环境',
     ],
     weekPlan: [
-      { day: 1, title: '联系一位信任的成年人，告诉他你的处境', minutes: 15 },
-      { day: 2, title: '前往或联系学校心理咨询中心', minutes: 30 },
-      { day: 3, title: '保持每天与可信任的人至少沟通一次', minutes: 15 },
+      { day: 1, title: '联系一位信任的成年人，告诉他你的处境', minutes: 15, cost: 0, device: '手机', network: '普通', evidence: '完成记录' },
+      { day: 2, title: '前往或联系学校心理咨询中心', minutes: 30, cost: 0, device: '手机', network: '普通', evidence: '完成记录' },
+      { day: 3, title: '保持每天与可信任的人至少沟通一次', minutes: 15, cost: 0, device: '手机', network: '低流量', evidence: '完成记录' },
     ],
     resourceIds: [],
     encouragement: '你不是一个人，向信任的成年人开口是最重要的一步。',
   };
+}
+
+/**
+ * 用 Reality Contract 修复模型候选路径。危机路径由调用方提前返回，绝不进入这里。
+ */
+export function applyRealityContract(plan: PathfinderPlan, input: PathfinderInput): PathfinderPlan | null {
+  const constraints = toRealityConstraints(input);
+  const violations = validate(plan.weekPlan, constraints);
+  if (violations.length === 0) return plan;
+
+  const { repaired } = repair(plan.weekPlan, constraints, violations);
+  if (repaired.length === 0) return null;
+
+  return { ...plan, weekPlan: repaired };
 }
 
 export { resolveResources };

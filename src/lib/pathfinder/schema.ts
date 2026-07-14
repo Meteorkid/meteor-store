@@ -29,6 +29,12 @@ export const PathfinderInputSchema = z.object({
   device: z.enum(DEVICE_VALUES),
   /** 每周可投入小时数，1–20 */
   weeklyHours: z.number().int().min(1, '每周至少 1 小时').max(20, '每周不超过 20 小时'),
+  /** 每天可投入分钟数，10–120 */
+  dailyMinutes: z.number().int().min(10, '每天至少 10 分钟').max(120, '每天不超过 120 分钟'),
+  /** 每月可用于学习的预算（元） */
+  budget: z.number().int().min(0, '预算不能小于 0').max(500, '每月预算不超过 500 元'),
+  /** 是否有可求助的老师、前辈或同学 */
+  hasMentor: z.boolean(),
   network: z.enum(NETWORK_VALUES),
   /** 现实限制，可多选但不能为空 */
   constraints: z
@@ -69,6 +75,24 @@ export const PathfinderGenerateRequestSchema = z.object({
 
 export type PathfinderGenerateRequest = z.infer<typeof PathfinderGenerateRequestSchema>;
 
+/** 路径中单条任务的可验证现实条件 */
+export const PathfinderTaskSchema = z.object({
+  day: z.number().int().min(1).max(7),
+  title: z.string().min(1).max(80),
+  /** 预计耗时（分钟） */
+  minutes: z.number().int().min(5).max(240),
+  /** 货币成本（元），0 表示免费 */
+  cost: z.number().min(0).max(10_000),
+  /** 完成这项任务所需的主要设备 */
+  device: z.enum(['手机', '电脑']),
+  /** 完成这项任务所需的网络条件 */
+  network: z.enum(['低流量', '普通', '稳定']),
+  /** 用户可以留下的最低成本行动证据 */
+  evidence: z.enum(['截图', '笔记', '完成记录']),
+});
+
+export type PathfinderTask = z.infer<typeof PathfinderTaskSchema>;
+
 /** 模型期望输出的结构（用于解析与校验） */
 export const PathfinderPlanSchema = z.object({
   /** 整体路径说明 */
@@ -77,14 +101,7 @@ export const PathfinderPlanSchema = z.object({
   todaySteps: z.array(z.string().min(1).max(200)).min(3).max(3),
   /** 7 天行动计划 */
   weekPlan: z
-    .array(
-      z.object({
-        day: z.number().int().min(1).max(7),
-        title: z.string().min(1).max(80),
-        /** 预计耗时（分钟） */
-        minutes: z.number().int().min(5).max(240),
-      }),
-    )
+    .array(PathfinderTaskSchema)
     .min(1)
     .max(7),
   /** 资源 id 列表（必须命中本地资源库） */

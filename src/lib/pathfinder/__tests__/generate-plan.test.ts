@@ -5,10 +5,12 @@ import {
   parseModelOutput,
   buildFallbackPlan,
   generatePlan,
+  applyRealityContract,
 } from '../generate-plan';
 import {
   PathfinderInputSchema,
   looksLikeCrisis,
+  type PathfinderPlan,
 } from '../schema';
 import { RESOURCE_IDS } from '@/data/pathfinder-resources';
 
@@ -19,6 +21,9 @@ function makeInput(overrides: Partial<Record<string, unknown>> = {}) {
     stage: '高中',
     device: '仅手机',
     weeklyHours: 7,
+    dailyMinutes: 30,
+    budget: 0,
+    hasMentor: false,
     network: '流量有限',
     constraints: ['时间碎片化', '基础薄弱'],
   };
@@ -30,6 +35,13 @@ const validConfig = {
   baseUrl: 'https://api.example.com/v1',
   model: 'test-model',
 };
+
+const validTaskContract = {
+  cost: 0,
+  device: '手机',
+  network: '普通',
+  evidence: '笔记',
+} as const;
 
 describe('buildSystemPrompt', () => {
   it('包含资源 id 列表与危机处理规则', () => {
@@ -51,6 +63,8 @@ describe('buildUserPrompt', () => {
     expect(prompt).toContain(input.stage);
     expect(prompt).toContain(input.device);
     expect(prompt).toContain(`${input.weeklyHours} 小时`);
+    expect(prompt).toContain(`${input.dailyMinutes} 分钟`);
+    expect(prompt).toContain(`${input.budget} 元`);
     expect(prompt).toContain(input.network);
     for (const c of input.constraints) {
       expect(prompt).toContain(c);
@@ -63,7 +77,7 @@ describe('parseModelOutput', () => {
     const raw = JSON.stringify({
       summary: '本周先建立学习节奏',
       todaySteps: ['步骤一', '步骤二', '步骤三'],
-      weekPlan: [{ day: 1, title: '任务', minutes: 30 }],
+      weekPlan: [{ day: 1, title: '任务', minutes: 30, ...validTaskContract }],
       resourceIds: ['python-docs-zh', 'mdn-web-docs'],
       encouragement: '加油',
     });
@@ -79,7 +93,7 @@ describe('parseModelOutput', () => {
     const raw = '```json\n' + JSON.stringify({
       summary: '说明',
       todaySteps: ['a', 'b', 'c'],
-      weekPlan: [{ day: 1, title: 't', minutes: 20 }],
+      weekPlan: [{ day: 1, title: 't', minutes: 20, ...validTaskContract }],
       resourceIds: ['python-docs-zh'],
       encouragement: '加油',
     }) + '\n```';
@@ -104,7 +118,7 @@ describe('parseModelOutput', () => {
     const raw = JSON.stringify({
       summary: '说明',
       todaySteps: ['a', 'b', 'c'],
-      weekPlan: [{ day: 1, title: 't', minutes: 20 }],
+      weekPlan: [{ day: 1, title: 't', minutes: 20, ...validTaskContract }],
       resourceIds: ['fake-id-1', 'fake-id-2'],
       encouragement: '加油',
     });
@@ -119,7 +133,7 @@ describe('parseModelOutput', () => {
     const raw = JSON.stringify({
       summary: '说明',
       todaySteps: ['a', 'b', 'c'],
-      weekPlan: [{ day: 1, title: 't', minutes: 20 }],
+      weekPlan: [{ day: 1, title: 't', minutes: 20, ...validTaskContract }],
       resourceIds: ['python-docs-zh', 'fake-id', 'mdn-web-docs'],
       encouragement: '加油',
     });
@@ -149,14 +163,34 @@ describe('buildFallbackPlan', () => {
     expect(plan.resourceIds).toContain('w3schools');
   });
 
-  it('每日时长随每周小时数缩放且在合理区间', () => {
+  it('每日时长同时受每周投入与 dailyMinutes 约束', () => {
     const lowInput = makeInput({ weeklyHours: 2 });
     const highInput = makeInput({ weeklyHours: 20 });
     const low = buildFallbackPlan(lowInput);
     const high = buildFallbackPlan(highInput);
-    expect(low.weekPlan[0].minutes).toBeGreaterThanOrEqual(15);
-    expect(high.weekPlan[0].minutes).toBeLessThanOrEqual(90);
-    expect(high.weekPlan[0].minutes).toBeGreaterThanOrEqual(low.weekPlan[0].minutes);
+    expect(low.weekPlan[1].minutes).toBeGreaterThanOrEqual(15);
+    expect(high.weekPlan[1].minutes).toBeLessThanOrEqual(highInput.dailyMinutes);
+    expect(high.weekPlan[1].minutes).toBeGreaterThanOrEqual(low.weekPlan[1].minutes);
+  });
+});
+
+describe('applyRealityContract', () => {
+  it('会修复超时任务并移除付费或电脑专属任务', () => {
+    const input = makeInput({ dailyMinutes: 20, budget: 0, device: '仅手机' });
+    const plan: PathfinderPlan = {
+      summary: '说明',
+      todaySteps: ['a', 'b', 'c'],
+      weekPlan: [
+        { day: 1, title: '超时任务', minutes: 60, ...validTaskContract },
+        { day: 2, title: '付费任务', minutes: 15, ...validTaskContract, cost: 20 },
+        { day: 3, title: '电脑任务', minutes: 15, ...validTaskContract, device: '电脑' },
+      ],
+      resourceIds: ['python-docs-zh'],
+      encouragement: '加油',
+    };
+    const repaired = applyRealityContract(plan, input);
+    expect(repaired?.weekPlan).toHaveLength(1);
+    expect(repaired?.weekPlan[0].minutes).toBe(20);
   });
 });
 

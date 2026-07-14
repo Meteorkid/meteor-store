@@ -3,9 +3,9 @@ import Link from 'next/link';
 import PathfinderClient from './PathfinderClient';
 
 export const metadata: Metadata = {
-  title: 'Meteor Pathfinder 星途导航 · 免费学习路径生成',
+  title: 'Meteor Pathfinder · 现实可达学习引擎',
   description:
-    '面向资源不足学生的免费 AI 学习与成长路径导航。填写目标、设备、时间、网络条件，生成可执行的本周行动计划。',
+    '面向资源不足学生的现实可达学习引擎。基于时间、预算、设备和网络条件，生成可执行且可验证的行动路径。',
   robots: { index: true, follow: true },
 };
 
@@ -27,14 +27,14 @@ export default function PathfinderPage() {
             </span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-bold mb-4 gradient-text">
-            Meteor Pathfinder · 星途导航
+            Meteor Pathfinder · 现实可达学习引擎
           </h1>
           <p className="text-lg sm:text-xl text-foreground/80 leading-relaxed max-w-2xl mx-auto">
-            让每个学生都拥有一张<span className="text-purple-300 font-semibold">走得通</span>的成长地图
+            不必拥有更好的条件，先找到你现在<span className="text-purple-300 font-semibold">走得通</span>的一步。
           </p>
           <p className="mt-4 text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            资源不足的学生常常缺少稳定指导、信息分散、设备或网络受限。
-            在这里，只需一个目标，就能得到一份基于你现实条件的可执行路径。
+            面向县域家庭的首代大学生：只有手机、时间零碎、缺少导师或付费资源时，
+            仍能根据现实条件得到一条可执行、可替代的学习与实习准备路径。
           </p>
         </section>
 
@@ -54,7 +54,7 @@ export default function PathfinderPage() {
           </div>
         </section>
 
-        {/* 表单与结果 */}
+        {/* 表单与结果：现实条件 → 今天开始 → 计划被打断 */}
         <PathfinderClient />
 
         {/* 公益承诺区 */}
@@ -90,10 +90,10 @@ export default function PathfinderPage() {
             资源不该决定一个学生能走多远
           </p>
           <Link
-            href="#pathfinder-form"
+            href="#conditions"
             className="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-purple-6 to-violet-6 text-white font-semibold shadow-lg shadow-purple-6/30 hover:shadow-purple-6/50 transition"
           >
-            开始生成我的路径
+            按我的现实条件开始
           </Link>
         </section>
       </div>
