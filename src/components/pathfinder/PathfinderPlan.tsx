@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import type { PathfinderPlan } from '@/lib/pathfinder/schema';
 import type { PathfinderResource } from '@/data/pathfinder-resources';
-import { generatePlanB } from '@/lib/pathfinder/plan-b';
 import type { RealityConstraints } from '@/lib/pathfinder/contract';
+import RealitySimulation from './RealitySimulation';
 
 interface Props {
   plan: PathfinderPlan;
@@ -16,15 +16,10 @@ interface Props {
 
 export default function PathfinderPlanView({ plan, resources, source, realityConstraints, onRegenerate }: Props) {
   const [copied, setCopied] = useState(false);
-  const [remainingMinutes, setRemainingMinutes] = useState(Math.min(10, realityConstraints.dailyMinutes));
 
   // 生成可复制的本周行动摘要文本
   const summaryText = buildShareText(plan);
   const todayTask = plan.weekPlan.find((item) => item.day === 1) ?? plan.weekPlan[0];
-  const planB = useMemo(
-    () => generatePlanB({ remainingMinutes, constraints: realityConstraints, originalPlan: plan.weekPlan }),
-    [plan.weekPlan, realityConstraints, remainingMinutes],
-  );
 
   const handleCopy = async () => {
     try {
@@ -123,36 +118,10 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
         </ul>
       </div>
 
-      <div id="plan-b" className="scroll-mt-24 rounded-2xl border border-purple-5/20 bg-purple-6/10 p-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-base font-semibold text-foreground">计划被打断时</h3>
-            <p className="mt-1 text-xs text-muted-foreground">剩余时间变少时，只保留仍符合原来设备、网络和预算条件的任务。</p>
-          </div>
-          <span className="text-sm font-medium text-purple-200">本周只剩 {remainingMinutes} 分钟</span>
-        </div>
-        <input
-          type="range"
-          min={5}
-          max={Math.max(5, realityConstraints.dailyMinutes)}
-          step={5}
-          value={remainingMinutes}
-          onChange={(event) => setRemainingMinutes(Number(event.target.value))}
-          className="mt-4 w-full accent-purple-5"
-          aria-label="调整本周剩余时间"
-        />
-        <p className="mt-3 text-sm text-foreground/90">{planB.summary}</p>
-        {planB.tasks.length > 0 && (
-          <ul className="mt-3 space-y-2">
-            {planB.tasks.map((item) => (
-              <li key={`${item.day}-${item.title}`} className="flex items-center justify-between gap-3 rounded-xl bg-black/15 px-3 py-2 text-sm">
-                <span className="text-foreground">D{item.day} · {item.title}</span>
-                <ContractTag>{item.minutes} 分钟</ContractTag>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <RealitySimulation
+        originalPlan={plan.weekPlan}
+        realityConstraints={realityConstraints}
+      />
 
       {/* 免费资源建议 */}
       {resources.length > 0 && (
