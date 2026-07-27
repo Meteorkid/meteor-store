@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { SHOW_PRICING } from '@/lib/constants';
 import { useAuth } from './AuthProvider';
@@ -17,24 +17,50 @@ const navLinks = [
   { label: '公益学习路径', href: '/pathfinder' },
 ];
 
+// 顶部这段距离内导航栏始终可见
+const REVEAL_ZONE = 80;
+// 忽略小于该值的滚动抖动，避免导航栏频繁闪烁
+const DIRECTION_THRESHOLD = 6;
+// 停止滚动多久后重新显示导航栏
+const IDLE_REVEAL_DELAY = 180;
+
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // 向下滚动时隐藏；向上滚动或停止滚动时恢复显示
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
   const { user, logout } = useAuth();
 
   useEffect(() => {
     let rafId = 0;
+    let idleTimer: ReturnType<typeof setTimeout> | undefined;
+    lastScrollY.current = window.scrollY;
+
     const onScroll = () => {
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => setHidden(false), IDLE_REVEAL_DELAY);
+
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
-        setScrolled(window.scrollY > 20);
+        const y = window.scrollY;
+        const delta = y - lastScrollY.current;
+        setScrolled(y > 20);
+        if (y <= REVEAL_ZONE) {
+          setHidden(false);
+        } else if (Math.abs(delta) > DIRECTION_THRESHOLD) {
+          setHidden(delta > 0);
+        }
+        lastScrollY.current = y;
         rafId = 0;
       });
     };
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', onScroll);
       if (rafId) cancelAnimationFrame(rafId);
+      if (idleTimer) clearTimeout(idleTimer);
     };
   }, []);
 
@@ -45,11 +71,11 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full will-change-transform transition-all duration-300 motion-reduce:transition-none ${
         scrolled
           ? 'glass !border-b-0 !shadow-[inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(0,0,0,0.2),0_1px_2px_rgba(0,0,0,0.3),0_4px_24px_rgba(0,0,0,0.35)]'
           : 'bg-transparent'
-      }`}
+      } ${hidden && !mobileOpen ? '-translate-y-full' : 'translate-y-0'}`}
     >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
