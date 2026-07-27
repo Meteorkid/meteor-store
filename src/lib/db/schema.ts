@@ -38,6 +38,21 @@ export const users = pgTable('users', {
   createdAt: text('created_at').notNull(),
 });
 
+/**
+ * 读者提交的话题提议（半开放模式）。
+ * 只做收件箱：提议不公开展示，由店主审核后自己撰写并发布成文章，
+ * 因此站点不产生公开 UGC。
+ */
+export const topicProposals = pgTable('topic_proposals', {
+  id: text('id').primaryKey(),
+  sectionId: text('section_id').notNull(),             // 对应 blog-sections 里的分区 id
+  title: text('title').notNull(),
+  pitch: text('pitch').notNull(),                      // 为什么值得写
+  submitterEmail: text('submitter_email'),             // 可选，被采用时告知
+  status: text('status').default('pending').notNull(), // pending | accepted | rejected
+  createdAt: text('created_at').notNull(),
+});
+
 export const feedbacks = pgTable('feedbacks', {
   id: text('id').primaryKey(),                        // FB{timestamp}{random}
   email: text('email'),                               // 可选

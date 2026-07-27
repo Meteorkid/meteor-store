@@ -1,7 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { products } from '@/data/products';
+import { blogPosts } from '@/data/blog';
+import { blogSections } from '@/data/blog-sections';
+import { SITE_URL } from '@/lib/constants';
 
-const BASE_URL = 'https://www.imagentx.top';
+const BASE_URL = SITE_URL;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString();
@@ -25,5 +28,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...productPages];
+  const blogSectionPages = blogSections.map((section) => ({
+    url: `${BASE_URL}/blog/section/${section.slug}`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.5,
+  }));
+
+  const blogPostPages = blogPosts.map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: post.date,
+    changeFrequency: 'yearly' as const,
+    priority: 0.6,
+  }));
+
+  return [...staticPages, ...productPages, ...blogSectionPages, ...blogPostPages];
 }

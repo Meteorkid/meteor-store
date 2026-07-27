@@ -2,7 +2,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { blogPosts, blogCategoryLabels } from '@/data/blog';
+import { blogPosts } from '@/data/blog';
+import { getSectionById } from '@/data/blog-sections';
+import { markdownToHtml } from '@/lib/markdown';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -25,6 +27,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const post = blogPosts.find((p) => p.slug === slug);
   if (!post) notFound();
 
+  const section = getSectionById(post.section);
+
+  // 同分区的其他文章，最新 3 篇
+  const related = blogPosts
+    .filter((p) => p.section === post.section && p.slug !== post.slug)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 3);
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
@@ -38,9 +48,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </Link>
 
           <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
-            <span className="rounded-full bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300">
-              {blogCategoryLabels[post.category]}
-            </span>
+            <Link
+              href={`/blog/section/${section?.slug ?? ''}`}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-opacity hover:opacity-80 ${
+                section?.accent ?? 'bg-white/[0.06] text-gray-400'
+              }`}
+            >
+              {section?.label ?? post.section}
+            </Link>
             <time className="text-gray-500" dateTime={post.date}>
               {new Date(post.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
             </time>
@@ -61,6 +76,28 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </span>
             ))}
           </div>
+
+          {related.length > 0 && (
+            <section className="mt-12">
+              <h2 className="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">
+                {section?.label ?? '博客'}里的其他文章
+              </h2>
+              <div className="space-y-3">
+                {related.map((item) => (
+                  <Link
+                    key={item.slug}
+                    href={`/blog/${item.slug}`}
+                    className="group block rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/[0.06]"
+                  >
+                    <h3 className="mb-1 font-medium text-white transition-colors group-hover:text-violet-200">
+                      {item.title}
+                    </h3>
+                    <p className="line-clamp-2 text-sm text-gray-500">{item.excerpt}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
             <p className="mb-4 text-gray-400">喜欢这篇文章？</p>
@@ -89,94 +126,4 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 function BlogContent({ content }: { content: string }) {
   const html = markdownToHtml(content);
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
-}
-
-function markdownToHtml(md: string): string {
-  const blocks: string[] = [];
-  const lines = md.split('\n');
-  let i = 0;
-
-  while (i < lines.length) {
-    const line = lines[i];
-
-    if (line.startsWith('```')) {
-      const lang = line.slice(3).trim();
-      const codeLines: string[] = [];
-      i++;
-      while (i < lines.length && !lines[i].startsWith('```')) {
-        codeLines.push(lines[i]);
-        i++;
-      }
-      i++;
-      const escaped = codeLines.join('\n').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      blocks.push(`<pre><code class="language-${lang || 'text'}">${escaped}</code></pre>`);
-      continue;
-    }
-
-    if (line.startsWith('### ')) {
-      blocks.push(`<h3>${inline(line.slice(4))}</h3>`);
-      i++;
-      continue;
-    }
-    if (line.startsWith('## ')) {
-      blocks.push(`<h2>${inline(line.slice(3))}</h2>`);
-      i++;
-      continue;
-    }
-
-    if (line.startsWith('|')) {
-      const tableLines: string[] = [line];
-      i++;
-      while (i < lines.length && lines[i].startsWith('|')) {
-        tableLines.push(lines[i]);
-        i++;
-      }
-      const rows = tableLines.filter((l) => !l.match(/^\|[\s-:|]+\|$/));
-      if (rows.length > 0) {
-        const headerCells = rows[0].split('|').filter(Boolean).map((c) => `<th>${inline(c.trim())}</th>`).join('');
-        const bodyRows = rows.slice(1).map((r) => {
-          const cells = r.split('|').filter(Boolean).map((c) => `<td>${inline(c.trim())}</td>`).join('');
-          return `<tr>${cells}</tr>`;
-        }).join('');
-        blocks.push(`<table><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table>`);
-      }
-      continue;
-    }
-
-    if (/^\d+\. /.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\d+\. /.test(lines[i])) {
-        items.push(`<li>${inline(lines[i].replace(/^\d+\.\s*/, ''))}</li>`);
-        i++;
-      }
-      blocks.push(`<ol>${items.join('')}</ol>`);
-      continue;
-    }
-
-    if (line.startsWith('- ')) {
-      const items: string[] = [];
-      while (i < lines.length && lines[i].startsWith('- ')) {
-        items.push(`<li>${inline(lines[i].slice(2))}</li>`);
-        i++;
-      }
-      blocks.push(`<ul>${items.join('')}</ul>`);
-      continue;
-    }
-
-    if (line.trim() === '') {
-      i++;
-      continue;
-    }
-
-    blocks.push(`<p>${inline(line)}</p>`);
-    i++;
-  }
-
-  return blocks.join('\n');
-}
-
-function inline(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>');
 }

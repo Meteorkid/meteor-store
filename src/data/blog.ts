@@ -1,21 +1,31 @@
+import type { BlogSectionId } from './blog-sections';
+
 export interface BlogPost {
   slug: string;
   title: string;
   excerpt: string;
   content: string;
   date: string;
-  category: 'product' | 'tech' | 'story';
+  section: BlogSectionId;
   readingTime: number;
   tags: string[];
 }
 
-const categoryLabels: Record<string, string> = {
-  product: '产品动态',
-  tech: '技术分享',
-  story: '幕后故事',
-};
+/** 列表页只需要这些字段，正文不进客户端 bundle */
+export type BlogPostSummary = Omit<BlogPost, 'content'>;
 
-export { categoryLabels as blogCategoryLabels };
+/** 显式列出会到达客户端的字段，避免以后新增字段被无意带过去 */
+export function toSummary(post: BlogPost): BlogPostSummary {
+  return {
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt,
+    date: post.date,
+    section: post.section,
+    readingTime: post.readingTime,
+    tags: post.tags,
+  };
+}
 
 export const blogPosts: BlogPost[] = [
   {
@@ -57,7 +67,7 @@ result = await crawler.fetch("https://example.com")
 
 OmniCrawl 完全开源，MIT 协议。代码在 GitHub 上，欢迎 Star 和贡献。`,
     date: '2026-07-01',
-    category: 'tech',
+    section: 'tech',
     readingTime: 5,
     tags: ['Python', '爬虫', '反爬', 'OmniCrawl'],
   },
@@ -94,7 +104,7 @@ Ex-Memory 是一个让 AI 模仿特定人说话风格的系统。你导入聊天
 
 所有数据只在本地处理。聊天记录、向量索引、人格画像文件全部存储在用户本机。`,
     date: '2026-06-20',
-    category: 'tech',
+    section: 'tech',
     readingTime: 7,
     tags: ['AI', 'RAG', 'LLM', 'Ex-Memory'],
   },
@@ -134,7 +144,7 @@ Ex-Memory 是一个让 AI 模仿特定人说话风格的系统。你导入聊天
 
 全部开源，全部免费。学生写邮件给我可以白嫖一切付费功能。`,
     date: '2026-07-05',
-    category: 'story',
+    section: 'story',
     readingTime: 4,
     tags: ['Meteor Store', '开源', '大学生'],
   },
@@ -171,7 +181,7 @@ Ex-Memory 是一个让 AI 模仿特定人说话风格的系统。你导入聊天
 
 手机上用陀螺仪旋转骨骼是意料之外的好体验。支持双指缩放和单指旋转。`,
     date: '2026-06-28',
-    category: 'product',
+    section: 'product',
     readingTime: 6,
     tags: ['Three.js', '3D', '医学', 'Skeleton Anatomy'],
   },

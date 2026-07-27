@@ -4,6 +4,7 @@
 import { products } from '@/data/products';
 import { allFaqs } from '@/components/FAQSection';
 import { SHOW_PRICING, categoryLabels } from '@/lib/constants';
+import { blogSections } from '@/data/blog-sections';
 
 export type SearchGroup = '产品' | '页面' | '帮助' | '彩蛋';
 
@@ -77,6 +78,15 @@ export function buildIndex(): SearchEntry[] {
       keywords: `${f.question} ${f.answer}`.toLowerCase(),
     }));
 
+  const sectionEntries: SearchEntry[] = blogSections.map(s => ({
+    id: `blog-section-${s.id}`,
+    title: s.label,
+    subtitle: `博客分区 · ${s.description}`,
+    group: '页面',
+    href: `/blog/section/${s.slug}`,
+    keywords: [s.id, s.slug, s.label, s.description, '博客 分区 blog'].join(' ').toLowerCase(),
+  }));
+
   const eggEntries: SearchEntry[] = EGG_COMMANDS.map(e => ({
     id: `egg-${e.cmd}`,
     title: e.cmd,
@@ -86,7 +96,7 @@ export function buildIndex(): SearchEntry[] {
     keywords: `${e.cmd} ${e.hint} ${e.extra || ''} 命令 彩蛋`.toLowerCase(),
   }));
 
-  return [...productEntries, ...pageEntries, ...faqEntries, ...eggEntries];
+  return [...productEntries, ...pageEntries, ...sectionEntries, ...faqEntries, ...eggEntries];
 }
 
 let cachedIndex: SearchEntry[] | null = null;

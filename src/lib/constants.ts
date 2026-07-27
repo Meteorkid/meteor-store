@@ -1,5 +1,8 @@
 // 全局业务常量
 
+/** 站点规范地址，用于 sitemap、RSS 等需要绝对 URL 的场景 */
+export const SITE_URL = 'https://www.imagentx.top';
+
 /** 年付折扣率（月价 × 0.8 × 12 = 年价） */
 export const ANNUAL_DISCOUNT = 0.8;
 
