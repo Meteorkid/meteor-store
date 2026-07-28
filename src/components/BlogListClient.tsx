@@ -100,7 +100,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
           {channelGroups.map(({ channel, sections }) => (
             <div key={channel.id} className="flex shrink-0 items-center gap-1">
               <span aria-hidden className="mx-2 h-5 w-px bg-white/10" />
-              <span className="blog-eyebrow mr-1 shrink-0 text-white/25">{channel.label}</span>
+              <span className="t-eyebrow mr-1 shrink-0 text-white/25">{channel.label}</span>
               {sections.map((s) => {
                 const active = s.id === activeSectionId;
                 const count = counts[s.id] ?? 0;
@@ -133,7 +133,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
           type="button"
           onClick={() => setFiltersOpen((v) => !v)}
           aria-expanded={filtersOpen}
-          className="blog-footnote flex items-center gap-1.5 text-white/40 transition-colors duration-200 hover:text-white"
+          className="t-footnote flex items-center gap-1.5 text-white/40 transition-colors duration-200 hover:text-white"
         >
           筛选与排序
           {activeTag && <span className="text-white/70">· #{activeTag}</span>}
@@ -144,7 +144,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
             ⌄
           </span>
         </button>
-        <span className="blog-footnote tabular-nums text-white/30">
+        <span className="t-footnote tabular-nums text-white/30">
           {activeTag ? `${filtered.length} / ${posts.length} 篇` : `${posts.length} 篇`}
         </span>
       </div>
@@ -152,7 +152,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
       {filtersOpen && (
         <div className="mb-12 space-y-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="blog-eyebrow w-14 text-white/25">排序</span>
+            <span className="t-eyebrow w-14 text-white/25">排序</span>
             {sortOptions.map((opt) => (
               <button
                 key={opt.value}
@@ -168,7 +168,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
             ))}
           </div>
           <div className="flex flex-wrap items-start gap-2">
-            <span className="blog-eyebrow w-14 shrink-0 pt-2 text-white/25">标签</span>
+            <span className="t-eyebrow w-14 shrink-0 pt-2 text-white/25">标签</span>
             <div className="flex flex-1 flex-wrap gap-2">
               {allTags.map((tag) => (
                 <button
@@ -189,14 +189,14 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
 
       {filtered.length === 0 ? (
         <div className="py-14 text-center">
-          <p className="blog-body text-white/40">
+          <p className="t-body text-white/40">
             {activeTag ? '没有匹配的文章' : '这个分区还在等第一篇'}
           </p>
           {activeTag && (
             <button
               type="button"
               onClick={() => setActiveTag(null)}
-              className="blog-footnote mt-4 text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
+              className="t-footnote mt-4 text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
             >
               清除筛选
             </button>
@@ -204,34 +204,36 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
         </div>
       ) : (
         <>
-          {/* 头条：用玻璃卡片把它从版面里托起来，材质本身就是层级 */}
-          <Link
-            href={`/blog/${lede.slug}`}
-            style={accentStyle(lede.section)}
-            className="blog-lede glass-card group mb-16 block rounded-3xl p-7 md:p-11"
-          >
-            <div className="blog-footnote mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
-              {showSectionLabel && ledeSection && (
-                <span className="font-semibold" style={{ color: `rgb(${ledeSection.rgb})` }}>
-                  {ledeSection.label}
-                </span>
-              )}
-              <time className="tabular-nums text-white/45" dateTime={lede.date}>
-                {formatDate(lede.date)}
-              </time>
-              <span aria-hidden className="text-white/20">·</span>
-              <span className="text-white/45">{lede.readingTime} 分钟</span>
-            </div>
+          {/* 头条：玻璃卡片 + 背后的分区色晕，材质本身就是层级 */}
+          <div className="relative mb-16" style={accentStyle(lede.section)}>
+            <div aria-hidden className="blog-lede-halo" />
+            <Link
+              href={`/blog/${lede.slug}`}
+              className="blog-lede glass-card group relative block rounded-3xl p-7 md:p-11"
+            >
+              <div className="t-footnote mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
+                {showSectionLabel && ledeSection && (
+                  <span className="font-semibold" style={{ color: `rgb(${ledeSection.rgb})` }}>
+                    {ledeSection.label}
+                  </span>
+                )}
+                <time className="tabular-nums text-white/45" dateTime={lede.date}>
+                  {formatDate(lede.date)}
+                </time>
+                <span aria-hidden className="text-white/20">·</span>
+                <span className="text-white/45">{lede.readingTime} 分钟</span>
+              </div>
 
-            <h2 className="blog-title-1 blog-lede__title mb-6 max-w-3xl">{lede.title}</h2>
+              <h2 className="t-title-1 blog-lede__title mb-6 max-w-3xl">{lede.title}</h2>
 
-            <p className="blog-body blog-on-glass max-w-2xl opacity-60">{lede.excerpt}</p>
+              <p className="t-body t-on-glass max-w-2xl opacity-60">{lede.excerpt}</p>
 
-            <span className="blog-footnote mt-8 inline-flex items-center gap-2 font-medium text-white/60 transition-colors duration-200 group-hover:text-white">
-              读下去
-              <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </span>
-          </Link>
+              <span className="t-footnote mt-8 inline-flex items-center gap-2 font-medium text-white/60 transition-colors duration-200 group-hover:text-white">
+                读下去
+                <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </span>
+            </Link>
+          </div>
 
           {/* 索引：平铺在背景上，与头条形成材质对比 */}
           {rest.length > 0 && (
@@ -246,12 +248,12 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
                     className="blog-row group"
                   >
                     <div className="blog-row__inner flex gap-3 py-8 sm:gap-4">
-                      <span className="blog-row__index blog-footnote w-6 shrink-0 pt-1 text-white/25 sm:w-7">
+                      <span className="blog-row__index t-footnote w-6 shrink-0 pt-1 text-white/25 sm:w-7">
                         {String(i + 2).padStart(2, '0')}
                       </span>
 
                       <div className="min-w-0 flex-1">
-                        <div className="blog-footnote mb-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                        <div className="t-footnote mb-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
                           <time className="tabular-nums text-white/40" dateTime={post.date}>
                             {formatDate(post.date)}
                           </time>
@@ -261,11 +263,9 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
                               <span style={{ color: `rgb(${section.rgb} / 0.8)` }}>{section.label}</span>
                             </>
                           )}
-                          <span aria-hidden className="text-white/15">·</span>
-                          <span className="text-white/30">{post.readingTime} 分钟</span>
                         </div>
 
-                        <h3 className="blog-title-2 mb-2.5 text-white/90 transition-colors duration-200 group-hover:text-white">
+                        <h3 className="t-title-2 mb-2.5 text-white/90 transition-colors duration-200 group-hover:text-white">
                           {post.title}
                         </h3>
 

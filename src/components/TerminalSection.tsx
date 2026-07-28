@@ -98,7 +98,7 @@ export default function TerminalSection() {
     <section id="terminal" className="py-24 relative" aria-labelledby="terminal-heading">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
-          <h2 id="terminal-heading" className="text-3xl md:text-4xl font-bold mb-3">
+          <h2 id="terminal-heading" className="t-title-1 mb-3">
             <span className="gradient-text">店主的终端</span>
           </h2>
           <p className="text-white/50 text-sm md:text-base">

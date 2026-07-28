@@ -41,7 +41,7 @@ export default async function BlogSectionPage({ params }: SectionPageProps) {
           {/* 分区身份靠色点和工具条里的高亮表达，不需要巨幅标题 */}
           <header className="relative mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h1 className="blog-title-2 flex items-center gap-2">
+              <h1 className="t-title-2 flex items-center gap-2">
                 <span
                   aria-hidden
                   className="h-1.5 w-1.5 rounded-full"
@@ -49,12 +49,12 @@ export default async function BlogSectionPage({ params }: SectionPageProps) {
                 />
                 {section.label}
               </h1>
-              <span aria-hidden className="blog-footnote text-white/20">/</span>
-              <p className="blog-footnote text-white/45">{section.description}</p>
+              <span aria-hidden className="t-footnote text-white/20">/</span>
+              <p className="t-footnote text-white/45">{section.description}</p>
             </div>
             <a
               href={`/blog/section/${section.slug}/feed.xml`}
-              className="blog-footnote shrink-0 text-white/30 transition-colors duration-200 hover:text-white/70"
+              className="t-footnote shrink-0 text-white/30 transition-colors duration-200 hover:text-white/70"
             >
               <span aria-hidden>◉</span> 订阅
             </a>

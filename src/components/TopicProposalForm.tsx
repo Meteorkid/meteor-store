@@ -60,14 +60,14 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
     return (
       <div className="glass-card rounded-3xl p-9 text-center md:p-12">
         <div className="mb-4 text-4xl">📮</div>
-        <h3 className="blog-title-2 blog-on-glass mb-2">收到了</h3>
-        <p className="blog-footnote text-white/50">
+        <h3 className="t-title-2 t-on-glass mb-2">收到了</h3>
+        <p className="t-footnote text-white/50">
           我会一条条看。如果这个话题被写成文章，留了邮箱的话我会告诉你。
         </p>
         <button
           type="button"
           onClick={() => setStatus('idle')}
-          className="blog-footnote mt-5 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
+          className="t-footnote mt-5 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
         >
           再提一个
         </button>
@@ -77,14 +77,14 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
 
   return (
     <section className="glass-card rounded-3xl p-7 md:p-11">
-      <h3 className="blog-title-2 blog-on-glass mb-3">给{sectionLabel}提个话题</h3>
-      <p className="blog-footnote mb-8 text-white/45">
+      <h3 className="t-title-2 t-on-glass mb-3">给{sectionLabel}提个话题</h3>
+      <p className="t-footnote mb-8 text-white/45">
         你提选题，我来写。提议不会公开展示，只进我的收件箱——所以想说什么都可以，不用顾虑别人怎么看。
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="topic-title" className="blog-footnote mb-2 block font-medium text-white/65">
+          <label htmlFor="topic-title" className="t-footnote mb-2 block font-medium text-white/65">
             话题 <span className="text-[rgb(var(--accent))]">*</span>
           </label>
           <input
@@ -98,7 +98,7 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
         </div>
 
         <div>
-          <label htmlFor="topic-pitch" className="blog-footnote mb-2 block font-medium text-white/65">
+          <label htmlFor="topic-pitch" className="t-footnote mb-2 block font-medium text-white/65">
             为什么值得写 <span className="text-[rgb(var(--accent))]">*</span>
           </label>
           <textarea
@@ -110,11 +110,11 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
             placeholder="你的困惑、你见过的争论，或者你希望被反驳的观点"
             className="w-full resize-none rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] leading-relaxed text-white placeholder-white/25 transition-colors focus:border-[rgb(var(--accent)/0.6)] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--accent)/0.4)]"
           />
-          <p className="blog-footnote mt-1.5 text-right tabular-nums text-white/25">{pitch.length} / 1000</p>
+          <p className="t-footnote mt-1.5 text-right tabular-nums text-white/25">{pitch.length} / 1000</p>
         </div>
 
         <div>
-          <label htmlFor="topic-email" className="blog-footnote mb-2 block font-medium text-white/65">
+          <label htmlFor="topic-email" className="t-footnote mb-2 block font-medium text-white/65">
             邮箱 <span className="font-normal text-white/35">（可选，被采用时通知你）</span>
           </label>
           <input
@@ -128,7 +128,7 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
         </div>
 
         {status === 'error' && (
-          <p className="blog-footnote text-red-400" role="alert">{errorMsg}</p>
+          <p className="t-footnote text-red-400" role="alert">{errorMsg}</p>
         )}
 
         <button

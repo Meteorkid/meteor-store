@@ -655,46 +655,46 @@ html {
 }
 
 /*
- * 字阶：尺寸、字重、行高、字距成套定义，而不是只改字号。
+ * 全站字阶：尺寸、字重、行高、字距成套定义，而不是只改字号。
  * 大字负字距、正文接近 0、小字微正——尺寸不同，字距就该不同。
  */
-.blog-display {
+.t-display {
   font-size: clamp(2.75rem, 7vw, 5rem);
   font-weight: 700;
   line-height: 1.02;
   letter-spacing: -0.035em;
 }
-.blog-title-1 {
+.t-title-1 {
   font-size: clamp(1.875rem, 4vw, 3rem);
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.025em;
 }
-.blog-title-2 {
+.t-title-2 {
   font-size: clamp(1.125rem, 1.6vw, 1.375rem);
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: -0.015em;
 }
-.blog-title-3 {
+.t-title-3 {
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.45;
   letter-spacing: -0.005em;
 }
 /* 正文 17px：Apple 的 body 尺寸，中文在暗色下也够稳 */
-.blog-body {
+.t-body {
   font-size: 1.0625rem;
   line-height: 1.75;
   letter-spacing: 0;
 }
-.blog-footnote {
+.t-footnote {
   font-size: 0.8125rem;
   line-height: 1.5;
   letter-spacing: 0.01em;
 }
 /* 章节眉标：靠字距和字重拉开层级，而不是靠更大的字号 */
-.blog-eyebrow {
+.t-eyebrow {
   font-size: 0.6875rem;
   font-weight: 600;
   line-height: 1.4;
@@ -703,7 +703,7 @@ html {
 }
 
 /* 玻璃面上的文字要更亮更重一点，否则被材质吃掉（vibrancy） */
-.blog-on-glass {
+.t-on-glass {
   color: rgb(255 255 255 / 0.92);
 }
 
@@ -781,6 +781,18 @@ html {
   .blog-row:hover .blog-row__index {
     color: rgb(var(--accent) / 0.9);
   }
+}
+
+/* 头条卡片背后的分区色晕：纯黑底上玻璃没有可折射的内容，材质就读不出来 */
+.blog-lede-halo {
+  position: absolute;
+  inset: -1.5rem 1.5rem;
+  pointer-events: none;
+  border-radius: 2rem;
+  background:
+    radial-gradient(60% 70% at 20% 20%, rgb(var(--accent) / 0.22) 0%, transparent 70%),
+    radial-gradient(50% 60% at 85% 90%, rgb(var(--accent) / 0.12) 0%, transparent 70%);
+  filter: blur(36px);
 }
 
 /* 头条标题：分区色渐变收尾 */

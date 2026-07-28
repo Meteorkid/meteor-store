@@ -25,10 +25,10 @@ export default function ProductShowcase() {
       <div className="container mx-auto px-4">
         {/* Section header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="t-title-1 text-foreground mb-4">
             精选产品
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <p className="t-body text-muted-foreground">
             选择适合你的工具
           </p>
         </div>

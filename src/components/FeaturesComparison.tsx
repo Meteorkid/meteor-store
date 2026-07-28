@@ -52,7 +52,7 @@ export default function FeaturesComparison() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 scroll-animate">
           <p className="text-sm text-primary uppercase tracking-widest font-medium mb-4">方案对比</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="t-title-1 text-foreground mb-4">
             选择适合你的方案
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">

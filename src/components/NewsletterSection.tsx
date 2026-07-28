@@ -46,7 +46,7 @@ export default function NewsletterSection() {
           <div className="relative">
             <div className="text-4xl mb-4">📬</div>
 
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+            <h2 className="t-title-2 text-foreground mb-3">
               订阅产品动态
             </h2>
             <p className="text-muted-foreground mb-8 max-w-lg mx-auto">

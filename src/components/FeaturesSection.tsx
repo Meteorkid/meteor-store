@@ -90,7 +90,7 @@ export default function FeaturesSection({
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 scroll-animate">
           <p className="text-sm text-primary uppercase tracking-widest font-medium mb-4">核心能力</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{title}</h2>
+          <h2 className="t-title-1 text-foreground mb-4">{title}</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{subtitle}</p>
         </div>
 

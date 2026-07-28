@@ -63,7 +63,7 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
   }, [value]);
 
   return (
-    <div ref={ref} className="text-3xl md:text-4xl font-bold text-white mb-1">
+    <div ref={ref} className="t-title-1 tabular-nums text-white mb-1">
       {'0'}
       <span className="text-primary">{suffix}</span>
     </div>

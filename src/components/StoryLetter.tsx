@@ -137,7 +137,7 @@ export default function StoryLetter() {
     <article className="relative max-w-xl mx-auto px-6 py-24 md:py-32">
       <header className="mb-14 text-center scroll-animate">
         <p className="text-purple-300/60 text-sm font-mono mb-4">☄ /story</p>
-        <h1 className="text-3xl md:text-4xl font-bold text-white">一封来自店主的信</h1>
+        <h1 className="t-title-1 text-white">一封来自店主的信</h1>
       </header>
 
       <div className="space-y-7 text-white/75 leading-loose text-[15px] md:text-base">

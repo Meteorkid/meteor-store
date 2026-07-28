@@ -23,8 +23,8 @@ export default async function ProductsPage({ searchParams }: Props) {
         {/* Page Header */}
         <div className="mx-auto mb-12 max-w-3xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-violet-300">Meteor Products</p>
-          <h1 className="mb-4 text-4xl font-bold tracking-tight text-white md:text-6xl">作品，不只是图标</h1>
-          <p className="text-lg leading-8 text-gray-400">查看每个产品的真实界面、核心体验与运行平台。</p>
+          <h1 className="t-display mb-4 text-white">作品，不只是图标</h1>
+          <p className="t-body text-gray-400">查看每个产品的真实界面、核心体验与运行平台。</p>
         </div>
 
         {/* Category Filter */}

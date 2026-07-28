@@ -43,20 +43,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     >
       <BlogReadingProgress />
       <Header />
-      <main className="relative container mx-auto px-4 py-12 md:py-16">
+      <main className="relative container mx-auto px-4 py-8 md:py-10">
         <article className="mx-auto max-w-2xl">
           <Link
             href={section ? `/blog/section/${section.slug}` : '/blog'}
-            className="blog-footnote group mb-14 inline-flex items-center gap-2 text-white/40 transition-colors duration-200 hover:text-white"
+            className="t-footnote group mb-8 inline-flex items-center gap-2 text-white/40 transition-colors duration-200 hover:text-white"
           >
             <span aria-hidden className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
             回到{section?.label ?? '博客'}
           </Link>
 
           {/* 文章头：分区色作为唯一的彩色元素 */}
-          <header className="relative mb-12">
+          <header className="relative mb-10">
             <div aria-hidden className="blog-glow" />
-            <div className="blog-footnote relative mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <div className="t-footnote relative mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
               {section && (
                 <span className="font-semibold" style={{ color: `rgb(${section.rgb})` }}>
                   {section.label}
@@ -70,10 +70,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <span className="text-white/45">{post.readingTime} 分钟</span>
             </div>
 
-            <h1 className="blog-title-1 relative mb-8">{post.title}</h1>
+            <h1 className="t-title-1 relative mb-8">{post.title}</h1>
 
             <p
-              className="blog-body relative border-l-2 pl-5 text-white/55"
+              className="t-body relative border-l-2 pl-5 text-white/55"
               style={section ? { borderColor: `rgb(${section.rgb} / 0.5)` } : undefined}
             >
               {post.excerpt}
@@ -84,7 +84,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <BlogContent content={post.content} />
           </div>
 
-          <div className="blog-footnote mt-16 flex flex-wrap gap-x-4 gap-y-2 border-t border-white/[0.07] pt-6 text-white/35">
+          <div className="t-footnote mt-16 flex flex-wrap gap-x-4 gap-y-2 border-t border-white/[0.07] pt-6 text-white/35">
             {post.tags.map((tag) => (
               <span key={tag}>#{tag}</span>
             ))}
@@ -92,19 +92,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           {related.length > 0 && (
             <section className="mt-20">
-              <h2 className="blog-eyebrow mb-1 text-white/30">继续读</h2>
+              <h2 className="t-eyebrow mb-1 text-white/30">继续读</h2>
               <div className="mt-5">
                 {related.map((item, i) => (
                   <Link key={item.slug} href={`/blog/${item.slug}`} className="blog-row group">
                     <div className="blog-row__inner flex items-baseline gap-5 py-5">
-                      <span className="blog-row__index blog-footnote shrink-0 text-white/25">
+                      <span className="blog-row__index t-footnote shrink-0 text-white/25">
                         {String(i + 1).padStart(2, '0')}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <h3 className="blog-title-3 mb-1 text-white/90 transition-colors duration-200 group-hover:text-white">
+                        <h3 className="t-title-3 mb-1 text-white/90 transition-colors duration-200 group-hover:text-white">
                           {item.title}
                         </h3>
-                        <p className="blog-footnote line-clamp-1 text-white/35">{item.excerpt}</p>
+                        <p className="t-footnote line-clamp-1 text-white/35">{item.excerpt}</p>
                       </div>
                       <span aria-hidden className="blog-row__arrow hidden shrink-0 text-white/50 sm:block">→</span>
                     </div>
@@ -114,7 +114,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </section>
           )}
 
-          <div className="blog-footnote mt-20 flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.07] pt-8">
+          <div className="t-footnote mt-20 flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.07] pt-8">
             <Link href="/blog" className="text-white/40 transition-colors duration-200 hover:text-white">
               ← 全部文章
             </Link>

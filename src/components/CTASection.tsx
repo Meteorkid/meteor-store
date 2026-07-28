@@ -34,9 +34,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
 
           <div className="relative">
             <h2
-              className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-4 ${
-                isBold ? 'text-white' : 'text-foreground'
-              }`}
+              className={`t-title-1 mb-4 ${isBold ? 'text-white' : 'text-foreground'}`}
             >
               {isBold ? '进入工具矩阵' : '准备好开始了吗？'}
             </h2>
