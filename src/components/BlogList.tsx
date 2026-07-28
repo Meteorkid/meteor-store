@@ -1,5 +1,5 @@
 import { blogPosts, toSummary } from '@/data/blog';
-import { blogSections, getSectionById, type BlogSectionId } from '@/data/blog-sections';
+import { blogSections, type BlogSectionId } from '@/data/blog-sections';
 import BlogListClient from './BlogListClient';
 
 interface BlogListProps {
@@ -19,10 +19,4 @@ export default function BlogList({ sectionId }: BlogListProps) {
   );
 
   return <BlogListClient posts={posts} counts={counts} activeSectionId={sectionId} />;
-}
-
-/** 页面级主题色作用域：分区页用分区色，全部页用品牌紫 */
-export function blogScopeStyle(sectionId?: BlogSectionId): React.CSSProperties {
-  const rgb = sectionId ? getSectionById(sectionId)?.rgb : undefined;
-  return rgb ? ({ '--accent': rgb } as React.CSSProperties) : {};
 }

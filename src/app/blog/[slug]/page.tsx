@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { blogPosts } from '@/data/blog';
-import { getSectionById } from '@/data/blog-sections';
+import { blogScopeStyle, getSectionById } from '@/data/blog-sections';
 import { markdownToHtml } from '@/lib/markdown';
 import BlogReadingProgress from '@/components/BlogReadingProgress';
 
@@ -39,7 +39,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <div
       className="blog-scope min-h-screen bg-black text-white"
-      style={section ? ({ '--accent': section.rgb } as React.CSSProperties) : undefined}
+      style={blogScopeStyle(post.section)}
     >
       <BlogReadingProgress />
       <Header />
@@ -47,7 +47,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <article className="mx-auto max-w-2xl">
           <Link
             href={section ? `/blog/section/${section.slug}` : '/blog'}
-            className="t-footnote group mb-8 inline-flex items-center gap-2 text-white/40 transition-colors duration-200 hover:text-white"
+            className="t-footnote group mb-8 inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white"
           >
             <span aria-hidden className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
             回到{section?.label ?? '博客'}
@@ -63,11 +63,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </span>
               )}
               <span aria-hidden className="text-white/15">·</span>
-              <time className="tabular-nums text-white/45" dateTime={post.date}>
+              <time className="tabular-nums text-white/60" dateTime={post.date}>
                 {post.date.replace(/-/g, '.')}
               </time>
               <span aria-hidden className="text-white/15">·</span>
-              <span className="text-white/45">{post.readingTime} 分钟</span>
+              <span className="text-white/60">{post.readingTime} 分钟</span>
             </div>
 
             <h1 className="t-title-1 relative mb-8">{post.title}</h1>
@@ -84,7 +84,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <BlogContent content={post.content} />
           </div>
 
-          <div className="t-footnote mt-16 flex flex-wrap gap-x-4 gap-y-2 border-t border-white/[0.07] pt-6 text-white/35">
+          <div className="t-footnote mt-16 flex flex-wrap gap-x-4 gap-y-2 border-t border-white/[0.07] pt-6 text-white/60">
             {post.tags.map((tag) => (
               <span key={tag}>#{tag}</span>
             ))}
@@ -92,19 +92,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           {related.length > 0 && (
             <section className="mt-20">
-              <h2 className="t-eyebrow mb-1 text-white/30">继续读</h2>
+              <h2 className="t-eyebrow mb-1 text-white/60">继续读</h2>
               <div className="mt-5">
                 {related.map((item, i) => (
                   <Link key={item.slug} href={`/blog/${item.slug}`} className="blog-row group">
                     <div className="blog-row__inner flex items-baseline gap-5 py-5">
-                      <span className="blog-row__index t-footnote shrink-0 text-white/25">
+                      <span className="blog-row__index t-footnote shrink-0 text-white/60">
                         {String(i + 1).padStart(2, '0')}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <h3 className="t-title-3 mb-1 text-white/90 transition-colors duration-200 group-hover:text-white">
+                        <h3 className="t-title-4 mb-1 text-white/90 transition-colors duration-200 group-hover:text-white">
                           {item.title}
                         </h3>
-                        <p className="t-footnote line-clamp-1 text-white/35">{item.excerpt}</p>
+                        <p className="t-footnote line-clamp-1 text-white/60">{item.excerpt}</p>
                       </div>
                       <span aria-hidden className="blog-row__arrow hidden shrink-0 text-white/50 sm:block">→</span>
                     </div>
@@ -115,10 +115,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           )}
 
           <div className="t-footnote mt-20 flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.07] pt-8">
-            <Link href="/blog" className="text-white/40 transition-colors duration-200 hover:text-white">
+            <Link href="/blog" className="text-white/60 transition-colors duration-200 hover:text-white">
               ← 全部文章
             </Link>
-            <Link href="/products" className="text-white/40 transition-colors duration-200 hover:text-white">
+            <Link href="/products" className="text-white/60 transition-colors duration-200 hover:text-white">
               看看这些工具 →
             </Link>
           </div>

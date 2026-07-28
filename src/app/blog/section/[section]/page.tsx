@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import BlogList, { blogScopeStyle } from '@/components/BlogList';
+import BlogList from '@/components/BlogList';
 import TopicProposalForm from '@/components/TopicProposalForm';
-import { blogSections, getSectionBySlug } from '@/data/blog-sections';
+import { blogScopeStyle, blogSections, getSectionBySlug } from '@/data/blog-sections';
 
 interface SectionPageProps {
   params: Promise<{ section: string }>;
@@ -50,11 +50,11 @@ export default async function BlogSectionPage({ params }: SectionPageProps) {
                 {section.label}
               </h1>
               <span aria-hidden className="t-footnote text-white/20">/</span>
-              <p className="t-footnote text-white/45">{section.description}</p>
+              <p className="t-footnote text-white/60">{section.description}</p>
             </div>
             <a
               href={`/blog/section/${section.slug}/feed.xml`}
-              className="t-footnote shrink-0 text-white/30 transition-colors duration-200 hover:text-white/70"
+              className="t-footnote shrink-0 text-white/60 transition-colors duration-200 hover:text-white/70"
             >
               <span aria-hidden>◉</span> 订阅
             </a>

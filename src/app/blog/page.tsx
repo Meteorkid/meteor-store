@@ -20,12 +20,12 @@ export default function BlogPage() {
           {/* 当前位置由导航栏表达，这里只留一句上下文，把版面还给文章 */}
           <header className="relative mb-8 flex items-baseline justify-between gap-6">
             <h1 className="sr-only">博客</h1>
-            <p className="t-footnote text-white/45">
+            <p className="t-footnote text-white/60">
               技术与产品在左，情感、文学与辩论在右。
             </p>
             <a
               href="/blog/feed.xml"
-              className="t-footnote shrink-0 text-white/30 transition-colors duration-200 hover:text-white/70"
+              className="t-footnote shrink-0 text-white/60 transition-colors duration-200 hover:text-white/70"
             >
               <span aria-hidden>◉</span> RSS
             </a>

@@ -33,7 +33,7 @@ function getAllTags(posts: BlogPostSummary[]): string[] {
 /** 每篇文章带上自己分区的主题色 */
 function accentStyle(sectionId: string): React.CSSProperties {
   const rgb = getSectionById(sectionId)?.rgb;
-  return rgb ? ({ '--accent': rgb } as React.CSSProperties) : {};
+  return rgb ? ({ '--blog-accent': rgb } as React.CSSProperties) : {};
 }
 
 interface BlogListClientProps {
@@ -100,7 +100,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
           {channelGroups.map(({ channel, sections }) => (
             <div key={channel.id} className="flex shrink-0 items-center gap-1">
               <span aria-hidden className="mx-2 h-5 w-px bg-white/10" />
-              <span className="t-eyebrow mr-1 shrink-0 text-white/25">{channel.label}</span>
+              <span className="t-eyebrow mr-1 shrink-0 text-white/60">{channel.label}</span>
               {sections.map((s) => {
                 const active = s.id === activeSectionId;
                 const count = counts[s.id] ?? 0;
@@ -117,7 +117,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
                   >
                     {s.label}
                     {count > 0 && (
-                      <span className="ml-1.5 text-[11px] font-normal tabular-nums opacity-45">{count}</span>
+                      <span className="ml-1.5 text-[11px] font-normal tabular-nums opacity-70">{count}</span>
                     )}
                   </Link>
                 );
@@ -133,7 +133,8 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
           type="button"
           onClick={() => setFiltersOpen((v) => !v)}
           aria-expanded={filtersOpen}
-          className="t-footnote flex items-center gap-1.5 text-white/40 transition-colors duration-200 hover:text-white"
+          aria-controls="blog-filters"
+          className="t-footnote flex items-center gap-1.5 text-white/60 transition-colors duration-200 hover:text-white"
         >
           筛选与排序
           {activeTag && <span className="text-white/70">· #{activeTag}</span>}
@@ -144,15 +145,15 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
             ⌄
           </span>
         </button>
-        <span className="t-footnote tabular-nums text-white/30">
+        <span className="t-footnote tabular-nums text-white/60">
           {activeTag ? `${filtered.length} / ${posts.length} 篇` : `${posts.length} 篇`}
         </span>
       </div>
 
       {filtersOpen && (
-        <div className="mb-12 space-y-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="t-eyebrow w-14 text-white/25">排序</span>
+        <div id="blog-filters" className="mb-12 space-y-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
+          <div role="group" aria-labelledby="blog-sort-label" className="flex flex-wrap items-center gap-2">
+            <span id="blog-sort-label" className="t-eyebrow w-14 text-white/60">排序</span>
             {sortOptions.map((opt) => (
               <button
                 key={opt.value}
@@ -160,7 +161,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
                 onClick={() => setSort(opt.value)}
                 aria-pressed={sort === opt.value}
                 className={`rounded-lg px-3 py-1.5 text-sm transition-colors duration-200 ${
-                  sort === opt.value ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white'
+                  sort === opt.value ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
                 }`}
               >
                 {opt.label}
@@ -168,15 +169,15 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
             ))}
           </div>
           <div className="flex flex-wrap items-start gap-2">
-            <span className="t-eyebrow w-14 shrink-0 pt-2 text-white/25">标签</span>
-            <div className="flex flex-1 flex-wrap gap-2">
+            <span id="blog-tag-label" className="t-eyebrow w-14 shrink-0 pt-2 text-white/60">标签</span>
+            <div role="group" aria-labelledby="blog-tag-label" className="flex flex-1 flex-wrap gap-2">
               {allTags.map((tag) => (
                 <button
                   key={tag}
                   type="button"
                   onClick={() => setActiveTag(activeTag === tag ? null : tag)}
                   className={`rounded-lg px-3 py-1.5 text-sm transition-colors duration-200 ${
-                    activeTag === tag ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white'
+                    activeTag === tag ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
                   }`}
                 >
                   {tag}
@@ -189,7 +190,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
 
       {filtered.length === 0 ? (
         <div className="py-14 text-center">
-          <p className="t-body text-white/40">
+          <p className="t-body text-white/60">
             {activeTag ? '没有匹配的文章' : '这个分区还在等第一篇'}
           </p>
           {activeTag && (
@@ -209,7 +210,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
             <div aria-hidden className="blog-lede-halo" />
             <Link
               href={`/blog/${lede.slug}`}
-              className="blog-lede glass-card group relative block rounded-3xl p-7 md:p-11"
+              className="glass-card group relative block rounded-3xl p-7 md:p-11"
             >
               <div className="t-footnote mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
                 {showSectionLabel && ledeSection && (
@@ -217,11 +218,11 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
                     {ledeSection.label}
                   </span>
                 )}
-                <time className="tabular-nums text-white/45" dateTime={lede.date}>
+                <time className="tabular-nums text-white/60" dateTime={lede.date}>
                   {formatDate(lede.date)}
                 </time>
                 <span aria-hidden className="text-white/20">·</span>
-                <span className="text-white/45">{lede.readingTime} 分钟</span>
+                <span className="text-white/60">{lede.readingTime} 分钟</span>
               </div>
 
               <h2 className="t-title-1 blog-lede__title mb-6 max-w-3xl">{lede.title}</h2>
@@ -248,13 +249,13 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
                     className="blog-row group"
                   >
                     <div className="blog-row__inner flex gap-3 py-8 sm:gap-4">
-                      <span className="blog-row__index t-footnote w-6 shrink-0 pt-1 text-white/25 sm:w-7">
+                      <span className="blog-row__index t-footnote w-6 shrink-0 pt-1 text-white/60 sm:w-7">
                         {String(i + 2).padStart(2, '0')}
                       </span>
 
                       <div className="min-w-0 flex-1">
                         <div className="t-footnote mb-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                          <time className="tabular-nums text-white/40" dateTime={post.date}>
+                          <time className="tabular-nums text-white/60" dateTime={post.date}>
                             {formatDate(post.date)}
                           </time>
                           {showSectionLabel && section && (
@@ -265,11 +266,11 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
                           )}
                         </div>
 
-                        <h3 className="t-title-2 mb-2.5 text-white/90 transition-colors duration-200 group-hover:text-white">
+                        <h2 className="t-title-3 mb-2.5 text-white/90 transition-colors duration-200 group-hover:text-white">
                           {post.title}
-                        </h3>
+                        </h2>
 
-                        <p className="line-clamp-2 text-[0.9375rem] leading-relaxed text-white/40">
+                        <p className="line-clamp-2 text-[0.9375rem] leading-relaxed text-white/60">
                           {post.excerpt}
                         </p>
                       </div>

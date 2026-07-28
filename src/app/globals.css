@@ -649,9 +649,11 @@ html {
 
 /* ========== 博客：排版层级 + 液态玻璃分层 ========== */
 
-/* 分区主题色由容器上的 --accent（RGB 三通道）驱动，缺省回落到品牌紫 */
+/* 分区主题色由容器上的 --blog-accent（RGB 三通道）驱动，缺省回落到品牌紫。
+   刻意不叫 --accent：那个名字已被设计系统 token 占用（见文件顶部 :root 与
+   @theme inline 的 --color-accent），复用会让 bg-accent 之类的工具类静默失效。 */
 .blog-scope {
-  --accent: 167 139 250;
+  --blog-accent: 167 139 250;
 }
 
 /*
@@ -659,24 +661,32 @@ html {
  * 大字负字距、正文接近 0、小字微正——尺寸不同，字距就该不同。
  */
 .t-display {
-  font-size: clamp(2.75rem, 7vw, 5rem);
+  /* 斜率取自旧值：375px→36px、768px→60px，任何断点都不小于改版前 */
+  font-size: clamp(2.25rem, 0.82rem + 6.11vw, 5rem);
   font-weight: 700;
   line-height: 1.02;
   letter-spacing: -0.035em;
 }
 .t-title-1 {
-  font-size: clamp(1.875rem, 4vw, 3rem);
+  /* 斜率取自旧值：768px→36px、1280px→48px，平板区间不再比改版前小 */
+  font-size: clamp(1.875rem, 1.125rem + 2.35vw, 3rem);
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.025em;
 }
 .t-title-2 {
+  font-size: clamp(1.5rem, 1.05rem + 0.94vw, 1.875rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+.t-title-3 {
   font-size: clamp(1.125rem, 1.6vw, 1.375rem);
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: -0.015em;
 }
-.t-title-3 {
+.t-title-4 {
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.45;
@@ -710,16 +720,17 @@ html {
 /* 分区色环境光晕：masthead 背后的一团弥散色 */
 .blog-glow {
   position: absolute;
-  left: -14%;
+  /* 用 inset 约束在容器内：负 left/超宽会在移动端撑出横向滚动条，
+     而全站没有 overflow-x 兜底 */
+  inset-inline: 0;
   top: -7rem;
-  width: 42rem;
-  max-width: 130%;
   height: 32rem;
+  z-index: -1;
   pointer-events: none;
   background: radial-gradient(
-    50% 50% at 50% 50%,
-    rgb(var(--accent) / 0.16) 0%,
-    rgb(var(--accent) / 0.05) 45%,
+    58% 52% at 32% 50%,
+    rgb(var(--blog-accent) / 0.16) 0%,
+    rgb(var(--blog-accent) / 0.05) 45%,
     transparent 75%
   );
   filter: blur(28px);
@@ -746,7 +757,7 @@ html {
   inset-inline: 0;
   top: -1px;
   height: 1px;
-  background: linear-gradient(90deg, rgb(var(--accent) / 0.9), rgb(var(--accent) / 0));
+  background: linear-gradient(90deg, rgb(var(--blog-accent) / 0.9), rgb(var(--blog-accent) / 0));
   clip-path: inset(0 100% 0 0);
   transition: clip-path 420ms var(--ease-out-spring);
 }
@@ -766,7 +777,7 @@ html {
 
 @media (hover: hover) and (pointer: fine) {
   .blog-row:hover {
-    background-color: rgb(var(--accent) / 0.035);
+    background-color: rgb(var(--blog-accent) / 0.035);
   }
   .blog-row:hover::before {
     clip-path: inset(0 0 0 0);
@@ -779,7 +790,7 @@ html {
     transform: translateX(0);
   }
   .blog-row:hover .blog-row__index {
-    color: rgb(var(--accent) / 0.9);
+    color: rgb(var(--blog-accent) / 0.9);
   }
 }
 
@@ -790,17 +801,26 @@ html {
   pointer-events: none;
   border-radius: 2rem;
   background:
-    radial-gradient(60% 70% at 20% 20%, rgb(var(--accent) / 0.22) 0%, transparent 70%),
-    radial-gradient(50% 60% at 85% 90%, rgb(var(--accent) / 0.12) 0%, transparent 70%);
+    radial-gradient(60% 70% at 20% 20%, rgb(var(--blog-accent) / 0.22) 0%, transparent 70%),
+    radial-gradient(50% 60% at 85% 90%, rgb(var(--blog-accent) / 0.12) 0%, transparent 70%);
   filter: blur(36px);
 }
 
 /* 头条标题：分区色渐变收尾 */
 .blog-lede__title {
-  background-image: linear-gradient(175deg, #fff 35%, rgb(var(--accent) / 0.8) 100%);
+  background-image: linear-gradient(175deg, #fff 35%, rgb(var(--blog-accent) / 0.8) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
+}
+
+/* 强制颜色模式下 color:transparent 会被覆写但 background-clip 仍生效，
+   标题会整块消失，回落成实色 */
+@media (forced-colors: active) {
+  .blog-lede__title {
+    background-image: none;
+    color: CanvasText;
+  }
 }
 
 /* 分区导航：当前分区的胶囊 */
@@ -826,7 +846,7 @@ html {
   bottom: 0.15em;
   width: 3px;
   border-radius: 2px;
-  background: rgb(var(--accent) / 0.8);
+  background: rgb(var(--blog-accent) / 0.8);
 }
 
 /* 入场：索引行依次浮现（装饰性，不阻塞交互） */
@@ -847,7 +867,7 @@ html {
   height: 2px;
   z-index: 60;
   transform-origin: 0 50%;
-  background: linear-gradient(90deg, rgb(var(--accent) / 0.25), rgb(var(--accent)));
+  background: linear-gradient(90deg, rgb(var(--blog-accent) / 0.25), rgb(var(--blog-accent)));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -855,9 +875,15 @@ html {
     opacity: 1;
     animation: none;
   }
+  .blog-row,
   .blog-row::before,
   .blog-row__inner,
   .blog-row__arrow {
     transition: none;
+  }
+  /* 关掉位移本身，而不只是关掉过渡——否则只是从滑动变成瞬移 */
+  .blog-row:hover .blog-row__inner,
+  .blog-row:hover .blog-row__arrow {
+    transform: none;
   }
 }
