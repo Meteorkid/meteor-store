@@ -3,7 +3,11 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import type { BlogPostSummary } from '@/data/blog';
-import { getSectionById } from '@/data/blog-sections';
+import {
+  getSectionById,
+  getSectionsByChannel,
+  type BlogSectionId,
+} from '@/data/blog-sections';
 
 type SortMode = 'newest' | 'oldest' | 'reading-time';
 
@@ -12,6 +16,8 @@ const sortOptions: { value: SortMode; label: string }[] = [
   { value: 'oldest', label: '最早' },
   { value: 'reading-time', label: '最短' },
 ];
+
+const channelGroups = getSectionsByChannel();
 
 /** 编辑部风格的日期：2026.07.01 */
 function formatDate(date: string): string {
@@ -24,7 +30,7 @@ function getAllTags(posts: BlogPostSummary[]): string[] {
   return Array.from(set).sort();
 }
 
-/** 每篇文章带上自己分区的主题色，让扫描线/序号跟着分区走 */
+/** 每篇文章带上自己分区的主题色 */
 function accentStyle(sectionId: string): React.CSSProperties {
   const rgb = getSectionById(sectionId)?.rgb;
   return rgb ? ({ '--accent': rgb } as React.CSSProperties) : {};
@@ -33,14 +39,18 @@ function accentStyle(sectionId: string): React.CSSProperties {
 interface BlogListClientProps {
   /** 只接收摘要字段，正文留在服务端，不进客户端 bundle */
   posts: BlogPostSummary[];
-  /** 分区页里分区名是冗余信息，可隐藏 */
-  showSectionLabel?: boolean;
+  /** 各分区文章数，由服务端算好传入，避免把正文带进来 */
+  counts: Record<string, number>;
+  /** 当前分区，未传表示「全部」 */
+  activeSectionId?: BlogSectionId;
 }
 
-export default function BlogListClient({ posts, showSectionLabel = true }: BlogListClientProps) {
+export default function BlogListClient({ posts, counts, activeSectionId }: BlogListClientProps) {
   const [sort, setSort] = useState<SortMode>('newest');
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const showSectionLabel = !activeSectionId;
   const allTags = useMemo(() => getAllTags(posts), [posts]);
 
   const filtered = useMemo(() => {
@@ -66,50 +76,124 @@ export default function BlogListClient({ posts, showSectionLabel = true }: BlogL
 
   return (
     <div>
-      {/* 工具条：标签在左，排序在右 */}
-      <div className="mb-12 flex flex-col gap-5 border-b border-white/[0.08] pb-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="-mx-4 flex min-w-0 flex-1 gap-1.5 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {allTags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-              className={`shrink-0 rounded-md px-2 py-1 text-xs transition-colors duration-200 ${
-                activeTag === tag
-                  ? 'bg-white/10 text-white'
-                  : 'text-white/30 hover:text-white/70'
-              }`}
-            >
-              #{tag}
-            </button>
-          ))}
-        </div>
+      {/* 一个玻璃工具条收纳全部导航与筛选，而不是散落的小字 */}
+      <div className="blog-toolbar glass mb-14 p-2">
+        <nav
+          aria-label="博客分区"
+          className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <Link
+            href="/blog"
+            aria-current={activeSectionId ? undefined : 'page'}
+            className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+              activeSectionId
+                ? 'text-white/50 hover:text-white'
+                : 'bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]'
+            }`}
+          >
+            全部
+          </Link>
 
-        <div className="flex shrink-0 items-center gap-1 self-start text-xs sm:self-auto sm:border-l sm:border-white/10 sm:pl-4">
-          {sortOptions.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setSort(opt.value)}
-              aria-pressed={sort === opt.value}
-              className={`rounded-md px-2 py-1 transition-colors duration-200 ${
-                sort === opt.value ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/70'
-              }`}
-            >
-              {opt.label}
-            </button>
+          {channelGroups.map(({ channel, sections }) => (
+            <div key={channel.id} className="flex shrink-0 items-center gap-1">
+              <span aria-hidden className="mx-2 h-5 w-px bg-white/10" />
+              <span className="blog-eyebrow mr-1 shrink-0 text-white/25">{channel.label}</span>
+              {sections.map((s) => {
+                const active = s.id === activeSectionId;
+                const count = counts[s.id] ?? 0;
+                return (
+                  <Link
+                    key={s.id}
+                    href={`/blog/section/${s.slug}`}
+                    title={s.description}
+                    aria-current={active ? 'page' : undefined}
+                    style={{ '--tab-accent': s.rgb } as React.CSSProperties}
+                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                      active ? 'blog-tab--active' : 'text-white/50 hover:text-white'
+                    }`}
+                  >
+                    {s.label}
+                    {count > 0 && (
+                      <span className="ml-1.5 text-[11px] font-normal tabular-nums opacity-45">{count}</span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           ))}
-        </div>
+        </nav>
       </div>
 
+      {/* 次级筛选收在一层之下，默认不占版面 */}
+      <div className="mb-10 flex items-center justify-between gap-4">
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((v) => !v)}
+          aria-expanded={filtersOpen}
+          className="blog-footnote flex items-center gap-1.5 text-white/40 transition-colors duration-200 hover:text-white"
+        >
+          筛选与排序
+          {activeTag && <span className="text-white/70">· #{activeTag}</span>}
+          <span
+            aria-hidden
+            className={`transition-transform duration-300 ${filtersOpen ? 'rotate-180' : ''}`}
+          >
+            ⌄
+          </span>
+        </button>
+        <span className="blog-footnote tabular-nums text-white/30">
+          {activeTag ? `${filtered.length} / ${posts.length} 篇` : `${posts.length} 篇`}
+        </span>
+      </div>
+
+      {filtersOpen && (
+        <div className="mb-12 space-y-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="blog-eyebrow w-14 text-white/25">排序</span>
+            {sortOptions.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setSort(opt.value)}
+                aria-pressed={sort === opt.value}
+                className={`rounded-lg px-3 py-1.5 text-sm transition-colors duration-200 ${
+                  sort === opt.value ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-start gap-2">
+            <span className="blog-eyebrow w-14 shrink-0 pt-2 text-white/25">标签</span>
+            <div className="flex flex-1 flex-wrap gap-2">
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                  className={`rounded-lg px-3 py-1.5 text-sm transition-colors duration-200 ${
+                    activeTag === tag ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {filtered.length === 0 ? (
-        <div className="py-24 text-center">
-          <p className="text-white/40">{activeTag ? '没有匹配的文章' : '这个分区还在等第一篇'}</p>
+        <div className="py-20 text-center">
+          <p className="blog-body text-white/40">
+            {activeTag ? '没有匹配的文章' : '这个分区还在等第一篇'}
+          </p>
           {activeTag && (
             <button
               type="button"
               onClick={() => setActiveTag(null)}
-              className="mt-3 text-sm text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
+              className="blog-footnote mt-4 text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
             >
               清除筛选
             </button>
@@ -117,42 +201,38 @@ export default function BlogListClient({ posts, showSectionLabel = true }: BlogL
         </div>
       ) : (
         <>
-          {/* 头条：最新一篇拿到最大的版面 */}
+          {/* 头条：用玻璃卡片把它从版面里托起来，材质本身就是层级 */}
           <Link
             href={`/blog/${lede.slug}`}
             style={accentStyle(lede.section)}
-            className="blog-lede group mb-16 block"
+            className="blog-lede glass-card group mb-16 block rounded-3xl p-7 md:p-11"
           >
-            <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+            <div className="blog-footnote mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
               {showSectionLabel && ledeSection && (
-                <span
-                  className="font-medium"
-                  style={{ color: `rgb(${ledeSection.rgb})` }}
-                >
+                <span className="font-semibold" style={{ color: `rgb(${ledeSection.rgb})` }}>
                   {ledeSection.label}
                 </span>
               )}
-              <time className="tabular-nums text-white/35" dateTime={lede.date}>
+              <time className="tabular-nums text-white/45" dateTime={lede.date}>
                 {formatDate(lede.date)}
               </time>
-              <span className="text-white/25">{lede.readingTime} min</span>
+              <span aria-hidden className="text-white/20">·</span>
+              <span className="text-white/45">{lede.readingTime} 分钟</span>
             </div>
 
-            <h2 className="blog-lede__title mb-5 max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight md:text-5xl">
-              {lede.title}
-            </h2>
+            <h2 className="blog-title-1 blog-lede__title mb-6 max-w-3xl">{lede.title}</h2>
 
-            <p className="max-w-2xl text-base leading-relaxed text-white/45">{lede.excerpt}</p>
+            <p className="blog-body blog-on-glass max-w-2xl opacity-60">{lede.excerpt}</p>
 
-            <span className="mt-6 inline-flex items-center gap-2 text-sm text-white/50 transition-colors duration-200 group-hover:text-white">
+            <span className="blog-footnote mt-8 inline-flex items-center gap-2 font-medium text-white/60 transition-colors duration-200 group-hover:text-white">
               读下去
               <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </span>
           </Link>
 
-          {/* 索引：其余文章排成带序号的编辑部目录 */}
+          {/* 索引：平铺在背景上，与头条形成材质对比 */}
           {rest.length > 0 && (
-            <div className="blog-stagger">
+            <section className="blog-stagger">
               {rest.map((post, i) => {
                 const section = getSectionById(post.section);
                 return (
@@ -162,31 +242,33 @@ export default function BlogListClient({ posts, showSectionLabel = true }: BlogL
                     style={{ ...accentStyle(post.section), animationDelay: `${Math.min(i, 8) * 45}ms` }}
                     className="blog-row group"
                   >
-                    <div className="blog-row__inner flex gap-4 py-7 sm:gap-8">
-                      <span className="blog-row__index w-8 shrink-0 pt-1 text-xs text-white/20 sm:w-12">
+                    <div className="blog-row__inner flex gap-5 py-8 sm:gap-9">
+                      <span className="blog-row__index blog-footnote w-7 shrink-0 pt-1 text-white/25 sm:w-10">
                         {String(i + 2).padStart(2, '0')}
                       </span>
 
                       <div className="min-w-0 flex-1">
-                        <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                          <time className="tabular-nums text-white/30" dateTime={post.date}>
+                        <div className="blog-footnote mb-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                          <time className="tabular-nums text-white/40" dateTime={post.date}>
                             {formatDate(post.date)}
                           </time>
                           {showSectionLabel && section && (
                             <>
                               <span aria-hidden className="text-white/15">·</span>
-                              <span style={{ color: `rgb(${section.rgb} / 0.75)` }}>{section.label}</span>
+                              <span style={{ color: `rgb(${section.rgb} / 0.8)` }}>{section.label}</span>
                             </>
                           )}
                           <span aria-hidden className="text-white/15">·</span>
-                          <span className="text-white/25">{post.readingTime} min</span>
+                          <span className="text-white/30">{post.readingTime} 分钟</span>
                         </div>
 
-                        <h3 className="mb-2 text-lg font-semibold leading-snug text-white/85 transition-colors duration-200 group-hover:text-white md:text-xl">
+                        <h3 className="blog-title-2 mb-2.5 text-white/90 transition-colors duration-200 group-hover:text-white">
                           {post.title}
                         </h3>
 
-                        <p className="line-clamp-2 text-sm leading-relaxed text-white/35">{post.excerpt}</p>
+                        <p className="line-clamp-2 text-[0.9375rem] leading-relaxed text-white/40">
+                          {post.excerpt}
+                        </p>
                       </div>
 
                       <span
@@ -199,12 +281,8 @@ export default function BlogListClient({ posts, showSectionLabel = true }: BlogL
                   </Link>
                 );
               })}
-            </div>
+            </section>
           )}
-
-          <p className="mt-10 text-xs tabular-nums text-white/25">
-            {activeTag ? `${filtered.length} / ${posts.length} 篇` : `共 ${posts.length} 篇`}
-          </p>
         </>
       )}
     </div>

@@ -419,8 +419,8 @@ html {
 
 /* 玻璃基础配方：Apple Liquid Glass —— 渐变边框 + 凸透镜阴影 + 色彩渗透 */
 .glass {
-  backdrop-filter: blur(20px) saturate(1.6);
   -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
   background: linear-gradient(
     135deg,
     rgba(139,92,246,0.06) 0%,
@@ -440,8 +440,8 @@ html {
 
 /* 悬浮层（Spotlight/Modal）：更深模糊，光泽更强 */
 .glass-lg {
-  backdrop-filter: blur(32px) saturate(1.8);
   -webkit-backdrop-filter: blur(32px) saturate(1.8);
+  backdrop-filter: blur(32px) saturate(1.8);
   border-top: 1px solid rgba(255,255,255,0.18);
   border-left: 1px solid rgba(255,255,255,0.10);
   border-right: 1px solid rgba(255,255,255,0.06);
@@ -457,8 +457,8 @@ html {
 /* 交互式玻璃卡片：鼠标追踪镜面高光 + 渐变边框 */
 .glass-card {
   position: relative;
-  backdrop-filter: blur(16px) saturate(1.5);
   -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
   background: linear-gradient(
     145deg,
     rgba(139,92,246,0.05) 0%,
@@ -510,17 +510,21 @@ html {
 
 /* 移动端 blur 减半，省 GPU */
 @media (max-width: 767px) {
-  .glass, .glass-card { backdrop-filter: blur(10px) saturate(1.4); -webkit-backdrop-filter: blur(10px) saturate(1.4); }
-  .glass-lg { backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); }
+  .glass, .glass-card { -webkit-backdrop-filter: blur(10px) saturate(1.4); backdrop-filter: blur(10px) saturate(1.4); }
+  .glass-lg { -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5); }
   .glass-card::after { display: none; }
 }
 
 /* 降低透明度偏好：玻璃退化为实色面板（无障碍） */
 @media (prefers-reduced-transparency: reduce) {
-  .glass, .glass-lg {
-    backdrop-filter: none;
+  .glass, .glass-lg, .glass-card {
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     background: rgb(24, 20, 38) !important;
+  }
+  /* 实色面板上不再需要镜面高光 */
+  .glass-card::after {
+    display: none;
   }
 }
 
@@ -643,39 +647,98 @@ html {
   }
 }
 
-/* ========== 博客：编辑部索引排版 ========== */
+/* ========== 博客：排版层级 + 液态玻璃分层 ========== */
+
 /* 分区主题色由容器上的 --accent（RGB 三通道）驱动，缺省回落到品牌紫 */
 .blog-scope {
   --accent: 167 139 250;
+}
+
+/*
+ * 字阶：尺寸、字重、行高、字距成套定义，而不是只改字号。
+ * 大字负字距、正文接近 0、小字微正——尺寸不同，字距就该不同。
+ */
+.blog-display {
+  font-size: clamp(2.75rem, 7vw, 5rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+.blog-title-1 {
+  font-size: clamp(1.875rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+.blog-title-2 {
+  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+.blog-title-3 {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+}
+/* 正文 17px：Apple 的 body 尺寸，中文在暗色下也够稳 */
+.blog-body {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  letter-spacing: 0;
+}
+.blog-footnote {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+/* 章节眉标：靠字距和字重拉开层级，而不是靠更大的字号 */
+.blog-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* 玻璃面上的文字要更亮更重一点，否则被材质吃掉（vibrancy） */
+.blog-on-glass {
+  color: rgb(255 255 255 / 0.92);
 }
 
 /* 分区色环境光晕：masthead 背后的一团弥散色 */
 .blog-glow {
   position: absolute;
   left: -18%;
-  top: -8rem;
-  width: 34rem;
-  max-width: 120%;
-  height: 24rem;
+  top: -9rem;
+  width: 44rem;
+  max-width: 130%;
+  height: 38rem;
   pointer-events: none;
   background: radial-gradient(
     50% 50% at 50% 50%,
-    rgb(var(--accent) / 0.14) 0%,
+    rgb(var(--accent) / 0.16) 0%,
     rgb(var(--accent) / 0.05) 45%,
     transparent 75%
   );
   filter: blur(28px);
 }
 
+/* 工具条：悬浮的半透明层，把散落的控件收进一个实体里 */
+.blog-toolbar {
+  border-radius: 1.25rem;
+}
+
 /* 索引行：发丝分割线 + 悬浮时从左扫入的分区色线 */
 .blog-row {
   position: relative;
   display: block;
-  border-top: 1px solid rgb(255 255 255 / 0.08);
+  border-top: 1px solid rgb(255 255 255 / 0.07);
   transition: background-color var(--duration-base) ease;
 }
 .blog-row:last-child {
-  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  border-bottom: 1px solid rgb(255 255 255 / 0.07);
 }
 .blog-row::before {
   content: '';
@@ -687,7 +750,6 @@ html {
   clip-path: inset(0 100% 0 0);
   transition: clip-path 420ms var(--ease-out-spring);
 }
-/* 行内容整体右移，制造"被拉出来"的手感 */
 .blog-row__inner {
   transition: transform 320ms var(--ease-out-spring);
 }
@@ -696,49 +758,63 @@ html {
   transform: translateX(-6px);
   transition: opacity var(--duration-base) ease, transform 320ms var(--ease-out-spring);
 }
+.blog-row__index {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  transition: color var(--duration-base) ease;
+}
 
 @media (hover: hover) and (pointer: fine) {
   .blog-row:hover {
-    background-color: rgb(var(--accent) / 0.03);
+    background-color: rgb(var(--accent) / 0.035);
   }
   .blog-row:hover::before {
     clip-path: inset(0 0 0 0);
   }
   .blog-row:hover .blog-row__inner {
-    transform: translateX(8px);
+    transform: translateX(10px);
   }
   .blog-row:hover .blog-row__arrow {
     opacity: 1;
     transform: translateX(0);
   }
+  .blog-row:hover .blog-row__index {
+    color: rgb(var(--accent) / 0.9);
+  }
 }
 
-/* 序号：等宽、极细、半透明，作为版面的节奏点 */
-.blog-row__index {
-  font-variant-numeric: tabular-nums;
-  transition: color var(--duration-base) ease;
-}
-.blog-row:hover .blog-row__index {
-  color: rgb(var(--accent) / 0.85);
-}
-
-/* 头条：标题上的分区色渐变，hover 时提亮 */
+/* 头条标题：分区色渐变收尾 */
 .blog-lede__title {
-  background-image: linear-gradient(180deg, #fff 30%, rgb(var(--accent) / 0.75) 100%);
+  background-image: linear-gradient(175deg, #fff 35%, rgb(var(--accent) / 0.8) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  transition: opacity var(--duration-base) ease;
-}
-.blog-lede:hover .blog-lede__title {
-  opacity: 0.82;
 }
 
-/* 分区导航：当前分区的底部指示条 */
+/* 分区导航：当前分区的胶囊 */
 .blog-tab--active {
   color: rgb(var(--tab-accent));
-  background-color: rgb(var(--tab-accent) / 0.08);
-  box-shadow: inset 0 -2px 0 rgb(var(--tab-accent) / 0.7);
+  background-color: rgb(var(--tab-accent) / 0.12);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.10),
+    0 0 0 1px rgb(var(--tab-accent) / 0.25),
+    0 2px 12px rgb(var(--tab-accent) / 0.12);
+}
+
+/* 正文里的二级标题：左侧分区色短竖线，和三级标题拉开距离 */
+.blog-prose h2 {
+  position: relative;
+  padding-left: 1rem;
+}
+.blog-prose h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 3px;
+  border-radius: 2px;
+  background: rgb(var(--accent) / 0.8);
 }
 
 /* 入场：索引行依次浮现（装饰性，不阻塞交互） */
@@ -759,7 +835,7 @@ html {
   height: 2px;
   z-index: 60;
   transform-origin: 0 50%;
-  background: linear-gradient(90deg, rgb(var(--accent) / 0.2), rgb(var(--accent)));
+  background: linear-gradient(90deg, rgb(var(--accent) / 0.25), rgb(var(--accent)));
 }
 
 @media (prefers-reduced-motion: reduce) {

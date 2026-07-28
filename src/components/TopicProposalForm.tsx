@@ -58,16 +58,16 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
 
   if (status === 'success') {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
-        <div className="mb-3 text-4xl">📮</div>
-        <h3 className="mb-2 text-lg font-semibold text-white">收到了</h3>
-        <p className="text-sm text-gray-400">
+      <div className="glass-card rounded-3xl p-9 text-center md:p-12">
+        <div className="mb-4 text-4xl">📮</div>
+        <h3 className="blog-title-2 blog-on-glass mb-2">收到了</h3>
+        <p className="blog-footnote text-white/50">
           我会一条条看。如果这个话题被写成文章，留了邮箱的话我会告诉你。
         </p>
         <button
           type="button"
           onClick={() => setStatus('idle')}
-          className="mt-4 text-sm text-violet-300 transition-colors hover:text-violet-200"
+          className="blog-footnote mt-5 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
         >
           再提一个
         </button>
@@ -76,16 +76,16 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
   }
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
-      <h3 className="mb-2 text-lg font-semibold text-white">给{sectionLabel}提个话题</h3>
-      <p className="mb-6 text-sm leading-relaxed text-gray-500">
+    <section className="glass-card rounded-3xl p-7 md:p-11">
+      <h3 className="blog-title-2 blog-on-glass mb-3">给{sectionLabel}提个话题</h3>
+      <p className="blog-footnote mb-8 text-white/45">
         你提选题，我来写。提议不会公开展示，只进我的收件箱——所以想说什么都可以，不用顾虑别人怎么看。
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="topic-title" className="mb-1.5 block text-sm font-medium text-gray-300">
-            话题 <span className="text-red-400">*</span>
+          <label htmlFor="topic-title" className="blog-footnote mb-2 block font-medium text-white/65">
+            话题 <span className="text-[rgb(var(--accent))]">*</span>
           </label>
           <input
             id="topic-title"
@@ -93,13 +93,13 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
             onChange={(e) => setTitle(e.target.value)}
             maxLength={80}
             placeholder="一句话说清楚你想看什么"
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white placeholder-gray-500 transition-colors focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+            className="w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/25 transition-colors focus:border-[rgb(var(--accent)/0.6)] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--accent)/0.4)]"
           />
         </div>
 
         <div>
-          <label htmlFor="topic-pitch" className="mb-1.5 block text-sm font-medium text-gray-300">
-            为什么值得写 <span className="text-red-400">*</span>
+          <label htmlFor="topic-pitch" className="blog-footnote mb-2 block font-medium text-white/65">
+            为什么值得写 <span className="text-[rgb(var(--accent))]">*</span>
           </label>
           <textarea
             id="topic-pitch"
@@ -108,14 +108,14 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
             rows={4}
             maxLength={1000}
             placeholder="你的困惑、你见过的争论，或者你希望被反驳的观点"
-            className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white placeholder-gray-500 transition-colors focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+            className="w-full resize-none rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] leading-relaxed text-white placeholder-white/25 transition-colors focus:border-[rgb(var(--accent)/0.6)] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--accent)/0.4)]"
           />
-          <p className="mt-1 text-right text-xs text-gray-600">{pitch.length} / 1000</p>
+          <p className="blog-footnote mt-1.5 text-right tabular-nums text-white/25">{pitch.length} / 1000</p>
         </div>
 
         <div>
-          <label htmlFor="topic-email" className="mb-1.5 block text-sm font-medium text-gray-300">
-            邮箱 <span className="text-gray-500">（可选，被采用时通知你）</span>
+          <label htmlFor="topic-email" className="blog-footnote mb-2 block font-medium text-white/65">
+            邮箱 <span className="font-normal text-white/35">（可选，被采用时通知你）</span>
           </label>
           <input
             id="topic-email"
@@ -123,18 +123,18 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="不留也行，匿名提议一样看"
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white placeholder-gray-500 transition-colors focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+            className="w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/25 transition-colors focus:border-[rgb(var(--accent)/0.6)] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--accent)/0.4)]"
           />
         </div>
 
         {status === 'error' && (
-          <p className="text-sm text-red-400" role="alert">{errorMsg}</p>
+          <p className="blog-footnote text-red-400" role="alert">{errorMsg}</p>
         )}
 
         <button
           type="submit"
           disabled={status === 'submitting'}
-          className="w-full rounded-lg bg-violet-600 py-3 font-medium text-white transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-xl bg-[rgb(var(--accent))] py-3.5 text-[0.9375rem] font-semibold text-black/85 transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {status === 'submitting' ? '提交中…' : '把话题投进去'}
         </button>
