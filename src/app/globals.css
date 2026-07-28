@@ -710,11 +710,11 @@ html {
 /* 分区色环境光晕：masthead 背后的一团弥散色 */
 .blog-glow {
   position: absolute;
-  left: -18%;
-  top: -9rem;
-  width: 44rem;
+  left: -14%;
+  top: -7rem;
+  width: 42rem;
   max-width: 130%;
-  height: 38rem;
+  height: 32rem;
   pointer-events: none;
   background: radial-gradient(
     50% 50% at 50% 50%,

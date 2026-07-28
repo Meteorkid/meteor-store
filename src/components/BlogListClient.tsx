@@ -75,9 +75,12 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
   const ledeSection = lede ? getSectionById(lede.section) : undefined;
 
   return (
-    <div>
+    <div className="relative">
+      {/* 光晕垫在工具条背后，玻璃才有东西可折射 */}
+      <div aria-hidden className="blog-glow" />
+
       {/* 一个玻璃工具条收纳全部导航与筛选，而不是散落的小字 */}
-      <div className="blog-toolbar glass mb-14 p-2">
+      <div className="blog-toolbar glass relative mb-12 p-2">
         <nav
           aria-label="博客分区"
           className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -185,7 +188,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
       )}
 
       {filtered.length === 0 ? (
-        <div className="py-20 text-center">
+        <div className="py-14 text-center">
           <p className="blog-body text-white/40">
             {activeTag ? '没有匹配的文章' : '这个分区还在等第一篇'}
           </p>
@@ -242,8 +245,8 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
                     style={{ ...accentStyle(post.section), animationDelay: `${Math.min(i, 8) * 45}ms` }}
                     className="blog-row group"
                   >
-                    <div className="blog-row__inner flex gap-5 py-8 sm:gap-9">
-                      <span className="blog-row__index blog-footnote w-7 shrink-0 pt-1 text-white/25 sm:w-10">
+                    <div className="blog-row__inner flex gap-3 py-8 sm:gap-4">
+                      <span className="blog-row__index blog-footnote w-6 shrink-0 pt-1 text-white/25 sm:w-7">
                         {String(i + 2).padStart(2, '0')}
                       </span>
 

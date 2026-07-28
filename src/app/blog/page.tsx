@@ -15,20 +15,19 @@ export default function BlogPage() {
   return (
     <div className="blog-scope min-h-screen bg-black text-white">
       <Header />
-      <main className="relative container mx-auto px-4 py-16 md:py-24">
+      <main className="relative container mx-auto px-4 py-10 md:py-14">
         <div className="mx-auto max-w-4xl">
-          <header className="relative mb-20">
-            <div aria-hidden className="blog-glow" />
-            <p className="blog-eyebrow relative mb-5 text-white/30">Journal</p>
-            <h1 className="blog-display relative mb-6">博客</h1>
-            <p className="blog-body relative max-w-xl text-white/50">
+          {/* 当前位置由导航栏表达，这里只留一句上下文，把版面还给文章 */}
+          <header className="relative mb-8 flex items-baseline justify-between gap-6">
+            <h1 className="sr-only">博客</h1>
+            <p className="blog-footnote text-white/45">
               技术与产品在左，情感、文学与辩论在右。
             </p>
             <a
               href="/blog/feed.xml"
-              className="blog-footnote relative mt-7 inline-flex items-center gap-1.5 text-white/30 transition-colors duration-200 hover:text-white/70"
+              className="blog-footnote shrink-0 text-white/30 transition-colors duration-200 hover:text-white/70"
             >
-              <span aria-hidden>◉</span> RSS 订阅
+              <span aria-hidden>◉</span> RSS
             </a>
           </header>
 

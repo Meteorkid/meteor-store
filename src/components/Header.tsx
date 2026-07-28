@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { SHOW_PRICING } from '@/lib/constants';
 import { useAuth } from './AuthProvider';
 import UserMenu from './UserMenu';
@@ -17,6 +18,13 @@ const navLinks = [
   { label: '公益学习路径', href: '/pathfinder' },
 ];
 
+/** 当前页高亮：锚点链接不参与，其余按路径前缀匹配 */
+function isActiveLink(href: string, pathname: string): boolean {
+  if (href.includes('#')) return false;
+  if (href === '/') return pathname === '/';
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 // 顶部这段距离内导航栏始终可见
 const REVEAL_ZONE = 80;
 // 忽略小于该值的滚动抖动，避免导航栏频繁闪烁
@@ -25,6 +33,7 @@ const DIRECTION_THRESHOLD = 6;
 const IDLE_REVEAL_DELAY = 180;
 
 export default function Header() {
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   // 向下滚动时隐藏；向上滚动或停止滚动时恢复显示
@@ -87,15 +96,23 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5 transition-all duration-200"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const active = isActiveLink(link.href, pathname);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={active ? 'page' : undefined}
+                className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${
+                  active
+                    ? 'text-white bg-white/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <Link
             href="https://github.com/Meteorkid"
             target="_blank"
@@ -164,16 +181,22 @@ export default function Header() {
         }`}
       >
         <nav className="container mx-auto px-4 py-8 flex flex-col gap-2">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const active = isActiveLink(link.href, pathname);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                aria-current={active ? 'page' : undefined}
+                className={`px-4 py-3 text-lg rounded-xl transition-colors ${
+                  active ? 'bg-white/[0.09] text-white' : 'text-foreground hover:bg-white/5'
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <Link
             href="https://github.com/Meteorkid"
             target="_blank"

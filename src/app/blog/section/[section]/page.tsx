@@ -4,7 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogList, { blogScopeStyle } from '@/components/BlogList';
 import TopicProposalForm from '@/components/TopicProposalForm';
-import { blogChannels, blogSections, getSectionBySlug } from '@/data/blog-sections';
+import { blogSections, getSectionBySlug } from '@/data/blog-sections';
 
 interface SectionPageProps {
   params: Promise<{ section: string }>;
@@ -33,37 +33,37 @@ export default async function BlogSectionPage({ params }: SectionPageProps) {
   const section = getSectionBySlug(slug);
   if (!section) notFound();
 
-  const channel = blogChannels.find((c) => c.id === section.channelId);
-
   return (
     <div className="blog-scope min-h-screen bg-black text-white" style={blogScopeStyle(section.id)}>
       <Header />
-      <main className="relative container mx-auto px-4 py-16 md:py-24">
+      <main className="relative container mx-auto px-4 py-10 md:py-14">
         <div className="mx-auto max-w-4xl">
-          <header className="relative mb-20">
-            <div aria-hidden className="blog-glow" />
-            <p className="blog-eyebrow relative mb-5 flex items-center gap-2 text-white/30">
-              <span
-                aria-hidden
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ backgroundColor: `rgb(${section.rgb})` }}
-              />
-              {channel?.label ?? 'Journal'}
-            </p>
-            <h1 className="blog-display relative mb-6">{section.label}</h1>
-            <p className="blog-body relative max-w-xl text-white/50">{section.description}</p>
+          {/* 分区身份靠色点和工具条里的高亮表达，不需要巨幅标题 */}
+          <header className="relative mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h1 className="blog-title-2 flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: `rgb(${section.rgb})` }}
+                />
+                {section.label}
+              </h1>
+              <span aria-hidden className="blog-footnote text-white/20">/</span>
+              <p className="blog-footnote text-white/45">{section.description}</p>
+            </div>
             <a
               href={`/blog/section/${section.slug}/feed.xml`}
-              className="blog-footnote relative mt-7 inline-flex items-center gap-1.5 text-white/30 transition-colors duration-200 hover:text-white/70"
+              className="blog-footnote shrink-0 text-white/30 transition-colors duration-200 hover:text-white/70"
             >
-              <span aria-hidden>◉</span> 订阅这个分区
+              <span aria-hidden>◉</span> 订阅
             </a>
           </header>
 
           <BlogList sectionId={section.id} />
 
           {section.allowProposals && (
-            <div className="mt-20">
+            <div className="mt-16">
               <TopicProposalForm sectionId={section.id} sectionLabel={section.label} />
             </div>
           )}
