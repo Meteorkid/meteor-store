@@ -642,3 +642,134 @@ html {
     display: none;
   }
 }
+
+/* ========== 博客：编辑部索引排版 ========== */
+/* 分区主题色由容器上的 --accent（RGB 三通道）驱动，缺省回落到品牌紫 */
+.blog-scope {
+  --accent: 167 139 250;
+}
+
+/* 分区色环境光晕：masthead 背后的一团弥散色 */
+.blog-glow {
+  position: absolute;
+  left: -18%;
+  top: -8rem;
+  width: 34rem;
+  max-width: 120%;
+  height: 24rem;
+  pointer-events: none;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgb(var(--accent) / 0.14) 0%,
+    rgb(var(--accent) / 0.05) 45%,
+    transparent 75%
+  );
+  filter: blur(28px);
+}
+
+/* 索引行：发丝分割线 + 悬浮时从左扫入的分区色线 */
+.blog-row {
+  position: relative;
+  display: block;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  transition: background-color var(--duration-base) ease;
+}
+.blog-row:last-child {
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+.blog-row::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(var(--accent) / 0.9), rgb(var(--accent) / 0));
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 420ms var(--ease-out-spring);
+}
+/* 行内容整体右移，制造"被拉出来"的手感 */
+.blog-row__inner {
+  transition: transform 320ms var(--ease-out-spring);
+}
+.blog-row__arrow {
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity var(--duration-base) ease, transform 320ms var(--ease-out-spring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .blog-row:hover {
+    background-color: rgb(var(--accent) / 0.03);
+  }
+  .blog-row:hover::before {
+    clip-path: inset(0 0 0 0);
+  }
+  .blog-row:hover .blog-row__inner {
+    transform: translateX(8px);
+  }
+  .blog-row:hover .blog-row__arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 序号：等宽、极细、半透明，作为版面的节奏点 */
+.blog-row__index {
+  font-variant-numeric: tabular-nums;
+  transition: color var(--duration-base) ease;
+}
+.blog-row:hover .blog-row__index {
+  color: rgb(var(--accent) / 0.85);
+}
+
+/* 头条：标题上的分区色渐变，hover 时提亮 */
+.blog-lede__title {
+  background-image: linear-gradient(180deg, #fff 30%, rgb(var(--accent) / 0.75) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  transition: opacity var(--duration-base) ease;
+}
+.blog-lede:hover .blog-lede__title {
+  opacity: 0.82;
+}
+
+/* 分区导航：当前分区的底部指示条 */
+.blog-tab--active {
+  color: rgb(var(--tab-accent));
+  background-color: rgb(var(--tab-accent) / 0.08);
+  box-shadow: inset 0 -2px 0 rgb(var(--tab-accent) / 0.7);
+}
+
+/* 入场：索引行依次浮现（装饰性，不阻塞交互） */
+@keyframes blogRowIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.blog-stagger > * {
+  opacity: 0;
+  animation: blogRowIn 420ms var(--ease-out-spring) forwards;
+}
+
+/* 文章页顶部阅读进度条 */
+.blog-progress {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  z-index: 60;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgb(var(--accent) / 0.2), rgb(var(--accent)));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-stagger > * {
+    opacity: 1;
+    animation: none;
+  }
+  .blog-row::before,
+  .blog-row__inner,
+  .blog-row__arrow {
+    transition: none;
+  }
+}

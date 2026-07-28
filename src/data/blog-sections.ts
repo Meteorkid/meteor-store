@@ -18,6 +18,8 @@ export interface BlogSection {
   channelId: BlogChannel['id'];
   /** 分区徽章配色，写成完整 class 串以便 Tailwind 静态提取 */
   accent: string;
+  /** 分区主题色的 RGB 通道值，供 CSS 变量做光晕/渐变/扫描线 */
+  rgb: string;
   /** 是否在分区页展示「提议话题」表单 */
   allowProposals: boolean;
 }
@@ -43,6 +45,7 @@ export const blogSections = [
     description: '版本更新、新功能，以及为什么这么做',
     channelId: 'dev',
     accent: 'bg-violet-500/10 text-violet-300 ring-violet-500/30',
+    rgb: '167 139 250',
     allowProposals: false,
   },
   {
@@ -52,6 +55,7 @@ export const blogSections = [
     description: '实现细节、架构取舍与踩坑记录',
     channelId: 'dev',
     accent: 'bg-sky-500/10 text-sky-300 ring-sky-500/30',
+    rgb: '56 189 248',
     allowProposals: false,
   },
   {
@@ -61,6 +65,7 @@ export const blogSections = [
     description: '一个人做产品的日常与决策过程',
     channelId: 'dev',
     accent: 'bg-amber-500/10 text-amber-300 ring-amber-500/30',
+    rgb: '251 191 36',
     allowProposals: false,
   },
   {
@@ -70,6 +75,7 @@ export const blogSections = [
     description: '关系、孤独与自我怀疑，不打算给出结论',
     channelId: 'humanities',
     accent: 'bg-rose-500/10 text-rose-300 ring-rose-500/30',
+    rgb: '251 113 133',
     allowProposals: true,
   },
   {
@@ -79,6 +85,7 @@ export const blogSections = [
     description: '散文、随笔与读书笔记',
     channelId: 'humanities',
     accent: 'bg-emerald-500/10 text-emerald-300 ring-emerald-500/30',
+    rgb: '52 211 153',
     allowProposals: true,
   },
   {
@@ -88,6 +95,7 @@ export const blogSections = [
     description: '一个问题，正反两面都写清楚，结论留给读者',
     channelId: 'humanities',
     accent: 'bg-fuchsia-500/10 text-fuchsia-300 ring-fuchsia-500/30',
+    rgb: '232 121 249',
     allowProposals: true,
   },
 ] as const satisfies readonly BlogSection[];

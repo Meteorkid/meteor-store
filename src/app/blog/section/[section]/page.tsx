@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import BlogList from '@/components/BlogList';
+import BlogList, { blogScopeStyle } from '@/components/BlogList';
 import TopicProposalForm from '@/components/TopicProposalForm';
 import { blogChannels, blogSections, getSectionBySlug } from '@/data/blog-sections';
 
@@ -36,19 +36,38 @@ export default async function BlogSectionPage({ params }: SectionPageProps) {
   const channel = blogChannels.find((c) => c.id === section.channelId);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="blog-scope min-h-screen bg-black text-white" style={blogScopeStyle(section.id)}>
       <Header />
-      <main className="container mx-auto px-4 py-16 md:py-20">
+      <main className="relative container mx-auto px-4 py-16 md:py-24">
         <div className="mx-auto max-w-4xl">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-violet-300">
-            {channel?.label ?? 'Blog'}
-          </p>
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">{section.label}</h1>
-          <p className="mb-10 text-lg text-gray-400">{section.description}</p>
+          <header className="relative mb-16">
+            <div aria-hidden className="blog-glow" />
+            <p className="relative mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/35">
+              <span
+                aria-hidden
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: `rgb(${section.rgb})` }}
+              />
+              {channel?.label ?? 'Journal'}
+            </p>
+            <h1 className="relative mb-5 text-5xl font-bold tracking-tight md:text-7xl">
+              {section.label}
+            </h1>
+            <p className="relative max-w-xl text-lg leading-relaxed text-white/45">
+              {section.description}
+            </p>
+            <a
+              href={`/blog/section/${section.slug}/feed.xml`}
+              className="relative mt-6 inline-flex items-center gap-1.5 text-xs text-white/30 transition-colors duration-200 hover:text-white/70"
+            >
+              <span aria-hidden>◉</span> 订阅这个分区
+            </a>
+          </header>
+
           <BlogList sectionId={section.id} />
 
           {section.allowProposals && (
-            <div className="mt-16">
+            <div className="mt-24">
               <TopicProposalForm sectionId={section.id} sectionLabel={section.label} />
             </div>
           )}

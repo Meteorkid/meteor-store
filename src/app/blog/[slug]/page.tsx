@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { blogPosts } from '@/data/blog';
 import { getSectionById } from '@/data/blog-sections';
 import { markdownToHtml } from '@/lib/markdown';
+import BlogReadingProgress from '@/components/BlogReadingProgress';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -36,85 +37,94 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div
+      className="blog-scope min-h-screen bg-black text-white"
+      style={section ? ({ '--accent': section.rgb } as React.CSSProperties) : undefined}
+    >
+      <BlogReadingProgress />
       <Header />
-      <main className="container mx-auto px-4 py-16">
-        <article className="mx-auto max-w-3xl">
+      <main className="relative container mx-auto px-4 py-12 md:py-16">
+        <article className="mx-auto max-w-2xl">
           <Link
-            href="/blog"
-            className="mb-10 inline-flex items-center gap-2 text-gray-400 transition-colors hover:text-white"
+            href={section ? `/blog/section/${section.slug}` : '/blog'}
+            className="group mb-14 inline-flex items-center gap-2 text-sm text-white/35 transition-colors duration-200 hover:text-white"
           >
-            <span aria-hidden>←</span> 返回博客
+            <span aria-hidden className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
+            回到{section?.label ?? '博客'}
           </Link>
 
-          <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
-            <Link
-              href={`/blog/section/${section?.slug ?? ''}`}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-opacity hover:opacity-80 ${
-                section?.accent ?? 'bg-white/[0.06] text-gray-400'
-              }`}
+          {/* 文章头：分区色作为唯一的彩色元素 */}
+          <header className="relative mb-12">
+            <div aria-hidden className="blog-glow" />
+            <div className="relative mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+              {section && (
+                <span className="font-medium" style={{ color: `rgb(${section.rgb})` }}>
+                  {section.label}
+                </span>
+              )}
+              <span aria-hidden className="text-white/15">·</span>
+              <time className="tabular-nums text-white/35" dateTime={post.date}>
+                {post.date.replace(/-/g, '.')}
+              </time>
+              <span aria-hidden className="text-white/15">·</span>
+              <span className="text-white/25">{post.readingTime} min</span>
+            </div>
+
+            <h1 className="relative mb-8 text-3xl font-bold leading-[1.2] tracking-tight md:text-5xl">
+              {post.title}
+            </h1>
+
+            <p
+              className="relative border-l-2 pl-5 text-lg leading-relaxed text-white/50"
+              style={section ? { borderColor: `rgb(${section.rgb} / 0.5)` } : undefined}
             >
-              {section?.label ?? post.section}
-            </Link>
-            <time className="text-gray-500" dateTime={post.date}>
-              {new Date(post.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </time>
-            <span className="text-gray-600">{post.readingTime} 分钟阅读</span>
-          </div>
+              {post.excerpt}
+            </p>
+          </header>
 
-          <h1 className="mb-6 text-3xl font-bold leading-tight md:text-4xl">{post.title}</h1>
-          <p className="mb-10 text-lg leading-relaxed text-gray-400">{post.excerpt}</p>
-
-          <div className="prose-invert prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-white prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-violet-300 prose-strong:text-white prose-code:rounded prose-code:bg-white/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-emerald-300 prose-code:before:content-none prose-code:after:content-none prose-pre:rounded-xl prose-pre:border prose-pre:border-white/10 prose-pre:bg-zinc-950 prose-table:text-sm prose-th:text-white prose-td:text-gray-300 prose-td:border-white/10 prose-th:border-white/10">
+          <div className="prose-invert prose prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-white prose-h2:mt-14 prose-h2:text-2xl prose-h3:text-xl prose-p:leading-[1.85] prose-p:text-white/70 prose-a:text-white prose-a:underline prose-a:decoration-white/25 prose-a:underline-offset-4 hover:prose-a:decoration-white prose-blockquote:border-l-2 prose-blockquote:border-white/15 prose-blockquote:not-italic prose-blockquote:text-white/45 prose-strong:text-white prose-code:rounded prose-code:bg-white/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-emerald-300 prose-code:before:content-none prose-code:after:content-none prose-pre:rounded-xl prose-pre:border prose-pre:border-white/10 prose-pre:bg-zinc-950 prose-hr:border-white/10 prose-table:text-sm prose-th:text-white prose-td:text-white/70 prose-td:border-white/10 prose-th:border-white/10 prose-img:rounded-xl">
             <BlogContent content={post.content} />
           </div>
 
-          <div className="mt-12 flex flex-wrap gap-2 border-t border-white/10 pt-8">
+          <div className="mt-16 flex flex-wrap gap-x-4 gap-y-2 border-t border-white/[0.08] pt-6 text-xs text-white/30">
             {post.tags.map((tag) => (
-              <span key={tag} className="rounded-full bg-white/[0.06] px-3 py-1 text-sm text-gray-400">
-                {tag}
-              </span>
+              <span key={tag}>#{tag}</span>
             ))}
           </div>
 
           {related.length > 0 && (
-            <section className="mt-12">
-              <h2 className="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-gray-500">
-                {section?.label ?? '博客'}里的其他文章
+            <section className="mt-20">
+              <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/30">
+                继续读
               </h2>
-              <div className="space-y-3">
-                {related.map((item) => (
-                  <Link
-                    key={item.slug}
-                    href={`/blog/${item.slug}`}
-                    className="group block rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 transition-colors hover:border-white/20 hover:bg-white/[0.06]"
-                  >
-                    <h3 className="mb-1 font-medium text-white transition-colors group-hover:text-violet-200">
-                      {item.title}
-                    </h3>
-                    <p className="line-clamp-2 text-sm text-gray-500">{item.excerpt}</p>
+              <div className="mt-5">
+                {related.map((item, i) => (
+                  <Link key={item.slug} href={`/blog/${item.slug}`} className="blog-row group">
+                    <div className="blog-row__inner flex items-baseline gap-5 py-5">
+                      <span className="blog-row__index shrink-0 text-xs text-white/20">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="mb-1 font-medium leading-snug text-white/85 transition-colors duration-200 group-hover:text-white">
+                          {item.title}
+                        </h3>
+                        <p className="line-clamp-1 text-sm text-white/30">{item.excerpt}</p>
+                      </div>
+                      <span aria-hidden className="blog-row__arrow hidden shrink-0 text-white/50 sm:block">→</span>
+                    </div>
                   </Link>
                 ))}
               </div>
             </section>
           )}
 
-          <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
-            <p className="mb-4 text-gray-400">喜欢这篇文章？</p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link
-                href="/products"
-                className="rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-gray-200"
-              >
-                看看我们的产品
-              </Link>
-              <Link
-                href="/blog"
-                className="rounded-full border border-white/15 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-              >
-                更多文章
-              </Link>
-            </div>
+          <div className="mt-20 flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.08] pt-8 text-sm">
+            <Link href="/blog" className="text-white/40 transition-colors duration-200 hover:text-white">
+              ← 全部文章
+            </Link>
+            <Link href="/products" className="text-white/40 transition-colors duration-200 hover:text-white">
+              看看这些工具 →
+            </Link>
           </div>
         </article>
       </main>

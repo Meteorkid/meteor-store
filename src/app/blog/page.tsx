@@ -13,15 +13,27 @@ export const metadata: Metadata = {
 
 export default function BlogPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="blog-scope min-h-screen bg-black text-white">
       <Header />
-      <main className="container mx-auto px-4 py-16 md:py-20">
+      <main className="relative container mx-auto px-4 py-16 md:py-24">
         <div className="mx-auto max-w-4xl">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-violet-300">Blog</p>
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">博客</h1>
-          <p className="mb-10 text-lg text-gray-400">
-            技术与产品在左，情感、文学与辩论在右
-          </p>
+          <header className="relative mb-16">
+            <div aria-hidden className="blog-glow" />
+            <p className="relative mb-4 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/35">
+              Journal
+            </p>
+            <h1 className="relative mb-5 text-5xl font-bold tracking-tight md:text-7xl">博客</h1>
+            <p className="relative max-w-xl text-lg leading-relaxed text-white/45">
+              技术与产品在左，情感、文学与辩论在右。
+            </p>
+            <a
+              href="/blog/feed.xml"
+              className="relative mt-6 inline-flex items-center gap-1.5 text-xs text-white/30 transition-colors duration-200 hover:text-white/70"
+            >
+              <span aria-hidden>◉</span> RSS 订阅
+            </a>
+          </header>
+
           <BlogList />
         </div>
       </main>
