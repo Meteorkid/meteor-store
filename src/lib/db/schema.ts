@@ -1,7 +1,7 @@
 import { pgTable, text, integer, boolean } from 'drizzle-orm/pg-core';
 
 export const orders = pgTable('orders', {
-  id: text('id').primaryKey(),                        // MS{timestamp}{random}
+  id: text('id').primaryKey(),                        // crypto.randomUUID()
   productId: text('product_id').notNull(),             // 'omnicrawl'
   planName: text('plan_name').notNull(),               // 'Starter'
   email: text('email').notNull(),
