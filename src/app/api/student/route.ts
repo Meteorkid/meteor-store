@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 const EDU_DOMAINS = [
   '.edu',
@@ -16,6 +17,13 @@ export function isEduEmail(email: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  // 目前只校验邮箱格式，接入发信后（见下方 TODO）这里就是发信轰炸的入口
+  const ip = getClientIp(req);
+  const { limited } = await rateLimit(`student:ip:${ip}`, 5, 600_000, { fallback: 'memory' });
+  if (limited) {
+    return NextResponse.json({ error: '请求过于频繁，请稍后再试' }, { status: 429 });
+  }
+
   const body = await req.json().catch(() => null);
   const email = typeof body?.email === 'string' ? body.email.trim() : '';
 

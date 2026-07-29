@@ -6,6 +6,11 @@ import type { ComponentProps, MouseEvent } from 'react';
 
 type TransitionLinkProps = ComponentProps<typeof Link>;
 
+/** View Transitions API 尚未进入 lib.dom.d.ts，按用到的部分声明 */
+type DocumentWithViewTransition = Document & {
+  startViewTransition: (callback: () => void) => void;
+};
+
 export default function TransitionLink({ href, onClick, ...props }: TransitionLinkProps) {
   const router = useRouter();
 
@@ -15,7 +20,7 @@ export default function TransitionLink({ href, onClick, ...props }: TransitionLi
 
     if ('startViewTransition' in document) {
       e.preventDefault();
-      (document as any).startViewTransition(() => {
+      (document as DocumentWithViewTransition).startViewTransition(() => {
         router.push(typeof href === 'string' ? href : href.pathname ?? '/');
       });
     }

@@ -3,9 +3,18 @@ import { hash } from 'bcryptjs';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { eq } from 'drizzle-orm';
 
 export async function POST(req: NextRequest) {
+  // 每次注册要跑一次 bcrypt cost 12（约 250ms CPU），不限流既能批量灌垃圾账号，
+  // 也能靠并发注册把 serverless 的执行时间账单打上去。failClosed 同 login。
+  const ip = getClientIp(req);
+  const { limited } = await rateLimit(`register:ip:${ip}`, 5, 3_600_000, { failClosed: true });
+  if (limited) {
+    return NextResponse.json({ error: '注册过于频繁，请稍后再试' }, { status: 429 });
+  }
+
   const body = await req.json().catch(() => null);
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body?.password === 'string' ? body.password : '';

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# 同一分支上的新推送取消旧的运行，省额度也避免看到过期结果
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 类型检查
+        run: pnpm exec tsc --noEmit
+
+      - name: Lint
+        run: pnpm exec eslint src --ext .ts,.tsx
+
+      - name: 单元测试
+        run: pnpm test
+
+      - name: 构建
+        # 构建期不连数据库（页面都是静态生成），给占位值让 drizzle 的
+        # 惰性初始化不至于在 import 阶段抛错
+        env:
+          DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+          NEXT_PUBLIC_SITE_URL: https://www.imagentx.top
+        run: pnpm build

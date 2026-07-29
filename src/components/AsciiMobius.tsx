@@ -85,7 +85,7 @@ export default function AsciiMobius({ className = '' }: { className?: string }) 
           // 旋转链：绕 Y（自转）→ 绕 X（俯仰）→ 绕 Y（鼠标偏航）
           let rx = px * cosA + pz * sinA;
           let rz = -px * sinA + pz * cosA;
-          let ry = py * cosT - rz * sinT;
+          const ry = py * cosT - rz * sinT;
           rz = py * sinT + rz * cosT;
           const rx2 = rx * cosY + rz * sinY;
           rz = -rx * sinY + rz * cosY;

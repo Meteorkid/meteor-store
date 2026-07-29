@@ -98,7 +98,10 @@ export default function EasterEggs() {
   const router = useRouter();
   const reducedMotion = useReducedMotion();
   const routerRef = useRef(router);
-  routerRef.current = router;
+  // 渲染期间写 ref 属于副作用，放进 effect 里
+  useEffect(() => {
+    routerRef.current = router;
+  }, [router]);
 
   // 控制台留言 + window.meteor API（仅一次）
   useEffect(() => {
