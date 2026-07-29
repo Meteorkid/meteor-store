@@ -11,6 +11,7 @@ const posts: BlogPostSummary[] = [
     section: 'tech',
     readingTime: 3,
     tags: [],
+    draft: false,
   },
   {
     slug: 'newer',
@@ -20,6 +21,7 @@ const posts: BlogPostSummary[] = [
     section: 'debate',
     readingTime: 4,
     tags: [],
+    draft: false,
   },
 ];
 
