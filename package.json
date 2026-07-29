@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
+    "@sentry/nextjs": "^10.68.0",
     "@tailwindcss/typography": "^0.5.20",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
