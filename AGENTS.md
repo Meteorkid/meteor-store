@@ -113,7 +113,28 @@
 
 ## 内容流程
 
-文章是 `content/blog/*.md`，构建时读取，**slug 取自文件名**。
+文章有**两条来源**：站主的在 `content/blog/*.md`，读者投稿在数据库 `posts` 表。
+
+**读的时候只从 `src/data/blog-feed.ts` 取，不要直接 import `blogPosts`。**
+直接 import 不会报错，只会静默漏掉全部读者投稿——列表少几篇、标签计数偏低，
+而且没有任何测试会红。合并层是 async 的（要读数据库），所以消费它的
+服务端组件和 route handler 都得是 async。
+
+| 要什么 | 用哪个 |
+|--------|--------|
+| 全部公开文章 | `getFeedPosts()` |
+| 某分区的文章 | `getFeedPostsBySection(id)` |
+| 各分区篇数 | `getSectionCounts()` |
+| 标签索引（热度降序） | `getFeedTags()` |
+| 某标签下的文章 | `getFeedPostsByTag(input)` |
+
+- 文章地址由 `href` 字段决定，**别自己拼 `/blog/${slug}`**：投稿是 `/blog/p/{id}`
+- 数据库读失败时降级为只有文件文章，不抛错。投稿看不见 < 整个博客 500
+- 传给客户端组件前过一次 `toFeedSummary()`，正文不进客户端 bundle
+
+### 站主的文章
+
+`content/blog/*.md`，构建时读取，**slug 取自文件名**。
 
 ```markdown
 ---
@@ -131,6 +152,30 @@ draft: true                # 草稿只在开发环境可见
 - `readingTime` 自动算（中文 400 字/分 + 英文 200 词/分），不要手填
 - `draft: true` 可以安心提交进 git，生产构建会当它不存在
 - 发布 = 一次部署。这是选文件而非数据库的代价，换来的是版本历史、可 diff、可离线写、不绑厂商
+
+### 读者投稿
+
+状态机 `draft → pending → published / rejected`，先审后发，`pending` 不公开可见。
+服务层在 `src/lib/posts.ts`，页面是 `/blog/submit`、`/blog/my-posts`、`/admin/review`、`/blog/p/{id}`。
+
+- **审核用条件更新**（`where(id AND status='pending')`），不要改成先查后写：
+  两个管理员同时点会重复处理，命中不到就返回 409
+- 标签存关联表 `post_tags` 而不是 JSON 列。标签会涨到成百上千，
+  算热度要一次 `GROUP BY`；存 JSON 就得把全部文章拉进内存
+- 投稿的 Markdown 走的是和正式文章**完全相同**的渲染管线，原生 HTML 被丢弃
+- 通过审核后要 `revalidatePath` 的不止 `/blog`：还有分区页、`/blog/tags`、
+  两个 RSS 和 `/sitemap.xml`。标签页用 `revalidatePath('/blog/tag/[tag]', 'page')`
+  整条路由一起失效——规范地址的大小写来自索引，未必等于投稿里的写法，逐个失效会漏
+
+### 管理员
+
+`ADMIN_EMAILS` 环境变量，逗号分隔。**故意不放数据库字段**：加一个 `isAdmin` 列
+等于让任何能写 `users` 的路径都成为提权面。未配置时任何人都不是管理员。
+
+- `/api/auth/me` 附带的 `isAdmin` **只决定显不显示入口**，每次请求现算不进 JWT
+  （进了 token，撤销管理员就得等它过期）。真正的鉴权在页面和写接口里各有一道
+- 后台对非管理员返回 **404 而非 403**，且 `generateMetadata` 也要跟着权限走——
+  写成静态 `metadata` 的话，标题栏会写着「待审核」，等于告诉他这里有个后台
 
 ### Markdown 渲染
 
@@ -187,7 +232,14 @@ pnpm build                  # 构建
 | 话题提议后台页 | 收到第一条真实提议（现在只发邮件通知） |
 | 图片管线 + 阅读进度条 ResizeObserver | 文章里开始放图 |
 | `series` 字段 | 辩论区真的开始成对写正反两篇 |
+| 标签筛选/搜索、博客全文搜索 | 标签超过 30 个，或文章超过 20 篇。现在 18 个标签一屏放得下 |
+| 评论 | 投稿跑通、且真的有人投稿之后。评论比投稿难管——量大、无法逐条审 |
+| 投稿的编辑与撤回 | 有作者提出要改已发布的文章 |
+| `posts.author_id` 加外键 | 出现孤儿投稿（作者注销但文章还在）时再说 |
 | 修那 7 处 `react-hooks/set-state-in-effect` | 单独一轮，改用 `useSyncExternalStore`，别夹在别的改动里 |
+
+**开放 UGC 前还没做的合规项**：用户协议里的 UGC 条款、举报入口。
+`Footer.tsx` 的 `/eula` 和 `/refund` 也还指向不存在的页面。
 
 ---
 
