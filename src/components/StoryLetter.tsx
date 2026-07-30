@@ -54,9 +54,40 @@ const LETTER: Array<string | { type: 'em'; text: string; href?: string }> = [
   { type: 'em', text: '早到那些人还没被雨淋湿。' },
 ];
 
+/* 羽枝：沿羽轴均匀排布，中段最宽、两端收尖（sin 的幂次让收尖不那么突然） */
+const FEATHER_BARBS = Array.from({ length: 23 }, (_, i) => {
+  const y = 16 + i * 6;
+  const w = 21 * Math.sin((Math.PI * (y - 8)) / 142) ** 0.7;
+  return { y, w: Number(w.toFixed(1)) };
+});
+
+/** 装饰用羽毛：羽片 + 羽枝 + 羽轴，颜色跟随 currentColor */
+function Feather({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg viewBox="0 0 72 176" className={className} style={style} fill="none" aria-hidden="true">
+      <path d="M36 8C57 46 56 110 39 146C18 110 15 46 36 8Z" fill="currentColor" fillOpacity="0.08" />
+      <g stroke="currentColor" strokeWidth="0.8" strokeOpacity="0.4" strokeLinecap="round">
+        {FEATHER_BARBS.map(({ y, w }) => (
+          <g key={y}>
+            <path d={`M36 ${y}Q${36 + w * 0.55} ${y + 3} ${36 + w} ${y + 9}`} />
+            <path d={`M36 ${y}Q${36 - w * 0.55} ${y + 3} ${36 - w} ${y + 9}`} />
+          </g>
+        ))}
+      </g>
+      <path
+        d="M36 8C34 56 36 116 39 170"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeOpacity="0.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function BreathDivider() {
   return (
-    <div className="scroll-animate flex justify-center items-center py-4" aria-hidden="true">
+    <div className="scroll-animate letter-line letter-line--divider text-center" aria-hidden="true">
       <span className="story-divider text-purple-400/40 text-xs tracking-[0.5em]">·&ensp;·&ensp;·</span>
     </div>
   );
@@ -99,7 +130,7 @@ export default function StoryLetter() {
       elements.push(
         <p
           key={i}
-          className="scroll-animate text-purple-200/90 font-medium text-base md:text-lg py-1"
+          className="scroll-animate letter-line text-purple-200/90 font-medium text-base md:text-lg"
           style={{ animationDelay: stagger }}
         >
           {obj.href ? (
@@ -115,7 +146,7 @@ export default function StoryLetter() {
       elements.push(
         <p
           key={i}
-          className="scroll-animate"
+          className="scroll-animate letter-line"
           style={{ animationDelay: stagger }}
         >
           {para as string}
@@ -135,12 +166,32 @@ export default function StoryLetter() {
 
   return (
     <article className="relative max-w-xl mx-auto px-6 py-24 md:py-32">
+      {/* 飘在信纸周围的羽毛。偏移量让羽片落在正文栏之外，不压字；
+          不裁剪（父级 main 已有 overflow-hidden 兜住横向溢出）。
+          窄屏正文占满宽度，两侧没有容身之处，只会露出几根羽枝像渲染残留，所以 md 以下不出现。
+          pointer-events-none：不能挡住空白处双击的彩蛋 */}
+      <div className="pointer-events-none absolute inset-0 hidden md:block" aria-hidden="true">
+        <Feather
+          className="letter-feather absolute -left-32 top-[8%] w-32 text-purple-300/30"
+          style={{ '--feather-rot': '-28deg', animationDuration: '18s' } as React.CSSProperties}
+        />
+        <Feather
+          className="letter-feather absolute -right-32 top-[38%] w-36 text-amber-200/25"
+          style={{ '--feather-rot': '164deg', animationDuration: '23s', animationDelay: '-6s' } as React.CSSProperties}
+        />
+        <Feather
+          className="letter-feather absolute -left-28 top-[72%] w-32 text-purple-200/25"
+          style={{ '--feather-rot': '18deg', animationDuration: '20s', animationDelay: '-11s' } as React.CSSProperties}
+        />
+      </div>
+
       <header className="mb-14 text-center scroll-animate">
+        <Feather className="mx-auto mb-3 w-7 text-purple-300/50 rotate-[-12deg]" />
         <p className="text-purple-300/60 text-sm font-mono mb-4">☄ /story</p>
         <h1 className="t-title-1 text-white">一封来自店主的信</h1>
       </header>
 
-      <div className="space-y-7 text-white/75 leading-loose text-[15px] md:text-base">
+      <div className="letter-body relative text-white/75">
         {elements}
 
         {/* 签名区 —— 流星划线 + 仪式感 */}
@@ -149,12 +200,16 @@ export default function StoryLetter() {
             <div className="story-meteor-line__track" />
             <div className="story-meteor-line__glow" />
           </div>
-          <div className="scroll-animate pt-6 text-right leading-relaxed">
-            <p className={`${cursive.className} text-3xl md:text-4xl text-purple-300/80 mb-2`}>
-              Meteor
-            </p>
-            <p className="text-white/50 text-sm">—— 店主</p>
-            <p className="text-white/30 text-xs mt-1">写于某个赶完 DDL 的深夜</p>
+          <div className="scroll-animate pt-6 flex items-start justify-end gap-4 leading-relaxed">
+            {/* 刚落笔搁在一旁的那支羽毛笔 */}
+            <Feather className="w-8 shrink-0 mt-1 rotate-[28deg] text-amber-200/45" />
+            <div className="text-right">
+              <p className={`${cursive.className} text-3xl md:text-4xl text-purple-300/80 mb-2`}>
+                Meteor
+              </p>
+              <p className="text-white/50 text-sm">—— 店主</p>
+              <p className="text-white/30 text-xs mt-1">写于某个赶完 DDL 的深夜</p>
+            </div>
           </div>
         </div>
       </div>

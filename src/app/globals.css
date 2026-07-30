@@ -395,6 +395,86 @@ html {
   100% { opacity: 0; transform: translateX(180px); }
 }
 
+/* ========== /story 信纸：格线 + 羽毛 ========== */
+
+.letter-body {
+  /* 格距与字号成套：格距约为字号的 2.2 倍，接近真实信纸（行距 8mm / 字高 4mm） */
+  --letter-rule-h: 34px;
+  --letter-rule: rgba(214, 202, 255, 0.13);
+  position: relative;
+  font-size: 15px;
+}
+
+@media (min-width: 768px) {
+  .letter-body {
+    --letter-rule-h: 38px;
+    font-size: 16px;
+  }
+}
+
+/*
+ * 格线画在「每个段落自己身上」，不是画在容器上。
+ * 画在容器上要求所有子元素高度都是格距的整数倍，任何一处不是就整篇错格；
+ * 逐段绘制则每段都从自己的 0 点重新起算，永远不会漂移。
+ * 段落底部留一格空白（padding-bottom 恰好一个格距），格线因此在段间连续，
+ * 读起来仍是同一张纸——同时那一格空白就是段间距，不需要额外 margin。
+ */
+.letter-line {
+  line-height: var(--letter-rule-h);
+  padding-bottom: var(--letter-rule-h);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--letter-rule-h) - 1px),
+    var(--letter-rule) calc(var(--letter-rule-h) - 1px),
+    var(--letter-rule) var(--letter-rule-h)
+  );
+}
+
+/* 分隔符只占一格：前一段自己已经留了一格空白，分隔符再留一格，
+   em 段两侧就各有三格空白，版面显得漏气。 */
+.letter-line--divider {
+  padding-bottom: 0;
+}
+
+/* 信纸左侧的装订线。比横向格线略重一点，才读得出是装订线而不是又一条格线；
+   但仍取格线同族的紫——暖色在这套紫调里太跳。
+   窄屏没有富余的横向空间，会贴到视口边缘，所以只在 md 以上出现。 */
+@media (min-width: 768px) {
+  .letter-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: var(--letter-rule-h);
+    left: -1.5rem;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(196, 181, 253, 0.24) 6%,
+      rgba(196, 181, 253, 0.24) 94%,
+      transparent
+    );
+  }
+}
+
+/* 羽毛装饰：静态倾角写在 transform 上，漂移动画把它作为基准继续旋转，
+   这样 prefers-reduced-motion 下关掉动画，倾角还在。 */
+.letter-feather {
+  transform: rotate(var(--feather-rot, 0deg));
+  animation: feather-drift 16s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes feather-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(var(--feather-rot, 0deg));
+  }
+  50% {
+    transform: translate3d(5px, -14px, 0) rotate(calc(var(--feather-rot, 0deg) + 3deg));
+  }
+}
+
 /* Footer 版权行眨眼彩蛋 */
 .footer-wink .wink-alt {
   display: none;
@@ -644,6 +724,9 @@ html {
   }
   .story-meteor-line__glow {
     display: none;
+  }
+  .letter-feather {
+    animation: none;
   }
 }
 
