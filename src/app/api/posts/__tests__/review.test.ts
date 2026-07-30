@@ -124,11 +124,21 @@ describe('POST /api/posts/review', () => {
     it('通过后按需失效相关静态页，新文章立刻可见', async () => {
       await POST(request({ postId: 'p1', approve: true }));
 
+      // 列表、分区页、标签目录，以及同样含投稿的 RSS 与 sitemap
       expect(revalidated).toContain('/blog');
       expect(revalidated).toContain('/blog/tags');
       expect(revalidated).toContain('/blog/section/debate');
-      expect(revalidated).toContain(`/blog/tag/${encodeURIComponent('法律')}`);
-      expect(revalidated).toContain('/blog/tag/Three.js');
+      expect(revalidated).toContain('/blog/feed.xml');
+      expect(revalidated).toContain('/blog/section/debate/feed.xml');
+      expect(revalidated).toContain('/sitemap.xml');
+    });
+
+    it('标签页整条动态路由一起失效，避免漏掉大小写不同的规范地址', async () => {
+      await POST(request({ postId: 'p1', approve: true }));
+
+      // 投稿写的是「法律」，但索引里的规范写法未必是同一种大小写，
+      // 逐个 encodeURIComponent(tag) 失效会漏掉规范的那条
+      expect(revalidated).toContain('/blog/tag/[tag]');
     });
 
     it('驳回不触发缓存失效——没有任何公开内容发生变化', async () => {

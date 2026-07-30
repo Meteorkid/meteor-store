@@ -9,10 +9,18 @@ import { getPendingPosts } from '@/lib/posts';
 import { getSectionById } from '@/data/blog-sections';
 import { markdownToHtml } from '@/lib/markdown';
 
-export const metadata: Metadata = {
-  title: '待审核 - Meteor Store',
-  robots: { index: false, follow: false },
-};
+/**
+ * 标题也要跟着权限走。metadata 在页面组件之前求值，写成静态的话
+ * 未授权访问者虽然看到 404 页面，标题栏却写着「待审核」——等于告诉他这里有个后台。
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await getSession();
+  const allowed = session && isAdminEmail(session.email);
+  return {
+    title: allowed ? '待审核 - Meteor Store' : '页面未找到 - Meteor Store',
+    robots: { index: false, follow: false },
+  };
+}
 
 export const dynamic = 'force-dynamic';
 

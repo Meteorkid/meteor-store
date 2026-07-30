@@ -1,14 +1,14 @@
 import type { MetadataRoute } from 'next';
 import { products } from '@/data/products';
-import { blogPosts } from '@/data/blog';
 import { blogSections } from '@/data/blog-sections';
-import { allTags } from '@/data/blog-tags';
+import { getFeedPosts, getFeedTags } from '@/data/blog-feed';
 import { SITE_URL } from '@/lib/constants';
 
 const BASE_URL = SITE_URL;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
+  const [feedPosts, feedTags] = await Promise.all([getFeedPosts(), getFeedTags()]);
 
   const staticPages = [
     { url: BASE_URL, lastModified: now, changeFrequency: 'weekly' as const, priority: 1 },
@@ -36,8 +36,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
   }));
 
-  const blogPostPages = blogPosts.map((post) => ({
-    url: `${BASE_URL}/blog/${post.slug}`,
+  const blogPostPages = feedPosts.map((post) => ({
+    url: `${BASE_URL}${post.href}`,
     lastModified: post.date,
     changeFrequency: 'yearly' as const,
     priority: 0.6,
@@ -50,7 +50,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.4,
     },
-    ...allTags.map((tag) => ({
+    ...feedTags.map((tag) => ({
       url: `${BASE_URL}${tag.href}`,
       lastModified: now,
       changeFrequency: 'weekly' as const,

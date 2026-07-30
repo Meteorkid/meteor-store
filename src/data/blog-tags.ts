@@ -1,4 +1,3 @@
-import { blogPosts, type BlogPost } from './blog';
 
 /**
  * 标签聚合。
@@ -6,8 +5,8 @@ import { blogPosts, type BlogPost } from './blog';
  * 分区（blog-sections）是稳定骨架，数量固定、可收藏、可 SEO；
  * 标签是动态层，数量会随内容无限增长，按热度排序。两者互补，不要合并。
  *
- * 标签目前来自 frontmatter；将来用户投稿入库后，这一层的输入换成数据库查询，
- * 下游的标签页、导航、sitemap 都不用动。
+ * 这里只提供纯函数。文件文章与读者投稿的合并在 blog-feed，
+ * 那一层是 async 的（要读数据库），下游一律从那里取标签。
  */
 
 export interface TagSummary {
@@ -29,7 +28,8 @@ export function tagHref(label: string): string {
   return `/blog/tag/${encodeURIComponent(label)}`;
 }
 
-function buildTagIndex(posts: BlogPost[]): TagSummary[] {
+/** 输入是任何带 tags 的文章，来源不限 */
+export function buildTagIndex(posts: { tags: string[] }[]): TagSummary[] {
   // key -> { 各种大小写写法的出现次数, 总数 }
   const buckets = new Map<string, { labels: Map<string, number>; count: number }>();
 
@@ -55,21 +55,4 @@ function buildTagIndex(posts: BlogPost[]): TagSummary[] {
     })
     // 热度降序；同热度按名称排，保证顺序稳定（否则每次构建顺序可能不同）
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'zh'));
-}
-
-export const allTags: TagSummary[] = buildTagIndex(blogPosts);
-
-/** 导航栏只放最热的几个，其余进「全部标签」页 */
-export function getHotTags(limit = 8): TagSummary[] {
-  return allTags.slice(0, limit);
-}
-
-export function findTag(input: string): TagSummary | undefined {
-  const key = normalizeTag(input);
-  return allTags.find((t) => t.key === key);
-}
-
-export function getPostsByTag(input: string): BlogPost[] {
-  const key = normalizeTag(input);
-  return blogPosts.filter((p) => p.tags.some((t) => normalizeTag(t) === key));
 }

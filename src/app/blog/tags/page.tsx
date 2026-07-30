@@ -3,14 +3,16 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import TagDirectory from '@/components/TagDirectory';
-import { allTags } from '@/data/blog-tags';
+import { getFeedTags } from '@/data/blog-feed';
 
 export const metadata: Metadata = {
   title: '全部标签 - Meteor Store 博客',
   description: '按热度排列的全部文章标签',
 };
 
-export default function BlogTagsPage() {
+export default async function BlogTagsPage() {
+  const tags = await getFeedTags();
+
   return (
     <div className="blog-scope min-h-screen bg-black text-white">
       <Header />
@@ -30,7 +32,7 @@ export default function BlogTagsPage() {
             </Link>
           </header>
 
-          <TagDirectory tags={allTags} />
+          <TagDirectory tags={tags} />
         </div>
       </main>
       <Footer />

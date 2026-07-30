@@ -55,15 +55,25 @@ export async function POST(req: NextRequest) {
   }
 
   if (approve) {
-    // 通过即发布。博客列表是静态的，这里按需失效，让新文章立刻可见，
+    // 通过即发布。这些页面都是静态生成的，这里按需失效让新文章立刻可见，
     // 同时不必把整个博客改成动态渲染。
     const post = await getPostById(postId);
+
     revalidatePath('/blog');
+    revalidatePath('/blog/feed.xml');
     revalidatePath('/blog/tags');
+    revalidatePath('/sitemap.xml');
+
+    // 整条动态路由一起失效，而不是逐个标签。标签页的规范地址用的是索引里
+    // 出现最多的那种大小写，未必等于投稿里的写法——逐个失效会漏掉规范的那条。
+    revalidatePath('/blog/tag/[tag]', 'page');
+
     if (post) {
       const section = getSectionById(post.sectionId);
-      if (section) revalidatePath(`/blog/section/${section.slug}`);
-      post.tags.forEach((tag) => revalidatePath(`/blog/tag/${encodeURIComponent(tag)}`));
+      if (section) {
+        revalidatePath(`/blog/section/${section.slug}`);
+        revalidatePath(`/blog/section/${section.slug}/feed.xml`);
+      }
     }
   }
 

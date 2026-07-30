@@ -4,20 +4,20 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogListClient from '@/components/BlogListClient';
-import { toSummary } from '@/data/blog';
 import { blogSections } from '@/data/blog-sections';
-import { allTags, findTag, getPostsByTag } from '@/data/blog-tags';
+import { findFeedTag, getFeedPostsByTag, getFeedTags, toFeedSummary } from '@/data/blog-feed';
 
 interface TagPageProps {
   params: Promise<{ tag: string }>;
 }
 
-export function generateStaticParams() {
-  return allTags.map((t) => ({ tag: t.label }));
+// 构建时预渲染已有标签；投稿带来的新标签走按需渲染，审核通过时 revalidate
+export async function generateStaticParams() {
+  return (await getFeedTags()).map((t) => ({ tag: t.label }));
 }
 
 export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
-  const tag = findTag(decodeURIComponent((await params).tag));
+  const tag = await findFeedTag(decodeURIComponent((await params).tag));
   return tag
     ? {
         title: `#${tag.label} - Meteor Store 博客`,
@@ -27,10 +27,10 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
 }
 
 export default async function BlogTagPage({ params }: TagPageProps) {
-  const tag = findTag(decodeURIComponent((await params).tag));
+  const tag = await findFeedTag(decodeURIComponent((await params).tag));
   if (!tag) notFound();
 
-  const posts = getPostsByTag(tag.key).map(toSummary);
+  const posts = (await getFeedPostsByTag(tag.key)).map(toFeedSummary);
   const counts = Object.fromEntries(blogSections.map((s) => [s.id, 0]));
 
   return (

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import type { BlogPostSummary } from '@/data/blog';
+import type { FeedPostSummary } from '@/data/blog-feed';
 import {
   getSectionById,
   getSectionsByChannel,
@@ -33,7 +33,7 @@ function accentStyle(sectionId: string): React.CSSProperties {
 
 interface BlogListClientProps {
   /** 只接收摘要字段，正文留在服务端，不进客户端 bundle */
-  posts: BlogPostSummary[];
+  posts: FeedPostSummary[];
   /** 各分区文章数，由服务端算好传入，避免把正文带进来 */
   counts: Record<string, number>;
   /** 当前分区，未传表示「全部」 */
@@ -187,7 +187,7 @@ export default function BlogListClient({
           <div className="relative mb-16" style={accentStyle(lede.section)}>
             <div aria-hidden className="blog-lede-halo" />
             <Link
-              href={`/blog/${lede.slug}`}
+              href={lede.href}
               className="glass-card group relative block rounded-3xl p-7 md:p-11"
             >
               <div className="t-footnote mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -201,6 +201,12 @@ export default function BlogListClient({
                 </time>
                 <span aria-hidden className="text-white/20">·</span>
                 <span className="text-white/60">{lede.readingTime} 分钟</span>
+                {lede.author && (
+                  <>
+                    <span aria-hidden className="text-white/20">·</span>
+                    <span className="text-white/60">{lede.author}</span>
+                  </>
+                )}
               </div>
 
               <h2 className="t-title-1 blog-lede__title mb-6 max-w-3xl">{lede.title}</h2>
@@ -222,7 +228,7 @@ export default function BlogListClient({
                 return (
                   <Link
                     key={post.slug}
-                    href={`/blog/${post.slug}`}
+                    href={post.href}
                     style={{ ...accentStyle(post.section), animationDelay: `${Math.min(i, 8) * 45}ms` }}
                     className="blog-row group"
                   >
@@ -240,6 +246,12 @@ export default function BlogListClient({
                             <>
                               <span aria-hidden className="text-white/15">·</span>
                               <span style={{ color: `rgb(${section.rgb} / 0.8)` }}>{section.label}</span>
+                            </>
+                          )}
+                          {post.author && (
+                            <>
+                              <span aria-hidden className="text-white/15">·</span>
+                              <span className="text-white/60">{post.author}</span>
                             </>
                           )}
                         </div>

@@ -1,6 +1,5 @@
-import { blogPosts, toSummary } from '@/data/blog';
-import { blogSections, type BlogSectionId } from '@/data/blog-sections';
-import { allTags, getHotTags } from '@/data/blog-tags';
+import { getFeedPosts, getFeedPostsBySection, getFeedTags, getSectionCounts, toFeedSummary } from '@/data/blog-feed';
+import type { BlogSectionId } from '@/data/blog-sections';
 import BlogListClient from './BlogListClient';
 
 interface BlogListProps {
@@ -9,24 +8,24 @@ interface BlogListProps {
 }
 
 /**
- * 服务端组件：负责取数与裁剪字段，
- * 只把摘要和计数传给客户端，文章正文不进 JS bundle。
+ * 文章列表的服务端外壳：取数、算分区计数与热门标签，
+ * 只把摘要字段交给客户端组件。文件文章与读者投稿已在 blog-feed 合并。
  */
-export default function BlogList({ sectionId }: BlogListProps) {
-  const posts = (sectionId ? blogPosts.filter((p) => p.section === sectionId) : blogPosts).map(toSummary);
-
-  const counts = Object.fromEntries(
-    blogSections.map((s) => [s.id, blogPosts.filter((p) => p.section === s.id).length]),
-  );
+export default async function BlogList({ sectionId }: BlogListProps) {
+  const [source, counts, tags] = await Promise.all([
+    sectionId ? getFeedPostsBySection(sectionId) : getFeedPosts(),
+    getSectionCounts(),
+    getFeedTags(),
+  ]);
 
   return (
     <BlogListClient
-      posts={posts}
+      posts={source.map(toFeedSummary)}
       counts={counts}
       activeSectionId={sectionId}
       // 分区页聚焦在该分区，不再铺一层全站热门标签
-      hotTags={sectionId ? undefined : getHotTags()}
-      totalTagCount={allTags.length}
+      hotTags={sectionId ? undefined : tags.slice(0, 8)}
+      totalTagCount={tags.length}
     />
   );
 }

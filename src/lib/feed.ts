@@ -1,5 +1,5 @@
 import { SITE_URL } from '@/lib/constants';
-import type { BlogPostSummary } from '@/data/blog';
+import type { FeedPostSummary } from '@/data/blog-feed';
 import { blogSectionLabels } from '@/data/blog-sections';
 
 /** XML 文本节点转义；属性值同样适用 */
@@ -24,19 +24,22 @@ export interface FeedOptions {
   path: string;
 }
 
-export function buildRssFeed(posts: BlogPostSummary[], options: FeedOptions): string {
+export function buildRssFeed(posts: FeedPostSummary[], options: FeedOptions): string {
   const sorted = [...posts].sort((a, b) => b.date.localeCompare(a.date));
   const selfUrl = `${SITE_URL}${options.path}/feed.xml`;
 
   const items = sorted
     .map((post) => {
-      const url = `${SITE_URL}/blog/${post.slug}`;
+      // 文件文章与读者投稿的地址规则不同，由 href 决定，这里不再拼 slug
+      const url = `${SITE_URL}${post.href}`;
       return `    <item>
       <title>${escapeXml(post.title)}</title>
       <link>${escapeXml(url)}</link>
       <guid isPermaLink="true">${escapeXml(url)}</guid>
       <description>${escapeXml(post.excerpt)}</description>
-      <category>${escapeXml(blogSectionLabels[post.section])}</category>
+      <category>${escapeXml(blogSectionLabels[post.section])}</category>${
+        post.author ? `\n      <author>${escapeXml(post.author)}</author>` : ''
+      }
       <pubDate>${toRfc822(post.date)}</pubDate>
     </item>`;
     })

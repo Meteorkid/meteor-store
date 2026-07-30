@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { buildRssFeed } from '../feed';
-import type { BlogPostSummary } from '@/data/blog';
+import type { FeedPostSummary } from '@/data/blog-feed';
 
-const posts: BlogPostSummary[] = [
+const posts: FeedPostSummary[] = [
   {
     slug: 'older',
     title: '早一点的文章',
@@ -12,6 +12,8 @@ const posts: BlogPostSummary[] = [
     readingTime: 3,
     tags: [],
     draft: false,
+    href: '/blog/older',
+    author: null,
   },
   {
     slug: 'newer',
@@ -22,6 +24,8 @@ const posts: BlogPostSummary[] = [
     readingTime: 4,
     tags: [],
     draft: false,
+    href: '/blog/newer',
+    author: null,
   },
 ];
 
@@ -62,5 +66,28 @@ describe('buildRssFeed', () => {
     expect(xml).toContain('<rss version="2.0"');
     expect(xml).toContain('</channel>');
     expect(xml).not.toContain('<item>');
+  });
+
+  it('读者投稿用 /blog/p/ 地址，并带上作者', () => {
+    const xml = buildRssFeed(
+      [
+        {
+          slug: 'AbC123',
+          title: '一篇投稿',
+          excerpt: '摘要',
+          date: '2026-06-01',
+          section: 'debate',
+          readingTime: 2,
+          tags: [],
+          draft: false,
+          href: '/blog/p/AbC123',
+          author: '张三',
+        },
+      ],
+      options,
+    );
+    expect(xml).toContain('/blog/p/AbC123');
+    expect(xml).not.toContain('/blog/AbC123<');
+    expect(xml).toContain('<author>张三</author>');
   });
 });
