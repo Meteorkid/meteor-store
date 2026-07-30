@@ -4,7 +4,7 @@ excerpt: 民法典把配偶放在近亲属的第一个。支持它的理由很�
 date: 2026-07-30
 section: debate
 tags: [法律, 家庭, 民法典]
-draft: true
+draft: false
 ---
 手术室门口，护士拿着同意书问：家属来了吗。
 
