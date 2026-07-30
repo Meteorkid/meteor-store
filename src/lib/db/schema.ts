@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, primaryKey, index } from 'drizzle-orm/pg-core';
 
 export const orders = pgTable('orders', {
   id: text('id').primaryKey(),                        // crypto.randomUUID()
@@ -52,6 +52,54 @@ export const topicProposals = pgTable('topic_proposals', {
   status: text('status').default('pending').notNull(), // pending | accepted | rejected
   createdAt: text('created_at').notNull(),
 });
+
+/**
+ * 用户投稿的文章。
+ *
+ * 站主自己的文章仍走 content/blog/*.md（有版本历史、可 diff、可离线写）；
+ * 用户投稿必须进数据库——不可能让用户往仓库里提交文件。两条来源在读取层合并。
+ *
+ * 状态机：draft →（提交）→ pending →（审核）→ published / rejected
+ * 采用先审后发：pending 不公开可见，published 才进博客列表与 RSS。
+ */
+export const posts = pgTable('posts', {
+  id: text('id').primaryKey(),                        // 同时用作 URL：/blog/p/{id}
+  authorId: text('author_id').notNull(),
+  title: text('title').notNull(),
+  excerpt: text('excerpt').notNull(),
+  content: text('content').notNull(),                 // Markdown 原文，渲染时才转 HTML
+  sectionId: text('section_id').notNull(),            // 对应 blog-sections 的分区 id
+  status: text('status').default('draft').notNull(),  // draft | pending | published | rejected
+  reviewNote: text('review_note'),                    // 驳回理由，作者可见
+  reviewerId: text('reviewer_id'),                    // 审核留痕
+  reviewedAt: text('reviewed_at'),
+  publishedAt: text('published_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (t) => [
+  // 审核队列：按状态筛，按提交时间排
+  index('posts_status_created_idx').on(t.status, t.createdAt),
+  // 「我的投稿」
+  index('posts_author_idx').on(t.authorId),
+  // 博客列表：只取已发布的，按发布时间倒序
+  index('posts_published_idx').on(t.publishedAt),
+]);
+
+/**
+ * 文章与标签的关联。
+ *
+ * 用关联表而不是在 posts 上存 JSON 数组：标签数会涨到成百上千，
+ * 统计热度需要一次 GROUP BY，存 JSON 就得把全部文章拉出来在内存里算。
+ */
+export const postTags = pgTable('post_tags', {
+  postId: text('post_id').notNull(),
+  tag: text('tag').notNull(),       // 归一化后的键（小写去空格），用于匹配与聚合
+  label: text('label').notNull(),   // 展示用的原始写法
+}, (t) => [
+  primaryKey({ columns: [t.postId, t.tag] }),
+  // 标签页与热度统计都从 tag 侧查
+  index('post_tags_tag_idx').on(t.tag),
+]);
 
 export const feedbacks = pgTable('feedbacks', {
   id: text('id').primaryKey(),                        // FB{timestamp}{random}
