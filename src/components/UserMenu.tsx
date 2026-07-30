@@ -53,6 +53,13 @@ export default function UserMenu() {
           </div>
           <div className="py-1">
             <Link
+              href="/account"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+            >
+              个人主页
+            </Link>
+            <Link
               href="/products"
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"

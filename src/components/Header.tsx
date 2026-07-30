@@ -218,6 +218,13 @@ export default function Header() {
                   <p className="text-xs text-gray-500">{user.email}</p>
                 </div>
               </div>
+              <Link
+                href="/account"
+                onClick={() => setMobileOpen(false)}
+                className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
+              >
+                个人主页
+              </Link>
               <button
                 onClick={() => { logout(); setMobileOpen(false); }}
                 className="w-full px-6 py-3 text-lg font-medium text-red-400 hover:bg-white/5 rounded-xl text-center transition-colors"
