@@ -6,6 +6,8 @@ interface User {
   id?: string;
   email: string;
   name?: string;
+  /** 只决定要不要显示后台入口；权限本身由服务端每次请求判定 */
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {

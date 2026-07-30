@@ -9,6 +9,7 @@ import {
   type BlogSectionId,
 } from '@/data/blog-sections';
 import type { TagSummary } from '@/data/blog-tags';
+import { useAuth } from './AuthProvider';
 
 type SortMode = 'newest' | 'oldest' | 'reading-time';
 
@@ -52,6 +53,7 @@ export default function BlogListClient({
   totalTagCount = 0,
 }: BlogListClientProps) {
   const [sort, setSort] = useState<SortMode>('newest');
+  const { user } = useAuth();
 
   const showSectionLabel = !activeSectionId;
 
@@ -172,7 +174,17 @@ export default function BlogListClient({
             </button>
           ))}
         </div>
-        <span className="t-footnote tabular-nums text-white/60">{posts.length} 篇</span>
+        <div className="t-footnote flex items-center gap-3">
+          <span className="tabular-nums text-white/60">{posts.length} 篇</span>
+          <span aria-hidden className="text-white/15">·</span>
+          {/* 读完想写一篇的时候，入口该在这里 */}
+          <Link
+            href={user ? '/blog/submit' : '/login'}
+            className="text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
+          >
+            写一篇
+          </Link>
+        </div>
       </div>
 
       {filtered.length === 0 ? (

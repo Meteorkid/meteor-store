@@ -225,6 +225,29 @@ export default function Header() {
               >
                 个人主页
               </Link>
+              <Link
+                href="/blog/submit"
+                onClick={() => setMobileOpen(false)}
+                className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
+              >
+                写文章
+              </Link>
+              <Link
+                href="/blog/my-posts"
+                onClick={() => setMobileOpen(false)}
+                className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
+              >
+                我的投稿
+              </Link>
+              {user.isAdmin && (
+                <Link
+                  href="/admin/review"
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-4 py-3 text-lg text-amber-300/80 hover:bg-white/5 rounded-xl transition-colors"
+                >
+                  待审核
+                </Link>
+              )}
               <button
                 onClick={() => { logout(); setMobileOpen(false); }}
                 className="w-full px-6 py-3 text-lg font-medium text-red-400 hover:bg-white/5 rounded-xl text-center transition-colors"
