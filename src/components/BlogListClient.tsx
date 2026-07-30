@@ -8,6 +8,7 @@ import {
   getSectionsByChannel,
   type BlogSectionId,
 } from '@/data/blog-sections';
+import type { TagSummary } from '@/data/blog-tags';
 
 type SortMode = 'newest' | 'oldest' | 'reading-time';
 
@@ -24,12 +25,6 @@ function formatDate(date: string): string {
   return date.replace(/-/g, '.');
 }
 
-function getAllTags(posts: BlogPostSummary[]): string[] {
-  const set = new Set<string>();
-  posts.forEach((p) => p.tags.forEach((t) => set.add(t)));
-  return Array.from(set).sort();
-}
-
 /** 每篇文章带上自己分区的主题色 */
 function accentStyle(sectionId: string): React.CSSProperties {
   const rgb = getSectionById(sectionId)?.rgb;
@@ -43,18 +38,25 @@ interface BlogListClientProps {
   counts: Record<string, number>;
   /** 当前分区，未传表示「全部」 */
   activeSectionId?: BlogSectionId;
+  /** 导航里展示的热门标签；标签页与分区页不需要重复展示 */
+  hotTags?: TagSummary[];
+  /** 标签总数，用于「全部标签」入口 */
+  totalTagCount?: number;
 }
 
-export default function BlogListClient({ posts, counts, activeSectionId }: BlogListClientProps) {
+export default function BlogListClient({
+  posts,
+  counts,
+  activeSectionId,
+  hotTags,
+  totalTagCount = 0,
+}: BlogListClientProps) {
   const [sort, setSort] = useState<SortMode>('newest');
-  const [activeTag, setActiveTag] = useState<string | null>(null);
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const showSectionLabel = !activeSectionId;
-  const allTags = useMemo(() => getAllTags(posts), [posts]);
 
   const filtered = useMemo(() => {
-    const result = activeTag ? posts.filter((p) => p.tags.includes(activeTag)) : [...posts];
+    const result = [...posts];
 
     switch (sort) {
       case 'newest':
@@ -69,7 +71,7 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
     }
 
     return result;
-  }, [posts, sort, activeTag]);
+  }, [posts, sort]);
 
   const [lede, ...rest] = filtered;
   const ledeSection = lede ? getSectionById(lede.section) : undefined;
@@ -127,81 +129,57 @@ export default function BlogListClient({ posts, counts, activeSectionId }: BlogL
         </nav>
       </div>
 
-      {/* 次级筛选收在一层之下，默认不占版面 */}
-      <div className="mb-10 flex items-center justify-between gap-4">
-        <button
-          type="button"
-          onClick={() => setFiltersOpen((v) => !v)}
-          aria-expanded={filtersOpen}
-          aria-controls="blog-filters"
-          className="t-footnote flex items-center gap-1.5 text-white/60 transition-colors duration-200 hover:text-white"
-        >
-          筛选与排序
-          {activeTag && <span className="text-white/70">· #{activeTag}</span>}
-          <span
-            aria-hidden
-            className={`transition-transform duration-300 ${filtersOpen ? 'rotate-180' : ''}`}
-          >
-            ⌄
-          </span>
-        </button>
-        <span className="t-footnote tabular-nums text-white/60">
-          {activeTag ? `${filtered.length} / ${posts.length} 篇` : `${posts.length} 篇`}
-        </span>
-      </div>
-
-      {filtersOpen && (
-        <div id="blog-filters" className="mb-12 space-y-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
-          <div role="group" aria-labelledby="blog-sort-label" className="flex flex-wrap items-center gap-2">
-            <span id="blog-sort-label" className="t-eyebrow w-14 text-white/60">排序</span>
-            {sortOptions.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setSort(opt.value)}
-                aria-pressed={sort === opt.value}
-                className={`rounded-lg px-3 py-1.5 text-sm transition-colors duration-200 ${
-                  sort === opt.value ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap items-start gap-2">
-            <span id="blog-tag-label" className="t-eyebrow w-14 shrink-0 pt-2 text-white/60">标签</span>
-            <div role="group" aria-labelledby="blog-tag-label" className="flex flex-1 flex-wrap gap-2">
-              {allTags.map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-                  className={`rounded-lg px-3 py-1.5 text-sm transition-colors duration-200 ${
-                    activeTag === tag ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* 热门标签：动态层。分区是骨架，标签是当下大家在聊什么 */}
+      {hotTags && hotTags.length > 0 && (
+        <nav aria-label="热门标签" className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-2">
+          <span className="t-eyebrow mr-1 text-white/45">热门标签</span>
+          {hotTags.map((tag) => (
+            <Link
+              key={tag.key}
+              href={tag.href}
+              className="t-footnote inline-flex items-baseline gap-1 rounded-lg px-2.5 py-1 text-white/70 transition-colors duration-200 hover:bg-white/[0.06] hover:text-white"
+            >
+              #{tag.label}
+              <span className="tabular-nums text-white/45">{tag.count}</span>
+            </Link>
+          ))}
+          {totalTagCount > hotTags.length && (
+            <Link
+              href="/blog/tags"
+              className="t-footnote rounded-lg px-2.5 py-1 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
+            >
+              全部 {totalTagCount} 个标签 →
+            </Link>
+          )}
+        </nav>
       )}
+
+      {/* 排序 */}
+      <div className="mb-10 flex items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
+        <div role="group" aria-labelledby="blog-sort-label" className="flex items-center gap-1">
+          <span id="blog-sort-label" className="t-eyebrow mr-1 text-white/45">排序</span>
+          {sortOptions.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setSort(opt.value)}
+              aria-pressed={sort === opt.value}
+              className={`t-footnote rounded-lg px-2.5 py-1 transition-colors duration-200 ${
+                sort === opt.value ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        <span className="t-footnote tabular-nums text-white/60">{posts.length} 篇</span>
+      </div>
 
       {filtered.length === 0 ? (
         <div className="py-14 text-center">
           <p className="t-body text-white/60">
-            {activeTag ? '没有匹配的文章' : '这个分区还在等第一篇'}
+            这里还没有文章
           </p>
-          {activeTag && (
-            <button
-              type="button"
-              onClick={() => setActiveTag(null)}
-              className="t-footnote mt-4 text-white/70 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
-            >
-              清除筛选
-            </button>
-          )}
         </div>
       ) : (
         <>

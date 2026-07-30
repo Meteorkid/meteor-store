@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { products } from '@/data/products';
 import { blogPosts } from '@/data/blog';
 import { blogSections } from '@/data/blog-sections';
+import { allTags } from '@/data/blog-tags';
 import { SITE_URL } from '@/lib/constants';
 
 const BASE_URL = SITE_URL;
@@ -42,5 +43,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...productPages, ...blogSectionPages, ...blogPostPages];
+  const tagPages = [
+    {
+      url: `${BASE_URL}/blog/tags`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.4,
+    },
+    ...allTags.map((tag) => ({
+      url: `${BASE_URL}${tag.href}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.3,
+    })),
+  ];
+
+  return [...staticPages, ...productPages, ...blogSectionPages, ...blogPostPages, ...tagPages];
 }

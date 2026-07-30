@@ -1,5 +1,6 @@
 import { blogPosts, toSummary } from '@/data/blog';
 import { blogSections, type BlogSectionId } from '@/data/blog-sections';
+import { allTags, getHotTags } from '@/data/blog-tags';
 import BlogListClient from './BlogListClient';
 
 interface BlogListProps {
@@ -18,5 +19,14 @@ export default function BlogList({ sectionId }: BlogListProps) {
     blogSections.map((s) => [s.id, blogPosts.filter((p) => p.section === s.id).length]),
   );
 
-  return <BlogListClient posts={posts} counts={counts} activeSectionId={sectionId} />;
+  return (
+    <BlogListClient
+      posts={posts}
+      counts={counts}
+      activeSectionId={sectionId}
+      // 分区页聚焦在该分区，不再铺一层全站热门标签
+      hotTags={sectionId ? undefined : getHotTags()}
+      totalTagCount={allTags.length}
+    />
+  );
 }
