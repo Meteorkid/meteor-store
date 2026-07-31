@@ -50,7 +50,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '邮箱或密码错误' }, { status: 401 });
   }
 
-  await createSession({ userId: user.id, email: user.email, name: user.name ?? undefined });
+  await createSession({
+    userId: user.id,
+    email: user.email,
+    name: user.name ?? undefined,
+    tokenVersion: user.tokenVersion,
+  });
 
   return NextResponse.json({
     success: true,

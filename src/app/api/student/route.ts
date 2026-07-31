@@ -38,14 +38,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // TODO: 接入邮件发送服务（Resend / Nodemailer）发送验证链接
-  // 目前直接返回成功，后续可加入：
-  // 1. 生成 token 存入 KV / DB
-  // 2. 发送包含 token 的验证链接到学生邮箱
-  // 3. 验证通过后发放优惠码
-
-  return NextResponse.json({
-    success: true,
-    message: '验证邮件已发送，请查收你的学校邮箱。',
-  });
+  // 当前并未真正发送验证邮件，也没有后续的 token 校验与优惠码发放流程。
+  // 在补全流程之前直接返回 503，避免对用户说谎（前端展示「邮件已发送」会让用户白等）。
+  // 待发信链路完成、token 表与兑换流程接通后再去掉此 503。
+  return NextResponse.json(
+    { error: '学生认证功能正在升级，暂时无法使用，请稍后再来。' },
+    { status: 503 },
+  );
 }

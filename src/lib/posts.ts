@@ -114,6 +114,7 @@ export async function createPost(input: {
 }): Promise<string> {
   const id = newPostId();
   const now = new Date().toISOString();
+  const tags = normalizeTags(input.tags);
 
   await db.insert(posts).values({
     id,
@@ -127,9 +128,26 @@ export async function createPost(input: {
     updatedAt: now,
   });
 
-  const tags = normalizeTags(input.tags);
+  // Neon HTTP 驱动不支持事务。若 postTags 写入失败，需要回滚刚插入的 post，
+  // 否则会留下一条没有标签、但作者仍可见的「半成品」文章。
   if (tags.length > 0) {
-    await db.insert(postTags).values(tags.map((t) => ({ postId: id, ...t })));
+    try {
+      await db.insert(postTags).values(tags.map((t) => ({ postId: id, ...t })));
+    } catch (err) {
+      console.error('insert postTags failed, rolling back post:', err);
+      try {
+        await db.delete(posts).where(eq(posts.id, id));
+      } catch (rollbackErr) {
+        // 回滚也失败：把 post 留作 draft 兜底，至少不会出现在 pending 队列里
+        console.error('rollback post failed:', rollbackErr);
+        await db
+          .update(posts)
+          .set({ status: 'draft', updatedAt: new Date().toISOString() })
+          .where(eq(posts.id, id))
+          .catch(() => undefined);
+      }
+      throw err;
+    }
   }
 
   return id;

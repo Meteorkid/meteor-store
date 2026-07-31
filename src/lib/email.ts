@@ -58,14 +58,9 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
             <strong>${escapeHtml(data.licenseKey)}</strong>
           </p>
         </div>
-        <p style="color: #666; font-size: 13px;">请妥善保管您的激活码，这是使用产品的唯一凭证。</p>
+        <p style="color: #666; font-size: 13px;">请妥善保管您的激活码，这是使用产品的唯一凭证。建议直接复制保存到本地，不要转发本邮件。</p>
         ` : ''}
-        ${data.accessToken ? `
-        <p style="color: #666; font-size: 13px; margin-top: 16px;">
-          <a href="${(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.imagentx.top')}/orders/${orderId}?token=${escapeHtml(data.accessToken)}" style="color: #8b5cf6;">查看订单详情</a>
-        </p>
-        ` : ''}
-        <p style="color: #666; font-size: 14px;">如有问题，请回复此邮件联系我们。</p>
+        <p style="color: #666; font-size: 14px; margin-top: 16px;">如有问题，请回复此邮件联系我们。</p>
       </div>
     `,
   });

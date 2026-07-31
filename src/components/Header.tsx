@@ -1,21 +1,21 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Link, usePathname } from '@/i18n/navigation';
 import { SHOW_PRICING } from '@/lib/constants';
 import { useAuth } from './AuthProvider';
 import UserMenu from './UserMenu';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const navLinks = [
-  { label: '首页', href: '/' },
-  { label: '产品', href: '/products' },
-  ...(SHOW_PRICING ? [{ label: '定价', href: '/#pricing' }] : []),
-  { label: '文档', href: '/docs' },
-  { label: '博客', href: '/blog' },
-  { label: '开源', href: '/open-source' },
-  // 公益学习路径入口：克制、独立、不影响主商城
-  { label: '公益学习路径', href: '/pathfinder' },
+  { key: 'home', href: '/' },
+  { key: 'products', href: '/products' },
+  ...(SHOW_PRICING ? [{ key: 'pricing', href: '/#pricing' }] : []),
+  { key: 'docs', href: '/docs' },
+  { key: 'blog', href: '/blog' },
+  { key: 'openSource', href: '/open-source' },
+  { key: 'pathfinder', href: '/pathfinder' },
 ];
 
 /** 当前页高亮：锚点链接不参与，其余按路径前缀匹配 */
@@ -34,6 +34,7 @@ const IDLE_REVEAL_DELAY = 180;
 
 export default function Header() {
   const pathname = usePathname();
+  const t = useTranslations('Header');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   // 向下滚动时隐藏；向上滚动或停止滚动时恢复显示
@@ -109,7 +110,7 @@ export default function Header() {
                     : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                 }`}
               >
-                {link.label}
+                {t(link.key as any)}
               </Link>
             );
           })}
@@ -134,6 +135,7 @@ export default function Header() {
             <kbd className="text-[10px] border border-white/15 rounded px-1 py-0.5 font-mono text-white/40">⌘K</kbd>
           </button>
           <div className="w-px h-5 bg-border mx-2" />
+          <LanguageSwitcher />
           <UserMenu />
         </nav>
 
@@ -148,6 +150,7 @@ export default function Header() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
           </svg>
         </button>
+        <LanguageSwitcher />
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
@@ -193,7 +196,7 @@ export default function Header() {
                   active ? 'bg-white/[0.09] text-white' : 'text-foreground hover:bg-white/5'
                 }`}
               >
-                {link.label}
+                {t(link.key as any)}
               </Link>
             );
           })}
@@ -223,7 +226,7 @@ export default function Header() {
                 onClick={() => setMobileOpen(false)}
                 className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
               >
-                个人主页
+                {t('account')}
               </Link>
               <Link
                 href="/blog/submit"
@@ -252,7 +255,7 @@ export default function Header() {
                 onClick={() => { logout(); setMobileOpen(false); }}
                 className="w-full px-6 py-3 text-lg font-medium text-red-400 hover:bg-white/5 rounded-xl text-center transition-colors"
               >
-                退出登录
+                {t('logout')}
               </button>
             </div>
           ) : (
@@ -261,7 +264,7 @@ export default function Header() {
               onClick={() => setMobileOpen(false)}
               className="px-6 py-3 text-lg font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-xl text-center hover:opacity-90 transition-opacity block"
             >
-              登录 / 注册
+              {t('login')}
             </Link>
           )}
         </nav>

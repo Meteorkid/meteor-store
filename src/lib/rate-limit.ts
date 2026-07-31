@@ -2,35 +2,7 @@
 // 使用 @upstash/ratelimit + @upstash/redis，支持分布式限流
 
 import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
-
-// Redis 客户端（惰性初始化，全局单例）
-let redis: Redis | null = null;
-
-/**
- * 连接信息的取值顺序：先认 @upstash/redis 的约定名，再认 Vercel Marketplace
- * 集成注入的名字（前缀 UPSTASH_REDIS + 它自己的 _KV_REST_API_* 后缀）。
- *
- * 不把集成注入的值手抄成约定名，是因为那些变量由集成托管：Upstash 侧轮换 token
- * 时集成会自动更新，手抄的副本不会，限流会拿着作废 token 静默失效。
- */
-function readRedisCredentials(): { url: string; token: string } | null {
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_KV_REST_API_URL;
-  // 必须是可写 token，READ_ONLY 那个无法记录计数
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_KV_REST_API_TOKEN;
-  return url && token ? { url, token } : null;
-}
-
-function getRedis(): Redis | null {
-  const credentials = readRedisCredentials();
-  if (!credentials) {
-    return null;
-  }
-  if (!redis) {
-    redis = new Redis(credentials);
-  }
-  return redis;
-}
+import { getRedis } from './redis';
 
 // 按 (limit, windowMs) 组合缓存 Ratelimit 实例，
 // 否则所有调用方共享同一限流器会导致各路由声明的阈值互相覆盖失效

@@ -38,7 +38,10 @@ function resizeToDataUrl(file: File): Promise<string> {
 interface AvatarUploadProps {
   currentUrl?: string | null;
   fallbackInitial: string;
-  onUpload: (dataUrl: string) => void;
+  /** 收到新头像时回调。
+   *  R2 已启用：回调拿到的是 R2 URL（已上传完毕）。
+   *  R2 未启用：回调拿到 data URL（沿用旧逻辑直接写库）。 */
+  onUpload: (value: string) => void;
   onRemove: () => void;
   disabled?: boolean;
 }
@@ -54,18 +57,46 @@ export default function AvatarUpload({
   const [preview, setPreview] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const displayUrl = preview || currentUrl;
 
   const processFile = useCallback(
     async (file: File) => {
       setError('');
+      setUploading(true);
       try {
         const dataUrl = await resizeToDataUrl(file);
+        // 先把本地缩放图作为预览，让用户立刻看到
         setPreview(dataUrl);
-        onUpload(dataUrl);
+
+        // 试上传到 R2：成功就拿到 URL，失败则按 data URL 降级
+        // （profile 接口会根据 R2 是否配置决定接受 URL 还是 data URL）
+        let value = dataUrl;
+        try {
+          const res = await fetch('/api/avatar/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dataUrl }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (typeof data?.url === 'string') {
+              value = data.url;
+              // 上传成功后预览切到 R2 URL，避免 base64 占内存
+              setPreview(data.url);
+            }
+          }
+          // 503 表示 R2 未配置，继续用 data URL；其他错误让上层保存时报错
+        } catch {
+          // 网络错误：保留 data URL 预览，等保存时再失败
+        }
+
+        onUpload(value);
       } catch (err) {
         setError(err instanceof Error ? err.message : '处理图片失败');
+      } finally {
+        setUploading(false);
       }
     },
     [onUpload],
@@ -94,7 +125,7 @@ export default function AvatarUpload({
     <div className="flex flex-col items-center gap-3">
       <button
         type="button"
-        disabled={disabled}
+        disabled={disabled || uploading}
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -106,7 +137,7 @@ export default function AvatarUpload({
           dragging
             ? 'ring-2 ring-violet-400 ring-offset-2 ring-offset-black'
             : 'hover:ring-2 hover:ring-white/20 hover:ring-offset-2 hover:ring-offset-black'
-        } ${disabled ? 'pointer-events-none opacity-50' : ''}`}
+        } ${disabled || uploading ? 'pointer-events-none opacity-50' : ''}`}
       >
         {displayUrl ? (
           <img
@@ -119,26 +150,32 @@ export default function AvatarUpload({
             {fallbackInitial}
           </span>
         )}
-        <span className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-          <svg
-            className="h-6 w-6 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"
-            />
-          </svg>
-        </span>
+        {uploading ? (
+          <span className="absolute inset-0 flex items-center justify-center bg-black/50">
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-violet-400" />
+          </span>
+        ) : (
+          <span className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+            <svg
+              className="h-6 w-6 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"
+              />
+            </svg>
+          </span>
+        )}
       </button>
 
       <input
@@ -153,16 +190,16 @@ export default function AvatarUpload({
       <div className="flex items-center gap-3 text-[13px]">
         <button
           type="button"
-          disabled={disabled}
+          disabled={disabled || uploading}
           onClick={() => inputRef.current?.click()}
           className="text-white/60 transition-colors hover:text-white"
         >
-          {displayUrl ? '更换头像' : '上传头像'}
+          {uploading ? '上传中…' : displayUrl ? '更换头像' : '上传头像'}
         </button>
         {displayUrl && (
           <button
             type="button"
-            disabled={disabled}
+            disabled={disabled || uploading}
             onClick={handleRemove}
             className="text-white/40 transition-colors hover:text-red-400"
           >

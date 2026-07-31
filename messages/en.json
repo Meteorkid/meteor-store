@@ -9,16 +9,21 @@
     "next": "Next",
     "submit": "Submit",
     "search": "Search",
-    "close": "Close"
+    "close": "Close",
+    "writeArticle": "Write Article",
+    "myPosts": "My Posts",
+    "pendingReview": "Pending Review",
+    "user": "User"
   },
   "Header": {
     "home": "Home",
     "products": "Products",
+    "pricing": "Pricing",
     "docs": "Docs",
     "blog": "Blog",
     "openSource": "Open Source",
     "pathfinder": "Pathfinder",
-    "login": "Login",
+    "login": "Login / Register",
     "account": "Account",
     "logout": "Logout"
   },
@@ -70,7 +75,9 @@
     "title": "Blog",
     "description": "Tech & products on the left, emotions, literature & debates on the right",
     "readMore": "Read More",
-    "backToList": "Back to List"
+    "backToList": "Back to List",
+    "submit": "Submit Post",
+    "myPosts": "My Posts"
   },
   "ContactPage": {
     "title": "Contact Us",

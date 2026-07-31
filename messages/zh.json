@@ -9,17 +9,22 @@
     "next": "下一步",
     "submit": "提交",
     "search": "搜索",
-    "close": "关闭"
+    "close": "关闭",
+    "writeArticle": "写文章",
+    "myPosts": "我的投稿",
+    "pendingReview": "待审核",
+    "user": "用户"
   },
   "Header": {
     "home": "首页",
     "products": "产品",
+    "pricing": "定价",
     "docs": "文档",
     "blog": "博客",
     "openSource": "开源",
     "pathfinder": "公益学习路径",
-    "login": "登录",
-    "account": "账户",
+    "login": "登录 / 注册",
+    "account": "个人主页",
     "logout": "退出登录"
   },
   "Footer": {
@@ -70,7 +75,9 @@
     "title": "博客",
     "description": "技术与产品在左，情感、文学与辩论在右",
     "readMore": "阅读更多",
-    "backToList": "返回列表"
+    "backToList": "返回列表",
+    "submit": "投稿",
+    "myPosts": "我的投稿"
   },
   "ContactPage": {
     "title": "联系我们",

@@ -209,6 +209,25 @@ draft: true                # 草稿只在开发环境可见
 - 正文里的原生 HTML 会被 sanitize **丢弃**（不是转义显示），所以渲染不受信任的内容也安全
 - 动了插件链就要跑 `src/lib/__tests__/markdown.test.ts`，那里有 10 个 XSS 攻击向量的回归用例
 
+### 头像对象存储（Cloudflare R2）
+
+头像走 S3 兼容的 Cloudflare R2，避免 base64 data URL 入库膨胀 `users` 表。
+服务层在 [src/lib/avatar-storage.ts](file:///Users/meteor/github/meteor-store/src/lib/avatar-storage.ts)，
+上传接口 `POST /api/avatar/upload`，profile 接口按 R2 是否配置切换校验规则。
+
+- **客户端不直接持有 R2 写凭证**：客户端先把 base64 上传到我们的 API，API 校验后再写 R2，
+  返回公开 URL 写入 `users.avatar_url`
+- 对象 key 是 `avatars/{userId}/{内容哈希}.{ext}`，更换头像时新 key 与旧 key 不同，
+  上传成功后由 API 删除旧对象避免孤儿堆积
+- 未配置 R2 时（`isR2Configured()` 返回 false）整体降级为 data URL 入库，开发环境可用；
+  生产环境必须配齐 `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` / `R2_PUBLIC_BASE`
+- **`R2_PUBLIC_BASE` 必须和 bucket 绑定的自定义域名一致**：中间件会读取它注入 CSP `img-src` 白名单，
+  profile 接口用它反解 key 来删旧对象；不一致会让头像加载被 CSP 拦截或删除接口静默失效
+- **清空头像**走 `PATCH /api/auth/profile` 传 `avatar: ""`，profile 接口负责删旧对象；
+  **替换头像**走 upload 接口，upload 接口负责删旧对象——两个入口都要管，单改一处会留孤儿
+- 历史存量 data URL 头像用 [scripts/migrate-avatars-to-r2.mjs](file:///Users/meteor/github/meteor-store/scripts/migrate-avatars-to-r2.mjs)
+  一次性迁移：条件更新防并发覆盖，失败行下次重跑会重试
+
 ## 安全约束
 
 ### 所有写接口必须限流
@@ -234,6 +253,13 @@ draft: true                # 草稿只在开发环境可见
 - 限流数据在 Upstash Redis，`Ratelimit` 带进程内 `ephemeralCache`：调限流时**光清 Redis 不够，必须重启进程**
 - 密钥不进仓库；`NEXT_PUBLIC_` 前缀的变量会被内联进客户端包，只放公开值（如 Sentry DSN）
 - 改 `NEXT_PUBLIC_*` 后**必须重新构建**才生效，不是重启
+- **CSP 由 middleware 动态生成**（[src/middleware.ts](file:///Users/meteor/github/meteor-store/src/middleware.ts)），不要回到 `next.config.ts` 写静态 CSP。
+  inline 脚本走 nonce + `'strict-dynamic'`，不要再加 `'unsafe-inline'`；
+  img-src 会从 `R2_PUBLIC_BASE` 自动注入域名白名单，新加图片源域名时改 middleware，别在响应头里覆盖
+- **改密踢会话**靠 `users.token_version`：会话 JWT 携带签发时的版本号，`getSession` 比对当前数据库值，
+  不一致即视为过期。改密递增该字段；改昵称/头像**不要**递增——会把其他设备无辜踢下线
+- CAPTCHA 防重放走 Redis SETNX（`src/lib/captcha.ts`），Vercel 多实例下进程内 Map 不可靠；
+  `consumeCaptchaToken` 必须在注册成功路径上调用，失败重试要重新签发挑战
 
 ## 验证与 CI
 

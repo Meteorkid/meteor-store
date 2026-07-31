@@ -48,16 +48,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '新密码不能和当前密码相同' }, { status: 400 });
   }
 
+  // 改密时递增 tokenVersion：所有旧设备上持有的会话因 tokenVersion 不匹配
+  // 被 getSession 判为过期。当前这台设备紧接着重新签发，继续可用。
+  // neon-http 驱动不支持 RETURNING，本地计算 nextTokenVersion 一并写入。
+  const nextTokenVersion = (user.tokenVersion ?? 0) + 1;
+
   await db
     .update(users)
-    .set({ passwordHash: await hash(newPassword, 12) })
+    .set({
+      passwordHash: await hash(newPassword, 12),
+      tokenVersion: nextTokenVersion,
+    })
     .where(eq(users.id, session.userId));
 
-  // 改密后重新签发会话，让当前这台设备继续可用
   await createSession({
     userId: user.id,
     email: user.email,
     name: user.name ?? undefined,
+    tokenVersion: nextTokenVersion,
   });
 
   return NextResponse.json({ success: true });

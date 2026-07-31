@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, primaryKey, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, primaryKey, index, uniqueIndex } from 'drizzle-orm/pg-core';
 
 export const orders = pgTable('orders', {
   id: text('id').primaryKey(),                        // crypto.randomUUID()
@@ -37,6 +37,12 @@ export const users = pgTable('users', {
   emailVerified: boolean('email_verified').default(false).notNull(),
   isStudent: boolean('is_student').default(false).notNull(),
   createdAt: text('created_at').notNull(),
+  /**
+   * Token 版本号，写入会话 JWT。改密等"踢掉其他会话"操作递增它，
+   * getSession 比对 session 内的 tokenVersion 与数据库当前值，
+   * 不一致即视为过期——所有旧设备上持有的 token 立即失效。
+   */
+  tokenVersion: integer('token_version').default(0).notNull(),
 });
 
 /**
@@ -133,4 +139,21 @@ export const inviteRedemptions = pgTable('invite_redemptions', {
 }, (t) => [
   index('invite_redemptions_code_idx').on(t.inviteCodeId),
   index('invite_redemptions_user_idx').on(t.userId),
+  // 同一用户对同一邀请码只能兑换一次：DB 层的并发保证，
+  // 覆盖应用层 select-then-insert 之间的竞态窗口
+  uniqueIndex('invite_redemptions_code_user_uniq').on(t.inviteCodeId, t.userId),
+]);
+
+export const comments = pgTable('comments', {
+  id: text('id').primaryKey(),
+  targetId: text('target_id').notNull(),
+  authorId: text('author_id').notNull(),
+  authorName: text('author_name').notNull(),
+  authorAvatar: text('author_avatar'),
+  content: text('content').notNull(),
+  parentId: text('parent_id'),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  index('comments_target_idx').on(t.targetId, t.createdAt),
+  index('comments_author_idx').on(t.authorId),
 ]);

@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     createdAt: new Date().toISOString(),
   });
 
-  await createSession({ userId: id, email, name });
+  await createSession({ userId: id, email, name, tokenVersion: 0 });
 
   return NextResponse.json({ success: true, user: { id, email, name } });
 }
