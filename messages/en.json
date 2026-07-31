@@ -1,0 +1,94 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "close": "Close"
+  },
+  "Header": {
+    "home": "Home",
+    "products": "Products",
+    "docs": "Docs",
+    "blog": "Blog",
+    "openSource": "Open Source",
+    "pathfinder": "Pathfinder",
+    "login": "Login",
+    "account": "Account",
+    "logout": "Logout"
+  },
+  "Footer": {
+    "products": "Products",
+    "resources": "Resources",
+    "company": "Company",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "eula": "EULA",
+    "refund": "Refund Policy",
+    "copyright": "© 2024 Meteor Store. All rights reserved."
+  },
+  "HomePage": {
+    "title": "Meteor Store — Developer Tools & AI Apps",
+    "description": "Carefully crafted developer tools: smart crawler framework, AI memory system, 3D anatomy atlas, design system, state management library. Open source, free lifetime updates.",
+    "heroTitle": "Developer Tools Matrix",
+    "heroSubtitle": "Carefully crafted developer tools, open source, free lifetime updates",
+    "cta": "Browse Products"
+  },
+  "LoginPage": {
+    "title": "Login",
+    "description": "Sign in to your Meteor Store account",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "AccountPage": {
+    "title": "Account Settings",
+    "description": "Manage your personal information and security settings",
+    "profile": "Profile",
+    "security": "Security",
+    "nameLabel": "Nickname",
+    "bioLabel": "Bio",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password"
+  },
+  "ProductsPage": {
+    "title": "Products",
+    "description": "Explore our developer tools"
+  },
+  "BlogPage": {
+    "title": "Blog",
+    "description": "Tech & products on the left, emotions, literature & debates on the right",
+    "readMore": "Read More",
+    "backToList": "Back to List"
+  },
+  "ContactPage": {
+    "title": "Contact Us",
+    "description": "Have questions or suggestions? Feel free to reach out",
+    "emailLabel": "Email",
+    "messageLabel": "Message",
+    "submitButton": "Send"
+  },
+  "DocsPage": {
+    "title": "Documentation",
+    "description": "Product documentation and tutorials"
+  },
+  "PrivacyPage": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated"
+  },
+  "TermsPage": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last Updated"
+  }
+}

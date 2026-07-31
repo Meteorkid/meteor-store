@@ -1,0 +1,156 @@
+import Link from 'next/link';
+import { eq } from 'drizzle-orm';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import MeteorConfetti from '@/components/MeteorConfetti';
+import { db } from '@/lib/db';
+import { orders, licenseKeys } from '@/lib/db/schema';
+import { findProduct } from '@/lib/products';
+import { SHOW_PRICING } from '@/lib/constants';
+
+import { and } from 'drizzle-orm';
+
+interface SuccessPageProps {
+  searchParams: Promise<{ orderId?: string; token?: string }>;
+}
+
+export default async function SuccessPage({ searchParams }: SuccessPageProps) {
+  // ICP 备案期间隐藏支付成功页
+  if (!SHOW_PRICING) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <Header />
+        <main className="container mx-auto px-4 py-20 text-center">
+          <h1 className="text-2xl font-bold mb-4">页面维护中</h1>
+          <p className="text-gray-400">该功能暂不可用，请稍后再试。</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const { orderId, token } = await searchParams;
+
+  // 校验 orderId 和 token 格式（UUID），防止注入
+  const uuidPattern = /^[0-9a-f-]{36}$/i;
+  const isValidOrderId = orderId && uuidPattern.test(orderId);
+  const isValidToken = token && uuidPattern.test(token);
+
+  let order = null;
+  let license = null;
+  if (isValidOrderId && isValidToken) {
+    // 必须同时校验 accessToken，防止枚举泄露 license key
+    const [result] = await db.select().from(orders).where(
+      and(eq(orders.id, orderId), eq(orders.accessToken, token))
+    ).limit(1);
+    order = result || null;
+    if (order) {
+      const [keyResult] = await db.select().from(licenseKeys).where(eq(licenseKeys.orderId, orderId)).limit(1);
+      license = keyResult || null;
+    }
+  }
+
+  const product = order ? findProduct(order.productId) : null;
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <Header />
+
+      <main className="container mx-auto px-4 py-20">
+        <div className="max-w-md mx-auto text-center">
+          {order?.status === 'paid' ? (
+            <>
+              <MeteorConfetti />
+              <div className="text-6xl mb-6">🎉</div>
+              <h1 className="text-3xl font-bold text-white mb-4">支付成功！</h1>
+              <p className="text-gray-400 mb-4">
+                感谢你的购买！你的订单已成功处理。
+              </p>
+              <p className="text-purple-300/80 text-sm mb-8 leading-relaxed">
+                你刚刚为一个大学生的下学期学费添了一块砖 🧱
+                <br />
+                这不是营销话术，是真的。—— 店主
+              </p>
+
+              {/* 订单详情 */}
+              <div className="bg-white/5 rounded-lg p-4 mb-8 text-left">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-400">订单号</span>
+                  <span className="text-white font-mono">{order.id}</span>
+                </div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-400">产品</span>
+                  <span className="text-white">{product?.name || order.productId} - {order.planName}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">金额</span>
+                  <span className="text-white">¥{order.amountCny}</span>
+                </div>
+              </div>
+
+              {/* 交付状态 */}
+              <div className="text-sm mb-6">
+                {order.deliveryStatus === 'emailed' ? (
+                  <p className="text-green-400">✅ 确认邮件已发送至你的邮箱，请注意查收。</p>
+                ) : order.deliveryStatus === 'failed' ? (
+                  <p className="text-yellow-400">⚠️ 邮件发送失败，请联系 support@imagentx.top 处理。</p>
+                ) : (
+                  <p className="text-gray-400">⏳ 邮件正在发送中，请稍候。</p>
+                )}
+              </div>
+
+              {/* License Key */}
+              {license && (
+                <div className="bg-gray-900 rounded-lg p-4 mb-6">
+                  <p className="text-xs text-gray-500 mb-2">你的激活码</p>
+                  <p className="text-xl font-mono tracking-widest text-green-400 select-all">
+                    {license.key}
+                  </p>
+                </div>
+              )}
+            </>
+          ) : order ? (
+            <>
+              <div className="text-6xl mb-6">⏳</div>
+              <h1 className="text-3xl font-bold text-white mb-4">支付处理中</h1>
+              <p className="text-gray-400 mb-8">
+                你的订单正在处理中，请稍后刷新查看状态。
+              </p>
+              <div className="bg-white/5 rounded-lg p-4 mb-8 text-left">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">订单号</span>
+                  <span className="text-white font-mono">{order.id}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-6xl mb-6">❓</div>
+              <h1 className="text-3xl font-bold text-white mb-4">未找到订单</h1>
+              <p className="text-gray-400 mb-8">
+                {orderId ? '订单号格式无效' : '请通过支付完成后的链接访问此页面'}
+              </p>
+            </>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/"
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
+            >
+              返回首页
+            </Link>
+            <Link
+              href="/products"
+              className="px-6 py-3 bg-white/10 rounded-lg text-white font-medium hover:bg-white/20 transition-colors"
+            >
+              浏览更多产品
+            </Link>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

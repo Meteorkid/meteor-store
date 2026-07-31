@@ -1,34 +1,18 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import createNextIntlPlugin from 'next-intl/plugin';
 
-// Sentry 上报域名（从 DSN 推导），必须放进 CSP 的 connect-src，
-// 否则浏览器会直接拦掉上报请求，且是静默失败——错误监控看起来"接好了"其实一条都收不到
-const SENTRY_INGEST = "https://*.ingest.us.sentry.io";
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
-const isDev = process.env.NODE_ENV === "development";
-
+// CSP 由 src/middleware.ts 动态生成（每请求一个 nonce 注入到 script-src），
+// 这里不再静态设置，避免双重 CSP header 让浏览器无所适从。
+// 其余安全 header 是静态的，仍然从这里发出。
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "origin-when-cross-origin" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-  {
-    key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      // Next.js 需要 unsafe-inline 用于 SSR hydration，后续可迁移到 nonce-based
-      // unsafe-eval 仅开发模式：React DevTools 调试功能需要，生产不放行
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-      "style-src 'self' 'unsafe-inline'",
-      // 限制图片来源为自有域名和常用 CDN；blob: 用于客户端图片预览（如头像上传）
-      "img-src 'self' data: blob: https://www.imagentx.top https://imagentx.top",
-      "font-src 'self'",
-      `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com ${SENTRY_INGEST}`,
-      "frame-ancestors 'none'",
-      "upgrade-insecure-requests",
-    ].join("; "),
-  },
 ];
 
 const nextConfig: NextConfig = {
@@ -42,7 +26,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+const nextConfigWithIntl = withNextIntl(nextConfig);
+
+export default withSentryConfig(nextConfigWithIntl, {
   // 没配 SENTRY_AUTH_TOKEN 时跳过 source map 上传，避免构建噪音；
   // 配上之后 Sentry 里的堆栈才会映射回源码而不是压缩后的产物
   silent: !process.env.CI,
