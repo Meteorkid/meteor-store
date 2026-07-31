@@ -5,6 +5,7 @@ import { products } from '@/data/products';
 import { allFaqs } from '@/components/FAQSection';
 import { SHOW_PRICING, categoryLabels } from '@/lib/constants';
 import { blogSections } from '@/data/blog-sections';
+import { pinyin } from 'pinyin-pro';
 
 export type SearchGroup = '产品' | '页面' | '帮助' | '彩蛋';
 
@@ -16,9 +17,25 @@ export interface SearchEntry {
   href: string;
   /** 参与匹配的全部文本（小写） */
   keywords: string;
+  /** 标题拼音首字母，如 "首页" → "sy" */
+  initials: string;
+  /** 标题全拼（无声调、无空格），如 "首页" → "shouye" */
+  fullPinyin: string;
 }
 
-const STATIC_PAGES: Array<Omit<SearchEntry, 'keywords'> & { extra?: string }> = [
+function toPinyinInitials(str: string): string {
+  return pinyin(str, { pattern: 'first', toneType: 'none', type: 'array' })
+    .join('')
+    .toLowerCase();
+}
+
+function toFullPinyin(str: string): string {
+  return pinyin(str, { toneType: 'none', type: 'array' })
+    .join('')
+    .toLowerCase();
+}
+
+const STATIC_PAGES: Array<Omit<SearchEntry, 'keywords' | 'initials' | 'fullPinyin'> & { extra?: string }> = [
   { id: 'page-home', title: '首页', group: '页面', href: '/', extra: 'home index 主页' },
   { id: 'page-products', title: '全部产品', group: '页面', href: '/products', extra: 'products 工具 列表' },
   { id: 'page-docs', title: '文档', group: '页面', href: '/docs', extra: 'docs 使用 指南 快速上手' },
@@ -49,52 +66,66 @@ const EGG_COMMANDS: Array<{ cmd: string; hint: string; extra?: string }> = [
   { cmd: 'coffee', hint: '本店动力来源', extra: '奶茶 咖啡' },
 ];
 
+function withPinyin(title: string, entry: Omit<SearchEntry, 'initials' | 'fullPinyin'>): SearchEntry {
+  return { ...entry, initials: toPinyinInitials(title), fullPinyin: toFullPinyin(title) };
+}
+
 /** 构建全站搜索索引（构建一次，模块级缓存） */
 export function buildIndex(): SearchEntry[] {
-  const productEntries: SearchEntry[] = products.map(p => ({
-    id: `product-${p.id}`,
-    title: p.name,
-    subtitle: p.tagline,
-    group: '产品',
-    href: `/products/${p.id}`,
-    keywords: [p.id, p.name, p.tagline, p.description, categoryLabels[p.category] || p.category, ...p.features]
-      .join(' ')
-      .toLowerCase(),
-  }));
+  const productEntries: SearchEntry[] = products.map(p =>
+    withPinyin(p.name, {
+      id: `product-${p.id}`,
+      title: p.name,
+      subtitle: p.tagline,
+      group: '产品',
+      href: `/products/${p.id}`,
+      keywords: [p.id, p.name, p.tagline, p.description, categoryLabels[p.category] || p.category, ...p.features]
+        .join(' ')
+        .toLowerCase(),
+    }),
+  );
 
-  const pageEntries: SearchEntry[] = STATIC_PAGES.map(({ extra, ...page }) => ({
-    ...page,
-    keywords: [page.title, page.subtitle || '', extra || ''].join(' ').toLowerCase(),
-  }));
+  const pageEntries: SearchEntry[] = STATIC_PAGES.map(({ extra, ...page }) =>
+    withPinyin(page.title, {
+      ...page,
+      keywords: [page.title, page.subtitle || '', extra || ''].join(' ').toLowerCase(),
+    }),
+  );
 
   const faqEntries: SearchEntry[] = allFaqs
     .filter(f => SHOW_PRICING || !f.commercial)
-    .map((f, i) => ({
-      id: `faq-${i}`,
-      title: f.question,
-      subtitle: '常见问题',
-      group: '帮助',
-      href: '/#faq',
-      keywords: `${f.question} ${f.answer}`.toLowerCase(),
-    }));
+    .map((f, i) =>
+      withPinyin(f.question, {
+        id: `faq-${i}`,
+        title: f.question,
+        subtitle: '常见问题',
+        group: '帮助',
+        href: '/#faq',
+        keywords: `${f.question} ${f.answer}`.toLowerCase(),
+      }),
+    );
 
-  const sectionEntries: SearchEntry[] = blogSections.map(s => ({
-    id: `blog-section-${s.id}`,
-    title: s.label,
-    subtitle: `博客分区 · ${s.description}`,
-    group: '页面',
-    href: `/blog/section/${s.slug}`,
-    keywords: [s.id, s.slug, s.label, s.description, '博客 分区 blog'].join(' ').toLowerCase(),
-  }));
+  const sectionEntries: SearchEntry[] = blogSections.map(s =>
+    withPinyin(s.label, {
+      id: `blog-section-${s.id}`,
+      title: s.label,
+      subtitle: `博客分区 · ${s.description}`,
+      group: '页面',
+      href: `/blog/section/${s.slug}`,
+      keywords: [s.id, s.slug, s.label, s.description, '博客 分区 blog'].join(' ').toLowerCase(),
+    }),
+  );
 
-  const eggEntries: SearchEntry[] = EGG_COMMANDS.map(e => ({
-    id: `egg-${e.cmd}`,
-    title: e.cmd,
-    subtitle: `终端命令 · ${e.hint}`,
-    group: '彩蛋',
-    href: '/#terminal',
-    keywords: `${e.cmd} ${e.hint} ${e.extra || ''} 命令 彩蛋`.toLowerCase(),
-  }));
+  const eggEntries: SearchEntry[] = EGG_COMMANDS.map(e =>
+    withPinyin(e.cmd, {
+      id: `egg-${e.cmd}`,
+      title: e.cmd,
+      subtitle: `终端命令 · ${e.hint}`,
+      group: '彩蛋',
+      href: '/#terminal',
+      keywords: `${e.cmd} ${e.hint} ${e.extra || ''} 命令 彩蛋`.toLowerCase(),
+    }),
+  );
 
   return [...productEntries, ...pageEntries, ...sectionEntries, ...faqEntries, ...eggEntries];
 }
@@ -105,19 +136,36 @@ export function getIndex(): SearchEntry[] {
   return cachedIndex;
 }
 
-/** 单条目对单词项打分：标题前缀 > 标题包含 > 副标题包含 > 关键词包含 */
+/** 判断 term 是否全由 ASCII 字母组成（即可能是拼音输入） */
+const isLatin = (s: string) => /^[a-z]+$/.test(s);
+
+/** 单条目对单词项打分：标题 > 拼音首字母 > 全拼 > 副标题 > 关键词 */
 function scoreTerm(entry: SearchEntry, term: string): number {
   const title = entry.title.toLowerCase();
   if (title.startsWith(term)) return 100;
   if (title.includes(term)) return 60;
+
+  if (isLatin(term)) {
+    if (entry.initials.startsWith(term)) return 90;
+    if (entry.initials.includes(term)) return 55;
+    if (entry.fullPinyin.startsWith(term)) return 50;
+    if (entry.fullPinyin.includes(term)) return 35;
+  }
+
   if (entry.subtitle && entry.subtitle.toLowerCase().includes(term)) return 40;
   if (entry.keywords.includes(term)) return 20;
+
+  if (isLatin(term) && entry.subtitle) {
+    const subInitials = toPinyinInitials(entry.subtitle);
+    if (subInitials.includes(term)) return 30;
+  }
+
   return 0;
 }
 
 /**
  * 搜索：多词项须全部命中（AND），得分求和排序。
- * 中文靠子串匹配天然可用；空查询返回空。
+ * 中文靠子串匹配天然可用；拉丁字母自动匹配拼音首字母与全拼。
  */
 export function searchEntries(query: string, limit = 8, index: SearchEntry[] = getIndex()): SearchEntry[] {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -128,7 +176,7 @@ export function searchEntries(query: string, limit = 8, index: SearchEntry[] = g
       let total = 0;
       for (const term of terms) {
         const s = scoreTerm(entry, term);
-        if (s === 0) return null; // 有词项未命中，整条淘汰
+        if (s === 0) return null;
         total += s;
       }
       return { entry, total };
@@ -137,4 +185,76 @@ export function searchEntries(query: string, limit = 8, index: SearchEntry[] = g
     .sort((a, b) => b.total - a.total)
     .slice(0, limit)
     .map(r => r.entry);
+}
+
+// ── 高亮 ──────────────────────────────────────────────
+
+export interface HighlightRange {
+  start: number;
+  end: number;
+}
+
+function mergeRanges(ranges: HighlightRange[]): HighlightRange[] {
+  if (ranges.length <= 1) return ranges;
+  const sorted = [...ranges].sort((a, b) => a.start - b.start);
+  const merged: HighlightRange[] = [sorted[0]];
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = merged[merged.length - 1];
+    if (sorted[i].start <= prev.end) {
+      prev.end = Math.max(prev.end, sorted[i].end);
+    } else {
+      merged.push({ ...sorted[i] });
+    }
+  }
+  return merged;
+}
+
+export function getHighlightRanges(text: string, query: string): HighlightRange[] {
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return [];
+
+  const chars = Array.from(text);
+  const textLower = chars.map(c => c.toLowerCase()).join('');
+  const ranges: HighlightRange[] = [];
+
+  for (const term of terms) {
+    const directIdx = textLower.indexOf(term);
+    if (directIdx >= 0) {
+      ranges.push({ start: directIdx, end: directIdx + term.length });
+      continue;
+    }
+
+    if (!isLatin(term)) continue;
+
+    const charInitials = chars.map(ch => {
+      const code = ch.codePointAt(0) || 0;
+      if (code < 0x4E00 || code > 0x9FFF) return ch.toLowerCase();
+      return (pinyin(ch, { pattern: 'first', toneType: 'none' }) || ch).toLowerCase().charAt(0);
+    });
+    const initIdx = charInitials.join('').indexOf(term);
+    if (initIdx >= 0) {
+      ranges.push({ start: initIdx, end: initIdx + term.length });
+      continue;
+    }
+
+    const charPys = chars.map(ch => {
+      const code = ch.codePointAt(0) || 0;
+      if (code < 0x4E00 || code > 0x9FFF) return ch.toLowerCase();
+      return (pinyin(ch, { toneType: 'none' }) || ch).toLowerCase();
+    });
+    const cum: number[] = [0];
+    for (const py of charPys) cum.push(cum[cum.length - 1] + py.length);
+    const pyIdx = charPys.join('').indexOf(term);
+    if (pyIdx >= 0) {
+      const pyEnd = pyIdx + term.length;
+      let sc = 0;
+      while (sc < chars.length && cum[sc + 1] <= pyIdx) sc++;
+      let ec = sc + 1;
+      while (ec < chars.length && cum[ec] < pyEnd) ec++;
+      ranges.push({ start: sc, end: ec });
+      continue;
+    }
+  }
+
+  return mergeRanges(ranges);
 }

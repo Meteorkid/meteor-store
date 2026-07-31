@@ -2,26 +2,115 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { searchEntries, SearchGroup } from '@/lib/search-index';
+import {
+  searchEntries,
+  getIndex,
+  getHighlightRanges,
+  type SearchGroup,
+  type SearchEntry,
+} from '@/lib/search-index';
 
 const GROUP_ORDER: SearchGroup[] = ['产品', '页面', '帮助', '彩蛋'];
 
+const RECENT_KEY = 'spotlight:recent';
+const MAX_RECENT = 5;
+const POPULAR_IDS = [
+  'page-products',
+  'page-docs',
+  'page-blog',
+  'page-student',
+  'page-open-source',
+];
+
+function getRecentIds(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentId(id: string) {
+  try {
+    const ids = getRecentIds().filter(r => r !== id);
+    ids.unshift(id);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(ids.slice(0, MAX_RECENT)));
+  } catch { /* noop */ }
+}
+
+function removeAllRecent() {
+  try {
+    localStorage.removeItem(RECENT_KEY);
+  } catch { /* noop */ }
+}
+
+function HighlightedText({
+  text,
+  query,
+  className,
+}: {
+  text: string;
+  query: string;
+  className?: string;
+}) {
+  const ranges = useMemo(() => getHighlightRanges(text, query), [text, query]);
+  if (ranges.length === 0) return <span className={className}>{text}</span>;
+
+  const chars = Array.from(text);
+  const parts: React.ReactNode[] = [];
+  let prev = 0;
+  for (const { start, end } of ranges) {
+    if (start > prev) parts.push(chars.slice(prev, start).join(''));
+    parts.push(
+      <mark
+        key={start}
+        className="bg-purple-400/25 text-inherit rounded-sm"
+      >
+        {chars.slice(start, end).join('')}
+      </mark>,
+    );
+    prev = end;
+  }
+  if (prev < chars.length) parts.push(chars.slice(prev).join(''));
+  return <span className={className}>{parts}</span>;
+}
+
 /**
  * Spotlight 聚焦搜索（⌘K / Ctrl+K / 「/」唤起）。
- * 核心细节：面板背景不透明度随输入长度递增（0.45 → 0.92），
- * 打字越多面板越"实"，正在输入的文字始终清晰。
  */
 export default function SpotlightSearch() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const results = useMemo(() => searchEntries(query), [query]);
 
-  // 透明度随输入递增：空态轻盈，输入后变实保证可读
+  useEffect(() => {
+    if (open) setRecentIds(getRecentIds());
+  }, [open]);
+
+  const defaultEntries = useMemo(() => {
+    const index = getIndex();
+    const recent = recentIds
+      .map(id => index.find(e => e.id === id))
+      .filter((e): e is SearchEntry => e != null);
+    const popular = POPULAR_IDS.filter(id => !recentIds.includes(id))
+      .map(id => index.find(e => e.id === id))
+      .filter((e): e is SearchEntry => e != null);
+    return { recent, popular };
+  }, [recentIds]);
+
+  const isEmpty = query.trim() === '';
+  const allDefault = useMemo(
+    () => [...defaultEntries.recent, ...defaultEntries.popular],
+    [defaultEntries],
+  );
+  const activeItems = isEmpty ? allDefault : results;
+
   const panelAlpha = Math.min(0.45 + query.length * 0.05, 0.92);
 
   const close = useCallback(() => {
@@ -30,10 +119,20 @@ export default function SpotlightSearch() {
     setActiveIndex(0);
   }, []);
 
-  const navigate = useCallback((href: string) => {
-    close();
-    router.push(href);
-  }, [close, router]);
+  const navigate = useCallback(
+    (entry: SearchEntry) => {
+      saveRecentId(entry.id);
+      close();
+      router.push(entry.href);
+    },
+    [close, router],
+  );
+
+  const handleClearRecent = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    removeAllRecent();
+    setRecentIds([]);
+  }, []);
 
   // 全局快捷键 + Header 事件唤起
   useEffect(() => {
@@ -45,7 +144,12 @@ export default function SpotlightSearch() {
       }
       if (e.key === '/' && !open) {
         const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+        if (
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable
+        )
+          return;
         e.preventDefault();
         setOpen(true);
       }
@@ -59,23 +163,25 @@ export default function SpotlightSearch() {
     };
   }, [open]);
 
-  // 打开时聚焦输入框并锁定页面滚动
   useEffect(() => {
     if (!open) return;
     inputRef.current?.focus();
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prevOverflow; };
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
   }, [open]);
 
-  // 高亮项滚入可视区
   useEffect(() => {
     listRef.current
       ?.querySelector(`[data-index="${activeIndex}"]`)
       ?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex]);
 
-  useEffect(() => { setActiveIndex(0); }, [query]);
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [query]);
 
   if (!open) return null;
 
@@ -87,7 +193,7 @@ export default function SpotlightSearch() {
         break;
       case 'ArrowDown':
         e.preventDefault();
-        setActiveIndex(i => Math.min(i + 1, results.length - 1));
+        setActiveIndex(i => Math.min(i + 1, activeItems.length - 1));
         break;
       case 'ArrowUp':
         e.preventDefault();
@@ -95,12 +201,65 @@ export default function SpotlightSearch() {
         break;
       case 'Enter':
         e.preventDefault();
-        if (results[activeIndex]) navigate(results[activeIndex].href);
+        if (activeItems[activeIndex]) navigate(activeItems[activeIndex]);
         break;
       case 'Tab':
-        e.preventDefault(); // 面板内不放焦点走
+        e.preventDefault();
         break;
     }
+  };
+
+  const renderItem = (entry: SearchEntry, globalIdx: number) => {
+    const active = globalIdx === activeIndex;
+    return (
+      <button
+        key={entry.id}
+        data-index={globalIdx}
+        role="option"
+        aria-selected={active}
+        onClick={() => navigate(entry)}
+        onMouseEnter={() => setActiveIndex(globalIdx)}
+        className={`w-full flex items-center justify-between gap-4 px-5 py-2.5 text-left transition-colors duration-100 ${
+          active ? 'bg-purple-500/20' : 'hover:bg-white/[0.04]'
+        }`}
+      >
+        <span className="min-w-0">
+          {isEmpty ? (
+            <span
+              className={`block text-sm truncate ${active ? 'text-white' : 'text-white/80'}`}
+            >
+              {entry.title}
+            </span>
+          ) : (
+            <HighlightedText
+              text={entry.title}
+              query={query}
+              className={`block text-sm truncate ${active ? 'text-white' : 'text-white/80'}`}
+            />
+          )}
+          {entry.subtitle &&
+            (isEmpty ? (
+              <span className="block text-xs text-white/35 truncate">
+                {entry.subtitle}
+              </span>
+            ) : (
+              <HighlightedText
+                text={entry.subtitle}
+                query={query}
+                className="block text-xs text-white/35 truncate"
+              />
+            ))}
+        </span>
+        {active && (
+          <span
+            className="shrink-0 text-[10px] text-purple-300/80 font-mono"
+            aria-hidden="true"
+          >
+            ↵
+          </span>
+        )}
+      </button>
+    );
   };
 
   return (
@@ -121,40 +280,93 @@ export default function SpotlightSearch() {
       {/* 玻璃面板 */}
       <div
         className="glass-lg relative w-full max-w-xl rounded-2xl overflow-hidden animate-spotlight-in"
-        style={{ backgroundColor: `rgba(18, 14, 32, ${panelAlpha})`, transition: 'background-color 150ms ease' }}
+        style={{
+          backgroundColor: `rgba(18, 14, 32, ${panelAlpha})`,
+          transition: 'background-color 150ms ease',
+        }}
       >
         {/* 输入行 */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.08]">
-          <svg className="w-5 h-5 text-white/40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+          <svg
+            className="w-5 h-5 text-white/40 shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
+            />
           </svg>
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="找产品、找文档，或者输入 meteor 试试"
+            placeholder="找产品、找文档，支持拼音 · 输入 meteor 试试"
             aria-label="搜索"
             autoComplete="off"
             spellCheck={false}
             maxLength={60}
             className="flex-1 bg-transparent outline-none text-white text-base placeholder:text-white/30 caret-purple-400"
           />
-          <kbd className="hidden sm:block text-[10px] text-white/30 border border-white/15 rounded px-1.5 py-0.5 font-mono">ESC</kbd>
+          <kbd className="hidden sm:block text-[10px] text-white/30 border border-white/15 rounded px-1.5 py-0.5 font-mono">
+            ESC
+          </kbd>
         </div>
 
         {/* 结果区 */}
-        <div ref={listRef} className="max-h-[46vh] overflow-y-auto overscroll-contain py-2" role="listbox" aria-label="搜索结果">
-          {query.trim() === '' ? (
-            <p className="px-5 py-6 text-sm text-white/35 text-center">
-              ⌘K 随时唤起 · ↑↓ 选择 · Enter 直达
-            </p>
+        <div
+          ref={listRef}
+          className="max-h-[46vh] overflow-y-auto overscroll-contain py-2"
+          role="listbox"
+          aria-label="搜索结果"
+        >
+          {isEmpty ? (
+            <>
+              {defaultEntries.recent.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between px-5 pt-3 pb-1.5">
+                    <p className="text-[11px] text-white/30 uppercase tracking-widest">
+                      最近访问
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleClearRecent}
+                      className="text-[11px] text-white/20 hover:text-white/40 transition-colors"
+                    >
+                      清除
+                    </button>
+                  </div>
+                  {defaultEntries.recent.map(entry =>
+                    renderItem(entry, allDefault.indexOf(entry)),
+                  )}
+                </div>
+              )}
+              <div>
+                <p className="px-5 pt-3 pb-1.5 text-[11px] text-white/30 uppercase tracking-widest">
+                  热门
+                </p>
+                {defaultEntries.popular.map(entry =>
+                  renderItem(entry, allDefault.indexOf(entry)),
+                )}
+              </div>
+              <p className="px-5 py-3 text-[11px] text-white/25 text-center border-t border-white/[0.06] mt-1">
+                ⌘K 随时唤起 · ↑↓ 选择 · Enter 直达 · 支持拼音
+              </p>
+            </>
           ) : results.length === 0 ? (
             <p className="px-5 py-6 text-sm text-white/40 text-center">
               什么都没找到，但你可以去终端碰碰运气 →{' '}
               <button
                 className="text-purple-300 hover:text-purple-200 underline underline-offset-2"
-                onClick={() => navigate('/#terminal')}
+                onClick={() => {
+                  close();
+                  router.push('/#terminal');
+                }}
               >
                 店主的终端
               </button>
@@ -165,36 +377,12 @@ export default function SpotlightSearch() {
               if (groupResults.length === 0) return null;
               return (
                 <div key={group}>
-                  <p className="px-5 pt-3 pb-1.5 text-[11px] text-white/30 uppercase tracking-widest">{group}</p>
-                  {groupResults.map(entry => {
-                    const idx = results.indexOf(entry);
-                    const active = idx === activeIndex;
-                    return (
-                      <button
-                        key={entry.id}
-                        data-index={idx}
-                        role="option"
-                        aria-selected={active}
-                        onClick={() => navigate(entry.href)}
-                        onMouseEnter={() => setActiveIndex(idx)}
-                        className={`w-full flex items-center justify-between gap-4 px-5 py-2.5 text-left transition-colors duration-100 ${
-                          active ? 'bg-purple-500/20' : 'hover:bg-white/[0.04]'
-                        }`}
-                      >
-                        <span className="min-w-0">
-                          <span className={`block text-sm truncate ${active ? 'text-white' : 'text-white/80'}`}>
-                            {entry.title}
-                          </span>
-                          {entry.subtitle && (
-                            <span className="block text-xs text-white/35 truncate">{entry.subtitle}</span>
-                          )}
-                        </span>
-                        {active && (
-                          <span className="shrink-0 text-[10px] text-purple-300/80 font-mono" aria-hidden="true">↵</span>
-                        )}
-                      </button>
-                    );
-                  })}
+                  <p className="px-5 pt-3 pb-1.5 text-[11px] text-white/30 uppercase tracking-widest">
+                    {group}
+                  </p>
+                  {groupResults.map(entry =>
+                    renderItem(entry, results.indexOf(entry)),
+                  )}
                 </div>
               );
             })

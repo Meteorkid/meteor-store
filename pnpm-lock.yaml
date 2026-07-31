@@ -38,6 +38,9 @@ importers:
       next:
         specifier: 16.2.9
         version: 16.2.9(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      pinyin-pro:
+        specifier: ^3.28.2
+        version: 3.28.2
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -3437,6 +3440,9 @@ packages:
   picomatch@4.0.4:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
+
+  pinyin-pro@3.28.2:
+    resolution: {integrity: sha512-jV38yxXHLfidirMC4hrXasLDozLCSq/4DfX88GnHcSEJ2+GpSedG6I9VOiEXJu6iQ5dbJC/RjmzyMuS5h/wH5A==}
 
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
@@ -7384,6 +7390,8 @@ snapshots:
   picomatch@2.3.2: {}
 
   picomatch@4.0.4: {}
+
+  pinyin-pro@3.28.2: {}
 
   possible-typed-array-names@1.1.0: {}
 
