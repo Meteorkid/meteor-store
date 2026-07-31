@@ -1,21 +1,38 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-export const metadata: Metadata = {
-  title: '联系我们 - Meteor Store',
-  description: '与 Meteor Store 团队取得联系',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'ContactPage' });
 
-export default function ContactPage() {
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
+
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'ContactPage' });
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
       <main className="container mx-auto px-4 py-20">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-4xl font-bold mb-4">联系我们</h1>
+          <h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
           <p className="text-gray-400 text-lg mb-12">
-            有任何问题、建议或合作意向？欢迎随时联系我们
+            {t('description')}
           </p>
 
           {/* 联系方式卡片 */}
@@ -24,10 +41,10 @@ export default function ContactPage() {
             <div className="p-6 bg-white/5 rounded-xl border border-white/10">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">📧</span>
-                <h2 className="text-lg font-semibold">电子邮件</h2>
+                <h2 className="text-lg font-semibold">{t('email')}</h2>
               </div>
               <p className="text-gray-400 mb-3">
-                适合咨询、反馈和一般问题
+                {t('emailDescription')}
               </p>
               <a
                 href="mailto:meteor@stu.gpnu.edu.cn"
@@ -47,7 +64,7 @@ export default function ContactPage() {
                 <h2 className="text-lg font-semibold">GitHub</h2>
               </div>
               <p className="text-gray-400 mb-3">
-                报告 Bug、提交功能请求或查看源代码
+                {t('githubDescription')}
               </p>
               <a
                 href="https://github.com/Meteorkid"
@@ -66,11 +83,10 @@ export default function ContactPage() {
             <div className="p-6 bg-white/5 rounded-xl border border-white/10">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">⏰</span>
-                <h2 className="text-lg font-semibold">响应时间</h2>
+                <h2 className="text-lg font-semibold">{t('responseTime')}</h2>
               </div>
               <p className="text-gray-400">
-                我们通常在 24 小时内回复邮件。对于紧急问题，
-                请在邮件标题中注明「紧急」。
+                {t('responseDescription')}
               </p>
             </div>
           </div>

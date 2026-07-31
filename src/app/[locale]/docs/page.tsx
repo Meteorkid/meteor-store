@@ -1,18 +1,35 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { products } from '@/data/products';
 import { categoryLabels } from '@/lib/constants';
 
-export const metadata: Metadata = {
-  title: '文档 - Meteor Store',
-  description: 'Meteor Store 产品快速上手指南、安装命令与开发文档',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'DocsPage' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
 
 const categoryOrder = ['developer', 'ai', 'design', 'utility'] as const;
 
-export default function DocsPage() {
+export default async function DocsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'DocsPage' });
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
@@ -22,9 +39,9 @@ export default function DocsPage() {
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-violet-300">
             Documentation
           </p>
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">文档中心</h1>
+          <h1 className="mb-4 text-4xl font-bold md:text-5xl">{t('title')}</h1>
           <p className="mb-6 max-w-2xl text-lg text-gray-400">
-            每款产品的快速上手指南。复制命令，30 秒跑起来。
+            {t('description')}
           </p>
 
           {/* Quick nav */}
@@ -64,8 +81,8 @@ export default function DocsPage() {
 
           {/* Bottom CTA */}
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
-            <p className="mb-1 text-lg font-semibold text-white">找不到想要的？</p>
-            <p className="mb-6 text-gray-400">每个项目的 README 都有完整 API 文档和进阶用法。</p>
+            <p className="mb-1 text-lg font-semibold text-white">{t('notFound')}</p>
+            <p className="mb-6 text-gray-400">{t('checkReadme')}</p>
             <a
               href="https://github.com/Meteorkid"
               target="_blank"
@@ -73,7 +90,7 @@ export default function DocsPage() {
               className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-gray-200"
             >
               <GithubIcon />
-              浏览 GitHub
+              {t('browseGithub')}
             </a>
           </div>
         </div>

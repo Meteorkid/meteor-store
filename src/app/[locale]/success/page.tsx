@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { eq } from 'drizzle-orm';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -12,17 +13,21 @@ import { and } from 'drizzle-orm';
 
 interface SuccessPageProps {
   searchParams: Promise<{ orderId?: string; token?: string }>;
+  params: Promise<{ locale: string }>;
 }
 
-export default async function SuccessPage({ searchParams }: SuccessPageProps) {
+export default async function SuccessPage({ searchParams, params }: SuccessPageProps) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'SuccessPage' });
+
   // ICP 备案期间隐藏支付成功页
   if (!SHOW_PRICING) {
     return (
       <div className="min-h-screen bg-black text-white">
         <Header />
         <main className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">页面维护中</h1>
-          <p className="text-gray-400">该功能暂不可用，请稍后再试。</p>
+          <h1 className="text-2xl font-bold mb-4">{t('maintenanceTitle')}</h1>
+          <p className="text-gray-400">{t('maintenanceDescription')}</p>
         </main>
         <Footer />
       </div>
@@ -62,28 +67,26 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
             <>
               <MeteorConfetti />
               <div className="text-6xl mb-6">🎉</div>
-              <h1 className="text-3xl font-bold text-white mb-4">支付成功！</h1>
+              <h1 className="text-3xl font-bold text-white mb-4">{t('successTitle')}</h1>
               <p className="text-gray-400 mb-4">
-                感谢你的购买！你的订单已成功处理。
+                {t('successDescription')}
               </p>
               <p className="text-purple-300/80 text-sm mb-8 leading-relaxed">
-                你刚刚为一个大学生的下学期学费添了一块砖 🧱
-                <br />
-                这不是营销话术，是真的。—— 店主
+                {t('successMessage')}
               </p>
 
               {/* 订单详情 */}
               <div className="bg-white/5 rounded-lg p-4 mb-8 text-left">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">订单号</span>
+                  <span className="text-gray-400">{t('orderId')}</span>
                   <span className="text-white font-mono">{order.id}</span>
                 </div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">产品</span>
+                  <span className="text-gray-400">{t('product')}</span>
                   <span className="text-white">{product?.name || order.productId} - {order.planName}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">金额</span>
+                  <span className="text-gray-400">{t('amount')}</span>
                   <span className="text-white">¥{order.amountCny}</span>
                 </div>
               </div>
@@ -91,18 +94,18 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
               {/* 交付状态 */}
               <div className="text-sm mb-6">
                 {order.deliveryStatus === 'emailed' ? (
-                  <p className="text-green-400">✅ 确认邮件已发送至你的邮箱，请注意查收。</p>
+                  <p className="text-green-400">✅ {t('emailSent')}</p>
                 ) : order.deliveryStatus === 'failed' ? (
-                  <p className="text-yellow-400">⚠️ 邮件发送失败，请联系 support@imagentx.top 处理。</p>
+                  <p className="text-yellow-400">⚠️ {t('emailFailed')}</p>
                 ) : (
-                  <p className="text-gray-400">⏳ 邮件正在发送中，请稍候。</p>
+                  <p className="text-gray-400">⏳ {t('emailSending')}</p>
                 )}
               </div>
 
               {/* License Key */}
               {license && (
                 <div className="bg-gray-900 rounded-lg p-4 mb-6">
-                  <p className="text-xs text-gray-500 mb-2">你的激活码</p>
+                  <p className="text-xs text-gray-500 mb-2">{t('licenseKey')}</p>
                   <p className="text-xl font-mono tracking-widest text-green-400 select-all">
                     {license.key}
                   </p>
@@ -112,13 +115,13 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
           ) : order ? (
             <>
               <div className="text-6xl mb-6">⏳</div>
-              <h1 className="text-3xl font-bold text-white mb-4">支付处理中</h1>
+              <h1 className="text-3xl font-bold text-white mb-4">{t('processingTitle')}</h1>
               <p className="text-gray-400 mb-8">
-                你的订单正在处理中，请稍后刷新查看状态。
+                {t('processingDescription')}
               </p>
               <div className="bg-white/5 rounded-lg p-4 mb-8 text-left">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">订单号</span>
+                  <span className="text-gray-400">{t('orderId')}</span>
                   <span className="text-white font-mono">{order.id}</span>
                 </div>
               </div>
@@ -126,9 +129,9 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
           ) : (
             <>
               <div className="text-6xl mb-6">❓</div>
-              <h1 className="text-3xl font-bold text-white mb-4">未找到订单</h1>
+              <h1 className="text-3xl font-bold text-white mb-4">{t('notFoundTitle')}</h1>
               <p className="text-gray-400 mb-8">
-                {orderId ? '订单号格式无效' : '请通过支付完成后的链接访问此页面'}
+                {orderId ? t('invalidOrderId') : t('accessViaPayment')}
               </p>
             </>
           )}
@@ -138,13 +141,13 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
               href="/"
               className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
             >
-              返回首页
+              {t('backToHome')}
             </Link>
             <Link
               href="/products"
               className="px-6 py-3 bg-white/10 rounded-lg text-white font-medium hover:bg-white/20 transition-colors"
             >
-              浏览更多产品
+              {t('browseMore')}
             </Link>
           </div>
         </div>

@@ -1,29 +1,27 @@
-import Link from 'next/link';
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { products } from '@/data/products';
 import { SHOW_PRICING } from '@/lib/constants';
 import FooterCopyright from './FooterCopyright';
 
-const productLinks = products.map((p) => ({
-  name: p.name,
-  href: `/products/${p.id}`,
-}));
-
 const resourceLinks = [
-  { name: '文档', href: '/docs' },
-  { name: '博客', href: '/blog' },
-  { name: '本店店主的一封信 ☄', href: '/story' },
+  { key: 'docs', href: '/docs' },
+  { key: 'blog', href: '/blog' },
+  { key: 'story', href: '/story' },
 ];
 
 const companyLinks = [
-  { name: '联系我们', href: '/contact' },
-  { name: '反馈建议', href: '/feedback' },
+  { key: 'contact', href: '/contact' },
+  { key: 'feedback', href: '/feedback' },
 ];
 
 const legalLinks = [
-  { name: '隐私政策', href: '/privacy' },
-  { name: '服务条款', href: '/terms' },
-  { name: '用户许可协议', href: '/eula' },
-  { name: '退款政策', href: '/refund' },
+  { key: 'privacy', href: '/privacy' },
+  { key: 'terms', href: '/terms' },
+  { key: 'eula', href: '/eula' },
+  { key: 'refund', href: '/refund' },
 ];
 
 interface FooterProps {
@@ -32,6 +30,13 @@ interface FooterProps {
 }
 
 export default function Footer({ showSocial = false }: FooterProps) {
+  const t = useTranslations('Footer');
+
+  const productLinks = products.map((p) => ({
+    name: p.name,
+    href: `/products/${p.id}`,
+  }));
+
   return (
     <footer className="border-t border-border bg-background/50">
       <div className="container mx-auto px-4 py-16">
@@ -45,7 +50,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
               </span>
             </div>
             <p className="text-muted-foreground text-sm mb-6 max-w-sm">
-              高质量的开发者工具和 AI 应用，助力你的事业腾飞。
+              {t('tagline')}
             </p>
 
             {showSocial && (
@@ -63,7 +68,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
                 </a>
                 <a
                   href="mailto:meteor@stu.gpnu.edu.cn"
-                  aria-label="发送邮件"
+                  aria-label={t('email')}
                   className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -76,7 +81,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
 
           {/* Products */}
           <div>
-            <h3 className="text-foreground font-semibold mb-4">产品</h3>
+            <h3 className="text-foreground font-semibold mb-4">{t('products')}</h3>
             <ul className="space-y-3">
               {productLinks.map((link) => (
                 <li key={link.name}>
@@ -90,12 +95,12 @@ export default function Footer({ showSocial = false }: FooterProps) {
 
           {/* Resources */}
           <div>
-            <h3 className="text-foreground font-semibold mb-4">资源</h3>
+            <h3 className="text-foreground font-semibold mb-4">{t('resources')}</h3>
             <ul className="space-y-3">
               {resourceLinks.map((link) => (
-                <li key={link.name}>
+                <li key={link.key}>
                   <Link href={link.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                    {link.name}
+                    {t(link.key as any)}
                   </Link>
                 </li>
               ))}
@@ -105,12 +110,12 @@ export default function Footer({ showSocial = false }: FooterProps) {
           {/* Company */}
           {SHOW_PRICING && (
           <div>
-            <h3 className="text-foreground font-semibold mb-4">公司</h3>
+            <h3 className="text-foreground font-semibold mb-4">{t('company')}</h3>
             <ul className="space-y-3">
               {companyLinks.map((link) => (
-                <li key={link.name}>
+                <li key={link.key}>
                   <Link href={link.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                    {link.name}
+                    {t(link.key as any)}
                   </Link>
                 </li>
               ))}
@@ -125,8 +130,8 @@ export default function Footer({ showSocial = false }: FooterProps) {
             <FooterCopyright />
             <div className="flex gap-6">
               {legalLinks.map((link) => (
-                <Link key={link.name} href={link.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                  {link.name}
+                <Link key={link.key} href={link.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                  {t(link.key as any)}
                 </Link>
               ))}
             </div>

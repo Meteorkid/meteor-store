@@ -1,12 +1,22 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { products } from '@/data/products';
 
-export const metadata: Metadata = {
-  title: '开源项目 - Meteor Store',
-  description: '全部开源，全部免费。浏览 Meteor Store 的开源项目集合。',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'OpenSourcePage' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
 
 const languageColors: Record<string, string> = {
   Python: '#3572A5',
@@ -56,7 +66,14 @@ const projectMeta: Record<string, { language: string; description: string }> = {
   },
 };
 
-export default function OpenSourcePage() {
+export default async function OpenSourcePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'OpenSourcePage' });
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
@@ -66,15 +83,15 @@ export default function OpenSourcePage() {
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-emerald-400">
             Open Source
           </p>
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">开源项目</h1>
+          <h1 className="mb-4 text-4xl font-bold md:text-5xl">{t('title')}</h1>
           <p className="mb-6 max-w-2xl text-lg text-gray-400">
-            全部开源，全部免费。每一款都是自己的痒点产品。
+            {t('description')}
           </p>
 
           {/* Stats bar */}
           <div className="mb-14 flex flex-wrap gap-6 text-sm text-gray-500">
-            <span><strong className="text-white">{products.length}</strong> 个项目</span>
-            <span><strong className="text-white">MIT</strong> 协议</span>
+            <span><strong className="text-white">{products.length}</strong> {t('projects')}</span>
+            <span><strong className="text-white">MIT</strong> {t('license')}</span>
             <span>
               <a
                 href="https://github.com/Meteorkid"
@@ -143,7 +160,7 @@ export default function OpenSourcePage() {
           {/* CTA */}
           <div className="mt-16 text-center">
             <p className="mb-4 text-gray-400">
-              想要贡献？欢迎提交 Issue 和 Pull Request。
+              {t('contribute')}
             </p>
             <a
               href="https://github.com/Meteorkid"
@@ -154,7 +171,7 @@ export default function OpenSourcePage() {
               <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
               </svg>
-              在 GitHub 上关注
+              {t('followGithub')}
             </a>
           </div>
         </div>

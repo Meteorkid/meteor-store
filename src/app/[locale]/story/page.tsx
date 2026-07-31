@@ -1,14 +1,30 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import StoryLetter from '@/components/StoryLetter';
 
-export const metadata: Metadata = {
-  title: '一封来自店主的信',
-  description: '一个大学生和他的学费的故事——Meteor Store 店主的自述。',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'StoryPage' });
 
-export default function StoryPage() {
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
+
+export default async function StoryPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
