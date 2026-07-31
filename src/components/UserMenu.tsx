@@ -74,13 +74,22 @@ export default function UserMenu() {
               我的投稿
             </Link>
             {user.isAdmin && (
-              <Link
-                href="/admin/review"
-                onClick={() => setOpen(false)}
-                className="block px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
-              >
-                待审核
-              </Link>
+              <>
+                <Link
+                  href="/admin/review"
+                  onClick={() => setOpen(false)}
+                  className="block px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
+                >
+                  待审核
+                </Link>
+                <Link
+                  href="/admin/invite-codes"
+                  onClick={() => setOpen(false)}
+                  className="block px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
+                >
+                  邀请码管理
+                </Link>
+              </>
             )}
             <Link
               href="/products"
@@ -88,6 +97,13 @@ export default function UserMenu() {
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
               我的产品
+            </Link>
+            <Link
+              href="/redeem"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+            >
+              兑换邀请码
             </Link>
             <Link
               href="/student"

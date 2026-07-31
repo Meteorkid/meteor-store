@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { verifyCaptcha } from '@/lib/captcha';
 import { eq } from 'drizzle-orm';
 
 export async function POST(req: NextRequest) {
@@ -25,6 +26,18 @@ export async function POST(req: NextRequest) {
   }
   if (password.length < 8) {
     return NextResponse.json({ error: '密码至少 8 位' }, { status: 400 });
+  }
+
+  const captchaToken = typeof body?.captchaToken === 'string' ? body.captchaToken : '';
+  const captchaX = typeof body?.captchaX === 'number' ? body.captchaX : NaN;
+
+  if (!captchaToken || isNaN(captchaX)) {
+    return NextResponse.json({ error: '请完成人机验证' }, { status: 400 });
+  }
+
+  const captchaValid = await verifyCaptcha(captchaToken, captchaX);
+  if (!captchaValid) {
+    return NextResponse.json({ error: '人机验证失败，请重试' }, { status: 400 });
   }
 
   const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);

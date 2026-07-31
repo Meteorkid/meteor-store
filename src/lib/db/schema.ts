@@ -108,3 +108,28 @@ export const feedbacks = pgTable('feedbacks', {
   content: text('content').notNull(),
   createdAt: text('created_at').notNull(),
 });
+
+export const inviteCodes = pgTable('invite_codes', {
+  id: text('id').primaryKey(),
+  code: text('code').notNull().unique(),
+  productId: text('product_id').notNull(),
+  planName: text('plan_name').notNull(),
+  maxUses: integer('max_uses').default(1).notNull(),
+  usedCount: integer('used_count').default(0).notNull(),
+  memo: text('memo'),
+  expiresAt: text('expires_at'),
+  createdBy: text('created_by').notNull(),
+  status: text('status').default('active').notNull(), // active | exhausted | revoked
+  createdAt: text('created_at').notNull(),
+});
+
+export const inviteRedemptions = pgTable('invite_redemptions', {
+  id: text('id').primaryKey(),
+  inviteCodeId: text('invite_code_id').notNull(),
+  userId: text('user_id').notNull(),
+  licenseKey: text('license_key').notNull(),
+  redeemedAt: text('redeemed_at').notNull(),
+}, (t) => [
+  index('invite_redemptions_code_idx').on(t.inviteCodeId),
+  index('invite_redemptions_user_idx').on(t.userId),
+]);

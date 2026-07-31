@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useCallback, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from './AuthProvider';
+import SliderCaptcha from './SliderCaptcha';
 
 type Mode = 'login' | 'register';
 
@@ -30,6 +31,8 @@ export default function AuthForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [captcha, setCaptcha] = useState<{ token: string; x: number } | null>(null);
   const { login, register, user } = useAuth();
   const router = useRouter();
 
@@ -49,6 +52,10 @@ export default function AuthForm() {
     );
   }
 
+  const handleCaptchaVerify = useCallback((data: { token: string; x: number }) => {
+    setCaptcha(data);
+  }, []);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
@@ -58,11 +65,16 @@ export default function AuthForm() {
       return;
     }
 
+    if (mode === 'register' && !captcha) {
+      setError('请完成人机验证');
+      return;
+    }
+
     setLoading(true);
 
     const err = mode === 'login'
       ? await login(email, password)
-      : await register(email, password, name || undefined);
+      : await register(email, password, name || undefined, captcha ?? undefined);
 
     setLoading(false);
 
@@ -80,7 +92,7 @@ export default function AuthForm() {
       <div className="mb-8 flex rounded-xl border border-white/10 bg-white/[0.03] p-1">
         <button
           type="button"
-          onClick={() => { setMode('login'); setError(''); setConfirmPassword(''); }}
+          onClick={() => { setMode('login'); setError(''); setConfirmPassword(''); setCaptcha(null); }}
           className={`flex-1 rounded-lg py-2 text-sm font-medium transition-all ${
             mode === 'login' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'
           }`}
@@ -191,13 +203,20 @@ export default function AuthForm() {
           </div>
         )}
 
+        {mode === 'register' && (
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">人机验证</label>
+            <SliderCaptcha onVerify={handleCaptchaVerify} />
+          </div>
+        )}
+
         {error && (
           <p className="rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400">{error}</p>
         )}
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || (mode === 'register' && !captcha)}
           className="w-full rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
         >
           {loading ? '处理中...' : mode === 'login' ? '登录' : '注册'}
@@ -208,7 +227,7 @@ export default function AuthForm() {
         {mode === 'login' ? '还没有账户？' : '已有账户？'}
         <button
           type="button"
-          onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); setConfirmPassword(''); }}
+          onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); setConfirmPassword(''); setCaptcha(null); }}
           className="ml-1 text-violet-400 hover:text-violet-300"
         >
           {mode === 'login' ? '立即注册' : '去登录'}

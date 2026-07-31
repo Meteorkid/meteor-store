@@ -14,7 +14,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<string | null>;
-  register: (email: string, password: string, name?: string) => Promise<string | null>;
+  register: (email: string, password: string, name?: string, captcha?: { token: string; x: number }) => Promise<string | null>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -51,11 +51,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null;
   };
 
-  const register = async (email: string, password: string, name?: string): Promise<string | null> => {
+  const register = async (email: string, password: string, name?: string, captcha?: { token: string; x: number }): Promise<string | null> => {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({
+        email,
+        password,
+        name,
+        ...(captcha && { captchaToken: captcha.token, captchaX: captcha.x }),
+      }),
     });
     const data = await res.json();
     if (!res.ok) return data.error || '注册失败';

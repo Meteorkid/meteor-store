@@ -177,6 +177,30 @@ draft: true                # 草稿只在开发环境可见
 - 后台对非管理员返回 **404 而非 403**，且 `generateMetadata` 也要跟着权限走——
   写成静态 `metadata` 的话，标题栏会写着「待审核」，等于告诉他这里有个后台
 
+### 邀请码
+
+管理员创建邀请码 → 用户兑换 → 自动生成授权码（license key）。
+服务层在 `src/lib/invite.ts`，管理后台 `/admin/invite-codes`，兑换页 `/redeem`。
+
+- 邀请码格式 `INV-XXXX-XXXX-XXXX`，和 license key 用同一个字符集
+- `invite_codes` 表记录码的元信息（产品、套餐、可用次数、过期时间、备注）
+- `invite_redemptions` 表记录谁兑换了哪个码、拿到哪个 key
+- **兑换用条件更新**（`WHERE id AND status='active' AND used_count < max_uses`），原子操作防竞态
+- 兑换生成 license key 时，`orderId` 写 `INV-{redemptionId}` 以与购买订单区分
+- 需要登录才能兑换；管理后台同样走 404-非-403 模式
+
+### 注册滑块验证
+
+注册表单集成了拼图滑块 CAPTCHA，防止批量注册。
+
+- 服务端 `src/lib/captcha.ts`：用 HMAC-SHA256 签名的 JWT 承载挑战（目标位置 + 种子），
+  签名密钥从 `JWT_SECRET + ':captcha'` 派生，和会话 token 互不可替
+- 客户端 `src/components/SliderCaptcha.tsx`：canvas 绘制几何背景 + 拼图缺口，
+  用户拖动滑块将拼图块移到正确位置，容差 5px
+- 挑战有效期 120 秒，每个 token 含唯一 nonce（JTI），不可重放
+- 注册 API 在密码校验后、查重前验证 CAPTCHA，失败返回 400
+- 登录不走 CAPTCHA——已有按邮箱 + IP 双维度限流
+
 ### Markdown 渲染
 
 `src/lib/markdown.ts`，管线是 `unified + remark-gfm + rehype-sanitize`。
