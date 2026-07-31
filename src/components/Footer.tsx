@@ -22,6 +22,8 @@ const companyLinks = [
 const legalLinks = [
   { name: '隐私政策', href: '/privacy' },
   { name: '服务条款', href: '/terms' },
+  { name: '用户许可协议', href: '/eula' },
+  { name: '退款政策', href: '/refund' },
 ];
 
 interface FooterProps {

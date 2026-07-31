@@ -109,4 +109,35 @@ describe('PATCH /api/auth/profile', () => {
     expect(updates[0]).toEqual({ name: '新名字' });
     expect(createdSessions[0]).toMatchObject({ userId: 'U1', email: 'a@b.com' });
   });
+
+  it('正常改 bio', async () => {
+    const res = await PATCH(request({ bio: '一句话介绍' }));
+    expect(res.status).toBe(200);
+    expect(updates[0]).toEqual({ bio: '一句话介绍' });
+  });
+
+  it('bio 超过 200 字拒绝', async () => {
+    const res = await PATCH(request({ bio: '字'.repeat(201) }));
+    expect(res.status).toBe(400);
+    expect(updates).toHaveLength(0);
+  });
+
+  it('正常上传头像（base64）', async () => {
+    const avatar = 'data:image/jpeg;base64,/9j/short';
+    const res = await PATCH(request({ avatar }));
+    expect(res.status).toBe(200);
+    expect(updates[0]).toEqual({ avatarUrl: avatar });
+  });
+
+  it('清空头像时写 null', async () => {
+    const res = await PATCH(request({ avatar: '' }));
+    expect(res.status).toBe(200);
+    expect(updates[0]).toEqual({ avatarUrl: null });
+  });
+
+  it('头像格式不正确时 400', async () => {
+    const res = await PATCH(request({ avatar: 'not-a-data-url' }));
+    expect(res.status).toBe(400);
+    expect(updates).toHaveLength(0);
+  });
 });

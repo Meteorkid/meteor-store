@@ -6,9 +6,22 @@ import { users } from '@/lib/db/schema';
 import { createSession, getSession } from '@/lib/auth';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
+const MAX_AVATAR_BYTES = 150_000;
+
 const ProfileSchema = z.object({
-  // 允许清空昵称（回落成用邮箱前缀显示），所以下限是 0
-  name: z.string().trim().max(30, '昵称不要超过 30 个字'),
+  name: z.string().trim().max(30, '昵称不要超过 30 个字').optional(),
+  bio: z.string().trim().max(200, '个人简介不要超过 200 字').optional(),
+  avatar: z
+    .string()
+    .refine(
+      (v) => v === '' || v.startsWith('data:image/'),
+      '头像格式不正确',
+    )
+    .refine(
+      (v) => v === '' || v.length <= MAX_AVATAR_BYTES,
+      '头像文件过大',
+    )
+    .optional(),
 });
 
 export async function PATCH(req: NextRequest) {
@@ -31,16 +44,30 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  const name = parsed.data.name || null;
+  const updates: Record<string, string | null> = {};
 
-  await db.update(users).set({ name }).where(eq(users.id, session.userId));
+  if (parsed.data.name !== undefined) {
+    updates.name = parsed.data.name || null;
+  }
+  if (parsed.data.bio !== undefined) {
+    updates.bio = parsed.data.bio || null;
+  }
+  if (parsed.data.avatar !== undefined) {
+    updates.avatarUrl = parsed.data.avatar || null;
+  }
 
-  // 会话里存着昵称，导航栏直接读它。不重新签发的话，改完名字要等下次登录才生效。
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: '没有要修改的内容' }, { status: 400 });
+  }
+
+  await db.update(users).set(updates).where(eq(users.id, session.userId));
+
+  const newName = 'name' in updates ? updates.name : session.name;
   await createSession({
     userId: session.userId,
     email: session.email,
-    name: name ?? undefined,
+    name: newName ?? undefined,
   });
 
-  return NextResponse.json({ success: true, user: { ...session, name } });
+  return NextResponse.json({ success: true });
 }

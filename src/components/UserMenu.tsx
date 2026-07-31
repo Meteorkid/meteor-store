@@ -39,10 +39,14 @@ export default function UserMenu() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white transition-transform hover:scale-105"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white transition-transform hover:scale-105 overflow-hidden"
         aria-label="用户菜单"
       >
-        {initial}
+        {user.avatarUrl ? (
+          <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          initial
+        )}
       </button>
 
       {open && (

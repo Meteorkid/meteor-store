@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
 import { isAdminEmail } from '@/lib/admin';
+import { db } from '@/lib/db';
+import { users } from '@/lib/db/schema';
 
 export async function GET() {
   const session = await getSession();
@@ -8,7 +11,21 @@ export async function GET() {
     return NextResponse.json({ user: null });
   }
 
-  // isAdmin 每次请求现算，不进 JWT：进了 token，撤销管理员就得等它过期。
-  // 这个字段只用来决定要不要显示入口，真正的鉴权在 /admin/review 和写接口里。
-  return NextResponse.json({ user: { ...session, isAdmin: isAdminEmail(session.email) } });
+  const [row] = await db
+    .select({
+      avatarUrl: users.avatarUrl,
+      bio: users.bio,
+    })
+    .from(users)
+    .where(eq(users.id, session.userId))
+    .limit(1);
+
+  return NextResponse.json({
+    user: {
+      ...session,
+      avatarUrl: row?.avatarUrl ?? null,
+      bio: row?.bio ?? null,
+      isAdmin: isAdminEmail(session.email),
+    },
+  });
 }

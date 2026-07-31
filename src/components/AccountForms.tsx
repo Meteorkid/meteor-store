@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from './AuthProvider';
+import AvatarUpload from './AvatarUpload';
 
 const inputClass =
   'w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/50 transition-colors focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/40 disabled:opacity-50';
@@ -12,43 +13,64 @@ type Status = 'idle' | 'saving' | 'saved' | 'error';
 
 interface AccountFormsProps {
   initialName: string;
+  initialBio: string;
+  initialAvatar: string | null;
   email: string;
 }
 
-export default function AccountForms({ initialName, email }: AccountFormsProps) {
+export default function AccountForms({
+  initialName,
+  initialBio,
+  initialAvatar,
+  email,
+}: AccountFormsProps) {
   const { refresh } = useAuth();
 
   const [name, setName] = useState(initialName);
-  const [nameStatus, setNameStatus] = useState<Status>('idle');
-  const [nameError, setNameError] = useState('');
+  const [bio, setBio] = useState(initialBio);
+  const [avatar, setAvatar] = useState<string | null>(initialAvatar);
+  const [avatarDirty, setAvatarDirty] = useState(false);
+  const [profileStatus, setProfileStatus] = useState<Status>('idle');
+  const [profileError, setProfileError] = useState('');
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [pwStatus, setPwStatus] = useState<Status>('idle');
   const [pwError, setPwError] = useState('');
 
-  const nameDirty = name.trim() !== initialName.trim();
+  const profileDirty =
+    name.trim() !== initialName.trim() ||
+    bio.trim() !== initialBio.trim() ||
+    avatarDirty;
 
-  async function saveName(e: React.FormEvent) {
+  const displayName = name.trim() || email.split('@')[0];
+  const initial = displayName[0]?.toUpperCase() ?? '?';
+
+  async function saveProfile(e: React.FormEvent) {
     e.preventDefault();
-    setNameStatus('saving');
-    setNameError('');
+    setProfileStatus('saving');
+    setProfileError('');
+
+    const body: Record<string, string> = {};
+    if (name.trim() !== initialName.trim()) body.name = name.trim();
+    if (bio.trim() !== initialBio.trim()) body.bio = bio.trim();
+    if (avatarDirty) body.avatar = avatar ?? '';
 
     try {
       const res = await fetch('/api/auth/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim() }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || '保存失败');
 
-      // 导航栏的头像与昵称来自会话，刷新一下让它跟着变
       await refresh();
-      setNameStatus('saved');
+      setProfileStatus('saved');
+      setAvatarDirty(false);
     } catch (err) {
-      setNameStatus('error');
-      setNameError(err instanceof Error ? err.message : '保存失败');
+      setProfileStatus('error');
+      setProfileError(err instanceof Error ? err.message : '保存失败');
     }
   }
 
@@ -77,14 +99,30 @@ export default function AccountForms({ initialName, email }: AccountFormsProps) 
 
   return (
     <div className="space-y-8">
-      {/* 昵称 */}
+      {/* 个人资料 */}
       <section className="rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
-        <h2 className="t-title-3 mb-1.5 text-white/90">昵称</h2>
+        <h2 className="t-title-3 mb-1.5 text-white/90">个人资料</h2>
         <p className="t-footnote mb-6 text-white/60">
-          显示在导航栏和评论里。留空的话会用邮箱前缀。
+          头像和昵称会显示在导航栏和你的投稿里。
         </p>
 
-        <form onSubmit={saveName} className="space-y-4">
+        <form onSubmit={saveProfile} className="space-y-6">
+          <AvatarUpload
+            currentUrl={avatar}
+            fallbackInitial={initial}
+            disabled={profileStatus === 'saving'}
+            onUpload={(dataUrl) => {
+              setAvatar(dataUrl);
+              setAvatarDirty(true);
+              setProfileStatus('idle');
+            }}
+            onRemove={() => {
+              setAvatar(null);
+              setAvatarDirty(true);
+              setProfileStatus('idle');
+            }}
+          />
+
           <div>
             <label htmlFor="account-name" className={labelClass}>
               昵称
@@ -94,7 +132,7 @@ export default function AccountForms({ initialName, email }: AccountFormsProps) 
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
-                setNameStatus('idle');
+                setProfileStatus('idle');
               }}
               maxLength={30}
               placeholder={email.split('@')[0]}
@@ -102,22 +140,40 @@ export default function AccountForms({ initialName, email }: AccountFormsProps) 
             />
           </div>
 
+          <div>
+            <label htmlFor="account-bio" className={labelClass}>
+              个人简介 <span className="font-normal text-white/45">（{bio.length}/200）</span>
+            </label>
+            <textarea
+              id="account-bio"
+              value={bio}
+              onChange={(e) => {
+                setBio(e.target.value);
+                setProfileStatus('idle');
+              }}
+              maxLength={200}
+              rows={3}
+              placeholder="一句话介绍自己"
+              className={`${inputClass} resize-none`}
+            />
+          </div>
+
           <div className="flex items-center gap-4">
             <button
               type="submit"
-              disabled={!nameDirty || nameStatus === 'saving'}
+              disabled={!profileDirty || profileStatus === 'saving'}
               className="rounded-xl bg-white px-5 py-2.5 text-[0.9375rem] font-semibold text-black transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {nameStatus === 'saving' ? '保存中…' : '保存'}
+              {profileStatus === 'saving' ? '保存中…' : '保存'}
             </button>
-            {nameStatus === 'saved' && (
+            {profileStatus === 'saved' && (
               <span className="t-footnote text-emerald-400" role="status">
                 已保存
               </span>
             )}
-            {nameStatus === 'error' && (
+            {profileStatus === 'error' && (
               <span className="t-footnote text-red-400" role="alert">
-                {nameError}
+                {profileError}
               </span>
             )}
           </div>
@@ -132,7 +188,6 @@ export default function AccountForms({ initialName, email }: AccountFormsProps) 
         </p>
 
         <form onSubmit={changePassword} className="space-y-4">
-          {/* 给密码管理器一个可读的账号上下文 */}
           <input type="text" name="username" autoComplete="username" value={email} readOnly hidden />
 
           <div>
