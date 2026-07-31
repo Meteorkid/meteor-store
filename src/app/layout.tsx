@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import ScrollAnimateInit from "@/components/ScrollAnimateInit";
 import EasterEggs from "@/components/EasterEggs";
 import SpotlightSearch from "@/components/SpotlightSearch";
 import FilmGrain from "@/components/FilmGrain";
+import GlobalParticles from "@/components/GlobalParticles";
 import { AuthProvider } from "@/components/AuthProvider";
 import "./globals.css";
 
@@ -87,11 +89,14 @@ const jsonLd = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // 从 middleware 注入的 x-nonce header 取 nonce，让内联脚本通过 CSP
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html
       lang="zh-CN"
@@ -101,6 +106,7 @@ export default function RootLayout({
         {/* JSON-LD 结构化数据 - 数据为硬编码静态内容，安全 */}
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
@@ -117,6 +123,7 @@ export default function RootLayout({
           <EasterEggs />
           <SpotlightSearch />
           <FilmGrain />
+          <GlobalParticles />
           {children}
         </AuthProvider>
       </body>
