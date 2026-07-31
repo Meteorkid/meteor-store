@@ -5,6 +5,7 @@ import { getFeedPosts, getFeedTags } from '@/data/blog-feed';
 import { SITE_URL } from '@/lib/constants';
 
 const BASE_URL = SITE_URL;
+const LOCALES = ['zh', 'en'] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
@@ -22,41 +23,112 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.2 },
   ];
 
-  const productPages = products.map((product) => ({
-    url: `${BASE_URL}/products/${product.id}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+  // 为每个静态页面生成双语版本
+  const localizedStaticPages = staticPages.flatMap((page) => {
+    // 跳过根路径（已经有重定向）
+    if (page.url === BASE_URL) {
+      return LOCALES.map((locale) => ({
+        ...page,
+        url: `${BASE_URL}/${locale}`,
+        alternates: {
+          languages: {
+            zh: `${BASE_URL}/zh`,
+            en: `${BASE_URL}/en`,
+          },
+        },
+      }));
+    }
 
-  const blogSectionPages = blogSections.map((section) => ({
-    url: `${BASE_URL}/blog/section/${section.slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.5,
-  }));
+    // 提取路径部分（去掉 BASE_URL）
+    const path = page.url.replace(BASE_URL, '');
 
+    return LOCALES.map((locale) => ({
+      ...page,
+      url: `${BASE_URL}/${locale}${path}`,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh${path}`,
+          en: `${BASE_URL}/en${path}`,
+        },
+      },
+    }));
+  });
+
+  // 产品页面双语版本
+  const productPages = products.flatMap((product) =>
+    LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/products/${product.id}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh/products/${product.id}`,
+          en: `${BASE_URL}/en/products/${product.id}`,
+        },
+      },
+    }))
+  );
+
+  // 博客分区页面双语版本
+  const blogSectionPages = blogSections.flatMap((section) =>
+    LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/blog/section/${section.slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.5,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh/blog/section/${section.slug}`,
+          en: `${BASE_URL}/en/blog/section/${section.slug}`,
+        },
+      },
+    }))
+  );
+
+  // 博客文章页面（暂时只生成中文版本）
   const blogPostPages = feedPosts.map((post) => ({
-    url: `${BASE_URL}${post.href}`,
+    url: `${BASE_URL}/zh${post.href}`,
     lastModified: post.date,
     changeFrequency: 'yearly' as const,
     priority: 0.6,
+    alternates: {
+      languages: {
+        zh: `${BASE_URL}/zh${post.href}`,
+        en: `${BASE_URL}/en${post.href}`,
+      },
+    },
   }));
 
+  // 标签页面双语版本
   const tagPages = [
-    {
-      url: `${BASE_URL}/blog/tags`,
+    ...LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/blog/tags`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.4,
-    },
-    ...feedTags.map((tag) => ({
-      url: `${BASE_URL}${tag.href}`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.3,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh/blog/tags`,
+          en: `${BASE_URL}/en/blog/tags`,
+        },
+      },
     })),
+    ...feedTags.flatMap((tag) =>
+      LOCALES.map((locale) => ({
+        url: `${BASE_URL}/${locale}${tag.href}`,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.3,
+        alternates: {
+          languages: {
+            zh: `${BASE_URL}/zh${tag.href}`,
+            en: `${BASE_URL}/en${tag.href}`,
+          },
+        },
+      }))
+    ),
   ];
 
-  return [...staticPages, ...productPages, ...blogSectionPages, ...blogPostPages, ...tagPages];
+  return [...localizedStaticPages, ...productPages, ...blogSectionPages, ...blogPostPages, ...tagPages];
 }
