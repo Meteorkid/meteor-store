@@ -21,8 +21,8 @@ const securityHeaders = [
       // unsafe-eval 仅开发模式：React DevTools 调试功能需要，生产不放行
       `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline'",
-      // 限制图片来源为自有域名和常用 CDN
-      "img-src 'self' data: https://www.imagentx.top https://imagentx.top",
+      // 限制图片来源为自有域名和常用 CDN；blob: 用于客户端图片预览（如头像上传）
+      "img-src 'self' data: blob: https://www.imagentx.top https://imagentx.top",
       "font-src 'self'",
       `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com ${SENTRY_INGEST}`,
       "frame-ancestors 'none'",
