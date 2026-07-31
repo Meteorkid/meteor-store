@@ -1,8 +1,9 @@
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import matter from 'gray-matter';
 import { z } from 'zod';
 import { blogSections, type BlogSectionId } from './blog-sections';
+import { type Locale } from '@/i18n/routing';
 
 /**
  * 文章内容存在仓库里的 Markdown 文件（content/blog/*.md），构建时读取。
@@ -60,12 +61,20 @@ export function estimateReadingTime(content: string): number {
   return Math.max(1, Math.round(cjk / 400 + words / 200));
 }
 
-function loadPosts(): BlogPost[] {
-  const files = readdirSync(CONTENT_DIR).filter((f) => f.endsWith('.md'));
+function loadPosts(locale?: Locale): BlogPost[] {
+  // 如果指定了 locale，尝试加载对应目录；否则加载默认目录
+  const blogDir = locale
+    ? join(CONTENT_DIR, locale)
+    : CONTENT_DIR;
+
+  // 如果目录不存在，回退到默认目录
+  const actualDir = existsSync(blogDir) ? blogDir : CONTENT_DIR;
+
+  const files = readdirSync(actualDir).filter((f) => f.endsWith('.md'));
 
   const posts = files.map((file) => {
     const slug = file.replace(/\.md$/, '');
-    const raw = readFileSync(join(CONTENT_DIR, file), 'utf-8');
+    const raw = readFileSync(join(actualDir, file), 'utf-8');
     const { data, content } = matter(raw);
 
     const parsed = FrontmatterSchema.safeParse(data);
@@ -89,6 +98,11 @@ function loadPosts(): BlogPost[] {
 }
 
 export const blogPosts: BlogPost[] = loadPosts();
+
+/** 按 locale 获取博客文章列表 */
+export function getBlogPosts(locale: Locale): BlogPost[] {
+  return loadPosts(locale);
+}
 
 /** 显式列出会到达客户端的字段，避免以后新增字段被无意带过去 */
 export function toSummary(post: BlogPost): BlogPostSummary {
