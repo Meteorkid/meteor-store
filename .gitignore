@@ -48,3 +48,15 @@ next-env.d.ts
 # planning
 .planning/
 .superpowers/
+
+# AI tools / skills
+.agents/
+.claude/skills/
+skills-lock.json
+
+# test artifacts
+/test-results/
+
+# 比赛草稿与本地提案
+meteor-pathfinder-proposal.html
+trae比赛/
