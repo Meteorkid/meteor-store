@@ -493,7 +493,12 @@
     "allArticles": "All Articles",
     "checkTools": "Check these tools",
     "anonymous": "Anonymous",
-    "readerSubmission": "Reader Submission"
+    "readerSubmission": "Reader Submission",
+    "previewDraft": "This is a draft, only visible to you.",
+    "previewPending": "Pending review.",
+    "previewRejected": "Rejected.",
+    "rejectedReason": "Reason: {reason}",
+    "backToMyPosts": "← Back to My Posts"
   },
   "BlogSectionPage": {
     "blogSuffix": "Meteor Store Blog",
@@ -788,6 +793,8 @@
     "saveDraft": "Save Draft",
     "reviewHint": "Submissions are reviewed by the site owner and published only after approval.",
     "submitFailed": "Submission failed",
+    "editTitle": "Edit Post",
+    "publishedEditWarning": "This published post will be unpublished after editing, and will become public again only after re-review.",
     "contentPlaceholder": "## Subtitle\n\nBody...\n\nMarkdown supported: **bold**, [link](https://example.com), code blocks, tables."
   },
   "BlogMyPostsPage": {
@@ -799,7 +806,15 @@
     "statusPending": "Pending Review",
     "statusPublished": "Published",
     "statusRejected": "Rejected",
-    "rejectedReason": "Rejection reason: {reason}"
+    "rejectedReason": "Rejection reason: {reason}",
+    "editLink": "Edit",
+    "withdrawLink": "Withdraw",
+    "withdrawConfirm": "This post will return to draft. Are you sure?",
+    "withdrawing": "Withdrawing…",
+    "deleteLink": "Delete",
+    "deleteConfirm": "This cannot be undone. Are you sure?",
+    "deleting": "Deleting…",
+    "actionFailed": "Action failed"
   },
   "BlogTagsPage": {
     "metaTitle": "All Tags - Meteor Store Blog",

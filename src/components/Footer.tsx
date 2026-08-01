@@ -11,19 +11,19 @@ const resourceLinks = [
   { key: 'docs', href: '/docs' },
   { key: 'blog', href: '/blog' },
   { key: 'story', href: '/story' },
-];
+] as const;
 
 const companyLinks = [
   { key: 'contact', href: '/contact' },
   { key: 'feedback', href: '/feedback' },
-];
+] as const;
 
 const legalLinks = [
   { key: 'privacy', href: '/privacy' },
   { key: 'terms', href: '/terms' },
   { key: 'eula', href: '/eula' },
   { key: 'refund', href: '/refund' },
-];
+] as const;
 
 interface FooterProps {
   /** 首页版显示社交链接 */
@@ -103,7 +103,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
               {resourceLinks.map((link) => (
                 <li key={link.key}>
                   <Link href={link.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                    {t(link.key as any)}
+                    {t(link.key)}
                   </Link>
                 </li>
               ))}
@@ -129,7 +129,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
               {companyLinks.map((link) => (
                 <li key={link.key}>
                   <Link href={link.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                    {t(link.key as any)}
+                    {t(link.key)}
                   </Link>
                 </li>
               ))}
@@ -145,7 +145,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
             <div className="flex gap-6">
               {legalLinks.map((link) => (
                 <Link key={link.key} href={link.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                  {t(link.key as any)}
+                  {t(link.key)}
                 </Link>
               ))}
             </div>

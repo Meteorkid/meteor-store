@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { eq, desc } from 'drizzle-orm';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AccountForms from '@/components/AccountForms';
@@ -143,12 +144,12 @@ export default async function AccountPage({
             {!user.isStudent && (
               <p className="t-footnote mt-6 text-white/60">
                 {t('studentPrompt')}
-                <a
+                <Link
                   href="/student"
                   className="text-white underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white"
                 >
                   {t('verifyNow')}
-                </a>
+                </Link>
                 {t('verifySuffix')}
               </p>
             )}

@@ -111,6 +111,13 @@
   复用会让 `bg-accent` 之类的工具类静默失效
 - 结构是两层：频道（`blogChannels`）→ 分区。分区页路由是 `/blog/section/{slug}`
 
+### RSS 与 SEO
+
+- 两个 RSS feed：全站 `/blog/feed.xml`、分区 `/blog/section/{slug}/feed.xml`，均 `force-static`，审核通过时由 `revalidatePath` 刷新
+- RSS 入口已全站覆盖：Footer 链接、博客列表页/分区页的 `◉ RSS` 按钮、文章页/投稿页 `<head>` 里的 `<link rel="alternate" type="application/rss+xml">`（供阅读器自动发现，指向所属分区 feed）
+- 文章页和投稿页注入 `BlogPosting` JSON-LD 结构化数据（`<script type="application/ld+json">`），含标题/日期/作者/分区/关键词
+- 站点域名硬编码为 `https://imagentx.top`（JSON-LD 的 `url` 和 `mainEntityOfPage`），换域名时全局搜替换
+
 ## 内容流程
 
 文章有**两条来源**：站主的在 `content/blog/*.md`，读者投稿在数据库 `posts` 表。
@@ -260,6 +267,10 @@ draft: true                # 草稿只在开发环境可见
   不一致即视为过期。改密递增该字段；改昵称/头像**不要**递增——会把其他设备无辜踢下线
 - CAPTCHA 防重放走 Redis SETNX（`src/lib/captcha.ts`），Vercel 多实例下进程内 Map 不可靠；
   `consumeCaptchaToken` 必须在注册成功路径上调用，失败重试要重新签发挑战
+- **React 19 `react-hooks/refs` 规则**：不要在渲染期间写 ref（`ref.current = value`），
+  会触发 ESLint error。写 ref 必须放进 `useEffect`。EasterEggs 和 MeteorShower 的 `tRef` 已修
+- **Hook 调用顺序**：`useCallback`/`useMemo`/`useEffect` 等所有 Hook 必须在任何 `if (...) return` 之前调用，
+  条件调用 Hook 会触发 `react-hooks/rules-of-hooks` error
 
 ## 验证与 CI
 
@@ -267,7 +278,7 @@ draft: true                # 草稿只在开发环境可见
 
 ```bash
 pnpm exec tsc --noEmit      # 类型
-pnpm exec eslint src        # 0 error（有 7 处 react-hooks 已知待办降为 warning）
+pnpm exec eslint src        # 0 error（react-hooks/set-state-in-effect 降为 warning，待修）
 pnpm test                   # vitest
 pnpm build                  # 构建
 ```

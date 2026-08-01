@@ -493,7 +493,12 @@
     "allArticles": "全部文章",
     "checkTools": "看看这些工具",
     "anonymous": "匿名",
-    "readerSubmission": "读者投稿"
+    "readerSubmission": "读者投稿",
+    "previewDraft": "这是草稿，只有你能看到。",
+    "previewPending": "正在等待审核。",
+    "previewRejected": "未通过审核。",
+    "rejectedReason": "原因：{reason}",
+    "backToMyPosts": "← 回到我的投稿"
   },
   "BlogSectionPage": {
     "blogSuffix": "Meteor Store 博客",
@@ -788,6 +793,8 @@
     "saveDraft": "先存草稿",
     "reviewHint": "提交后由站主审核，通过才会公开。",
     "submitFailed": "提交失败",
+    "editTitle": "编辑文章",
+    "publishedEditWarning": "这篇已发布的文章编辑后会下架，重新审核通过才会再次公开。",
     "contentPlaceholder": "## 小标题\n\n正文……\n\n支持 Markdown：**加粗**、[链接](https://example.com)、代码块、表格。"
   },
   "BlogMyPostsPage": {
@@ -799,7 +806,15 @@
     "statusPending": "待审核",
     "statusPublished": "已发布",
     "statusRejected": "未通过",
-    "rejectedReason": "未通过的原因：{reason}"
+    "rejectedReason": "未通过的原因：{reason}",
+    "editLink": "编辑",
+    "withdrawLink": "撤回",
+    "withdrawConfirm": "撤回后这篇文章会变回草稿，确定吗？",
+    "withdrawing": "撤回中…",
+    "deleteLink": "删除",
+    "deleteConfirm": "删除后无法恢复，确定吗？",
+    "deleting": "删除中…",
+    "actionFailed": "操作失败"
   },
   "BlogTagsPage": {
     "metaTitle": "全部标签 - Meteor Store 博客",

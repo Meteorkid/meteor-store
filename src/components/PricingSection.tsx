@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import PricingCard from './PricingCard';
 import { findProduct } from '@/lib/products';
 import { localizeProduct } from '@/data/products';
@@ -113,12 +114,12 @@ export default function PricingSection() {
         {/* Student + Enterprise CTA */}
         <div className="text-center mt-12 scroll-animate space-y-4" style={{ animationDelay: '0.4s' }}>
           <div>
-            <a
+            <Link
               href="/student"
               className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-5 py-2 text-sm font-medium text-violet-300 transition-colors hover:bg-violet-500/20"
             >
               {t('studentCta')}
-            </a>
+            </Link>
           </div>
           <p className="text-muted-foreground">
             {t('enterprisePrompt')}

@@ -110,7 +110,7 @@ export default function Header() {
                     : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                 }`}
               >
-                {t(link.key as any)}
+                {t(link.key)}
               </Link>
             );
           })}
@@ -196,7 +196,7 @@ export default function Header() {
                   active ? 'bg-white/[0.09] text-white' : 'text-foreground hover:bg-white/5'
                 }`}
               >
-                {t(link.key as any)}
+                {t(link.key)}
               </Link>
             );
           })}

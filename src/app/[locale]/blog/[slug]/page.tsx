@@ -62,6 +62,26 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       className="blog-scope min-h-screen bg-black text-white"
       style={blogScopeStyle(post.section)}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: post.title,
+            description: post.excerpt,
+            datePublished: post.date,
+            author: { '@type': 'Person', name: 'meteor' },
+            articleSection: section?.label[locale as Locale],
+            keywords: post.tags.join(', '),
+            url: `https://imagentx.top/${locale}/blog/${post.slug}`,
+            mainEntityOfPage: {
+              '@type': 'WebPage',
+              '@id': `https://imagentx.top/${locale}/blog/${post.slug}`,
+            },
+          }),
+        }}
+      />
       <BlogReadingProgress />
       <Header />
       <main className="relative container mx-auto px-4 py-8 md:py-10">

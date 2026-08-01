@@ -24,7 +24,9 @@ export default function MeteorShower() {
   const reducedMotion = useReducedMotion();
   const t = useTranslations('MeteorShower');
   const tRef = useRef(t);
-  tRef.current = t;
+  useEffect(() => {
+    tRef.current = t;
+  }, [t]);
 
   useEffect(() => {
     if (reducedMotion) return; // 安静模式：只留 CSS 渐变星空（见 return 的 fallback 层）

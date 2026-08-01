@@ -37,6 +37,10 @@ export default function AuthForm() {
   const { login, register, user } = useAuth();
   const router = useRouter();
 
+  const handleCaptchaVerify = useCallback((data: { token: string; x: number }) => {
+    setCaptcha(data);
+  }, []);
+
   if (user) {
     return (
       <div className="w-full max-w-sm text-center">
@@ -52,10 +56,6 @@ export default function AuthForm() {
       </div>
     );
   }
-
-  const handleCaptchaVerify = useCallback((data: { token: string; x: number }) => {
-    setCaptcha(data);
-  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

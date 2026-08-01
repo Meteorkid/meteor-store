@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogReadingProgress from '@/components/BlogReadingProgress';
 import { getPostById } from '@/lib/posts';
+import { getSession } from '@/lib/auth';
 import { blogScopeStyle, getSectionById } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
 import { tagHref } from '@/data/blog-tags';
@@ -22,11 +23,18 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
   const { locale, id } = await params;
   const post = await getPostById(id);
   const t = await getTranslations({ locale, namespace: 'BlogPostPage' });
-  if (!post || post.status !== 'published') return { title: t('notFound') };
+  if (!post) return { title: t('notFound') };
+
+  const session = await getSession();
+  const isAuthor = !!session && session.userId === post.authorId;
+  if (post.status !== 'published' && !isAuthor) return { title: t('notFound') };
+
   const section = getSectionById(post.sectionId);
   return {
     title: `${post.title} | ${t('blogSuffix')}`,
     description: post.excerpt,
+    // 作者预览非 published 文章时不索引
+    robots: post.status === 'published' ? undefined : { index: false, follow: false },
     alternates: section
       ? { types: { 'application/rss+xml': `/blog/section/${section.slug}/feed.xml` } }
       : undefined,
@@ -38,15 +46,57 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'BlogPostPage' });
   const post = await getPostById(id);
-  // 未通过审核的文章不公开可见
-  if (!post || post.status !== 'published') notFound();
+  const session = await getSession();
+  const isAuthor = !!session && !!post && session.userId === post.authorId;
+  // 未通过审核的文章不公开可见；作者本人可预览自己的草稿/待审/驳回稿
+  if (!post || (post.status !== 'published' && !isAuthor)) notFound();
 
+  const isPreview = post.status !== 'published';
   const section = getSectionById(post.sectionId);
 
   return (
     <div className="blog-scope min-h-screen bg-black text-white" style={blogScopeStyle(post.sectionId)}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: post.title,
+            description: post.excerpt,
+            datePublished: post.publishedAt,
+            author: { '@type': 'Person', name: post.authorName || 'Anonymous' },
+            articleSection: section?.label[locale as Locale],
+            url: `https://imagentx.top/${locale}/blog/p/${post.id}`,
+            mainEntityOfPage: {
+              '@type': 'WebPage',
+              '@id': `https://imagentx.top/${locale}/blog/p/${post.id}`,
+            },
+          }),
+        }}
+      />
       <BlogReadingProgress />
       <Header />
+      {isPreview && (
+        <div className="border-b border-amber-500/20 bg-amber-500/[0.06] px-4 py-3 text-center">
+          <p className="t-footnote text-amber-200/90">
+            {post.status === 'pending' && t('previewPending')}
+            {post.status === 'draft' && t('previewDraft')}
+            {post.status === 'rejected' && t('previewRejected')}
+          </p>
+          {post.status === 'rejected' && post.reviewNote && (
+            <p className="t-footnote mt-1 text-amber-200/70">
+              {t('rejectedReason', { reason: post.reviewNote })}
+            </p>
+          )}
+          <Link
+            href="/blog/my-posts"
+            className="t-footnote mt-1 inline-block text-amber-200/70 underline decoration-amber-200/30 underline-offset-4 transition-colors hover:text-amber-100"
+          >
+            {t('backToMyPosts')}
+          </Link>
+        </div>
+      )}
       <main className="relative container mx-auto px-4 py-8 md:py-10">
         <article className="mx-auto max-w-2xl">
           <Link
@@ -108,7 +158,8 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
             </div>
           )}
 
-          <CommentSection targetId={post.id} />
+          {/* 预览模式（非 published）不显示评论：文章还没公开，评论无意义 */}
+          {!isPreview && <CommentSection targetId={post.id} />}
         </article>
       </main>
       <Footer />

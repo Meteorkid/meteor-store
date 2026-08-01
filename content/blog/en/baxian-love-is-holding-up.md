@@ -2,7 +2,7 @@
 title: "Baxian: Love is Holding Up - How Lü Dongbin Saved His Senior Brother"
 excerpt: After watching Baxian, I finally understood why the theme song is called "The Rain of the Whole World" — because the rain of the whole world is transparent fireworks, and it's also me meeting you.
 date: 2026-08-01
-section: life
+section: literature
 tags: [movie, baxian, lü dongbin, zhongli quan, review]
 ---
 

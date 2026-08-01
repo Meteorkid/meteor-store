@@ -97,11 +97,11 @@ export default function EasterEggs() {
   const t = useTranslations('EasterEggs');
   const routerRef = useRef(router);
   const tRef = useRef(t);
-  tRef.current = t;
   // 渲染期间写 ref 属于副作用，放进 effect 里
   useEffect(() => {
     routerRef.current = router;
-  }, [router]);
+    tRef.current = t;
+  }, [router, t]);
 
   // 控制台留言 + window.meteor API（仅一次）
   useEffect(() => {
