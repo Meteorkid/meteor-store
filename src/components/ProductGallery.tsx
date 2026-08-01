@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { LocalizedProduct } from '@/data/products';
 import ImageLightbox from '@/components/ImageLightbox';
 
 export default function ProductGallery({ product }: { product: LocalizedProduct }) {
+  const t = useTranslations('ProductDetailPage');
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
   if (!product.media?.screenshots.length && !product.media?.demo) return null;
@@ -16,24 +18,24 @@ export default function ProductGallery({ product }: { product: LocalizedProduct 
         <div className="mb-7 flex items-end justify-between gap-4">
           <div>
             <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Preview</p>
-            <h2 className="text-2xl font-bold text-white md:text-3xl">产品实景</h2>
+            <h2 className="text-2xl font-bold text-white md:text-3xl">{t('galleryTitle')}</h2>
           </div>
-          <p className="hidden text-sm text-gray-500 sm:block">点击图片可放大查看</p>
+          <p className="hidden text-sm text-gray-500 sm:block">{t('clickToZoom')}</p>
         </div>
 
         {product.media?.demo && (
           <figure
             className="group mb-5 cursor-zoom-in overflow-hidden rounded-[1.5rem] border border-violet-500/20 bg-white/[0.03] p-2 transition-colors hover:border-violet-500/40"
-            onClick={() => setLightbox({ src: product.media!.demo!, alt: `${product.name} 动态演示` })}
+            onClick={() => setLightbox({ src: product.media!.demo!, alt: t('demoAlt', { name: product.name }) })}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && setLightbox({ src: product.media!.demo!, alt: `${product.name} 动态演示` })}
-            aria-label={`放大查看：${product.name} 动态演示`}
+            onKeyDown={(e) => e.key === 'Enter' && setLightbox({ src: product.media!.demo!, alt: t('demoAlt', { name: product.name }) })}
+            aria-label={t('zoomAriaDemo', { name: product.name })}
           >
             <div className="relative aspect-[16/10] overflow-hidden rounded-[1.1rem] bg-zinc-950">
               <Image
                 src={product.media.demo}
-                alt={`${product.name} 动态演示`}
+                alt={t('demoAlt', { name: product.name })}
                 fill
                 unoptimized
                 sizes="100vw"
@@ -54,7 +56,7 @@ export default function ProductGallery({ product }: { product: LocalizedProduct 
                 </span>
               </div>
             </div>
-            <figcaption className="px-3 pb-2 pt-3 text-sm text-gray-400">{product.name} 动态演示</figcaption>
+            <figcaption className="px-3 pb-2 pt-3 text-sm text-gray-400">{t('demoAlt', { name: product.name })}</figcaption>
           </figure>
         )}
 
@@ -69,7 +71,7 @@ export default function ProductGallery({ product }: { product: LocalizedProduct 
               role="button"
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && setLightbox(screenshot)}
-              aria-label={`放大查看：${screenshot.alt}`}
+              aria-label={t('zoomAriaScreenshot', { alt: screenshot.alt })}
             >
               <div className="relative aspect-[16/10] overflow-hidden rounded-[1.1rem] bg-zinc-950">
                 <Image

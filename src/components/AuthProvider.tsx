@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface User {
   id?: string;
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const t = useTranslations('AuthProvider');
 
   const refresh = useCallback(async () => {
     try {
@@ -47,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
-    if (!res.ok) return data.error || '登录失败';
+    if (!res.ok) return data.error || t('loginFailed');
     setUser(data.user);
     return null;
   };
@@ -64,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }),
     });
     const data = await res.json();
-    if (!res.ok) return data.error || '注册失败';
+    if (!res.ok) return data.error || t('registerFailed');
     setUser(data.user);
     return null;
   };

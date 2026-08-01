@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import TerminalDemo from './TerminalDemo';
 
 interface DemoConfig {
   id: string;
   name: string;
   icon: string;
-  description: string;
+  descriptionKey: string;
   terminal: {
     title: string;
     prompt?: string;
@@ -21,7 +22,7 @@ const demos: DemoConfig[] = [
     id: 'omnicrawl',
     name: 'OmniCrawl',
     icon: '🕷️',
-    description: '三引擎爬虫框架：一行命令，自动选择最优引擎。',
+    descriptionKey: 'descOmnicrawl',
     terminal: {
       title: 'omnicrawl-demo',
       lines: [
@@ -46,7 +47,7 @@ const demos: DemoConfig[] = [
     id: 'ex-memory',
     name: 'Ex-Memory',
     icon: '💖',
-    description: '让 AI 学会一个人的说话风格。',
+    descriptionKey: 'descExMemory',
     terminal: {
       title: 'ex-memory-demo',
       lines: [
@@ -74,7 +75,7 @@ const demos: DemoConfig[] = [
     id: 'statux',
     name: 'Statux',
     icon: '📊',
-    description: 'iTerm2 状态栏里的 AI Agent 监控面板。',
+    descriptionKey: 'descStatux',
     terminal: {
       title: 'statux-demo',
       lines: [
@@ -98,7 +99,7 @@ const demos: DemoConfig[] = [
     id: 'tollow',
     name: 'Tollow',
     icon: '⌨️',
-    description: '沉浸式长文打字练习，选一本书开始。',
+    descriptionKey: 'descTollow',
     terminal: {
       title: 'tollow-demo',
       lines: [
@@ -124,6 +125,7 @@ const demos: DemoConfig[] = [
 ];
 
 export default function PlaygroundTabs() {
+  const t = useTranslations('PlaygroundTabs');
   const [activeTab, setActiveTab] = useState(demos[0].id);
   const activeDemo = demos.find((d) => d.id === activeTab) ?? demos[0];
 
@@ -149,7 +151,7 @@ export default function PlaygroundTabs() {
       </div>
 
       {/* Description */}
-      <p className="mb-6 text-gray-400">{activeDemo.description}</p>
+      <p className="mb-6 text-gray-400">{t(activeDemo.descriptionKey)}</p>
 
       {/* Terminal */}
       <TerminalDemo
@@ -165,13 +167,13 @@ export default function PlaygroundTabs() {
           href={`/products/${activeDemo.id}`}
           className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-400 transition-colors hover:border-white/20 hover:text-white"
         >
-          查看详情 →
+          {t('viewDetails')}
         </Link>
         <Link
           href="/docs"
           className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-400 transition-colors hover:border-white/20 hover:text-white"
         >
-          阅读文档
+          {t('readDocs')}
         </Link>
       </div>
     </div>

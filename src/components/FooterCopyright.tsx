@@ -1,10 +1,12 @@
 'use client';
 
 import { useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { showToast } from './EasterEggs';
 
 /** Footer 版权行：hover 眨眼（CSS），连点 5 次有小惊喜 */
 export default function FooterCopyright() {
+  const t = useTranslations('Footer');
   const taps = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -14,9 +16,11 @@ export default function FooterCopyright() {
     timer.current = setTimeout(() => { taps.current = 0; }, 1500);
     if (taps.current >= 5) {
       taps.current = 0;
-      showToast('再点也不会掉钱出来啦');
+      showToast(t('copyrightTapReward'));
     }
   };
+
+  const year = new Date().getFullYear();
 
   return (
     <div className="space-y-2">
@@ -24,8 +28,8 @@ export default function FooterCopyright() {
         className="footer-wink text-muted-foreground text-sm cursor-default select-none"
         onClick={onClick}
       >
-        <span className="wink-default">© {new Date().getFullYear()} Meteor Store · 某个还在攒学费的大学生</span>
-        <span className="wink-alt">© {new Date().getFullYear()} Meteor Store · (｡•̀ᴗ-)✧ 被你发现了</span>
+        <span className="wink-default">{t('copyrightLine1', { year })}</span>
+        <span className="wink-alt">{t('copyrightLine2', { year })}</span>
       </p>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600">
         <a
@@ -34,7 +38,7 @@ export default function FooterCopyright() {
           rel="noopener noreferrer"
           className="hover:text-gray-400 transition-colors"
         >
-          [待填写：ICP备案号]
+          {t('icpPlaceholder')}
         </a>
         <a
           href="https://beian.mps.gov.cn"
@@ -42,9 +46,9 @@ export default function FooterCopyright() {
           rel="noopener noreferrer"
           className="hover:text-gray-400 transition-colors"
         >
-          [待填写：公安备案号]
+          {t('policePlaceholder')}
         </a>
-        <span>[待填写：经营者名称]</span>
+        <span>{t('operatorPlaceholder')}</span>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 interface ImageLightboxProps {
@@ -10,6 +11,7 @@ interface ImageLightboxProps {
 }
 
 export default function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
+  const t = useTranslations('common');
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -38,7 +40,7 @@ export default function ImageLightbox({ src, alt, onClose }: ImageLightboxProps)
         type="button"
         onClick={onClose}
         className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-        aria-label="关闭"
+        aria-label={t('lightboxClose')}
       >
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

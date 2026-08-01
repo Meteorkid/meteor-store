@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface InviteCode {
   id: string;
@@ -23,6 +24,7 @@ interface ProductOption {
 }
 
 export default function InviteCodeManager({ products }: { products: ProductOption[] }) {
+  const t = useTranslations('AdminInviteCodesPage');
   const [codes, setCodes] = useState<InviteCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -51,7 +53,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
       const data = await res.json();
       setCodes(data.codes);
     } catch {
-      setError('加载失败');
+      setError(t('loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -81,11 +83,11 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setSuccess(`邀请码已创建：${data.code}`);
+      setSuccess(t('createSuccess', { code: data.code }));
       setMemo('');
       fetchCodes();
     } catch (err) {
-      setError(err instanceof Error ? err.message : '创建失败');
+      setError(err instanceof Error ? err.message : t('createFailed'));
     } finally {
       setCreating(false);
     }
@@ -105,13 +107,13 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
       }
       fetchCodes();
     } catch (err) {
-      setError(err instanceof Error ? err.message : '操作失败');
+      setError(err instanceof Error ? err.message : t('operationFailed'));
     }
   };
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    setSuccess(`已复制：${code}`);
+    setSuccess(t('copied', { code }));
     setTimeout(() => setSuccess(''), 2000);
   };
 
@@ -119,19 +121,19 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
     'w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-violet-500/50';
 
   const statusLabel = (s: string) => {
-    if (s === 'active') return <span className="text-emerald-400">可用</span>;
-    if (s === 'exhausted') return <span className="text-amber-400">已用完</span>;
-    return <span className="text-red-400">已撤销</span>;
+    if (s === 'active') return <span className="text-emerald-400">{t('statusActive')}</span>;
+    if (s === 'exhausted') return <span className="text-amber-400">{t('statusExhausted')}</span>;
+    return <span className="text-red-400">{t('statusRevoked')}</span>;
   };
 
   return (
     <div className="space-y-8">
       <form onSubmit={handleCreate} className="space-y-4 rounded-xl border border-white/10 bg-white/[0.02] p-6">
-        <h2 className="t-title-3 mb-4">创建邀请码</h2>
+        <h2 className="t-title-3 mb-4">{t('createTitle')}</h2>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm text-gray-400">产品</label>
+            <label className="mb-1 block text-sm text-gray-400">{t('product')}</label>
             <select
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
@@ -143,7 +145,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm text-gray-400">套餐</label>
+            <label className="mb-1 block text-sm text-gray-400">{t('plan')}</label>
             <select
               value={planName}
               onChange={(e) => setPlanName(e.target.value)}
@@ -155,7 +157,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm text-gray-400">可用次数</label>
+            <label className="mb-1 block text-sm text-gray-400">{t('maxUses')}</label>
             <input
               type="number"
               min={1}
@@ -166,7 +168,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-gray-400">过期时间 <span className="text-gray-600">(选填)</span></label>
+            <label className="mb-1 block text-sm text-gray-400">{t('expiresAt')} <span className="text-gray-600">{t('optional')}</span></label>
             <input
               type="datetime-local"
               value={expiresAt}
@@ -177,12 +179,12 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
         </div>
 
         <div>
-          <label className="mb-1 block text-sm text-gray-400">备注 <span className="text-gray-600">(选填)</span></label>
+          <label className="mb-1 block text-sm text-gray-400">{t('memo')} <span className="text-gray-600">{t('optional')}</span></label>
           <input
             type="text"
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
-            placeholder="给谁用的"
+            placeholder={t('memoPlaceholder')}
             className={inputClass}
           />
         </div>
@@ -195,19 +197,19 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
           disabled={creating}
           className="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
         >
-          {creating ? '创建中...' : '生成邀请码'}
+          {creating ? t('creating') : t('generate')}
         </button>
       </form>
 
       <div>
-        <h2 className="t-title-3 mb-4">已创建的邀请码</h2>
+        <h2 className="t-title-3 mb-4">{t('createdTitle')}</h2>
 
         {loading ? (
           <div className="flex justify-center py-8">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-violet-400" />
           </div>
         ) : codes.length === 0 ? (
-          <p className="py-8 text-center text-sm text-gray-500">还没有邀请码</p>
+          <p className="py-8 text-center text-sm text-gray-500">{t('empty')}</p>
         ) : (
           <div className="space-y-3">
             {codes.map((c) => (
@@ -219,7 +221,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
                   type="button"
                   onClick={() => copyCode(c.code)}
                   className="font-mono text-sm text-white transition-colors hover:text-violet-300"
-                  title="点击复制"
+                  title={t('copyHint')}
                 >
                   {c.code}
                 </button>
@@ -231,7 +233,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
                 {c.memo && <span className="text-xs text-gray-600">{c.memo}</span>}
                 {c.expiresAt && (
                   <span className="text-xs text-gray-600">
-                    {new Date(c.expiresAt) < new Date() ? '已过期' : `${new Date(c.expiresAt).toLocaleDateString()} 到期`}
+                    {new Date(c.expiresAt) < new Date() ? t('expired') : t('expiresOn', { date: new Date(c.expiresAt).toLocaleDateString() })}
                   </span>
                 )}
                 {c.status === 'active' && (
@@ -240,7 +242,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
                     onClick={() => handleRevoke(c.id)}
                     className="ml-auto text-xs text-red-400/70 transition-colors hover:text-red-400"
                   >
-                    撤销
+                    {t('revoke')}
                   </button>
                 )}
               </div>

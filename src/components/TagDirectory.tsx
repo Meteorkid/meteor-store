@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import type { TagSummary } from '@/data/blog-tags';
 
 interface TagDirectoryProps {
@@ -16,12 +17,13 @@ interface TagDirectoryProps {
  * 等标签量真的到需要分页的程度再改成服务端。
  */
 export default function TagDirectory({ tags }: TagDirectoryProps) {
+  const t = useTranslations('TagDirectory');
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return tags;
-    return tags.filter((t) => t.key.includes(q));
+    return tags.filter((tag) => tag.key.includes(q));
   }, [tags, query]);
 
   // 热度分档，用字号和亮度区分，比单纯列数字更快能扫出重点
@@ -37,25 +39,25 @@ export default function TagDirectory({ tags }: TagDirectoryProps) {
     <div>
       <div className="mb-8">
         <label htmlFor="tag-search" className="sr-only">
-          搜索标签
+          {t('searchLabel')}
         </label>
         <input
           id="tag-search"
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="搜索标签…"
+          placeholder={t('searchPlaceholder')}
           className="w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/50 transition-colors focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/40"
         />
         <p className="t-footnote mt-2 tabular-nums text-white/60" role="status">
           {query.trim()
-            ? `匹配到 ${filtered.length} / ${tags.length} 个标签`
-            : `共 ${tags.length} 个标签`}
+            ? t('matchCount', { matched: filtered.length, total: tags.length })
+            : t('totalCount', { total: tags.length })}
         </p>
       </div>
 
       {filtered.length === 0 ? (
-        <p className="t-body py-16 text-center text-white/60">没有匹配的标签</p>
+        <p className="t-body py-16 text-center text-white/60">{t('noMatch')}</p>
       ) : (
         <ul className="flex flex-wrap gap-x-3 gap-y-3">
           {filtered.map((tag) => (

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface TerminalLine {
   type: 'command' | 'output' | 'comment';
@@ -15,6 +16,7 @@ interface TerminalDemoProps {
 }
 
 export default function TerminalDemo({ title, lines, prompt = '~$' }: TerminalDemoProps) {
+  const t = useTranslations('TerminalDemo');
   const [visibleLines, setVisibleLines] = useState<number>(0);
   const [typing, setTyping] = useState('');
   const [started, setStarted] = useState(false);
@@ -76,7 +78,7 @@ export default function TerminalDemo({ title, lines, prompt = '~$' }: TerminalDe
           type="button"
           onClick={() => { setStarted(false); setVisibleLines(0); setTyping(''); setTimeout(() => setStarted(true), 100); }}
           className="text-xs text-white/30 transition-colors hover:text-white/60"
-          aria-label="重新播放"
+          aria-label={t('replayAria')}
         >
           ↺
         </button>
@@ -93,7 +95,7 @@ export default function TerminalDemo({ title, lines, prompt = '~$' }: TerminalDe
             <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5">
               <span className="ml-0.5 text-lg">▶</span>
             </span>
-            <span>点击运行演示</span>
+            <span>{t('runDemo')}</span>
           </button>
         ) : (
           <>

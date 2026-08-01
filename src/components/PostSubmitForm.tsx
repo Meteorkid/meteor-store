@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import { blogSections } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
 
@@ -18,6 +18,7 @@ interface PostSubmitFormProps {
 export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
   const router = useRouter();
   const locale = useLocale() as Locale;
+  const t = useTranslations('BlogSubmitPage');
 
   const [title, setTitle] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -56,13 +57,13 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '提交失败');
+      if (!res.ok) throw new Error(data.error || t('submitFailed'));
 
       setStatus('done');
       router.push('/blog/my-posts');
     } catch (err) {
       setStatus('error');
-      setError(err instanceof Error ? err.message : '提交失败');
+      setError(err instanceof Error ? err.message : t('submitFailed'));
     }
   }
 
@@ -84,21 +85,21 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
     >
       <div>
         <label htmlFor="post-title" className={labelClass}>
-          标题 <span className="font-normal text-white/45">（4–80 字）</span>
+          {t('titleLabel')} <span className="font-normal text-white/45">（{t('titleHint')}）</span>
         </label>
         <input
           id="post-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={80}
-          placeholder="一句话说清楚这篇在讲什么"
+          placeholder={t('titlePlaceholder')}
           className={inputClass}
         />
       </div>
 
       <div>
         <label htmlFor="post-excerpt" className={labelClass}>
-          摘要 <span className="font-normal text-white/45">（10–200 字，显示在列表里）</span>
+          {t('excerptLabel')} <span className="font-normal text-white/45">（{t('excerptHint')}）</span>
         </label>
         <textarea
           id="post-excerpt"
@@ -113,7 +114,7 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="post-section" className={labelClass}>
-            分区
+            {t('sectionLabel')}
           </label>
           <select
             id="post-section"
@@ -131,18 +132,18 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
 
         <div>
           <label htmlFor="post-tags" className={labelClass}>
-            标签 <span className="font-normal text-white/45">（逗号或空格分隔，最多 8 个）</span>
+            {t('tagsLabel')} <span className="font-normal text-white/45">（{t('tagsHint')}）</span>
           </label>
           <input
             id="post-tags"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
-            placeholder="法律, 随笔"
+            placeholder={t('tagsPlaceholder')}
             className={inputClass}
           />
           {tags.length > 0 && (
             <p className="t-footnote mt-2 text-white/60">
-              {tags.map((t) => `#${t}`).join('  ')}
+              {tags.map((tag) => `#${tag}`).join('  ')}
             </p>
           )}
         </div>
@@ -151,7 +152,7 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
       <div>
         <div className="mb-2 flex items-baseline justify-between gap-4">
           <label htmlFor="post-content" className={`${labelClass} mb-0`}>
-            正文 <span className="font-normal text-white/45">（Markdown，至少 200 字）</span>
+            {t('contentLabel')} <span className="font-normal text-white/45">（{t('contentHint')}）</span>
           </label>
           <button
             type="button"
@@ -159,7 +160,7 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
             disabled={contentLength === 0}
             className="t-footnote text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white disabled:opacity-40"
           >
-            {preview !== null ? '继续编辑' : '预览'}
+            {preview !== null ? t('previewEdit') : t('preview')}
           </button>
         </div>
 
@@ -175,13 +176,13 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
             onChange={(e) => setContent(e.target.value)}
             rows={18}
             maxLength={50_000}
-            placeholder={'## 小标题\n\n正文……\n\n支持 Markdown：**加粗**、[链接](https://example.com)、代码块、表格。'}
+            placeholder={t('contentPlaceholder')}
             className={`${inputClass} resize-y font-mono text-[0.875rem] leading-relaxed`}
           />
         )}
 
         <p className="t-footnote mt-1.5 text-right tabular-nums text-white/60">
-          {contentLength} 字
+          {t('charCount', { count: contentLength })}
         </p>
       </div>
 
@@ -197,7 +198,7 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
           disabled={!canSubmit || status === 'saving'}
           className="rounded-xl bg-white px-5 py-2.5 text-[0.9375rem] font-semibold text-black transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {status === 'saving' ? '提交中…' : '提交审核'}
+          {status === 'saving' ? t('submitting') : t('submit')}
         </button>
         <button
           type="button"
@@ -205,9 +206,9 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
           disabled={!title.trim() || status === 'saving'}
           className="t-footnote text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white disabled:opacity-40"
         >
-          先存草稿
+          {t('saveDraft')}
         </button>
-        <p className="t-footnote text-white/45">提交后由站主审核，通过才会公开。</p>
+        <p className="t-footnote text-white/45">{t('reviewHint')}</p>
       </div>
     </form>
   );

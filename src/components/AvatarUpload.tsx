@@ -1,16 +1,19 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 const SIZE = 256;
 const QUALITY = 0.85;
 const MAX_INPUT_BYTES = 5 * 1024 * 1024;
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/gif';
 
+type ResizeError = { code: 'size' | 'read' };
+
 function resizeToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     if (file.size > MAX_INPUT_BYTES) {
-      reject(new Error('图片不要超过 5MB'));
+      reject(new Error('size') as unknown as ResizeError);
       return;
     }
     const img = new Image();
@@ -28,7 +31,7 @@ function resizeToDataUrl(file: File): Promise<string> {
       URL.revokeObjectURL(img.src);
     };
     img.onerror = () => {
-      reject(new Error('无法读取此图片'));
+      reject(new Error('read') as unknown as ResizeError);
       URL.revokeObjectURL(img.src);
     };
     img.src = URL.createObjectURL(file);
@@ -53,6 +56,7 @@ export default function AvatarUpload({
   onRemove,
   disabled,
 }: AvatarUploadProps) {
+  const t = useTranslations('AvatarUpload');
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -94,12 +98,15 @@ export default function AvatarUpload({
 
         onUpload(value);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '处理图片失败');
+        const code = err instanceof Error ? err.message : '';
+        if (code === 'size') setError(t('sizeLimit'));
+        else if (code === 'read') setError(t('readFailed'));
+        else setError(t('processFailed'));
       } finally {
         setUploading(false);
       }
     },
-    [onUpload],
+    [onUpload, t],
   );
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +149,7 @@ export default function AvatarUpload({
         {displayUrl ? (
           <img
             src={displayUrl}
-            alt="头像"
+            alt={t('avatarAlt')}
             className="h-full w-full object-cover"
           />
         ) : (
@@ -184,7 +191,7 @@ export default function AvatarUpload({
         accept={ACCEPT}
         onChange={handleFile}
         className="hidden"
-        aria-label="上传头像"
+        aria-label={t('uploadAria')}
       />
 
       <div className="flex items-center gap-3 text-[13px]">
@@ -194,7 +201,7 @@ export default function AvatarUpload({
           onClick={() => inputRef.current?.click()}
           className="text-white/60 transition-colors hover:text-white"
         >
-          {uploading ? '上传中…' : displayUrl ? '更换头像' : '上传头像'}
+          {uploading ? t('uploading') : displayUrl ? t('change') : t('upload')}
         </button>
         {displayUrl && (
           <button
@@ -203,7 +210,7 @@ export default function AvatarUpload({
             onClick={handleRemove}
             className="text-white/40 transition-colors hover:text-red-400"
           >
-            移除
+            {t('remove')}
           </button>
         )}
       </div>

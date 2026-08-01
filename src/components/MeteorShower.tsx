@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { createFrameGuard, isLateNight, useReducedMotion } from '@/lib/motion';
 import { showToast } from './EasterEggs';
 
@@ -21,6 +22,9 @@ interface TrailDot {
 export default function MeteorShower() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reducedMotion = useReducedMotion();
+  const t = useTranslations('MeteorShower');
+  const tRef = useRef(t);
+  tRef.current = t;
 
   useEffect(() => {
     if (reducedMotion) return; // 安静模式：只留 CSS 渐变星空（见 return 的 fallback 层）
@@ -113,8 +117,8 @@ export default function MeteorShower() {
     // 许愿大流星：DOM 层实现可点击 + 键盘可达
     const spawnWishMeteor = () => {
       const btn = document.createElement('button');
-      btn.textContent = '☄ 许个愿？';
-      btn.setAttribute('aria-label', '一颗大流星划过，点击许愿');
+      btn.textContent = tRef.current('wishButtonText');
+      btn.setAttribute('aria-label', tRef.current('wishButtonAria'));
       btn.style.cssText = [
         'position:absolute', 'top:18%', 'right:-160px', 'z-index:20',
         'background:rgba(30,15,60,0.75)', 'border:1px solid rgba(196,181,253,0.4)',
@@ -124,7 +128,7 @@ export default function MeteorShower() {
         'box-shadow:0 0 24px rgba(167,139,250,0.4)',
       ].join(';');
       btn.onclick = () => {
-        showToast('愿望已记录：祝你和店主都心想事成 ☄', 5000);
+        showToast(tRef.current('wishRecorded'), 5000);
         btn.remove();
         wishActive = false;
         rearmIdle();

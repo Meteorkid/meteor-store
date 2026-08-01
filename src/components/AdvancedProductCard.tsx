@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { LocalizedProduct } from '@/data/products';
 import { SHOW_PRICING, categoryColors, categoryLabels } from '@/lib/constants';
 import ProductVisual from './ProductVisual';
@@ -11,6 +12,7 @@ interface AdvancedProductCardProps {
 }
 
 export default function AdvancedProductCard({ product }: AdvancedProductCardProps) {
+  const t = useTranslations('ProductsPage');
   const cardRef = useRef<HTMLDivElement>(null);
   const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map((p) => p.price)) : 0;
 
@@ -88,18 +90,18 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
             {SHOW_PRICING && (
               <div className="flex items-baseline gap-1">
                 {minPrice === 0 ? (
-                  <span className="text-emerald-400 font-semibold text-sm">免费</span>
+                  <span className="text-emerald-400 font-semibold text-sm">{t('free')}</span>
                 ) : (
                   <>
                     <span className="text-xl font-bold text-white">¥{minPrice}</span>
-                    <span className="text-xs text-white/30">起</span>
+                    <span className="text-xs text-white/30">{t('from')}</span>
                   </>
                 )}
               </div>
             )}
 
             <span className="text-xs text-white/30 group-hover:text-primary transition-colors flex items-center gap-1">
-              详情
+              {t('details')}
               <svg
                 className="w-3 h-3 group-hover:translate-x-0.5 transition-transform"
                 fill="none"

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { createKonamiMatcher, createWordMatcher, isLateNight, useReducedMotion } from '@/lib/motion';
 
 // ---------- 轻量 toast（零依赖，屏幕阅读器可感知） ----------
@@ -83,21 +84,20 @@ const CONSOLE_BANNER = `
   meteor.secret()  → 触发一点小魔法
 `;
 
-const NIGHT_GREETINGS = [
-  '这么晚还醒着？没关系，流星也醒着。',
-  '深夜的网速和思绪一样，容易飘远。慢慢逛，不着急。',
-  '今天不管发生了什么，都过去了。真的。',
-];
+const NIGHT_GREETING_KEYS = ['nightGreeting1', 'nightGreeting2', 'nightGreeting3'] as const;
 
-const KONAMI_TOASTS = {
-  normal: '☄ 秘技达成：流星雨爆发！这个秘技和你一样，是老派的浪漫',
-  veteran: '☄ 你已经是流星雨管理员了',
-};
+const KONAMI_TOAST_KEYS = {
+  normal: 'konamiNormal',
+  veteran: 'konamiVeteran',
+} as const;
 
 export default function EasterEggs() {
   const router = useRouter();
   const reducedMotion = useReducedMotion();
+  const t = useTranslations('EasterEggs');
   const routerRef = useRef(router);
+  const tRef = useRef(t);
+  tRef.current = t;
   // 渲染期间写 ref 属于副作用，放进 effect 里
   useEffect(() => {
     routerRef.current = router;
@@ -113,7 +113,7 @@ export default function EasterEggs() {
     window.meteor = {
       story() {
         routerRef.current.push('/story');
-        return '☄ 正在带你去看那封信…';
+        return '☄ ' + tRef.current('storyToast');
       },
       hire() {
         return [
@@ -124,7 +124,7 @@ export default function EasterEggs() {
       },
       secret() {
         triggerMeteorBurst();
-        return '☄☄☄ 小魔法已发动，抬头看！';
+        return '☄☄☄ ' + tRef.current('secretToast');
       },
     };
     return () => { delete window.meteor; };
@@ -145,7 +145,7 @@ export default function EasterEggs() {
       const count = Number(sessionStorage.getItem('meteor:konami') || '0') + 1;
       sessionStorage.setItem('meteor:konami', String(count));
       triggerMeteorBurst();
-      showToast(count >= 3 ? KONAMI_TOASTS.veteran : KONAMI_TOASTS.normal);
+      showToast(count >= 3 ? tRef.current(KONAMI_TOAST_KEYS.veteran) : tRef.current(KONAMI_TOAST_KEYS.normal));
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -155,7 +155,7 @@ export default function EasterEggs() {
       if (matcher(e.key)) fireKonami();
       if (wordMatcher(e.key)) {
         triggerMeteorBurst();
-        showToast('☄ 你用键盘敲出了咒语。这个召唤术只有内行知道。');
+        showToast(tRef.current('wordSpellToast'));
       }
     };
 
@@ -187,7 +187,7 @@ export default function EasterEggs() {
       }
       if (!sessionStorage.getItem('meteor:spark-hinted')) {
         sessionStorage.setItem('meteor:spark-hinted', '1');
-        showToast('☄ 双击召唤流星——你发现了一个小秘密');
+        showToast(tRef.current('sparkToast'));
       }
     };
 
@@ -208,9 +208,9 @@ export default function EasterEggs() {
     let restoreTimer: ReturnType<typeof setTimeout>;
     const onVisibility = () => {
       if (document.hidden) {
-        document.title = '☄ 别走嘛，流星还在等你';
+        document.title = tRef.current('tabTitleAway');
       } else {
-        document.title = '☄ 欢迎回来！';
+        document.title = tRef.current('tabTitleBack');
         restoreTimer = setTimeout(() => { document.title = original; }, 1800);
       }
     };
@@ -227,10 +227,10 @@ export default function EasterEggs() {
     if (!isLateNight() || sessionStorage.getItem('meteor:night-greeted')) return;
     sessionStorage.setItem('meteor:night-greeted', '1');
     const used = JSON.parse(localStorage.getItem('meteor:night-used') || '[]') as number[];
-    const pool = NIGHT_GREETINGS.map((_, i) => i).filter(i => !used.includes(i));
-    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : Math.floor(Math.random() * NIGHT_GREETINGS.length);
+    const pool = NIGHT_GREETING_KEYS.map((_, i) => i).filter(i => !used.includes(i));
+    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : Math.floor(Math.random() * NIGHT_GREETING_KEYS.length);
     localStorage.setItem('meteor:night-used', JSON.stringify(pool.length > 0 ? [...used, pick] : [pick]));
-    const timer = setTimeout(() => showToast(`${NIGHT_GREETINGS[pick]} 🌙`, 6000), 2500);
+    const timer = setTimeout(() => showToast(`${tRef.current(NIGHT_GREETING_KEYS[pick])} 🌙`, 6000), 2500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -242,7 +242,7 @@ export default function EasterEggs() {
       if (!nearBottom) return;
       sessionStorage.setItem('meteor:bottom-rewarded', '1');
       window.removeEventListener('scroll', onScroll);
-      showToast('你居然滚到底了，送你一颗流星 ☄');
+      showToast(tRef.current('scrollBottomToast'));
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         // 一颗小流星横穿页面底部
         const streak = document.createElement('div');

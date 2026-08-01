@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
+import { useTranslations, useLocale } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
 
 interface Comment {
@@ -15,16 +16,20 @@ interface Comment {
   createdAt: string;
 }
 
-function timeAgo(iso: string): string {
+function timeAgo(
+  iso: string,
+  t: ReturnType<typeof useTranslations>,
+  locale: string
+): string {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60_000);
-  if (m < 1) return '刚刚';
-  if (m < 60) return `${m} 分钟前`;
+  if (m < 1) return t('justNow');
+  if (m < 60) return t('minutesAgo', { m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h} 小时前`;
+  if (h < 24) return t('hoursAgo', { h });
   const d = Math.floor(h / 24);
-  if (d < 30) return `${d} 天前`;
-  return new Date(iso).toLocaleDateString('zh-CN');
+  if (d < 30) return t('daysAgo', { d });
+  return new Date(iso).toLocaleDateString(locale === 'en' ? 'en-US' : 'zh-CN');
 }
 
 function Avatar({ name, url }: { name: string; url: string | null }) {
@@ -49,6 +54,8 @@ function CommentItem({
   depth?: number;
   children?: React.ReactNode;
 }) {
+  const t = useTranslations('Comment');
+  const locale = useLocale();
   return (
     <div className={depth > 0 ? 'ml-10 border-l border-white/[0.06] pl-4' : ''}>
       <div className="flex gap-3 py-3">
@@ -56,7 +63,7 @@ function CommentItem({
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-medium text-white/90">{comment.authorName}</span>
-            <span className="t-footnote text-white/40">{timeAgo(comment.createdAt)}</span>
+            <span className="t-footnote text-white/40">{timeAgo(comment.createdAt, t, locale)}</span>
           </div>
           <p className="mt-1 text-[0.9375rem] leading-relaxed text-white/70 whitespace-pre-wrap break-words">
             {comment.content}
@@ -67,7 +74,7 @@ function CommentItem({
               onClick={() => onReply(comment.id, comment.authorName)}
               className="mt-1.5 text-xs text-white/40 transition-colors hover:text-white/70"
             >
-              回复
+              {t('reply')}
             </button>
           )}
         </div>
@@ -78,6 +85,7 @@ function CommentItem({
 }
 
 export default function CommentSection({ targetId }: { targetId: string }) {
+  const t = useTranslations('Comment');
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -117,13 +125,13 @@ export default function CommentSection({ targetId }: { targetId: string }) {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '发送失败');
+      if (!res.ok) throw new Error(data.error || t('sendFailed'));
 
       setComments((prev) => [...prev, data.comment]);
       setContent('');
       setReplyTo(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '发送失败');
+      setError(err instanceof Error ? err.message : t('sendFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -137,15 +145,15 @@ export default function CommentSection({ targetId }: { targetId: string }) {
   return (
     <section className="mt-16 border-t border-white/[0.07] pt-10">
       <h2 className="t-title-3 mb-6 text-white/90">
-        评论{comments.length > 0 && <span className="ml-2 text-white/40 font-normal">({comments.length})</span>}
+        {t('title')}{comments.length > 0 && <span className="ml-2 text-white/40 font-normal">({comments.length})</span>}
       </h2>
 
       {/* 评论列表 */}
       {loading ? (
-        <div className="py-8 text-center text-sm text-white/40">加载评论中…</div>
+        <div className="py-8 text-center text-sm text-white/40">{t('loading')}</div>
       ) : topLevel.length === 0 ? (
         <div className="py-8 text-center text-sm text-white/40">
-          还没有评论，来说点什么吧
+          {t('empty')}
         </div>
       ) : (
         <div className="divide-y divide-white/[0.05]">
@@ -174,7 +182,7 @@ export default function CommentSection({ targetId }: { targetId: string }) {
           <form onSubmit={submit}>
             {replyTo && (
               <div className="mb-2 flex items-center gap-2 text-sm text-white/50">
-                <span>回复 {replyTo.name}</span>
+                <span>{t('replyTo', { name: replyTo.name })}</span>
                 <button
                   type="button"
                   onClick={() => setReplyTo(null)}
@@ -192,7 +200,7 @@ export default function CommentSection({ targetId }: { targetId: string }) {
                   onChange={(e) => { setContent(e.target.value); setError(''); }}
                   maxLength={500}
                   rows={3}
-                  placeholder={replyTo ? `回复 ${replyTo.name}…` : '写点评论…'}
+                  placeholder={replyTo ? t('placeholderReply', { name: replyTo.name }) : t('placeholder')}
                   className="w-full resize-none rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/40 transition-colors focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/40"
                 />
                 <div className="mt-2 flex items-center justify-between">
@@ -204,7 +212,7 @@ export default function CommentSection({ targetId }: { targetId: string }) {
                       disabled={!content.trim() || submitting}
                       className="rounded-lg bg-white px-4 py-1.5 text-sm font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      {submitting ? '发送中…' : '发送'}
+                      {submitting ? t('sending') : t('send')}
                     </button>
                   </div>
                 </div>
@@ -215,9 +223,9 @@ export default function CommentSection({ targetId }: { targetId: string }) {
           <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-6 py-5 text-center">
             <p className="text-sm text-white/50">
               <Link href="/login" className="text-white underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white">
-                登录
+                {t('login')}
               </Link>
-              {' '}后即可评论
+              {' '}{t('loginSuffix')}
             </p>
           </div>
         )}

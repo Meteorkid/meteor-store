@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { LocalizedProduct } from '@/data/products';
 
 interface ProductVisualProps {
@@ -16,6 +19,7 @@ export default function ProductVisual({
   className = '',
   transitionName,
 }: ProductVisualProps) {
+  const t = useTranslations('ProductDetailPage');
   return (
     <div
       className={`relative aspect-[16/10] overflow-hidden rounded-[1.4rem] border border-white/10 bg-zinc-950 shadow-2xl ${className}`}
@@ -28,7 +32,7 @@ export default function ProductVisual({
         <>
           <Image
             src={product.media.cover}
-            alt={`${product.name} 产品界面`}
+            alt={t('productInterface', { name: product.name })}
             fill
             priority={priority}
             sizes="(min-width: 1024px) 50vw, 100vw"
@@ -37,7 +41,7 @@ export default function ProductVisual({
           {demoOnHover && product.media.demo && (
             <Image
               src={product.media.demo}
-              alt={`${product.name} 动态演示`}
+              alt={t('demoAlt', { name: product.name })}
               fill
               unoptimized
               sizes="(min-width: 1024px) 33vw, 100vw"

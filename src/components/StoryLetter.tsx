@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { Dancing_Script } from 'next/font/google';
 
 const cursive = Dancing_Script({
@@ -94,6 +95,7 @@ function BreathDivider() {
 }
 
 export default function StoryLetter() {
+  const t = useTranslations('StoryLetter');
   const streakRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -188,7 +190,7 @@ export default function StoryLetter() {
       <header className="mb-14 text-center scroll-animate">
         <Feather className="mx-auto mb-3 w-7 text-purple-300/50 rotate-[-12deg]" />
         <p className="text-purple-300/60 text-sm font-mono mb-4">☄ /story</p>
-        <h1 className="t-title-1 text-white">一封来自店主的信</h1>
+        <h1 className="t-title-1 text-white">{t('headerTitle')}</h1>
       </header>
 
       <div className="letter-body relative text-white/75">
@@ -207,8 +209,8 @@ export default function StoryLetter() {
               <p className={`${cursive.className} text-3xl md:text-4xl text-purple-300/80 mb-2`}>
                 Meteor
               </p>
-              <p className="text-white/50 text-sm">—— 店主</p>
-              <p className="text-white/30 text-xs mt-1">写于某个赶完 DDL 的深夜</p>
+              <p className="text-white/50 text-sm">{t('signature')}</p>
+              <p className="text-white/30 text-xs mt-1">{t('writtenAt')}</p>
             </div>
           </div>
         </div>
@@ -219,18 +221,18 @@ export default function StoryLetter() {
           href="/products"
           className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium text-center hover:opacity-90 transition-opacity"
         >
-          去看看这些深夜敲出来的工具
+          {t('ctaProducts')}
         </Link>
         <a
           href="mailto:meteor@stu.gpnu.edu.cn"
           className="px-6 py-3 rounded-xl border border-white/15 text-white/70 text-sm text-center hover:bg-white/5 transition-colors"
         >
-          给店主写封邮件
+          {t('ctaEmail')}
         </a>
       </div>
 
       <p className="scroll-animate mt-8 text-center text-white/20 text-xs">
-        试试在空白处双击 ✦
+        {t('doubleClickHint')}
       </p>
     </article>
   );

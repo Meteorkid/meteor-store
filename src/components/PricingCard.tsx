@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
 import { CheckIconSm } from './CheckIcon';
 import PaymentModal from './PaymentModal';
@@ -31,6 +32,7 @@ export default function PricingCard({
   isAnnual,
 }: PricingCardProps) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const t = useTranslations('PricingCard');
 
   const handlePurchase = () => {
     if (price === 0) {
@@ -60,7 +62,7 @@ export default function PricingCard({
         {isPopular && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2">
             <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-[11px] font-semibold text-white tracking-wide uppercase">
-              推荐
+              {t('popular')}
             </span>
           </div>
         )}
@@ -73,7 +75,7 @@ export default function PricingCard({
         {/* Price */}
         <div className="mb-6">
           {price === 0 ? (
-            <span className="text-3xl font-bold text-emerald-400">免费</span>
+            <span className="text-3xl font-bold text-emerald-400">{t('free')}</span>
           ) : (
             <>
               <div className="flex items-baseline gap-1">
@@ -82,7 +84,7 @@ export default function PricingCard({
               </div>
               {isAnnual && basePrice && (
                 <p className="text-sm text-emerald-400 mt-1">
-                  = ¥{Math.floor(basePrice * ANNUAL_DISCOUNT * 12)}/年
+                  {t('perYear', { amount: Math.floor(basePrice * ANNUAL_DISCOUNT * 12) })}
                 </p>
               )}
             </>
@@ -108,7 +110,7 @@ export default function PricingCard({
               : 'bg-white/[0.06] text-white hover:bg-white/[0.1] border border-white/[0.06]'
           }`}
         >
-          {price === 0 ? '免费开始' : '立即购买'}
+          {price === 0 ? t('freeStart') : t('buyNow')}
         </button>
       </div>
 

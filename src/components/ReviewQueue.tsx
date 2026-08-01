@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export interface ReviewItem {
   id: string;
@@ -16,6 +17,7 @@ export interface ReviewItem {
 }
 
 export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
+  const t = useTranslations('AdminReviewPage');
   const router = useRouter();
   const [openId, setOpenId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -25,7 +27,7 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
   async function decide(id: string, approve: boolean) {
     const note = notes[id]?.trim();
     if (!approve && !note) {
-      setError('驳回要写明理由，作者会看到');
+      setError(t('rejectReasonRequired'));
       return;
     }
 
@@ -38,17 +40,17 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
         body: JSON.stringify({ postId: id, approve, note }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '操作失败');
+      if (!res.ok) throw new Error(data.error || t('operationFailed'));
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : '操作失败');
+      setError(err instanceof Error ? err.message : t('operationFailed'));
     } finally {
       setBusyId(null);
     }
   }
 
   if (items.length === 0) {
-    return <p className="t-body py-16 text-center text-white/60">队列是空的。</p>;
+    return <p className="t-body py-16 text-center text-white/60">{t('emptyQueue')}</p>;
   }
 
   return (
@@ -67,7 +69,7 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
             className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6"
           >
             <div className="t-footnote mb-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-white/60">
-              <span>{item.authorName || '匿名'}</span>
+              <span>{item.authorName || t('anonymous')}</span>
               <span aria-hidden className="text-white/20">·</span>
               <span>{item.sectionLabel}</span>
               <span aria-hidden className="text-white/20">·</span>
@@ -81,7 +83,7 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
 
             {item.tags.length > 0 && (
               <p className="t-footnote mb-4 text-white/60">
-                {item.tags.map((t) => `#${t}`).join('  ')}
+                {item.tags.map((tag) => `#${tag}`).join('  ')}
               </p>
             )}
 
@@ -91,7 +93,7 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
               aria-expanded={open}
               className="t-footnote mb-4 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
             >
-              {open ? '收起正文' : '读全文'}
+              {open ? t('collapseBody') : t('readFull')}
             </button>
 
             {open && (
@@ -103,14 +105,14 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
 
             <div className="space-y-3 border-t border-white/[0.07] pt-4">
               <label htmlFor={`note-${item.id}`} className="sr-only">
-                审核意见
+                {t('reviewNoteLabel')}
               </label>
               <input
                 id={`note-${item.id}`}
                 value={notes[item.id] ?? ''}
                 onChange={(e) => setNotes({ ...notes, [item.id]: e.target.value })}
                 maxLength={500}
-                placeholder="驳回理由（通过时可留空）"
+                placeholder={t('rejectReasonPlaceholder')}
                 className="w-full rounded-xl border border-white/10 bg-black/25 px-4 py-2.5 text-[0.9375rem] text-white placeholder-white/50 focus:border-violet-500/60 focus:outline-none"
               />
               <div className="flex flex-wrap gap-3">
@@ -120,7 +122,7 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
                   disabled={busyId === item.id}
                   className="rounded-xl bg-emerald-400 px-4 py-2 text-[0.9375rem] font-semibold text-black transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:opacity-40"
                 >
-                  通过并发布
+                  {t('approveAndPublish')}
                 </button>
                 <button
                   type="button"
@@ -128,7 +130,7 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
                   disabled={busyId === item.id}
                   className="rounded-xl border border-red-400/30 px-4 py-2 text-[0.9375rem] font-semibold text-red-300 transition-colors duration-200 hover:bg-red-500/10 disabled:opacity-40"
                 >
-                  驳回
+                  {t('reject')}
                 </button>
               </div>
             </div>

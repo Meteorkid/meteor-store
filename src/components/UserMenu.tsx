@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
 
 export default function UserMenu() {
+  const t = useTranslations('Header');
   const { user, loading, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -27,7 +29,7 @@ export default function UserMenu() {
         href="/login"
         className="rounded-lg px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
       >
-        登录
+        {t('login')}
       </Link>
     );
   }
@@ -40,7 +42,7 @@ export default function UserMenu() {
         type="button"
         onClick={() => setOpen(!open)}
         className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white transition-transform hover:scale-105 overflow-hidden"
-        aria-label="用户菜单"
+        aria-label={t('userMenuAria')}
       >
         {user.avatarUrl ? (
           <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
@@ -52,7 +54,7 @@ export default function UserMenu() {
       {open && (
         <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-zinc-950/95 shadow-2xl backdrop-blur-xl">
           <div className="border-b border-white/[0.06] px-4 py-3">
-            <p className="text-sm font-medium text-white">{user.name || '用户'}</p>
+            <p className="text-sm font-medium text-white">{user.name || t('defaultUserName')}</p>
             <p className="text-xs text-gray-500">{user.email}</p>
           </div>
           <div className="py-1">
@@ -61,21 +63,21 @@ export default function UserMenu() {
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
-              个人主页
+              {t('account')}
             </Link>
             <Link
               href="/blog/submit"
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
-              写文章
+              {t('writeArticle')}
             </Link>
             <Link
               href="/blog/my-posts"
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
-              我的投稿
+              {t('myPosts')}
             </Link>
             {user.isAdmin && (
               <>
@@ -84,14 +86,14 @@ export default function UserMenu() {
                   onClick={() => setOpen(false)}
                   className="block px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
                 >
-                  待审核
+                  {t('pendingReview')}
                 </Link>
                 <Link
                   href="/admin/invite-codes"
                   onClick={() => setOpen(false)}
                   className="block px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
                 >
-                  邀请码管理
+                  {t('inviteCodes')}
                 </Link>
               </>
             )}
@@ -100,21 +102,21 @@ export default function UserMenu() {
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
-              我的产品
+              {t('myProducts')}
             </Link>
             <Link
               href="/redeem"
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
-              兑换邀请码
+              {t('redeem')}
             </Link>
             <Link
               href="/student"
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
-              学生优惠
+              {t('studentDiscount')}
             </Link>
           </div>
           <div className="border-t border-white/[0.06] py-1">
@@ -123,7 +125,7 @@ export default function UserMenu() {
               onClick={() => { logout(); setOpen(false); }}
               className="block w-full px-4 py-2 text-left text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-red-400"
             >
-              退出登录
+              {t('logout')}
             </button>
           </div>
         </div>

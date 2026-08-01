@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useId } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   STAGE_VALUES,
   DEVICE_VALUES,
@@ -24,6 +25,7 @@ export default function PathfinderForm({
   loading = false,
   disabled = false,
 }: Props) {
+  const t = useTranslations('PathfinderForm');
   const [goal, setGoal] = useState(initialGoal);
   const [stage, setStage] = useState<(typeof STAGE_VALUES)[number]>('高中');
   const [device, setDevice] = useState<(typeof DEVICE_VALUES)[number]>('仅手机');
@@ -48,15 +50,15 @@ export default function PathfinderForm({
     e.preventDefault();
     setError(null);
     if (!goal.trim()) {
-      setError('请描述你的目标');
+      setError(t('goalRequired'));
       return;
     }
     if (goal.length > 280) {
-      setError('目标描述不超过 280 字');
+      setError(t('goalTooLong'));
       return;
     }
     if (constraints.length === 0) {
-      setError('至少选择一个现实限制');
+      setError(t('constraintRequired'));
       return;
     }
     try {
@@ -71,8 +73,8 @@ export default function PathfinderForm({
         network,
         constraints,
       });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '提交失败');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('submitFailed'));
     }
   };
 
@@ -80,7 +82,7 @@ export default function PathfinderForm({
     <form
       onSubmit={handleSubmit}
       className="glass-card rounded-3xl p-6 sm:p-8 space-y-5"
-      aria-label="学习路径生成表单"
+      aria-label={t('formAriaLabel')}
       aria-busy={loading}
     >
       <div>
@@ -88,14 +90,14 @@ export default function PathfinderForm({
           htmlFor={`${idPrefix}-goal`}
           className="block text-sm font-medium mb-2 text-foreground"
         >
-          你的学习或成长目标
+          {t('goalLabel')}
           <span className="text-destructive ml-1" aria-hidden="true">*</span>
         </label>
         <textarea
           id={`${idPrefix}-goal`}
           value={goal}
           onChange={(e) => setGoal(e.target.value)}
-          placeholder="例如：用手机完成 Python 入门，并在 4 周内做出一个小作品"
+          placeholder={t('goalPlaceholder')}
           maxLength={280}
           rows={3}
           required
@@ -113,15 +115,15 @@ export default function PathfinderForm({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field label="当前阶段" id={`${idPrefix}-stage`}>
+        <Field label={t('stageLabel')} id={`${idPrefix}-stage`}>
           <Select value={stage} onChange={(v) => setStage(v as typeof stage)} id={`${idPrefix}-stage`} options={STAGE_VALUES as readonly string[]} />
         </Field>
-        <Field label="可用设备" id={`${idPrefix}-device`}>
+        <Field label={t('deviceLabel')} id={`${idPrefix}-device`}>
           <Select value={device} onChange={(v) => setDevice(v as typeof device)} id={`${idPrefix}-device`} options={DEVICE_VALUES as readonly string[]} />
         </Field>
       </div>
 
-      <Field label={`每周可投入时间：${weeklyHours} 小时`} id={`${idPrefix}-hours`}>
+      <Field label={t('weeklyHoursLabel', { hours: weeklyHours })} id={`${idPrefix}-hours`}>
         <input
           id={`${idPrefix}-hours`}
           type="range"
@@ -137,7 +139,7 @@ export default function PathfinderForm({
         />
       </Field>
 
-      <Field label={`每天可投入时间：${dailyMinutes} 分钟`} id={`${idPrefix}-daily-minutes`}>
+      <Field label={t('dailyMinutesLabel', { minutes: dailyMinutes })} id={`${idPrefix}-daily-minutes`}>
         <input
           id={`${idPrefix}-daily-minutes`}
           type="range"
@@ -154,7 +156,7 @@ export default function PathfinderForm({
       </Field>
 
       <fieldset>
-        <legend className="block text-sm font-medium mb-3 text-foreground">每月学习预算</legend>
+        <legend className="block text-sm font-medium mb-3 text-foreground">{t('budgetLabel')}</legend>
         <div className="grid grid-cols-4 gap-2">
           {[0, 50, 100, 200].map((amount) => {
             const checked = budget === amount;
@@ -175,19 +177,19 @@ export default function PathfinderForm({
                   onChange={() => setBudget(amount)}
                   className="sr-only"
                 />
-                {amount === 0 ? '零预算' : `${amount} 元`}
+                {amount === 0 ? t('zeroBudget') : t('budgetAmount', { amount })}
               </label>
             );
           })}
         </div>
       </fieldset>
 
-      <Field label="网络条件" id={`${idPrefix}-network`}>
+      <Field label={t('networkLabel')} id={`${idPrefix}-network`}>
         <Select value={network} onChange={(v) => setNetwork(v as typeof network)} id={`${idPrefix}-network`} options={NETWORK_VALUES as readonly string[]} />
       </Field>
 
       <fieldset>
-        <legend className="block text-sm font-medium mb-3 text-foreground">是否有可求助的人</legend>
+        <legend className="block text-sm font-medium mb-3 text-foreground">{t('mentorLabel')}</legend>
         <div className="grid grid-cols-2 gap-2">
           {[false, true].map((value) => {
             const checked = hasMentor === value;
@@ -207,7 +209,7 @@ export default function PathfinderForm({
                   onChange={() => setHasMentor(value)}
                   className="sr-only"
                 />
-                {value ? '有，可以偶尔请教' : '暂时没有'}
+                {value ? t('mentorYes') : t('mentorNo')}
               </label>
             );
           })}
@@ -216,7 +218,7 @@ export default function PathfinderForm({
 
       <fieldset>
         <legend className="block text-sm font-medium mb-3 text-foreground">
-          现实限制（可多选）
+          {t('constraintsLabel')}
           <span className="text-destructive ml-1" aria-hidden="true">*</span>
         </legend>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -259,7 +261,7 @@ export default function PathfinderForm({
         disabled={loading || disabled}
         className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-purple-6 to-violet-6 text-white font-semibold text-base shadow-lg shadow-purple-6/30 hover:shadow-purple-6/50 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-purple-5 focus:ring-offset-2 focus:ring-offset-background"
       >
-        {loading ? '正在生成路径...' : '按我的现实条件生成'}
+        {loading ? t('loading') : t('submit')}
       </button>
     </form>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { LocalizedProduct } from '@/data/products';
 
 /**
@@ -8,6 +9,7 @@ import type { LocalizedProduct } from '@/data/products';
  * macOS 应用类产品（只有 download 没有 command）显示下载按钮。
  */
 export default function InstallCommand({ product }: { product: LocalizedProduct }) {
+  const t = useTranslations('ProductDetailPage');
   const quickstart = product.quickstart;
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
@@ -39,7 +41,7 @@ export default function InstallCommand({ product }: { product: LocalizedProduct 
   return (
     <section className="mb-20">
       <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Quick start</p>
-      <h2 className="mb-6 text-2xl font-bold text-white md:text-3xl">30 秒跑起来</h2>
+      <h2 className="mb-6 text-2xl font-bold text-white md:text-3xl">{t('runIn30s')}</h2>
 
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_32px_rgba(0,0,0,0.4)]">
         {/* 终端标题栏 */}
@@ -72,20 +74,20 @@ export default function InstallCommand({ product }: { product: LocalizedProduct 
                     : 'border-white/15 text-white/80 hover:bg-white/10'
                 }`}
               >
-                {copied ? '已复制 ✓' : copyFailed ? '请手动复制' : '复制命令'}
+                {copied ? t('copied') : copyFailed ? t('copyManually') : t('copyCommand')}
               </button>
             </>
           ) : (
             quickstart.download && (
               <>
-                <p className="text-sm text-gray-400">这是一款 macOS 应用，下载后即装即用。</p>
+                <p className="text-sm text-gray-400">{t('macAppHint')}</p>
                 <a
                   href={quickstart.download}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="shrink-0 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-gray-200"
                 >
-                  ⬇ 前往下载
+                  {t('goToDownload')}
                 </a>
               </>
             )

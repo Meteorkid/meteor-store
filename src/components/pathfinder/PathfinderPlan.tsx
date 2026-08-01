@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { PathfinderPlan } from '@/lib/pathfinder/schema';
 import type { PathfinderResource } from '@/data/pathfinder-resources';
 import type { RealityConstraints } from '@/lib/pathfinder/contract';
@@ -15,10 +16,11 @@ interface Props {
 }
 
 export default function PathfinderPlanView({ plan, resources, source, realityConstraints, onRegenerate }: Props) {
+  const t = useTranslations('PathfinderPlan');
   const [copied, setCopied] = useState(false);
 
   // 生成可复制的本周行动摘要文本
-  const summaryText = buildShareText(plan);
+  const summaryText = buildShareText(plan, t);
   const todayTask = plan.weekPlan.find((item) => item.day === 1) ?? plan.weekPlan[0];
 
   const handleCopy = async () => {
@@ -33,7 +35,7 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
 
   return (
     <section
-      aria-label="生成的学习路径"
+      aria-label={t('sectionAriaLabel')}
       className="glass-card rounded-3xl p-6 sm:p-8 space-y-6 animate-fade-in-up"
     >
       {/* 来源标识 */}
@@ -41,26 +43,26 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
         {source === 'preset' ? (
           <>
             <span className="px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-300 border border-yellow-500/30">
-              典型场景演示
+              {t('presetBadge')}
             </span>
             <span className="px-2 py-1 rounded-md bg-white/5 text-muted-foreground border border-white/10">
-              静态预置 · 非实时 AI 生成
+              {t('presetTag')}
             </span>
           </>
         ) : source === 'fallback' ? (
           <span className="px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-300 border border-yellow-500/30">
-            基础路径模式 · 确定性结果
+            {t('fallbackTag')}
           </span>
         ) : (
           <span className="px-2 py-1 rounded-md bg-green-500/15 text-green-300 border border-green-500/30">
-            AI 生成路径
+            {t('aiTag')}
           </span>
         )}
       </div>
 
       {/* 路径说明 */}
       <div>
-        <h3 className="text-base font-semibold text-foreground mb-2">路径说明</h3>
+        <h3 className="text-base font-semibold text-foreground mb-2">{t('summaryTitle')}</h3>
         <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
           {plan.summary}
         </p>
@@ -69,10 +71,10 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
       {/* 今天就能开始的 3 个小任务 */}
       <div id="today" className="scroll-mt-24">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <h3 className="text-base font-semibold text-foreground">今天就能开始</h3>
+          <h3 className="text-base font-semibold text-foreground">{t('todayTitle')}</h3>
           {todayTask && (
             <span className="text-xs px-2 py-1 rounded-md bg-green-500/15 text-green-300 border border-green-500/30">
-              第一步约 {todayTask.minutes} 分钟 · {todayTask.evidence}
+              {t('todayStepHint', { minutes: todayTask.minutes, evidence: todayTask.evidence })}
             </span>
           )}
         </div>
@@ -93,7 +95,7 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
 
       {/* 7 天行动计划 */}
       <div>
-        <h3 className="text-base font-semibold text-foreground mb-3">7 天行动计划</h3>
+        <h3 className="text-base font-semibold text-foreground mb-3">{t('weekPlanTitle')}</h3>
         <ul className="space-y-2">
           {plan.weekPlan.map((item) => (
             <li
@@ -107,8 +109,8 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
                 <span className="text-foreground truncate">{item.title}</span>
               </div>
               <div className="flex flex-wrap justify-end gap-1.5 flex-shrink-0">
-                <ContractTag>{item.minutes} 分钟</ContractTag>
-                <ContractTag>{item.cost === 0 ? '免费' : `${item.cost} 元`}</ContractTag>
+                <ContractTag>{t('minutes', { minutes: item.minutes })}</ContractTag>
+                <ContractTag>{item.cost === 0 ? t('free') : t('cost', { cost: item.cost })}</ContractTag>
                 <ContractTag>{item.device}</ContractTag>
                 <ContractTag>{item.network}</ContractTag>
                 <ContractTag>{item.evidence}</ContractTag>
@@ -126,7 +128,7 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
       {/* 免费资源建议 */}
       {resources.length > 0 && (
         <div>
-          <h3 className="text-base font-semibold text-foreground mb-3">免费资源建议</h3>
+          <h3 className="text-base font-semibold text-foreground mb-3">{t('resourcesTitle')}</h3>
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {resources.map((r) => (
               <li key={r.id}>
@@ -142,13 +144,13 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
                     </span>
                     {r.lowBandwidth && (
                       <span className="flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">
-                        低流量
+                        {t('lowBandwidth')}
                       </span>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{r.reason}</p>
                   <span className="text-[11px] text-purple-300/70 mt-2 inline-block">
-                    {r.kind} · 打开新窗口 →
+                    {t('resourceKind', { kind: r.kind })}
                   </span>
                 </a>
               </li>
@@ -165,14 +167,14 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
       {/* 可复制的本周行动摘要 */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-base font-semibold text-foreground">我的本周行动摘要</h3>
+          <h3 className="text-base font-semibold text-foreground">{t('mySummaryTitle')}</h3>
           <button
             type="button"
             onClick={handleCopy}
             className="text-xs px-3 py-1.5 rounded-lg bg-purple-6/20 border border-purple-5/30 text-foreground hover:bg-purple-6/30 transition"
-            aria-label="复制行动摘要"
+            aria-label={t('copyAriaLabel')}
           >
-            {copied ? '已复制' : '复制'}
+            {copied ? t('copied') : t('copy')}
           </button>
         </div>
         <pre className="text-xs text-muted-foreground bg-black/20 rounded-xl p-4 overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
@@ -185,30 +187,30 @@ export default function PathfinderPlanView({ plan, resources, source, realityCon
         onClick={onRegenerate}
         className="w-full py-2.5 px-4 rounded-xl bg-transparent border border-white/15 text-foreground hover:bg-white/5 transition text-sm"
       >
-        调整条件后重新生成
+        {t('regenerate')}
       </button>
     </section>
   );
 }
 
 /** 构造可分享的纯文本摘要 */
-function buildShareText(plan: PathfinderPlan): string {
+function buildShareText(plan: PathfinderPlan, t: ReturnType<typeof useTranslations>): string {
   const lines: string[] = [];
-  lines.push('📋 我的学习路径摘要');
+  lines.push(t('shareHeader'));
   lines.push('');
-  lines.push('【路径说明】');
+  lines.push(t('shareSummaryLabel'));
   lines.push(plan.summary);
   lines.push('');
-  lines.push('【今天就能开始】');
+  lines.push(t('shareTodayLabel'));
   plan.todaySteps.forEach((s, i) => lines.push(`${i + 1}. ${s}`));
   lines.push('');
-  lines.push('【7 天计划】');
-  plan.weekPlan.forEach((d) => lines.push(`Day ${d.day}：${d.title}（${d.minutes} 分钟 · ${d.cost === 0 ? '免费' : `${d.cost} 元`} · ${d.device} · ${d.network} · ${d.evidence}）`));
+  lines.push(t('shareWeekPlanLabel'));
+  plan.weekPlan.forEach((d) => lines.push(`Day ${d.day}：${d.title}（${t('minutes', { minutes: d.minutes })} · ${d.cost === 0 ? t('free') : t('cost', { cost: d.cost })} · ${d.device} · ${d.network} · ${d.evidence}）`));
   lines.push('');
-  lines.push('【鼓励】');
+  lines.push(t('shareEncouragementLabel'));
   lines.push(plan.encouragement);
   lines.push('');
-  lines.push('—— 由 Meteor Pathfinder 星途导航生成');
+  lines.push(t('shareFooter'));
   return lines.join('\n');
 }
 

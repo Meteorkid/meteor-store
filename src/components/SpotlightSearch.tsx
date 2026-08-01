@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   searchEntries,
   getIndex,
@@ -83,6 +83,7 @@ function HighlightedText({
 export default function SpotlightSearch() {
   const router = useRouter();
   const locale = useLocale() as Locale;
+  const t = useTranslations('SpotlightSearch');
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -270,7 +271,7 @@ export default function SpotlightSearch() {
       className="fixed inset-0 z-[100] flex items-start justify-center pt-[18vh] px-4"
       role="dialog"
       aria-modal="true"
-      aria-label="全站搜索"
+      aria-label={t('dialogAriaLabel')}
       onKeyDown={onPanelKeyDown}
     >
       {/* 遮罩 */}
@@ -309,8 +310,8 @@ export default function SpotlightSearch() {
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="找产品、找文档，支持拼音 · 输入 meteor 试试"
-            aria-label="搜索"
+            placeholder={t('placeholder')}
+            aria-label={t('inputAriaLabel')}
             autoComplete="off"
             spellCheck={false}
             maxLength={60}
@@ -326,7 +327,7 @@ export default function SpotlightSearch() {
           ref={listRef}
           className="max-h-[46vh] overflow-y-auto overscroll-contain py-2"
           role="listbox"
-          aria-label="搜索结果"
+          aria-label={t('resultsAriaLabel')}
         >
           {isEmpty ? (
             <>
@@ -334,14 +335,14 @@ export default function SpotlightSearch() {
                 <div>
                   <div className="flex items-center justify-between px-5 pt-3 pb-1.5">
                     <p className="text-[11px] text-white/30 uppercase tracking-widest">
-                      最近访问
+                      {t('recentLabel')}
                     </p>
                     <button
                       type="button"
                       onClick={handleClearRecent}
                       className="text-[11px] text-white/20 hover:text-white/40 transition-colors"
                     >
-                      清除
+                      {t('clear')}
                     </button>
                   </div>
                   {defaultEntries.recent.map(entry =>
@@ -351,19 +352,19 @@ export default function SpotlightSearch() {
               )}
               <div>
                 <p className="px-5 pt-3 pb-1.5 text-[11px] text-white/30 uppercase tracking-widest">
-                  热门
+                  {t('popularLabel')}
                 </p>
                 {defaultEntries.popular.map(entry =>
                   renderItem(entry, allDefault.indexOf(entry)),
                 )}
               </div>
               <p className="px-5 py-3 text-[11px] text-white/25 text-center border-t border-white/[0.06] mt-1">
-                ⌘K 随时唤起 · ↑↓ 选择 · Enter 直达 · 支持拼音
+                {t('hint')}
               </p>
             </>
           ) : results.length === 0 ? (
             <p className="px-5 py-6 text-sm text-white/40 text-center">
-              什么都没找到，但你可以去终端碰碰运气 →{' '}
+              {t('empty')}{' '}
               <button
                 className="text-purple-300 hover:text-purple-200 underline underline-offset-2"
                 onClick={() => {
@@ -371,17 +372,21 @@ export default function SpotlightSearch() {
                   router.push('/#terminal');
                 }}
               >
-                店主的终端
+                {t('terminalLink')}
               </button>
             </p>
           ) : (
             GROUP_ORDER.map(group => {
               const groupResults = results.filter(r => r.group === group);
               if (groupResults.length === 0) return null;
+              const groupLabel = group === '产品' ? t('groupProduct')
+                : group === '页面' ? t('groupPage')
+                : group === '帮助' ? t('groupHelp')
+                : t('groupEasterEgg');
               return (
                 <div key={group}>
                   <p className="px-5 pt-3 pb-1.5 text-[11px] text-white/30 uppercase tracking-widest">
-                    {group}
+                    {groupLabel}
                   </p>
                   {groupResults.map(entry =>
                     renderItem(entry, results.indexOf(entry)),

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
 
 interface PaymentModalProps {
@@ -27,6 +28,7 @@ export default function PaymentModal({
   period,
   isAnnual,
 }: PaymentModalProps) {
+  const t = useTranslations('PaymentModal');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -74,7 +76,7 @@ export default function PaymentModal({
 
   const handleAlipayPayment = async () => {
     if (!email) {
-      setError('请输入邮箱地址');
+      setError(t('emailRequired'));
       return;
     }
     setError('');
@@ -102,10 +104,10 @@ export default function PaymentModal({
       if (data.success && data.payUrl) {
         window.location.href = data.payUrl;
       } else {
-        setError(`支付创建失败: ${data.error}`);
+        setError(t('paymentFailed', { error: data.error }));
       }
     } catch {
-      setError('网络错误，请重试');
+      setError(t('networkError'));
     } finally {
       setLoading(false);
     }
@@ -131,13 +133,13 @@ export default function PaymentModal({
           ref={modalRef}
           role="dialog"
           aria-modal="true"
-          aria-label="支付"
+          aria-label={t('dialogAriaLabel')}
           className="glass-lg relative w-full max-w-md mx-4 bg-[rgba(20,16,34,0.8)] rounded-2xl p-6 animate-spotlight-in"
         >
           {/* Close button */}
           <button
             onClick={handleClose}
-            aria-label="关闭"
+            aria-label={t('closeAriaLabel')}
             className="absolute top-4 right-4 text-gray-400 hover:text-white"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -146,7 +148,7 @@ export default function PaymentModal({
           </button>
 
           {/* Header */}
-          <h2 className="text-xl font-bold text-white mb-2">选择支付方式</h2>
+          <h2 className="text-xl font-bold text-white mb-2">{t('selectPaymentMethod')}</h2>
           <p className="text-gray-400 text-sm mb-6">
             {productName} - {planName}
           </p>
@@ -157,10 +159,10 @@ export default function PaymentModal({
               <div className="text-center">
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-2xl font-bold text-white">¥{price}</span>
-                  <span className="text-gray-400">/月 × 12</span>
+                  <span className="text-gray-400">{t('perMonthTimes12')}</span>
                 </div>
                 <div className="mt-1 text-lg font-semibold text-green-400">
-                  = ¥{Math.floor(basePrice * ANNUAL_DISCOUNT * 12)}/年
+                  = ¥{Math.floor(basePrice * ANNUAL_DISCOUNT * 12)}{t('perYear')}
                 </div>
               </div>
             ) : (
@@ -174,14 +176,14 @@ export default function PaymentModal({
           {/* 支付方式（仅支付宝） */}
           <div className="mb-6">
             <div className="py-3 px-4 rounded-lg bg-blue-500/10 border border-blue-500/30 text-center">
-              <span className="text-blue-400 font-medium">💙 支付宝</span>
+              <span className="text-blue-400 font-medium">💙 {t('alipay')}</span>
             </div>
           </div>
 
           {/* Email Input */}
           <div className="mb-6">
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-              邮箱地址（用于接收购买凭证）
+              {t('emailLabel')}
             </label>
             <input
               ref={emailInputRef}
@@ -203,12 +205,12 @@ export default function PaymentModal({
             disabled={loading || !email}
             className="w-full py-3 rounded-lg font-medium transition-all bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '处理中...' : '使用支付宝支付'}
+            {loading ? t('processing') : t('payWithAlipay')}
           </button>
 
           {/* Footer */}
           <p className="text-center text-gray-500 text-xs mt-6">
-            安全支付 · 支持花呗/信用卡
+            {t('securePayment')}
           </p>
         </div>
       </div>

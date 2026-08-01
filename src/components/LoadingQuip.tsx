@@ -1,25 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
-const QUIPS = [
-  '正在把流星捞上来…',
-  '正在数店主的奶茶钱…',
-  '正在给比特们排队…',
-  '马上好，代码在赶来的路上',
-];
+const QUIP_KEYS = ['quip1', 'quip2', 'quip3', 'quip4'] as const;
 
 /** 加载态随机俏皮话（客户端随机，避免 SSR 水合不一致） */
 export default function LoadingQuip() {
-  const [quip, setQuip] = useState('');
+  const t = useTranslations('LoadingQuip');
+  const [quipKey, setQuipKey] = useState<string | null>(null);
 
   useEffect(() => {
-    setQuip(QUIPS[Math.floor(Math.random() * QUIPS.length)]);
+    setQuipKey(QUIP_KEYS[Math.floor(Math.random() * QUIP_KEYS.length)]);
   }, []);
 
   return (
     <p className="text-center text-white/30 text-sm font-mono py-6" aria-live="polite">
-      {quip || '加载中…'}
+      {quipKey ? t(quipKey) : t('default')}
     </p>
   );
 }

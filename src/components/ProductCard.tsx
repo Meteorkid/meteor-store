@@ -2,13 +2,15 @@ import { LocalizedProduct } from '@/data/products';
 import { SHOW_PRICING } from '@/lib/constants';
 import ProductVisual from '@/components/ProductVisual';
 import TransitionLink from '@/components/TransitionLink';
+import { getTranslations } from 'next-intl/server';
 
 interface ProductCardProps {
   product: LocalizedProduct;
   priority?: boolean;
 }
 
-export default function ProductCard({ product, priority = false }: ProductCardProps) {
+export default async function ProductCard({ product, priority = false }: ProductCardProps) {
+  const t = await getTranslations('ProductsPage');
   const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map(p => p.price)) : 0;
 
   return (
@@ -40,11 +42,11 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         {SHOW_PRICING && (
           <div className="flex items-baseline gap-1 border-t border-white/10 pt-4">
             {minPrice === 0 ? (
-              <span className="text-success font-semibold">免费</span>
+              <span className="text-success font-semibold">{t('free')}</span>
             ) : (
               <>
                 <span className="text-2xl font-bold text-card-foreground">¥{minPrice}</span>
-                <span className="text-muted-foreground text-sm">起</span>
+                <span className="text-muted-foreground text-sm">{t('from')}</span>
               </>
             )}
           </div>
@@ -52,7 +54,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
 
         {/* CTA */}
         <div className="mt-4 flex items-center gap-2 text-violet-300 transition-colors group-hover:text-violet-200">
-          <span className="text-sm font-medium">查看详情</span>
+          <span className="text-sm font-medium">{t('viewDetails')}</span>
           <svg
             className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
             fill="none"

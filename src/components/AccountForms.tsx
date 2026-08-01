@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from './AuthProvider';
 import AvatarUpload from './AvatarUpload';
 
@@ -24,6 +25,7 @@ export default function AccountForms({
   initialAvatar,
   email,
 }: AccountFormsProps) {
+  const t = useTranslations('AccountPage');
   const { refresh } = useAuth();
 
   const [name, setName] = useState(initialName);
@@ -63,14 +65,14 @@ export default function AccountForms({
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '保存失败');
+      if (!res.ok) throw new Error(data.error || t('saveFailed'));
 
       await refresh();
       setProfileStatus('saved');
       setAvatarDirty(false);
     } catch (err) {
       setProfileStatus('error');
-      setProfileError(err instanceof Error ? err.message : '保存失败');
+      setProfileError(err instanceof Error ? err.message : t('saveFailed'));
     }
   }
 
@@ -86,14 +88,14 @@ export default function AccountForms({
         body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '修改失败');
+      if (!res.ok) throw new Error(data.error || t('changeFailed'));
 
       setCurrentPassword('');
       setNewPassword('');
       setPwStatus('saved');
     } catch (err) {
       setPwStatus('error');
-      setPwError(err instanceof Error ? err.message : '修改失败');
+      setPwError(err instanceof Error ? err.message : t('changeFailed'));
     }
   }
 
@@ -101,9 +103,9 @@ export default function AccountForms({
     <div className="space-y-8">
       {/* 个人资料 */}
       <section className="rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
-        <h2 className="t-title-3 mb-1.5 text-white/90">个人资料</h2>
+        <h2 className="t-title-3 mb-1.5 text-white/90">{t('profile')}</h2>
         <p className="t-footnote mb-6 text-white/60">
-          头像和昵称会显示在导航栏和你的投稿里。
+          {t('profileHint')}
         </p>
 
         <form onSubmit={saveProfile} className="space-y-6">
@@ -125,7 +127,7 @@ export default function AccountForms({
 
           <div>
             <label htmlFor="account-name" className={labelClass}>
-              昵称
+              {t('nameLabel')}
             </label>
             <input
               id="account-name"
@@ -142,7 +144,7 @@ export default function AccountForms({
 
           <div>
             <label htmlFor="account-bio" className={labelClass}>
-              个人简介 <span className="font-normal text-white/45">（{bio.length}/200）</span>
+              {t('bioLabel')} <span className="font-normal text-white/45">（{bio.length}/200）</span>
             </label>
             <textarea
               id="account-bio"
@@ -153,7 +155,7 @@ export default function AccountForms({
               }}
               maxLength={200}
               rows={3}
-              placeholder="一句话介绍自己"
+              placeholder={t('bioPlaceholder')}
               className={`${inputClass} resize-none`}
             />
           </div>
@@ -164,11 +166,11 @@ export default function AccountForms({
               disabled={!profileDirty || profileStatus === 'saving'}
               className="rounded-xl bg-white px-5 py-2.5 text-[0.9375rem] font-semibold text-black transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {profileStatus === 'saving' ? '保存中…' : '保存'}
+              {profileStatus === 'saving' ? t('saving') : t('saveButton')}
             </button>
             {profileStatus === 'saved' && (
               <span className="t-footnote text-emerald-400" role="status">
-                已保存
+                {t('saved')}
               </span>
             )}
             {profileStatus === 'error' && (
@@ -182,9 +184,9 @@ export default function AccountForms({
 
       {/* 密码 */}
       <section className="rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
-        <h2 className="t-title-3 mb-1.5 text-white/90">修改密码</h2>
+        <h2 className="t-title-3 mb-1.5 text-white/90">{t('changePassword')}</h2>
         <p className="t-footnote mb-6 text-white/60">
-          改完当前设备会保持登录，其他设备上的会话不受影响。
+          {t('passwordHint')}
         </p>
 
         <form onSubmit={changePassword} className="space-y-4">
@@ -192,7 +194,7 @@ export default function AccountForms({
 
           <div>
             <label htmlFor="account-current-password" className={labelClass}>
-              当前密码
+              {t('currentPassword')}
             </label>
             <input
               id="account-current-password"
@@ -209,7 +211,7 @@ export default function AccountForms({
 
           <div>
             <label htmlFor="account-new-password" className={labelClass}>
-              新密码 <span className="font-normal text-white/45">（至少 8 位）</span>
+              {t('newPassword')} <span className="font-normal text-white/45">（{t('passwordMinLength')}）</span>
             </label>
             <input
               id="account-new-password"
@@ -230,11 +232,11 @@ export default function AccountForms({
               disabled={!currentPassword || newPassword.length < 8 || pwStatus === 'saving'}
               className="rounded-xl bg-white px-5 py-2.5 text-[0.9375rem] font-semibold text-black transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {pwStatus === 'saving' ? '修改中…' : '修改密码'}
+              {pwStatus === 'saving' ? t('changing') : t('changePassword')}
             </button>
             {pwStatus === 'saved' && (
               <span className="t-footnote text-emerald-400" role="status">
-                已修改
+                {t('changed')}
               </span>
             )}
             {pwStatus === 'error' && (

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { LocalizedProduct } from '@/data/products';
+import { getTranslations } from 'next-intl/server';
 
 const iconMap: Record<string, { svg: ReactNode; color: string }> = {
   gitee: {
@@ -52,14 +53,16 @@ const iconMap: Record<string, { svg: ReactNode; color: string }> = {
   },
 };
 
-export default function DownloadSection({ product }: { product: LocalizedProduct }) {
+export default async function DownloadSection({ product }: { product: LocalizedProduct }) {
   if (!product.downloads?.length) return null;
+
+  const t = await getTranslations('ProductDetailPage');
 
   return (
     <section className="mb-20">
       <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Download</p>
-      <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">获取 {product.name}</h2>
-      <p className="mb-8 text-gray-400">国内用户推荐使用 Gitee 镜像或包管理器安装，速度更快更稳定。</p>
+      <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">{t('getTitle', { name: product.name })}</h2>
+      <p className="mb-8 text-gray-400">{t('downloadHint')}</p>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {product.downloads.map((dl, i) => {
@@ -80,7 +83,7 @@ export default function DownloadSection({ product }: { product: LocalizedProduct
             >
               {isRecommended && (
                 <span className="absolute -top-2.5 right-4 rounded-full bg-violet-600 px-2.5 py-0.5 text-[10px] font-semibold text-white">
-                  推荐
+                  {t('recommended')}
                 </span>
               )}
               <span className={`mt-0.5 shrink-0 ${iconInfo.color} transition-transform group-hover:scale-110`}>

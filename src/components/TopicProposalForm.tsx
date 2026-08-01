@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { BlogSectionId } from '@/data/blog-sections';
 
 interface TopicProposalFormProps {
@@ -13,6 +14,7 @@ interface TopicProposalFormProps {
  * 提议进后台由店主审核，采用后由店主撰写成文章。
  */
 export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProposalFormProps) {
+  const t = useTranslations('TopicProposal');
   const [title, setTitle] = useState('');
   const [pitch, setPitch] = useState('');
   const [email, setEmail] = useState('');
@@ -23,7 +25,7 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
     e.preventDefault();
 
     if (title.trim().length < 4 || pitch.trim().length < 10) {
-      setErrorMsg('标题至少 4 个字，理由至少 10 个字');
+      setErrorMsg(t('validationError'));
       setStatus('error');
       return;
     }
@@ -44,7 +46,7 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '提交失败');
+      if (!res.ok) throw new Error(data.error || t('submitFailed'));
 
       setStatus('success');
       setTitle('');
@@ -52,7 +54,7 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
       setEmail('');
     } catch (err) {
       setStatus('error');
-      setErrorMsg(err instanceof Error ? err.message : '提交失败，请稍后重试');
+      setErrorMsg(err instanceof Error ? err.message : t('submitFailedRetry'));
     }
   }
 
@@ -60,16 +62,16 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
     return (
       <div className="glass-card rounded-3xl p-9 text-center md:p-12">
         <div className="mb-4 text-4xl">📮</div>
-        <h2 className="t-title-2 t-on-glass mb-2">收到了</h2>
+        <h2 className="t-title-2 t-on-glass mb-2">{t('successTitle')}</h2>
         <p className="t-footnote text-white/50">
-          我会一条条看。如果这个话题被写成文章，留了邮箱的话我会告诉你。
+          {t('successDesc')}
         </p>
         <button
           type="button"
           onClick={() => setStatus('idle')}
           className="t-footnote mt-5 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
         >
-          再提一个
+          {t('submitAnother')}
         </button>
       </div>
     );
@@ -77,29 +79,29 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
 
   return (
     <section className="glass-card rounded-3xl p-7 md:p-11">
-      <h2 className="t-title-2 t-on-glass mb-3">给{sectionLabel}提个话题</h2>
+      <h2 className="t-title-2 t-on-glass mb-3">{t('formTitle', { sectionLabel })}</h2>
       <p className="t-footnote mb-8 text-white/60">
-        你提选题，我来写。提议不会公开展示，只进我的收件箱——所以想说什么都可以，不用顾虑别人怎么看。
+        {t('formDesc')}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label htmlFor="topic-title" className="t-footnote mb-2 block font-medium text-white/65">
-            话题 <span className="text-[rgb(var(--blog-accent))]">*</span>
+            {t('titleLabel')} <span className="text-[rgb(var(--blog-accent))]">*</span>
           </label>
           <input
             id="topic-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={80}
-            placeholder="一句话说清楚你想看什么"
+            placeholder={t('titlePlaceholder')}
             className="w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/50 transition-colors focus:border-[rgb(var(--blog-accent)/0.6)] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--blog-accent)/0.4)]"
           />
         </div>
 
         <div>
           <label htmlFor="topic-pitch" className="t-footnote mb-2 block font-medium text-white/65">
-            为什么值得写 <span className="text-[rgb(var(--blog-accent))]">*</span>
+            {t('pitchLabel')} <span className="text-[rgb(var(--blog-accent))]">*</span>
           </label>
           <textarea
             id="topic-pitch"
@@ -107,7 +109,7 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
             onChange={(e) => setPitch(e.target.value)}
             rows={4}
             maxLength={1000}
-            placeholder="你的困惑、你见过的争论，或者你希望被反驳的观点"
+            placeholder={t('pitchPlaceholder')}
             className="w-full resize-none rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] leading-relaxed text-white placeholder-white/50 transition-colors focus:border-[rgb(var(--blog-accent)/0.6)] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--blog-accent)/0.4)]"
           />
           <p className="t-footnote mt-1.5 text-right tabular-nums text-white/60">{pitch.length} / 1000</p>
@@ -115,14 +117,14 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
 
         <div>
           <label htmlFor="topic-email" className="t-footnote mb-2 block font-medium text-white/65">
-            邮箱 <span className="font-normal text-white/60">（可选，被采用时通知你）</span>
+            {t('emailLabel')} <span className="font-normal text-white/60">{t('emailHint')}</span>
           </label>
           <input
             id="topic-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="不留也行，匿名提议一样看"
+            placeholder={t('emailPlaceholder')}
             className="w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/50 transition-colors focus:border-[rgb(var(--blog-accent)/0.6)] focus:outline-none focus:ring-1 focus:ring-[rgb(var(--blog-accent)/0.4)]"
           />
         </div>
@@ -136,7 +138,7 @@ export default function TopicProposalForm({ sectionId, sectionLabel }: TopicProp
           disabled={status === 'submitting'}
           className="w-full rounded-xl bg-[rgb(var(--blog-accent))] py-3.5 text-[0.9375rem] font-semibold text-black/85 transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {status === 'submitting' ? '提交中…' : '把话题投进去'}
+          {status === 'submitting' ? t('submitting') : t('submit')}
         </button>
       </form>
     </section>

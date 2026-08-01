@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import type { FeedPostSummary } from '@/data/blog-feed';
 import {
   getSectionById,
@@ -9,16 +10,15 @@ import {
   type BlogSectionId,
 } from '@/data/blog-sections';
 import type { TagSummary } from '@/data/blog-tags';
-import { useLocale } from 'next-intl';
 import type { Locale } from '@/i18n/routing';
 import { useAuth } from './AuthProvider';
 
 type SortMode = 'newest' | 'oldest' | 'reading-time';
 
-const sortOptions: { value: SortMode; label: string }[] = [
-  { value: 'newest', label: '最新' },
-  { value: 'oldest', label: '最早' },
-  { value: 'reading-time', label: '最短' },
+const sortOptions: { value: SortMode; labelKey: 'sortNewest' | 'sortOldest' | 'sortShortest' }[] = [
+  { value: 'newest', labelKey: 'sortNewest' },
+  { value: 'oldest', labelKey: 'sortOldest' },
+  { value: 'reading-time', labelKey: 'sortShortest' },
 ];
 
 const channelGroups = getSectionsByChannel();
@@ -57,6 +57,7 @@ export default function BlogListClient({
   const [sort, setSort] = useState<SortMode>('newest');
   const { user } = useAuth();
   const locale = useLocale() as Locale;
+  const t = useTranslations('BlogList');
 
   const showSectionLabel = !activeSectionId;
 
@@ -89,7 +90,7 @@ export default function BlogListClient({
       {/* 一个玻璃工具条收纳全部导航与筛选，而不是散落的小字 */}
       <div className="blog-toolbar glass relative mb-12 p-2">
         <nav
-          aria-label="博客分区"
+          aria-label={t('sectionsAria')}
           className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <Link
@@ -101,7 +102,7 @@ export default function BlogListClient({
                 : 'bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]'
             }`}
           >
-            全部
+            {t('all')}
           </Link>
 
           {channelGroups.map(({ channel, sections }) => (
@@ -136,8 +137,8 @@ export default function BlogListClient({
 
       {/* 热门标签：动态层。分区是骨架，标签是当下大家在聊什么 */}
       {hotTags && hotTags.length > 0 && (
-        <nav aria-label="热门标签" className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-2">
-          <span className="t-eyebrow mr-1 text-white/45">热门标签</span>
+        <nav aria-label={t('tagsAria')} className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-2">
+          <span className="t-eyebrow mr-1 text-white/45">{t('hotTags')}</span>
           {hotTags.map((tag) => (
             <Link
               key={tag.key}
@@ -153,7 +154,7 @@ export default function BlogListClient({
               href="/blog/tags"
               className="t-footnote rounded-lg px-2.5 py-1 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
             >
-              全部 {totalTagCount} 个标签 →
+              {t('allTags', { count: totalTagCount })}
             </Link>
           )}
         </nav>
@@ -162,7 +163,7 @@ export default function BlogListClient({
       {/* 排序 */}
       <div className="mb-10 flex items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
         <div role="group" aria-labelledby="blog-sort-label" className="flex items-center gap-1">
-          <span id="blog-sort-label" className="t-eyebrow mr-1 text-white/45">排序</span>
+          <span id="blog-sort-label" className="t-eyebrow mr-1 text-white/45">{t('sort')}</span>
           {sortOptions.map((opt) => (
             <button
               key={opt.value}
@@ -173,19 +174,19 @@ export default function BlogListClient({
                 sort === opt.value ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
               }`}
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </button>
           ))}
         </div>
         <div className="t-footnote flex items-center gap-3">
-          <span className="tabular-nums text-white/60">{posts.length} 篇</span>
+          <span className="tabular-nums text-white/60">{t('count', { count: posts.length })}</span>
           <span aria-hidden className="text-white/15">·</span>
           {/* 读完想写一篇的时候，入口该在这里 */}
           <Link
             href={user ? '/blog/submit' : '/login'}
             className="text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
           >
-            写一篇
+            {t('write')}
           </Link>
         </div>
       </div>
@@ -193,7 +194,7 @@ export default function BlogListClient({
       {filtered.length === 0 ? (
         <div className="py-14 text-center">
           <p className="t-body text-white/60">
-            这里还没有文章
+            {t('empty')}
           </p>
         </div>
       ) : (
@@ -215,7 +216,7 @@ export default function BlogListClient({
                   {formatDate(lede.date)}
                 </time>
                 <span aria-hidden className="text-white/20">·</span>
-                <span className="text-white/60">{lede.readingTime} 分钟</span>
+                <span className="text-white/60">{t('minutes', { count: lede.readingTime })}</span>
                 {lede.author && (
                   <>
                     <span aria-hidden className="text-white/20">·</span>
@@ -229,7 +230,7 @@ export default function BlogListClient({
               <p className="t-body t-on-glass max-w-2xl opacity-60">{lede.excerpt}</p>
 
               <span className="t-footnote mt-8 inline-flex items-center gap-2 font-medium text-white/60 transition-colors duration-200 group-hover:text-white">
-                读下去
+                {t('readMore')}
                 <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </span>
             </Link>

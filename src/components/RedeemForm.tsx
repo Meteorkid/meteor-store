@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function RedeemForm() {
+  const t = useTranslations('RedeemPage');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,7 +32,7 @@ export default function RedeemForm() {
       setResult(data);
       setCode('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '兑换失败');
+      setError(err instanceof Error ? err.message : t('redeemFailed'));
     } finally {
       setLoading(false);
     }
@@ -50,13 +52,13 @@ export default function RedeemForm() {
     return (
       <div className="w-full max-w-sm space-y-6 text-center">
         <div className="text-4xl">&#127881;</div>
-        <h2 className="t-title-2">兑换成功</h2>
+        <h2 className="t-title-2">{t('successTitle')}</h2>
         <p className="text-sm text-gray-400">
           {result.productId} - {result.planName}
         </p>
 
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.05] p-4">
-          <p className="mb-2 text-xs text-gray-400">你的授权码</p>
+          <p className="mb-2 text-xs text-gray-400">{t('yourLicenseKey')}</p>
           <p className="break-all font-mono text-lg font-semibold text-emerald-400">
             {result.licenseKey}
           </p>
@@ -67,7 +69,7 @@ export default function RedeemForm() {
           onClick={copyKey}
           className="rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
         >
-          {copied ? '已复制' : '复制授权码'}
+          {copied ? t('copied') : t('copyButton')}
         </button>
 
         <button
@@ -75,7 +77,7 @@ export default function RedeemForm() {
           onClick={() => setResult(null)}
           className="block w-full text-sm text-gray-500 transition-colors hover:text-white"
         >
-          继续兑换
+          {t('continueRedeem')}
         </button>
       </div>
     );
@@ -83,15 +85,15 @@ export default function RedeemForm() {
 
   return (
     <div className="w-full max-w-sm">
-      <h1 className="mb-2 text-2xl font-bold">兑换邀请码</h1>
+      <h1 className="mb-2 text-2xl font-bold">{t('title')}</h1>
       <p className="mb-8 text-sm text-gray-400">
-        输入邀请码获取软件授权
+        {t('description')}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="invite-code" className="mb-1.5 block text-sm font-medium text-gray-300">
-            邀请码
+            {t('codeLabel')}
           </label>
           <input
             id="invite-code"
@@ -114,7 +116,7 @@ export default function RedeemForm() {
           disabled={loading || !code.trim()}
           className="w-full rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
         >
-          {loading ? '兑换中...' : '兑换'}
+          {loading ? t('redeeming') : t('redeemButton')}
         </button>
       </form>
     </div>

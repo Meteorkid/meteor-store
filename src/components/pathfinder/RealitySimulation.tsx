@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { RealityConstraints } from '@/lib/pathfinder/contract';
 import type { PathfinderTask } from '@/lib/pathfinder/schema';
 import {
@@ -29,6 +30,7 @@ const EVENT_ICONS = {
  * 全部状态仅保存在当前 React 会话，不上传、不持久化。
  */
 export default function RealitySimulation({ originalPlan, realityConstraints }: Props) {
+  const t = useTranslations('RealitySimulation');
   const availableEvents = getAvailableRealityEvents(realityConstraints);
   const initialTimeLimit = realityConstraints.dailyMinutes > 10 ? 10 : 5;
   const [selectedEventId, setSelectedEventId] = useState<RealityEvent['id']>(availableEvents[0].id);
@@ -57,13 +59,13 @@ export default function RealitySimulation({ originalPlan, realityConstraints }: 
   const handleCopyRecord = async () => {
     if (!actionTarget) return;
 
-    const statusText = actionStatus === 'completed' ? '已完成' : '暂缓';
+    const statusText = actionStatus === 'completed' ? t('completedStatus') : t('deferredStatus');
     const record = [
-      'Meteor Pathfinder 行动记录',
-      `现实变化：${activeEvent.label}`,
-      `行动：${actionTarget}`,
-      `状态：${statusText}`,
-      evidence.trim() ? `证据：${evidence.trim()}` : '证据：未填写',
+      t('recordHeader'),
+      t('recordReality', { label: activeEvent.label }),
+      t('recordAction', { action: actionTarget }),
+      t('recordStatus', { status: statusText }),
+      evidence.trim() ? t('recordEvidence', { evidence: evidence.trim() }) : t('recordEvidenceEmpty'),
     ].join('\n');
 
     try {
@@ -78,19 +80,19 @@ export default function RealitySimulation({ originalPlan, realityConstraints }: 
   return (
     <section
       id="plan-b"
-      aria-label="现实变化推演"
+      aria-label={t('sectionAriaLabel')}
       className="scroll-mt-24 rounded-2xl border border-purple-5/30 bg-purple-6/10 p-4 sm:p-5"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-medium text-purple-200">Reality Contract · 可解释裁决</p>
-          <h3 className="mt-1 text-lg font-semibold text-foreground">现实变化推演</h3>
+          <p className="text-xs font-medium text-purple-200">{t('badge')}</p>
+          <h3 className="mt-1 text-lg font-semibold text-foreground">{t('title')}</h3>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-            条件突然变差时，不重新生成一份理想计划，只保住仍然走得通的一步。
+            {t('description')}
           </p>
         </div>
         <span className="w-fit rounded-md border border-white/10 bg-black/20 px-2 py-1 text-xs text-muted-foreground">
-          静态规则 · 不调用模型
+          {t('staticRule')}
         </span>
       </div>
 
@@ -111,7 +113,7 @@ export default function RealitySimulation({ originalPlan, realityConstraints }: 
             >
               <span className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <span aria-hidden="true">{EVENT_ICONS[event.kind]}</span>
-                {event.kind === 'time' ? `本周只剩 ${remainingMinutes} 分钟` : event.label}
+                {event.kind === 'time' ? t('timeEventLabel', { minutes: remainingMinutes }) : event.label}
               </span>
               <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{event.description}</span>
             </button>
@@ -122,8 +124,8 @@ export default function RealitySimulation({ originalPlan, realityConstraints }: 
       {selectedEvent.kind === 'time' && (
         <div className="mt-4 rounded-xl border border-white/10 bg-black/15 px-3 py-3">
           <div className="flex items-center justify-between gap-3">
-            <label htmlFor="remaining-minutes" className="text-xs text-muted-foreground">调整本周剩余时间</label>
-            <span className="text-sm font-medium text-purple-200">{remainingMinutes} 分钟</span>
+            <label htmlFor="remaining-minutes" className="text-xs text-muted-foreground">{t('adjustTimeLabel')}</label>
+            <span className="text-sm font-medium text-purple-200">{t('minutes', { minutes: remainingMinutes })}</span>
           </div>
           <input
             id="remaining-minutes"
@@ -146,11 +148,11 @@ export default function RealitySimulation({ originalPlan, realityConstraints }: 
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-medium text-foreground">{simulation.summary}</p>
           <span className="rounded-md bg-green-500/15 px-2 py-1 text-xs text-green-300">
-            保留 {simulation.kept.length} 项
+            {t('keptCount', { count: simulation.kept.length })}
           </span>
         </div>
 
-        <ul className="mt-3 space-y-2" aria-label="任务裁决结果">
+        <ul className="mt-3 space-y-2" aria-label={t('decisionsAriaLabel')}>
           {displayedDecisions.map((decision) => (
             <li
               key={`${decision.task.day}-${decision.task.title}`}
@@ -163,13 +165,13 @@ export default function RealitySimulation({ originalPlan, realityConstraints }: 
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-sm text-foreground">D{decision.task.day} · {decision.task.title}</span>
                 <span className={`text-xs ${decision.status === 'kept' ? 'text-green-300' : 'text-muted-foreground'}`}>
-                  {decision.status === 'kept' ? '仍可完成' : '先暂缓'}
+                  {decision.status === 'kept' ? t('keptLabel') : t('deferredLabel')}
                 </span>
               </div>
               {decision.status === 'kept' ? (
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  <ContractTag>{decision.task.minutes} 分钟</ContractTag>
-                  <ContractTag>{decision.task.cost === 0 ? '免费' : `${decision.task.cost} 元`}</ContractTag>
+                  <ContractTag>{t('minutes', { minutes: decision.task.minutes })}</ContractTag>
+                  <ContractTag>{decision.task.cost === 0 ? t('free') : t('cost', { cost: decision.task.cost })}</ContractTag>
                   <ContractTag>{decision.task.device}</ContractTag>
                   <ContractTag>{decision.task.network}</ContractTag>
                 </div>
@@ -191,33 +193,33 @@ export default function RealitySimulation({ originalPlan, realityConstraints }: 
       </div>
 
       <div className="mt-4 rounded-xl border border-purple-5/20 bg-black/15 p-4">
-        <h4 className="text-sm font-semibold text-foreground">留下这一刻的行动证据</h4>
+        <h4 className="text-sm font-semibold text-foreground">{t('evidenceTitle')}</h4>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          {actionTarget ? `此刻还能做的一步：${actionTarget}` : '先承认这次无法保留原任务，也是在保护下一次行动。'}
+          {actionTarget ? t('actionAvailable', { action: actionTarget }) : t('actionUnavailable')}
         </p>
         <textarea
           value={evidence}
           onChange={(event) => setEvidence(event.target.value.slice(0, 160))}
-          placeholder="例如：已在备忘录写下两个岗位关键词"
-          aria-label="行动证据"
+          placeholder={t('evidencePlaceholder')}
+          aria-label={t('evidenceAriaLabel')}
           rows={2}
           className="mt-3 w-full resize-none rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-purple-5/60"
         />
-        <p className="mt-1 text-[11px] text-muted-foreground">仅保留在本次浏览中，不上传、不保存；刷新页面即清除。</p>
+        <p className="mt-1 text-[11px] text-muted-foreground">{t('evidenceHint')}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setActionStatus('completed')}
             className="rounded-lg bg-green-500/15 px-3 py-2 text-xs font-medium text-green-200 transition hover:bg-green-500/25"
           >
-            我完成了这一步
+            {t('completedButton')}
           </button>
           <button
             type="button"
             onClick={() => setActionStatus('deferred')}
             className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-foreground transition hover:bg-white/10"
           >
-            今天先暂缓
+            {t('deferButton')}
           </button>
           {actionStatus !== 'idle' && (
             <button
@@ -225,15 +227,13 @@ export default function RealitySimulation({ originalPlan, realityConstraints }: 
               onClick={handleCopyRecord}
               className="rounded-lg border border-purple-5/30 bg-purple-6/15 px-3 py-2 text-xs font-medium text-purple-100 transition hover:bg-purple-6/25"
             >
-              {copied ? '已复制记录' : '复制本次记录'}
+              {copied ? t('copyButtonCopied') : t('copyButton')}
             </button>
           )}
         </div>
         {actionStatus !== 'idle' && (
           <p role="status" className="mt-3 text-xs text-purple-100">
-            {actionStatus === 'completed'
-              ? '已记录完成状态。保住一个小行动，就保住了继续向前的可能。'
-              : '已记录暂缓状态。等条件恢复时，从这一步继续，不必从头来过。'}
+            {actionStatus === 'completed' ? t('completedHint') : t('deferredHint')}
           </p>
         )}
       </div>
