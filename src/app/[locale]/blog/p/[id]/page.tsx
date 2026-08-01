@@ -22,9 +22,15 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
   const { locale, id } = await params;
   const post = await getPostById(id);
   const t = await getTranslations({ locale, namespace: 'BlogPostPage' });
-  return post && post.status === 'published'
-    ? { title: `${post.title} | ${t('blogSuffix')}`, description: post.excerpt }
-    : { title: t('notFound') };
+  if (!post || post.status !== 'published') return { title: t('notFound') };
+  const section = getSectionById(post.sectionId);
+  return {
+    title: `${post.title} | ${t('blogSuffix')}`,
+    description: post.excerpt,
+    alternates: section
+      ? { types: { 'application/rss+xml': `/blog/section/${section.slug}/feed.xml` } }
+      : undefined,
+  };
 }
 
 export default async function UserPostPage({ params }: UserPostPageProps) {

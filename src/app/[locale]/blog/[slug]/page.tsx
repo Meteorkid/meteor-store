@@ -29,12 +29,15 @@ export async function generateMetadata({
   const posts = getBlogPosts(locale as Locale);
   const post = posts.find((p) => p.slug === slug);
   const t = await getTranslations({ locale, namespace: 'BlogPostPage' });
-  return post
-    ? {
-        title: `${post.title} | ${t('blogSuffix')}`,
-        description: post.excerpt,
-      }
-    : { title: t('notFound') };
+  if (!post) return { title: t('notFound') };
+  const section = getSectionById(post.section);
+  return {
+    title: `${post.title} | ${t('blogSuffix')}`,
+    description: post.excerpt,
+    alternates: section
+      ? { types: { 'application/rss+xml': `/blog/section/${section.slug}/feed.xml` } }
+      : undefined,
+  };
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
