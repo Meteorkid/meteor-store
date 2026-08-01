@@ -29,7 +29,7 @@ const posts: FeedPostSummary[] = [
   },
 ];
 
-const options = { title: '测试 feed', description: '描述', path: '/blog' };
+const options = { title: '测试 feed', description: '描述', path: '/blog', locale: 'zh' as const };
 
 describe('buildRssFeed', () => {
   it('按日期倒序输出条目', () => {

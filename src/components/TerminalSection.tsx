@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { runCommand, QUICK_COMMANDS } from '@/lib/terminal-commands';
 import { triggerMeteorBurst } from './EasterEggs';
 import { useReducedMotion } from '@/lib/motion';
@@ -19,6 +20,7 @@ const PROMPT = 'meteor@store:~$';
  */
 export default function TerminalSection() {
   const router = useRouter();
+  const t = useTranslations('TerminalSection');
   const reducedMotion = useReducedMotion();
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [input, setInput] = useState('');
@@ -99,10 +101,10 @@ export default function TerminalSection() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <h2 id="terminal-heading" className="t-title-1 mb-3">
-            <span className="gradient-text">店主的终端</span>
+            <span className="gradient-text">{t('title')}</span>
           </h2>
           <p className="text-white/50 text-sm md:text-base">
-            这是一个真的能用的终端。会用的人自然会用，不会用的可以先敲一句 help。
+            {t('description')}
           </p>
         </div>
 
@@ -124,7 +126,7 @@ export default function TerminalSection() {
             className="p-4 h-72 overflow-y-auto font-mono text-sm leading-relaxed"
             role="log"
             aria-live="polite"
-            aria-label="终端输出"
+            aria-label={t('outputLabel')}
           >
             {history.map((entry, i) => (
               <div key={i} className="mb-2">
@@ -151,7 +153,7 @@ export default function TerminalSection() {
                     if (e.key === 'Enter') execute(input);
                   }}
                   className="flex-1 ml-2 bg-transparent outline-none text-white/90 caret-purple-400"
-                  aria-label="输入终端命令"
+                  aria-label={t('inputLabel')}
                   autoComplete="off"
                   autoCapitalize="off"
                   spellCheck={false}
@@ -185,7 +187,7 @@ export default function TerminalSection() {
         </div>
 
         <p className="text-center text-white/25 text-xs mt-6 font-mono">
-          hint: 有些命令没写在 help 里，比如那句经典的十键秘技。
+          {t('hint')}
         </p>
       </div>
     </section>

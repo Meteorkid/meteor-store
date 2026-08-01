@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import PathfinderForm, { PathfinderFormValue } from '@/components/pathfinder/PathfinderForm';
 import PathfinderPlanView from '@/components/pathfinder/PathfinderPlan';
 import type { PathfinderPlan } from '@/lib/pathfinder/schema';
@@ -20,6 +21,7 @@ interface ApiOk {
 }
 
 export default function PathfinderClient({ initialGoal }: { initialGoal?: string }) {
+  const t = useTranslations('PathfinderClient');
   const modelConfig = usePathfinderModelConfig();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export default function PathfinderClient({ initialGoal }: { initialGoal?: string
 
   const handleSubmit = async (value: PathfinderFormValue) => {
     if (!modelConfig) {
-      setError('请先完成模型配置，再生成你的路径。');
+      setError(t('errorNoConfig'));
       return;
     }
 
@@ -42,7 +44,7 @@ export default function PathfinderClient({ initialGoal }: { initialGoal?: string
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data?.error || `请求失败（${res.status}）`);
+        setError(data?.error || t('errorRequest', { status: res.status }));
         return;
       }
       setResult(data as ApiOk);
@@ -52,7 +54,7 @@ export default function PathfinderClient({ initialGoal }: { initialGoal?: string
         document.getElementById('pathfinder-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 80);
     } catch {
-      setError('网络异常，请检查网络后重试');
+      setError(t('errorNetwork'));
     } finally {
       setLoading(false);
     }
@@ -76,14 +78,14 @@ export default function PathfinderClient({ initialGoal }: { initialGoal?: string
     <>
       <section
         id="conditions"
-        aria-label="填写学习条件"
+        aria-label={t('sectionTitle')}
         className="max-w-2xl mx-auto px-4 sm:px-6"
       >
         <div className="mb-5">
           <div className="flex items-center justify-between gap-3 mb-3">
-            <h2 className="text-xl font-semibold text-foreground">先看一条走得通的路径</h2>
+            <h2 className="text-xl font-semibold text-foreground">{t('sectionTitle')}</h2>
             <span className="text-xs px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-300 border border-yellow-500/30">
-              无需 API Key
+              {t('noApiKey')}
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -95,12 +97,12 @@ export default function PathfinderClient({ initialGoal }: { initialGoal?: string
                 className="text-left rounded-2xl border border-white/10 bg-black/15 p-4 transition hover:border-purple-5/50 hover:bg-purple-6/10 focus:outline-none focus:ring-2 focus:ring-purple-5"
               >
                 <span className="inline-flex rounded-md bg-yellow-500/15 px-2 py-1 text-[10px] text-yellow-300 border border-yellow-500/30">
-                  典型场景演示
+                  {t('presetBadge')}
                 </span>
                 <span className="mt-3 block font-medium text-foreground">{preset.title}</span>
                 <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{preset.scenario}</span>
                 <span className="mt-3 inline-flex rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-muted-foreground">
-                  静态预置 · 非实时 AI 生成
+                  {t('presetTag')}
                 </span>
               </button>
             ))}
@@ -110,17 +112,17 @@ export default function PathfinderClient({ initialGoal }: { initialGoal?: string
         <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/15 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-foreground">
-              {modelConfig ? '正在使用你的模型配置' : '也可以按自己的现实条件生成'}
+              {modelConfig ? t('usingConfig') : t('generateOwn')}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {modelConfig
-                ? `已选模型：${modelConfig.model}。密钥仅保存在当前浏览器会话。`
-                : '典型场景无需配置；如需生成自己的路径，请填写你的 API Key、Base URL 和模型名称。'}
+                ? t('usingConfigDetail', { model: modelConfig.model })
+                : t('configHint')}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/pathfinder/settings" className="text-sm font-medium text-purple-200 transition hover:text-purple-100">
-              {modelConfig ? '修改配置' : '去配置'}
+              {modelConfig ? t('editConfig') : t('setupConfig')}
             </Link>
             {modelConfig && (
               <button
@@ -128,7 +130,7 @@ export default function PathfinderClient({ initialGoal }: { initialGoal?: string
                 onClick={clearPathfinderModelConfig}
                 className="text-xs text-muted-foreground transition hover:text-foreground"
               >
-                清除
+                {t('clear')}
               </button>
             )}
           </div>
@@ -146,7 +148,7 @@ export default function PathfinderClient({ initialGoal }: { initialGoal?: string
             aria-live="polite"
             className="text-center text-sm text-muted-foreground mt-4"
           >
-            正在基于你的条件生成路径...
+            {t('loading')}
           </p>
         )}
         {error && !loading && (
@@ -162,7 +164,7 @@ export default function PathfinderClient({ initialGoal }: { initialGoal?: string
       {result && realityConstraints && (
         <section
           id="pathfinder-result"
-          aria-label="生成的学习路径结果"
+          aria-label={t('sectionTitle')}
           className="max-w-2xl mx-auto px-4 sm:px-6 mt-8"
         >
           <PathfinderPlanView

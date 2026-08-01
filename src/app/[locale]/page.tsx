@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
@@ -17,13 +18,28 @@ import CTASection from '@/components/CTASection';
 import BackToTop from '@/components/BackToTop';
 import { SHOW_PRICING } from '@/lib/constants';
 
-export const metadata: Metadata = {
-  title: 'Meteor Store — 开发者工具与 AI 应用',
-  description:
-    '精心打造的开发者工具矩阵：智能爬虫框架 OmniCrawl、AI 记忆系统 Ex-Memory、3D 解剖图谱 Skeleton Anatomy。开源驱动，终身免费更新。',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'HomePage' });
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
 
-export default function Home() {
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'HomePage' });
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
@@ -49,8 +65,8 @@ export default function Home() {
       {/* Features List */}
       <FeaturesSection
         layout="list"
-        title="核心优势"
-        subtitle="我们致力于提供最优质的开发者工具和 AI 应用"
+        title={t('coreAdvantages')}
+        subtitle={t('coreAdvantagesSubtitle')}
         featureCount={4}
       />
 

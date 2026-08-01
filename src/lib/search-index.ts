@@ -1,10 +1,11 @@
 // Spotlight 聚焦搜索 · 索引与匹配
 // 纯函数实现，不依赖 DOM，便于单元测试
 
-import { products } from '@/data/products';
+import { localizeProducts } from '@/data/products';
 import { allFaqs } from '@/components/FAQSection';
 import { SHOW_PRICING, categoryLabels } from '@/lib/constants';
 import { blogSections } from '@/data/blog-sections';
+import type { Locale } from '@/i18n/routing';
 import { pinyin } from 'pinyin-pro';
 
 export type SearchGroup = '产品' | '页面' | '帮助' | '彩蛋';
@@ -70,8 +71,9 @@ function withPinyin(title: string, entry: Omit<SearchEntry, 'initials' | 'fullPi
   return { ...entry, initials: toPinyinInitials(title), fullPinyin: toFullPinyin(title) };
 }
 
-/** 构建全站搜索索引（构建一次，模块级缓存） */
-export function buildIndex(): SearchEntry[] {
+/** 构建全站搜索索引（按 locale 构建并缓存） */
+export function buildIndex(locale: Locale): SearchEntry[] {
+  const products = localizeProducts(locale);
   const productEntries: SearchEntry[] = products.map(p =>
     withPinyin(p.name, {
       id: `product-${p.id}`,
@@ -106,13 +108,13 @@ export function buildIndex(): SearchEntry[] {
     );
 
   const sectionEntries: SearchEntry[] = blogSections.map(s =>
-    withPinyin(s.label, {
+    withPinyin(s.label[locale], {
       id: `blog-section-${s.id}`,
-      title: s.label,
-      subtitle: `博客分区 · ${s.description}`,
+      title: s.label[locale],
+      subtitle: `博客分区 · ${s.description[locale]}`,
       group: '页面',
       href: `/blog/section/${s.slug}`,
-      keywords: [s.id, s.slug, s.label, s.description, '博客 分区 blog'].join(' ').toLowerCase(),
+      keywords: [s.id, s.slug, s.label[locale], s.description[locale], '博客 分区 blog'].join(' ').toLowerCase(),
     }),
   );
 
@@ -130,10 +132,10 @@ export function buildIndex(): SearchEntry[] {
   return [...productEntries, ...pageEntries, ...sectionEntries, ...faqEntries, ...eggEntries];
 }
 
-let cachedIndex: SearchEntry[] | null = null;
-export function getIndex(): SearchEntry[] {
-  if (!cachedIndex) cachedIndex = buildIndex();
-  return cachedIndex;
+const cachedIndexes: Partial<Record<Locale, SearchEntry[]>> = {};
+export function getIndex(locale: Locale): SearchEntry[] {
+  if (!cachedIndexes[locale]) cachedIndexes[locale] = buildIndex(locale);
+  return cachedIndexes[locale]!;
 }
 
 /** 判断 term 是否全由 ASCII 字母组成（即可能是拼音输入） */
@@ -167,7 +169,8 @@ function scoreTerm(entry: SearchEntry, term: string): number {
  * 搜索：多词项须全部命中（AND），得分求和排序。
  * 中文靠子串匹配天然可用；拉丁字母自动匹配拼音首字母与全拼。
  */
-export function searchEntries(query: string, limit = 8, index: SearchEntry[] = getIndex()): SearchEntry[] {
+export function searchEntries(query: string, locale: Locale, limit = 8): SearchEntry[] {
+  const index = getIndex(locale);
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length === 0) return [];
 

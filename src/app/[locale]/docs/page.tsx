@@ -3,8 +3,9 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { products } from '@/data/products';
+import { products, localizeProduct, type LocalizedProduct } from '@/data/products';
 import { categoryLabels } from '@/lib/constants';
+import type { Locale } from '@/i18n/routing';
 
 export async function generateMetadata({
   params,
@@ -29,6 +30,8 @@ export default async function DocsPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'DocsPage' });
+
+  const localizedProducts = products.map((p) => localizeProduct(p, locale as Locale));
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -64,7 +67,7 @@ export default async function DocsPage({
           {/* Per-category sections */}
           {categoryOrder.map((category) => {
             const label = categoryLabels[category];
-            const items = products.filter((p) => p.category === category);
+            const items = localizedProducts.filter((p) => p.category === category);
             if (!items.length || !label) return null;
 
             return (
@@ -72,7 +75,7 @@ export default async function DocsPage({
                 <h2 className="mb-8 text-2xl font-bold text-white">{label}</h2>
                 <div className="space-y-6">
                   {items.map((product) => (
-                    <DocCard key={product.id} product={product} />
+                    <DocCard key={product.id} product={product} t={t} />
                   ))}
                 </div>
               </section>
@@ -100,7 +103,7 @@ export default async function DocsPage({
   );
 }
 
-function DocCard({ product }: { product: (typeof products)[number] }) {
+function DocCard({ product, t }: { product: LocalizedProduct; t: Awaited<ReturnType<typeof getTranslations>> }) {
   const qs = product.quickstart;
 
   return (
@@ -146,7 +149,7 @@ function DocCard({ product }: { product: (typeof products)[number] }) {
             href={`/products/${product.id}`}
             className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:border-violet-500/40 hover:text-violet-300"
           >
-            详情 →
+            {t('detailsLink')}
           </Link>
         </div>
       </div>
@@ -168,14 +171,14 @@ function DocCard({ product }: { product: (typeof products)[number] }) {
             </div>
           ) : qs.download ? (
             <div className="flex items-center justify-between px-6 py-3">
-              <span className="text-sm text-gray-500">macOS 应用，下载即装即用</span>
+              <span className="text-sm text-gray-500">{t('macAppHint')}</span>
               <a
                 href={qs.download}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/20"
               >
-                下载 ↓
+                {t('download')}
               </a>
             </div>
           ) : null}

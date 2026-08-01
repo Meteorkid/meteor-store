@@ -3,7 +3,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import CategoryFilter from '@/components/CategoryFilter';
-import { products } from '@/data/products';
+import { products, localizeProduct } from '@/data/products';
+import type { Locale } from '@/i18n/routing';
 
 interface Props {
   searchParams: Promise<{ category?: string }>;
@@ -15,9 +16,10 @@ export default async function ProductsPage({ searchParams, params }: Props) {
   const t = await getTranslations({ locale, namespace: 'ProductsPage' });
   const { category: selectedCategory = 'all' } = await searchParams;
 
+  const allProducts = products.map((p) => localizeProduct(p, locale as Locale));
   const filteredProducts = selectedCategory === 'all'
-    ? products
-    : products.filter(p => p.category === selectedCategory);
+    ? allProducts
+    : allProducts.filter((p) => p.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-black text-white">

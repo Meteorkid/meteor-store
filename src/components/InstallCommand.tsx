@@ -1,13 +1,13 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import type { Product } from '@/data/products';
+import type { LocalizedProduct } from '@/data/products';
 
 /**
  * 产品详情页「快速上手」条：终端风格安装命令 + 一键复制。
  * macOS 应用类产品（只有 download 没有 command）显示下载按钮。
  */
-export default function InstallCommand({ product }: { product: Product }) {
+export default function InstallCommand({ product }: { product: LocalizedProduct }) {
   const quickstart = product.quickstart;
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);

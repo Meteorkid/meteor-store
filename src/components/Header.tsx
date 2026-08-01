@@ -114,19 +114,19 @@ export default function Header() {
               </Link>
             );
           })}
-          <Link
+          <a
             href="https://github.com/Meteorkid"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5 transition-all duration-200"
           >
             GitHub
-          </Link>
+          </a>
           {/* Spotlight 搜索入口 */}
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('spotlight:open'))}
-            aria-label="搜索（快捷键 ⌘K）"
-            title="搜索 ⌘K"
+            aria-label={t('searchShortcut')}
+            title={t('searchShortcutTitle')}
             className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5 transition-all duration-200"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -143,7 +143,7 @@ export default function Header() {
         <div className="md:hidden flex items-center gap-1">
         <button
           onClick={() => window.dispatchEvent(new CustomEvent('spotlight:open'))}
-          aria-label="搜索"
+          aria-label={t('search')}
           className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
         >
           <svg className="w-5 h-5 text-foreground/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -154,7 +154,7 @@ export default function Header() {
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
-          aria-label={mobileOpen ? '关闭菜单' : '打开菜单'}
+          aria-label={mobileOpen ? t('closeMenu') : t('openMenu')}
         >
           <div className="w-5 h-4 flex flex-col justify-between">
             <span
@@ -200,7 +200,7 @@ export default function Header() {
               </Link>
             );
           })}
-          <Link
+          <a
             href="https://github.com/Meteorkid"
             target="_blank"
             rel="noopener noreferrer"
@@ -208,7 +208,7 @@ export default function Header() {
             className="px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
           >
             GitHub
-          </Link>
+          </a>
           <div className="h-px bg-border my-4" />
           {user ? (
             <div className="space-y-2">
@@ -217,7 +217,7 @@ export default function Header() {
                   {(user.name?.[0] || user.email[0]).toUpperCase()}
                 </span>
                 <div>
-                  <p className="text-sm font-medium text-white">{user.name || '用户'}</p>
+                  <p className="text-sm font-medium text-white">{user.name || t('defaultUserName')}</p>
                   <p className="text-xs text-gray-500">{user.email}</p>
                 </div>
               </div>
@@ -233,14 +233,14 @@ export default function Header() {
                 onClick={() => setMobileOpen(false)}
                 className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
               >
-                写文章
+                {t('writeArticle')}
               </Link>
               <Link
                 href="/blog/my-posts"
                 onClick={() => setMobileOpen(false)}
                 className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
               >
-                我的投稿
+                {t('myPosts')}
               </Link>
               {user.isAdmin && (
                 <Link
@@ -248,7 +248,7 @@ export default function Header() {
                   onClick={() => setMobileOpen(false)}
                   className="block px-4 py-3 text-lg text-amber-300/80 hover:bg-white/5 rounded-xl transition-colors"
                 >
-                  待审核
+                  {t('pendingReview')}
                 </Link>
               )}
               <button

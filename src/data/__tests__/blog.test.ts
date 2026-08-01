@@ -5,7 +5,7 @@ import matter from 'gray-matter';
 import { blogPosts, estimateReadingTime, toSummary } from '../blog';
 import { blogSections } from '../blog-sections';
 
-const CONTENT_DIR = join(process.cwd(), 'content/blog');
+const CONTENT_DIR = join(process.cwd(), 'content/blog/zh');
 const files = readdirSync(CONTENT_DIR).filter((f) => f.endsWith('.md'));
 const sectionIds = new Set(blogSections.map((s) => s.id));
 

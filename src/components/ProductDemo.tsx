@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 const demos = [
   {
     id: 'omnicrawl',
     name: 'OmniCrawl',
-    tagline: '智能爬虫框架',
-    description: '一行代码启动多线程爬虫，内置反爬绕过和数据解析能力',
+    taglineKey: 'demo1Tagline',
+    descKey: 'demo1Desc',
     code: `import { Crawler } from 'omnicrawl';
 
 const crawler = new Crawler({
@@ -20,13 +21,13 @@ const crawler = new Crawler({
 
 const results = await crawler.run();
 console.log(\`爬取 \${results.length} 条数据\`);`,
-    features: ['多线程并发', '反爬绕过', '智能解析', '多格式导出'],
+    featureKeys: ['demo1Feature1', 'demo1Feature2', 'demo1Feature3', 'demo1Feature4'],
   },
   {
     id: 'ex-memory',
     name: 'Ex-Memory',
-    tagline: 'AI 记忆系统',
-    description: '持久化 AI 对话记忆，支持语义搜索和时间线回溯',
+    taglineKey: 'demo2Tagline',
+    descKey: 'demo2Desc',
     code: `import { Memory } from 'ex-memory';
 
 const memory = new Memory({
@@ -39,13 +40,13 @@ await memory.store('确定了 v2.0 发布日期');
 
 const context = await memory.retrieve('路线图');
 // → 返回相关的对话片段`,
-    features: ['语义记忆', '时间线', '上下文召回', '本地存储'],
+    featureKeys: ['demo2Feature1', 'demo2Feature2', 'demo2Feature3', 'demo2Feature4'],
   },
   {
     id: 'skeleton-anatomy',
     name: 'Skeleton Anatomy',
-    tagline: '3D 解剖图谱',
-    description: '交互式 WebGL 3D 人体骨骼，支持标注、测量和学习模式',
+    taglineKey: 'demo3Tagline',
+    descKey: 'demo3Desc',
     code: `import { SkeletonViewer } from 'skeleton-anatomy';
 
 const viewer = new SkeletonViewer({
@@ -57,11 +58,12 @@ const viewer = new SkeletonViewer({
 viewer.setAngle('lateral');
 viewer.highlight('femur');
 viewer.measure('tibia', 'fibula');`,
-    features: ['WebGL 3D', '交互标注', '测量工具', '学习模式'],
+    featureKeys: ['demo3Feature1', 'demo3Feature2', 'demo3Feature3', 'demo3Feature4'],
   },
 ];
 
 export default function ProductDemo() {
+  const t = useTranslations('ProductDemo');
   const [activeDemo, setActiveDemo] = useState(0);
 
   return (
@@ -69,12 +71,12 @@ export default function ProductDemo() {
       <div className="container mx-auto px-4">
         {/* Section header */}
         <div className="text-center mb-16 scroll-animate">
-          <p className="text-sm text-primary uppercase tracking-widest font-medium mb-4">代码驱动</p>
+          <p className="text-sm text-primary uppercase tracking-widest font-medium mb-4">{t('eyebrow')}</p>
           <h2 className="t-title-1 text-foreground mb-4">
-            简洁的 API，强大的能力
+            {t('title')}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            每款工具都追求极简的使用体验
+            {t('subtitle')}
           </p>
         </div>
 
@@ -125,7 +127,7 @@ export default function ProductDemo() {
                             : 'text-white/70'
                         }
                       >
-                        {line || ' '}
+                        {line || ' '}
                       </span>
                     </div>
                   ))}
@@ -137,19 +139,19 @@ export default function ProductDemo() {
           {/* Info Panel */}
           <div className="scroll-animate lg:sticky lg:top-24">
             <div className="mb-6">
-              <span className="text-xs text-primary font-medium uppercase tracking-wider">{demos[activeDemo].tagline}</span>
+              <span className="text-xs text-primary font-medium uppercase tracking-wider">{t(demos[activeDemo].taglineKey)}</span>
               <h3 className="text-2xl font-bold text-foreground mt-2 mb-3">{demos[activeDemo].name}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">{demos[activeDemo].description}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed">{t(demos[activeDemo].descKey)}</p>
             </div>
 
             {/* Features */}
             <div className="grid grid-cols-2 gap-3 mb-8">
-              {demos[activeDemo].features.map((f) => (
-                <div key={f} className="flex items-center gap-2 text-sm text-foreground/80">
+              {demos[activeDemo].featureKeys.map((fKey) => (
+                <div key={fKey} className="flex items-center gap-2 text-sm text-foreground/80">
                   <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  {f}
+                  {t(fKey)}
                 </div>
               ))}
             </div>
@@ -159,7 +161,7 @@ export default function ProductDemo() {
               href={`/products/${demos[activeDemo].id}`}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-purple-6 to-pink-6 text-white text-sm font-medium hover:opacity-90 transition-opacity"
             >
-              查看完整文档
+              {t('viewDocs')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import GlowButton from './GlowButton';
 
 export default function NewsletterSection() {
+  const t = useTranslations('NewsletterSection');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -23,14 +25,14 @@ export default function NewsletterSection() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || '订阅失败');
+        throw new Error(data.error || t('subscribeFailed'));
       }
 
       setStatus('success');
       setEmail('');
     } catch (err) {
       setStatus('error');
-      setErrorMsg(err instanceof Error ? err.message : '订阅失败，请稍后重试');
+      setErrorMsg(err instanceof Error ? err.message : t('subscribeFailedRetry'));
     } finally {
       setIsSubmitting(false);
     }
@@ -47,10 +49,10 @@ export default function NewsletterSection() {
             <div className="text-4xl mb-4">📬</div>
 
             <h2 className="t-title-2 text-foreground mb-3">
-              订阅产品动态
+              {t('title')}
             </h2>
             <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-              获取新版本发布通知、技术分享和使用技巧
+              {t('subtitle')}
             </p>
 
             {status === 'success' ? (
@@ -58,7 +60,7 @@ export default function NewsletterSection() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span>收到！比收到花呗还款提醒还开心。</span>
+                <span>{t('success')}</span>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
@@ -66,13 +68,13 @@ export default function NewsletterSection() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com（不会拿去换学费的，放心）"
+                  placeholder={t('placeholder')}
                   required
-                  aria-label="邮箱地址"
+                  aria-label={t('emailLabel')}
                   className="flex-1 px-4 py-3 rounded-lg backdrop-blur-md bg-white/[0.04] border-t border-l border-r border-b border-t-white/[0.12] border-l-white/[0.06] border-r-white/[0.05] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] text-foreground placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-t-primary/40 text-sm transition-all"
                 />
                 <GlowButton type="submit" variant="primary" size="md" disabled={isSubmitting}>
-                  {isSubmitting ? '提交中...' : '订阅'}
+                  {isSubmitting ? t('submitting') : t('submit')}
                 </GlowButton>
               </form>
             )}
@@ -82,7 +84,7 @@ export default function NewsletterSection() {
             )}
 
             <p className="text-xs text-white/30 mt-4">
-              我们尊重你的隐私，不会发送垃圾邮件。
+              {t('privacyNote')}
             </p>
           </div>
         </div>

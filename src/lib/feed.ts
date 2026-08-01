@@ -1,6 +1,7 @@
 import { SITE_URL } from '@/lib/constants';
 import type { FeedPostSummary } from '@/data/blog-feed';
-import { blogSectionLabels } from '@/data/blog-sections';
+import { getBlogSectionLabels } from '@/data/blog-sections';
+import type { Locale } from '@/i18n/routing';
 
 /** XML 文本节点转义；属性值同样适用 */
 function escapeXml(text: string): string {
@@ -22,6 +23,8 @@ export interface FeedOptions {
   description: string;
   /** 该 feed 对应的页面路径，如 /blog 或 /blog/section/debate */
   path: string;
+  /** feed 内容对应的语言，用于选取分区标签的本地化文本 */
+  locale: Locale;
 }
 
 export function buildRssFeed(posts: FeedPostSummary[], options: FeedOptions): string {
@@ -37,7 +40,7 @@ export function buildRssFeed(posts: FeedPostSummary[], options: FeedOptions): st
       <link>${escapeXml(url)}</link>
       <guid isPermaLink="true">${escapeXml(url)}</guid>
       <description>${escapeXml(post.excerpt)}</description>
-      <category>${escapeXml(blogSectionLabels[post.section])}</category>${
+      <category>${escapeXml(getBlogSectionLabels(options.locale)[post.section])}</category>${
         post.author ? `\n      <author>${escapeXml(post.author)}</author>` : ''
       }
       <pubDate>${toRfc822(post.date)}</pubDate>

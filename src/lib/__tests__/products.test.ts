@@ -5,7 +5,8 @@ describe('findProduct', () => {
   it('returns product by id', () => {
     const product = findProduct('omnicrawl');
     expect(product).toBeDefined();
-    expect(product?.name).toBe('OmniCrawl');
+    expect(product?.name.zh).toBe('OmniCrawl');
+    expect(product?.name.en).toBe('OmniCrawl');
   });
 
   it('returns undefined for non-existent id', () => {

@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogList from '@/components/BlogList';
+import type { Locale } from '@/i18n/routing';
 
 export async function generateMetadata({
   params,
@@ -48,7 +49,7 @@ export default async function BlogPage({
             </a>
           </header>
 
-          <BlogList />
+          <BlogList locale={locale as Locale} />
         </div>
       </main>
       <Footer />

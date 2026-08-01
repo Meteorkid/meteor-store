@@ -11,12 +11,12 @@ vi.mock('resend', () => {
   };
 });
 
-// Mock products
+// Mock products — 返回双语结构，与 src/data/products.ts 保持一致
 vi.mock('../products', () => ({
   findProduct: vi.fn((id: string) => {
-    const products: Record<string, { name: string }> = {
-      'omnicrawl': { name: 'OmniCrawl' },
-      'ex-memory': { name: 'ExMemory' },
+    const products: Record<string, { name: { zh: string; en: string } }> = {
+      'omnicrawl': { name: { zh: 'OmniCrawl', en: 'OmniCrawl' } },
+      'ex-memory': { name: { zh: 'ExMemory', en: 'ExMemory' } },
     };
     return products[id] || null;
   }),

@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Product } from '@/data/products';
+import { LocalizedProduct } from '@/data/products';
 import ImageLightbox from '@/components/ImageLightbox';
 
-export default function ProductGallery({ product }: { product: Product }) {
+export default function ProductGallery({ product }: { product: LocalizedProduct }) {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
   if (!product.media?.screenshots.length && !product.media?.demo) return null;

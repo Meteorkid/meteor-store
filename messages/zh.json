@@ -27,7 +27,16 @@
     "pathfinder": "公益学习路径",
     "login": "登录 / 注册",
     "account": "个人主页",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "search": "搜索",
+    "searchShortcut": "搜索（快捷键 ⌘K）",
+    "searchShortcutTitle": "搜索 ⌘K",
+    "closeMenu": "关闭菜单",
+    "openMenu": "打开菜单",
+    "defaultUserName": "用户",
+    "writeArticle": "写文章",
+    "myPosts": "我的投稿",
+    "pendingReview": "待审核"
   },
   "Footer": {
     "products": "产品",
@@ -52,7 +61,9 @@
     "description": "精心打造的开发者工具矩阵：智能爬虫框架、AI 记忆系统、3D 解剖图谱、设计系统、状态管理库。开源驱动，终身免费更新。",
     "heroTitle": "开发者工具矩阵",
     "heroSubtitle": "精心打造的开发者工具，开源驱动，终身免费更新",
-    "cta": "浏览产品"
+    "cta": "浏览产品",
+    "coreAdvantages": "核心优势",
+    "coreAdvantagesSubtitle": "我们致力于提供最优质的开发者工具和 AI 应用"
   },
   "LoginPage": {
     "title": "登录",
@@ -74,11 +85,36 @@
     "bioLabel": "个人简介",
     "changePassword": "修改密码",
     "currentPassword": "当前密码",
-    "newPassword": "新密码"
+    "newPassword": "新密码",
+    "metaTitle": "个人主页 - Meteor Store",
+    "srTitle": "个人主页",
+    "joinTime": "加入时间",
+    "emailStatus": "邮箱状态",
+    "verified": "已验证",
+    "unverified": "未验证",
+    "studentStatus": "学生身份",
+    "verifiedStudent": "已认证",
+    "unverifiedStudent": "未认证",
+    "postsCount": "投稿",
+    "postsUnit": "{count} 篇",
+    "studentPrompt": "在校学生用教育邮箱可以免费用全部付费功能，",
+    "verifyNow": "去认证",
+    "verifySuffix": "。",
+    "myLicenseKeys": "我的授权码",
+    "licenseKeysDesc": "通过购买或邀请码兑换获得的产品授权。",
+    "myPosts": "我的投稿",
+    "myPostsDesc": "你提交的文章和它们的审核状态。",
+    "statusActive": "有效",
+    "statusRevoked": "已撤销",
+    "statusDraft": "草稿",
+    "statusPending": "审核中",
+    "statusPublished": "已发布",
+    "statusRejected": "未通过"
   },
   "ProductsPage": {
     "title": "产品",
-    "description": "探索我们的开发者工具产品"
+    "description": "探索我们的开发者工具产品",
+    "noProducts": "暂无产品"
   },
   "BlogPage": {
     "title": "博客",
@@ -105,11 +141,10 @@
     "description": "每款产品的快速上手指南。复制命令，30 秒跑起来。",
     "notFound": "找不到想要的？",
     "checkReadme": "每个项目的 README 都有完整 API 文档和进阶用法。",
-    "browseGithub": "浏览 GitHub"
-  },
-  "PrivacyPage": {
-    "title": "隐私政策",
-    "lastUpdated": "最后更新"
+    "browseGithub": "浏览 GitHub",
+    "detailsLink": "详情 →",
+    "macAppHint": "macOS 应用，下载即装即用",
+    "download": "下载 ↓"
   },
   "TermsPage": {
     "title": "服务条款",
@@ -136,11 +171,37 @@
     "section8Content": "我们可能会不时更新本条款。重大变更将通过邮件或网站公告通知您。继续使用服务即表示接受更新后的条款。",
     "section9Title": "9. 联系方式",
     "section9Content": "如有任何问题，请联系我们：",
-    "email": "邮箱"
+    "email": "邮箱",
+    "lastUpdatedDate": "2025 年 1 月"
   },
   "FeedbackPage": {
     "title": "反馈建议",
-    "description": "提交 Bug 反馈、功能建议或使用疑问，我们会认真处理每一条反馈。"
+    "description": "提交 Bug 反馈、功能建议或使用疑问，我们会认真处理每一条反馈。",
+    "typeBug": "Bug 反馈",
+    "typeFeature": "功能建议",
+    "typeQuestion": "使用疑问",
+    "typeOther": "其他",
+    "typeNightWhisper": "深夜树洞 🌙",
+    "errorRequired": "请填写反馈类型和内容",
+    "errorSubmit": "提交失败",
+    "errorRetry": "提交失败，请稍后重试",
+    "successWhisperTitle": "说出来就好一些了，对吧",
+    "successTitle": "感谢你的反馈！",
+    "successWhisperDesc": "我会看的。今晚好好睡一觉。",
+    "successDesc": "收到！比收到花呗还款提醒还开心。",
+    "nightHint": "深夜的话可以只说给我听。想说什么都行，我都会看。不用留邮箱。",
+    "emailLabel": "邮箱",
+    "emailOptional": "（可选，方便我们回复你）",
+    "emailPlaceholderWhisper": "树洞模式不需要留邮箱",
+    "typeLabel": "反馈类型",
+    "selectPrompt": "请选择",
+    "contentLabel": "详细描述",
+    "contentPlaceholder": "说点什么吧，夸我也行（尤其欢迎夸我）",
+    "contentPlaceholderWhisper": "这里只有你和我。想说什么都可以。",
+    "submitLoading": "提交中...",
+    "submitBug": "提交 bug（对不起对不起）",
+    "submitWhisper": "轻轻放进树洞",
+    "submit": "提交反馈"
   },
   "StudentPage": {
     "title": "学生免费计划",
@@ -156,7 +217,8 @@
     "faq2Answer": "没有。验证通过后永久有效。毕业了也可以继续用。",
     "faq3Question": "我没有教育邮箱怎么办？",
     "faq3Answer": "直接写邮件给 meteor@stu.gpnu.edu.cn，附上你的学生证照片，我手动帮你开通。",
-    "backToHome": "返回首页"
+    "backToHome": "返回首页",
+    "emailSubject": "学生免费计划申请"
   },
   "SuccessPage": {
     "maintenanceTitle": "页面维护中",
@@ -242,7 +304,8 @@
     "section7Content": "我们可能不时更新本协议。重大变更将通过网站公告或邮件告知。继续使用产品即视为接受更新后的协议；不同意则应停止使用并按退款政策处理。",
     "section8Title": "8. 联系方式",
     "section8Content": "如对本协议有任何问题，请联系：",
-    "email": "邮箱"
+    "email": "邮箱",
+    "lastUpdatedDate": "2026 年 7 月"
   },
   "OpenSourcePage": {
     "title": "开源项目",
@@ -250,7 +313,16 @@
     "projects": "个项目",
     "license": "协议",
     "contribute": "想要贡献？欢迎提交 Issue 和 Pull Request。",
-    "followGithub": "在 GitHub 上关注"
+    "followGithub": "在 GitHub 上关注",
+    "descOmnicrawl": "基于 Scrapling + curl_cffi + Playwright 的全能爬虫框架，一套 API 三个引擎，自动绕过反爬。",
+    "descExMemory": "LLM + RAG 让 AI 学会一个人的说话风格。导入聊天记录，还原语气和用词习惯。",
+    "descSkeletonAnatomy": "浏览器里的 3D 人体骨骼模型，支持旋转、缩放、标注，面向医学生和解剖学爱好者。",
+    "descUiDesignSystem": "Claude Code 的 UI/UX 设计 Skill。三层 Token 体系 + shadcn 组件最佳实践。",
+    "descStatux": "终端状态栏工具，在 iTerm2 里实时显示 AI Agent 运行状态。",
+    "descXisland": "把 iPhone 的灵动岛搬到 macOS 菜单栏，显示系统状态和音乐控制。",
+    "descTollow": "沉浸式长文打字练习。选一本书，逐段练习，支持中英文。",
+    "descXnook": "macOS 效率小工具集，窗口管理、快捷键、剪贴板增强。",
+    "descChakraVisualizer": "用摄像头捕捉手势，识别火影忍者结印并播放忍术特效。纯前端实现。"
   },
   "StoryPage": {
     "title": "一封来自店主的信",
@@ -290,7 +362,8 @@
     "section5Title": "5. 法律说明",
     "section5Content": "本政策不排除法律法规规定的消费者享有的强制性权利。如果您是中华人民共和国境内的消费者，您在《消费者权益保护法》等法律下享有的权利不受本政策限制。",
     "section6Title": "6. 联系方式",
-    "email": "邮箱"
+    "email": "邮箱",
+    "lastUpdatedDate": "2026 年 7 月"
   },
   "PrivacyPage": {
     "title": "隐私政策",
@@ -331,6 +404,333 @@
     "right4": "选择退出营销通信",
     "section7Title": "7. 联系我们",
     "section7Content": "如有任何隐私相关问题，请通过以下方式联系我们：",
-    "email": "邮箱"
+    "email": "邮箱",
+    "lastUpdatedDate": "2025 年 1 月"
+  },
+  "BlogPostPage": {
+    "blogSuffix": "Meteor Store 博客",
+    "notFound": "文章未找到 - Meteor Store",
+    "backTo": "回到{section}",
+    "blog": "博客",
+    "minutes": "{count} 分钟",
+    "continueReading": "继续读",
+    "allArticles": "全部文章",
+    "checkTools": "看看这些工具",
+    "anonymous": "匿名",
+    "readerSubmission": "读者投稿"
+  },
+  "BlogSectionPage": {
+    "blogSuffix": "Meteor Store 博客",
+    "notFound": "分区未找到 - Meteor Store",
+    "subscribe": "订阅"
+  },
+  "BlogTagPage": {
+    "blogSuffix": "Meteor Store 博客",
+    "notFound": "标签未找到 - Meteor Store",
+    "description": "标签「{tag}」下的 {count} 篇文章",
+    "count": "{count} 篇",
+    "allTags": "全部标签"
+  },
+  "ProductDetailPage": {
+    "notFound": "产品未找到 - Meteor Store",
+    "backToProducts": "返回产品列表",
+    "githubSource": "GitHub 源码",
+    "liveDemo": "在线演示",
+    "features": "功能特点",
+    "pricing": "定价方案",
+    "openSource": "开源",
+    "readyTitle": "准备好了吗？",
+    "readyDesc": "{name} 完全开源。在 GitHub 上查看代码、提 Issue、参与贡献——或者直接用起来。",
+    "viewSource": "查看源码",
+    "contactMe": "联系我",
+    "periodMonthly": "月",
+    "periodMonthlyAnnual": "月 (年付)",
+    "periodYearly": "年",
+    "periodLifetime": "买断"
+  },
+  "HeroSection": {
+    "badge": "全平台工具矩阵 · 持续迭代中",
+    "headingLine1": "构建未来的",
+    "headingLine2": "开发者工具箱",
+    "subtitleLine1": "从智能爬虫到 AI 记忆系统，从 3D 解剖到设计系统——",
+    "subtitleLine2": "每一款工具，都为解决真实问题而生。",
+    "trustLinePricing": "已服务 1000+ 开发者 · 开源驱动 · 终身免费更新",
+    "trustLineNoPricing": "开源驱动 · 社区驱动 · 欢迎贡献",
+    "ctaExplore": "探索全部产品",
+    "ctaGithub": "GitHub 开源",
+    "statTools": "精品工具",
+    "statUsers": "活跃用户",
+    "statRating": "平均评分",
+    "statLatency": "响应延迟"
+  },
+  "ProductShowcase": {
+    "title": "精选产品",
+    "subtitle": "选择适合你的工具",
+    "categoryAll": "全部",
+    "categoryCrawler": "爬虫",
+    "categoryAi": "AI",
+    "categoryDesign": "设计",
+    "categoryUtility": "工具",
+    "viewAll": "查看全部产品"
+  },
+  "ProductDemo": {
+    "eyebrow": "代码驱动",
+    "title": "简洁的 API，强大的能力",
+    "subtitle": "每款工具都追求极简的使用体验",
+    "viewDocs": "查看完整文档",
+    "demo1Tagline": "智能爬虫框架",
+    "demo1Desc": "一行代码启动多线程爬虫，内置反爬绕过和数据解析能力",
+    "demo1Feature1": "多线程并发",
+    "demo1Feature2": "反爬绕过",
+    "demo1Feature3": "智能解析",
+    "demo1Feature4": "多格式导出",
+    "demo2Tagline": "AI 记忆系统",
+    "demo2Desc": "持久化 AI 对话记忆，支持语义搜索和时间线回溯",
+    "demo2Feature1": "语义记忆",
+    "demo2Feature2": "时间线",
+    "demo2Feature3": "上下文召回",
+    "demo2Feature4": "本地存储",
+    "demo3Tagline": "3D 解剖图谱",
+    "demo3Desc": "交互式 WebGL 3D 人体骨骼，支持标注、测量和学习模式",
+    "demo3Feature1": "WebGL 3D",
+    "demo3Feature2": "交互标注",
+    "demo3Feature3": "测量工具",
+    "demo3Feature4": "学习模式"
+  },
+  "FeaturesSection": {
+    "eyebrow": "核心能力",
+    "title": "为什么选择我们",
+    "subtitle": "每一款工具都经过精心打磨，只为给你最好的体验",
+    "feature1Title": "高性能",
+    "feature1Desc": "所有工具都经过精心优化，确保最佳性能体验",
+    "feature1Item1": "极速响应",
+    "feature1Item2": "低内存占用",
+    "feature1Item3": "优化算法",
+    "feature1Item4": "并行处理",
+    "feature2Title": "安全可靠",
+    "feature2Desc": "隐私保护是我们的首要任务，数据安全有保障",
+    "feature2Item1": "端到端加密",
+    "feature2Item2": "本地存储",
+    "feature2Item3": "零知识证明",
+    "feature2Item4": "安全审计",
+    "feature3Title": "持续更新",
+    "feature3Desc": "我们不断改进产品，添加新功能，保持技术领先",
+    "feature3Item1": "定期更新",
+    "feature3Item2": "新功能开发",
+    "feature3Item3": "Bug 修复",
+    "feature3Item4": "性能优化",
+    "feature4Title": "精准定位",
+    "feature4Desc": "针对不同场景深度优化，满足各种专业需求",
+    "feature5Title": "跨平台支持",
+    "feature5Desc": "支持多种操作系统和设备，随时随地使用",
+    "feature6Title": "优质服务",
+    "feature6Desc": "提供及时的技术支持，快速响应你的问题"
+  },
+  "StatsSection": {
+    "statTools": "精品工具",
+    "statUsers": "活跃用户",
+    "statRating": "用户评分",
+    "statLatency": "响应延迟"
+  },
+  "TestimonialsSection": {
+    "eyebrow": "用户反馈",
+    "title": "被开发者信赖",
+    "subtitle": "来自真实用户的声音"
+  },
+  "PartnersSection": {
+    "subtitle": "基于现代技术栈构建"
+  },
+  "NewsletterSection": {
+    "title": "订阅产品动态",
+    "subtitle": "获取新版本发布通知、技术分享和使用技巧",
+    "success": "收到！比收到花呗还款提醒还开心。",
+    "placeholder": "you@example.com（不会拿去换学费的，放心）",
+    "emailLabel": "邮箱地址",
+    "submitting": "提交中...",
+    "submit": "订阅",
+    "subscribeFailed": "订阅失败",
+    "subscribeFailedRetry": "订阅失败，请稍后重试",
+    "privacyNote": "我们尊重你的隐私，不会发送垃圾邮件。"
+  },
+  "FAQSection": {
+    "title": "常见问题",
+    "subtitle": "如果你有其他问题，请随时联系我们",
+    "faq1Question": "如何购买产品？",
+    "faq1Answer": "选择你想要的产品和方案，点击「立即购买」，通过支付宝完成支付。支付成功后，确认邮件会自动发送到你的邮箱。",
+    "faq2Question": "购买后如何获取产品？",
+    "faq2Answer": "支付成功后，我们会通过邮件发送产品下载链接和激活码。你也可以在订单详情页面查看购买记录。",
+    "faq3Question": "是否支持退款？",
+    "faq3Answer": "是的，我们提供 30 天退款保证。如果你对产品不满意，可以在购买后 30 天内联系我们申请全额退款。",
+    "faq4Question": "产品是否提供更新？",
+    "faq4Answer": "是的，所有产品都提供终身免费更新。我们会持续改进产品并添加新功能。",
+    "faq5Question": "如何获取技术支持？",
+    "faq5Answer": "你可以通过邮件联系我们获取技术支持，或在 GitHub 上提交 Issue。我们会在 24 小时内回复。",
+    "faq6Question": "是否支持企业购买？",
+    "faq6Answer": "是的，我们提供企业版产品和批量购买优惠。请通过邮件联系我们获取定制方案。"
+  },
+  "TerminalSection": {
+    "title": "店主的终端",
+    "description": "这是一个真的能用的终端。会用的人自然会用，不会用的可以先敲一句 help。",
+    "outputLabel": "终端输出",
+    "inputLabel": "输入终端命令",
+    "hint": "hint: 有些命令没写在 help 里，比如那句经典的十键秘技。"
+  },
+  "PricingSection": {
+    "title": "简单透明的定价",
+    "subtitle": "选择适合你的方案",
+    "monthly": "月付",
+    "annual": "年付",
+    "save": "省 {percent}%",
+    "periodMonthly": "月",
+    "periodMonthlyAnnual": "月 (年付)",
+    "studentCta": "🎓 学生？用教育邮箱验证，全部免费",
+    "enterprisePrompt": "需要更大的规模？",
+    "enterpriseCta": "联系我们获取定制方案 →"
+  },
+  "FeaturesComparison": {
+    "eyebrow": "方案对比",
+    "title": "选择适合你的方案",
+    "subtitle": "从免费开始，按需升级",
+    "popular": "推荐",
+    "plan1Price": "免费",
+    "plan1Desc": "适合个人开发者试用",
+    "plan2Desc": "适合专业开发者和小团队",
+    "plan2Period": "/月",
+    "plan3Price": "定制",
+    "plan3Desc": "适合大型团队和企业",
+    "featureCore": "核心功能",
+    "featureCommunitySupport": "社区支持",
+    "featureBasicDocs": "基础文档",
+    "featureApiAccess": "API 访问",
+    "featurePrioritySupport": "优先支持",
+    "featureCustomDev": "定制开发",
+    "featureFullDocs": "完整文档",
+    "featureDedicatedSupport": "专属支持"
+  },
+  "CTASection": {
+    "boldTitle": "进入工具矩阵",
+    "subtleTitle": "准备好开始了吗？",
+    "boldDesc": "浏览我们的产品矩阵，找到适合你的工具",
+    "subtleDescPricing": "免费开始，按需升级，无隐藏费用",
+    "subtleDescNoPricing": "所有产品开源免费，欢迎使用",
+    "browseProducts": "浏览全部产品",
+    "githubOpenSource": "GitHub 开源",
+    "badgeOpenSource": "开源驱动",
+    "badgeLifetimeUpdates": "终身免费更新",
+    "badgeRefund": "30 天退款保证"
+  },
+  "BackToTop": {
+    "ariaLabel": "返回顶部"
+  },
+  "AdminReviewPage": {
+    "title": "待审核",
+    "count": "{count} 篇",
+    "metaTitle": "待审核 - Meteor Store",
+    "metaNotFound": "页面未找到 - Meteor Store"
+  },
+  "AdminInviteCodesPage": {
+    "title": "邀请码管理",
+    "description": "创建邀请码分发给用户，兑换后自动生成授权码",
+    "metaTitle": "邀请码管理 - Meteor Store",
+    "metaNotFound": "页面未找到 - Meteor Store"
+  },
+  "BlogSubmitPage": {
+    "metaTitle": "投稿 - Meteor Store 博客",
+    "title": "写一篇",
+    "myPostsLink": "我的投稿 →"
+  },
+  "BlogMyPostsPage": {
+    "metaTitle": "我的投稿 - Meteor Store 博客",
+    "title": "我的投稿",
+    "writeLink": "写一篇 →",
+    "empty": "还没有投稿。",
+    "statusDraft": "草稿",
+    "statusPending": "待审核",
+    "statusPublished": "已发布",
+    "statusRejected": "未通过",
+    "rejectedReason": "未通过的原因：{reason}"
+  },
+  "BlogTagsPage": {
+    "metaTitle": "全部标签 - Meteor Store 博客",
+    "metaDescription": "按热度排列的全部文章标签",
+    "title": "全部标签",
+    "hint": "按文章数排列，字号越大越热",
+    "backToBlog": "← 回到博客"
+  },
+  "PathfinderPage": {
+    "metaTitle": "Meteor Pathfinder · 现实可达学习引擎",
+    "metaDescription": "面向资源不足学生的现实可达学习引擎。基于时间、预算、设备和网络条件，生成可执行且可验证的行动路径。",
+    "badgeMain": "主赛道 · 学习工作",
+    "badgeExtra": "附加赛题 · 社会公益",
+    "badgeFree": "永久免费",
+    "heroTitle": "Meteor Pathfinder · 现实可达学习引擎",
+    "heroSubtitle": "不必拥有更好的条件，先找到你现在",
+    "heroSubtitleHighlight": "走得通",
+    "heroSubtitleSuffix": "的一步。",
+    "heroDescription": "面向县域家庭的首代大学生：只有手机、时间零碎、缺少导师或付费资源时，仍能根据现实条件得到一条可执行、可替代的学习与实习准备路径。",
+    "painsTitle": "他们面对的三道坎",
+    "pain1Title": "缺少稳定的指导",
+    "pain1Desc": "没有可以长期请教的老师或前辈，规划只能靠自己摸索，常常走弯路。",
+    "pain2Title": "信息分散不知从何开始",
+    "pain2Desc": "网上资料很多，却不知哪些适合自己、按什么顺序学，反而迟迟无法开始。",
+    "pain3Title": "设备、流量、时间都有限",
+    "pain3Desc": "只有一部手机、流量吃紧、课余时间零碎，被大部分课程无声地挡在门外。",
+    "pledgesTitle": "公益承诺",
+    "pledge1Title": "核心功能永久免费",
+    "pledge1Desc": "路径生成、行动计划、资源推荐对所有学生完全免费，永不收费。",
+    "pledge2Title": "不收集敏感信息",
+    "pledge2Desc": "不要求填写真实姓名、学校、手机号、住址。只需一个目标就能开始。",
+    "pledge3Title": "不推荐付费产品",
+    "pledge3Desc": "结果中不会出现购买、会员、课程售卖等引导，路径不为变现服务。",
+    "pledge4Title": "低流量优先",
+    "pledge4Desc": "资源排序优先考虑免费、公开、低流量可访问的内容，照顾网络受限的同学。",
+    "privacyTitle": "隐私说明",
+    "privacyContent": "本站不要求姓名、学校、手机号、住址，且不长期保存输入。你的 API Key、Base URL 与模型名称仅保存在当前浏览器会话；生成时，它们会与目标和学习条件一次性发送至你选择的 AI 模型服务商处理。请勿填写身份信息、联系方式、住址或其他敏感个人信息。生成的路径建议不作升学、就业、医疗或心理诊断承诺。",
+    "ctaTitle": "资源不该决定一个学生能走多远",
+    "ctaButton": "按我的现实条件开始"
+  },
+  "PathfinderSettingsPage": {
+    "metaTitle": "模型配置 · Meteor Pathfinder",
+    "metaDescription": "为 Meteor Pathfinder 配置你自己的兼容模型服务。",
+    "backLink": "← 返回星途导航",
+    "eyebrow": "你的密钥，你的选择",
+    "title": "模型配置",
+    "description": "Pathfinder 不提供或托管模型密钥。请使用你自己的兼容模型服务，在生成时获得可控的调用权与费用归属。"
+  },
+  "PathfinderClient": {
+    "errorNoConfig": "请先完成模型配置，再生成你的路径。",
+    "errorRequest": "请求失败（{status}）",
+    "errorNetwork": "网络异常，请检查网络后重试",
+    "sectionTitle": "先看一条走得通的路径",
+    "noApiKey": "无需 API Key",
+    "presetBadge": "典型场景演示",
+    "presetTag": "静态预置 · 非实时 AI 生成",
+    "usingConfig": "正在使用你的模型配置",
+    "generateOwn": "也可以按自己的现实条件生成",
+    "usingConfigDetail": "已选模型：{model}。密钥仅保存在当前浏览器会话。",
+    "configHint": "典型场景无需配置；如需生成自己的路径，请填写你的 API Key、Base URL 和模型名称。",
+    "editConfig": "修改配置",
+    "setupConfig": "去配置",
+    "clear": "清除",
+    "loading": "正在基于你的条件生成路径..."
+  },
+  "PlaygroundPage": {
+    "metaTitle": "Playground - Meteor Store",
+    "metaDescription": "在浏览器里试玩 Meteor Store 产品，不用安装，不用付费。",
+    "title": "在线试玩",
+    "description": "不用安装，不用付费。点击运行，看产品跑起来。"
+  },
+  "NotFoundPage": {
+    "title": "镜中无此页",
+    "description": "这个页面可能去打工赚学费了，替它向你道个歉。",
+    "backHome": "返回首页",
+    "seeProducts": "看看产品（顺便帮它凑凑学费）",
+    "hint": "盯着万花筒看 10 秒，有助于原谅一切 404"
+  },
+  "ErrorPage": {
+    "title": "页面出错了",
+    "description": "抱歉，页面加载时遇到了问题。请尝试刷新页面或返回首页。",
+    "retry": "重试",
+    "backHome": "返回首页"
   }
 }

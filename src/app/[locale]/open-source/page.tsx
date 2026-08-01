@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { products } from '@/data/products';
+import { products, localizeProduct } from '@/data/products';
+import type { Locale } from '@/i18n/routing';
 
 export async function generateMetadata({
   params,
@@ -27,43 +28,16 @@ const languageColors: Record<string, string> = {
   Rust: '#DEA584',
 };
 
-const projectMeta: Record<string, { language: string; description: string }> = {
-  omnicrawl: {
-    language: 'Python',
-    description: '基于 Scrapling + curl_cffi + Playwright 的全能爬虫框架，一套 API 三个引擎，自动绕过反爬。',
-  },
-  'ex-memory': {
-    language: 'Python',
-    description: 'LLM + RAG 让 AI 学会一个人的说话风格。导入聊天记录，还原语气和用词习惯。',
-  },
-  'skeleton-anatomy': {
-    language: 'TypeScript',
-    description: '浏览器里的 3D 人体骨骼模型，支持旋转、缩放、标注，面向医学生和解剖学爱好者。',
-  },
-  'ui-design-system': {
-    language: 'TypeScript',
-    description: 'Claude Code 的 UI/UX 设计 Skill。三层 Token 体系 + shadcn 组件最佳实践。',
-  },
-  statux: {
-    language: 'TypeScript',
-    description: '终端状态栏工具，在 iTerm2 里实时显示 AI Agent 运行状态。',
-  },
-  xisland: {
-    language: 'Swift',
-    description: '把 iPhone 的灵动岛搬到 macOS 菜单栏，显示系统状态和音乐控制。',
-  },
-  tollow: {
-    language: 'TypeScript',
-    description: '沉浸式长文打字练习。选一本书，逐段练习，支持中英文。',
-  },
-  xnook: {
-    language: 'Swift',
-    description: 'macOS 效率小工具集，窗口管理、快捷键、剪贴板增强。',
-  },
-  'chakra-visualizer': {
-    language: 'TypeScript',
-    description: '用摄像头捕捉手势，识别火影忍者结印并播放忍术特效。纯前端实现。',
-  },
+const projectMeta: Record<string, { language: string; descKey: string }> = {
+  omnicrawl: { language: 'Python', descKey: 'descOmnicrawl' },
+  'ex-memory': { language: 'Python', descKey: 'descExMemory' },
+  'skeleton-anatomy': { language: 'TypeScript', descKey: 'descSkeletonAnatomy' },
+  'ui-design-system': { language: 'TypeScript', descKey: 'descUiDesignSystem' },
+  statux: { language: 'TypeScript', descKey: 'descStatux' },
+  xisland: { language: 'Swift', descKey: 'descXisland' },
+  tollow: { language: 'TypeScript', descKey: 'descTollow' },
+  xnook: { language: 'Swift', descKey: 'descXnook' },
+  'chakra-visualizer': { language: 'TypeScript', descKey: 'descChakraVisualizer' },
 };
 
 export default async function OpenSourcePage({
@@ -73,6 +47,8 @@ export default async function OpenSourcePage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'OpenSourcePage' });
+
+  const localizedProducts = products.map((p) => localizeProduct(p, locale as Locale));
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -106,11 +82,11 @@ export default async function OpenSourcePage({
 
           {/* Project grid */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {products.map((product) => {
+            {localizedProducts.map((product) => {
               const meta = projectMeta[product.id];
               const lang = meta?.language || 'TypeScript';
               const langColor = languageColors[lang] || '#8b949e';
-              const desc = meta?.description || product.tagline;
+              const desc = meta ? t(meta.descKey) : product.tagline;
 
               return (
                 <a

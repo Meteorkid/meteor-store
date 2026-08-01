@@ -125,11 +125,17 @@ describe('POST /api/posts/review', () => {
       await POST(request({ postId: 'p1', approve: true }));
 
       // 列表、分区页、标签目录，以及同样含投稿的 RSS 与 sitemap
-      expect(revalidated).toContain('/blog');
-      expect(revalidated).toContain('/blog/tags');
-      expect(revalidated).toContain('/blog/section/debate');
-      expect(revalidated).toContain('/blog/feed.xml');
-      expect(revalidated).toContain('/blog/section/debate/feed.xml');
+      // 路径都带 locale 前缀，两个语言版本都要失效
+      expect(revalidated).toContain('/zh/blog');
+      expect(revalidated).toContain('/en/blog');
+      expect(revalidated).toContain('/zh/blog/tags');
+      expect(revalidated).toContain('/en/blog/tags');
+      expect(revalidated).toContain('/zh/blog/section/debate');
+      expect(revalidated).toContain('/en/blog/section/debate');
+      expect(revalidated).toContain('/zh/blog/feed.xml');
+      expect(revalidated).toContain('/en/blog/feed.xml');
+      expect(revalidated).toContain('/zh/blog/section/debate/feed.xml');
+      expect(revalidated).toContain('/en/blog/section/debate/feed.xml');
       expect(revalidated).toContain('/sitemap.xml');
     });
 
@@ -138,7 +144,8 @@ describe('POST /api/posts/review', () => {
 
       // 投稿写的是「法律」，但索引里的规范写法未必是同一种大小写，
       // 逐个 encodeURIComponent(tag) 失效会漏掉规范的那条
-      expect(revalidated).toContain('/blog/tag/[tag]');
+      expect(revalidated).toContain('/zh/blog/tag/[tag]');
+      expect(revalidated).toContain('/en/blog/tag/[tag]');
     });
 
     it('驳回不触发缓存失效——没有任何公开内容发生变化', async () => {

@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { blogSections } from '@/data/blog-sections';
+import type { Locale } from '@/i18n/routing';
 
 const inputClass =
   'w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/50 transition-colors focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/40';
@@ -15,6 +17,7 @@ interface PostSubmitFormProps {
 
 export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
   const router = useRouter();
+  const locale = useLocale() as Locale;
 
   const [title, setTitle] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -120,7 +123,7 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
           >
             {blogSections.map((s) => (
               <option key={s.id} value={s.id} className="bg-zinc-900">
-                {s.label} —— {s.description}
+                {s.label[locale]} —— {s.description[locale]}
               </option>
             ))}
           </select>

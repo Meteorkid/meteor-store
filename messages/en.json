@@ -13,7 +13,9 @@
     "writeArticle": "Write Article",
     "myPosts": "My Posts",
     "pendingReview": "Pending Review",
-    "user": "User"
+    "user": "User",
+    "maintenanceTitle": "Page Under Maintenance",
+    "maintenanceDescription": "This feature is temporarily unavailable. Please try again later."
   },
   "Header": {
     "home": "Home",
@@ -25,7 +27,16 @@
     "pathfinder": "Pathfinder",
     "login": "Login / Register",
     "account": "Account",
-    "logout": "Logout"
+    "logout": "Logout",
+    "search": "Search",
+    "searchShortcut": "Search (⌘K)",
+    "searchShortcutTitle": "Search ⌘K",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu",
+    "defaultUserName": "User",
+    "writeArticle": "Write",
+    "myPosts": "My Posts",
+    "pendingReview": "Pending Review"
   },
   "Footer": {
     "products": "Products",
@@ -50,7 +61,9 @@
     "description": "Carefully crafted developer tools: smart crawler framework, AI memory system, 3D anatomy atlas, design system, state management library. Open source, free lifetime updates.",
     "heroTitle": "Developer Tools Matrix",
     "heroSubtitle": "Carefully crafted developer tools, open source, free lifetime updates",
-    "cta": "Browse Products"
+    "cta": "Browse Products",
+    "coreAdvantages": "Core Advantages",
+    "coreAdvantagesSubtitle": "We are dedicated to providing the highest quality developer tools and AI applications"
   },
   "LoginPage": {
     "title": "Login",
@@ -72,11 +85,36 @@
     "bioLabel": "Bio",
     "changePassword": "Change Password",
     "currentPassword": "Current Password",
-    "newPassword": "New Password"
+    "newPassword": "New Password",
+    "metaTitle": "Account - Meteor Store",
+    "srTitle": "Account",
+    "joinTime": "Joined",
+    "emailStatus": "Email Status",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "studentStatus": "Student Status",
+    "verifiedStudent": "Verified",
+    "unverifiedStudent": "Unverified",
+    "postsCount": "Posts",
+    "postsUnit": "{count} posts",
+    "studentPrompt": "Current students can unlock all paid features for free with an education email. ",
+    "verifyNow": "Verify now",
+    "verifySuffix": ".",
+    "myLicenseKeys": "My License Keys",
+    "licenseKeysDesc": "Product licenses obtained through purchase or invitation code redemption.",
+    "myPosts": "My Posts",
+    "myPostsDesc": "Articles you've submitted and their review status.",
+    "statusActive": "Active",
+    "statusRevoked": "Revoked",
+    "statusDraft": "Draft",
+    "statusPending": "Under Review",
+    "statusPublished": "Published",
+    "statusRejected": "Rejected"
   },
   "ProductsPage": {
     "title": "Products",
-    "description": "Explore our developer tools"
+    "description": "Explore our developer tools",
+    "noProducts": "No products"
   },
   "BlogPage": {
     "title": "Blog",
@@ -103,11 +141,10 @@
     "description": "Quick start guides for each product. Copy the command and get running in 30 seconds.",
     "notFound": "Can't find what you're looking for?",
     "checkReadme": "Each project's README has complete API documentation and advanced usage.",
-    "browseGithub": "Browse GitHub"
-  },
-  "PrivacyPage": {
-    "title": "Privacy Policy",
-    "lastUpdated": "Last Updated"
+    "browseGithub": "Browse GitHub",
+    "detailsLink": "Details →",
+    "macAppHint": "macOS app, download and run",
+    "download": "Download ↓"
   },
   "TermsPage": {
     "title": "Terms of Service",
@@ -134,11 +171,37 @@
     "section8Content": "We may update these terms from time to time. Material changes will be notified via email or website announcement. Continued use of the service constitutes acceptance of the updated terms.",
     "section9Title": "9. Contact Information",
     "section9Content": "If you have any questions about these terms, please contact us:",
-    "email": "Email"
+    "email": "Email",
+    "lastUpdatedDate": "January 2025"
   },
   "FeedbackPage": {
     "title": "Feedback",
-    "description": "Submit bug reports, feature suggestions, or questions. We carefully review every piece of feedback."
+    "description": "Submit bug reports, feature suggestions, or questions. We carefully review every piece of feedback.",
+    "typeBug": "Bug Report",
+    "typeFeature": "Feature Request",
+    "typeQuestion": "Question",
+    "typeOther": "Other",
+    "typeNightWhisper": "Late Night Whisper 🌙",
+    "errorRequired": "Please fill in the feedback type and content",
+    "errorSubmit": "Submission failed",
+    "errorRetry": "Submission failed, please try again later",
+    "successWhisperTitle": "Feel better now, right?",
+    "successTitle": "Thank you for your feedback!",
+    "successWhisperDesc": "I'll read it. Sleep well tonight.",
+    "successDesc": "Got it! Happier than getting a payment reminder.",
+    "nightHint": "Late at night, you can tell me alone. Say whatever you want — I'll read it all. No email needed.",
+    "emailLabel": "Email",
+    "emailOptional": "(optional, so we can reply)",
+    "emailPlaceholderWhisper": "Whisper mode doesn't need an email",
+    "typeLabel": "Feedback Type",
+    "selectPrompt": "Please select",
+    "contentLabel": "Detailed Description",
+    "contentPlaceholder": "Say something — compliments welcome (especially those)",
+    "contentPlaceholderWhisper": "It's just you and me here. Say anything.",
+    "submitLoading": "Submitting...",
+    "submitBug": "Submit Bug (sorry, sorry)",
+    "submitWhisper": "Gently Drop into the Whisper Hole",
+    "submit": "Submit Feedback"
   },
   "StudentPage": {
     "title": "Student Free Plan",
@@ -154,7 +217,8 @@
     "faq2Answer": "No. Once verified, it's permanently valid. You can continue using it after graduation.",
     "faq3Question": "What if I don't have an education email?",
     "faq3Answer": "Send an email directly to meteor@stu.gpnu.edu.cn with a photo of your student ID, and I'll manually enable it for you.",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "emailSubject": "Student Free Plan Application"
   },
   "SuccessPage": {
     "maintenanceTitle": "Page Under Maintenance",
@@ -240,7 +304,8 @@
     "section7Content": "We may update this agreement from time to time. Material changes will be notified via website announcement or email. Continued use of the product constitutes acceptance of the updated agreement; if you do not agree, you should stop using and follow the refund policy.",
     "section8Title": "8. Contact Information",
     "section8Content": "If you have any questions about this agreement, please contact:",
-    "email": "Email"
+    "email": "Email",
+    "lastUpdatedDate": "July 2026"
   },
   "OpenSourcePage": {
     "title": "Open Source Projects",
@@ -248,7 +313,16 @@
     "projects": "projects",
     "license": "License",
     "contribute": "Want to contribute? Issues and Pull Requests are welcome.",
-    "followGithub": "Follow on GitHub"
+    "followGithub": "Follow on GitHub",
+    "descOmnicrawl": "All-in-one crawler framework built on Scrapling + curl_cffi + Playwright. One API, three engines, automatic anti-bot bypass.",
+    "descExMemory": "LLM + RAG that teaches AI someone's speaking style. Import chat logs to recreate their tone and word choices.",
+    "descSkeletonAnatomy": "A 3D human skeleton model in the browser. Supports rotation, zoom, and annotations. For medical students and anatomy enthusiasts.",
+    "descUiDesignSystem": "A UI/UX design Skill for Claude Code. Three-layer Token system + shadcn component best practices.",
+    "descStatux": "Terminal status bar tool that shows real-time AI Agent status in iTerm2.",
+    "descXisland": "Brings iPhone's Dynamic Island to the macOS menu bar, showing system status and music controls.",
+    "descTollow": "Immersive long-form typing practice. Pick a book, practice paragraph by paragraph. Supports Chinese and English.",
+    "descXnook": "macOS productivity toolkit: window management, shortcuts, and clipboard enhancement.",
+    "descChakraVisualizer": "Captures hand gestures via webcam, recognizes Naruto hand seals, and plays jutsu effects. Pure frontend implementation."
   },
   "StoryPage": {
     "title": "A Letter from the Store Owner",
@@ -288,7 +362,8 @@
     "section5Title": "5. Legal Notice",
     "section5Content": "This policy does not exclude mandatory rights granted to consumers by laws and regulations. If you are a consumer within the People's Republic of China, your rights under the Consumer Protection Law and other laws are not limited by this policy.",
     "section6Title": "6. Contact Information",
-    "email": "Email"
+    "email": "Email",
+    "lastUpdatedDate": "July 2026"
   },
   "PrivacyPage": {
     "title": "Privacy Policy",
@@ -329,6 +404,333 @@
     "right4": "Opt out of marketing communications",
     "section7Title": "7. Contact Us",
     "section7Content": "If you have any privacy-related questions, please contact us through the following:",
-    "email": "Email"
+    "email": "Email",
+    "lastUpdatedDate": "January 2025"
+  },
+  "BlogPostPage": {
+    "blogSuffix": "Meteor Store Blog",
+    "notFound": "Article Not Found - Meteor Store",
+    "backTo": "Back to {section}",
+    "blog": "Blog",
+    "minutes": "{count} min",
+    "continueReading": "Continue Reading",
+    "allArticles": "All Articles",
+    "checkTools": "Check these tools",
+    "anonymous": "Anonymous",
+    "readerSubmission": "Reader Submission"
+  },
+  "BlogSectionPage": {
+    "blogSuffix": "Meteor Store Blog",
+    "notFound": "Section Not Found - Meteor Store",
+    "subscribe": "Subscribe"
+  },
+  "BlogTagPage": {
+    "blogSuffix": "Meteor Store Blog",
+    "notFound": "Tag Not Found - Meteor Store",
+    "description": "{count} articles tagged with \"{tag}\"",
+    "count": "{count} articles",
+    "allTags": "All Tags"
+  },
+  "ProductDetailPage": {
+    "notFound": "Product Not Found - Meteor Store",
+    "backToProducts": "Back to products",
+    "githubSource": "GitHub source",
+    "liveDemo": "Live demo",
+    "features": "Features",
+    "pricing": "Pricing",
+    "openSource": "Open source",
+    "readyTitle": "Ready to start?",
+    "readyDesc": "{name} is fully open source. Browse the code on GitHub, file issues, contribute — or just put it to work.",
+    "viewSource": "View source",
+    "contactMe": "Contact me",
+    "periodMonthly": "mo",
+    "periodMonthlyAnnual": "mo (annual)",
+    "periodYearly": "yr",
+    "periodLifetime": "lifetime"
+  },
+  "HeroSection": {
+    "badge": "Full-Platform Tool Matrix · Continuously Iterating",
+    "headingLine1": "Building the Future",
+    "headingLine2": "Developer Toolbox",
+    "subtitleLine1": "From smart crawlers to AI memory systems, from 3D anatomy to design systems —",
+    "subtitleLine2": "Every tool is built to solve real problems.",
+    "trustLinePricing": "Trusted by 1000+ developers · Open source · Free lifetime updates",
+    "trustLineNoPricing": "Open source · Community driven · Contributions welcome",
+    "ctaExplore": "Explore All Products",
+    "ctaGithub": "GitHub Open Source",
+    "statTools": "Premium Tools",
+    "statUsers": "Active Users",
+    "statRating": "Avg Rating",
+    "statLatency": "Response Time"
+  },
+  "ProductShowcase": {
+    "title": "Featured Products",
+    "subtitle": "Choose the right tool for you",
+    "categoryAll": "All",
+    "categoryCrawler": "Crawler",
+    "categoryAi": "AI",
+    "categoryDesign": "Design",
+    "categoryUtility": "Utility",
+    "viewAll": "View All Products"
+  },
+  "ProductDemo": {
+    "eyebrow": "Code Driven",
+    "title": "Simple APIs, Powerful Capabilities",
+    "subtitle": "Every tool pursues a minimalist user experience",
+    "viewDocs": "View Full Documentation",
+    "demo1Tagline": "Smart Crawler Framework",
+    "demo1Desc": "Start a multi-threaded crawler with one line, with built-in anti-bot bypass and data parsing",
+    "demo1Feature1": "Multi-threaded Concurrency",
+    "demo1Feature2": "Anti-bot Bypass",
+    "demo1Feature3": "Smart Parsing",
+    "demo1Feature4": "Multi-format Export",
+    "demo2Tagline": "AI Memory System",
+    "demo2Desc": "Persistent AI conversation memory with semantic search and timeline rewind",
+    "demo2Feature1": "Semantic Memory",
+    "demo2Feature2": "Timeline",
+    "demo2Feature3": "Context Recall",
+    "demo2Feature4": "Local Storage",
+    "demo3Tagline": "3D Anatomy Atlas",
+    "demo3Desc": "Interactive WebGL 3D human skeleton with annotations, measurements, and learning mode",
+    "demo3Feature1": "WebGL 3D",
+    "demo3Feature2": "Interactive Annotations",
+    "demo3Feature3": "Measurement Tools",
+    "demo3Feature4": "Learning Mode"
+  },
+  "FeaturesSection": {
+    "eyebrow": "Core Capabilities",
+    "title": "Why Choose Us",
+    "subtitle": "Every tool is carefully crafted to give you the best experience",
+    "feature1Title": "High Performance",
+    "feature1Desc": "All tools are carefully optimized for the best performance experience",
+    "feature1Item1": "Fast Response",
+    "feature1Item2": "Low Memory Usage",
+    "feature1Item3": "Optimized Algorithms",
+    "feature1Item4": "Parallel Processing",
+    "feature2Title": "Secure & Reliable",
+    "feature2Desc": "Privacy protection is our top priority, data security guaranteed",
+    "feature2Item1": "End-to-End Encryption",
+    "feature2Item2": "Local Storage",
+    "feature2Item3": "Zero-Knowledge Proof",
+    "feature2Item4": "Security Audit",
+    "feature3Title": "Continuous Updates",
+    "feature3Desc": "We continuously improve products, add new features, and stay ahead",
+    "feature3Item1": "Regular Updates",
+    "feature3Item2": "New Feature Development",
+    "feature3Item3": "Bug Fixes",
+    "feature3Item4": "Performance Optimization",
+    "feature4Title": "Precise Positioning",
+    "feature4Desc": "Deeply optimized for different scenarios, meeting various professional needs",
+    "feature5Title": "Cross-Platform Support",
+    "feature5Desc": "Supports multiple operating systems and devices, use anywhere, anytime",
+    "feature6Title": "Quality Service",
+    "feature6Desc": "Providing timely technical support, quickly responding to your questions"
+  },
+  "StatsSection": {
+    "statTools": "Premium Tools",
+    "statUsers": "Active Users",
+    "statRating": "User Rating",
+    "statLatency": "Response Time"
+  },
+  "TestimonialsSection": {
+    "eyebrow": "User Feedback",
+    "title": "Trusted by Developers",
+    "subtitle": "Voices from real users"
+  },
+  "PartnersSection": {
+    "subtitle": "Built on a Modern Tech Stack"
+  },
+  "NewsletterSection": {
+    "title": "Subscribe to Product Updates",
+    "subtitle": "Get notified about new releases, tech insights, and usage tips",
+    "success": "Got it! Happier than getting a payment reminder.",
+    "placeholder": "you@example.com (won't trade it for tuition, don't worry)",
+    "emailLabel": "Email address",
+    "submitting": "Submitting...",
+    "submit": "Subscribe",
+    "subscribeFailed": "Subscription failed",
+    "subscribeFailedRetry": "Subscription failed, please try again later",
+    "privacyNote": "We respect your privacy and will not send spam."
+  },
+  "FAQSection": {
+    "title": "FAQ",
+    "subtitle": "If you have other questions, feel free to contact us",
+    "faq1Question": "How to purchase products?",
+    "faq1Answer": "Choose your desired product and plan, click 'Buy Now', and complete payment via Alipay. After successful payment, a confirmation email will be sent to your inbox automatically.",
+    "faq2Question": "How to get the product after purchase?",
+    "faq2Answer": "After successful payment, we will send the product download link and activation code via email. You can also view your purchase history on the order details page.",
+    "faq3Question": "Are refunds supported?",
+    "faq3Answer": "Yes, we offer a 30-day refund guarantee. If you are not satisfied with the product, you can contact us within 30 days of purchase for a full refund.",
+    "faq4Question": "Do products get updates?",
+    "faq4Answer": "Yes, all products come with free lifetime updates. We continuously improve products and add new features.",
+    "faq5Question": "How to get technical support?",
+    "faq5Answer": "You can contact us via email for technical support, or submit an issue on GitHub. We will reply within 24 hours.",
+    "faq6Question": "Are enterprise purchases supported?",
+    "faq6Answer": "Yes, we offer enterprise products and bulk purchase discounts. Please contact us via email for customized solutions."
+  },
+  "TerminalSection": {
+    "title": "Store Owner's Terminal",
+    "description": "This is a real working terminal. Those who know will know; those who don't can start by typing 'help'.",
+    "outputLabel": "Terminal output",
+    "inputLabel": "Enter terminal command",
+    "hint": "hint: Some commands aren't listed in help, like that classic ten-key secret."
+  },
+  "PricingSection": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the plan that suits you",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "save": "Save {percent}%",
+    "periodMonthly": "mo",
+    "periodMonthlyAnnual": "mo (annual)",
+    "studentCta": "🎓 Student? Verify with your education email, all free",
+    "enterprisePrompt": "Need larger scale?",
+    "enterpriseCta": "Contact us for custom solutions →"
+  },
+  "FeaturesComparison": {
+    "eyebrow": "Plan Comparison",
+    "title": "Choose the Right Plan",
+    "subtitle": "Start free, upgrade as needed",
+    "popular": "Popular",
+    "plan1Price": "Free",
+    "plan1Desc": "For individual developers trying out",
+    "plan2Desc": "For professional developers and small teams",
+    "plan2Period": "/mo",
+    "plan3Price": "Custom",
+    "plan3Desc": "For large teams and enterprises",
+    "featureCore": "Core Features",
+    "featureCommunitySupport": "Community Support",
+    "featureBasicDocs": "Basic Docs",
+    "featureApiAccess": "API Access",
+    "featurePrioritySupport": "Priority Support",
+    "featureCustomDev": "Custom Development",
+    "featureFullDocs": "Full Docs",
+    "featureDedicatedSupport": "Dedicated Support"
+  },
+  "CTASection": {
+    "boldTitle": "Enter the Tool Matrix",
+    "subtleTitle": "Ready to Get Started?",
+    "boldDesc": "Browse our product matrix and find the right tool for you",
+    "subtleDescPricing": "Start free, upgrade as needed, no hidden fees",
+    "subtleDescNoPricing": "All products are open source and free, enjoy",
+    "browseProducts": "Browse All Products",
+    "githubOpenSource": "GitHub Open Source",
+    "badgeOpenSource": "Open Source",
+    "badgeLifetimeUpdates": "Free Lifetime Updates",
+    "badgeRefund": "30-Day Refund Guarantee"
+  },
+  "BackToTop": {
+    "ariaLabel": "Back to top"
+  },
+  "AdminReviewPage": {
+    "title": "Pending Review",
+    "count": "{count} posts",
+    "metaTitle": "Pending Review - Meteor Store",
+    "metaNotFound": "Page Not Found - Meteor Store"
+  },
+  "AdminInviteCodesPage": {
+    "title": "Invitation Code Management",
+    "description": "Create invitation codes to distribute to users. Authorization codes are generated automatically upon redemption.",
+    "metaTitle": "Invitation Code Management - Meteor Store",
+    "metaNotFound": "Page Not Found - Meteor Store"
+  },
+  "BlogSubmitPage": {
+    "metaTitle": "Submit - Meteor Store Blog",
+    "title": "Write a Post",
+    "myPostsLink": "My Posts →"
+  },
+  "BlogMyPostsPage": {
+    "metaTitle": "My Posts - Meteor Store Blog",
+    "title": "My Posts",
+    "writeLink": "Write a Post →",
+    "empty": "No posts yet.",
+    "statusDraft": "Draft",
+    "statusPending": "Pending Review",
+    "statusPublished": "Published",
+    "statusRejected": "Rejected",
+    "rejectedReason": "Rejection reason: {reason}"
+  },
+  "BlogTagsPage": {
+    "metaTitle": "All Tags - Meteor Store Blog",
+    "metaDescription": "All article tags sorted by popularity",
+    "title": "All Tags",
+    "hint": "Sorted by article count — bigger means more popular",
+    "backToBlog": "← Back to Blog"
+  },
+  "PathfinderPage": {
+    "metaTitle": "Meteor Pathfinder · Reachable Learning Engine",
+    "metaDescription": "A reachable learning engine for students with limited resources. Generates executable, verifiable action paths based on time, budget, device, and network conditions.",
+    "badgeMain": "Main Track · Learning & Work",
+    "badgeExtra": "Bonus Challenge · Social Good",
+    "badgeFree": "Free Forever",
+    "heroTitle": "Meteor Pathfinder · Reachable Learning Engine",
+    "heroSubtitle": "You don't need better conditions — just find a step you can",
+    "heroSubtitleHighlight": "actually take",
+    "heroSubtitleSuffix": ".",
+    "heroDescription": "For first-generation college students from county-level families: even with only a phone, fragmented time, and no mentors or paid resources, you can still get an executable, replaceable learning and internship prep path based on your real conditions.",
+    "painsTitle": "Three Hurdles They Face",
+    "pain1Title": "Lack of Stable Guidance",
+    "pain1Desc": "No teacher or mentor to consult long-term. Planning is left to your own trial and error, often taking detours.",
+    "pain2Title": "Scattered Information, Hard to Start",
+    "pain2Desc": "There's a lot online, but you don't know what suits you or in what order to learn — so you keep putting it off.",
+    "pain3Title": "Limited Device, Data, and Time",
+    "pain3Desc": "Only a phone, tight data, fragmented free time — silently shut out by most courses.",
+    "pledgesTitle": "Public Good Pledge",
+    "pledge1Title": "Core Features Free Forever",
+    "pledge1Desc": "Path generation, action plans, and resource recommendations are completely free for all students, forever.",
+    "pledge2Title": "No Sensitive Data Collected",
+    "pledge2Desc": "No real name, school, phone, or address required. Just one goal is enough to start.",
+    "pledge3Title": "No Paid Product Recommendations",
+    "pledge3Desc": "No purchases, memberships, or course sales in the results. Paths don't serve monetization.",
+    "pledge4Title": "Low-Data Priority",
+    "pledge4Desc": "Resource ranking prioritizes free, public, low-data content — considerate of students with limited connectivity.",
+    "privacyTitle": "Privacy Notice",
+    "privacyContent": "This site doesn't ask for your name, school, phone, or address, and doesn't store input long-term. Your API Key, Base URL, and model name are stored only in the current browser session; during generation, they're sent once with your goal and conditions to the AI model service you choose. Do not enter identity info, contact details, address, or other sensitive personal info. Generated path suggestions are not commitments regarding education, employment, medical, or psychological diagnosis.",
+    "ctaTitle": "Resources Shouldn't Decide How Far a Student Can Go",
+    "ctaButton": "Start With My Real Conditions"
+  },
+  "PathfinderSettingsPage": {
+    "metaTitle": "Model Configuration · Meteor Pathfinder",
+    "metaDescription": "Configure your own compatible model service for Meteor Pathfinder.",
+    "backLink": "← Back to Pathfinder",
+    "eyebrow": "Your Keys, Your Choice",
+    "title": "Model Configuration",
+    "description": "Pathfinder doesn't provide or host model keys. Please use your own compatible model service to retain control over calls and cost attribution during generation."
+  },
+  "PathfinderClient": {
+    "errorNoConfig": "Please complete model configuration before generating your path.",
+    "errorRequest": "Request failed ({status})",
+    "errorNetwork": "Network error, please check your connection and retry",
+    "sectionTitle": "See a Reachable Path First",
+    "noApiKey": "No API Key Needed",
+    "presetBadge": "Demo Scenario",
+    "presetTag": "Static Preset · Not Real-time AI",
+    "usingConfig": "Using Your Model Configuration",
+    "generateOwn": "Or Generate From Your Own Conditions",
+    "usingConfigDetail": "Selected model: {model}. Key is stored only in this browser session.",
+    "configHint": "Demo scenarios need no config. To generate your own path, fill in your API Key, Base URL, and model name.",
+    "editConfig": "Edit Configuration",
+    "setupConfig": "Set Up",
+    "clear": "Clear",
+    "loading": "Generating path based on your conditions..."
+  },
+  "PlaygroundPage": {
+    "metaTitle": "Playground - Meteor Store",
+    "metaDescription": "Try Meteor Store products in your browser. No install, no pay.",
+    "title": "Online Playground",
+    "description": "No install, no pay. Click run and watch products come to life."
+  },
+  "NotFoundPage": {
+    "title": "Not in the Mirror",
+    "description": "This page may have gone off to earn tuition. Apologies on its behalf.",
+    "backHome": "Back Home",
+    "seeProducts": "See Products (and help fund its tuition)",
+    "hint": "Staring at the kaleidoscope for 10 seconds helps forgive all 404s"
+  },
+  "ErrorPage": {
+    "title": "Something Went Wrong",
+    "description": "Sorry, something went wrong while loading the page. Try refreshing or go back home.",
+    "retry": "Retry",
+    "backHome": "Back Home"
   }
 }

@@ -1,10 +1,10 @@
-import { Product } from '@/data/products';
+import { LocalizedProduct } from '@/data/products';
 import { SHOW_PRICING } from '@/lib/constants';
 import ProductVisual from '@/components/ProductVisual';
 import TransitionLink from '@/components/TransitionLink';
 
 interface ProductCardProps {
-  product: Product;
+  product: LocalizedProduct;
   priority?: boolean;
 }
 

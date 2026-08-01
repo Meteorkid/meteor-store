@@ -1,7 +1,8 @@
-import { blogPosts, estimateReadingTime, type BlogPost } from './blog';
+import { getBlogPosts, estimateReadingTime, type BlogPost } from './blog';
 import { buildTagIndex, normalizeTag, type TagSummary } from './blog-tags';
 import { getPublishedUserPosts } from '@/lib/posts';
 import type { BlogSectionId } from './blog-sections';
+import { type Locale } from '@/i18n/routing';
 
 /**
  * 两条内容来源的合并读取层。
@@ -47,40 +48,44 @@ export function toFeedSummary(post: FeedPost): FeedPostSummary {
  * 全部公开文章，按日期倒序。
  *
  * 数据库读失败时降级为只有文件文章：投稿看不见比整个博客 500 好。
+ *
+ * 英文版下不加载用户投稿：投稿都是中文，中英混杂体验不好。
  */
-export async function getFeedPosts(): Promise<FeedPost[]> {
+export async function getFeedPosts(locale: Locale): Promise<FeedPost[]> {
   let userPosts: FeedPost[] = [];
 
-  try {
-    const rows = await getPublishedUserPosts();
-    userPosts = rows.map((p) => ({
-      slug: p.id,
-      title: p.title,
-      excerpt: p.excerpt,
-      content: p.content,
-      // publishedAt 是 ISO 时间戳，列表和排序都只用到日期部分
-      date: (p.publishedAt ?? p.createdAt).slice(0, 10),
-      section: p.sectionId,
-      readingTime: estimateReadingTime(p.content),
-      tags: p.tags,
-      draft: false,
-      href: `/blog/p/${p.id}`,
-      author: p.authorName,
-    }));
-  } catch (err) {
-    console.error('读取投稿失败，本次只展示文件文章', err);
+  if (locale === 'zh') {
+    try {
+      const rows = await getPublishedUserPosts();
+      userPosts = rows.map((p) => ({
+        slug: p.id,
+        title: p.title,
+        excerpt: p.excerpt,
+        content: p.content,
+        // publishedAt 是 ISO 时间戳，列表和排序都只用到日期部分
+        date: (p.publishedAt ?? p.createdAt).slice(0, 10),
+        section: p.sectionId,
+        readingTime: estimateReadingTime(p.content),
+        tags: p.tags,
+        draft: false,
+        href: `/blog/p/${p.id}`,
+        author: p.authorName,
+      }));
+    } catch (err) {
+      console.error('读取投稿失败，本次只展示文件文章', err);
+    }
   }
 
-  return [...blogPosts.map(fromFile), ...userPosts].sort((a, b) => b.date.localeCompare(a.date));
+  return [...getBlogPosts(locale).map(fromFile), ...userPosts].sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export async function getFeedPostsBySection(sectionId: BlogSectionId): Promise<FeedPost[]> {
-  return (await getFeedPosts()).filter((p) => p.section === sectionId);
+export async function getFeedPostsBySection(locale: Locale, sectionId: BlogSectionId): Promise<FeedPost[]> {
+  return (await getFeedPosts(locale)).filter((p) => p.section === sectionId);
 }
 
 /** 各分区文章数 */
-export async function getSectionCounts(): Promise<Record<string, number>> {
-  const posts = await getFeedPosts();
+export async function getSectionCounts(locale: Locale): Promise<Record<string, number>> {
+  const posts = await getFeedPosts(locale);
   return posts.reduce<Record<string, number>>((acc, p) => {
     acc[p.section] = (acc[p.section] ?? 0) + 1;
     return acc;
@@ -91,16 +96,16 @@ export async function getSectionCounts(): Promise<Record<string, number>> {
  * 标签索引：两条来源汇总后按热度降序。
  * 计数规则（同篇去重、展示写法取最常见的那种）复用 buildTagIndex。
  */
-export async function getFeedTags(): Promise<TagSummary[]> {
-  return buildTagIndex(await getFeedPosts());
+export async function getFeedTags(locale: Locale): Promise<TagSummary[]> {
+  return buildTagIndex(await getFeedPosts(locale));
 }
 
-export async function findFeedTag(input: string): Promise<TagSummary | undefined> {
+export async function findFeedTag(locale: Locale, input: string): Promise<TagSummary | undefined> {
   const key = normalizeTag(input);
-  return (await getFeedTags()).find((t) => t.key === key);
+  return (await getFeedTags(locale)).find((t) => t.key === key);
 }
 
-export async function getFeedPostsByTag(input: string): Promise<FeedPost[]> {
+export async function getFeedPostsByTag(locale: Locale, input: string): Promise<FeedPost[]> {
   const key = normalizeTag(input);
-  return (await getFeedPosts()).filter((p) => p.tags.some((t) => normalizeTag(t) === key));
+  return (await getFeedPosts(locale)).filter((p) => p.tags.some((t) => normalizeTag(t) === key));
 }

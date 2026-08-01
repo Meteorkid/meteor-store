@@ -31,7 +31,7 @@ export default async function PrivacyPage({
       <main className="container mx-auto px-4 py-20">
         <div className="max-w-3xl mx-auto prose prose-invert prose-gray">
           <h1 className="text-4xl font-bold mb-8">{t('title')}</h1>
-          <p className="text-gray-400 text-sm mb-8">{t('lastUpdated')}：2025 年 1 月</p>
+          <p className="text-gray-400 text-sm mb-8">{t('lastUpdated')}：{t('lastUpdatedDate')}</p>
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">{t('section1Title')}</h2>

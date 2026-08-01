@@ -1,62 +1,65 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { CheckIconSm } from './CheckIcon';
 
 const plans = [
   {
     name: 'Basic',
-    price: '免费',
-    description: '适合个人开发者试用',
-    features: [
-      { name: '核心功能', included: true },
-      { name: '社区支持', included: true },
-      { name: '基础文档', included: true },
-      { name: 'API 访问', included: false },
-      { name: '优先支持', included: false },
-      { name: '定制开发', included: false },
+    priceKey: 'plan1Price',
+    descKey: 'plan1Desc',
+    featureKeys: [
+      { key: 'featureCore', included: true },
+      { key: 'featureCommunitySupport', included: true },
+      { key: 'featureBasicDocs', included: true },
+      { key: 'featureApiAccess', included: false },
+      { key: 'featurePrioritySupport', included: false },
+      { key: 'featureCustomDev', included: false },
     ],
   },
   {
     name: 'Pro',
     price: '¥99',
-    period: '/月',
-    description: '适合专业开发者和小团队',
+    periodKey: 'plan2Period',
+    descKey: 'plan2Desc',
     popular: true,
-    features: [
-      { name: '核心功能', included: true },
-      { name: '社区支持', included: true },
-      { name: '完整文档', included: true },
-      { name: 'API 访问', included: true },
-      { name: '优先支持', included: true },
-      { name: '定制开发', included: false },
+    featureKeys: [
+      { key: 'featureCore', included: true },
+      { key: 'featureCommunitySupport', included: true },
+      { key: 'featureFullDocs', included: true },
+      { key: 'featureApiAccess', included: true },
+      { key: 'featurePrioritySupport', included: true },
+      { key: 'featureCustomDev', included: false },
     ],
   },
   {
     name: 'Enterprise',
-    price: '定制',
-    description: '适合大型团队和企业',
-    features: [
-      { name: '核心功能', included: true },
-      { name: '专属支持', included: true },
-      { name: '完整文档', included: true },
-      { name: 'API 访问', included: true },
-      { name: '优先支持', included: true },
-      { name: '定制开发', included: true },
+    priceKey: 'plan3Price',
+    descKey: 'plan3Desc',
+    featureKeys: [
+      { key: 'featureCore', included: true },
+      { key: 'featureDedicatedSupport', included: true },
+      { key: 'featureFullDocs', included: true },
+      { key: 'featureApiAccess', included: true },
+      { key: 'featurePrioritySupport', included: true },
+      { key: 'featureCustomDev', included: true },
     ],
   },
 ];
 
 export default function FeaturesComparison() {
+  const t = useTranslations('FeaturesComparison');
+
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 scroll-animate">
-          <p className="text-sm text-primary uppercase tracking-widest font-medium mb-4">方案对比</p>
+          <p className="text-sm text-primary uppercase tracking-widest font-medium mb-4">{t('eyebrow')}</p>
           <h2 className="t-title-1 text-foreground mb-4">
-            选择适合你的方案
+            {t('title')}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            从免费开始，按需升级
+            {t('subtitle')}
           </p>
         </div>
 
@@ -75,7 +78,7 @@ export default function FeaturesComparison() {
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-[11px] font-semibold text-white tracking-wide uppercase">
-                    推荐
+                    {t('popular')}
                   </span>
                 </div>
               )}
@@ -85,15 +88,15 @@ export default function FeaturesComparison() {
               </h3>
 
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-3xl font-bold text-white">{plan.price}</span>
-                {plan.period && <span className="text-sm text-white/40">{plan.period}</span>}
+                <span className="text-3xl font-bold text-white">{plan.priceKey ? t(plan.priceKey) : plan.price}</span>
+                {plan.periodKey && <span className="text-sm text-white/40">{t(plan.periodKey)}</span>}
               </div>
 
-              <p className="text-xs text-white/30 mb-6">{plan.description}</p>
+              <p className="text-xs text-white/30 mb-6">{t(plan.descKey)}</p>
 
               <ul className="space-y-3">
-                {plan.features.map((f) => (
-                  <li key={f.name} className="flex items-center gap-2.5 text-sm">
+                {plan.featureKeys.map((f) => (
+                  <li key={f.key} className="flex items-center gap-2.5 text-sm">
                     {f.included ? (
                       <CheckIconSm />
                     ) : (
@@ -101,7 +104,7 @@ export default function FeaturesComparison() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     )}
-                    <span className={f.included ? 'text-white/60' : 'text-white/25'}>{f.name}</span>
+                    <span className={f.included ? 'text-white/60' : 'text-white/25'}>{t(f.key)}</span>
                   </li>
                 ))}
               </ul>

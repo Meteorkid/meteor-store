@@ -9,6 +9,8 @@ import {
   type BlogSectionId,
 } from '@/data/blog-sections';
 import type { TagSummary } from '@/data/blog-tags';
+import { useLocale } from 'next-intl';
+import type { Locale } from '@/i18n/routing';
 import { useAuth } from './AuthProvider';
 
 type SortMode = 'newest' | 'oldest' | 'reading-time';
@@ -54,6 +56,7 @@ export default function BlogListClient({
 }: BlogListClientProps) {
   const [sort, setSort] = useState<SortMode>('newest');
   const { user } = useAuth();
+  const locale = useLocale() as Locale;
 
   const showSectionLabel = !activeSectionId;
 
@@ -104,7 +107,7 @@ export default function BlogListClient({
           {channelGroups.map(({ channel, sections }) => (
             <div key={channel.id} className="flex shrink-0 items-center gap-1">
               <span aria-hidden className="mx-2 h-5 w-px bg-white/10" />
-              <span className="t-eyebrow mr-1 shrink-0 text-white/60">{channel.label}</span>
+              <span className="t-eyebrow mr-1 shrink-0 text-white/60">{channel.label[locale]}</span>
               {sections.map((s) => {
                 const active = s.id === activeSectionId;
                 const count = counts[s.id] ?? 0;
@@ -112,14 +115,14 @@ export default function BlogListClient({
                   <Link
                     key={s.id}
                     href={`/blog/section/${s.slug}`}
-                    title={s.description}
+                    title={s.description[locale]}
                     aria-current={active ? 'page' : undefined}
                     style={{ '--tab-accent': s.rgb } as React.CSSProperties}
                     className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
                       active ? 'blog-tab--active' : 'text-white/50 hover:text-white'
                     }`}
                   >
-                    {s.label}
+                    {s.label[locale]}
                     {count > 0 && (
                       <span className="ml-1.5 text-[11px] font-normal tabular-nums opacity-70">{count}</span>
                     )}
@@ -205,7 +208,7 @@ export default function BlogListClient({
               <div className="t-footnote mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
                 {showSectionLabel && ledeSection && (
                   <span className="font-semibold" style={{ color: `rgb(${ledeSection.rgb})` }}>
-                    {ledeSection.label}
+                    {ledeSection.label[locale]}
                   </span>
                 )}
                 <time className="tabular-nums text-white/60" dateTime={lede.date}>
@@ -257,7 +260,7 @@ export default function BlogListClient({
                           {showSectionLabel && section && (
                             <>
                               <span aria-hidden className="text-white/15">·</span>
-                              <span style={{ color: `rgb(${section.rgb} / 0.8)` }}>{section.label}</span>
+                              <span style={{ color: `rgb(${section.rgb} / 0.8)` }}>{section.label[locale]}</span>
                             </>
                           )}
                           {post.author && (

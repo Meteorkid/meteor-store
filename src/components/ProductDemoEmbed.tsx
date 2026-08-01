@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import type { Product } from '@/data/products';
+import type { LocalizedProduct } from '@/data/products';
 
 /**
  * 产品详情页在线演示嵌入：点击后才加载 iframe（避免拖慢首屏），
  * 封面截图做占位；加载失败时用户可通过右上角链接在新窗口打开。
  */
-export default function ProductDemoEmbed({ product }: { product: Product }) {
+export default function ProductDemoEmbed({ product }: { product: LocalizedProduct }) {
   const [loaded, setLoaded] = useState(false);
 
   if (!product.demo) return null;

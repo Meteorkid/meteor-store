@@ -1,12 +1,27 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import PathfinderSettingsClient from './PathfinderSettingsClient';
 
-export const metadata: Metadata = {
-  title: '模型配置 · Meteor Pathfinder',
-  description: '为 Meteor Pathfinder 配置你自己的兼容模型服务。',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'PathfinderSettingsPage' });
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+    robots: { index: false, follow: false },
+  };
+}
 
-export default function PathfinderSettingsPage() {
+export default async function PathfinderSettingsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <PathfinderSettingsClient />;
 }

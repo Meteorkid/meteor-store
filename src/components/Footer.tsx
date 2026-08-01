@@ -1,8 +1,9 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { products } from '@/data/products';
+import { localizeProducts } from '@/data/products';
+import type { Locale } from '@/i18n/routing';
 import { SHOW_PRICING } from '@/lib/constants';
 import FooterCopyright from './FooterCopyright';
 
@@ -31,6 +32,8 @@ interface FooterProps {
 
 export default function Footer({ showSocial = false }: FooterProps) {
   const t = useTranslations('Footer');
+  const locale = useLocale() as Locale;
+  const products = localizeProducts(locale);
 
   const productLinks = products.map((p) => ({
     name: p.name,

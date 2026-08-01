@@ -1,19 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import AdvancedProductCard from './AdvancedProductCard';
-import { products } from '@/data/products';
+import { localizeProducts } from '@/data/products';
+import type { Locale } from '@/i18n/routing';
 
 const categories = [
-  { label: '全部', value: '全部' },
-  { label: '爬虫', value: 'developer' },
-  { label: 'AI', value: 'ai' },
-  { label: '设计', value: 'design' },
-  { label: '工具', value: 'utility' },
+  { labelKey: 'categoryAll', value: '全部' },
+  { labelKey: 'categoryCrawler', value: 'developer' },
+  { labelKey: 'categoryAi', value: 'ai' },
+  { labelKey: 'categoryDesign', value: 'design' },
+  { labelKey: 'categoryUtility', value: 'utility' },
 ];
 
 export default function ProductShowcase() {
+  const t = useTranslations('ProductShowcase');
+  const locale = useLocale() as Locale;
+  const products = localizeProducts(locale);
   const [activeCategory, setActiveCategory] = useState('全部');
 
   const filteredProducts = activeCategory === '全部'
@@ -26,10 +31,10 @@ export default function ProductShowcase() {
         {/* Section header */}
         <div className="text-center mb-12">
           <h2 className="t-title-1 text-foreground mb-4">
-            精选产品
+            {t('title')}
           </h2>
           <p className="t-body text-muted-foreground">
-            选择适合你的工具
+            {t('subtitle')}
           </p>
         </div>
 
@@ -45,7 +50,7 @@ export default function ProductShowcase() {
                   : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
               }`}
             >
-              {cat.label}
+              {t(cat.labelKey)}
             </button>
           ))}
         </div>
@@ -65,7 +70,7 @@ export default function ProductShowcase() {
             href="/products"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
           >
-            查看全部产品
+            {t('viewAll')}
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import GlowButton from './GlowButton';
 import InfiniteTunnel from './InfiniteTunnel';
 import { SHOW_PRICING } from '@/lib/constants';
@@ -9,7 +10,12 @@ interface CTASectionProps {
 }
 
 export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
+  const t = useTranslations('CTASection');
   const isBold = variant === 'bold';
+
+  const trustBadges = SHOW_PRICING
+    ? [t('badgeOpenSource'), t('badgeLifetimeUpdates'), t('badgeRefund')]
+    : [t('badgeOpenSource'), t('badgeLifetimeUpdates')];
 
   return (
     <section className="py-20">
@@ -36,7 +42,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
             <h2
               className={`t-title-1 mb-4 ${isBold ? 'text-white' : 'text-foreground'}`}
             >
-              {isBold ? '进入工具矩阵' : '准备好开始了吗？'}
+              {isBold ? t('boldTitle') : t('subtleTitle')}
             </h2>
 
             <p
@@ -45,14 +51,14 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
               }`}
             >
               {isBold
-                ? '浏览我们的产品矩阵，找到适合你的工具'
-                : SHOW_PRICING ? '免费开始，按需升级，无隐藏费用' : '所有产品开源免费，欢迎使用'}
+                ? t('boldDesc')
+                : SHOW_PRICING ? t('subtleDescPricing') : t('subtleDescNoPricing')}
             </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <GlowButton variant="primary" size="lg" renderAs="a" href="/products">
-                浏览全部产品
+                {t('browseProducts')}
               </GlowButton>
               <GlowButton
                 variant="ghost"
@@ -63,7 +69,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
                 rel="noopener noreferrer"
                 className={isBold ? 'border-white/30 text-white hover:bg-white/10' : ''}
               >
-                GitHub 开源
+                {t('githubOpenSource')}
               </GlowButton>
             </div>
 
@@ -73,7 +79,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
                 isBold ? 'text-white/60' : 'text-muted-foreground'
               }`}
             >
-              {(SHOW_PRICING ? ['开源驱动', '终身免费更新', '30 天退款保证'] : ['开源驱动', '终身免费更新']).map((item) => (
+              {trustBadges.map((item) => (
                 <div key={item} className="flex items-center gap-1.5">
                   <svg
                     className={`w-4 h-4 ${isBold ? 'text-white/80' : 'text-success'}`}

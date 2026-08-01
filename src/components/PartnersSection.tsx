@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 // 纯文字徽章：等宽字体 + 单色点缀，比 emoji 更克制统一
 const techStack = [
   'Next.js',
@@ -13,12 +15,14 @@ const techStack = [
 ];
 
 export default function PartnersSection() {
+  const t = useTranslations('PartnersSection');
+
   return (
     <section className="py-16 border-t border-b border-white/5">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10 scroll-animate">
           <p className="text-sm text-white/30 uppercase tracking-widest font-medium">
-            基于现代技术栈构建
+            {t('subtitle')}
           </p>
         </div>
 

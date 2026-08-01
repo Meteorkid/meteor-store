@@ -1,36 +1,46 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogListClient from '@/components/BlogListClient';
 import { blogSections } from '@/data/blog-sections';
 import { findFeedTag, getFeedPostsByTag, getFeedTags, toFeedSummary } from '@/data/blog-feed';
+import { routing, type Locale } from '@/i18n/routing';
 
 interface TagPageProps {
-  params: Promise<{ tag: string }>;
+  params: Promise<{ locale: string; tag: string }>;
 }
 
 // 构建时预渲染已有标签；投稿带来的新标签走按需渲染，审核通过时 revalidate
 export async function generateStaticParams() {
-  return (await getFeedTags()).map((t) => ({ tag: t.label }));
+  const tags = await getFeedTags('zh');
+  return routing.locales.flatMap((locale) =>
+    tags.map((t) => ({ locale, tag: t.label }))
+  );
 }
 
 export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
-  const tag = await findFeedTag(decodeURIComponent((await params).tag));
+  const { locale, tag: tagParam } = await params;
+  const tag = await findFeedTag(locale as Locale, decodeURIComponent(tagParam));
+  const t = await getTranslations({ locale, namespace: 'BlogTagPage' });
   return tag
     ? {
-        title: `#${tag.label} - Meteor Store 博客`,
-        description: `标签「${tag.label}」下的 ${tag.count} 篇文章`,
+        title: `#${tag.label} - ${t('blogSuffix')}`,
+        description: t('description', { tag: tag.label, count: tag.count }),
       }
-    : { title: '标签未找到 - Meteor Store' };
+    : { title: t('notFound') };
 }
 
 export default async function BlogTagPage({ params }: TagPageProps) {
-  const tag = await findFeedTag(decodeURIComponent((await params).tag));
+  const { locale, tag: tagParam } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'BlogTagPage' });
+  const tag = await findFeedTag(locale as Locale, decodeURIComponent(tagParam));
   if (!tag) notFound();
 
-  const posts = (await getFeedPostsByTag(tag.key)).map(toFeedSummary);
+  const posts = (await getFeedPostsByTag(locale as Locale, tag.key)).map(toFeedSummary);
   const counts = Object.fromEntries(blogSections.map((s) => [s.id, 0]));
 
   return (
@@ -42,13 +52,13 @@ export default async function BlogTagPage({ params }: TagPageProps) {
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <h1 className="t-title-2">#{tag.label}</h1>
               <span aria-hidden className="t-footnote text-white/20">/</span>
-              <p className="t-footnote tabular-nums text-white/60">{tag.count} 篇</p>
+              <p className="t-footnote tabular-nums text-white/60">{t('count', { count: tag.count })}</p>
             </div>
             <Link
               href="/blog/tags"
               className="t-footnote shrink-0 text-white/60 transition-colors duration-200 hover:text-white"
             >
-              全部标签 →
+              {t('allTags')} →
             </Link>
           </header>
 

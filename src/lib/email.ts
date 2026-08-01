@@ -32,7 +32,7 @@ interface OrderEmailData {
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
   const product = findProduct(data.productId);
-  const productName = escapeHtml(product?.name || data.productId);
+  const productName = escapeHtml(product?.name?.zh || data.productId);
   const planName = escapeHtml(data.planName);
   const orderId = escapeHtml(data.orderId);
 

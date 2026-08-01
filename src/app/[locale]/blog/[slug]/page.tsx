@@ -1,38 +1,55 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
+import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { blogPosts } from '@/data/blog';
+import { getBlogPosts } from '@/data/blog';
 import { blogScopeStyle, getSectionById } from '@/data/blog-sections';
 import { markdownToHtml } from '@/lib/markdown';
 import BlogReadingProgress from '@/components/BlogReadingProgress';
 import CommentSection from '@/components/CommentSection';
+import { routing, type Locale } from '@/i18n/routing';
 
 interface BlogPostPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+  // 为每个 locale × slug 生成静态页面
+  return routing.locales.flatMap((locale) =>
+    getBlogPosts(locale).map((post) => ({ locale, slug: post.slug }))
+  );
 }
 
-export async function generateMetadata({ params }: BlogPostPageProps) {
-  const { slug } = await params;
-  const post = blogPosts.find((p) => p.slug === slug);
+export async function generateMetadata({
+  params,
+}: BlogPostPageProps): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const posts = getBlogPosts(locale as Locale);
+  const post = posts.find((p) => p.slug === slug);
+  const t = await getTranslations({ locale, namespace: 'BlogPostPage' });
   return post
-    ? { title: `${post.title} | Meteor Store 博客`, description: post.excerpt }
-    : { title: '文章未找到 - Meteor Store' };
+    ? {
+        title: `${post.title} | ${t('blogSuffix')}`,
+        description: post.excerpt,
+      }
+    : { title: t('notFound') };
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug } = await params;
-  const post = blogPosts.find((p) => p.slug === slug);
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'BlogPostPage' });
+
+  const posts = getBlogPosts(locale as Locale);
+  const post = posts.find((p) => p.slug === slug);
   if (!post) notFound();
 
   const section = getSectionById(post.section);
 
   // 同分区的其他文章，最新 3 篇
-  const related = blogPosts
+  const related = posts
     .filter((p) => p.section === post.section && p.slug !== post.slug)
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 3);
@@ -51,7 +68,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             className="t-footnote group mb-8 inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white"
           >
             <span aria-hidden className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
-            回到{section?.label ?? '博客'}
+            {t('backTo', { section: section?.label[locale as Locale] ?? t('blog') })}
           </Link>
 
           {/* 文章头：分区色作为唯一的彩色元素 */}
@@ -60,7 +77,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="t-footnote relative mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
               {section && (
                 <span className="font-semibold" style={{ color: `rgb(${section.rgb})` }}>
-                  {section.label}
+                  {section.label[locale as Locale]}
                 </span>
               )}
               <span aria-hidden className="text-white/15">·</span>
@@ -68,7 +85,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 {post.date.replace(/-/g, '.')}
               </time>
               <span aria-hidden className="text-white/15">·</span>
-              <span className="text-white/60">{post.readingTime} 分钟</span>
+              <span className="text-white/60">{t('minutes', { count: post.readingTime })}</span>
             </div>
 
             <h1 className="t-title-1 relative mb-8">{post.title}</h1>
@@ -93,7 +110,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           {related.length > 0 && (
             <section className="mt-20">
-              <h2 className="t-eyebrow mb-1 text-white/60">继续读</h2>
+              <h2 className="t-eyebrow mb-1 text-white/60">{t('continueReading')}</h2>
               <div className="mt-5">
                 {related.map((item, i) => (
                   <Link key={item.slug} href={`/blog/${item.slug}`} className="blog-row group">
@@ -119,10 +136,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           <div className="t-footnote mt-20 flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.07] pt-8">
             <Link href="/blog" className="text-white/60 transition-colors duration-200 hover:text-white">
-              ← 全部文章
+              ← {t('allArticles')}
             </Link>
             <Link href="/products" className="text-white/60 transition-colors duration-200 hover:text-white">
-              看看这些工具 →
+              {t('checkTools')} →
             </Link>
           </div>
         </article>

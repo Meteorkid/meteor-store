@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { eq, desc } from 'drizzle-orm';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AccountForms from '@/components/AccountForms';
@@ -8,11 +9,20 @@ import { db } from '@/lib/db';
 import { users, licenseKeys, posts } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
 import { products } from '@/data/products';
+import type { Locale } from '@/i18n/routing';
 
-export const metadata: Metadata = {
-  title: '个人主页 - Meteor Store',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'AccountPage' });
+  return {
+    title: t('metaTitle'),
+    robots: { index: false, follow: false },
+  };
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -23,16 +33,24 @@ function formatDate(iso: string): string {
     : `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
-const statusLabel: Record<string, { text: string; cls: string }> = {
-  active: { text: '有效', cls: 'bg-emerald-500/15 text-emerald-400' },
-  revoked: { text: '已撤销', cls: 'bg-red-500/15 text-red-400' },
-  draft: { text: '草稿', cls: 'bg-white/10 text-white/60' },
-  pending: { text: '审核中', cls: 'bg-amber-500/15 text-amber-400' },
-  published: { text: '已发布', cls: 'bg-emerald-500/15 text-emerald-400' },
-  rejected: { text: '未通过', cls: 'bg-red-500/15 text-red-400' },
-};
+export default async function AccountPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'AccountPage' });
 
-export default async function AccountPage() {
+  const statusLabel: Record<string, { text: string; cls: string }> = {
+    active: { text: t('statusActive'), cls: 'bg-emerald-500/15 text-emerald-400' },
+    revoked: { text: t('statusRevoked'), cls: 'bg-red-500/15 text-red-400' },
+    draft: { text: t('statusDraft'), cls: 'bg-white/10 text-white/60' },
+    pending: { text: t('statusPending'), cls: 'bg-amber-500/15 text-amber-400' },
+    published: { text: t('statusPublished'), cls: 'bg-emerald-500/15 text-emerald-400' },
+    rejected: { text: t('statusRejected'), cls: 'bg-red-500/15 text-red-400' },
+  };
+
   const session = await getSession();
   if (!session) redirect('/login');
 
@@ -67,7 +85,7 @@ export default async function AccountPage() {
       <Header />
       <main className="container mx-auto px-4 py-10 md:py-14">
         <div className="mx-auto max-w-2xl">
-          <h1 className="sr-only">个人主页</h1>
+          <h1 className="sr-only">{t('srTitle')}</h1>
 
           {/* 身份卡 */}
           <section className="glass-card mb-10 rounded-3xl p-7 md:p-9">
@@ -97,41 +115,41 @@ export default async function AccountPage() {
 
             <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-white/[0.08] pt-6 sm:grid-cols-4">
               <div>
-                <dt className="t-eyebrow text-white/45">加入时间</dt>
+                <dt className="t-eyebrow text-white/45">{t('joinTime')}</dt>
                 <dd className="t-footnote mt-1.5 tabular-nums text-white/80">
                   {formatDate(user.createdAt)}
                 </dd>
               </div>
               <div>
-                <dt className="t-eyebrow text-white/45">邮箱状态</dt>
+                <dt className="t-eyebrow text-white/45">{t('emailStatus')}</dt>
                 <dd className="t-footnote mt-1.5 text-white/80">
-                  {user.emailVerified ? '已验证' : '未验证'}
+                  {user.emailVerified ? t('verified') : t('unverified')}
                 </dd>
               </div>
               <div>
-                <dt className="t-eyebrow text-white/45">学生身份</dt>
+                <dt className="t-eyebrow text-white/45">{t('studentStatus')}</dt>
                 <dd className="t-footnote mt-1.5 text-white/80">
-                  {user.isStudent ? '已认证' : '未认证'}
+                  {user.isStudent ? t('verifiedStudent') : t('unverifiedStudent')}
                 </dd>
               </div>
               <div>
-                <dt className="t-eyebrow text-white/45">投稿</dt>
+                <dt className="t-eyebrow text-white/45">{t('postsCount')}</dt>
                 <dd className="t-footnote mt-1.5 tabular-nums text-white/80">
-                  {userPosts.length} 篇
+                  {t('postsUnit', { count: userPosts.length })}
                 </dd>
               </div>
             </dl>
 
             {!user.isStudent && (
               <p className="t-footnote mt-6 text-white/60">
-                在校学生用教育邮箱可以免费用全部付费功能，
+                {t('studentPrompt')}
                 <a
                   href="/student"
                   className="text-white underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white"
                 >
-                  去认证
+                  {t('verifyNow')}
                 </a>
-                。
+                {t('verifySuffix')}
               </p>
             )}
           </section>
@@ -139,9 +157,9 @@ export default async function AccountPage() {
           {/* 授权码 */}
           {keys.length > 0 && (
             <section className="mb-10 rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
-              <h2 className="t-title-3 mb-1.5 text-white/90">我的授权码</h2>
+              <h2 className="t-title-3 mb-1.5 text-white/90">{t('myLicenseKeys')}</h2>
               <p className="t-footnote mb-5 text-white/60">
-                通过购买或邀请码兑换获得的产品授权。
+                {t('licenseKeysDesc')}
               </p>
               <div className="space-y-3">
                 {keys.map((k) => {
@@ -154,7 +172,7 @@ export default async function AccountPage() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-[0.9375rem] font-medium text-white/90 truncate">
-                          {product?.name ?? k.productId}
+                          {product?.name[locale as Locale] ?? k.productId}
                           <span className="ml-2 text-white/50 font-normal">{k.planName}</span>
                         </p>
                         <p className="t-footnote mt-0.5 font-mono text-white/40 truncate select-all">
@@ -174,9 +192,9 @@ export default async function AccountPage() {
           {/* 投稿记录 */}
           {userPosts.length > 0 && (
             <section className="mb-10 rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
-              <h2 className="t-title-3 mb-1.5 text-white/90">我的投稿</h2>
+              <h2 className="t-title-3 mb-1.5 text-white/90">{t('myPosts')}</h2>
               <p className="t-footnote mb-5 text-white/60">
-                你提交的文章和它们的审核状态。
+                {t('myPostsDesc')}
               </p>
               <div className="space-y-3">
                 {userPosts.map((p) => {

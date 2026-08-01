@@ -9,7 +9,7 @@ const LOCALES = ['zh', 'en'] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
-  const [feedPosts, feedTags] = await Promise.all([getFeedPosts(), getFeedTags()]);
+  const [feedPosts, feedTags] = await Promise.all([getFeedPosts('zh'), getFeedTags('zh')]);
 
   const staticPages = [
     { url: BASE_URL, lastModified: now, changeFrequency: 'weekly' as const, priority: 1 },

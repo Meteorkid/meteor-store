@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import {
   searchEntries,
   getIndex,
@@ -9,6 +10,7 @@ import {
   type SearchGroup,
   type SearchEntry,
 } from '@/lib/search-index';
+import type { Locale } from '@/i18n/routing';
 
 const GROUP_ORDER: SearchGroup[] = ['产品', '页面', '帮助', '彩蛋'];
 
@@ -80,6 +82,7 @@ function HighlightedText({
  */
 export default function SpotlightSearch() {
   const router = useRouter();
+  const locale = useLocale() as Locale;
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -87,14 +90,14 @@ export default function SpotlightSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const results = useMemo(() => searchEntries(query), [query]);
+  const results = useMemo(() => searchEntries(query, locale), [query, locale]);
 
   useEffect(() => {
     if (open) setRecentIds(getRecentIds());
   }, [open]);
 
   const defaultEntries = useMemo(() => {
-    const index = getIndex();
+    const index = getIndex(locale);
     const recent = recentIds
       .map(id => index.find(e => e.id === id))
       .filter((e): e is SearchEntry => e != null);

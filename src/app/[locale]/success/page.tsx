@@ -8,6 +8,7 @@ import { db } from '@/lib/db';
 import { orders, licenseKeys } from '@/lib/db/schema';
 import { findProduct } from '@/lib/products';
 import { SHOW_PRICING } from '@/lib/constants';
+import type { Locale } from '@/i18n/routing';
 
 import { and } from 'drizzle-orm';
 
@@ -83,7 +84,7 @@ export default async function SuccessPage({ searchParams, params }: SuccessPageP
                 </div>
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-gray-400">{t('product')}</span>
-                  <span className="text-white">{product?.name || order.productId} - {order.planName}</span>
+                  <span className="text-white">{product?.name[locale as Locale] || order.productId} - {order.planName}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">{t('amount')}</span>

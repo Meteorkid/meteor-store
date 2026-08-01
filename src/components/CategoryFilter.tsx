@@ -1,7 +1,9 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { categories } from '@/data/products';
+import { useLocale } from 'next-intl';
+import { localizeCategories } from '@/data/products';
+import type { Locale } from '@/i18n/routing';
 
 interface CategoryFilterProps {
   selected: string;
@@ -11,6 +13,8 @@ export default function CategoryFilter({ selected }: CategoryFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const locale = useLocale() as Locale;
+  const categories = localizeCategories(locale);
 
   const handleClick = (categoryId: string) => {
     const params = new URLSearchParams(searchParams.toString());

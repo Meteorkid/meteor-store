@@ -9,6 +9,7 @@ import { orders, licenseKeys } from '@/lib/db/schema';
 import { findProduct } from '@/lib/products';
 import { SHOW_PRICING } from '@/lib/constants';
 import { getSession } from '@/lib/auth';
+import type { Locale } from '@/i18n/routing';
 
 interface OrderDetailPageProps {
   params: Promise<{ orderId: string; locale: string }>;
@@ -95,7 +96,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">{t('product')}</span>
-                <span className="text-white">{product?.name || order.productId}</span>
+                <span className="text-white">{product?.name[locale as Locale] || order.productId}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">{t('plan')}</span>

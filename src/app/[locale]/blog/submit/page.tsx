@@ -1,20 +1,36 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PostSubmitForm from '@/components/PostSubmitForm';
 import { getSession } from '@/lib/auth';
 import { markdownToHtml } from '@/lib/markdown';
 
-export const metadata: Metadata = {
-  title: '投稿 - Meteor Store 博客',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'BlogSubmitPage' });
+  return {
+    title: t('metaTitle'),
+    robots: { index: false, follow: false },
+  };
+}
 
 export const dynamic = 'force-dynamic';
 
-export default async function SubmitPage() {
+export default async function SubmitPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'BlogSubmitPage' });
   const session = await getSession();
   if (!session) redirect('/login');
 
@@ -34,12 +50,12 @@ export default async function SubmitPage() {
       <main className="container mx-auto px-4 py-10 md:py-14">
         <div className="mx-auto max-w-3xl">
           <header className="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-            <h1 className="t-title-2">写一篇</h1>
+            <h1 className="t-title-2">{t('title')}</h1>
             <Link
               href="/blog/my-posts"
               className="t-footnote text-white/60 transition-colors duration-200 hover:text-white"
             >
-              我的投稿 →
+              {t('myPostsLink')}
             </Link>
           </header>
 

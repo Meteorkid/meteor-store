@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 
 export default function Error({
   error,
@@ -10,6 +11,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations('ErrorPage');
+
   useEffect(() => {
     console.error('Page error:', error);
   }, [error]);
@@ -18,22 +21,22 @@ export default function Error({
     <div className="min-h-screen bg-black text-white flex items-center justify-center">
       <div className="text-center px-4">
         <div className="text-6xl mb-6">😵</div>
-        <h1 className="text-2xl font-bold mb-4">页面出错了</h1>
+        <h1 className="text-2xl font-bold mb-4">{t('title')}</h1>
         <p className="text-gray-400 mb-8 max-w-md mx-auto">
-          抱歉，页面加载时遇到了问题。请尝试刷新页面或返回首页。
+          {t('description')}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={() => reset()}
             className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
           >
-            重试
+            {t('retry')}
           </button>
           <Link
             href="/"
             className="px-6 py-3 bg-white/10 rounded-lg text-white font-medium hover:bg-white/20 transition-colors"
           >
-            返回首页
+            {t('backHome')}
           </Link>
         </div>
       </div>

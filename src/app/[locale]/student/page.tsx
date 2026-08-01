@@ -46,7 +46,7 @@ export default async function StudentPage({
             <p className="text-sm leading-relaxed text-gray-300">
               {t('upgradeDescription')}
               <a
-                href="mailto:meteor@stu.gpnu.edu.cn?subject=学生免费计划申请"
+                href={`mailto:meteor@stu.gpnu.edu.cn?subject=${encodeURIComponent(t('emailSubject'))}`}
                 className="mx-1 underline decoration-amber-300/40 underline-offset-4 hover:decoration-amber-300"
               >
                 meteor@stu.gpnu.edu.cn

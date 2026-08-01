@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { buildIndex, searchEntries } from '../search-index';
 
 describe('buildIndex', () => {
-  const index = buildIndex();
+  const index = buildIndex('zh');
 
   it('包含全部产品条目', () => {
     const productEntries = index.filter(e => e.group === '产品');
@@ -25,42 +25,42 @@ describe('buildIndex', () => {
 
 describe('searchEntries', () => {
   it('空查询返回空', () => {
-    expect(searchEntries('')).toEqual([]);
-    expect(searchEntries('   ')).toEqual([]);
+    expect(searchEntries('', 'zh')).toEqual([]);
+    expect(searchEntries('   ', 'zh')).toEqual([]);
   });
 
   it('英文产品名前缀命中且排最前', () => {
-    const results = searchEntries('omni');
+    const results = searchEntries('omni', 'zh');
     expect(results[0]?.title).toBe('OmniCrawl');
   });
 
   it('中文子串匹配可用', () => {
-    const results = searchEntries('爬虫');
+    const results = searchEntries('爬虫', 'zh');
     expect(results.some(r => r.title === 'OmniCrawl')).toBe(true);
   });
 
   it('FAQ 答案文本可被搜到（非商业 FAQ，不受 SHOW_PRICING 开关影响）', () => {
-    const results = searchEntries('技术支持');
+    const results = searchEntries('技术支持', 'zh');
     expect(results.some(r => r.group === '帮助')).toBe(true);
   });
 
   it('彩蛋命令可被发现', () => {
-    const results = searchEntries('hug');
+    const results = searchEntries('hug', 'zh');
     const egg = results.find(r => r.group === '彩蛋');
     expect(egg?.href).toBe('/#terminal');
   });
 
   it('多词项 AND 语义：全部命中才返回', () => {
-    const both = searchEntries('爬虫 框架');
+    const both = searchEntries('爬虫 框架', 'zh');
     expect(both.some(r => r.title === 'OmniCrawl')).toBe(true);
-    expect(searchEntries('爬虫 不存在的词xyz')).toEqual([]);
+    expect(searchEntries('爬虫 不存在的词xyz', 'zh')).toEqual([]);
   });
 
   it('大小写不敏感', () => {
-    expect(searchEntries('OMNI')[0]?.title).toBe('OmniCrawl');
+    expect(searchEntries('OMNI', 'zh')[0]?.title).toBe('OmniCrawl');
   });
 
   it('结果数不超过 limit', () => {
-    expect(searchEntries('工具', 3).length).toBeLessThanOrEqual(3);
+    expect(searchEntries('工具', 'zh', 3).length).toBeLessThanOrEqual(3);
   });
 });

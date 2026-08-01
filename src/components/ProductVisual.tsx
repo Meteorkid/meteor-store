@@ -1,8 +1,8 @@
 import Image from 'next/image';
-import { Product } from '@/data/products';
+import { LocalizedProduct } from '@/data/products';
 
 interface ProductVisualProps {
-  product: Product;
+  product: LocalizedProduct;
   priority?: boolean;
   demoOnHover?: boolean;
   className?: string;

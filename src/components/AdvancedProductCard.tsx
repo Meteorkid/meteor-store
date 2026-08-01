@@ -1,13 +1,13 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import { Product } from '@/data/products';
+import { LocalizedProduct } from '@/data/products';
 import { SHOW_PRICING, categoryColors, categoryLabels } from '@/lib/constants';
 import ProductVisual from './ProductVisual';
 import TransitionLink from './TransitionLink';
 
 interface AdvancedProductCardProps {
-  product: Product;
+  product: LocalizedProduct;
 }
 
 export default function AdvancedProductCard({ product }: AdvancedProductCardProps) {

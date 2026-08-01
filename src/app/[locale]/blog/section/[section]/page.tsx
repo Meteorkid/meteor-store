@@ -1,35 +1,42 @@
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogList from '@/components/BlogList';
 import TopicProposalForm from '@/components/TopicProposalForm';
 import { blogScopeStyle, blogSections, getSectionBySlug } from '@/data/blog-sections';
+import { routing, type Locale } from '@/i18n/routing';
 
 interface SectionPageProps {
-  params: Promise<{ section: string }>;
+  params: Promise<{ locale: string; section: string }>;
 }
 
 export function generateStaticParams() {
-  return blogSections.map((s) => ({ section: s.slug }));
+  return routing.locales.flatMap((locale) =>
+    blogSections.map((s) => ({ locale, section: s.slug }))
+  );
 }
 
 export async function generateMetadata({ params }: SectionPageProps): Promise<Metadata> {
-  const { section: slug } = await params;
+  const { locale, section: slug } = await params;
   const section = getSectionBySlug(slug);
+  const t = await getTranslations({ locale, namespace: 'BlogSectionPage' });
   return section
     ? {
-        title: `${section.label} - Meteor Store 博客`,
-        description: section.description,
+        title: `${section.label[locale as Locale]} - ${t('blogSuffix')}`,
+        description: section.description[locale as Locale],
         alternates: {
           types: { 'application/rss+xml': `/blog/section/${section.slug}/feed.xml` },
         },
       }
-    : { title: '分区未找到 - Meteor Store' };
+    : { title: t('notFound') };
 }
 
 export default async function BlogSectionPage({ params }: SectionPageProps) {
-  const { section: slug } = await params;
+  const { locale, section: slug } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'BlogSectionPage' });
   const section = getSectionBySlug(slug);
   if (!section) notFound();
 
@@ -47,24 +54,24 @@ export default async function BlogSectionPage({ params }: SectionPageProps) {
                   className="h-1.5 w-1.5 rounded-full"
                   style={{ backgroundColor: `rgb(${section.rgb})` }}
                 />
-                {section.label}
+                {section.label[locale as Locale]}
               </h1>
               <span aria-hidden className="t-footnote text-white/20">/</span>
-              <p className="t-footnote text-white/60">{section.description}</p>
+              <p className="t-footnote text-white/60">{section.description[locale as Locale]}</p>
             </div>
             <a
               href={`/blog/section/${section.slug}/feed.xml`}
               className="t-footnote shrink-0 text-white/60 transition-colors duration-200 hover:text-white/70"
             >
-              <span aria-hidden>◉</span> 订阅
+              <span aria-hidden>◉</span> {t('subscribe')}
             </a>
           </header>
 
-          <BlogList sectionId={section.id} />
+          <BlogList sectionId={section.id} locale={locale as Locale} />
 
           {section.allowProposals && (
             <div className="mt-16">
-              <TopicProposalForm sectionId={section.id} sectionLabel={section.label} />
+              <TopicProposalForm sectionId={section.id} sectionLabel={section.label[locale as Locale]} />
             </div>
           )}
         </div>

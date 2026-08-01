@@ -62,13 +62,13 @@ export function estimateReadingTime(content: string): number {
 }
 
 function loadPosts(locale?: Locale): BlogPost[] {
-  // 如果指定了 locale，尝试加载对应目录；否则加载默认目录
+  // 如果指定了 locale，尝试加载对应目录；否则加载默认目录（zh）
   const blogDir = locale
     ? join(CONTENT_DIR, locale)
-    : CONTENT_DIR;
+    : join(CONTENT_DIR, 'zh');
 
   // 如果目录不存在，回退到默认目录
-  const actualDir = existsSync(blogDir) ? blogDir : CONTENT_DIR;
+  const actualDir = existsSync(blogDir) ? blogDir : join(CONTENT_DIR, 'zh');
 
   const files = readdirSync(actualDir).filter((f) => f.endsWith('.md'));
 

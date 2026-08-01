@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Product } from '@/data/products';
+import type { LocalizedProduct } from '@/data/products';
 
 const iconMap: Record<string, { svg: ReactNode; color: string }> = {
   gitee: {
@@ -52,7 +52,7 @@ const iconMap: Record<string, { svg: ReactNode; color: string }> = {
   },
 };
 
-export default function DownloadSection({ product }: { product: Product }) {
+export default function DownloadSection({ product }: { product: LocalizedProduct }) {
   if (!product.downloads?.length) return null;
 
   return (

@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     const tier = product.pricing.find(
-      (t) => t.name.toLowerCase() === planName.toLowerCase()
+      (t) => t.name.zh.toLowerCase() === planName.toLowerCase()
     );
     if (!tier) {
       return NextResponse.json(
@@ -170,8 +170,8 @@ export async function POST(request: NextRequest) {
     });
 
     // 再创建支付宝订单
-    const subject = `${product.name} - ${planName}`;
-    const body_text = `购买 ${product.name} 的 ${planName} 方案`;
+    const subject = `${product.name.zh} - ${planName}`;
+    const body_text = `购买 ${product.name.zh} 的 ${planName} 方案`;
 
     let payUrl: string;
     try {
