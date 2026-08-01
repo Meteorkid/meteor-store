@@ -174,6 +174,28 @@ draft: true                # 草稿只在开发环境可见
   两个 RSS 和 `/sitemap.xml`。标签页用 `revalidatePath('/blog/tag/[tag]', 'page')`
   整条路由一起失效——规范地址的大小写来自索引，未必等于投稿里的写法，逐个失效会漏
 
+### 收藏
+
+登录用户可以收藏任何文章（站主文件文章 + 读者投稿都覆盖）。
+服务层在 [src/lib/favorites.ts](file:///Users/meteor/github/meteor-store/src/lib/favorites.ts)，
+API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在 `PostStats` 心形按钮。
+
+- `post_favorites` 表复合主键 `(targetId, userId)` 天然防重复收藏。
+  **`targetId` 复用 views/likes 的约定**：文件文章用 slug，数据库投稿用 `post.id`，
+  两个空间不会撞——投稿是 base64url 短 id，文件 slug 是 kebab-case
+- `toggleFavorite` 内部先 SELECT 再 INSERT/DELETE：Neon HTTP 不支持事务，
+  复合主键兜底并发（两人同时收藏同一篇，最坏情况是其中一人收到唯一约束错误，
+  调用方应捕获并重试一次读取状态）
+- **列表页收藏数走批量查询** `getFavoriteCounts(targetIds[])`：N 篇文章一次 `GROUP BY`，
+  不要改成每条都打一次数据库。`BlogList` 服务端取好后以 `Record<string, number>`
+  传入客户端组件（**Map 不能跨 RSC 边界**，必须 `Object.fromEntries`）
+- **「我的收藏」页**用 `getUserFavoritePosts(userId, locale)`：拿到 targetId 后两边来源都筛一遍，
+  按收藏时间倒序。已下架/删除的文章自然筛不到（收藏记录保留，但不显示）——
+  作者重新发布或改 slug 后无法自动恢复，这是可接受的代价
+- 收藏切换接口限流 30 次/分钟/用户+IP，与点赞一致；未登录返回 401
+- 切换收藏状态**不需要 revalidatePath**：收藏数和状态都由 `PostStats` 客户端组件
+  挂载时 fetch，列表页收藏数也是动态渲染。和点赞一样是「读时不缓存，写时不失效」
+
 ### 管理员
 
 `ADMIN_EMAILS` 环境变量，逗号分隔。**故意不放数据库字段**：加一个 `isAdmin` 列
@@ -183,6 +205,16 @@ draft: true                # 草稿只在开发环境可见
   （进了 token，撤销管理员就得等它过期）。真正的鉴权在页面和写接口里各有一道
 - 后台对非管理员返回 **404 而非 403**，且 `generateMetadata` 也要跟着权限走——
   写成静态 `metadata` 的话，标题栏会写着「待审核」，等于告诉他这里有个后台
+- **管理员越权编辑投稿**：`/admin/posts` 表里每条投稿旁有「编辑」链接，
+  跳到 `/blog/submit?id={postId}&admin=1`。该页用 `isAdminEmail(session.email)` 校验后，
+  调 `updatePost({ ..., asAdmin: true })`。`asAdmin` 让 `where` 只用 `id` 不带 `authorId`，
+  并允许编辑 `pending` 状态（审核中需要修正的情况）。
+  API 层 `src/app/api/posts/[id]/route.ts` 必须先验 `isAdminEmail` 再传 `asAdmin`，
+  **绝不能让前端直接传 `asAdmin: true`**
+- 站主文件文章的「编辑」链接直接指向 GitHub 仓库 `content/blog/{slug}.md` 的 web 编辑器
+  （仓库 owner 是 `Meteorkid`，不是 `meteor-store`——这是历史命名，别改）
+- 管理员直发模式 `adminPublish`：投稿由管理员创建时跳过审核直接发布；已发布文章编辑后
+  保持 `published` 不下架。仅 `asAdmin` 路径下生效，普通作者走 `submit` 流程
 
 ### 邀请码
 
@@ -252,8 +284,11 @@ draft: true                # 草稿只在开发环境可见
   上传拿 URL，再在本地 `.md` 文件里写。这是为了不在仓库里引入二进制资源
 - **Markdown 渲染管线已放行 `loading` 属性**（见 [src/lib/markdown.ts](file:///Users/meteor/github/meteor-store/src/lib/markdown.ts)
   的 `schema.attributes.img`），R2 URL 走 `R2_PUBLIC_BASE` CSP 白名单无需额外配置
-- **未启用 next/image 优化**：远程图片需要配 `next.config.ts` 的 `remotePatterns`，
-  目前用原生 `<img loading="lazy">`，未来要优化再加
+- **next/image 优化已启用**：`rehypeNextImage` 插件在 sanitize 之后把外链 img 的 src
+  改写为 `/_next/image?url=...&w=...&q=75`，生成多尺寸 srcset（640/828/1200/1920w）。
+  原生 `<img>` 直接走 Next 图片优化端点，享受 webp/avif 转换和响应式尺寸，
+  无需 `<Image>` 组件。`next.config.ts` 的 `images.remotePatterns` 从 `R2_PUBLIC_BASE`
+  构建时自动派生。相对路径图片不被改写。Vercel Hobby 计划每月 1000 次免费优化额度
 
 ## 安全约束
 

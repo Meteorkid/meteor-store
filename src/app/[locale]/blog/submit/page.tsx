@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PostSubmitForm from '@/components/PostSubmitForm';
 import { getSession } from '@/lib/auth';
+import { isAdminEmail } from '@/lib/admin';
 import { getPostById, type UserPost } from '@/lib/posts';
 import { markdownToHtml } from '@/lib/markdown';
 
@@ -37,16 +38,17 @@ export default async function SubmitPage({
   const session = await getSession();
   if (!session) redirect('/login');
 
-  // ?id=xxx 时进入编辑模式：加载文章，校验作者，pending 不允许编辑
+  // ?id=xxx 时进入编辑模式：加载文章，校验作者或管理员，pending 不允许编辑
   const { id } = await searchParams;
   let initialPost: UserPost | null = null;
   if (id) {
     const post = await getPostById(id);
-    if (!post || post.authorId !== session.userId) {
+    const isAdmin = isAdminEmail(session.email);
+    if (!post || (post.authorId !== session.userId && !isAdmin)) {
       notFound();
     }
-    if (post.status === 'pending') {
-      // pending 必须先撤回才能编辑，避免审核中内容被偷改
+    // 管理员可以编辑 pending 文章（审核中需要修正），普通作者必须先撤回
+    if (post.status === 'pending' && !isAdmin) {
       redirect('/blog/my-posts');
     }
     initialPost = post;

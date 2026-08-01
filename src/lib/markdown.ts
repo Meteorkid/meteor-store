@@ -5,6 +5,8 @@ import remarkRehype from 'remark-rehype';
 import rehypeExternalLinks from 'rehype-external-links';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
+import { visit } from 'unist-util-visit';
+import type { Root, Element } from 'hast';
 
 /**
  * Markdown → HTML，输出用于 dangerouslySetInnerHTML。
@@ -30,6 +32,40 @@ const schema: typeof defaultSchema = {
   },
 };
 
+/** next/image 优化的响应式宽度档位 */
+const NEXT_IMAGE_WIDTHS = [640, 828, 1200, 1920];
+const NEXT_IMAGE_DEFAULT_WIDTH = 1200;
+const NEXT_IMAGE_QUALITY = 75;
+
+/**
+ * 把外链图片的 src 改写为 /_next/image?url=...&w=...&q=...，
+ * 让原生 <img> 也能享受 next/image 的 webp/avif 转换和响应式尺寸。
+ *
+ * 必须放在 rehype-sanitize 之后：sanitize 已清理掉危险协议（javascript:/data:/vbscript:），
+ * 这里只改写已经安全的 http/https 外链。相对路径和 data: 不动。
+ *
+ * 不需要 <Image> 组件：/_next/image 是 Next 的图片优化端点，原生 <img> 直接用。
+ * 需要在 next.config.ts 的 images.remotePatterns 放行远程域名。
+ */
+function rehypeNextImage() {
+  return (tree: Root) => {
+    visit(tree, 'element', (node: Element) => {
+      if (node.tagName !== 'img') return;
+      const src = node.properties?.src;
+      if (typeof src !== 'string') return;
+      // 只改写 http/https 外链，站内相对路径和 data: 不动
+      if (!/^https?:\/\//.test(src)) return;
+
+      const encoded = encodeURIComponent(src);
+      node.properties.src = `/_next/image?url=${encoded}&w=${NEXT_IMAGE_DEFAULT_WIDTH}&q=${NEXT_IMAGE_QUALITY}`;
+      node.properties.srcset = NEXT_IMAGE_WIDTHS.map(
+        (w) => `/_next/image?url=${encoded}&w=${w}&q=${NEXT_IMAGE_QUALITY} ${w}w`,
+      ).join(', ');
+      node.properties.sizes = '(max-width: 768px) 100vw, 768px';
+    });
+  };
+}
+
 const processor = unified()
   .use(remarkParse)
   // GFM：表格、删除线、任务列表、自动链接
@@ -43,6 +79,8 @@ const processor = unified()
     protocols: ['http', 'https'],
   })
   .use(rehypeSanitize, schema)
+  // sanitize 之后改写图片 src，让原生 <img> 走 next/image 优化端点
+  .use(rehypeNextImage)
   .use(rehypeStringify);
 
 /**

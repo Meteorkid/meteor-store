@@ -284,6 +284,9 @@ export async function updatePost(input: {
   submit?: boolean;
   /** 管理员直发：跳过审核，published 编辑后保持 published，提交直接发布。 */
   adminPublish?: boolean;
+  /** 管理员越权编辑：true 时 where 条件只用 id，不校验 authorId。
+   *  API 层必须先验证 isAdminEmail 再传此参数。 */
+  asAdmin?: boolean;
 }): Promise<UpdatePostResult> {
   const [row] = await db
     .select({ status: posts.status, sectionId: posts.sectionId })
@@ -292,7 +295,8 @@ export async function updatePost(input: {
     .limit(1);
 
   if (!row) return { ok: false, reason: 'notFound' };
-  if (row.status === 'pending') return { ok: false, reason: 'pendingCannotEdit' };
+  // 管理员可以编辑 pending（审核中需要修正），普通作者不行
+  if (row.status === 'pending' && !input.asAdmin) return { ok: false, reason: 'pendingCannotEdit' };
 
   const wasPublished = row.status === 'published';
   const now = new Date().toISOString();
@@ -331,10 +335,12 @@ export async function updatePost(input: {
     updates.publishedAt = now;
   }
 
-  const result = await db
-    .update(posts)
-    .set(updates)
-    .where(and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId)));
+  // 管理员越权编辑：where 只用 id；普通作者：where 用 id + authorId 防越权
+  const whereClause = input.asAdmin
+    ? eq(posts.id, input.postId)
+    : and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId));
+
+  const result = await db.update(posts).set(updates).where(whereClause);
 
   if (((result as { rowCount?: number }).rowCount ?? 0) === 0) {
     return { ok: false, reason: 'notAuthor' };

@@ -58,10 +58,21 @@ describe('markdownToHtml', () => {
       expect(html).not.toContain('target=');
     });
 
-    it('图片正常渲染', () => {
+    it('外链图片走 next/image 优化端点', () => {
       const html = markdownToHtml('![图](https://example.com/a.png)');
-      expect(html).toContain('src="https://example.com/a.png"');
+      // src 被改写为 /_next/image?url=...，& 在 HTML 属性里实体化为 &amp;
+      expect(html).toContain('src="/_next/image?url=https%3A%2F%2Fexample.com%2Fa.png');
       expect(html).toContain('alt="图"');
+      // 多尺寸 srcset
+      expect(html).toContain('640w');
+      expect(html).toContain('1920w');
+      expect(html).toContain('sizes=');
+    });
+
+    it('相对路径图片不被改写', () => {
+      const html = markdownToHtml('![图](/static/a.png)');
+      expect(html).toContain('src="/static/a.png"');
+      expect(html).not.toContain('/_next/image');
     });
   });
 

@@ -242,6 +242,13 @@ export default function Header() {
               >
                 {t('myPosts')}
               </Link>
+              <Link
+                href="/blog/favorites"
+                onClick={() => setMobileOpen(false)}
+                className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
+              >
+                {t('myFavorites')}
+              </Link>
               {user.isAdmin && (
                 <Link
                   href="/admin"

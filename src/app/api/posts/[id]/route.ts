@@ -86,6 +86,8 @@ export async function PATCH(
     tags: data.tags,
     submit: data.submit,
     adminPublish: isAdmin || undefined,
+    // 管理员越权编辑：可编辑任何人的投稿，包括 pending 状态
+    asAdmin: isAdmin || undefined,
   });
 
   if (!result.ok) {

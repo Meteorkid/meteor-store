@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from './AuthProvider';
 
 interface PostStatsProps {
@@ -10,6 +10,8 @@ interface PostStatsProps {
   initialLikeCount?: number;
   initialCommentCount?: number;
   initialLiked?: boolean;
+  initialFavoriteCount?: number;
+  initialFavorited?: boolean;
 }
 
 export default function PostStats({
@@ -18,8 +20,11 @@ export default function PostStats({
   initialLikeCount = 0,
   initialCommentCount = 0,
   initialLiked = false,
+  initialFavoriteCount = 0,
+  initialFavorited = false,
 }: PostStatsProps) {
   const locale = useLocale();
+  const t = useTranslations('PostStats');
   const { user } = useAuth();
 
   const [viewCount, setViewCount] = useState(initialViewCount);
@@ -27,6 +32,9 @@ export default function PostStats({
   const [liked, setLiked] = useState(initialLiked);
   const [commentCount, setCommentCount] = useState(initialCommentCount);
   const [likeAnimating, setLikeAnimating] = useState(false);
+  const [favoriteCount, setFavoriteCount] = useState(initialFavoriteCount);
+  const [favorited, setFavorited] = useState(initialFavorited);
+  const [favoriteAnimating, setFavoriteAnimating] = useState(false);
 
   // On mount, record a view and fetch fresh stats
   useEffect(() => {
@@ -42,10 +50,11 @@ export default function PostStats({
     // Fetch fresh stats
     const fetchStats = async () => {
       try {
-        const [viewsRes, likesRes, commentsRes] = await Promise.all([
+        const [viewsRes, likesRes, commentsRes, favoritesRes] = await Promise.all([
           fetch(`/api/views?targetId=${encodeURIComponent(targetId)}`),
           fetch(`/api/likes?targetId=${encodeURIComponent(targetId)}`),
           fetch(`/api/comments?targetId=${encodeURIComponent(targetId)}`),
+          fetch(`/api/blog/favorites?targetId=${encodeURIComponent(targetId)}`),
         ]);
 
         if (viewsRes.ok) {
@@ -62,6 +71,12 @@ export default function PostStats({
         if (commentsRes.ok) {
           const commentsData = await commentsRes.json();
           setCommentCount(commentsData.comments?.length ?? 0);
+        }
+
+        if (favoritesRes.ok) {
+          const favoritesData = await favoritesRes.json();
+          setFavoriteCount(favoritesData.count);
+          setFavorited(favoritesData.favorited);
         }
       } catch {
         /* 统计加载失败不影响阅读 */
@@ -110,6 +125,42 @@ export default function PostStats({
     }
   }, [user, targetId, liked]);
 
+  const handleFavorite = useCallback(async () => {
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+
+    // Optimistic update
+    const wasFavorited = favorited;
+    setFavorited(!wasFavorited);
+    setFavoriteCount((prev) => (wasFavorited ? prev - 1 : prev + 1));
+    setFavoriteAnimating(true);
+
+    try {
+      const res = await fetch('/api/blog/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetId }),
+      });
+
+      if (!res.ok) {
+        setFavorited(wasFavorited);
+        setFavoriteCount((prev) => (wasFavorited ? prev + 1 : prev - 1));
+        return;
+      }
+
+      const data = await res.json();
+      setFavorited(data.favorited);
+      setFavoriteCount(data.count);
+    } catch {
+      setFavorited(wasFavorited);
+      setFavoriteCount((prev) => (wasFavorited ? prev + 1 : prev - 1));
+    } finally {
+      setTimeout(() => setFavoriteAnimating(false), 300);
+    }
+  }, [user, targetId, favorited]);
+
   const fmt = (n: number) =>
     new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'zh-CN').format(n);
 
@@ -118,7 +169,7 @@ export default function PostStats({
       {/* Views */}
       <div
         className="flex items-center gap-1.5 text-sm text-white/50"
-        aria-label={`${fmt(viewCount)} views`}
+        aria-label={`${fmt(viewCount)} ${t('views')}`}
       >
         <svg
           width="16"
@@ -142,7 +193,7 @@ export default function PostStats({
         className={`flex items-center gap-1.5 text-sm transition-colors ${
           liked ? 'text-red-400' : 'text-white/50'
         } hover:text-red-400 cursor-pointer`}
-        aria-label={liked ? 'Unlike' : 'Like'}
+        aria-label={liked ? t('unlike') : t('like')}
       >
         <svg
           width="16"
@@ -162,10 +213,37 @@ export default function PostStats({
         <span>{fmt(likeCount)}</span>
       </button>
 
+      {/* Favorites */}
+      <button
+        type="button"
+        onClick={handleFavorite}
+        className={`flex items-center gap-1.5 text-sm transition-colors ${
+          favorited ? 'text-amber-300' : 'text-white/50'
+        } hover:text-amber-300 cursor-pointer`}
+        aria-label={favorited ? t('unfavorite') : t('favorite')}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill={favorited ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+          className={favoriteAnimating ? 'scale-125' : ''}
+          style={{
+            transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
+        >
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+        </svg>
+        <span>{fmt(favoriteCount)}</span>
+      </button>
+
       {/* Comments */}
       <div
         className="flex items-center gap-1.5 text-sm text-white/50"
-        aria-label={`${fmt(commentCount)} comments`}
+        aria-label={`${fmt(commentCount)} ${t('comments')}`}
       >
         <svg
           width="16"

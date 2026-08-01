@@ -45,6 +45,8 @@ interface BlogListClientProps {
   hotTags?: TagSummary[];
   /** 标签总数，用于「全部标签」入口 */
   totalTagCount?: number;
+  /** 各文章收藏数，服务端批量查询后传入。key = post.slug（对投稿即 post.id） */
+  favoriteCounts?: Record<string, number>;
 }
 
 export default function BlogListClient({
@@ -53,6 +55,7 @@ export default function BlogListClient({
   activeSectionId,
   hotTags,
   totalTagCount = 0,
+  favoriteCounts = {},
 }: BlogListClientProps) {
   const [sort, setSort] = useState<SortMode>('newest');
   const { user } = useAuth();
@@ -241,6 +244,7 @@ export default function BlogListClient({
             <section className="blog-stagger">
               {rest.map((post, i) => {
                 const section = getSectionById(post.section);
+                const favCount = favoriteCounts[post.slug] ?? 0;
                 return (
                   <Link
                     key={post.slug}
@@ -268,6 +272,26 @@ export default function BlogListClient({
                             <>
                               <span aria-hidden className="text-white/15">·</span>
                               <span className="text-white/60">{post.author}</span>
+                            </>
+                          )}
+                          {favCount > 0 && (
+                            <>
+                              <span aria-hidden className="text-white/15">·</span>
+                              <span
+                                className="inline-flex items-center gap-1 tabular-nums text-white/45"
+                                title={t('favoritesCount', { count: favCount })}
+                              >
+                                <svg
+                                  width="11"
+                                  height="11"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                                </svg>
+                                {favCount}
+                              </span>
                             </>
                           )}
                         </div>

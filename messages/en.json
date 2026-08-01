@@ -37,6 +37,7 @@
     "defaultUserName": "User",
     "writeArticle": "Write",
     "myPosts": "My Posts",
+    "myFavorites": "My Favorites",
     "pendingReview": "Pending Review",
     "adminDashboard": "Admin Dashboard",
     "userMenuAria": "User menu",
@@ -1164,7 +1165,11 @@
     "comments": "{count} comments",
     "like": "Like",
     "unlike": "Unlike",
-    "loginToLike": "Log in to like"
+    "loginToLike": "Log in to like",
+    "favorite": "Save",
+    "unfavorite": "Unsave",
+    "loginToFavorite": "Log in to save",
+    "favorites": "{count} saves"
   },
   "BlogList": {
     "sectionsAria": "Blog sections",
@@ -1180,7 +1185,15 @@
     "write": "Write a Post",
     "empty": "No posts here yet",
     "minutes": "{count} min",
-    "readMore": "Read More"
+    "readMore": "Read More",
+    "favoritesCount": "{count} saves"
+  },
+  "BlogFavoritesPage": {
+    "metaTitle": "My Favorites - Meteor Store Blog",
+    "title": "My Favorites",
+    "empty": "You haven't saved any posts yet.",
+    "browse": "Browse the blog →",
+    "backToBlog": "← Back to Blog"
   },
   "PricingCard": {
     "popular": "Popular",

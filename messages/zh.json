@@ -37,6 +37,7 @@
     "defaultUserName": "用户",
     "writeArticle": "写文章",
     "myPosts": "我的投稿",
+    "myFavorites": "我的收藏",
     "pendingReview": "待审核",
     "adminDashboard": "管理后台",
     "userMenuAria": "用户菜单",
@@ -1164,7 +1165,11 @@
     "comments": "{count} 条评论",
     "like": "点赞",
     "unlike": "取消点赞",
-    "loginToLike": "登录后即可点赞"
+    "loginToLike": "登录后即可点赞",
+    "favorite": "收藏",
+    "unfavorite": "取消收藏",
+    "loginToFavorite": "登录后即可收藏",
+    "favorites": "{count} 次收藏"
   },
   "BlogList": {
     "sectionsAria": "博客分区",
@@ -1180,7 +1185,15 @@
     "write": "写一篇",
     "empty": "这里还没有文章",
     "minutes": "{count} 分钟",
-    "readMore": "读下去"
+    "readMore": "读下去",
+    "favoritesCount": "{count} 次收藏"
+  },
+  "BlogFavoritesPage": {
+    "metaTitle": "我的收藏 - Meteor Store 博客",
+    "title": "我的收藏",
+    "empty": "还没有收藏任何文章。",
+    "browse": "去博客看看 →",
+    "backToBlog": "← 回到博客"
   },
   "PricingCard": {
     "popular": "推荐",

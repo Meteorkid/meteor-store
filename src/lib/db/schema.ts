@@ -186,3 +186,18 @@ export const likes = pgTable('likes', {
   primaryKey({ columns: [t.targetId, t.userId] }),
   index('likes_target_idx').on(t.targetId),
 ]);
+
+/**
+ * 文章收藏。每个用户对每篇文章只能收藏一次，再点取消。
+ * targetId 复用 views/likes 的约定：文件文章用 slug，数据库投稿用 post.id。
+ * 用户索引用于「我的收藏」列表查询。
+ */
+export const postFavorites = pgTable('post_favorites', {
+  targetId: text('target_id').notNull(),
+  userId: text('user_id').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.targetId, t.userId] }),
+  index('post_favorites_target_idx').on(t.targetId),
+  index('post_favorites_user_idx').on(t.userId),
+]);

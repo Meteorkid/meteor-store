@@ -15,7 +15,25 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 ];
 
+/**
+ * 从 R2_PUBLIC_BASE 派生 next/image 的 remotePatterns。
+ * 构建时求值：R2_PUBLIC_BASE 在 Vercel 项目设置里配了就会读到。
+ * 未配置时返回空数组——博客图片改写端点 /_next/image 会拒绝优化外链，但不影响渲染。
+ */
+function getR2RemotePattern(): URL[] {
+  const base = process.env.R2_PUBLIC_BASE;
+  if (!base) return [];
+  try {
+    return [new URL(base)];
+  } catch {
+    return [];
+  }
+}
+
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: getR2RemotePattern(),
+  },
   headers() {
     return [
       {
