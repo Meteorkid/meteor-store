@@ -1,11 +1,13 @@
-import type { PathfinderInput, PathfinderTask } from './schema';
+import type { PathfinderInput, PathfinderTask, DEVICE_VALUES, NETWORK_VALUES } from './schema';
 
 /** 用于校验任务是否可在用户现实条件下完成的最小约束集合。 */
 export interface RealityConstraints {
   dailyMinutes: number;
   budget: number;
-  device: '仅手机' | '手机和电脑' | '电脑';
-  network: '流量有限' | '普通网络' | '稳定网络';
+  /** 用户可用设备（英文标识符，对应 DEVICE_VALUES） */
+  device: (typeof DEVICE_VALUES)[number];
+  /** 用户网络条件（英文标识符，对应 NETWORK_VALUES） */
+  network: (typeof NETWORK_VALUES)[number];
   hasMentor: boolean;
 }
 
@@ -49,14 +51,14 @@ export function validate(tasks: readonly PathfinderTask[], constraints: RealityC
         message: `任务成本 ${task.cost} 元，超过预算 ${constraints.budget} 元。`,
       });
     }
-    if (task.device === '电脑' && constraints.device === '仅手机') {
+    if (task.device === '电脑' && constraints.device === 'phone-only') {
       violations.push({
         taskIndex,
         rule: 'device',
         message: '该任务需要电脑，但当前条件只有手机。',
       });
     }
-    if (task.network === '稳定' && constraints.network === '流量有限') {
+    if (task.network === '稳定' && constraints.network === 'limited-data') {
       violations.push({
         taskIndex,
         rule: 'network',

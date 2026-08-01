@@ -28,14 +28,14 @@ function makeRequest(body: unknown): NextRequest {
 function normalInput() {
   return {
     goal: '用手机学会 Python 入门，4 周做出小作品',
-    stage: '高中',
-    device: '仅手机',
+    stage: 'high-school',
+    device: 'phone-only',
     weeklyHours: 7,
     dailyMinutes: 30,
     budget: 0,
     hasMentor: false,
-    network: '普通网络',
-    constraints: ['时间碎片化'],
+    network: 'normal',
+    constraints: ['fragmented-time'],
   };
 }
 
@@ -120,7 +120,7 @@ describe('POST /api/pathfinder 危机优先级', () => {
 
   it('非法输入（缺字段）返回 400，不进入危机或模型流程', async () => {
     const { POST } = await importRoute();
-    const req = makeRequest({ input: { stage: '高中' } }); // 缺 goal 等字段
+    const req = makeRequest({ input: { stage: 'high-school' } }); // 缺 goal 等字段
     const res = await POST(req);
     expect(res.status).toBe(400);
     expect(fetchMock).not.toHaveBeenCalled();

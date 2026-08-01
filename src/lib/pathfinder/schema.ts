@@ -7,18 +7,26 @@
 import { z } from 'zod';
 import { getTrustedModelProvider } from './model-providers';
 
-/** 当前学习阶段 */
-export const STAGE_VALUES = ['初中', '高中', '大学', '职业起步'] as const;
+/**
+ * 当前学习阶段
+ * 标识符为英文 key，显示文本见 labels.ts 与 messages/*.json 的 PathfinderEnums。
+ */
+export const STAGE_VALUES = [
+  'middle-school',
+  'high-school',
+  'college',
+  'career-start',
+] as const;
 /** 可用设备 */
-export const DEVICE_VALUES = ['仅手机', '手机和电脑', '电脑'] as const;
+export const DEVICE_VALUES = ['phone-only', 'phone-and-pc', 'pc'] as const;
 /** 网络条件 */
-export const NETWORK_VALUES = ['流量有限', '普通网络', '稳定网络'] as const;
+export const NETWORK_VALUES = ['limited-data', 'normal', 'stable'] as const;
 /** 现实限制（可多选） */
 export const CONSTRAINT_VALUES = [
-  '时间碎片化',
-  '基础薄弱',
-  '缺少指导',
-  '预算有限',
+  'fragmented-time',
+  'weak-foundation',
+  'no-mentor',
+  'limited-budget',
 ] as const;
 
 /** 用户输入表单 Schema */

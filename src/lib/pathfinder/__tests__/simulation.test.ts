@@ -11,8 +11,8 @@ import {
 const constraints: RealityConstraints = {
   dailyMinutes: 30,
   budget: 50,
-  device: '手机和电脑',
-  network: '普通网络',
+  device: 'phone-and-pc',
+  network: 'normal',
   hasMentor: false,
 };
 

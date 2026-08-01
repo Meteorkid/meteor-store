@@ -912,6 +912,30 @@
     "remove": "移除",
     "uploadAria": "上传头像"
   },
+  "PathfinderEnums": {
+    "stage": {
+      "middle-school": "初中",
+      "high-school": "高中",
+      "college": "大学",
+      "career-start": "职业起步"
+    },
+    "device": {
+      "phone-only": "仅手机",
+      "phone-and-pc": "手机和电脑",
+      "pc": "电脑"
+    },
+    "network": {
+      "limited-data": "流量有限",
+      "normal": "普通网络",
+      "stable": "稳定网络"
+    },
+    "constraint": {
+      "fragmented-time": "时间碎片化",
+      "weak-foundation": "基础薄弱",
+      "no-mentor": "缺少指导",
+      "limited-budget": "预算有限"
+    }
+  },
   "PathfinderForm": {
     "goalRequired": "请描述你的目标",
     "goalTooLong": "目标描述不超过 280 字",

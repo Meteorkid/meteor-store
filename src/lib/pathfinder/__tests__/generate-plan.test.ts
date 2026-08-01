@@ -12,20 +12,26 @@ import {
   looksLikeCrisis,
   type PathfinderPlan,
 } from '../schema';
+import {
+  STAGE_LABELS_ZH,
+  DEVICE_LABELS_ZH,
+  NETWORK_LABELS_ZH,
+  CONSTRAINT_LABELS_ZH,
+} from '../labels';
 import { RESOURCE_IDS } from '@/data/pathfinder-resources';
 
 // 构造合法输入
 function makeInput(overrides: Partial<Record<string, unknown>> = {}) {
   const base = {
     goal: '用手机学会 Python 入门，4 周做出小作品',
-    stage: '高中',
-    device: '仅手机',
+    stage: 'high-school',
+    device: 'phone-only',
     weeklyHours: 7,
     dailyMinutes: 30,
     budget: 0,
     hasMentor: false,
-    network: '流量有限',
-    constraints: ['时间碎片化', '基础薄弱'],
+    network: 'limited-data',
+    constraints: ['fragmented-time', 'weak-foundation'],
   };
   return PathfinderInputSchema.parse({ ...base, ...overrides });
 }
@@ -56,18 +62,18 @@ describe('buildSystemPrompt', () => {
 });
 
 describe('buildUserPrompt', () => {
-  it('包含用户填写的全部条件', () => {
+  it('包含用户填写的全部条件，英文标识符翻回中文喂给模型', () => {
     const input = makeInput();
     const prompt = buildUserPrompt(input);
     expect(prompt).toContain(input.goal);
-    expect(prompt).toContain(input.stage);
-    expect(prompt).toContain(input.device);
+    expect(prompt).toContain(STAGE_LABELS_ZH[input.stage]);
+    expect(prompt).toContain(DEVICE_LABELS_ZH[input.device]);
     expect(prompt).toContain(`${input.weeklyHours} 小时`);
     expect(prompt).toContain(`${input.dailyMinutes} 分钟`);
     expect(prompt).toContain(`${input.budget} 元`);
-    expect(prompt).toContain(input.network);
+    expect(prompt).toContain(NETWORK_LABELS_ZH[input.network]);
     for (const c of input.constraints) {
-      expect(prompt).toContain(c);
+      expect(prompt).toContain(CONSTRAINT_LABELS_ZH[c]);
     }
   });
 });
@@ -147,7 +153,7 @@ describe('parseModelOutput', () => {
 
 describe('buildFallbackPlan', () => {
   it('根据设备与网络条件生成兜底路径', () => {
-    const input = makeInput({ device: '仅手机', network: '流量有限' });
+    const input = makeInput({ device: 'phone-only', network: 'limited-data' });
     const plan = buildFallbackPlan(input);
     // 兜底明确标注为"基础路径模式"
     expect(plan.summary).toContain('基础路径模式');
@@ -158,7 +164,7 @@ describe('buildFallbackPlan', () => {
   });
 
   it('稳定网络时包含交互式资源', () => {
-    const input = makeInput({ network: '稳定网络' });
+    const input = makeInput({ network: 'stable' });
     const plan = buildFallbackPlan(input);
     expect(plan.resourceIds).toContain('w3schools');
   });
@@ -176,7 +182,7 @@ describe('buildFallbackPlan', () => {
 
 describe('applyRealityContract', () => {
   it('会修复超时任务并移除付费或电脑专属任务', () => {
-    const input = makeInput({ dailyMinutes: 20, budget: 0, device: '仅手机' });
+    const input = makeInput({ dailyMinutes: 20, budget: 0, device: 'phone-only' });
     const plan: PathfinderPlan = {
       summary: '说明',
       todaySteps: ['a', 'b', 'c'],

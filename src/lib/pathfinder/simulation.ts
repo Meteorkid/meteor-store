@@ -61,7 +61,7 @@ export function getAvailableRealityEvents(constraints: RealityConstraints): Real
   const timeLimit = constraints.dailyMinutes > 10 ? 10 : 5;
   const events: RealityEvent[] = [createTimeShortageEvent(timeLimit)];
 
-  if (constraints.device !== '仅手机') {
+  if (constraints.device !== 'phone-only') {
     events.push({
       id: 'phone-only',
       kind: 'device',
@@ -70,7 +70,7 @@ export function getAvailableRealityEvents(constraints: RealityConstraints): Real
     });
   }
 
-  if (constraints.network !== '流量有限') {
+  if (constraints.network !== 'limited-data') {
     events.push({
       id: 'low-data',
       kind: 'network',
@@ -104,12 +104,12 @@ export function applyRealityEvent(
       };
     case 'device':
       return {
-        constraints: { ...constraints, device: '仅手机' },
+        constraints: { ...constraints, device: 'phone-only' },
         remainingMinutes: constraints.dailyMinutes,
       };
     case 'network':
       return {
-        constraints: { ...constraints, network: '流量有限' },
+        constraints: { ...constraints, network: 'limited-data' },
         remainingMinutes: constraints.dailyMinutes,
       };
     case 'budget':

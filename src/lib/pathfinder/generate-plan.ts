@@ -17,6 +17,12 @@ import {
   looksLikeCrisis,
 } from './schema';
 import { repair, toRealityConstraints, validate } from './contract';
+import {
+  STAGE_LABELS_ZH,
+  DEVICE_LABELS_ZH,
+  NETWORK_LABELS_ZH,
+  CONSTRAINT_LABELS_ZH,
+} from './labels';
 import { RESOURCE_IDS, resolveResources } from '@/data/pathfinder-resources';
 
 /** 模型调用需要的配置 */
@@ -86,17 +92,17 @@ ${RESOURCE_IDS.join(', ')}
 `;
 }
 
-/** 用户提示词，拼接用户填写的条件 */
+/** 用户提示词，拼接用户填写的条件。模型提示词固定使用中文，故将英文标识符翻回中文。 */
 export function buildUserPrompt(input: PathfinderInput): string {
   return `我的目标：${input.goal}
-当前阶段：${input.stage}
-可用设备：${input.device}
+当前阶段：${STAGE_LABELS_ZH[input.stage]}
+可用设备：${DEVICE_LABELS_ZH[input.device]}
 每周可投入时间：${input.weeklyHours} 小时
 每天可投入时间：${input.dailyMinutes} 分钟
 每月学习预算：${input.budget} 元
 是否有可求助的人：${input.hasMentor ? '有' : '暂无'}
-网络条件：${input.network}
-现实限制：${input.constraints.join('、')}
+网络条件：${NETWORK_LABELS_ZH[input.network]}
+现实限制：${input.constraints.map((c) => CONSTRAINT_LABELS_ZH[c]).join('、')}
 
 请基于以上条件，为我生成一份本周可执行的学习路径。`;
 }
@@ -247,9 +253,9 @@ function extractJson(raw: string): string {
  */
 export function buildFallbackPlan(input: PathfinderInput): PathfinderPlan {
   const minutesPerDay = Math.min(input.dailyMinutes, Math.max(10, Math.round((input.weeklyHours * 60) / 7)));
-  const isLowBandwidth = input.network === '流量有限';
-  const taskDevice: PathfinderTask['device'] = input.device === '仅手机' ? '手机' : '电脑';
-  const taskNetwork: PathfinderTask['network'] = isLowBandwidth ? '低流量' : input.network === '稳定网络' ? '稳定' : '普通';
+  const isLowBandwidth = input.network === 'limited-data';
+  const taskDevice: PathfinderTask['device'] = input.device === 'phone-only' ? '手机' : '电脑';
+  const taskNetwork: PathfinderTask['network'] = isLowBandwidth ? '低流量' : input.network === 'stable' ? '稳定' : '普通';
 
   const todaySteps = [
     `打开手机浏览器，搜索与"${input.goal.slice(0, 12)}"相关的免费入门资料`,
@@ -274,7 +280,7 @@ export function buildFallbackPlan(input: PathfinderInput): PathfinderPlan {
     : ['python-docs-zh', 'w3schools', 'chinese-mooc'];
 
   const plan: PathfinderPlan = {
-    summary: `[基础路径模式] 基于你每周 ${input.weeklyHours} 小时、${input.device} 的条件，先从免费入门资料开始，建立稳定的学习节奏。`,
+    summary: `[基础路径模式] 基于你每周 ${input.weeklyHours} 小时、${DEVICE_LABELS_ZH[input.device]} 的条件，先从免费入门资料开始，建立稳定的学习节奏。`,
     todaySteps,
     weekPlan,
     resourceIds: fallbackResourceIds.filter((id) => RESOURCE_IDS.includes(id)),

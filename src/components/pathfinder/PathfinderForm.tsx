@@ -26,19 +26,29 @@ export default function PathfinderForm({
   disabled = false,
 }: Props) {
   const t = useTranslations('PathfinderForm');
+  const tEnum = useTranslations('PathfinderEnums');
   const [goal, setGoal] = useState(initialGoal);
-  const [stage, setStage] = useState<(typeof STAGE_VALUES)[number]>('高中');
-  const [device, setDevice] = useState<(typeof DEVICE_VALUES)[number]>('仅手机');
+  const [stage, setStage] = useState<(typeof STAGE_VALUES)[number]>('high-school');
+  const [device, setDevice] = useState<(typeof DEVICE_VALUES)[number]>('phone-only');
   const [weeklyHours, setWeeklyHours] = useState(7);
   const [dailyMinutes, setDailyMinutes] = useState(30);
   const [budget, setBudget] = useState(0);
   const [hasMentor, setHasMentor] = useState(false);
-  const [network, setNetwork] = useState<(typeof NETWORK_VALUES)[number]>('普通网络');
+  const [network, setNetwork] = useState<(typeof NETWORK_VALUES)[number]>('normal');
   const [constraints, setConstraints] = useState<(typeof CONSTRAINT_VALUES)[number][]>([
-    '时间碎片化',
+    'fragmented-time',
   ]);
   const [error, setError] = useState<string | null>(null);
   const idPrefix = useId();
+
+  // enum 标识符 → 本地化显示文本
+  const stageOptions = STAGE_VALUES.map((v) => ({ value: v, label: tEnum(`stage.${v}`) }));
+  const deviceOptions = DEVICE_VALUES.map((v) => ({ value: v, label: tEnum(`device.${v}`) }));
+  const networkOptions = NETWORK_VALUES.map((v) => ({ value: v, label: tEnum(`network.${v}`) }));
+  const constraintOptions = CONSTRAINT_VALUES.map((v) => ({
+    value: v,
+    label: tEnum(`constraint.${v}`),
+  }));
 
   const toggleConstraint = (c: (typeof CONSTRAINT_VALUES)[number]) => {
     setConstraints((prev) =>
@@ -116,10 +126,10 @@ export default function PathfinderForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label={t('stageLabel')} id={`${idPrefix}-stage`}>
-          <Select value={stage} onChange={(v) => setStage(v as typeof stage)} id={`${idPrefix}-stage`} options={STAGE_VALUES as readonly string[]} />
+          <Select value={stage} onChange={(v) => setStage(v as typeof stage)} id={`${idPrefix}-stage`} options={stageOptions} />
         </Field>
         <Field label={t('deviceLabel')} id={`${idPrefix}-device`}>
-          <Select value={device} onChange={(v) => setDevice(v as typeof device)} id={`${idPrefix}-device`} options={DEVICE_VALUES as readonly string[]} />
+          <Select value={device} onChange={(v) => setDevice(v as typeof device)} id={`${idPrefix}-device`} options={deviceOptions} />
         </Field>
       </div>
 
@@ -185,7 +195,7 @@ export default function PathfinderForm({
       </fieldset>
 
       <Field label={t('networkLabel')} id={`${idPrefix}-network`}>
-        <Select value={network} onChange={(v) => setNetwork(v as typeof network)} id={`${idPrefix}-network`} options={NETWORK_VALUES as readonly string[]} />
+        <Select value={network} onChange={(v) => setNetwork(v as typeof network)} id={`${idPrefix}-network`} options={networkOptions} />
       </Field>
 
       <fieldset>
@@ -222,7 +232,7 @@ export default function PathfinderForm({
           <span className="text-destructive ml-1" aria-hidden="true">*</span>
         </legend>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {CONSTRAINT_VALUES.map((c) => {
+          {constraintOptions.map(({ value: c, label }) => {
             const checked = constraints.includes(c);
             return (
               <label
@@ -238,9 +248,9 @@ export default function PathfinderForm({
                   checked={checked}
                   onChange={() => toggleConstraint(c)}
                   className="sr-only"
-                  aria-label={c}
+                  aria-label={label}
                 />
-                {c}
+                {label}
               </label>
             );
           })}
@@ -287,7 +297,7 @@ function Select({
   value: string;
   onChange: (v: string) => void;
   id: string;
-  options: readonly string[];
+  options: ReadonlyArray<{ value: string; label: string }>;
 }) {
   return (
     <select
@@ -297,8 +307,8 @@ function Select({
       className="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 focus:border-purple-5 focus:ring-2 focus:ring-purple-5/30 outline-none transition text-foreground"
     >
       {options.map((o) => (
-        <option key={o} value={o} className="bg-gray-9 text-foreground">
-          {o}
+        <option key={o.value} value={o.value} className="bg-gray-9 text-foreground">
+          {o.label}
         </option>
       ))}
     </select>

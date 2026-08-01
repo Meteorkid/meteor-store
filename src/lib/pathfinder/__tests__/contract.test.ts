@@ -5,8 +5,8 @@ import type { PathfinderTask } from '../schema';
 const constraints: RealityConstraints = {
   dailyMinutes: 20,
   budget: 0,
-  device: '仅手机',
-  network: '流量有限',
+  device: 'phone-only',
+  network: 'limited-data',
   hasMentor: false,
 };
 

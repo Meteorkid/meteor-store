@@ -912,6 +912,30 @@
     "remove": "Remove",
     "uploadAria": "Upload avatar"
   },
+  "PathfinderEnums": {
+    "stage": {
+      "middle-school": "Middle school",
+      "high-school": "High school",
+      "college": "College",
+      "career-start": "Career start"
+    },
+    "device": {
+      "phone-only": "Phone only",
+      "phone-and-pc": "Phone and PC",
+      "pc": "PC"
+    },
+    "network": {
+      "limited-data": "Limited data",
+      "normal": "Normal network",
+      "stable": "Stable network"
+    },
+    "constraint": {
+      "fragmented-time": "Fragmented time",
+      "weak-foundation": "Weak foundation",
+      "no-mentor": "No mentor",
+      "limited-budget": "Limited budget"
+    }
+  },
   "PathfinderForm": {
     "goalRequired": "Please describe your goal",
     "goalTooLong": "Goal description must be 280 characters or fewer",
