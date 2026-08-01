@@ -65,6 +65,11 @@
     "coreAdvantages": "核心优势",
     "coreAdvantagesSubtitle": "我们致力于提供最优质的开发者工具和 AI 应用"
   },
+  "Captcha": {
+    "loadFailed": "加载验证码失败",
+    "hint": "按住滑块，拖动完成拼图",
+    "refresh": "换一张"
+  },
   "LoginPage": {
     "title": "登录",
     "description": "登录你的 Meteor Store 账户",
@@ -74,7 +79,33 @@
     "registerButton": "注册",
     "forgotPassword": "忘记密码？",
     "noAccount": "还没有账户？",
-    "hasAccount": "已有账户？"
+    "hasAccount": "已有账户？",
+    "loggedInAs": "已登录为 {name}",
+    "loggedInHint": "你可以继续浏览或前往个人中心。",
+    "backHome": "回到首页",
+    "passwordMismatch": "两次密码输入不一致",
+    "captchaRequired": "请完成人机验证",
+    "welcomeBack": "欢迎回来",
+    "createAccount": "创建账户",
+    "loginSubtitle": "登录你的 Meteor Store 账户",
+    "registerSubtitle": "注册后可管理订单、收藏产品",
+    "nicknameLabel": "昵称",
+    "nicknameOptional": "(选填)",
+    "nicknamePlaceholder": "你的昵称",
+    "passwordPlaceholderRegister": "至少 8 位",
+    "passwordPlaceholderLogin": "••••••••",
+    "hidePassword": "隐藏密码",
+    "showPassword": "显示密码",
+    "confirmPasswordLabel": "确认密码",
+    "confirmPasswordPlaceholder": "再次输入密码",
+    "captchaLabel": "人机验证",
+    "processing": "处理中...",
+    "registerNow": "立即注册",
+    "goLogin": "去登录",
+    "agreePrefix": "注册即表示同意",
+    "termsLink": "服务条款",
+    "and": "和",
+    "privacyLink": "隐私政策"
   },
   "AccountPage": {
     "title": "账户设置",

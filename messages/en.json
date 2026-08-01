@@ -65,6 +65,11 @@
     "coreAdvantages": "Core Advantages",
     "coreAdvantagesSubtitle": "We are dedicated to providing the highest quality developer tools and AI applications"
   },
+  "Captcha": {
+    "loadFailed": "Failed to load captcha",
+    "hint": "Drag the slider to complete the puzzle",
+    "refresh": "Refresh"
+  },
   "LoginPage": {
     "title": "Login",
     "description": "Sign in to your Meteor Store account",
@@ -74,7 +79,33 @@
     "registerButton": "Register",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?"
+    "hasAccount": "Already have an account?",
+    "loggedInAs": "Signed in as {name}",
+    "loggedInHint": "You can continue browsing or go to your account.",
+    "backHome": "Back to home",
+    "passwordMismatch": "Passwords do not match",
+    "captchaRequired": "Please complete the verification",
+    "welcomeBack": "Welcome back",
+    "createAccount": "Create account",
+    "loginSubtitle": "Sign in to your Meteor Store account",
+    "registerSubtitle": "Register to manage orders and bookmark products",
+    "nicknameLabel": "Nickname",
+    "nicknameOptional": "(optional)",
+    "nicknamePlaceholder": "Your nickname",
+    "passwordPlaceholderRegister": "At least 8 characters",
+    "passwordPlaceholderLogin": "••••••••",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "confirmPasswordLabel": "Confirm password",
+    "confirmPasswordPlaceholder": "Re-enter password",
+    "captchaLabel": "Verification",
+    "processing": "Processing...",
+    "registerNow": "Register now",
+    "goLogin": "Sign in",
+    "agreePrefix": "By registering you agree to the",
+    "termsLink": "Terms of Service",
+    "and": "and",
+    "privacyLink": "Privacy Policy"
   },
   "AccountPage": {
     "title": "Account Settings",

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useCallback, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
 import SliderCaptcha from './SliderCaptcha';
 
@@ -22,6 +22,7 @@ function EyeIcon({ open }: { open: boolean }) {
 }
 
 export default function AuthForm() {
+  const t = useTranslations('LoginPage');
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,13 +41,13 @@ export default function AuthForm() {
     return (
       <div className="w-full max-w-sm text-center">
         <span className="mb-4 inline-block text-4xl">👋</span>
-        <p className="mb-2 text-lg font-semibold">已登录为 {user.name || user.email}</p>
-        <p className="mb-6 text-sm text-gray-400">你可以继续浏览或前往个人中心。</p>
+        <p className="mb-2 text-lg font-semibold">{t('loggedInAs', { name: user.name || user.email })}</p>
+        <p className="mb-6 text-sm text-gray-400">{t('loggedInHint')}</p>
         <Link
           href="/"
           className="inline-block rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
         >
-          回到首页
+          {t('backHome')}
         </Link>
       </div>
     );
@@ -61,12 +62,12 @@ export default function AuthForm() {
     setError('');
 
     if (mode === 'register' && password !== confirmPassword) {
-      setError('两次密码输入不一致');
+      setError(t('passwordMismatch'));
       return;
     }
 
     if (mode === 'register' && !captcha) {
-      setError('请完成人机验证');
+      setError(t('captchaRequired'));
       return;
     }
 
@@ -97,7 +98,7 @@ export default function AuthForm() {
             mode === 'login' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'
           }`}
         >
-          登录
+          {t('loginButton')}
         </button>
         <button
           type="button"
@@ -106,29 +107,29 @@ export default function AuthForm() {
             mode === 'register' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-white'
           }`}
         >
-          注册
+          {t('registerButton')}
         </button>
       </div>
 
       <h1 className="mb-2 text-2xl font-bold">
-        {mode === 'login' ? '欢迎回来' : '创建账户'}
+        {mode === 'login' ? t('welcomeBack') : t('createAccount')}
       </h1>
       <p className="mb-8 text-sm text-gray-400">
-        {mode === 'login' ? '登录你的 Meteor Store 账户' : '注册后可管理订单、收藏产品'}
+        {mode === 'login' ? t('loginSubtitle') : t('registerSubtitle')}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {mode === 'register' && (
           <div>
             <label htmlFor="auth-name" className="mb-1.5 block text-sm font-medium text-gray-300">
-              昵称 <span className="text-gray-600">(选填)</span>
+              {t('nicknameLabel')} <span className="text-gray-600">{t('nicknameOptional')}</span>
             </label>
             <input
               id="auth-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="你的昵称"
+              placeholder={t('nicknamePlaceholder')}
               className={inputClass}
             />
           </div>
@@ -136,7 +137,7 @@ export default function AuthForm() {
 
         <div>
           <label htmlFor="auth-email" className="mb-1.5 block text-sm font-medium text-gray-300">
-            邮箱
+            {t('emailLabel')}
           </label>
           <input
             id="auth-email"
@@ -151,7 +152,7 @@ export default function AuthForm() {
 
         <div>
           <label htmlFor="auth-password" className="mb-1.5 block text-sm font-medium text-gray-300">
-            密码
+            {t('passwordLabel')}
           </label>
           <div className="relative">
             <input
@@ -161,14 +162,14 @@ export default function AuthForm() {
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={mode === 'register' ? '至少 8 位' : '••••••••'}
+              placeholder={mode === 'register' ? t('passwordPlaceholderRegister') : t('passwordPlaceholderLogin')}
               className={`${inputClass} pr-10`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-300"
-              aria-label={showPassword ? '隐藏密码' : '显示密码'}
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
             >
               <EyeIcon open={showPassword} />
             </button>
@@ -178,7 +179,7 @@ export default function AuthForm() {
         {mode === 'register' && (
           <div>
             <label htmlFor="auth-confirm" className="mb-1.5 block text-sm font-medium text-gray-300">
-              确认密码
+              {t('confirmPasswordLabel')}
             </label>
             <div className="relative">
               <input
@@ -188,14 +189,14 @@ export default function AuthForm() {
                 minLength={8}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="再次输入密码"
+                placeholder={t('confirmPasswordPlaceholder')}
                 className={`${inputClass} pr-10`}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-300"
-                aria-label={showConfirm ? '隐藏密码' : '显示密码'}
+                aria-label={showConfirm ? t('hidePassword') : t('showPassword')}
               >
                 <EyeIcon open={showConfirm} />
               </button>
@@ -205,7 +206,7 @@ export default function AuthForm() {
 
         {mode === 'register' && (
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-300">人机验证</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">{t('captchaLabel')}</label>
             <SliderCaptcha onVerify={handleCaptchaVerify} />
           </div>
         )}
@@ -219,27 +220,27 @@ export default function AuthForm() {
           disabled={loading || (mode === 'register' && !captcha)}
           className="w-full rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
         >
-          {loading ? '处理中...' : mode === 'login' ? '登录' : '注册'}
+          {loading ? t('processing') : mode === 'login' ? t('loginButton') : t('registerButton')}
         </button>
       </form>
 
       <p className="mt-6 text-center text-xs text-gray-600">
-        {mode === 'login' ? '还没有账户？' : '已有账户？'}
+        {mode === 'login' ? t('noAccount') : t('hasAccount')}
         <button
           type="button"
           onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); setConfirmPassword(''); setCaptcha(null); }}
           className="ml-1 text-violet-400 hover:text-violet-300"
         >
-          {mode === 'login' ? '立即注册' : '去登录'}
+          {mode === 'login' ? t('registerNow') : t('goLogin')}
         </button>
       </p>
 
       <div className="mt-8 border-t border-white/[0.06] pt-6">
         <p className="text-center text-xs text-gray-600">
-          注册即表示同意{' '}
-          <Link href="/terms" className="text-gray-400 hover:text-white">服务条款</Link>
-          {' '}和{' '}
-          <Link href="/privacy" className="text-gray-400 hover:text-white">隐私政策</Link>
+          {t('agreePrefix')}{' '}
+          <Link href="/terms" className="text-gray-400 hover:text-white">{t('termsLink')}</Link>
+          {' '}{t('and')}{' '}
+          <Link href="/privacy" className="text-gray-400 hover:text-white">{t('privacyLink')}</Link>
         </p>
       </div>
     </div>

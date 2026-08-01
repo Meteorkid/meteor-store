@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 
 const W = 300;
 const H = 150;
@@ -81,6 +82,7 @@ interface Props {
 }
 
 export default function SliderCaptcha({ onVerify }: Props) {
+  const t = useTranslations('Captcha');
   const bgRef = useRef<HTMLCanvasElement>(null);
   const pieceRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -141,7 +143,7 @@ export default function SliderCaptcha({ onVerify }: Props) {
         bgCtx.restore();
       });
     } catch {
-      setError('加载验证码失败');
+      setError(t('loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -253,7 +255,7 @@ export default function SliderCaptcha({ onVerify }: Props) {
 
         {!verified && !loading && sliderX === 0 && !dragging && (
           <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-white/30">
-            按住滑块，拖动完成拼图
+            {t('hint')}
           </span>
         )}
 
@@ -291,7 +293,7 @@ export default function SliderCaptcha({ onVerify }: Props) {
           onClick={fetchChallenge}
           className="mt-1 text-xs text-violet-400 hover:text-violet-300"
         >
-          换一张
+          {t('refresh')}
         </button>
       )}
     </div>
