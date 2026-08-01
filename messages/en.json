@@ -804,7 +804,11 @@
     "submitFailed": "Submission failed",
     "editTitle": "Edit Post",
     "publishedEditWarning": "This published post will be unpublished after editing, and will become public again only after re-review.",
-    "contentPlaceholder": "## Subtitle\n\nBody...\n\nMarkdown supported: **bold**, [link](https://example.com), code blocks, tables."
+    "contentPlaceholder": "## Subtitle\n\nBody...\n\nMarkdown supported: **bold**, [link](https://example.com), code blocks, tables.",
+    "uploadImage": "Insert Image",
+    "uploadImageHint": "Upload image to object storage and insert Markdown syntax (WebP/JPEG/PNG/GIF, max 5MB)",
+    "uploading": "Uploading…",
+    "imageUploadFailed": "Image upload failed"
   },
   "BlogMyPostsPage": {
     "metaTitle": "My Posts - Meteor Store Blog",

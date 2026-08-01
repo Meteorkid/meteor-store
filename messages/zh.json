@@ -804,7 +804,11 @@
     "submitFailed": "提交失败",
     "editTitle": "编辑文章",
     "publishedEditWarning": "这篇已发布的文章编辑后会下架，重新审核通过才会再次公开。",
-    "contentPlaceholder": "## 小标题\n\n正文……\n\n支持 Markdown：**加粗**、[链接](https://example.com)、代码块、表格。"
+    "contentPlaceholder": "## 小标题\n\n正文……\n\n支持 Markdown：**加粗**、[链接](https://example.com)、代码块、表格。",
+    "uploadImage": "插入图片",
+    "uploadImageHint": "上传图片到对象存储，自动插入 Markdown 语法（WebP/JPEG/PNG/GIF，最大 5MB）",
+    "uploading": "上传中…",
+    "imageUploadFailed": "图片上传失败"
   },
   "BlogMyPostsPage": {
     "metaTitle": "我的投稿 - Meteor Store 博客",

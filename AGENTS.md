@@ -235,6 +235,26 @@ draft: true                # 草稿只在开发环境可见
 - 历史存量 data URL 头像用 [scripts/migrate-avatars-to-r2.mjs](file:///Users/meteor/github/meteor-store/scripts/migrate-avatars-to-r2.mjs)
   一次性迁移：条件更新防并发覆盖，失败行下次重跑会重试
 
+### 博客图片对象存储（Cloudflare R2）
+
+复用头像的 R2 配置和共享客户端（[src/lib/r2-client.ts](file:///Users/meteor/github/meteor-store/src/lib/r2-client.ts)），
+服务层在 [src/lib/blog-image-storage.ts](file:///Users/meteor/github/meteor-store/src/lib/blog-image-storage.ts)，
+上传接口 `POST /api/blog/upload-image`，接受 `multipart/form-data`，field name 为 `file`。
+
+- **key = `blog/{userId}/{内容哈希}.{ext}`**：用 userId 而非 slug/postId 作前缀——
+  投稿在审核中还没有最终 id，且作者可能频繁编辑换图；用 userId 便于按用户清理
+- **不做删除接口**：博客图片 URL 写进 Markdown 后就和文章绑定，
+  替换/删除图片会导致历史文章裂图。孤儿对象靠后续清理脚本处理（与头像不同）
+- **限流每用户每分钟 10 次**（一篇博客可能有多张图），比头像（5 次）宽松
+- **MIME 与大小校验在服务端做**：WebP / JPEG / PNG / GIF，最大 5MB，不信任客户端
+- **未配置 R2 时返回 503**：不降级到 data URL——博客正文里嵌 base64 会撑爆 `posts.content`
+- **站主的文章**（`content/blog/*.md`）也通过同一接口上传图片：登录后用 `/blog/submit` 页面
+  上传拿 URL，再在本地 `.md` 文件里写。这是为了不在仓库里引入二进制资源
+- **Markdown 渲染管线已放行 `loading` 属性**（见 [src/lib/markdown.ts](file:///Users/meteor/github/meteor-store/src/lib/markdown.ts)
+  的 `schema.attributes.img`），R2 URL 走 `R2_PUBLIC_BASE` CSP 白名单无需额外配置
+- **未启用 next/image 优化**：远程图片需要配 `next.config.ts` 的 `remotePatterns`，
+  目前用原生 `<img loading="lazy">`，未来要优化再加
+
 ## 安全约束
 
 ### 所有写接口必须限流
@@ -291,7 +311,7 @@ pnpm build                  # 构建
 |------|----------|
 | 分页与归档 | 文章超过 20 篇 |
 | 话题提议后台页 | 收到第一条真实提议（现在只发邮件通知） |
-| 图片管线 + 阅读进度条 ResizeObserver | 文章里开始放图 |
+| 阅读进度条 ResizeObserver | 文章里开始放图（图片管线已上线，进度条待加） |
 | `series` 字段 | 辩论区真的开始成对写正反两篇 |
 | 标签筛选/搜索、博客全文搜索 | 标签超过 30 个，或文章超过 20 篇。现在 18 个标签一屏放得下 |
 | 评论 | 投稿跑通、且真的有人投稿之后。评论比投稿难管——量大、无法逐条审 |

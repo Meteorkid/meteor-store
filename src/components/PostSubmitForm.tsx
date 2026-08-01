@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { blogSections } from '@/data/blog-sections';
@@ -32,6 +32,9 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
   const [preview, setPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
   const [error, setError] = useState('');
+  const [imageUploading, setImageUploading] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tags = tagInput
     .split(/[,，\s]+/)
@@ -80,6 +83,43 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
       return;
     }
     setPreview(await renderPreview(content));
+  }
+
+  async function handleImageUpload(file: File) {
+    setImageUploading(true);
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/blog/upload-image', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || t('imageUploadFailed'));
+
+      // 在光标位置插入 Markdown 图片语法
+      const url = data.url as string;
+      const alt = file.name.replace(/\.[^.]+$/, '');
+      const markdown = `![${alt}](${url})`;
+      const textarea = textareaRef.current;
+      if (textarea) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const newContent = content.slice(0, start) + markdown + '\n' + content.slice(end);
+        setContent(newContent);
+        // 恢复光标到插入内容之后
+        requestAnimationFrame(() => {
+          textarea.focus();
+          const pos = start + markdown.length + 1;
+          textarea.setSelectionRange(pos, pos);
+        });
+      } else {
+        setContent((prev) => prev + '\n' + markdown + '\n');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('imageUploadFailed'));
+    } finally {
+      setImageUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   }
 
   return (
@@ -177,15 +217,52 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
             dangerouslySetInnerHTML={{ __html: preview }}
           />
         ) : (
-          <textarea
-            id="post-content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={18}
-            maxLength={50_000}
-            placeholder={t('contentPlaceholder')}
-            className={`${inputClass} resize-y font-mono text-[0.875rem] leading-relaxed`}
-          />
+          <div className="relative">
+            <textarea
+              ref={textareaRef}
+              id="post-content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={18}
+              maxLength={50_000}
+              placeholder={t('contentPlaceholder')}
+              className={`${inputClass} resize-y font-mono text-[0.875rem] leading-relaxed`}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={imageUploading}
+              className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/40 px-2.5 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm transition-colors hover:border-violet-500/40 hover:text-violet-200 disabled:opacity-50"
+              aria-label={t('uploadImage')}
+              title={t('uploadImageHint')}
+            >
+              <svg
+                className="h-3.5 w-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+              </svg>
+              {imageUploading ? t('uploading') : t('uploadImage')}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/webp,image/jpeg,image/png,image/gif"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void handleImageUpload(file);
+              }}
+              className="hidden"
+            />
+          </div>
         )}
 
         <p className="t-footnote mt-1.5 text-right tabular-nums text-white/60">
