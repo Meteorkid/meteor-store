@@ -240,3 +240,157 @@ export async function getPublishedTagCounts(): Promise<{ tag: string; label: str
     .where(eq(posts.status, 'published'))
     .groupBy(postTags.tag);
 }
+
+// ── 编辑、撤回、删除 ──────────────────────────────────────────
+
+export type UpdatePostResult =
+  | {
+      ok: true;
+      status: PostStatus;
+      wasPublished: boolean;
+      oldSectionId: string;
+      newSectionId: string;
+    }
+  | { ok: false; reason: 'notFound' | 'notAuthor' | 'pendingCannotEdit' };
+
+/**
+ * 编辑投稿。
+ *
+ * 状态规则：
+ * - draft / rejected：可改字段。submit=true → pending，否则归一化为 draft
+ *   （rejected 编辑后回到 draft，让作者重新决定何时提交）
+ * - published：可改字段，**强制变 pending 重新审核**（submit 字段忽略）。
+ *   保守策略：投稿者不能绕过审核改已上线内容。
+ * - pending：不允许编辑，调用方应先 withdrawPost。避免审核中内容被偷改，
+ *   导致管理员看到的和审的不一致。
+ *
+ * authorId 校验放在 update 的 where 条件里，原子防越权。状态规则需先查一次
+ * status 判断分支，存在轻微竞态（作者并发编辑自己的文章），最坏情况是状态
+ * 归一化与预期不符，不会越权或损坏数据。
+ *
+ * Neon HTTP 不支持事务，标签更新用「全删重建」而非 diff——标签数量小（≤8），
+ * diff 没必要。若标签写入失败，文章内容已更新，作者可再次保存重试。
+ */
+export async function updatePost(input: {
+  postId: string;
+  authorId: string;
+  title?: string;
+  excerpt?: string;
+  content?: string;
+  sectionId?: string;
+  tags?: string[];
+  submit?: boolean;
+}): Promise<UpdatePostResult> {
+  const [row] = await db
+    .select({ status: posts.status, sectionId: posts.sectionId })
+    .from(posts)
+    .where(eq(posts.id, input.postId))
+    .limit(1);
+
+  if (!row) return { ok: false, reason: 'notFound' };
+  if (row.status === 'pending') return { ok: false, reason: 'pendingCannotEdit' };
+
+  const wasPublished = row.status === 'published';
+  const newStatus: PostStatus = wasPublished ? 'pending' : input.submit ? 'pending' : 'draft';
+  const newSectionId = input.sectionId ?? row.sectionId;
+
+  const now = new Date().toISOString();
+  const updates: Record<string, string | null> = { updatedAt: now, status: newStatus };
+
+  if (input.title !== undefined) updates.title = input.title;
+  if (input.excerpt !== undefined) updates.excerpt = input.excerpt;
+  if (input.content !== undefined) updates.content = input.content;
+  if (input.sectionId !== undefined) updates.sectionId = input.sectionId;
+
+  // 进入 pending 清掉旧审核留痕；published 下架清掉发布时间
+  if (newStatus === 'pending') {
+    updates.reviewNote = null;
+    updates.reviewerId = null;
+    updates.reviewedAt = null;
+  }
+  if (wasPublished) {
+    updates.publishedAt = null;
+  }
+
+  const result = await db
+    .update(posts)
+    .set(updates)
+    .where(and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId)));
+
+  if (((result as { rowCount?: number }).rowCount ?? 0) === 0) {
+    return { ok: false, reason: 'notAuthor' };
+  }
+
+  if (input.tags !== undefined) {
+    await db.delete(postTags).where(eq(postTags.postId, input.postId));
+    const newTags = normalizeTags(input.tags);
+    if (newTags.length > 0) {
+      await db.insert(postTags).values(newTags.map((t) => ({ postId: input.postId, ...t })));
+    }
+  }
+
+  return { ok: true, status: newStatus, wasPublished, oldSectionId: row.sectionId, newSectionId };
+}
+
+export type WithdrawPostResult =
+  | { ok: true }
+  | { ok: false; reason: 'notFound' | 'notAuthor' | 'notPending' };
+
+/**
+ * 撤回：pending → draft。条件更新 where(id AND authorId AND status='pending')，
+ * 原子操作防越权、防状态漂移。未命中时分三种原因返回。
+ */
+export async function withdrawPost(input: {
+  postId: string;
+  authorId: string;
+}): Promise<WithdrawPostResult> {
+  const now = new Date().toISOString();
+  const result = await db
+    .update(posts)
+    .set({ status: 'draft', updatedAt: now, reviewNote: null, reviewerId: null, reviewedAt: null })
+    .where(
+      and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId), eq(posts.status, 'pending')),
+    );
+
+  if (((result as { rowCount?: number }).rowCount ?? 0) > 0) {
+    return { ok: true };
+  }
+
+  const [row] = await db
+    .select({ authorId: posts.authorId, status: posts.status })
+    .from(posts)
+    .where(eq(posts.id, input.postId))
+    .limit(1);
+  if (!row) return { ok: false, reason: 'notFound' };
+  if (row.authorId !== input.authorId) return { ok: false, reason: 'notAuthor' };
+  return { ok: false, reason: 'notPending' };
+}
+
+export type DeletePostResult =
+  | { ok: true; wasPublished: boolean }
+  | { ok: false; reason: 'notFound' | 'notAuthor' };
+
+/**
+ * 删除投稿。任何状态都可删。先查状态用于返回 wasPublished（调用方据此决定
+ * 是否 revalidate）和区分 notFound/notAuthor。删除顺序：先删 posts 行
+ * （带 authorId 条件保证原子），再清 postTags 关联——标签表无外键，
+ * 即使标签清理失败也只是留下孤儿标签，JOIN 时被自然过滤，不影响功能。
+ */
+export async function deletePost(input: {
+  postId: string;
+  authorId: string;
+}): Promise<DeletePostResult> {
+  const [row] = await db
+    .select({ authorId: posts.authorId, status: posts.status })
+    .from(posts)
+    .where(eq(posts.id, input.postId))
+    .limit(1);
+
+  if (!row) return { ok: false, reason: 'notFound' };
+  if (row.authorId !== input.authorId) return { ok: false, reason: 'notAuthor' };
+
+  await db.delete(posts).where(and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId)));
+  await db.delete(postTags).where(eq(postTags.postId, input.postId));
+
+  return { ok: true, wasPublished: row.status === 'published' };
+}

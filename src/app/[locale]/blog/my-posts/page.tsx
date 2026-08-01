@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import PostRowActions from '@/components/PostRowActions';
 import { getSession } from '@/lib/auth';
 import { getPostsByAuthor, type PostStatus } from '@/lib/posts';
 import { getSectionById } from '@/data/blog-sections';
@@ -98,6 +99,8 @@ export default async function MyPostsPage({
                           {t('rejectedReason', { reason: post.reviewNote })}
                         </p>
                       )}
+
+                      <PostRowActions postId={post.id} status={post.status} />
                     </div>
                   </article>
                 );

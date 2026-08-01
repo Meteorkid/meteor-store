@@ -5,6 +5,7 @@ import { useRouter } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { blogSections } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
+import type { UserPost } from '@/lib/posts';
 
 const inputClass =
   'w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/50 transition-colors focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/40';
@@ -13,18 +14,21 @@ const labelClass = 't-footnote mb-2 block font-medium text-white/65';
 interface PostSubmitFormProps {
   /** 服务端渲染好的预览 HTML，由父组件在预览时提供 */
   renderPreview: (markdown: string) => Promise<string>;
+  /** 编辑模式时传入已有文章；不传或 null 为新建 */
+  initialPost?: UserPost | null;
 }
 
-export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
+export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmitFormProps) {
   const router = useRouter();
   const locale = useLocale() as Locale;
   const t = useTranslations('BlogSubmitPage');
 
-  const [title, setTitle] = useState('');
-  const [excerpt, setExcerpt] = useState('');
-  const [content, setContent] = useState('');
-  const [sectionId, setSectionId] = useState(blogSections[0].id as string);
-  const [tagInput, setTagInput] = useState('');
+  const isEdit = !!initialPost;
+  const [title, setTitle] = useState(initialPost?.title ?? '');
+  const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? '');
+  const [content, setContent] = useState(initialPost?.content ?? '');
+  const [sectionId, setSectionId] = useState(initialPost?.sectionId ?? (blogSections[0].id as string));
+  const [tagInput, setTagInput] = useState(initialPost?.tags.join(', ') ?? '');
   const [preview, setPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
   const [error, setError] = useState('');
@@ -44,8 +48,11 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
     setError('');
 
     try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
+      // 编辑模式走 PATCH /api/posts/[id]，新建走 POST /api/posts
+      const url = isEdit ? `/api/posts/${initialPost!.id}` : '/api/posts';
+      const method = isEdit ? 'PATCH' : 'POST';
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title.trim(),
@@ -185,6 +192,12 @@ export default function PostSubmitForm({ renderPreview }: PostSubmitFormProps) {
           {t('charCount', { count: contentLength })}
         </p>
       </div>
+
+      {isEdit && initialPost?.status === 'published' && (
+        <p className="t-footnote rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2 text-amber-200/90">
+          {t('publishedEditWarning')}
+        </p>
+      )}
 
       {status === 'error' && (
         <p className="t-footnote text-red-400" role="alert">
