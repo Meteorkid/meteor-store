@@ -57,6 +57,20 @@
       "when": 1785423471273,
       "tag": "0007_add_posts",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785589684015,
+      "tag": "0008_high_veda",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785590000000,
+      "tag": "0009_add_views_likes_comment_status",
+      "breakpoints": true
     }
   ]
 }

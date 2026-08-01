@@ -12,6 +12,7 @@ import type { Locale } from '@/i18n/routing';
 import { tagHref } from '@/data/blog-tags';
 import { markdownToHtml } from '@/lib/markdown';
 import CommentSection from '@/components/CommentSection';
+import PostStats from '@/components/PostStats';
 
 interface UserPostPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -158,8 +159,13 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
             </div>
           )}
 
-          {/* 预览模式（非 published）不显示评论：文章还没公开，评论无意义 */}
-          {!isPreview && <CommentSection targetId={post.id} />}
+          {/* 预览模式（非 published）不显示统计和评论：文章还没公开 */}
+          {!isPreview && (
+            <>
+              <PostStats targetId={post.id} />
+              <CommentSection targetId={post.id} />
+            </>
+          )}
         </article>
       </main>
       <Footer />

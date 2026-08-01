@@ -102,7 +102,7 @@ const postColumns = {
   authorName: users.name,
 };
 
-/** 创建投稿。status 由调用方决定：存草稿还是直接提交审核。 */
+/** 创建投稿。status 由调用方决定：存草稿、提交审核、或直接发布（管理员）。 */
 export async function createPost(input: {
   authorId: string;
   title: string;
@@ -110,11 +110,12 @@ export async function createPost(input: {
   content: string;
   sectionId: string;
   tags: string[];
-  status: Extract<PostStatus, 'draft' | 'pending'>;
+  status: Extract<PostStatus, 'draft' | 'pending' | 'published'>;
 }): Promise<string> {
   const id = newPostId();
   const now = new Date().toISOString();
   const tags = normalizeTags(input.tags);
+  const publishedAt = input.status === 'published' ? now : null;
 
   await db.insert(posts).values({
     id,
@@ -124,6 +125,7 @@ export async function createPost(input: {
     content: input.content,
     sectionId: input.sectionId,
     status: input.status,
+    publishedAt,
     createdAt: now,
     updatedAt: now,
   });
@@ -280,6 +282,8 @@ export async function updatePost(input: {
   sectionId?: string;
   tags?: string[];
   submit?: boolean;
+  /** 管理员直发：跳过审核，published 编辑后保持 published，提交直接发布。 */
+  adminPublish?: boolean;
 }): Promise<UpdatePostResult> {
   const [row] = await db
     .select({ status: posts.status, sectionId: posts.sectionId })
@@ -291,10 +295,18 @@ export async function updatePost(input: {
   if (row.status === 'pending') return { ok: false, reason: 'pendingCannotEdit' };
 
   const wasPublished = row.status === 'published';
-  const newStatus: PostStatus = wasPublished ? 'pending' : input.submit ? 'pending' : 'draft';
-  const newSectionId = input.sectionId ?? row.sectionId;
-
   const now = new Date().toISOString();
+
+  // 管理员直发：已发布保持发布，提交直接发布
+  // 普通用户：已发布 → pending 重审，提交 → pending
+  let newStatus: PostStatus;
+  if (input.adminPublish) {
+    newStatus = wasPublished ? 'published' : input.submit ? 'published' : 'draft';
+  } else {
+    newStatus = wasPublished ? 'pending' : input.submit ? 'pending' : 'draft';
+  }
+
+  const newSectionId = input.sectionId ?? row.sectionId;
   const updates: Record<string, string | null> = { updatedAt: now, status: newStatus };
 
   if (input.title !== undefined) updates.title = input.title;
@@ -302,14 +314,21 @@ export async function updatePost(input: {
   if (input.content !== undefined) updates.content = input.content;
   if (input.sectionId !== undefined) updates.sectionId = input.sectionId;
 
-  // 进入 pending 清掉旧审核留痕；published 下架清掉发布时间
+  // 进入 pending 清掉旧审核留痕
   if (newStatus === 'pending') {
     updates.reviewNote = null;
     updates.reviewerId = null;
     updates.reviewedAt = null;
   }
-  if (wasPublished) {
+
+  // published 下架清掉发布时间
+  if (wasPublished && newStatus !== 'published') {
     updates.publishedAt = null;
+  }
+
+  // 管理员直发时设置发布时间
+  if (newStatus === 'published' && !wasPublished) {
+    updates.publishedAt = now;
   }
 
   const result = await db

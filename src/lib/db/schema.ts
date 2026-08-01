@@ -152,8 +152,37 @@ export const comments = pgTable('comments', {
   authorAvatar: text('author_avatar'),
   content: text('content').notNull(),
   parentId: text('parent_id'),
+  status: text('status').default('approved').notNull(), // approved | pending | rejected
+  reviewedAt: text('reviewed_at'),
   createdAt: text('created_at').notNull(),
 }, (t) => [
   index('comments_target_idx').on(t.targetId, t.createdAt),
   index('comments_author_idx').on(t.authorId),
+  index('comments_status_idx').on(t.status),
+]);
+
+/**
+ * 页面浏览量。用 IP 哈希 + 目标 ID 做简单去重，避免同一用户反复刷量。
+ * 唯一约束 (target_id, ip_hash) 防止重复记录，365 天后可清理。
+ */
+export const pageViews = pgTable('page_views', {
+  id: text('id').primaryKey(),
+  targetId: text('target_id').notNull(),
+  ipHash: text('ip_hash').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  uniqueIndex('page_views_target_ip_uniq').on(t.targetId, t.ipHash),
+  index('page_views_target_idx').on(t.targetId),
+]);
+
+/**
+ * 点赞。每个用户对每个目标只能点赞一次，再点取消。
+ */
+export const likes = pgTable('likes', {
+  targetId: text('target_id').notNull(),
+  userId: text('user_id').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.targetId, t.userId] }),
+  index('likes_target_idx').on(t.targetId),
 ]);

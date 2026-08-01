@@ -9,6 +9,7 @@ import { blogScopeStyle, getSectionById } from '@/data/blog-sections';
 import { markdownToHtml } from '@/lib/markdown';
 import BlogReadingProgress from '@/components/BlogReadingProgress';
 import CommentSection from '@/components/CommentSection';
+import PostStats from '@/components/PostStats';
 import { routing, type Locale } from '@/i18n/routing';
 
 interface BlogPostPageProps {
@@ -134,6 +135,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <span key={tag}>#{tag}</span>
             ))}
           </div>
+
+          <PostStats targetId={post.slug} />
 
           {related.length > 0 && (
             <section className="mt-20">

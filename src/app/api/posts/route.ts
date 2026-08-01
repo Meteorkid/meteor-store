@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
+import { isAdminEmail } from '@/lib/admin';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { sendAdminAlert } from '@/lib/email';
 import { createPost, getPostsByAuthor } from '@/lib/posts';
 import { blogSections } from '@/data/blog-sections';
+import { revalidatePublishedPaths } from '@/lib/revalidate';
 
 const SECTION_IDS = blogSections.map((s) => s.id) as [string, ...string[]];
 
@@ -54,13 +56,15 @@ export async function POST(req: NextRequest) {
 
   const { submit, ...data } = parsed.data;
 
+  const isAdmin = isAdminEmail(session.email);
+
   const id = await createPost({
     authorId: session.userId,
     ...data,
-    status: submit ? 'pending' : 'draft',
+    status: submit ? (isAdmin ? 'published' : 'pending') : 'draft',
   });
 
-  if (submit) {
+  if (submit && !isAdmin) {
     // 先审后发：没有通知，投稿就会一直躺在队列里没人知道
     void sendAdminAlert('新的投稿待审核', {
       标题: data.title,
@@ -70,5 +74,10 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  return NextResponse.json({ success: true, id, status: submit ? 'pending' : 'draft' });
+  // 管理员直接发布时刷新公开缓存
+  if (submit && isAdmin) {
+    revalidatePublishedPaths();
+  }
+
+  return NextResponse.json({ success: true, id, status: submit ? (isAdmin ? 'published' : 'pending') : 'draft' });
 }

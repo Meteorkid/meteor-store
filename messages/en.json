@@ -38,6 +38,7 @@
     "writeArticle": "Write",
     "myPosts": "My Posts",
     "pendingReview": "Pending Review",
+    "adminDashboard": "Admin Dashboard",
     "userMenuAria": "User menu",
     "inviteCodes": "Invite Codes",
     "myProducts": "My Products",
@@ -725,6 +726,13 @@
   "BackToTop": {
     "ariaLabel": "Back to top"
   },
+  "AdminNav": {
+    "dashboard": "Dashboard",
+    "review": "Review",
+    "posts": "Posts",
+    "comments": "Comments",
+    "inviteCodes": "Invite Codes"
+  },
   "AdminReviewPage": {
     "title": "Pending Review",
     "count": "{count} posts",
@@ -1146,6 +1154,14 @@
     "hoursAgo": "{h} h ago",
     "daysAgo": "{d} d ago"
   },
+  "PostStats": {
+    "views": "{count} views",
+    "likes": "{count} likes",
+    "comments": "{count} comments",
+    "like": "Like",
+    "unlike": "Unlike",
+    "loginToLike": "Log in to like"
+  },
   "BlogList": {
     "sectionsAria": "Blog sections",
     "tagsAria": "Hot tags",
@@ -1187,6 +1203,59 @@
   "AuthProvider": {
     "loginFailed": "Login failed",
     "registerFailed": "Registration failed"
+  },
+  "AdminCommentsPage": {
+    "title": "Comment Moderation",
+    "metaTitle": "Comment Moderation - Meteor Store",
+    "metaNotFound": "Page Not Found - Meteor Store",
+    "all": "All",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "empty": "No comments here.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this comment? This action cannot be undone.",
+    "operationFailed": "Operation failed",
+    "commentDeleted": "Comment deleted",
+    "commentApproved": "Comment approved",
+    "commentRejected": "Comment rejected",
+    "statusApproved": "Approved",
+    "statusPending": "Pending",
+    "statusRejected": "Rejected"
+  },
+  "AdminDashboardPage": {
+    "metaTitle": "Dashboard - Meteor Store",
+    "metaNotFound": "Page Not Found - Meteor Store",
+    "title": "Dashboard",
+    "totalPosts": "Total Posts",
+    "publishedPosts": "Published",
+    "pendingPosts": "Pending Review",
+    "totalComments": "Total Comments",
+    "pendingComments": "Pending Comments",
+    "totalUsers": "Total Users",
+    "loading": "Loading..."
+  },
+  "AdminPostsPage": {
+    "metaTitle": "Post Management - Meteor Store",
+    "metaNotFound": "Page Not Found - Meteor Store",
+    "title": "Post Management",
+    "totalPosts": "Total: {count} posts",
+    "source": "Source",
+    "sourceFile": "File",
+    "sourceSubmission": "Submission",
+    "section": "Section",
+    "author": "Author",
+    "status": "Status",
+    "date": "Date",
+    "actions": "Actions",
+    "edit": "Edit",
+    "statusPublished": "Published",
+    "statusPending": "Pending",
+    "statusDraft": "Draft",
+    "statusRejected": "Rejected",
+    "noPosts": "No posts yet"
   },
   "GlobalError": {
     "title": "Application Error",

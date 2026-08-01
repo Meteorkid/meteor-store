@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
+import { isAdminEmail } from '@/lib/admin';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { sendAdminAlert } from '@/lib/email';
 import { updatePost, deletePost, withdrawPost } from '@/lib/posts';
 import { blogSections } from '@/data/blog-sections';
+import { revalidatePublishedPaths } from '@/lib/revalidate';
 
 const SECTION_IDS = blogSections.map((s) => s.id) as [string, ...string[]];
 
@@ -19,25 +20,6 @@ const PatchSchema = z.object({
   tags: z.array(z.string().trim().min(1).max(24)).max(8, '最多 8 个标签').optional(),
   submit: z.boolean().optional(),
 });
-
-/**
- * 失效所有 blog 公开静态路径。用于 published 文章下架（编辑重审）或删除时，
- * 让首页/分区页/标签页/RSS/sitemap 立即反映变化。分区页数量少（< 10），
- * 全失效一次开销可接受，且避免漏失效旧分区。
- */
-function revalidatePublishedPaths() {
-  for (const locale of ['zh', 'en'] as const) {
-    revalidatePath(`/${locale}/blog`);
-    revalidatePath(`/${locale}/blog/feed.xml`);
-    revalidatePath(`/${locale}/blog/tags`);
-    revalidatePath(`/${locale}/blog/tag/[tag]`, 'page');
-    for (const section of blogSections) {
-      revalidatePath(`/${locale}/blog/section/${section.slug}`);
-      revalidatePath(`/${locale}/blog/section/${section.slug}/feed.xml`);
-    }
-  }
-  revalidatePath('/sitemap.xml');
-}
 
 export async function PATCH(
   req: NextRequest,
@@ -92,6 +74,8 @@ export async function PATCH(
     return NextResponse.json({ error: '没有要修改的内容' }, { status: 400 });
   }
 
+  const isAdmin = isAdminEmail(session.email);
+
   const result = await updatePost({
     postId,
     authorId: session.userId,
@@ -101,6 +85,7 @@ export async function PATCH(
     sectionId: data.sectionId,
     tags: data.tags,
     submit: data.submit,
+    adminPublish: isAdmin || undefined,
   });
 
   if (!result.ok) {
@@ -117,8 +102,9 @@ export async function PATCH(
     );
   }
 
-  // 已发布文章被编辑后下架重审，失效公开缓存
-  if (result.wasPublished) {
+  // 文章内容有公开变化时失效缓存：已发布文章被编辑（下架或管理员直发），
+  // 或草稿被管理员直接发布。
+  if (result.wasPublished || result.status === 'published') {
     revalidatePublishedPaths();
   }
 

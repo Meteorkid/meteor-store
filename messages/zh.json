@@ -38,6 +38,7 @@
     "writeArticle": "写文章",
     "myPosts": "我的投稿",
     "pendingReview": "待审核",
+    "adminDashboard": "管理后台",
     "userMenuAria": "用户菜单",
     "inviteCodes": "邀请码管理",
     "myProducts": "我的产品",
@@ -725,6 +726,13 @@
   "BackToTop": {
     "ariaLabel": "返回顶部"
   },
+  "AdminNav": {
+    "dashboard": "概述",
+    "review": "审核投稿",
+    "posts": "文章管理",
+    "comments": "评论管理",
+    "inviteCodes": "邀请码"
+  },
   "AdminReviewPage": {
     "title": "待审核",
     "count": "{count} 篇",
@@ -1146,6 +1154,14 @@
     "hoursAgo": "{h} 小时前",
     "daysAgo": "{d} 天前"
   },
+  "PostStats": {
+    "views": "{count} 次阅读",
+    "likes": "{count} 个赞",
+    "comments": "{count} 条评论",
+    "like": "点赞",
+    "unlike": "取消点赞",
+    "loginToLike": "登录后即可点赞"
+  },
   "BlogList": {
     "sectionsAria": "博客分区",
     "tagsAria": "热门标签",
@@ -1187,6 +1203,59 @@
   "AuthProvider": {
     "loginFailed": "登录失败",
     "registerFailed": "注册失败"
+  },
+  "AdminCommentsPage": {
+    "title": "评论管理",
+    "metaTitle": "评论管理 - Meteor Store",
+    "metaNotFound": "页面未找到 - Meteor Store",
+    "all": "全部",
+    "pending": "待审核",
+    "approved": "已通过",
+    "rejected": "已驳回",
+    "empty": "这里还没有评论。",
+    "approve": "通过",
+    "reject": "驳回",
+    "delete": "删除",
+    "deleteConfirm": "确定要删除此评论吗？此操作不可撤销。",
+    "operationFailed": "操作失败",
+    "commentDeleted": "评论已删除",
+    "commentApproved": "评论已通过",
+    "commentRejected": "评论已驳回",
+    "statusApproved": "已通过",
+    "statusPending": "待审核",
+    "statusRejected": "已驳回"
+  },
+  "AdminDashboardPage": {
+    "metaTitle": "管理后台 - Meteor Store",
+    "metaNotFound": "页面未找到 - Meteor Store",
+    "title": "管理后台",
+    "totalPosts": "文章总数",
+    "publishedPosts": "已发布",
+    "pendingPosts": "待审核",
+    "totalComments": "评论总数",
+    "pendingComments": "待审核评论",
+    "totalUsers": "用户总数",
+    "loading": "加载中..."
+  },
+  "AdminPostsPage": {
+    "metaTitle": "文章管理 - Meteor Store",
+    "metaNotFound": "页面未找到 - Meteor Store",
+    "title": "文章管理",
+    "totalPosts": "共 {count} 篇",
+    "source": "来源",
+    "sourceFile": "文件",
+    "sourceSubmission": "投稿",
+    "section": "分区",
+    "author": "作者",
+    "status": "状态",
+    "date": "日期",
+    "actions": "操作",
+    "edit": "编辑",
+    "statusPublished": "已发布",
+    "statusPending": "待审核",
+    "statusDraft": "草稿",
+    "statusRejected": "已驳回",
+    "noPosts": "暂无文章"
   },
   "GlobalError": {
     "title": "应用出错了",

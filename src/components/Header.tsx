@@ -244,11 +244,11 @@ export default function Header() {
               </Link>
               {user.isAdmin && (
                 <Link
-                  href="/admin/review"
+                  href="/admin"
                   onClick={() => setMobileOpen(false)}
                   className="block px-4 py-3 text-lg text-amber-300/80 hover:bg-white/5 rounded-xl transition-colors"
                 >
-                  {t('pendingReview')}
+                  {t('adminDashboard')}
                 </Link>
               )}
               <button
