@@ -501,7 +501,9 @@
     "previewPending": "正在等待审核。",
     "previewRejected": "未通过审核。",
     "rejectedReason": "原因：{reason}",
-    "backToMyPosts": "← 回到我的投稿"
+    "backToMyPosts": "← 回到我的投稿",
+    "editPost": "编辑",
+    "editOnGithub": "在 GitHub 上编辑"
   },
   "BlogSectionPage": {
     "blogSuffix": "Meteor Store 博客",

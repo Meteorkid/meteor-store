@@ -79,7 +79,7 @@ export default async function PostsPage({
                     const date = post.publishedAt ?? post.createdAt;
                     const editHref =
                       post.source === 'file'
-                        ? `https://github.com/Meteorkid/meteor-store/edit/main/content/blog/${post.id}.md`
+                        ? `https://github.com/Meteorkid/meteor-store/edit/main/content/blog/zh/${post.id}.md`
                         : `/blog/submit?id=${post.id}&admin=1`;
 
                     return (

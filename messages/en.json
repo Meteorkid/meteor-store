@@ -501,7 +501,9 @@
     "previewPending": "Pending review.",
     "previewRejected": "Rejected.",
     "rejectedReason": "Reason: {reason}",
-    "backToMyPosts": "← Back to My Posts"
+    "backToMyPosts": "← Back to My Posts",
+    "editPost": "Edit",
+    "editOnGithub": "Edit on GitHub"
   },
   "BlogSectionPage": {
     "blogSuffix": "Meteor Store Blog",

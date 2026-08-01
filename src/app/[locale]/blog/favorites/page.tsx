@@ -35,7 +35,13 @@ export default async function FavoritesPage({
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const posts = await getUserFavoritePosts(session.userId, locale as Locale);
+  let posts: Awaited<ReturnType<typeof getUserFavoritePosts>> = [];
+  try {
+    posts = await getUserFavoritePosts(session.userId, locale as Locale);
+  } catch (err) {
+    // 表不存在或数据库不可用时，显示空列表而非 500
+    console.error('读取收藏列表失败:', err);
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">

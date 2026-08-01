@@ -11,6 +11,8 @@ import BlogReadingProgress from '@/components/BlogReadingProgress';
 import CommentSection from '@/components/CommentSection';
 import PostStats from '@/components/PostStats';
 import { routing, type Locale } from '@/i18n/routing';
+import { getSession } from '@/lib/auth';
+import { isAdminEmail } from '@/lib/admin';
 
 interface BlogPostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -51,6 +53,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   if (!post) notFound();
 
   const section = getSectionById(post.section);
+
+  // 站主文件文章的编辑入口：管理员看到 GitHub web 编辑器链接
+  const session = await getSession();
+  const isAdmin = !!session && isAdminEmail(session.email);
+  const editHref = `https://github.com/Meteorkid/meteor-store/edit/main/content/blog/${locale}/${
+    post.slug
+  }.md`;
 
   // 同分区的其他文章，最新 3 篇
   const related = posts
@@ -114,6 +123,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <span className="text-white/60">{t('minutes', { count: post.readingTime })}</span>
               <span aria-hidden className="text-white/20">·</span>
               <span className="text-white/60">{t('siteOwner')}</span>
+              {isAdmin && (
+                <>
+                  <span aria-hidden className="text-white/20">·</span>
+                  <a
+                    href={editHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/50 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
+                  >
+                    {t('editOnGithub')}
+                  </a>
+                </>
+              )}
             </div>
 
             <h1 className="t-title-1 relative mb-8">{post.title}</h1>

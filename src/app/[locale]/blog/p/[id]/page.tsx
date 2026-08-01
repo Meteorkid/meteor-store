@@ -13,6 +13,7 @@ import { tagHref } from '@/data/blog-tags';
 import { markdownToHtml } from '@/lib/markdown';
 import CommentSection from '@/components/CommentSection';
 import PostStats from '@/components/PostStats';
+import { isAdminEmail } from '@/lib/admin';
 
 interface UserPostPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -54,6 +55,10 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
 
   const isPreview = post.status !== 'published';
   const section = getSectionById(post.sectionId);
+  const isAdmin = !!session && isAdminEmail(session.email);
+  // 管理员或作者本人可编辑；管理员走 admin=1 路径有越权编辑能力
+  const canEdit = isAdmin || isAuthor;
+  const editHref = `/blog/submit?id=${post.id}${isAdmin ? '&admin=1' : ''}`;
 
   return (
     <div className="blog-scope min-h-screen bg-black text-white" style={blogScopeStyle(post.sectionId)}>
@@ -128,6 +133,17 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
               )}
               <span aria-hidden className="text-white/20">·</span>
               <span className="text-white/60">{t('readerSubmission')}</span>
+              {canEdit && (
+                <>
+                  <span aria-hidden className="text-white/20">·</span>
+                  <Link
+                    href={editHref}
+                    className="text-white/50 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
+                  >
+                    {t('editPost')}
+                  </Link>
+                </>
+              )}
             </div>
 
             <h1 className="t-title-1 relative mb-8">{post.title}</h1>
