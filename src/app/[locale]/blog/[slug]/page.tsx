@@ -103,12 +103,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   {section.label[locale as Locale]}
                 </span>
               )}
-              <span aria-hidden className="text-white/15">·</span>
+              <span aria-hidden className="text-white/20">·</span>
+              <span className="text-white/70">meteor</span>
+              <span aria-hidden className="text-white/20">·</span>
               <time className="tabular-nums text-white/60" dateTime={post.date}>
                 {post.date.replace(/-/g, '.')}
               </time>
-              <span aria-hidden className="text-white/15">·</span>
+              <span aria-hidden className="text-white/20">·</span>
               <span className="text-white/60">{t('minutes', { count: post.readingTime })}</span>
+              <span aria-hidden className="text-white/20">·</span>
+              <span className="text-white/60">{t('siteOwner')}</span>
             </div>
 
             <h1 className="t-title-1 relative mb-8">{post.title}</h1>
