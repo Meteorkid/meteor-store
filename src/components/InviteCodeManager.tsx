@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { runCancellableTask } from '@/lib/cancellable-task';
 
 interface InviteCode {
   id: string;
@@ -59,8 +60,20 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
     }
   };
 
+  // 首次挂载拉一次邀请码列表：内联 fetch + .then()，setState 都在异步回调里
   useEffect(() => {
-    fetchCodes();
+    return runCancellableTask(
+      fetch('/api/admin/invite-codes').then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      }),
+      {
+        onSuccess: (data) => setCodes(data.codes),
+        onError: () => setError(t('loadFailed')),
+        onSettled: () => setLoading(false),
+      },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCreate = async (e: React.FormEvent) => {

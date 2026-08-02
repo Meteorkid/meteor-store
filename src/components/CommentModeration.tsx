@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { runCancellableTask } from '@/lib/cancellable-task';
 
 interface Comment {
   id: string;
@@ -69,9 +70,32 @@ export default function CommentModeration() {
     }
   }, [filter]);
 
+  // filter 变化时进入 loading：渲染期调整状态，避免 effect 里同步 setState
+  const [prevFilter, setPrevFilter] = useState(filter);
+  if (filter !== prevFilter) {
+    setPrevFilter(filter);
+    setLoading(true);
+    setFetchError(false);
+  }
+
+  // 拉取评论：内联 fetch + .then()，setState 都在异步回调里
   useEffect(() => {
-    fetchComments();
-  }, [fetchComments]);
+    const params = filter ? `?status=${filter}` : '';
+    return runCancellableTask(
+      fetch(`/api/admin/comments${params}`).then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      }),
+      {
+        onSuccess: (data) => setComments(data.comments ?? []),
+        onError: () => {
+          setFetchError(true);
+          setComments([]);
+        },
+        onSettled: () => setLoading(false),
+      },
+    );
+  }, [filter]);
 
   function showFeedback(type: 'success' | 'error', message: string) {
     setFeedback({ type, message });

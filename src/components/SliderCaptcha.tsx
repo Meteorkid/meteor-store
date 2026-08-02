@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { runCancellableTask } from '@/lib/cancellable-task';
 
 const W = 300;
 const H = 150;
@@ -98,6 +99,40 @@ export default function SliderCaptcha({ onVerify }: Props) {
   const startXRef = useRef(0);
   const startSliderRef = useRef(0);
 
+  // 纯绘制函数：不调用 setState，可被 effect 和事件处理器复用
+  const drawCaptcha = useCallback((data: { bgSeed: number; targetX: number; targetY: number }) => {
+    requestAnimationFrame(() => {
+      const bg = bgRef.current;
+      const piece = pieceRef.current;
+      if (!bg || !piece) return;
+
+      const bgCtx = bg.getContext('2d');
+      const pieceCtx = piece.getContext('2d');
+      if (!bgCtx || !pieceCtx) return;
+
+      drawBackground(bgCtx, data.bgSeed);
+
+      const imgData = bgCtx.getImageData(data.targetX, data.targetY, PW, PW);
+
+      pieceCtx.clearRect(0, 0, PW + 4, PW + 4);
+      pieceCtx.putImageData(imgData, 2, 2);
+      pieceCtx.strokeStyle = 'rgba(255,255,255,0.8)';
+      pieceCtx.lineWidth = 1.5;
+      roundRect(pieceCtx, 2, 2, PW, PW, 3);
+      pieceCtx.stroke();
+
+      bgCtx.save();
+      roundRect(bgCtx, data.targetX, data.targetY, PW, PW, 3);
+      bgCtx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      bgCtx.fill();
+      bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      bgCtx.lineWidth = 1.5;
+      bgCtx.stroke();
+      bgCtx.restore();
+    });
+  }, []);
+
+  // 事件处理器用：刷新按钮 / 验证失败后重新拉取
   const fetchChallenge = useCallback(async () => {
     setLoading(true);
     setVerified(false);
@@ -112,46 +147,34 @@ export default function SliderCaptcha({ onVerify }: Props) {
       setToken(data.token);
       setTargetX(data.targetX);
       setTargetY(data.targetY);
-
-      requestAnimationFrame(() => {
-        const bg = bgRef.current;
-        const piece = pieceRef.current;
-        if (!bg || !piece) return;
-
-        const bgCtx = bg.getContext('2d');
-        const pieceCtx = piece.getContext('2d');
-        if (!bgCtx || !pieceCtx) return;
-
-        drawBackground(bgCtx, data.bgSeed);
-
-        const imgData = bgCtx.getImageData(data.targetX, data.targetY, PW, PW);
-
-        pieceCtx.clearRect(0, 0, PW + 4, PW + 4);
-        pieceCtx.putImageData(imgData, 2, 2);
-        pieceCtx.strokeStyle = 'rgba(255,255,255,0.8)';
-        pieceCtx.lineWidth = 1.5;
-        roundRect(pieceCtx, 2, 2, PW, PW, 3);
-        pieceCtx.stroke();
-
-        bgCtx.save();
-        roundRect(bgCtx, data.targetX, data.targetY, PW, PW, 3);
-        bgCtx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-        bgCtx.fill();
-        bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-        bgCtx.lineWidth = 1.5;
-        bgCtx.stroke();
-        bgCtx.restore();
-      });
+      drawCaptcha(data);
     } catch {
       setError(t('loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [drawCaptcha, t]);
 
+  // 首次挂载拉一次挑战：内联 fetch + .then()，setState 都在异步回调里
   useEffect(() => {
-    fetchChallenge();
-  }, [fetchChallenge]);
+    return runCancellableTask(
+      fetch('/api/captcha/challenge', { method: 'POST' }).then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      }),
+      {
+        onSuccess: (data) => {
+          setToken(data.token);
+          setTargetX(data.targetX);
+          setTargetY(data.targetY);
+          drawCaptcha(data);
+        },
+        onError: () => setError(t('loadFailed')),
+        onSettled: () => setLoading(false),
+      },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getClientX = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
     if ('touches' in e) return e.touches[0]?.clientX ?? 0;

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { runCancellableTask } from '@/lib/cancellable-task';
 import { useAuth } from './AuthProvider';
 
 interface Comment {
@@ -106,7 +107,26 @@ export default function CommentSection({ targetId }: { targetId: string }) {
     }
   }, [targetId]);
 
-  useEffect(() => { load(); }, [load]);
+  // targetId 变化时回到 loading：渲染期调整状态
+  const [prevTargetId, setPrevTargetId] = useState(targetId);
+  if (targetId !== prevTargetId) {
+    setPrevTargetId(targetId);
+    setLoading(true);
+  }
+
+  // 拉取评论：内联 fetch + .then()，setState 都在异步回调里
+  useEffect(() => {
+    return runCancellableTask(
+      fetch(`/api/comments?targetId=${encodeURIComponent(targetId)}`).then((res) => res.json()),
+      {
+        onSuccess: (data) => setComments(data.comments ?? []),
+        onError: () => {
+          /* 评论加载失败不影响阅读 */
+        },
+        onSettled: () => setLoading(false),
+      },
+    );
+  }, [targetId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
