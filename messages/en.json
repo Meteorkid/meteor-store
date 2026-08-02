@@ -130,7 +130,7 @@
     "profile": "Profile",
     "security": "Security",
     "nameLabel": "Nickname",
-    "bioLabel": "Bio",
+    "bioLabel": "Signature",
     "changePassword": "Change Password",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
@@ -159,7 +159,7 @@
     "statusPublished": "Published",
     "statusRejected": "Rejected",
     "profileHint": "Your avatar and nickname appear in the navigation bar and your submissions.",
-    "bioPlaceholder": "Describe yourself in one line",
+    "bioPlaceholder": "Shown at the end of your articles as a byline",
     "saving": "Saving…",
     "saveButton": "Save",
     "saved": "Saved",
@@ -1172,6 +1172,9 @@
     "unfavorite": "Unsave",
     "loginToFavorite": "Log in to save",
     "favorites": "{count} saves"
+  },
+  "PostSignature": {
+    "signature": "— Storekeeper"
   },
   "BlogList": {
     "sectionsAria": "Blog sections",

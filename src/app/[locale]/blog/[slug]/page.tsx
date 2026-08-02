@@ -10,6 +10,7 @@ import { markdownToHtml } from '@/lib/markdown';
 import BlogReadingProgress from '@/components/BlogReadingProgress';
 import CommentSection from '@/components/CommentSection';
 import PostStats from '@/components/PostStats';
+import PostSignature from '@/components/PostSignature';
 import { routing, type Locale } from '@/i18n/routing';
 import { getSession } from '@/lib/auth';
 import { isAdminEmail } from '@/lib/admin';
@@ -157,6 +158,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <span key={tag}>#{tag}</span>
             ))}
           </div>
+
+          <PostSignature />
 
           <PostStats targetId={post.slug} />
 

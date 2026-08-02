@@ -196,6 +196,16 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - 切换收藏状态**不需要 revalidatePath**：收藏数和状态都由 `PostStats` 客户端组件
   挂载时 fetch，列表页收藏数也是动态渲染。和点赞一样是「读时不缓存，写时不失效」
 
+### 作者落款（个性签名）
+
+文章末尾的作者落款分两种，对应两条来源：
+
+- **站主文件文章** `/blog/[slug]`：末尾自动渲染 `PostSignature` 组件（流星划线 + Dancing Script 手写体 "Meteor" + "—— 店主"），样式参考 `/story` 页面。站主无需在 markdown 里手写签名——组件自动注入，每篇文章都有。组件在 [src/components/PostSignature.tsx](file:///Users/meteor/github/meteor-store/src/components/PostSignature.tsx)
+- **读者投稿** `/blog/p/[id]`：末尾自动渲染作者落款区块（头像 + 昵称 + bio）。bio 来自 `users.bio` 字段，用户在 `/account` 页面设置（label 显示为「个性签名」）。`posts.ts` 的 `postColumns` 已 JOIN `users.bio` 和 `users.avatarUrl`，`UserPost` 类型带 `authorBio` / `authorAvatarUrl`
+
+**bio 字段就是个性签名**，不是单独的字段。200 字上限，profile 接口已支持更新。
+改 bio 不需要 revalidate——投稿详情页是动态渲染的。
+
 ### 管理员
 
 `ADMIN_EMAILS` 环境变量，逗号分隔。**故意不放数据库字段**：加一个 `isAdmin` 列

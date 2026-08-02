@@ -130,7 +130,7 @@
     "profile": "个人资料",
     "security": "安全设置",
     "nameLabel": "昵称",
-    "bioLabel": "个人简介",
+    "bioLabel": "个性签名",
     "changePassword": "修改密码",
     "currentPassword": "当前密码",
     "newPassword": "新密码",
@@ -159,7 +159,7 @@
     "statusPublished": "已发布",
     "statusRejected": "未通过",
     "profileHint": "头像和昵称会显示在导航栏和你的投稿里。",
-    "bioPlaceholder": "一句话介绍自己",
+    "bioPlaceholder": "会显示在你的文章末尾作为落款",
     "saving": "保存中…",
     "saveButton": "保存",
     "saved": "已保存",
@@ -1172,6 +1172,9 @@
     "unfavorite": "取消收藏",
     "loginToFavorite": "登录后即可收藏",
     "favorites": "{count} 次收藏"
+  },
+  "PostSignature": {
+    "signature": "—— 店主"
   },
   "BlogList": {
     "sectionsAria": "博客分区",

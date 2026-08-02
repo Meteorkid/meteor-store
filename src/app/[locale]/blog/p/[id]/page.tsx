@@ -175,6 +175,30 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
             </div>
           )}
 
+          {/* 作者落款：头像 + 名字 + 个性签名（bio） */}
+          <div className="mt-10 flex items-start gap-4 border-t border-white/[0.07] pt-8">
+            {post.authorAvatarUrl ? (
+              <img
+                src={post.authorAvatarUrl}
+                alt={post.authorName || t('anonymous')}
+                className="h-12 w-12 shrink-0 rounded-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-lg font-semibold text-white/70">
+                {(post.authorName || '?')[0]?.toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-[0.9375rem] font-semibold text-white/90">
+                {post.authorName || t('anonymous')}
+              </p>
+              {post.authorBio && (
+                <p className="t-footnote mt-1 text-white/60">{post.authorBio}</p>
+              )}
+            </div>
+          </div>
+
           {/* 预览模式（非 published）不显示统计和评论：文章还没公开 */}
           {!isPreview && (
             <>

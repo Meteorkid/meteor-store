@@ -18,6 +18,8 @@ export interface UserPost {
   id: string;
   authorId: string;
   authorName: string | null;
+  authorBio: string | null;
+  authorAvatarUrl: string | null;
   title: string;
   excerpt: string;
   content: string;
@@ -62,6 +64,8 @@ interface PostRow {
   createdAt: string;
   updatedAt: string;
   authorName: string | null;
+  authorBio: string | null;
+  authorAvatarUrl: string | null;
 }
 
 async function attachTags(rows: PostRow[]): Promise<UserPost[]> {
@@ -84,6 +88,8 @@ async function attachTags(rows: PostRow[]): Promise<UserPost[]> {
     sectionId: r.sectionId as BlogSectionId,
     status: r.status as PostStatus,
     tags: byPost.get(r.id) ?? [],
+    authorBio: r.authorBio,
+    authorAvatarUrl: r.authorAvatarUrl,
   }));
 }
 
@@ -100,6 +106,8 @@ const postColumns = {
   createdAt: posts.createdAt,
   updatedAt: posts.updatedAt,
   authorName: users.name,
+  authorBio: users.bio,
+  authorAvatarUrl: users.avatarUrl,
 };
 
 /** 创建投稿。status 由调用方决定：存草稿、提交审核、或直接发布（管理员）。 */
