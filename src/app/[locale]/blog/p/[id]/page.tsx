@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
@@ -187,9 +188,12 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
           {/* 作者落款：头像 + 名字 + 个性签名（bio） */}
           <div className="mt-10 flex items-start gap-4 border-t border-white/[0.07] pt-8">
             {post.authorAvatarUrl ? (
-              <img
+              <Image
                 src={post.authorAvatarUrl}
                 alt={post.authorName || t('anonymous')}
+                width={48}
+                height={48}
+                unoptimized
                 className="h-12 w-12 shrink-0 rounded-full object-cover"
                 loading="lazy"
               />

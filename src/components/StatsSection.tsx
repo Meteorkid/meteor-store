@@ -78,7 +78,7 @@ export default function StatsSection() {
     <section className="py-16 relative">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {stats.map((stat, index) => (
+          {stats.map((stat) => (
             <GlassCard
               key={stat.labelKey}
               className="group p-6 rounded-2xl text-center scroll-animate"

@@ -39,7 +39,7 @@ export default function PricingSection() {
         isPopular: true,
       };
     })
-    .filter((p): p is NonNullable<typeof p> => p !== null), []);
+    .filter((p): p is NonNullable<typeof p> => p !== null), [locale]);
 
   return (
     <section id="pricing" className="py-20">

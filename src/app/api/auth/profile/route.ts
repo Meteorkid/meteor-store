@@ -7,7 +7,6 @@ import { createSession, getSession } from '@/lib/auth';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { isR2Configured, keyFromUrl, deleteAvatar } from '@/lib/avatar-storage';
 
-const MAX_AVATAR_BYTES = 150_000;
 const MAX_DATAURL_BYTES = 200_000;
 
 // R2 配置好时：avatar 必须是 R2 公开 URL（https），或空字符串表示删除头像

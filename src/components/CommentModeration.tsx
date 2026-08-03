@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { runCancellableTask } from '@/lib/cancellable-task';
 
@@ -35,7 +36,14 @@ const statusKey: Record<string, string> = {
 function Avatar({ name, url }: { name: string; url: string | null }) {
   const initial = name[0]?.toUpperCase() ?? '?';
   return url ? (
-    <img src={url} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
+    <Image
+      src={url}
+      alt=""
+      width={32}
+      height={32}
+      unoptimized
+      className="h-8 w-8 shrink-0 rounded-full object-cover"
+    />
   ) : (
     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
       {initial}

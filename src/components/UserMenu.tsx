@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
@@ -45,7 +46,14 @@ export default function UserMenu() {
         aria-label={t('userMenuAria')}
       >
         {user.avatarUrl ? (
-          <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+          <Image
+            src={user.avatarUrl}
+            alt=""
+            width={32}
+            height={32}
+            unoptimized
+            className="h-full w-full object-cover"
+          />
         ) : (
           initial
         )}

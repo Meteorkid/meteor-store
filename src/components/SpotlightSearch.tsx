@@ -116,7 +116,7 @@ export default function SpotlightSearch() {
       .map(id => index.find(e => e.id === id))
       .filter((e): e is SearchEntry => e != null);
     return { recent, popular };
-  }, [recentIds]);
+  }, [recentIds, locale]);
 
   const isEmpty = query.trim() === '';
   const allDefault = useMemo(

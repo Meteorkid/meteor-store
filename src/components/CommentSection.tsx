@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { runCancellableTask } from '@/lib/cancellable-task';
@@ -36,7 +37,14 @@ function timeAgo(
 function Avatar({ name, url }: { name: string; url: string | null }) {
   const initial = name[0]?.toUpperCase() ?? '?';
   return url ? (
-    <img src={url} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
+    <Image
+      src={url}
+      alt=""
+      width={32}
+      height={32}
+      unoptimized
+      className="h-8 w-8 shrink-0 rounded-full object-cover"
+    />
   ) : (
     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
       {initial}
@@ -106,18 +114,6 @@ export default function CommentSection({ targetId }: { targetId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [reportTarget, setReportTarget] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/comments?targetId=${encodeURIComponent(targetId)}`);
-      const data = await res.json();
-      setComments(data.comments ?? []);
-    } catch {
-      /* 评论加载失败不影响阅读 */
-    } finally {
-      setLoading(false);
-    }
-  }, [targetId]);
 
   // targetId 变化时回到 loading：渲染期调整状态
   const [prevTargetId, setPrevTargetId] = useState(targetId);

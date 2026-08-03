@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
+import NextImage from 'next/image';
 import { useTranslations } from 'next-intl';
 
 const SIZE = 256;
@@ -147,9 +148,12 @@ export default function AvatarUpload({
         } ${disabled || uploading ? 'pointer-events-none opacity-50' : ''}`}
       >
         {displayUrl ? (
-          <img
+          <NextImage
             src={displayUrl}
             alt={t('avatarAlt')}
+            width={96}
+            height={96}
+            unoptimized
             className="h-full w-full object-cover"
           />
         ) : (

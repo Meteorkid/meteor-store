@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { eq, desc } from 'drizzle-orm';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -94,9 +95,12 @@ export default async function AccountPage({
           <section className="glass-card mb-10 rounded-3xl p-7 md:p-9">
             <div className="flex flex-wrap items-center gap-5">
               {user.avatarUrl ? (
-                <img
+                <Image
                   src={user.avatarUrl}
                   alt=""
+                  width={64}
+                  height={64}
+                  unoptimized
                   className="h-16 w-16 shrink-0 rounded-full object-cover"
                 />
               ) : (

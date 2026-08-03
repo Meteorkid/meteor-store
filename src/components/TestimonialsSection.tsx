@@ -79,7 +79,7 @@ export default function TestimonialsSection() {
 
         {/* Testimonials grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
+          {testimonials.map((testimonial) => (
             <GlassCard
               key={testimonial.name}
               className="group p-6 rounded-2xl hover:border-t-white/[0.25] scroll-animate"

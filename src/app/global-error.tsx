@@ -4,8 +4,6 @@ import { useEffect, useSyncExternalStore } from 'react';
 import zhMessages from '../../messages/zh.json';
 import enMessages from '../../messages/en.json';
 
-type Messages = typeof zhMessages;
-
 function subscribePathname(notify: () => void): () => void {
   if (typeof window === 'undefined') return () => {};
   window.addEventListener('popstate', notify);

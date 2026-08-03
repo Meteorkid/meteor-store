@@ -29,7 +29,10 @@ export async function GET() {
   const posts = await getPostsByAuthor(session.userId);
   // 只回列表需要的字段，正文可能很长
   return NextResponse.json({
-    posts: posts.map(({ content: _content, ...rest }) => rest),
+    posts: posts.map(({ content, ...rest }) => {
+      void content;
+      return rest;
+    }),
   });
 }
 
