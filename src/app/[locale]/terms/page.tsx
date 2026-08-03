@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Link } from '@/i18n/navigation';
 
 export async function generateMetadata({
   params,
@@ -34,69 +35,99 @@ export default async function TermsPage({
           <p className="text-gray-400 text-sm mb-8">{t('lastUpdated')}：{t('lastUpdatedDate')}</p>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section1Title')}</h2>
-            <p className="text-gray-300 leading-relaxed">
-              {t('section1Content')}
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">{t('operatorTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('operatorContent')}</p>
+            <dl className="text-gray-300 leading-relaxed mt-3 space-y-1">
+              <div className="flex flex-wrap gap-x-2">
+                <dt className="text-gray-500">{t('operatorName')}：</dt>
+                <dd>{t('operatorNamePlaceholder')}</dd>
+              </div>
+              <div className="flex flex-wrap gap-x-2">
+                <dt className="text-gray-500">{t('operatorCreditCode')}：</dt>
+                <dd>{t('operatorCreditCodePlaceholder')}</dd>
+              </div>
+              <div className="flex flex-wrap gap-x-2">
+                <dt className="text-gray-500">{t('operatorAddress')}：</dt>
+                <dd>{t('operatorAddressPlaceholder')}</dd>
+              </div>
+            </dl>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section2Title')}</h2>
-            <p className="text-gray-300 leading-relaxed">
-              {t('section2Content')}
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">{t('serviceTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('serviceContent')}</p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section3Title')}</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('accountTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('accountContent')}</p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">{t('paymentTitle')}</h2>
             <ul className="text-gray-300 leading-relaxed space-y-1 list-disc list-inside">
               <li>{t('payment1')}</li>
               <li>{t('payment2')}</li>
               <li>{t('payment3')}</li>
               <li>{t('payment4')}</li>
+              <li>{t('payment5')}</li>
             </ul>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section4Title')}</h2>
-            <p className="text-gray-300 leading-relaxed">
-              {t('section4Content')}
+            <h2 className="text-2xl font-semibold mb-4">{t('refundTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('refundContent')}</p>
+            <p className="mt-2">
+              <Link href="/refund" className="text-purple-400 hover:text-purple-300">{t('refundLinkText')}</Link>
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section5Title')}</h2>
-            <p className="text-gray-300 leading-relaxed">
-              {t('section5Content')}
+            <h2 className="text-2xl font-semibold mb-4">{t('ipTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('ipContent')}</p>
+            <p className="mt-2">
+              <Link href="/eula" className="text-purple-400 hover:text-purple-300">{t('ipLinkText')}</Link>
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section6Title')}</h2>
-            <p className="text-gray-300 leading-relaxed">
-              {t('section6Content')}
+            <h2 className="text-2xl font-semibold mb-4">{t('conductTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('conductContent')}</p>
+            <ul className="text-gray-300 leading-relaxed mt-2 space-y-1 list-disc list-inside">
+              <li>{t('conduct1')}</li>
+              <li>{t('conduct2')}</li>
+              <li>{t('conduct3')}</li>
+              <li>{t('conduct4')}</li>
+              <li>{t('conduct5')}</li>
+            </ul>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">{t('disclaimerTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('disclaimerContent')}</p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">{t('terminationTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('terminationContent')}</p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">{t('changesTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('changesContent')}</p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">{t('lawTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('lawContent')}</p>
+            <p className="text-gray-300 mt-2">
+              {t('lawJurisdiction')}：{t('lawJurisdictionPlaceholder')}
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section7Title')}</h2>
-            <p className="text-gray-300 leading-relaxed">
-              {t('section7Content')}
-            </p>
-          </section>
-
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section8Title')}</h2>
-            <p className="text-gray-300 leading-relaxed">
-              {t('section8Content')}
-            </p>
-          </section>
-
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section9Title')}</h2>
-            <p className="text-gray-300 leading-relaxed">
-              {t('section9Content')}
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">{t('contactTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed">{t('contactContent')}</p>
             <p className="text-gray-300 mt-2">
               {t('email')}：<a href="mailto:meteor@stu.gpnu.edu.cn" className="text-purple-400 hover:text-purple-300">meteor@stu.gpnu.edu.cn</a>
             </p>

@@ -37,6 +37,29 @@ export default async function ContactPage({
 
           {/* 联系方式卡片 */}
           <div className="space-y-6">
+            {/* 经营者信息（《电子商务法》第 15 条要求的主体公示） */}
+            <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-2xl">🏪</span>
+                <h2 className="text-lg font-semibold">{t('operatorTitle')}</h2>
+              </div>
+              <dl className="space-y-2 text-sm">
+                <div className="flex flex-wrap gap-x-2">
+                  <dt className="text-gray-500">{t('operatorName')}：</dt>
+                  <dd className="text-gray-300">{t('operatorNamePlaceholder')}</dd>
+                </div>
+                <div className="flex flex-wrap gap-x-2">
+                  <dt className="text-gray-500">{t('operatorCreditCode')}：</dt>
+                  <dd className="text-gray-300">{t('operatorCreditCodePlaceholder')}</dd>
+                </div>
+                <div className="flex flex-wrap gap-x-2">
+                  <dt className="text-gray-500">{t('operatorAddress')}：</dt>
+                  <dd className="text-gray-300">{t('operatorAddressPlaceholder')}</dd>
+                </div>
+              </dl>
+              <p className="mt-4 text-xs text-gray-600">{t('operatorNote')}</p>
+            </div>
+
             {/* 邮箱 */}
             <div className="p-6 bg-white/5 rounded-xl border border-white/10">
               <div className="flex items-center gap-3 mb-3">

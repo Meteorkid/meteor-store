@@ -305,9 +305,28 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
           <p className="rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400">{error}</p>
         )}
 
+        {mode === 'register' && (
+          <label className="flex items-start gap-2.5 text-xs leading-relaxed text-gray-400">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-violet-600"
+            />
+            <span>
+              {t('agreeCheckboxPrefix')}{' '}
+              <Link href="/terms" className="text-violet-400 hover:text-violet-300">{t('termsLink')}</Link>
+              {t('agreeSep')}
+              <Link href="/privacy" className="text-violet-400 hover:text-violet-300">{t('privacyLink')}</Link>
+              {' '}{t('and')}{' '}
+              <Link href="/eula" className="text-violet-400 hover:text-violet-300">{t('eulaLink')}</Link>
+            </span>
+          </label>
+        )}
+
         <button
           type="submit"
-          disabled={loading || (mode === 'register' && !captcha)}
+          disabled={loading || (mode === 'register' && (!captcha || !agreed))}
           className="w-full rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
         >
           {loading ? t('processing') : mode === 'login' ? t('loginButton') : t('registerButton')}
@@ -325,14 +344,16 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
         </button>
       </p>
 
-      <div className="mt-8 border-t border-white/[0.06] pt-6">
-        <p className="text-center text-xs text-gray-600">
-          {t('agreePrefix')}{' '}
-          <Link href="/terms" className="text-gray-400 hover:text-white">{t('termsLink')}</Link>
-          {' '}{t('and')}{' '}
-          <Link href="/privacy" className="text-gray-400 hover:text-white">{t('privacyLink')}</Link>
-        </p>
-      </div>
+      {mode === 'login' && (
+        <div className="mt-8 border-t border-white/[0.06] pt-6">
+          <p className="text-center text-xs text-gray-600">
+            {t('agreePrefix')}{' '}
+            <Link href="/terms" className="text-gray-400 hover:text-white">{t('termsLink')}</Link>
+            {' '}{t('and')}{' '}
+            <Link href="/privacy" className="text-gray-400 hover:text-white">{t('privacyLink')}</Link>
+          </p>
+        </div>
+      )}
     </div>
   );
 }

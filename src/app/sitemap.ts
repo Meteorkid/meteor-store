@@ -21,6 +21,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/feedback`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.3 },
     { url: `${BASE_URL}/privacy`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.2 },
     { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.2 },
+    { url: `${BASE_URL}/eula`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.2 },
+    { url: `${BASE_URL}/refund`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.2 },
   ];
 
   // 为每个静态页面生成双语版本

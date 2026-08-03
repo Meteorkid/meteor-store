@@ -395,6 +395,29 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - **Hook 调用顺序**：`useCallback`/`useMemo`/`useEffect` 等所有 Hook 必须在任何 `if (...) return` 之前调用，
   条件调用 Hook 会触发 `react-hooks/rules-of-hooks` error
 
+## 经营主体信息（个体工商户合规）
+
+网站以个体工商户主体经营，需公示的信息**全部走 i18n 占位符**，备案通过后统一回填。
+占位符形如 `[待填写：XXX]` / `[TBD: XXX]`，中英各一份，**改一处必须改另一处**。
+
+| 信息 | 命名空间与 key | 展示位置 |
+|------|---------------|---------|
+| ICP 备案号 | `Footer.icpPlaceholder` | 全站页脚，链接 beian.miit.gov.cn |
+| 公安备案号 | `Footer.policePlaceholder` | 全站页脚，链接 beian.mps.gov.cn |
+| 经营者名称 | `Footer.operatorPlaceholder`、`ContactPage.operatorNamePlaceholder`、`TermsPage.operatorNamePlaceholder`、`PrivacyPage.controllerNamePlaceholder` | 页脚、`/contact`、`/terms`、`/privacy` |
+| 统一社会信用代码 | `ContactPage.operatorCreditCodePlaceholder`、`TermsPage.operatorCreditCodePlaceholder` | `/contact`、`/terms` |
+| 经营地址 | `ContactPage.operatorAddressPlaceholder`、`TermsPage.operatorAddressPlaceholder`、`PrivacyPage.controllerAddressPlaceholder` | `/contact`、`/terms`、`/privacy` |
+| 管辖法院所在地 | `TermsPage.lawJurisdictionPlaceholder` | `/terms` 第 11 节 |
+
+回填后用 `grep -rn "待填写\|TBD:" messages/` 确认无残留。
+
+- **法律页面共 4 个**：`/privacy`（13 节，PIPL 口径）、`/terms`（12 节）、`/eula`、`/refund`，
+  四个页面都在 Footer 的 `legalLinks` 里，也都进了 `sitemap.ts` 的 `staticPages`（自动生成双语条目）
+- **注册必须勾选同意**：`AuthForm` 的 `agreed` state 与 captcha 一起门控注册按钮
+  （`disabled={loading || (mode === 'register' && (!captcha || !agreed))}`）。
+  这是《个人信息保护法》要求的「同意」处理依据，不要改回被动告知文案
+- 支付宝商户签约审核会逐项打开这些页面核对，缺页或信息不实是常见驳回原因
+
 ## 验证与 CI
 
 `.github/workflows/ci.yml` 在 push 到 main 和所有 PR 上跑：
@@ -464,3 +487,30 @@ pnpm build                  # 构建
 - **开发者**: meteor
 - **邮箱**: meteor@stu.gpnu.edu.cn
 - **网站**: https://imagentx.top
+
+
+<claude-mem-context>
+# Memory Context
+
+# [meteor-store] recent context, 2026-08-03 10:26pm GMT+8
+
+Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
+Format: ID TIME TYPE TITLE
+Fetch details: get_observations([IDs]) | Search: mem-search skill
+
+Stats: 1 obs (66t read) | 22,855t work | 100% savings
+
+### Jul 31, 2026
+42 3:14p ⚖️ 个人主页功能优化需求确立
+S29 优化个人主页功能，添加头像修改、联网搜索其他个人主页设计作为参考 (Jul 31 at 11:11 PM)
+**Investigated**: 主会话正在调查项目现状：读取了 AuthProvider.tsx 了解认证上下文（User 接口含 id/email/name/isAdmin）；检查了 /api/auth/me 路由（isAdmin 每次请求现算不存 JWT）；查看了 products 页面结构；确认了 license_keys 表结构；搜索了 bio/个人简介相关字段（未找到任何引用）。
+
+**Learned**: 项目 meteor-store 是 Next.js 电商项目（Drizzle ORM + PostgreSQL）。User 接口目前只有 id/email/name/isAdmin 四个字段。数据库 users 表已有 avatarUrl 字段但前端未使用。无 bio/个人简介字段。当前个人主页功能包括：首字母头像、昵称展示、邮箱、加入时间、邮箱验证状态、学生身份标识、修改昵称、修改密码。
+
+**Completed**: 尚在调研阶段，未开始编码。已派研究代理在后台搜索个人主页设计参考。已完整梳理现有功能缺口。
+
+**Next Steps**: 等待研究代理返回设计参考结果，然后开始实现：头像上传/修改功能（利用已有的 avatarUrl 字段）、bio 个人简介字段、授权码列表展示、投稿记录展示等个人主页功能完善。
+
+
+Access 23k tokens of past work via get_observations([IDs]) or mem-search skill.
+</claude-mem-context>
