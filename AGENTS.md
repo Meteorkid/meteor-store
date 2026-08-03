@@ -196,6 +196,43 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - 切换收藏状态**不需要 revalidatePath**：收藏数和状态都由 `PostStats` 客户端组件
   挂载时 fetch，列表页收藏数也是动态渲染。和点赞一样是「读时不缓存，写时不失效」
 
+### UGC 举报
+
+覆盖评论与读者投稿两种 UGC 内容。站主自己的文件文章不走举报——有问题直接 GitHub PR。
+服务层在 [src/lib/reports.ts](file:///Users/meteor/github/meteor-store/src/lib/reports.ts)，
+用户提交 API `POST /api/reports`，管理员审核 API `GET/PATCH /api/admin/reports`，
+审核页 `/admin/reports`，UI 入口在每条评论旁和投稿详情页头部。
+
+- `reports` 表字段：`targetType`（comment|post）、`targetId`、`reporterId`、
+  `reason`（spam|abuse|nsfw|illegal|other）、`detail`、`status`（pending|resolved|dismissed）、
+  `resolverId`、`resolvedAt`。**无外键**——与全站其它表保持一致，
+  注销用户/下架文章后举报记录保留作留痕
+- **不做"同一用户对同一目标只能举报一次"约束**：用户可能因新增违规内容再次举报。
+  队列由管理员侧按 `(targetType, targetId)` 聚合查看，重复举报不挤压队列
+- **目标存在性校验**：评论必须存在（任意状态可举报，pending 的评论管理员可能还没看到问题）；
+  投稿必须存在且只在 `published` 状态可举报（pending 投稿管理员本来就正在审，无需举报）
+- **`resolveReport` 用条件更新**（`where(id AND status='pending')`）：避免两个管理员同时处理同一举报
+- **举报提交只改举报记录状态，不会自动删除/驳回被举报内容**——
+  删除评论走 `/api/admin/comments`、驳回投稿走 `/api/admin/posts`。
+  让管理员显式做这两个动作，避免"举报即删"被人当武器
+- 提交举报接口限流 5 次/分钟/用户+IP（比点赞/收藏 30 次更严），
+  举报不是高频操作且队列是人工处理，被刷会让管理员看不过来；未登录返回 401
+- 管理员审核页用 `listReports(status?)` 查询，**批量取被举报内容预览**：
+  两种 targetType 分别用 `inArray` 一次拉，避免每条都打数据库
+- 管理员首页 `pendingReports` 计数纳入 `getAdminStats`，与 pendingPosts/pendingComments 并列
+
+### PostStats 聚合接口
+
+文章页的统计组件 `PostStats` 挂载时一次性拉取 views/likes/comments/favorites 计数
+和当前用户的 liked/favorited 状态，**用聚合接口 `GET /api/post-stats`** 替代原本的
+4 个独立 fetch（views/likes/comments/favorites 各一个），减少请求数和 RTT。
+
+- 接口在 [src/app/api/post-stats/route.ts](file:///Users/meteor/github/meteor-store/src/app/api/post-stats/route.ts)，
+  6 个查询并行执行（view count / like count / like status / comment count / favorite count / favorite status）
+- **GET 不限流**：所有数据本来就对公众可见，计数查询走索引开销很小
+- 评论数只统计 `status='approved'`（与 `/api/comments` GET 的过滤一致）
+- 点赞/收藏状态查询当前用户命中：未登录时跳过那两个查询（用 `Promise.resolve([{count:0}])` 占位保持并行结构）
+
 ### 作者落款（个性签名）
 
 文章末尾的作者落款分两种，对应两条来源：
@@ -364,7 +401,7 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 
 ```bash
 pnpm exec tsc --noEmit      # 类型
-pnpm exec eslint src        # 0 error（react-hooks/set-state-in-effect 降为 warning，待修）
+pnpm exec eslint src        # 0 error
 pnpm test                   # vitest
 pnpm build                  # 构建
 ```
@@ -377,16 +414,25 @@ pnpm build                  # 构建
 |------|----------|
 | 分页与归档 | 文章超过 20 篇 |
 | 话题提议后台页 | 收到第一条真实提议（现在只发邮件通知） |
-| 阅读进度条 ResizeObserver | 文章里开始放图（图片管线已上线，进度条待加） |
 | `series` 字段 | 辩论区真的开始成对写正反两篇 |
 | 标签筛选/搜索、博客全文搜索 | 标签超过 30 个，或文章超过 20 篇。现在 18 个标签一屏放得下 |
-| 评论 | 投稿跑通、且真的有人投稿之后。评论比投稿难管——量大、无法逐条审 |
-| 投稿的编辑与撤回 | 有作者提出要改已发布的文章 |
 | `posts.author_id` 加外键 | 出现孤儿投稿（作者注销但文章还在）时再说 |
-| 修那 7 处 `react-hooks/set-state-in-effect` | 单独一轮，改用 `useSyncExternalStore`，别夹在别的改动里 |
+| 给所有表加外键约束 | 出现孤儿评论/点赞/收藏/举报记录时。当前全站无外键,设计上已预期 |
+| 评论树形查询优化 | 评论量增长后服务端按层级返回,加 `parentId` 索引 |
+| /admin/comments 也加举报联动入口 | 评论量大后,目前仅 /admin/posts 有,且评论侧已有逐条举报按钮 |
 
-**开放 UGC 前还没做的合规项**：用户协议里的 UGC 条款、举报入口。
-`Footer.tsx` 的 `/eula` 和 `/refund` 也还指向不存在的页面。
+**已完成的待办**（从上表移除,留作记录）：
+- ✅ 阅读进度条（`BlogReadingProgress` 已上线,挂在 `/blog/[slug]` 和 `/blog/p/[id]`）
+- ✅ 投稿的编辑与撤回（`updatePost`/`withdrawPost`/`deletePost` + `PostRowActions`）
+- ✅ 评论（`comments` 表 + `CommentSection` + `/api/comments` + `/admin/comments` 审核页）
+- ✅ `/eula` 和 `/refund` 页面（已创建,Footer 链接有效）
+- ✅ 管理员越权编辑投稿（`asAdmin` 参数 + `/blog/submit?id=&admin=1`）
+- ✅ 博客收藏功能（`post_favorites` 表 + `/api/blog/favorites` + `/blog/favorites` 页）
+- ✅ `feedback`/`topics/propose` 输入净化统一（抽 `src/lib/sanitize.ts` 的 `sanitizeUserInput`,旧 `sanitizeInput` re-export 标 @deprecated）
+- ✅ 用户协议 UGC 条款（EULA 第 8 节:8.1 内容授权 / 8.2 内容责任 / 8.3 审核与下架;提交表单与评论输入区加入「提交即同意」链接到 /eula）
+- ✅ 修完全部 `react-hooks/set-state-in-effect` warning（实际 15 处,非原记的 7 处）,`eslint.config.mjs` 的 warn 覆盖已删,恢复为 error。改法:`useSyncExternalStore` 用于 matchMedia/深夜判定/locale/random quip 等外部状态;"渲染期调整状态"用于依赖变化重置派生状态(SpotlightSearch/InviteCodeManager/TerminalSection);fetch-on-mount 改用内联 fetch + `.then()` 回调,setState 全部异步,并保留事件处理器用的 `fetchXxx` wrapper
+
+**开放 UGC 前还没做的合规项**：（已全部完成）用户协议 UGC 条款、举报入口均已上线。
 
 ---
 
