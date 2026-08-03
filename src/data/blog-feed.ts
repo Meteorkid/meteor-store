@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { getBlogPosts, estimateReadingTime, type BlogPost } from './blog';
 import { buildTagIndex, normalizeTag, type TagSummary } from './blog-tags';
 import { getPublishedUserPosts } from '@/lib/posts';
@@ -50,8 +51,12 @@ export function toFeedSummary(post: FeedPost): FeedPostSummary {
  * 数据库读失败时降级为只有文件文章：投稿看不见比整个博客 500 好。
  *
  * 英文版下不加载用户投稿：投稿都是中文，中英混杂体验不好。
+ *
+ * 用 React cache() 包裹：同一请求内多次调用（BlogList 的 Promise.all、
+ * sitemap.ts、tag 页等）只打一次数据库。不跨请求——审核通过 revalidatePath
+ * 后下一次请求重新填充。
  */
-export async function getFeedPosts(locale: Locale): Promise<FeedPost[]> {
+export const getFeedPosts = cache(async (locale: Locale): Promise<FeedPost[]> => {
   let userPosts: FeedPost[] = [];
 
   if (locale === 'zh') {
@@ -77,7 +82,7 @@ export async function getFeedPosts(locale: Locale): Promise<FeedPost[]> {
   }
 
   return [...getBlogPosts(locale).map(fromFile), ...userPosts].sort((a, b) => b.date.localeCompare(a.date));
-}
+});
 
 export async function getFeedPostsBySection(locale: Locale, sectionId: BlogSectionId): Promise<FeedPost[]> {
   return (await getFeedPosts(locale)).filter((p) => p.section === sectionId);

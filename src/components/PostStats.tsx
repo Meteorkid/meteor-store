@@ -36,7 +36,9 @@ export default function PostStats({
   const [favorited, setFavorited] = useState(initialFavorited);
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
 
-  // On mount, record a view and fetch fresh stats
+  // On mount, record a view and fetch fresh stats.
+  // 用聚合接口 /api/post-stats 一次拿全 4 项计数和当前用户的 liked/favorited 状态,
+  // 替代之前 4 个独立 fetch——减少请求数和 RTT。
   useEffect(() => {
     // Record view (fire-and-forget)
     fetch('/api/views', {
@@ -50,34 +52,15 @@ export default function PostStats({
     // Fetch fresh stats
     const fetchStats = async () => {
       try {
-        const [viewsRes, likesRes, commentsRes, favoritesRes] = await Promise.all([
-          fetch(`/api/views?targetId=${encodeURIComponent(targetId)}`),
-          fetch(`/api/likes?targetId=${encodeURIComponent(targetId)}`),
-          fetch(`/api/comments?targetId=${encodeURIComponent(targetId)}`),
-          fetch(`/api/blog/favorites?targetId=${encodeURIComponent(targetId)}`),
-        ]);
-
-        if (viewsRes.ok) {
-          const viewsData = await viewsRes.json();
-          setViewCount(viewsData.count);
-        }
-
-        if (likesRes.ok) {
-          const likesData = await likesRes.json();
-          setLikeCount(likesData.count);
-          setLiked(likesData.liked);
-        }
-
-        if (commentsRes.ok) {
-          const commentsData = await commentsRes.json();
-          setCommentCount(commentsData.comments?.length ?? 0);
-        }
-
-        if (favoritesRes.ok) {
-          const favoritesData = await favoritesRes.json();
-          setFavoriteCount(favoritesData.count);
-          setFavorited(favoritesData.favorited);
-        }
+        const res = await fetch(`/api/post-stats?targetId=${encodeURIComponent(targetId)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setViewCount(data.viewCount ?? 0);
+        setLikeCount(data.likeCount ?? 0);
+        setLiked(data.liked ?? false);
+        setCommentCount(data.commentCount ?? 0);
+        setFavoriteCount(data.favoriteCount ?? 0);
+        setFavorited(data.favorited ?? false);
       } catch {
         /* 统计加载失败不影响阅读 */
       }
