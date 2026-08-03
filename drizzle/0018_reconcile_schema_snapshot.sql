@@ -1,0 +1,5 @@
+-- Schema snapshot 对账点。
+--
+-- post_favorites 与 reports 的 DDL 已分别由 0013、0014 执行；此文件保留为空操作，
+-- 对应的 0018_snapshot.json 用于让后续 drizzle-kit generate 从真实当前结构继续 diff，
+-- 避免再次生成这两张表。

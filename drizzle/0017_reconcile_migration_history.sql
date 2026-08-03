@@ -1,0 +1,4 @@
+-- 迁移历史对账点。
+--
+-- 0008_add_invite_codes 至 0014_add_reports 曾由人工执行，但没有登记到
+-- meta/_journal.json。本迁移本身不执行 DDL，只用于在补齐 journal 后建立连续历史。

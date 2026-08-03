@@ -71,6 +71,69 @@
       "when": 1785590000000,
       "tag": "0009_add_views_likes_comment_status",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1785590000001,
+      "tag": "0008_add_invite_codes",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785590000002,
+      "tag": "0009_add_user_bio",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1785590000003,
+      "tag": "0010_add_token_version",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1785590000004,
+      "tag": "0011_invite_redemptions_unique",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1785590000005,
+      "tag": "0012_add_comments",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1785604364000,
+      "tag": "0013_add_post_favorites",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1785666485000,
+      "tag": "0014_add_reports",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1785769712612,
+      "tag": "0017_reconcile_migration_history",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1785769757792,
+      "tag": "0018_reconcile_schema_snapshot",
+      "breakpoints": true
     }
   ]
 }
