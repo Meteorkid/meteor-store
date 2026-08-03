@@ -14,6 +14,7 @@ export default function AdminNav() {
     { href: '/admin/review', label: t('review') },
     { href: '/admin/posts', label: t('posts') },
     { href: '/admin/comments', label: t('comments') },
+    { href: '/admin/reports', label: t('reports') },
     { href: '/admin/invite-codes', label: t('inviteCodes') },
   ];
 

@@ -103,7 +103,30 @@ export default async function EulaPage({
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{t('section8Title')}</h2>
+            <h2 className="text-2xl font-semibold mb-4">{t('section8UGCTitle')}</h2>
+            <p className="text-gray-300 leading-relaxed mb-2">{t('ugcIntro')}</p>
+            <h3 className="text-lg font-semibold mt-4 mb-2">{t('ugcLicenseTitle')}</h3>
+            <p className="text-gray-300 leading-relaxed mb-2">{t('ugcLicense')}</p>
+            <h3 className="text-lg font-semibold mt-4 mb-2">{t('ugcResponsibilityTitle')}</h3>
+            <ul className="text-gray-300 leading-relaxed space-y-1 list-disc list-inside">
+              <li>{t('ugcRule1')}</li>
+              <li>{t('ugcRule2')}</li>
+              <li>{t('ugcRule3')}</li>
+              <li>{t('ugcRule4')}</li>
+              <li>{t('ugcRule5')}</li>
+            </ul>
+            <h3 className="text-lg font-semibold mt-4 mb-2">{t('ugcModerationTitle')}</h3>
+            <p className="text-gray-300 leading-relaxed mb-2">{t('ugcModeration')}</p>
+            <ul className="text-gray-300 leading-relaxed space-y-1 list-disc list-inside">
+              <li>{t('ugcModeration1')}</li>
+              <li>{t('ugcModeration2')}</li>
+              <li>{t('ugcModeration3')}</li>
+            </ul>
+            <p className="text-gray-300 leading-relaxed mt-2">{t('ugcReportNote')}</p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">{t('section9ContactTitle')}</h2>
             <p className="text-gray-300 leading-relaxed">
               {t('section8Content')}
             </p>

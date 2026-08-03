@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { feedbacks } from '@/lib/db/schema';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { sanitizeUserInput } from '@/lib/sanitize';
 
 const FeedbackSchema = z.object({
   email: z.string().email().max(254).optional(),
@@ -13,13 +14,11 @@ const FeedbackSchema = z.object({
 });
 
 /**
- * 清理用户输入，移除潜在的 XSS 内容
- * 只剥离字面 HTML 标签；不反转义实体，避免把 &lt;script&gt; 这类
- * 实体编码文本还原成真正的尖括号后重新引入危险内容
+ * @deprecated 改用 src/lib/sanitize.ts 的 sanitizeUserInput。
+ * 保留 re-export 是为了让既有测试 (`__tests__/route.test.ts`) 在重构过渡期不红,
+ * 逻辑实际由共享函数提供,见 AGENTS.md「输入净化统一」一节。
  */
-export function sanitizeInput(input: string): string {
-  return input.replace(/<[^>]*>/g, '').trim();
-}
+export const sanitizeInput = sanitizeUserInput;
 
 export async function POST(request: NextRequest) {
   // 速率限制：每 IP 每分钟最多 5 次
@@ -44,8 +43,8 @@ export async function POST(request: NextRequest) {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
 
-    // 清理内容，移除潜在的 XSS 内容
-    const sanitizedContent = sanitizeInput(content);
+    // 清理内容,移除字面 HTML 标签。详见 src/lib/sanitize.ts。
+    const sanitizedContent = sanitizeUserInput(content);
 
     await db.insert(feedbacks).values({
       id,
@@ -59,7 +58,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Feedback error:', error);
     return NextResponse.json(
-      { error: '提交失败，请稍后重试' },
+      { error: '提交失败，请稍后再试' },
       { status: 500 }
     );
   }

@@ -13,7 +13,9 @@ import { tagHref } from '@/data/blog-tags';
 import { markdownToHtml } from '@/lib/markdown';
 import CommentSection from '@/components/CommentSection';
 import PostStats from '@/components/PostStats';
+import PostReportButton from '@/components/PostReportButton';
 import { isAdminSession } from '@/lib/admin';
+import { safeJsonLd } from '@/lib/seo';
 
 interface UserPostPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -65,7 +67,7 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             '@context': 'https://schema.org',
             '@type': 'BlogPosting',
             headline: post.title,
@@ -142,6 +144,13 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
                   >
                     {t('editPost')}
                   </Link>
+                </>
+              )}
+              {/* 已发布文章才显示举报入口:预览模式（未发布）不需要举报 */}
+              {!isPreview && (
+                <>
+                  <span aria-hidden className="text-white/20">·</span>
+                  <PostReportButton postId={post.id} />
                 </>
               )}
             </div>

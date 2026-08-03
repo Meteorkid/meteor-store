@@ -6,6 +6,7 @@ import { topicProposals } from '@/lib/db/schema';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { sendAdminAlert } from '@/lib/email';
 import { blogSections } from '@/data/blog-sections';
+import { sanitizeUserInput } from '@/lib/sanitize';
 
 /** 只有开放提议的分区能收提议，白名单从分区配置推导 */
 const PROPOSABLE_SECTION_IDS = blogSections
@@ -20,12 +21,11 @@ export const TopicProposalSchema = z.object({
 });
 
 /**
- * 剥离字面 HTML 标签。与 feedback 一致：不反转义实体，
- * 避免把 &lt;script&gt; 还原成真正的标签。
+ * @deprecated 改用 src/lib/sanitize.ts 的 sanitizeUserInput。
+ * 保留 re-export 是为了让既有测试 (`__tests__/route.test.ts`) 在重构过渡期不红,
+ * 逻辑实际由共享函数提供,见 AGENTS.md「输入净化统一」一节。
  */
-export function sanitizeInput(input: string): string {
-  return input.replace(/<[^>]*>/g, '').trim();
-}
+export const sanitizeInput = sanitizeUserInput;
 
 export async function POST(request: NextRequest) {
   // 速率限制：每 IP 每 10 分钟最多 3 条提议。
@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
     }
 
     const { sectionId, title, pitch, email } = parsed.data;
-    const cleanTitle = sanitizeInput(title);
-    const cleanPitch = sanitizeInput(pitch);
+    const cleanTitle = sanitizeUserInput(title);
+    const cleanPitch = sanitizeUserInput(pitch);
 
     // 清理后可能被掏空（整条内容都是标签）
     if (!cleanTitle || !cleanPitch) {
@@ -75,6 +75,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Topic proposal error:', error);
-    return NextResponse.json({ error: '提交失败，请稍后重试' }, { status: 500 });
+    return NextResponse.json({ error: '提交失败，请稍后再试' }, { status: 500 });
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useRouter } from '@/i18n/navigation';
+import { useRouter, Link } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { blogSections } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
@@ -300,6 +300,17 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
         </button>
         <p className="t-footnote text-white/45">{t('reviewHint')}</p>
       </div>
+
+      {/* UGC 条款提示:提交即视为同意 EULA 第 8 节 */}
+      <p className="t-footnote mt-3 text-white/40">
+        {t.rich('ugcConsent', {
+          link: (chunks) => (
+            <Link href="/eula" className="text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white">
+              {chunks}
+            </Link>
+          ),
+        })}
+      </p>
     </form>
   );
 }

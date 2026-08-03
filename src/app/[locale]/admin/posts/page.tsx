@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
 import { getAllPosts } from '@/lib/admin-stats';
+import { countPendingReports } from '@/lib/reports';
 import { getSectionById } from '@/data/blog-sections';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -41,6 +42,18 @@ export default async function PostsPage({
 
   const allPosts = await getAllPosts();
 
+  // 批量取每个数据库投稿的 pending 举报数,文件文章不参与(站主文章不走举报)
+  const dbPostIds = allPosts
+    .filter((p) => p.source === 'database')
+    .map((p) => p.id);
+  let pendingReports = new Map<string, number>();
+  try {
+    pendingReports = await countPendingReports('post', dbPostIds);
+  } catch (err) {
+    // 举报读失败不影响列表展示,只是不显示举报数
+    console.error('读取投稿 pending 举报数失败', err);
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
@@ -68,6 +81,7 @@ export default async function PostsPage({
                     <th className="py-3 pr-4 font-medium">{t('tableAuthor')}</th>
                     <th className="py-3 pr-4 font-medium">{t('tableStatus')}</th>
                     <th className="py-3 pr-4 font-medium">{t('tableDate')}</th>
+                    <th className="py-3 pr-4 font-medium">{t('tableReports')}</th>
                     <th className="py-3 pr-4 font-medium">{t('tableActions')}</th>
                   </tr>
                 </thead>
@@ -121,6 +135,28 @@ export default async function PostsPage({
                         </td>
                         <td className="py-3 pr-4 text-white/50 tabular-nums whitespace-nowrap">
                           {formatDate(date)}
+                        </td>
+                        <td className="py-3 pr-4 whitespace-nowrap">
+                          {post.source === 'database' ? (
+                            (() => {
+                              const n = pendingReports.get(post.id) ?? 0;
+                              if (n === 0) {
+                                return <span className="text-white/25">—</span>;
+                              }
+                              return (
+                                <Link
+                                  href={`/admin/reports?status=pending&targetType=post&targetId=${post.id}`}
+                                  className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-xs font-medium text-red-300 transition-colors hover:bg-red-500/25"
+                                  title={t('reportsHint', { count: n })}
+                                >
+                                  <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                                  {n}
+                                </Link>
+                              );
+                            })()
+                          ) : (
+                            <span className="text-white/25">—</span>
+                          )}
                         </td>
                         <td className="py-3 pr-4">
                           <a

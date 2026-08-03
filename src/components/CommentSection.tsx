@@ -5,11 +5,11 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { runCancellableTask } from '@/lib/cancellable-task';
 import { useAuth } from './AuthProvider';
+import ReportDialog from './ReportDialog';
 
 interface Comment {
   id: string;
   targetId: string;
-  authorId: string;
   authorName: string;
   authorAvatar: string | null;
   content: string;
@@ -47,11 +47,13 @@ function Avatar({ name, url }: { name: string; url: string | null }) {
 function CommentItem({
   comment,
   onReply,
+  onReport,
   depth = 0,
   children,
 }: {
   comment: Comment;
   onReply: (parentId: string, name: string) => void;
+  onReport: (commentId: string) => void;
   depth?: number;
   children?: React.ReactNode;
 }) {
@@ -69,15 +71,24 @@ function CommentItem({
           <p className="mt-1 text-[0.9375rem] leading-relaxed text-white/70 whitespace-pre-wrap break-words">
             {comment.content}
           </p>
-          {depth === 0 && (
+          <div className="mt-1.5 flex items-center gap-3">
+            {depth === 0 && (
+              <button
+                type="button"
+                onClick={() => onReply(comment.id, comment.authorName)}
+                className="text-xs text-white/40 transition-colors hover:text-white/70"
+              >
+                {t('reply')}
+              </button>
+            )}
             <button
               type="button"
-              onClick={() => onReply(comment.id, comment.authorName)}
-              className="mt-1.5 text-xs text-white/40 transition-colors hover:text-white/70"
+              onClick={() => onReport(comment.id)}
+              className="text-xs text-white/30 transition-colors hover:text-red-400"
             >
-              {t('reply')}
+              {t('report')}
             </button>
-          )}
+          </div>
         </div>
       </div>
       {children}
@@ -94,6 +105,7 @@ export default function CommentSection({ targetId }: { targetId: string }) {
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [reportTarget, setReportTarget] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -182,12 +194,14 @@ export default function CommentSection({ targetId }: { targetId: string }) {
               key={c.id}
               comment={c}
               onReply={(id, name) => setReplyTo({ id, name })}
+              onReport={(commentId) => setReportTarget(commentId)}
             >
               {getReplies(c.id).map((r) => (
                 <CommentItem
                   key={r.id}
                   comment={r}
                   onReply={() => {}}
+                  onReport={(commentId) => setReportTarget(commentId)}
                   depth={1}
                 />
               ))}
@@ -236,6 +250,16 @@ export default function CommentSection({ targetId }: { targetId: string }) {
                     </button>
                   </div>
                 </div>
+                {/* UGC 条款提示:提交评论即视为同意 EULA 第 8 节 */}
+                <p className="t-footnote mt-2 text-white/30">
+                  {t.rich('ugcConsent', {
+                    link: (chunks) => (
+                      <Link href="/eula" className="text-white/50 underline decoration-white/15 underline-offset-4 transition-colors hover:text-white/80">
+                        {chunks}
+                      </Link>
+                    ),
+                  })}
+                </p>
               </div>
             </div>
           </form>
@@ -250,6 +274,15 @@ export default function CommentSection({ targetId }: { targetId: string }) {
           </div>
         )}
       </div>
+
+      {/* 举报对话框:用户点评论旁的举报按钮时打开 */}
+      {reportTarget && (
+        <ReportDialog
+          targetType="comment"
+          targetId={reportTarget}
+          onClose={() => setReportTarget(null)}
+        />
+      )}
     </section>
   );
 }

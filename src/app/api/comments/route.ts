@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq, asc } from 'drizzle-orm';
+import { and, eq, asc } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { comments, users } from '@/lib/db/schema';
@@ -12,16 +12,28 @@ const CommentSchema = z.object({
   parentId: z.string().nullable().optional(),
 });
 
+/** 公开评论返回的字段——不包含 authorId(内部用户 ID)、status、reviewedAt 等内部字段 */
+const publicCommentColumns = {
+  id: comments.id,
+  targetId: comments.targetId,
+  authorName: comments.authorName,
+  authorAvatar: comments.authorAvatar,
+  content: comments.content,
+  parentId: comments.parentId,
+  createdAt: comments.createdAt,
+} as const;
+
 export async function GET(req: NextRequest) {
   const targetId = req.nextUrl.searchParams.get('targetId');
   if (!targetId) {
     return NextResponse.json({ error: '缺少 targetId' }, { status: 400 });
   }
 
+  // 只返回 approved 评论——管理员审核 pending/rejected 后,这些评论对公众不再可见
   const rows = await db
-    .select()
+    .select(publicCommentColumns)
     .from(comments)
-    .where(eq(comments.targetId, targetId))
+    .where(and(eq(comments.targetId, targetId), eq(comments.status, 'approved')))
     .orderBy(asc(comments.createdAt));
 
   return NextResponse.json({ comments: rows });
@@ -53,6 +65,28 @@ export async function POST(req: NextRequest) {
     .where(eq(users.id, session.userId))
     .limit(1);
 
+  // 校验 parentId:必须存在、属于同一 targetId、且是顶层评论(防止无限嵌套)
+  // 只允许回复顶层评论(parentId 为 null),不允许对回复再回复——限制深度为 2 层
+  if (parsed.data.parentId) {
+    const [parent] = await db
+      .select({ targetId: comments.targetId, parentId: comments.parentId })
+      .from(comments)
+      .where(eq(comments.id, parsed.data.parentId))
+      .limit(1);
+
+    if (!parent) {
+      return NextResponse.json({ error: '回复的评论不存在' }, { status: 400 });
+    }
+    if (parent.targetId !== parsed.data.targetId) {
+      // 防止跨文章回复:A 文章的评论不能用 B 文章的 parentId
+      return NextResponse.json({ error: '回复的评论不属于该文章' }, { status: 400 });
+    }
+    if (parent.parentId !== null) {
+      // 父评论本身就是回复,不允许对回复再回复(限制深度)
+      return NextResponse.json({ error: '不能回复子评论' }, { status: 400 });
+    }
+  }
+
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
@@ -71,7 +105,6 @@ export async function POST(req: NextRequest) {
     comment: {
       id,
       targetId: parsed.data.targetId,
-      authorId: session.userId,
       authorName: user?.name || session.name || session.email.split('@')[0],
       authorAvatar: user?.avatarUrl ?? null,
       content: parsed.data.content,

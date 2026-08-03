@@ -14,6 +14,7 @@ import PostSignature from '@/components/PostSignature';
 import { routing, type Locale } from '@/i18n/routing';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
+import { safeJsonLd } from '@/lib/seo';
 
 interface BlogPostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -76,7 +77,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             '@context': 'https://schema.org',
             '@type': 'BlogPosting',
             headline: post.title,

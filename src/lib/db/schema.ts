@@ -201,3 +201,32 @@ export const postFavorites = pgTable('post_favorites', {
   index('post_favorites_target_idx').on(t.targetId),
   index('post_favorites_user_idx').on(t.userId),
 ]);
+
+/**
+ * UGC 举报记录。覆盖评论与读者投稿两种内容。
+ *
+ * 不加外键（与全站其它表保持一致：comments / likes / favorites 都没有外键到 posts / users）。
+ * 注销用户或下架文章后举报记录保留作为留痕,管理员页只读不删。
+ *
+ * 状态机：pending →（管理员处理）→ resolved（采纳,通常会再删/驳被举报内容）/ dismissed（驳回）
+ */
+export const reports = pgTable('reports', {
+  id: text('id').primaryKey(),
+  /** 'comment' = 评论；'post' = 读者投稿（数据库文章） */
+  targetType: text('target_type').notNull(), // comment | post
+  /** 评论 ID 或 posts.id */
+  targetId: text('target_id').notNull(),
+  reporterId: text('reporter_id').notNull(),
+  /** 预设原因：spam / abuse / nsfw / illegal / other */
+  reason: text('reason').notNull(),
+  /** 详细描述（可选，最长 500 字） */
+  detail: text('detail'),
+  status: text('status').default('pending').notNull(), // pending | resolved | dismissed
+  resolverId: text('resolver_id'),
+  resolvedAt: text('resolved_at'),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  index('reports_status_idx').on(t.status),
+  index('reports_target_idx').on(t.targetType, t.targetId),
+  index('reports_reporter_idx').on(t.reporterId),
+]);
