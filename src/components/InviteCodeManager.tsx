@@ -40,11 +40,14 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
 
   const selectedProduct = products.find((p) => p.id === productId);
 
-  useEffect(() => {
+  // 切换产品时重置套餐为该产品的第一个：渲染期调整状态，避免 effect 里同步 setState
+  const [prevProductId, setPrevProductId] = useState(productId);
+  if (productId !== prevProductId) {
+    setPrevProductId(productId);
     if (selectedProduct) {
       setPlanName(selectedProduct.plans[0] ?? '');
     }
-  }, [productId, selectedProduct]);
+  }
 
   const fetchCodes = async () => {
     setLoading(true);

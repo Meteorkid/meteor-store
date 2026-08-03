@@ -30,14 +30,20 @@ export default function TerminalSection() {
   const bodyRef = useRef<HTMLDivElement>(null);
   const navigateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 自动演示模式：打字 help → 显示输出 → 循环（进入交互后停止）
-  useEffect(() => {
-    if (interactive) return;
-    if (reducedMotion) {
-      // 安静模式：直接显示一条静态演示
+  // 安静模式：reducedMotion 切换为 true 时直接显示静态 help（渲染期调整状态，
+  // 避免 effect 里同步 setState 触发 react-hooks/set-state-in-effect）
+  const [prevReduced, setPrevReduced] = useState(reducedMotion);
+  if (reducedMotion !== prevReduced) {
+    setPrevReduced(reducedMotion);
+    if (reducedMotion && !interactive) {
       setHistory([{ input: 'help', output: runCommand('help').lines }]);
-      return;
+      setDemoTyped('');
     }
+  }
+
+  // 自动演示模式：打字 help → 显示输出 → 循环（进入交互或安静模式后停止）
+  useEffect(() => {
+    if (interactive || reducedMotion) return;
     let cancelled = false;
     const demo = 'help';
     let i = 0;

@@ -93,9 +93,19 @@ export default function SpotlightSearch() {
 
   const results = useMemo(() => searchEntries(query, locale), [query, locale]);
 
-  useEffect(() => {
+  // 面板打开时刷新最近访问列表：渲染期调整状态，避免 effect 里同步 setState
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (open) setRecentIds(getRecentIds());
-  }, [open]);
+  }
+
+  // 查询变化时重置选中项到第一条：同样是渲染期调整状态
+  const [prevQuery, setPrevQuery] = useState(query);
+  if (query !== prevQuery) {
+    setPrevQuery(query);
+    setActiveIndex(0);
+  }
 
   const defaultEntries = useMemo(() => {
     const index = getIndex(locale);
@@ -182,10 +192,6 @@ export default function SpotlightSearch() {
       ?.querySelector(`[data-index="${activeIndex}"]`)
       ?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex]);
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [query]);
 
   if (!open) return null;
 

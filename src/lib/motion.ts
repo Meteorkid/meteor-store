@@ -1,26 +1,89 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
+
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+function subscribePrefersReducedMotion(notify: () => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const mq = window.matchMedia(REDUCED_MOTION_QUERY);
+  mq.addEventListener('change', notify);
+  return () => mq.removeEventListener('change', notify);
+}
+
+function readPrefersReducedMotion(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
+}
+
+function readPrefersReducedMotionServer(): boolean {
+  return false;
+}
 
 /** 用户是否偏好减少动画（前庭障碍/晕动症关怀，动效组件必须遵守） */
 export function useReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReduced(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, []);
-
-  return reduced;
+  return useSyncExternalStore(
+    subscribePrefersReducedMotion,
+    readPrefersReducedMotion,
+    readPrefersReducedMotionServer,
+  );
 }
 
 /** 深夜时段判定（本地时间 0:00–5:00），树洞模式的开关 */
 export function isLateNight(date: Date = new Date()): boolean {
   const hour = date.getHours();
   return hour >= 0 && hour < 5;
+}
+
+// 深夜时段订阅：每分钟检查一次，跨过 0:00 / 5:00 边界时通知
+const LATE_NIGHT_INTERVAL_MS = 60_000;
+let lateNightCache: { value: boolean; listeners: Set<() => void> } | null = null;
+
+function getLateNightStore() {
+  if (lateNightCache === null) {
+    lateNightCache = { value: false, listeners: new Set() };
+  }
+  return lateNightCache;
+}
+
+function subscribeLateNight(notify: () => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const store = getLateNightStore();
+  // 首次订阅时同步快照
+  store.value = isLateNight();
+  store.listeners.add(notify);
+  const iid = setInterval(() => {
+    const next = isLateNight();
+    if (next !== store.value) {
+      store.value = next;
+      store.listeners.forEach((l) => l());
+    }
+  }, LATE_NIGHT_INTERVAL_MS);
+  return () => {
+    store.listeners.delete(notify);
+    if (store.listeners.size === 0) clearInterval(iid);
+  };
+}
+
+function readLateNight(): boolean {
+  if (typeof window === 'undefined') return false;
+  return isLateNight();
+}
+
+function readLateNightServer(): boolean {
+  return false;
+}
+
+/**
+ * 深夜时段订阅 hook（0:00–5:00）。
+ * 用 useSyncExternalStore 避免渲染期 setState，SSR 一律返回 false。
+ */
+export function useIsLateNight(): boolean {
+  return useSyncExternalStore(
+    subscribeLateNight,
+    readLateNight,
+    readLateNightServer,
+  );
 }
 
 /**

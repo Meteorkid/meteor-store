@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useReducedMotion } from '@/lib/motion';
 
 const WIDE = 'ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ０１２３４５６７８９＃＄％＆＊＜＞';
 const NARROW = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*<>{}[]~';
@@ -28,13 +29,12 @@ interface Props {
 }
 
 export default function ScrambleText({ text, className = '', delay = 0 }: Props) {
+  const reduced = useReducedMotion();
   const [display, setDisplay] = useState('');
-  const [reduced] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
 
+  // 安静模式直接渲染原文，跳过动画 effect
   useEffect(() => {
-    if (reduced) { setDisplay(text); return; }
+    if (reduced) return;
 
     const chars = [...text];
     let locked = 0;
@@ -54,6 +54,7 @@ export default function ScrambleText({ text, className = '', delay = 0 }: Props)
     return () => { clearTimeout(tid); if (iid !== undefined) clearInterval(iid); };
   }, [text, delay, reduced]);
 
+  if (reduced) return <span className={className}>{text}</span>;
   if (!display) return <span className={className} style={{ visibility: 'hidden' }}>{text}</span>;
   return <span className={className}>{display}</span>;
 }

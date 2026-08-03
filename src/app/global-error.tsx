@@ -1,16 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import zhMessages from '../../messages/zh.json';
 import enMessages from '../../messages/en.json';
 
 type Messages = typeof zhMessages;
 
-function getMessages(): Messages {
-  if (typeof window !== 'undefined') {
-    return window.location.pathname.startsWith('/en') ? enMessages : zhMessages;
-  }
-  return zhMessages;
+function subscribePathname(notify: () => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+  window.addEventListener('popstate', notify);
+  return () => window.removeEventListener('popstate', notify);
+}
+
+function readLocale(): 'zh' | 'en' {
+  if (typeof window === 'undefined') return 'zh';
+  return window.location.pathname.startsWith('/en') ? 'en' : 'zh';
+}
+
+function readLocaleServer(): 'zh' | 'en' {
+  return 'zh';
 }
 
 export default function GlobalError({
@@ -20,15 +28,14 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const [messages, setMessages] = useState<Messages>(zhMessages);
+  const locale = useSyncExternalStore(subscribePathname, readLocale, readLocaleServer);
+  const messages = locale === 'en' ? enMessages : zhMessages;
 
   useEffect(() => {
-    setMessages(getMessages());
     console.error('Global error:', error);
   }, [error]);
 
   const t = messages.GlobalError;
-  const locale = messages === enMessages ? 'en' : 'zh';
 
   return (
     <html lang={locale === 'en' ? 'en' : 'zh-CN'}>

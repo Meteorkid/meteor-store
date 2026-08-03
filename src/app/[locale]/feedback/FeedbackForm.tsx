@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { isLateNight } from '@/lib/motion';
+import { useIsLateNight } from '@/lib/motion';
 
 const TYPE_VALUES = ['bug', 'feature', 'question', 'other'] as const;
 const NIGHT_VALUE = 'night-whisper';
@@ -15,7 +15,8 @@ export default function FeedbackForm() {
   const [content, setContent] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
-  const [night, setNight] = useState(false);
+  // 深夜判定走 useSyncExternalStore，SSR 一律返回 false 避免水合警告
+  const night = useIsLateNight();
   // 提交时的类型快照：成功页要用它区分树洞/普通文案（表单字段提交后会被清空）
   const [submittedWhisper, setSubmittedWhisper] = useState(false);
 
@@ -26,11 +27,6 @@ export default function FeedbackForm() {
     other: t('typeOther'),
     [NIGHT_VALUE]: t('typeNightWhisper'),
   };
-
-  // 深夜判定放 effect 里，避免 SSR/客户端时间不一致导致水合警告
-  useEffect(() => {
-    setNight(isLateNight());
-  }, []);
 
   const options = night ? [...TYPE_VALUES, NIGHT_VALUE] : [...TYPE_VALUES];
   const isWhisper = type === NIGHT_VALUE;
