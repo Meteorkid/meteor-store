@@ -122,7 +122,27 @@
     "and": "和",
     "privacyLink": "隐私政策",
     "loginFailed": "登录失败",
-    "registerFailed": "注册失败"
+    "registerFailed": "注册失败",
+    "checkEmailTitle": "检查你的邮箱",
+    "checkEmailSent": "验证邮件已发送。请打开邮件完成验证，然后回来登录。",
+    "checkEmailSendFailed": "账户已创建，但验证邮件发送失败。请点击下方按钮重试。",
+    "emailUnverified": "邮箱尚未验证。请点击下方按钮重新发送验证邮件。",
+    "resendVerification": "重新发送验证邮件",
+    "resendingVerification": "正在发送…",
+    "verificationResent": "新的验证邮件已发送，请检查收件箱和垃圾邮件。",
+    "verificationResentButton": "验证邮件已发送",
+    "backToLogin": "返回登录",
+    "emailVerifiedSuccess": "邮箱验证成功，请登录你的账户。"
+  },
+  "VerifyEmailPage": {
+    "metaTitle": "验证邮箱 - Meteor Store",
+    "processingTitle": "正在验证邮箱",
+    "processingDescription": "请稍候，我们正在确认验证链接。",
+    "successTitle": "邮箱验证成功",
+    "successDescription": "即将返回登录页，请使用密码登录。",
+    "errorTitle": "验证链接无效",
+    "errorDescription": "链接可能已过期或不完整。请返回登录页，输入正确密码后重新发送验证邮件。",
+    "backToLogin": "返回登录"
   },
   "AccountPage": {
     "title": "账户设置",

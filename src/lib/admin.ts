@@ -19,3 +19,9 @@ export function isAdminEmail(email: string | undefined | null): boolean {
   if (admins.length === 0) return false;
   return admins.includes(email.trim().toLowerCase());
 }
+
+export function isAdminSession(
+  session: { email?: string | null; emailVerified?: boolean } | null | undefined,
+): boolean {
+  return session?.emailVerified === true && isAdminEmail(session.email);
+}

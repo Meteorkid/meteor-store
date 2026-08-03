@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PostSubmitForm from '@/components/PostSubmitForm';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { getPostById, type UserPost } from '@/lib/posts';
 import { markdownToHtml } from '@/lib/markdown';
 
@@ -43,7 +43,7 @@ export default async function SubmitPage({
   let initialPost: UserPost | null = null;
   if (id) {
     const post = await getPostById(id);
-    const isAdmin = isAdminEmail(session.email);
+    const isAdmin = isAdminSession(session);
     if (!post || (post.authorId !== session.userId && !isAdmin)) {
       notFound();
     }

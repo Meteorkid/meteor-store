@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import InviteCodeManager from '@/components/InviteCodeManager';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { products } from '@/data/products';
 import type { Locale } from '@/i18n/routing';
 
@@ -17,7 +17,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'AdminInviteCodesPage' });
   const session = await getSession();
-  const allowed = session && isAdminEmail(session.email);
+  const allowed = session && isAdminSession(session);
   return {
     title: allowed ? t('metaTitle') : t('metaNotFound'),
     robots: { index: false, follow: false },
@@ -35,7 +35,7 @@ export default async function InviteCodesPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'AdminInviteCodesPage' });
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) notFound();
+  if (!session || !isAdminSession(session)) notFound();
 
   const productOptions = products.map((p) => ({
     id: p.id,

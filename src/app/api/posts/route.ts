@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { sendAdminAlert } from '@/lib/email';
 import { createPost, getPostsByAuthor } from '@/lib/posts';
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
   const { submit, ...data } = parsed.data;
 
-  const isAdmin = isAdminEmail(session.email);
+  const isAdmin = isAdminSession(session);
 
   const id = await createPost({
     authorId: session.userId,

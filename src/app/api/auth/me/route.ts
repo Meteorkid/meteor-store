@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 
@@ -25,7 +25,7 @@ export async function GET() {
       ...session,
       avatarUrl: row?.avatarUrl ?? null,
       bio: row?.bio ?? null,
-      isAdmin: isAdminEmail(session.email),
+      isAdmin: isAdminSession(session),
     },
   });
 }

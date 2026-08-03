@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdminNav from '@/components/AdminNav';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { getAdminStats } from '@/lib/admin-stats';
 
 export async function generateMetadata({
@@ -16,7 +16,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'AdminDashboardPage' });
   const session = await getSession();
-  const allowed = session && isAdminEmail(session.email);
+  const allowed = session && isAdminSession(session);
   return {
     title: allowed ? t('metaTitle') : t('metaNotFound'),
     robots: { index: false, follow: false },
@@ -34,7 +34,7 @@ export default async function AdminDashboardPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'AdminDashboardPage' });
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) notFound();
+  if (!session || !isAdminSession(session)) notFound();
 
   const stats = await getAdminStats();
 

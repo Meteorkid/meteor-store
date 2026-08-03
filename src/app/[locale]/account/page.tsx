@@ -59,11 +59,13 @@ export default async function AccountPage({
   if (!user) redirect('/login');
 
   const [keys, userPosts] = await Promise.all([
-    db
-      .select()
-      .from(licenseKeys)
-      .where(eq(licenseKeys.email, user.email))
-      .orderBy(desc(licenseKeys.createdAt)),
+    user.emailVerified
+      ? db
+          .select()
+          .from(licenseKeys)
+          .where(eq(licenseKeys.email, user.email))
+          .orderBy(desc(licenseKeys.createdAt))
+      : Promise.resolve([]),
     db
       .select({
         id: posts.id,

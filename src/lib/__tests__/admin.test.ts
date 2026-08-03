@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { isAdminEmail, getAdminEmails } from '../admin';
+import { isAdminEmail, isAdminSession, getAdminEmails } from '../admin';
 
 describe('isAdminEmail', () => {
   beforeEach(() => {
@@ -47,5 +47,12 @@ describe('isAdminEmail', () => {
     process.env.ADMIN_EMAILS = 'boss@example.com';
     expect(isAdminEmail('evil-boss@example.com')).toBe(false);
     expect(isAdminEmail('boss@example.com.evil.com')).toBe(false);
+  });
+
+  it('邮箱命中管理员名单但会话未验证时仍拒绝授权', () => {
+    process.env.ADMIN_EMAILS = 'boss@example.com';
+
+    expect(isAdminSession({ email: 'boss@example.com' })).toBe(false);
+    expect(isAdminSession({ email: 'boss@example.com', emailVerified: true })).toBe(true);
   });
 });

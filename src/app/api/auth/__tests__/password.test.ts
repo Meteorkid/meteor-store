@@ -119,7 +119,12 @@ describe('POST /api/auth/password', () => {
 
   it('改密后重新签发会话，当前设备不会被踢下线', async () => {
     await POST(request({ currentPassword: CURRENT, newPassword: 'brand-new-pass' }));
-    expect(createdSessions[0]).toMatchObject({ userId: 'U1', email: 'a@b.com', name: '小明' });
+    expect(createdSessions[0]).toMatchObject({
+      userId: 'U1',
+      email: 'a@b.com',
+      name: '小明',
+      emailVerified: true,
+    });
   });
 
   it('会话有效但账户已被删除时 401', async () => {

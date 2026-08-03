@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { comments } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 function forbidden() {
@@ -18,7 +18,7 @@ const PatchSchema = z.object({
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) return forbidden();
+  if (!session || !isAdminSession(session)) return forbidden();
 
   const status = req.nextUrl.searchParams.get('status') ?? undefined;
 
@@ -42,7 +42,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) return forbidden();
+  if (!session || !isAdminSession(session)) return forbidden();
 
   const body = await req.json().catch(() => null);
   const parsed = PatchSchema.safeParse(body);
@@ -72,7 +72,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) return forbidden();
+  if (!session || !isAdminSession(session)) return forbidden();
 
   const id = req.nextUrl.searchParams.get('id');
   if (!id) {

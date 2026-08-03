@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { rateLimit } from '@/lib/rate-limit';
 import { getPostById, reviewPost } from '@/lib/posts';
 import { getSectionById } from '@/data/blog-sections';
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   if (!session) {
     return NextResponse.json({ error: '请先登录' }, { status: 401 });
   }
-  if (!isAdminEmail(session.email)) {
+  if (!isAdminSession(session)) {
     // 不透露「这个接口存在但你没权限」，统一按不存在处理
     return NextResponse.json({ error: '没有权限' }, { status: 403 });
   }

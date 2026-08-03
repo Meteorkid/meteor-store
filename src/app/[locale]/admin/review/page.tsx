@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ReviewQueue, { type ReviewItem } from '@/components/ReviewQueue';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { getPendingPosts } from '@/lib/posts';
 import { getSectionById } from '@/data/blog-sections';
 import { markdownToHtml } from '@/lib/markdown';
@@ -23,7 +23,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'AdminReviewPage' });
   const session = await getSession();
-  const allowed = session && isAdminEmail(session.email);
+  const allowed = session && isAdminSession(session);
   return {
     title: allowed ? t('metaTitle') : t('metaNotFound'),
     robots: { index: false, follow: false },
@@ -42,7 +42,7 @@ export default async function ReviewPage({
   const t = await getTranslations({ locale, namespace: 'AdminReviewPage' });
   const session = await getSession();
   // 非管理员按「页面不存在」处理，不暴露后台的存在
-  if (!session || !isAdminEmail(session.email)) notFound();
+  if (!session || !isAdminSession(session)) notFound();
 
   const pending = await getPendingPosts();
 

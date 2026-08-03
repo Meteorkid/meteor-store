@@ -20,17 +20,20 @@ export async function generateMetadata({
 
 export default async function LoginPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ verified?: string }>;
 }) {
   const { locale } = await params;
+  const { verified } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'LoginPage' });
 
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
       <main className="container mx-auto flex items-center justify-center px-4 py-16 md:py-24">
-        <AuthForm />
+        <AuthForm verified={verified === '1'} />
       </main>
       <Footer />
     </div>

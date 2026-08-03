@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/i18n/routing';
 import { Link } from '@/i18n/navigation';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { getAllPosts } from '@/lib/admin-stats';
 import { getSectionById } from '@/data/blog-sections';
 import Header from '@/components/Header';
@@ -19,7 +19,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'AdminPostsPage' });
   const session = await getSession();
-  const allowed = session && isAdminEmail(session.email);
+  const allowed = session && isAdminSession(session);
   return {
     title: allowed ? t('metaTitle') : t('metaNotFound'),
     robots: { index: false, follow: false },
@@ -37,7 +37,7 @@ export default async function PostsPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'AdminPostsPage' });
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) notFound();
+  if (!session || !isAdminSession(session)) notFound();
 
   const allPosts = await getAllPosts();
 

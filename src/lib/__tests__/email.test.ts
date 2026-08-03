@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { sendOrderConfirmation } from '../email';
+import {
+  isEmailDeliveryConfigured,
+  sendEmailVerification,
+  sendOrderConfirmation,
+} from '../email';
 
 // Mock Resend
 const mockSend = vi.fn();
@@ -73,6 +77,8 @@ describe('sendOrderConfirmation', () => {
     vi.clearAllMocks();
     process.env.RESEND_API_KEY = 'test-key';
     process.env.RESEND_FROM_EMAIL = 'test@example.com';
+    process.env.RESEND_REPLY_TO_EMAIL = 'support@example.com';
+    process.env.NEXT_PUBLIC_SITE_URL = 'https://imagentx.top/';
   });
 
   it('should send email with correct content', async () => {
@@ -89,6 +95,7 @@ describe('sendOrderConfirmation', () => {
     expect(mockSend).toHaveBeenCalledOnce();
     const call = mockSend.mock.calls[0][0];
     expect(call.from).toBe('Meteor Store <test@example.com>');
+    expect(call.replyTo).toBe('support@example.com');
     expect(call.to).toBe('buyer@test.com');
     expect(call.subject).toContain('OmniCrawl');
     expect(call.subject).toContain('Pro');
@@ -137,5 +144,39 @@ describe('sendOrderConfirmation', () => {
 
     const call = mockSend.mock.calls[0][0];
     expect(call.html).toContain('Pro &lt;b&gt;Plan&lt;/b&gt;');
+  });
+});
+
+describe('sendEmailVerification', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.RESEND_API_KEY = 'test-key';
+    process.env.RESEND_FROM_EMAIL = 'test@example.com';
+    process.env.RESEND_REPLY_TO_EMAIL = 'support@example.com';
+    process.env.NEXT_PUBLIC_SITE_URL = 'https://imagentx.top/';
+  });
+
+  it('发送中文验证邮件，token 只出现在 URL fragment', async () => {
+    mockSend.mockResolvedValue({ error: null });
+
+    await sendEmailVerification({
+      email: 'user@example.com',
+      token: 'signed.token/value',
+      locale: 'zh',
+    });
+
+    const call = mockSend.mock.calls[0][0];
+    expect(call.replyTo).toBe('support@example.com');
+    expect(call.subject).toContain('验证邮箱');
+    expect(call.html).toContain(
+      'https://imagentx.top/zh/verify-email#token=signed.token%2Fvalue',
+    );
+    expect(call.html).not.toContain('?token=');
+  });
+
+  it('已有 API key 时允许复用默认发件地址', () => {
+    delete process.env.RESEND_FROM_EMAIL;
+
+    expect(isEmailDeliveryConfigured()).toBe(true);
   });
 });

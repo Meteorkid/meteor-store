@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import AdminNav from '@/components/AdminNav';
 import CommentModeration from '@/components/CommentModeration';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 
 export async function generateMetadata({
   params,
@@ -16,7 +16,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'AdminCommentsPage' });
   const session = await getSession();
-  const allowed = session && isAdminEmail(session.email);
+  const allowed = session && isAdminSession(session);
   return {
     title: allowed ? t('metaTitle') : t('metaNotFound'),
     robots: { index: false, follow: false },
@@ -34,7 +34,7 @@ export default async function CommentsPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'AdminCommentsPage' });
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) notFound();
+  if (!session || !isAdminSession(session)) notFound();
 
   return (
     <div className="min-h-screen bg-black text-white">

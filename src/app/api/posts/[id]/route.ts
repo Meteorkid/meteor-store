@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { sendAdminAlert } from '@/lib/email';
 import { updatePost, deletePost, withdrawPost } from '@/lib/posts';
@@ -74,7 +74,7 @@ export async function PATCH(
     return NextResponse.json({ error: '没有要修改的内容' }, { status: 400 });
   }
 
-  const isAdmin = isAdminEmail(session.email);
+  const isAdmin = isAdminSession(session);
 
   const result = await updatePost({
     postId,

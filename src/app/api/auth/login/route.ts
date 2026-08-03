@@ -3,6 +3,7 @@ import { compare, hash } from 'bcryptjs';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
+import { createEmailVerificationResendTicket } from '@/lib/email-verification';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { eq } from 'drizzle-orm';
 
@@ -20,6 +21,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body?.password === 'string' ? body.password : '';
+  const locale = body?.locale === 'en' ? 'en' : 'zh';
 
   if (!email || !password) {
     return NextResponse.json({ error: '请输入邮箱和密码' }, { status: 400 });
@@ -50,11 +52,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '邮箱或密码错误' }, { status: 401 });
   }
 
+  if (!user.emailVerified) {
+    const resendTicket = await createEmailVerificationResendTicket({
+      userId: user.id,
+      email: user.email,
+      locale,
+    });
+    return NextResponse.json(
+      {
+        error: '请先验证邮箱',
+        code: 'EMAIL_UNVERIFIED',
+        resendTicket,
+      },
+      { status: 403 },
+    );
+  }
+
   await createSession({
     userId: user.id,
     email: user.email,
     name: user.name ?? undefined,
     tokenVersion: user.tokenVersion,
+    emailVerified: true,
   });
 
   return NextResponse.json({

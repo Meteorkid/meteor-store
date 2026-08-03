@@ -250,6 +250,27 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - 注册 API 在密码校验后、查重前验证 CAPTCHA，失败返回 400
 - 登录不走 CAPTCHA——已有按邮箱 + IP 双维度限流
 
+### 邮箱验证与正式身份
+
+注册账户默认 `emailVerified=false`，必须通过 Resend 邮件完成验证后才能登录。
+令牌服务在 `src/lib/email-verification.ts`，验证 API 是 `POST /api/auth/verify-email`，
+重发 API 是 `POST /api/auth/resend-verification`，页面是 `/verify-email`。
+
+- **注册后不签发 session**：注册接口只返回待验证状态和 15 分钟重发凭证；
+  密码正确但邮箱未验证时，登录接口同样不签 session
+- 验证 token 有效期 24 小时，使用 `JWT_SECRET + ':email-verification'` 派生密钥；
+  token 放在 URL fragment，不能改成 query string，避免进入 access log / Referer
+- 验证成功只设置 `users.email_verified=true`，**不自动登录**；用户回登录页重新输入密码
+- 重发接口不接收任意邮箱，只接收注册成功或正确密码登录后签发的短期凭证；
+  验证 token 与重发凭证的 audience/purpose 必须严格隔离
+- `getSession()` 同时校验 `tokenVersion` 和数据库 `emailVerified`；未验证旧会话立即失效，
+  数据库故障时缺少 `emailVerified: true` 声明的旧 JWT 必须 fail closed
+- 管理员调用点统一使用 `isAdminSession(session)`，不要退回只比较邮箱的 `isAdminEmail`；
+  `isAdminEmail` 仅用于保留公开注册入口中的管理员邮箱
+- 历史授权码按邮箱归属，账户页查询前必须显式检查数据库 `emailVerified`
+- 存量管理员回填用 `scripts/verify-existing-admins.mjs`：默认 dry-run；上线顺序是先用生产
+  `ADMIN_EMAILS` 回填已注册管理员，再部署强制验证代码
+
 ### Markdown 渲染
 
 `src/lib/markdown.ts`，管线是 `unified + remark-gfm + rehype-sanitize`。

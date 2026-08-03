@@ -122,7 +122,27 @@
     "and": "and",
     "privacyLink": "Privacy Policy",
     "loginFailed": "Login failed",
-    "registerFailed": "Registration failed"
+    "registerFailed": "Registration failed",
+    "checkEmailTitle": "Check your email",
+    "checkEmailSent": "We sent a verification email. Open it to verify your address, then return to sign in.",
+    "checkEmailSendFailed": "Your account was created, but the verification email could not be sent. Try again below.",
+    "emailUnverified": "Your email is not verified. Use the button below to send a new verification email.",
+    "resendVerification": "Resend verification email",
+    "resendingVerification": "Sending…",
+    "verificationResent": "A new verification email was sent. Check your inbox and spam folder.",
+    "verificationResentButton": "Verification email sent",
+    "backToLogin": "Back to sign in",
+    "emailVerifiedSuccess": "Email verified. Sign in to your account."
+  },
+  "VerifyEmailPage": {
+    "metaTitle": "Verify Email - Meteor Store",
+    "processingTitle": "Verifying your email",
+    "processingDescription": "Please wait while we confirm your verification link.",
+    "successTitle": "Email verified",
+    "successDescription": "Redirecting you to sign in with your password.",
+    "errorTitle": "Invalid verification link",
+    "errorDescription": "This link may be expired or incomplete. Return to sign in, enter the correct password, and request a new email.",
+    "backToLogin": "Back to sign in"
   },
   "AccountPage": {
     "title": "Account Settings",

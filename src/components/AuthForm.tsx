@@ -8,6 +8,19 @@ import SliderCaptcha from './SliderCaptcha';
 
 type Mode = 'login' | 'register';
 
+interface PendingVerification {
+  email: string;
+  resendTicket: string;
+  emailSent?: boolean;
+}
+
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  if (!local || !domain) return email;
+  const visible = local.slice(0, Math.min(2, local.length));
+  return `${visible}${'*'.repeat(Math.max(2, local.length - visible.length))}@${domain}`;
+}
+
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -21,7 +34,7 @@ function EyeIcon({ open }: { open: boolean }) {
   );
 }
 
-export default function AuthForm() {
+export default function AuthForm({ verified = false }: { verified?: boolean }) {
   const t = useTranslations('LoginPage');
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
@@ -34,12 +47,29 @@ export default function AuthForm() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [captcha, setCaptcha] = useState<{ token: string; x: number } | null>(null);
-  const { login, register, user } = useAuth();
+  const [pendingVerification, setPendingVerification] = useState<PendingVerification | null>(null);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
+  const { login, register, resendVerification, user } = useAuth();
   const router = useRouter();
 
   const handleCaptchaVerify = useCallback((data: { token: string; x: number }) => {
     setCaptcha(data);
   }, []);
+
+  const handleResend = async () => {
+    if (!pendingVerification || resending) return;
+    setResending(true);
+    setError('');
+    const resendError = await resendVerification(pendingVerification.resendTicket);
+    setResending(false);
+    if (resendError) {
+      setError(resendError);
+      return;
+    }
+    setResent(true);
+    setPendingVerification((current) => current ? { ...current, emailSent: true } : current);
+  };
 
   if (user) {
     return (
@@ -53,6 +83,55 @@ export default function AuthForm() {
         >
           {t('backHome')}
         </Link>
+      </div>
+    );
+  }
+
+  if (pendingVerification) {
+    return (
+      <div className="w-full max-w-sm text-center" aria-live="polite">
+        <span className="mb-4 inline-block text-4xl" aria-hidden>✉️</span>
+        <h1 className="t-title-2 mb-3 text-white">{t('checkEmailTitle')}</h1>
+        <p className="text-sm leading-relaxed text-gray-400">
+          {pendingVerification.emailSent === true
+            ? t('checkEmailSent')
+            : pendingVerification.emailSent === false
+              ? t('checkEmailSendFailed')
+              : t('emailUnverified')}
+        </p>
+        <p className="mt-3 font-mono text-sm text-white/70">
+          {maskEmail(pendingVerification.email)}
+        </p>
+        {resent && (
+          <p className="mt-4 rounded-lg bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400">
+            {t('verificationResent')}
+          </p>
+        )}
+        {error && (
+          <p className="mt-4 rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400">
+            {error}
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={resending || resent}
+          className="mt-6 w-full rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
+        >
+          {resending ? t('resendingVerification') : resent ? t('verificationResentButton') : t('resendVerification')}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setPendingVerification(null);
+            setMode('login');
+            setError('');
+            setResent(false);
+          }}
+          className="mt-4 text-sm text-gray-500 transition-colors hover:text-white"
+        >
+          {t('backToLogin')}
+        </button>
       </div>
     );
   }
@@ -73,14 +152,19 @@ export default function AuthForm() {
 
     setLoading(true);
 
-    const err = mode === 'login'
+    const result = mode === 'login'
       ? await login(email, password)
       : await register(email, password, name || undefined, captcha ?? undefined);
 
     setLoading(false);
 
-    if (err) {
-      setError(err);
+    if (result.verification) {
+      setPendingVerification(result.verification);
+      setPassword('');
+      setConfirmPassword('');
+      setCaptcha(null);
+    } else if (result.error) {
+      setError(result.error);
     } else {
       router.push('/');
     }
@@ -117,6 +201,12 @@ export default function AuthForm() {
       <p className="mb-8 text-sm text-gray-400">
         {mode === 'login' ? t('loginSubtitle') : t('registerSubtitle')}
       </p>
+
+      {verified && (
+        <p className="mb-5 rounded-lg bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400" role="status">
+          {t('emailVerifiedSuccess')}
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {mode === 'register' && (

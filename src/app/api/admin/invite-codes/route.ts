@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 import { createInviteCode, listInviteCodes, revokeInviteCode } from '@/lib/invite';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { products } from '@/data/products';
@@ -11,7 +11,7 @@ function forbidden() {
 
 export async function GET() {
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) return forbidden();
+  if (!session || !isAdminSession(session)) return forbidden();
 
   const codes = await listInviteCodes();
   return NextResponse.json({ codes });
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   }
 
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) return forbidden();
+  if (!session || !isAdminSession(session)) return forbidden();
 
   const body = await req.json().catch(() => null);
   const productId = typeof body?.productId === 'string' ? body.productId : '';
@@ -63,7 +63,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   const session = await getSession();
-  if (!session || !isAdminEmail(session.email)) return forbidden();
+  if (!session || !isAdminSession(session)) return forbidden();
 
   const body = await req.json().catch(() => null);
   const id = typeof body?.id === 'string' ? body.id : '';

@@ -70,7 +70,12 @@ describe('PATCH /api/auth/profile', () => {
 
     expect(res.status).toBe(200);
     expect(updates[0]).toEqual({ name: '新名字' });
-    expect(createdSessions[0]).toMatchObject({ userId: 'U1', email: 'a@b.com', name: '新名字' });
+    expect(createdSessions[0]).toMatchObject({
+      userId: 'U1',
+      email: 'a@b.com',
+      name: '新名字',
+      emailVerified: true,
+    });
   });
 
   it('昵称首尾空格被 trim', async () => {

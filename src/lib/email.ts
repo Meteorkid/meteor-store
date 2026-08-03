@@ -10,6 +10,10 @@ function getResend() {
   return resendClient;
 }
 
+function getReplyToEmail(): string | undefined {
+  return process.env.RESEND_REPLY_TO_EMAIL?.trim() || undefined;
+}
+
 /** 转义 HTML 特殊字符，防止注入 */
 function escapeHtml(str: string): string {
   return str
@@ -30,6 +34,58 @@ interface OrderEmailData {
   accessToken?: string;
 }
 
+interface VerificationEmailData {
+  email: string;
+  token: string;
+  locale: 'zh' | 'en';
+}
+
+export function isEmailDeliveryConfigured(): boolean {
+  return Boolean(process.env.RESEND_API_KEY);
+}
+
+export async function sendEmailVerification(data: VerificationEmailData) {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://imagentx.top').replace(/\/+$/, '');
+  const verificationUrl = escapeHtml(
+    `${siteUrl}/${data.locale}/verify-email#token=${encodeURIComponent(data.token)}`,
+  );
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const copy = data.locale === 'en'
+    ? {
+        subject: 'Verify your Meteor Store email',
+        title: 'Verify your email',
+        body: 'Click the button below to verify your email address. This link expires in 24 hours.',
+        action: 'Verify email',
+        hint: 'If you did not create this account, you can ignore this email.',
+      }
+    : {
+        subject: '验证邮箱 - Meteor Store',
+        title: '验证邮箱',
+        body: '点击下方按钮验证你的邮箱地址。链接将在 24 小时后失效。',
+        action: '验证邮箱',
+        hint: '如果不是你创建了这个账户，可以忽略这封邮件。',
+      };
+
+  const { error } = await getResend().emails.send({
+    from: `Meteor Store <${fromEmail}>`,
+    replyTo: getReplyToEmail(),
+    to: data.email,
+    subject: copy.subject,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
+        <h1>${copy.title}</h1>
+        <p>${copy.body}</p>
+        <p style="margin: 28px 0;">
+          <a href="${verificationUrl}" style="display: inline-block; padding: 12px 20px; border-radius: 8px; background: #7c3aed; color: #fff; text-decoration: none; font-weight: 600;">${copy.action}</a>
+        </p>
+        <p style="color: #666; font-size: 13px;">${copy.hint}</p>
+      </div>
+    `,
+  });
+
+  if (error) throw new Error(`Email send failed: ${error.message}`);
+}
+
 export async function sendOrderConfirmation(data: OrderEmailData) {
   const product = findProduct(data.productId);
   const productName = escapeHtml(product?.name?.zh || data.productId);
@@ -39,6 +95,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
   const { error } = await getResend().emails.send({
     from: `Meteor Store <${fromEmail}>`,
+    replyTo: getReplyToEmail(),
     to: data.email,
     subject: `订单确认 - ${productName} ${planName}`,
     html: `
@@ -84,6 +141,7 @@ export async function sendAdminAlert(subject: string, details: Record<string, st
   try {
     await getResend().emails.send({
       from: `Meteor Store Alert <${fromEmail}>`,
+      replyTo: getReplyToEmail(),
       to: alertEmail,
       subject: `[告警] ${subject}`,
       html: `<table style="font-family: sans-serif; font-size: 14px;">${rows}</table>`,

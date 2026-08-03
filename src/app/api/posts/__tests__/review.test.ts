@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { NextRequest } from 'next/server';
 
-let currentSession: { userId: string; email: string; name?: string } | null = null;
+let currentSession: { userId: string; email: string; name?: string; emailVerified?: true } | null = null;
 vi.mock('@/lib/auth', () => ({ getSession: async () => currentSession }));
 
 let limited = false;
@@ -47,7 +47,7 @@ describe('POST /api/posts/review', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.ADMIN_EMAILS = 'boss@example.com';
-    currentSession = { userId: 'U-admin', email: 'boss@example.com' };
+    currentSession = { userId: 'U-admin', email: 'boss@example.com', emailVerified: true };
     reviewResult = true;
     reviewCalls.length = 0;
     revalidated.length = 0;
@@ -64,7 +64,7 @@ describe('POST /api/posts/review', () => {
     });
 
     it('登录了但不是管理员 → 403，不触碰文章', async () => {
-      currentSession = { userId: 'U-normal', email: 'someone@example.com' };
+      currentSession = { userId: 'U-normal', email: 'someone@example.com', emailVerified: true };
       const res = await POST(request({ postId: 'p1', approve: true }));
 
       expect(res.status).toBe(403);

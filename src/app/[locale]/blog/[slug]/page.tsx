@@ -13,7 +13,7 @@ import PostStats from '@/components/PostStats';
 import PostSignature from '@/components/PostSignature';
 import { routing, type Locale } from '@/i18n/routing';
 import { getSession } from '@/lib/auth';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 
 interface BlogPostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -57,7 +57,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   // 站主文件文章的编辑入口：管理员看到 GitHub web 编辑器链接
   const session = await getSession();
-  const isAdmin = !!session && isAdminEmail(session.email);
+  const isAdmin = !!session && isAdminSession(session);
   const editHref = `https://github.com/Meteorkid/meteor-store/edit/main/content/blog/${locale}/${
     post.slug
   }.md`;

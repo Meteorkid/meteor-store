@@ -96,6 +96,7 @@ export async function PATCH(req: NextRequest) {
     userId: session.userId,
     email: session.email,
     name: newName ?? undefined,
+    emailVerified: true,
     tokenVersion: session.tokenVersion,
   });
 

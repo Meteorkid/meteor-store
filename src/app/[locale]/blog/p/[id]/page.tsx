@@ -13,7 +13,7 @@ import { tagHref } from '@/data/blog-tags';
 import { markdownToHtml } from '@/lib/markdown';
 import CommentSection from '@/components/CommentSection';
 import PostStats from '@/components/PostStats';
-import { isAdminEmail } from '@/lib/admin';
+import { isAdminSession } from '@/lib/admin';
 
 interface UserPostPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -55,7 +55,7 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
 
   const isPreview = post.status !== 'published';
   const section = getSectionById(post.sectionId);
-  const isAdmin = !!session && isAdminEmail(session.email);
+  const isAdmin = !!session && isAdminSession(session);
   // 管理员或作者本人可编辑；管理员走 admin=1 路径有越权编辑能力
   const canEdit = isAdmin || isAuthor;
   const editHref = `/blog/submit?id=${post.id}${isAdmin ? '&admin=1' : ''}`;

@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
     userId: user.id,
     email: user.email,
     name: user.name ?? undefined,
+    emailVerified: true,
     tokenVersion: nextTokenVersion,
   });
 

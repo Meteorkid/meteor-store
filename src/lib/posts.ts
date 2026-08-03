@@ -293,7 +293,7 @@ export async function updatePost(input: {
   /** 管理员直发：跳过审核，published 编辑后保持 published，提交直接发布。 */
   adminPublish?: boolean;
   /** 管理员越权编辑：true 时 where 条件只用 id，不校验 authorId。
-   *  API 层必须先验证 isAdminEmail 再传此参数。 */
+   *  API 层必须先验证 isAdminSession 再传此参数。 */
   asAdmin?: boolean;
 }): Promise<UpdatePostResult> {
   const [row] = await db
