@@ -3,8 +3,8 @@ import { eq, and } from 'drizzle-orm';
 import { verifyAlipayNotify } from '@/lib/alipay';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
-import { sendOrderConfirmation, sendAdminAlert } from '@/lib/email';
-import { createLicenseKey, getLicenseKeyByOrderId } from '@/lib/license';
+import { sendAdminAlert } from '@/lib/email';
+import { fulfillOrder } from '@/lib/order-fulfillment';
 
 // 支付宝异步通知回调
 export async function POST(request: NextRequest) {
@@ -75,33 +75,8 @@ export async function POST(request: NextRequest) {
         });
       }
       console.log('Alipay notify: order already paid', out_trade_no);
-      if (order.deliveryStatus === 'failed' || order.deliveryStatus === 'pending') {
-        try {
-          let licenseKey = (await getLicenseKeyByOrderId(order.id))?.key;
-          if (!licenseKey) {
-            licenseKey = await createLicenseKey({
-              orderId: order.id,
-              productId: order.productId,
-              planName: order.planName,
-              email: order.email,
-            });
-          }
-          await sendOrderConfirmation({
-            email: order.email,
-            orderId: order.id,
-            productId: order.productId,
-            planName: order.planName,
-            amount: order.amountCny,
-            licenseKey,
-            accessToken: order.accessToken,
-          });
-          await db.update(orders)
-            .set({ deliveryStatus: 'emailed' })
-            .where(eq(orders.id, out_trade_no));
-          console.log(`Delivery retry succeeded: ${out_trade_no}`);
-        } catch (err) {
-          console.error('Delivery retry failed:', err);
-        }
+      if (order.deliveryStatus !== 'emailed') {
+        await fulfillOrder(order.id);
       }
       return new NextResponse('success', { status: 200 });
     }
@@ -138,32 +113,7 @@ export async function POST(request: NextRequest) {
       if (rowCount > 0) {
         console.log(`Payment success: ${out_trade_no}, amount: ${total_amount}`);
 
-        // 生成 License Key 并发送确认邮件
-        try {
-          const licenseKey = await createLicenseKey({
-            orderId: order.id,
-            productId: order.productId,
-            planName: order.planName,
-            email: order.email,
-          });
-          await sendOrderConfirmation({
-            email: order.email,
-            orderId: order.id,
-            productId: order.productId,
-            planName: order.planName,
-            amount: order.amountCny,
-            licenseKey,
-            accessToken: order.accessToken,
-          });
-          await db.update(orders)
-            .set({ deliveryStatus: 'emailed' })
-            .where(eq(orders.id, out_trade_no));
-        } catch (err) {
-          console.error('Delivery failed:', err);
-          await db.update(orders)
-            .set({ deliveryStatus: 'failed' })
-            .where(eq(orders.id, out_trade_no));
-        }
+        await fulfillOrder(order.id);
       } else {
         console.log('Alipay notify: order already processed (concurrent)', out_trade_no);
       }
@@ -174,23 +124,4 @@ export async function POST(request: NextRequest) {
     console.error('Alipay notify error:', error);
     return new NextResponse('fail', { status: 500 });
   }
-}
-
-// 支付宝同步回调（用户支付完成后跳转）
-// 注意：同步回调不校验签名（支付宝文档说明），但会验证订单是否存在
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const out_trade_no = searchParams.get('out_trade_no');
-
-  // 只传递 orderId，不传递未验证的 trade_no
-  const successUrl = new URL('/success', request.url);
-  if (out_trade_no) {
-    // 校验 UUID 格式，防止注入
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (uuidPattern.test(out_trade_no)) {
-      successUrl.searchParams.set('orderId', out_trade_no);
-    }
-  }
-
-  return NextResponse.redirect(successUrl);
 }

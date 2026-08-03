@@ -134,6 +134,13 @@
       "when": 1785769757792,
       "tag": "0018_reconcile_schema_snapshot",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1785783962118,
+      "tag": "0019_loose_juggernaut",
+      "breakpoints": true
     }
   ]
 }

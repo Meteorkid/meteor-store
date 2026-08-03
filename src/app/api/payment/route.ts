@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
-import { createAlipayOrder, createAlipayMobileOrder } from '@/lib/alipay';
+import { createAlipayOrder, createAlipayMobileOrder, isAlipayConfigured } from '@/lib/alipay';
 import { findProduct } from '@/lib/products';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
@@ -94,60 +94,16 @@ export async function POST(request: NextRequest) {
       : basePrice;
     const billingPeriod = validAnnual ? 'annual' : 'monthly';
 
-    // 免费产品直接创建订单并返回成功
+    // 免费方案由产品页直接进入公开下载，不创建订单和授权码。
+    // 这样既避免不可达的“免费订单成功但前端报错”分支，也不提供批量发码入口。
     if (priceCNY === 0) {
-      const orderId = await generateOrderId();
-      const now = new Date().toISOString();
-      const accessToken = crypto.randomUUID();
-      await db.insert(orders).values({
-        id: orderId,
-        productId: productName,
-        planName,
-        email,
-        amountCny: 0,
-        paymentMethod: 'free',
-        status: 'paid',
-        paidAt: now,
-        billingPeriod: validAnnual ? 'annual' : 'monthly',
-        accessToken,
-        createdAt: now,
-      });
+      return NextResponse.json({ error: '免费方案无需创建订单' }, { status: 400 });
+    }
 
-      // 免费产品也需要生成 license key 和发送确认邮件
-      try {
-        const { createLicenseKey } = await import('@/lib/license');
-        const { sendOrderConfirmation } = await import('@/lib/email');
-        const licenseKey = await createLicenseKey({
-          orderId,
-          productId: productName,
-          planName,
-          email,
-        });
-        await sendOrderConfirmation({
-          email,
-          orderId,
-          productId: productName,
-          planName,
-          amount: 0,
-          licenseKey,
-          accessToken,
-        });
-        await db.update(orders)
-          .set({ deliveryStatus: 'emailed' })
-          .where(eq(orders.id, orderId));
-      } catch (err) {
-        console.error('Free order delivery failed:', err);
-        await db.update(orders)
-          .set({ deliveryStatus: 'failed' })
-          .where(eq(orders.id, orderId));
-      }
-
-      return NextResponse.json({
-        success: true,
-        orderId,
-        amount: 0,
-        message: '免费产品获取成功',
-      });
+    // 创建支付、验签和商户核对缺一不可。必须在写入订单前拦截半配置状态，
+    // 避免用户能付款但异步回调永远无法完成交付。
+    if (!isAlipayConfigured()) {
+      return NextResponse.json({ error: '支付服务暂不可用' }, { status: 503 });
     }
 
     // 先生成订单号（带碰撞检查），用于支付宝回调关联

@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { db } from '@/lib/db';
@@ -9,14 +9,14 @@ import { orders, licenseKeys } from '@/lib/db/schema';
 import { findProduct } from '@/lib/products';
 import { SHOW_PRICING } from '@/lib/constants';
 import { getSession } from '@/lib/auth';
+import { getOrderAccess } from '@/lib/order-access';
 import type { Locale } from '@/i18n/routing';
 
 interface OrderDetailPageProps {
   params: Promise<{ orderId: string; locale: string }>;
-  searchParams: Promise<{ token?: string }>;
 }
 
-export default async function OrderDetailPage({ params, searchParams }: OrderDetailPageProps) {
+export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
   const { orderId, locale } = await params;
   const t = await getTranslations({ locale, namespace: 'OrderPage' });
 
@@ -34,30 +34,24 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
     );
   }
 
-  const { token } = await searchParams;
-
   // 校验 orderId 格式（UUID）
-  const isValidOrderId = orderId && /^[0-9a-f-]{36}$/i.test(orderId);
+  const isValidOrderId = orderId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId);
   if (!isValidOrderId) notFound();
 
   // 访问鉴权：两种通道任一即可
   //   1) 登录用户的邮箱与订单邮箱一致（推荐路径：用户中心 → 我的订单）
-  //   2) URL 携带订单 accessToken（用于支付完成后的同步跳转）
-  // 邮件不再附带 accessToken 链接，避免邮件预抓取/转发导致 license key 外泄。
-  let order: typeof orders.$inferSelect | null = null;
-
-  const session = await getSession();
-  if (session) {
-    [order] = await db.select().from(orders).where(
-      and(eq(orders.id, orderId), eq(orders.email, session.email))
-    ).limit(1);
-  }
-
-  if (!order && token && /^[0-9a-f-]{36}$/i.test(token)) {
-    [order] = await db.select().from(orders).where(
-      and(eq(orders.id, orderId), eq(orders.accessToken, token))
-    ).limit(1);
-  }
+  //   2) 支付宝同步回跳验签后签发的短时 HttpOnly 凭证
+  const [session, access, rows] = await Promise.all([
+    getSession(),
+    getOrderAccess(),
+    db.select().from(orders).where(eq(orders.id, orderId)).limit(1),
+  ]);
+  const candidate = rows[0];
+  const allowed = candidate && (
+    session?.email.toLowerCase() === candidate.email.toLowerCase() ||
+    access?.orderId === candidate.id
+  );
+  const order = allowed ? candidate : null;
 
   if (!order) notFound();
 

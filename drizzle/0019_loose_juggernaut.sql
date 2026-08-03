@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "delivery_claimed_at" text;

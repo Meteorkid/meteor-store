@@ -33,18 +33,14 @@ vi.mock('@/lib/db', () => ({
   },
 }));
 
-const mockSendOrder = vi.fn();
 const mockAlert = vi.fn();
 vi.mock('@/lib/email', () => ({
-  sendOrderConfirmation: (...args: unknown[]) => mockSendOrder(...args),
   sendAdminAlert: (...args: unknown[]) => mockAlert(...args),
 }));
 
-const mockCreateKey = vi.fn();
-const mockGetKey = vi.fn();
-vi.mock('@/lib/license', () => ({
-  createLicenseKey: (...args: unknown[]) => mockCreateKey(...args),
-  getLicenseKeyByOrderId: (...args: unknown[]) => mockGetKey(...args),
+const mockFulfill = vi.fn();
+vi.mock('@/lib/order-fulfillment', () => ({
+  fulfillOrder: (...args: unknown[]) => mockFulfill(...args),
 }));
 
 import { POST } from '../route';
@@ -92,9 +88,7 @@ describe('支付宝异步通知', () => {
     updates.length = 0;
     updateRowCount = 1;
     mockVerify.mockReturnValue(true);
-    mockCreateKey.mockResolvedValue('MC-AAAA-BBBB-CCCC-DDDD');
-    mockGetKey.mockResolvedValue(null);
-    mockSendOrder.mockResolvedValue(undefined);
+    mockFulfill.mockResolvedValue({ status: 'emailed' });
   });
 
   describe('拒绝伪造的通知', () => {
@@ -105,7 +99,7 @@ describe('支付宝异步通知', () => {
       expect(res.status).toBe(400);
       expect(await res.text()).toBe('fail');
       expect(updates).toHaveLength(0);
-      expect(mockSendOrder).not.toHaveBeenCalled();
+      expect(mockFulfill).not.toHaveBeenCalled();
     });
 
     it('app_id 不是自己的 → fail', async () => {
@@ -141,7 +135,7 @@ describe('支付宝异步通知', () => {
 
       expect(res.status).toBe(400);
       expect(updates).toHaveLength(0);
-      expect(mockSendOrder).not.toHaveBeenCalled();
+      expect(mockFulfill).not.toHaveBeenCalled();
       expect(mockAlert).toHaveBeenCalledWith(
         '支付宝通知金额不一致',
         expect.objectContaining({ expected: '199.00', received: '0.01' }),
@@ -161,20 +155,14 @@ describe('支付宝异步通知', () => {
   });
 
   describe('支付成功', () => {
-    it('标记已支付、生成 key、发确认邮件、置为已发货', async () => {
+    it('标记已支付后交给统一交付服务处理', async () => {
       const res = await POST(notify());
 
       expect(res.status).toBe(200);
       expect(await res.text()).toBe('success');
 
       expect(updates[0]).toMatchObject({ status: 'paid', alipayTradeNo: 'ALIPAY-TRADE-1' });
-      expect(mockCreateKey).toHaveBeenCalledWith(
-        expect.objectContaining({ orderId: PENDING_ORDER.id, email: 'buyer@example.com' }),
-      );
-      expect(mockSendOrder).toHaveBeenCalledWith(
-        expect.objectContaining({ licenseKey: 'MC-AAAA-BBBB-CCCC-DDDD', amount: 199 }),
-      );
-      expect(updates.at(-1)).toMatchObject({ deliveryStatus: 'emailed' });
+      expect(mockFulfill).toHaveBeenCalledWith(PENDING_ORDER.id);
     });
 
     it('TRADE_FINISHED 同样按成功处理', async () => {
@@ -187,15 +175,15 @@ describe('支付宝异步通知', () => {
 
       expect(res.status).toBe(200);
       expect(updates).toHaveLength(0);
-      expect(mockSendOrder).not.toHaveBeenCalled();
+      expect(mockFulfill).not.toHaveBeenCalled();
     });
 
-    it('发信失败时置为 failed，但仍回 success 避免支付宝无限重试', async () => {
-      mockSendOrder.mockRejectedValue(new Error('SMTP down'));
+    it('统一交付服务返回失败时仍回 success，避免支付宝无限重试', async () => {
+      mockFulfill.mockResolvedValue({ status: 'failed' });
       const res = await POST(notify());
 
       expect(res.status).toBe(200);
-      expect(updates.at(-1)).toMatchObject({ deliveryStatus: 'failed' });
+      expect(mockFulfill).toHaveBeenCalledWith(PENDING_ORDER.id);
     });
   });
 
@@ -205,8 +193,7 @@ describe('支付宝异步通知', () => {
       const res = await POST(notify());
 
       expect(res.status).toBe(200);
-      expect(mockCreateKey).not.toHaveBeenCalled();
-      expect(mockSendOrder).not.toHaveBeenCalled();
+      expect(mockFulfill).not.toHaveBeenCalled();
     });
 
     it('订单已支付且已发货 → 直接 success，不重复发信', async () => {
@@ -214,34 +201,25 @@ describe('支付宝异步通知', () => {
       const res = await POST(notify());
 
       expect(res.status).toBe(200);
-      expect(mockSendOrder).not.toHaveBeenCalled();
+      expect(mockFulfill).not.toHaveBeenCalled();
       expect(updates).toHaveLength(0);
     });
 
-    it('订单已支付但发货失败过 → 补发，且复用已有的 key', async () => {
+    it('订单已支付但发货失败过 → 交给统一服务安全补发', async () => {
       orderRow = { ...PENDING_ORDER, status: 'paid', deliveryStatus: 'failed' };
-      mockGetKey.mockResolvedValue({ key: 'MC-OLD1-OLD2-OLD3-OLD4' });
 
       const res = await POST(notify());
 
       expect(res.status).toBe(200);
-      expect(mockCreateKey).not.toHaveBeenCalled();
-      expect(mockSendOrder).toHaveBeenCalledWith(
-        expect.objectContaining({ licenseKey: 'MC-OLD1-OLD2-OLD3-OLD4' }),
-      );
-      expect(updates.at(-1)).toMatchObject({ deliveryStatus: 'emailed' });
+      expect(mockFulfill).toHaveBeenCalledWith(PENDING_ORDER.id);
     });
 
-    it('订单已支付、发货失败过、且还没有 key → 补生成再发', async () => {
-      orderRow = { ...PENDING_ORDER, status: 'paid', deliveryStatus: 'failed' };
-      mockGetKey.mockResolvedValue(null);
+    it('订单处于处理中时仍调用统一服务，由服务判断是否超时接管', async () => {
+      orderRow = { ...PENDING_ORDER, status: 'paid', deliveryStatus: 'processing' };
 
       await POST(notify());
 
-      expect(mockCreateKey).toHaveBeenCalled();
-      expect(mockSendOrder).toHaveBeenCalledWith(
-        expect.objectContaining({ licenseKey: 'MC-AAAA-BBBB-CCCC-DDDD' }),
-      );
+      expect(mockFulfill).toHaveBeenCalledWith(PENDING_ORDER.id);
     });
   });
 });

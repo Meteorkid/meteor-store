@@ -93,7 +93,26 @@ describe('alipay', () => {
       });
 
       expect(url).toContain(encodeURIComponent('https://example.com/api/payment/alipay/notify'));
-      expect(url).toContain(encodeURIComponent('https://example.com/success'));
+      expect(url).toContain(encodeURIComponent('https://example.com/api/payment/alipay/return'));
+    });
+
+    it('生产根域名会规范为 www，且同步回跳先经过验签路由', async () => {
+      process.env.NEXT_PUBLIC_SITE_URL = 'https://imagentx.top';
+      const { createAlipayOrder } = await importAlipay();
+
+      const paymentUrl = new URL(await createAlipayOrder({
+        orderId: 'test-order-canonical',
+        amount: 100,
+        subject: 'Test',
+        body: 'Test body',
+      }));
+
+      expect(paymentUrl.searchParams.get('notify_url')).toBe(
+        'https://www.imagentx.top/api/payment/alipay/notify',
+      );
+      expect(paymentUrl.searchParams.get('return_url')).toBe(
+        'https://www.imagentx.top/api/payment/alipay/return',
+      );
     });
   });
 

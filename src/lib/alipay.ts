@@ -32,16 +32,51 @@ function getAlipayTimestamp(): string {
   return new Date(beijingMs).toISOString().slice(0, 19).replace('T', ' ');
 }
 
+function getSiteUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!raw) throw new Error('NEXT_PUBLIC_SITE_URL is not set');
+
+  const site = new URL(raw);
+  if (site.protocol !== 'https:' && site.protocol !== 'http:') {
+    throw new Error('NEXT_PUBLIC_SITE_URL must use http or https');
+  }
+  // 生产主域名由 Vercel 规范到 www。回调地址本身不能依赖 308 跳转，
+  // 否则支付宝收不到 route 返回的纯文本 success。
+  if (site.hostname === 'imagentx.top') {
+    site.hostname = 'www.imagentx.top';
+  }
+  return site.origin;
+}
+
 // 惰性加载支付宝配置，避免模块加载时环境变量未注入导致静默失败
 function getAlipayConfig() {
+  const siteUrl = getSiteUrl();
   return {
     appId: process.env.ALIPAY_APP_ID || '',
     privateKey: normalizeKey(process.env.ALIPAY_PRIVATE_KEY || '', 'PRIVATE'),
     alipayPublicKey: normalizeKey(process.env.ALIPAY_PUBLIC_KEY || '', 'PUBLIC'),
+    sellerId: process.env.ALIPAY_SELLER_ID || '',
     gateway: process.env.ALIPAY_GATEWAY || 'https://openapi.alipay.com/gateway.do',
-    notifyUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/api/payment/alipay/notify`,
-    returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
+    siteUrl,
+    notifyUrl: `${siteUrl}/api/payment/alipay/notify`,
+    returnUrl: `${siteUrl}/api/payment/alipay/return`,
   };
+}
+
+/** 下单前确认创建支付和异步回调所需配置全部可用。 */
+export function isAlipayConfigured(): boolean {
+  try {
+    const config = getAlipayConfig();
+    return Boolean(
+      config.appId &&
+      config.privateKey &&
+      config.alipayPublicKey &&
+      config.sellerId &&
+      config.siteUrl,
+    );
+  } catch {
+    return false;
+  }
 }
 
 // 生成签名
@@ -103,7 +138,7 @@ export async function createAlipayOrder(params: {
     subject,
     body,
     product_code: 'FAST_INSTANT_TRADE_PAY',
-    quit_url: `${process.env.NEXT_PUBLIC_SITE_URL}/products`,
+    quit_url: `${config.siteUrl}/products`,
   };
 
   const requestParams: Record<string, string> = {
