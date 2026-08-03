@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { routing } from '@/i18n/routing';
 
@@ -22,16 +22,16 @@ const NONCE_HEADER = 'x-nonce';
 const intlMiddleware = createMiddleware(routing);
 
 export function middleware(request: NextRequest) {
-  // 1. 先让 next-intl 处理 locale 检测/重定向
-  const intlResponse = intlMiddleware(request);
-
-  // 2. 再叠加现有的 CSP nonce 逻辑
   // 32 字节随机 → base64
   const nonce = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
 
   // 把 nonce 写到 request headers，让服务端组件能读到
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(NONCE_HEADER, nonce);
+  const requestWithNonce = new NextRequest(request, { headers: requestHeaders });
+
+  // 让 next-intl 处理 locale，并把带 nonce 的请求头继续传给渲染请求
+  const intlResponse = intlMiddleware(requestWithNonce);
 
   // 构造本请求的 CSP，把 nonce 注入进去
   const csp = buildCsp(nonce);
