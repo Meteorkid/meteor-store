@@ -264,6 +264,13 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
               <EyeIcon open={showPassword} />
             </button>
           </div>
+          {mode === 'login' && (
+            <div className="mt-2 text-right">
+              <Link href="/forgot-password" className="text-xs text-violet-400 transition-colors hover:text-violet-300">
+                {t('forgotPassword')}
+              </Link>
+            </div>
+          )}
         </div>
 
         {mode === 'register' && (
