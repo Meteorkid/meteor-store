@@ -1,4 +1,4 @@
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, inArray, sql } from 'drizzle-orm';
 import { db } from './db';
 import { reports, comments, posts, users } from './db/schema';
 
@@ -148,7 +148,7 @@ export async function listReports(
     const list = await db
       .select({ id: comments.id, content: comments.content, status: comments.status })
       .from(comments)
-      .where(sql`${comments.id} = ANY(${commentIds})`);
+      .where(inArray(comments.id, commentIds));
     for (const c of list) commentMap.set(c.id, { content: c.content, status: c.status });
   }
 
@@ -156,7 +156,7 @@ export async function listReports(
     const list = await db
       .select({ id: posts.id, title: posts.title, status: posts.status })
       .from(posts)
-      .where(sql`${posts.id} = ANY(${postIds})`);
+      .where(inArray(posts.id, postIds));
     for (const p of list) postMap.set(p.id, { title: p.title, status: p.status });
   }
 
@@ -261,7 +261,7 @@ export async function countPendingReports(
       and(
         eq(reports.targetType, targetType),
         eq(reports.status, 'pending'),
-        sql`${reports.targetId} = ANY(${targetIds})`,
+        inArray(reports.targetId, targetIds),
       ),
     )
     .groupBy(reports.targetId);
