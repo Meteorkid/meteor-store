@@ -8,6 +8,7 @@ interface InviteCode {
   id: string;
   code: string;
   productId: string;
+  planId: string;
   planName: string;
   maxUses: number;
   usedCount: number;
@@ -21,7 +22,7 @@ interface InviteCode {
 interface ProductOption {
   id: string;
   name: string;
-  plans: string[];
+  plans: { id: string; name: string }[];
 }
 
 export default function InviteCodeManager({ products }: { products: ProductOption[] }) {
@@ -33,7 +34,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
   const [success, setSuccess] = useState('');
 
   const [productId, setProductId] = useState(products[0]?.id ?? '');
-  const [planName, setPlanName] = useState(products[0]?.plans[0] ?? '');
+  const [planId, setPlanId] = useState(products[0]?.plans[0]?.id ?? '');
   const [maxUses, setMaxUses] = useState(1);
   const [memo, setMemo] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
@@ -45,7 +46,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
   if (productId !== prevProductId) {
     setPrevProductId(productId);
     if (selectedProduct) {
-      setPlanName(selectedProduct.plans[0] ?? '');
+      setPlanId(selectedProduct.plans[0]?.id ?? '');
     }
   }
 
@@ -91,7 +92,7 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           productId,
-          planName,
+          planId,
           maxUses,
           memo: memo || undefined,
           expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
@@ -163,12 +164,12 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
           <div>
             <label className="mb-1 block text-sm text-gray-400">{t('plan')}</label>
             <select
-              value={planName}
-              onChange={(e) => setPlanName(e.target.value)}
+              value={planId}
+              onChange={(e) => setPlanId(e.target.value)}
               className={inputClass}
             >
               {(selectedProduct?.plans ?? []).map((p) => (
-                <option key={p} value={p}>{p}</option>
+                <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           </div>

@@ -121,6 +121,7 @@ export const inviteCodes = pgTable('invite_codes', {
   id: text('id').primaryKey(),
   code: text('code').notNull().unique(),
   productId: text('product_id').notNull(),
+  planId: text('plan_id').notNull(),
   planName: text('plan_name').notNull(),
   maxUses: integer('max_uses').default(1).notNull(),
   usedCount: integer('used_count').default(0).notNull(),

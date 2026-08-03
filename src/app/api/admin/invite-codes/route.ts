@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => null);
   const productId = typeof body?.productId === 'string' ? body.productId : '';
-  const planName = typeof body?.planName === 'string' ? body.planName : '';
+  const planId = typeof body?.planId === 'string' ? body.planId : '';
   const maxUses = typeof body?.maxUses === 'number' ? Math.max(1, Math.floor(body.maxUses)) : 1;
   const memo = typeof body?.memo === 'string' ? body.memo.trim() : undefined;
   const expiresAt = typeof body?.expiresAt === 'string' ? body.expiresAt : undefined;
@@ -38,14 +38,15 @@ export async function POST(req: NextRequest) {
   if (!product) {
     return NextResponse.json({ error: '产品不存在' }, { status: 400 });
   }
-  const plan = product.pricing.find((p) => p.name === planName);
+  const plan = product.pricing.find((p) => p.id === planId);
   if (!plan) {
     return NextResponse.json({ error: '套餐不存在' }, { status: 400 });
   }
 
   const result = await createInviteCode({
     productId,
-    planName,
+    planId,
+    planName: plan.name.en,
     maxUses,
     memo,
     expiresAt,

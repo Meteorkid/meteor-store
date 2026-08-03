@@ -15,6 +15,7 @@ export interface Product {
   description: LocalizedText;
   features: LocalizedText[];
   pricing: {
+    id: string;
     name: LocalizedText;
     price: number;
     /** 逻辑字段（'月'/'年'/'买断'），被 `=== '月'` 等判断消费，保持 string 不双语化 */
@@ -60,6 +61,7 @@ export interface LocalizedProduct {
   description: string;
   features: string[];
   pricing: {
+    id: string;
     name: string;
     price: number;
     period?: string;
@@ -106,6 +108,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'starter',
         name: { zh: 'Starter', en: 'Starter' },
         price: 29,
         period: '月',
@@ -117,6 +120,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'pro',
         name: { zh: 'Pro', en: 'Pro' },
         price: 79,
         period: '月',
@@ -129,6 +133,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'enterprise',
         name: { zh: 'Enterprise', en: 'Enterprise' },
         price: 199,
         period: '月',
@@ -186,6 +191,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'basic',
         name: { zh: 'Basic', en: 'Basic' },
         price: 9,
         period: '月',
@@ -197,6 +203,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'premium',
         name: { zh: 'Premium', en: 'Premium' },
         price: 19,
         period: '月',
@@ -209,6 +216,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'ultimate',
         name: { zh: 'Ultimate', en: 'Ultimate' },
         price: 39,
         period: '月',
@@ -265,6 +273,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'student',
         name: { zh: 'Student', en: 'Student' },
         price: 19,
         period: '年',
@@ -276,6 +285,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'professional',
         name: { zh: 'Professional', en: 'Professional' },
         price: 49,
         period: '年',
@@ -288,6 +298,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'institution',
         name: { zh: 'Institution', en: 'Institution' },
         price: 199,
         period: '年',
@@ -344,6 +355,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'solo',
         name: { zh: 'Solo', en: 'Solo' },
         price: 9,
         period: '月',
@@ -355,6 +367,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'team',
         name: { zh: 'Team', en: 'Team' },
         price: 29,
         period: '月',
@@ -367,6 +380,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'enterprise',
         name: { zh: 'Enterprise', en: 'Enterprise' },
         price: 99,
         period: '月',
@@ -423,6 +437,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'free',
         name: { zh: 'Free', en: 'Free' },
         price: 0,
         features: [
@@ -432,6 +447,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'pro',
         name: { zh: 'Pro', en: 'Pro' },
         price: 9,
         period: '买断',
@@ -486,6 +502,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'free',
         name: { zh: 'Free', en: 'Free' },
         price: 0,
         features: [
@@ -495,6 +512,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'pro',
         name: { zh: 'Pro', en: 'Pro' },
         price: 12,
         period: '买断',
@@ -550,6 +568,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'basic',
         name: { zh: 'Basic', en: 'Basic' },
         price: 0,
         features: [
@@ -559,6 +578,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'pro',
         name: { zh: 'Pro', en: 'Pro' },
         price: 15,
         period: '月',
@@ -614,6 +634,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'free',
         name: { zh: 'Free', en: 'Free' },
         price: 0,
         features: [
@@ -622,6 +643,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'pro',
         name: { zh: 'Pro', en: 'Pro' },
         price: 9,
         period: '买断',
@@ -676,6 +698,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'free',
         name: { zh: 'Free', en: 'Free' },
         price: 0,
         features: [
@@ -685,6 +708,7 @@ export const products: Product[] = [
         ],
       },
       {
+        id: 'premium',
         name: { zh: 'Premium', en: 'Premium' },
         price: 5,
         period: '月',
@@ -739,6 +763,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'free',
         name: { zh: 'Free', en: 'Free' },
         price: 0,
         features: [
@@ -790,6 +815,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'free',
         name: { zh: 'Free', en: 'Free' },
         price: 0,
         features: [
@@ -841,6 +867,7 @@ export const products: Product[] = [
     ],
     pricing: [
       {
+        id: 'free',
         name: { zh: 'Free', en: 'Free' },
         price: 0,
         features: [
@@ -905,6 +932,7 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
     description: product.description[locale],
     features: product.features.map((f) => f[locale]),
     pricing: product.pricing.map((p) => ({
+      id: p.id,
       name: p.name[locale],
       price: p.price,
       period: p.period,

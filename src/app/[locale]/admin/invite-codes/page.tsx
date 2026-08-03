@@ -40,7 +40,10 @@ export default async function InviteCodesPage({
   const productOptions = products.map((p) => ({
     id: p.id,
     name: p.name[locale as Locale],
-    plans: p.pricing.map((pr) => pr.name[locale as Locale]),
+    plans: p.pricing.map((pr) => ({
+      id: pr.id,
+      name: pr.name[locale as Locale],
+    })),
   }));
 
   return (

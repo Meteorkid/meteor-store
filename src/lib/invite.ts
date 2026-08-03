@@ -1,8 +1,8 @@
 import { randomInt, randomUUID } from 'crypto';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, inArray, sql } from 'drizzle-orm';
 import { db } from './db';
 import { inviteCodes, inviteRedemptions } from './db/schema';
-import { createLicenseKey } from './license';
+import { createLicenseKey, removeLicenseKey } from './license';
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -13,6 +13,7 @@ function generateCode(): string {
 
 export async function createInviteCode(data: {
   productId: string;
+  planId: string;
   planName: string;
   maxUses?: number;
   memo?: string;
@@ -39,6 +40,7 @@ export async function createInviteCode(data: {
     id,
     code,
     productId: data.productId,
+    planId: data.planId,
     planName: data.planName,
     maxUses: data.maxUses ?? 1,
     usedCount: 0,
@@ -76,8 +78,14 @@ async function releaseQuota(inviteCodeId: string) {
   try {
     await db
       .update(inviteCodes)
-      .set({ usedCount: sql`GREATEST(${inviteCodes.usedCount} - 1, 0)` })
-      .where(and(eq(inviteCodes.id, inviteCodeId)));
+      .set({
+        usedCount: sql`GREATEST(${inviteCodes.usedCount} - 1, 0)`,
+        status: 'active',
+      })
+      .where(and(
+        eq(inviteCodes.id, inviteCodeId),
+        inArray(inviteCodes.status, ['active', 'exhausted']),
+      ));
   } catch (err) {
     console.error('releaseQuota failed (manual review needed):', err);
   }
@@ -152,10 +160,11 @@ export async function redeemInviteCode(
 
   // 2) 创建 License Key。失败时必须释放名额，否则用户拿不到 key 又丢了名额。
   const redemptionId = randomUUID();
+  const licenseOrderId = `INV-${redemptionId}`;
   let key: string;
   try {
     key = await createLicenseKey({
-      orderId: `INV-${redemptionId}`,
+      orderId: licenseOrderId,
       productId: invite.productId,
       planName: invite.planName,
       email: userEmail,
@@ -179,6 +188,14 @@ export async function redeemInviteCode(
   } catch (err) {
     // unique 冲突（错误码 23505）说明并发赢了别人，把名额让出来
     console.error('insert redemption failed:', err);
+    try {
+      const removed = await removeLicenseKey(licenseOrderId, key);
+      if (!removed) {
+        console.error('orphan license cleanup missed (manual review needed):', licenseOrderId);
+      }
+    } catch (cleanupError) {
+      console.error('orphan license cleanup failed (manual review needed):', cleanupError);
+    }
     await releaseQuota(invite.id);
     return { success: false, error: '你已经使用过该邀请码' };
   }

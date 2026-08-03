@@ -1,5 +1,5 @@
 import { randomInt, randomUUID } from 'crypto';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from './db';
 import { licenseKeys } from './db/schema';
 
@@ -57,4 +57,12 @@ export async function createLicenseKey(data: {
 export async function getLicenseKeyByOrderId(orderId: string) {
   const [result] = await db.select().from(licenseKeys).where(eq(licenseKeys.orderId, orderId)).limit(1);
   return result || null;
+}
+
+/** 仅删除调用方刚创建且尚未交付的授权码，用于无事务流程的失败补偿。 */
+export async function removeLicenseKey(orderId: string, expectedKey: string): Promise<boolean> {
+  const result = await db
+    .delete(licenseKeys)
+    .where(and(eq(licenseKeys.orderId, orderId), eq(licenseKeys.key, expectedKey)));
+  return (result.rowCount ?? 0) > 0;
 }
