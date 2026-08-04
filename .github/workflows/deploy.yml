@@ -1,0 +1,21 @@
+name: Deploy to Aliyun
+
+# push 到 main 后自动部署到阿里云服务器（与 Vercel 体验一致）
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 通过 SSH 触发服务器部署
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          script: |
+            cd /var/www/meteor-store
+            bash deploy.sh
