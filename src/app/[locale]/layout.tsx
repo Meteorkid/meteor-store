@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale, getTranslations } from "next-intl/server";
 import { routing, type Locale } from "@/i18n/routing";
@@ -33,6 +34,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!routing.locales.includes(locale as Locale)) {
+    notFound();
+  }
   const t = await getTranslations({ locale, namespace: "HomePage" });
 
   return {
@@ -161,8 +165,4 @@ export default async function LocaleLayout({
       </body>
     </html>
   );
-}
-
-function notFound() {
-  throw new Error("Not found");
 }
