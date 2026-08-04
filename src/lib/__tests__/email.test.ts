@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   isEmailDeliveryConfigured,
   sendEmailVerification,
+  sendNewsletterUnsubscribeConfirmation,
   sendOrderConfirmation,
   sendPasswordReset,
 } from '../email';
@@ -205,6 +206,34 @@ describe('sendPasswordReset', () => {
     expect(call.subject).toContain('重置密码');
     expect(call.html).toContain(
       'https://www.imagentx.top/zh/reset-password#token=signed.token%2Fvalue',
+    );
+    expect(call.html).not.toContain('?token=');
+  });
+});
+
+describe('sendNewsletterUnsubscribeConfirmation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.RESEND_API_KEY = 'test-key';
+    process.env.RESEND_FROM_EMAIL = 'test@example.com';
+    process.env.RESEND_REPLY_TO_EMAIL = 'support@example.com';
+    process.env.NEXT_PUBLIC_SITE_URL = 'https://www.imagentx.top/';
+  });
+
+  it('退订 token 只出现在 URL fragment 并携带 Reply-To', async () => {
+    mockSend.mockResolvedValue({ error: null });
+
+    await sendNewsletterUnsubscribeConfirmation({
+      email: 'user@example.com',
+      token: 'signed.token/value',
+      locale: 'zh',
+    });
+
+    const call = mockSend.mock.calls[0][0];
+    expect(call.replyTo).toBe('support@example.com');
+    expect(call.subject).toContain('确认退订');
+    expect(call.html).toContain(
+      'https://www.imagentx.top/zh/newsletter/unsubscribe#token=signed.token%2Fvalue',
     );
     expect(call.html).not.toContain('?token=');
   });

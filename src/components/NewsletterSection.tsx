@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import GlowButton from './GlowButton';
 
 export default function NewsletterSection() {
@@ -84,7 +85,10 @@ export default function NewsletterSection() {
             )}
 
             <p className="text-xs text-white/30 mt-4">
-              {t('privacyNote')}
+              {t('privacyNote')}{' '}
+              <Link href="/newsletter/unsubscribe" className="underline decoration-white/20 underline-offset-2 transition-colors hover:text-white/60">
+                {t('unsubscribe')}
+              </Link>
             </p>
           </div>
         </div>

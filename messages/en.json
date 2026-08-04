@@ -807,7 +807,24 @@
     "submit": "Subscribe",
     "subscribeFailed": "Subscription failed",
     "subscribeFailedRetry": "Subscription failed, please try again later",
-    "privacyNote": "We respect your privacy and will not send spam."
+    "privacyNote": "We respect your privacy and will not send spam.",
+    "unsubscribe": "Unsubscribe"
+  },
+  "NewsletterUnsubscribePage": {
+    "metaTitle": "Unsubscribe from Product Updates - Meteor Store",
+    "checking": "Checking your unsubscribe link…",
+    "title": "Unsubscribe from product updates",
+    "description": "Enter your subscribed email and we'll send a confirmation. Your subscription changes only after you open the link.",
+    "emailLabel": "Subscribed email",
+    "submit": "Send confirmation email",
+    "requesting": "Sending…",
+    "sentTitle": "Check your inbox",
+    "sentDescription": "If that address is still subscribed, you'll receive a confirmation email. The link is valid for 1 hour.",
+    "successTitle": "You're unsubscribed",
+    "successDescription": "You will no longer receive Meteor Store product updates. You can subscribe again at any time.",
+    "invalidLink": "This unsubscribe link is invalid or expired. Please request another one.",
+    "requestFailed": "We couldn't send the confirmation right now. Please try again later.",
+    "backHome": "Back to home"
   },
   "FAQSection": {
     "title": "FAQ",

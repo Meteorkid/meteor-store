@@ -807,7 +807,24 @@
     "submit": "订阅",
     "subscribeFailed": "订阅失败",
     "subscribeFailedRetry": "订阅失败，请稍后重试",
-    "privacyNote": "我们尊重你的隐私，不会发送垃圾邮件。"
+    "privacyNote": "我们尊重你的隐私，不会发送垃圾邮件。",
+    "unsubscribe": "退订"
+  },
+  "NewsletterUnsubscribePage": {
+    "metaTitle": "退订产品动态 - Meteor Store",
+    "checking": "正在验证退订链接…",
+    "title": "退订产品动态",
+    "description": "输入订阅邮箱，我们会发送一封确认邮件。只有打开邮件中的链接后才会退订。",
+    "emailLabel": "订阅邮箱",
+    "submit": "发送确认邮件",
+    "requesting": "发送中…",
+    "sentTitle": "请检查邮箱",
+    "sentDescription": "如果该邮箱仍在订阅名单中，你会收到一封退订确认邮件。链接 1 小时内有效。",
+    "successTitle": "已完成退订",
+    "successDescription": "你将不再收到 Meteor Store 的产品动态邮件。以后仍可随时重新订阅。",
+    "invalidLink": "退订链接无效或已过期，请重新申请。",
+    "requestFailed": "暂时无法发送确认邮件，请稍后重试。",
+    "backHome": "返回首页"
   },
   "FAQSection": {
     "title": "常见问题",
