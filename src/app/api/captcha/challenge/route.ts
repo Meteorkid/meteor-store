@@ -9,6 +9,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '请求过于频繁' }, { status: 429 });
   }
 
-  const challenge = await createCaptchaChallenge();
-  return NextResponse.json(challenge);
+  try {
+    const challenge = await createCaptchaChallenge();
+    return NextResponse.json(challenge);
+  } catch (error) {
+    console.error('Captcha challenge creation failed', error);
+    return NextResponse.json({ error: '人机验证服务暂不可用' }, { status: 503 });
+  }
 }

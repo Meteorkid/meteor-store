@@ -30,7 +30,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<AuthActionResult>;
-  register: (email: string, password: string, name?: string, captcha?: { token: string; x: number }) => Promise<AuthActionResult>;
+  register: (email: string, password: string, name?: string, captcha?: { token: string }) => Promise<AuthActionResult>;
   resendVerification: (resendTicket: string) => Promise<string | null>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
-  const register = async (email: string, password: string, name?: string, captcha?: { token: string; x: number }): Promise<AuthActionResult> => {
+  const register = async (email: string, password: string, name?: string, captcha?: { token: string }): Promise<AuthActionResult> => {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         name,
         locale,
-        ...(captcha && { captchaToken: captcha.token, captchaX: captcha.x }),
+        ...(captcha && { captchaToken: captcha.token }),
       }),
     });
     const data = await res.json();

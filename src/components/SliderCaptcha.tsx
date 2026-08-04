@@ -7,88 +7,16 @@ import { runCancellableTask } from '@/lib/cancellable-task';
 const W = 300;
 const H = 150;
 const PW = 42;
-const TOLERANCE = 5;
-
-function mulberry32(seed: number) {
-  return () => {
-    seed |= 0;
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-
-function drawBackground(ctx: CanvasRenderingContext2D, seed: number) {
-  const rand = mulberry32(seed);
-  const hue1 = Math.floor(rand() * 360);
-  const hue2 = (hue1 + 40 + Math.floor(rand() * 80)) % 360;
-
-  const grad = ctx.createLinearGradient(0, 0, W, H);
-  grad.addColorStop(0, `hsl(${hue1}, 50%, 35%)`);
-  grad.addColorStop(0.5, `hsl(${(hue1 + hue2) / 2}, 45%, 28%)`);
-  grad.addColorStop(1, `hsl(${hue2}, 50%, 25%)`);
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
-
-  for (let i = 0; i < 18; i++) {
-    const h = Math.floor(rand() * 360);
-    const l = 30 + Math.floor(rand() * 40);
-    const a = 0.15 + rand() * 0.35;
-    ctx.fillStyle = `hsla(${h}, 60%, ${l}%, ${a})`;
-    ctx.beginPath();
-    if (rand() > 0.5) {
-      ctx.arc(rand() * W, rand() * H, 5 + rand() * 30, 0, Math.PI * 2);
-    } else {
-      const rw = 10 + rand() * 50;
-      const rh = 10 + rand() * 40;
-      ctx.rect(rand() * (W - rw), rand() * (H - rh), rw, rh);
-    }
-    ctx.fill();
-  }
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 8; i++) {
-    ctx.beginPath();
-    ctx.moveTo(rand() * W, rand() * H);
-    ctx.lineTo(rand() * W, rand() * H);
-    ctx.stroke();
-  }
-}
 
 interface Props {
-  onVerify: (data: { token: string; x: number }) => void;
+  onVerify: (data: { token: string }) => void;
 }
 
 export default function SliderCaptcha({ onVerify }: Props) {
   const t = useTranslations('Captcha');
   const bgRef = useRef<HTMLCanvasElement>(null);
   const pieceRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [token, setToken] = useState('');
-  const [targetX, setTargetX] = useState(0);
   const [targetY, setTargetY] = useState(0);
   const [sliderX, setSliderX] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -100,7 +28,7 @@ export default function SliderCaptcha({ onVerify }: Props) {
   const startSliderRef = useRef(0);
 
   // 纯绘制函数：不调用 setState，可被 effect 和事件处理器复用
-  const drawCaptcha = useCallback((data: { bgSeed: number; targetX: number; targetY: number }) => {
+  const drawCaptcha = useCallback((data: { backgroundImage: string; pieceImage: string }) => {
     requestAnimationFrame(() => {
       const bg = bgRef.current;
       const piece = pieceRef.current;
@@ -110,25 +38,14 @@ export default function SliderCaptcha({ onVerify }: Props) {
       const pieceCtx = piece.getContext('2d');
       if (!bgCtx || !pieceCtx) return;
 
-      drawBackground(bgCtx, data.bgSeed);
-
-      const imgData = bgCtx.getImageData(data.targetX, data.targetY, PW, PW);
-
+      bgCtx.clearRect(0, 0, W, H);
       pieceCtx.clearRect(0, 0, PW + 4, PW + 4);
-      pieceCtx.putImageData(imgData, 2, 2);
-      pieceCtx.strokeStyle = 'rgba(255,255,255,0.8)';
-      pieceCtx.lineWidth = 1.5;
-      roundRect(pieceCtx, 2, 2, PW, PW, 3);
-      pieceCtx.stroke();
-
-      bgCtx.save();
-      roundRect(bgCtx, data.targetX, data.targetY, PW, PW, 3);
-      bgCtx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-      bgCtx.fill();
-      bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-      bgCtx.lineWidth = 1.5;
-      bgCtx.stroke();
-      bgCtx.restore();
+      const backgroundImage = new Image();
+      backgroundImage.onload = () => bgCtx.drawImage(backgroundImage, 0, 0, W, H);
+      backgroundImage.src = data.backgroundImage;
+      const pieceImage = new Image();
+      pieceImage.onload = () => pieceCtx.drawImage(pieceImage, 0, 0, PW + 4, PW + 4);
+      pieceImage.src = data.pieceImage;
     });
   }, []);
 
@@ -145,7 +62,6 @@ export default function SliderCaptcha({ onVerify }: Props) {
       if (!res.ok) throw new Error();
       const data = await res.json();
       setToken(data.token);
-      setTargetX(data.targetX);
       setTargetY(data.targetY);
       drawCaptcha(data);
     } catch {
@@ -165,7 +81,6 @@ export default function SliderCaptcha({ onVerify }: Props) {
       {
         onSuccess: (data) => {
           setToken(data.token);
-          setTargetX(data.targetX);
           setTargetY(data.targetY);
           drawCaptcha(data);
         },
@@ -199,21 +114,28 @@ export default function SliderCaptcha({ onVerify }: Props) {
       setSliderX(newX);
     };
 
-    const handleEnd = () => {
+    const handleEnd = async () => {
       setDragging(false);
-      setSliderX((current) => {
-        if (Math.abs(current - targetX) <= TOLERANCE) {
-          setVerified(true);
-          onVerify({ token, x: current });
-        } else {
-          setFailed(true);
-          setTimeout(() => {
-            setSliderX(0);
-            setFailed(false);
-          }, 600);
-        }
-        return current;
-      });
+      setLoading(true);
+      try {
+        const response = await fetch('/api/captcha/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, x: sliderX }),
+        });
+        const data = await response.json();
+        if (!response.ok || typeof data.proof !== 'string') throw new Error();
+        setVerified(true);
+        onVerify({ token: data.proof });
+      } catch {
+        setFailed(true);
+        setTimeout(() => {
+          setSliderX(0);
+          setFailed(false);
+        }, 600);
+      } finally {
+        setLoading(false);
+      }
     };
 
     document.addEventListener('mousemove', handleMove);
@@ -226,14 +148,13 @@ export default function SliderCaptcha({ onVerify }: Props) {
       document.removeEventListener('touchmove', handleMove);
       document.removeEventListener('touchend', handleEnd);
     };
-  }, [dragging, targetX, token, onVerify]);
+  }, [dragging, sliderX, token, onVerify]);
 
   const trackMaxX = W - 40;
 
   return (
     <div className="w-full max-w-[300px]">
       <div
-        ref={containerRef}
         className={`relative overflow-hidden rounded-lg border transition-colors ${
           verified
             ? 'border-emerald-500/50'

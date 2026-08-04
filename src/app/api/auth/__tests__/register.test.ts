@@ -74,7 +74,6 @@ function request(email: string): NextRequest {
       password: 'strong-password',
       name: 'Meteor',
       captchaToken: 'captcha-token',
-      captchaX: 120,
       locale: 'zh',
     }),
   }) as unknown as NextRequest;

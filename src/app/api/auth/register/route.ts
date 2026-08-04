@@ -35,13 +35,12 @@ export async function POST(req: NextRequest) {
   }
 
   const captchaToken = typeof body?.captchaToken === 'string' ? body.captchaToken : '';
-  const captchaX = typeof body?.captchaX === 'number' ? body.captchaX : NaN;
 
-  if (!captchaToken || isNaN(captchaX)) {
+  if (!captchaToken) {
     return NextResponse.json({ error: '请完成人机验证' }, { status: 400 });
   }
 
-  const captchaValid = await verifyCaptcha(captchaToken, captchaX);
+  const captchaValid = await verifyCaptcha(captchaToken);
   if (!captchaValid) {
     return NextResponse.json({ error: '人机验证失败，请重试' }, { status: 400 });
   }

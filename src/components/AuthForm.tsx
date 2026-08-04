@@ -46,14 +46,14 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [agreed, setAgreed] = useState(false);
-  const [captcha, setCaptcha] = useState<{ token: string; x: number } | null>(null);
+  const [captcha, setCaptcha] = useState<{ token: string } | null>(null);
   const [pendingVerification, setPendingVerification] = useState<PendingVerification | null>(null);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
   const { login, register, resendVerification, user } = useAuth();
   const router = useRouter();
 
-  const handleCaptchaVerify = useCallback((data: { token: string; x: number }) => {
+  const handleCaptchaVerify = useCallback((data: { token: string }) => {
     setCaptcha(data);
   }, []);
 

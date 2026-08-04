@@ -279,11 +279,11 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 
 注册表单集成了拼图滑块 CAPTCHA，防止批量注册。
 
-- 服务端 `src/lib/captcha.ts`：用 HMAC-SHA256 签名的 JWT 承载挑战（目标位置 + 种子），
-  签名密钥从 `JWT_SECRET + ':captcha'` 派生，和会话 token 互不可替
-- 客户端 `src/components/SliderCaptcha.tsx`：canvas 绘制几何背景 + 拼图缺口，
-  用户拖动滑块将拼图块移到正确位置，容差 5px
-- 挑战有效期 120 秒，每个 token 含唯一 nonce（JTI），不可重放
+- 服务端 `src/lib/captcha.ts` 用 Sharp 栅格化背景与拼图块，目标 X 坐标只存 Redis；
+  客户端只拿 PNG、目标 Y 坐标和不承载答案的随机挑战 ID
+- 用户松开滑块后由 `/api/captcha/verify` 服务端核验（容差 5px），成功后换取
+  HMAC-SHA256 签名的短期 proof；注册 API 只接受 proof，不再接收坐标答案
+- 挑战与 proof 都有效 120 秒，并分别原子消费一次，不能重放
 - 注册 API 在密码校验后、查重前验证 CAPTCHA，失败返回 400
 - 登录不走 CAPTCHA——已有按邮箱 + IP 双维度限流
 
@@ -388,8 +388,8 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
   img-src 会从 `R2_PUBLIC_BASE` 自动注入域名白名单，新加图片源域名时改 middleware，别在响应头里覆盖
 - **改密踢会话**靠 `users.token_version`：会话 JWT 携带签发时的版本号，`getSession` 比对当前数据库值，
   不一致即视为过期。改密递增该字段；改昵称/头像**不要**递增——会把其他设备无辜踢下线
-- CAPTCHA 防重放走 Redis SETNX（`src/lib/captcha.ts`），Vercel 多实例下进程内 Map 不可靠；
-  `consumeCaptchaToken` 必须在注册成功路径上调用，失败重试要重新签发挑战
+- CAPTCHA 答案与防重放状态走 Redis（`src/lib/captcha.ts`）：挑战用 GETDEL 原子认领，
+  proof 用 SET NX 原子消费；Vercel 多实例下不能依赖进程内 Map
 - **React 19 `react-hooks/refs` 规则**：不要在渲染期间写 ref（`ref.current = value`），
   会触发 ESLint error。写 ref 必须放进 `useEffect`。EasterEggs 和 MeteorShower 的 `tRef` 已修
 - **Hook 调用顺序**：`useCallback`/`useMemo`/`useEffect` 等所有 Hook 必须在任何 `if (...) return` 之前调用，
