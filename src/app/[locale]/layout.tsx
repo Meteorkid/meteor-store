@@ -127,7 +127,7 @@ export default async function LocaleLayout({
     },
   };
 
-  // 从 middleware 注入的 x-nonce header 取 nonce，让内联脚本通过 CSP
+  // 从 proxy 注入的 x-nonce header 取 nonce，让内联脚本通过 CSP
   const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (

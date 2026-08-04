@@ -383,9 +383,9 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - 限流数据在 Upstash Redis，`Ratelimit` 带进程内 `ephemeralCache`：调限流时**光清 Redis 不够，必须重启进程**
 - 密钥不进仓库；`NEXT_PUBLIC_` 前缀的变量会被内联进客户端包，只放公开值（如 Sentry DSN）
 - 改 `NEXT_PUBLIC_*` 后**必须重新构建**才生效，不是重启
-- **CSP 由 middleware 动态生成**（[src/middleware.ts](file:///Users/meteor/github/meteor-store/src/middleware.ts)），不要回到 `next.config.ts` 写静态 CSP。
+- **CSP 由 proxy 动态生成**（[src/proxy.ts](file:///Users/meteor/github/meteor-store/src/proxy.ts)），不要回到 `next.config.ts` 写静态 CSP。
   inline 脚本走 nonce + `'strict-dynamic'`，不要再加 `'unsafe-inline'`；
-  img-src 会从 `R2_PUBLIC_BASE` 自动注入域名白名单，新加图片源域名时改 middleware，别在响应头里覆盖
+  img-src 会从 `R2_PUBLIC_BASE` 自动注入域名白名单，新加图片源域名时改 proxy，别在响应头里覆盖
 - **改密踢会话**靠 `users.token_version`：会话 JWT 携带签发时的版本号，`getSession` 比对当前数据库值，
   不一致即视为过期。改密递增该字段；改昵称/头像**不要**递增——会把其他设备无辜踢下线
 - CAPTCHA 答案与防重放状态走 Redis（`src/lib/captcha.ts`）：挑战用 GETDEL 原子认领，

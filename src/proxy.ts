@@ -6,9 +6,9 @@ import { routing } from '@/i18n/routing';
  * 每个请求生成一次性 nonce，注入到 CSP 的 script-src，替代 'unsafe-inline'。
  *
  * Next.js 16 的 SSR 流程：
- *   middleware → 生成 nonce 写入 request header
+ *   proxy → 生成 nonce 写入 request header
  *   → 服务端组件通过 headers() 读取，注入到 <Script> 等需要 inline 的位置
- *   → middleware 同时把带 nonce 的 CSP 写到 response header
+ *   → proxy 同时把带 nonce 的 CSP 写到 response header
  *
  * nonce 在单次请求内有效，每次请求重新生成，无法跨请求预测或重放。
  *
@@ -21,7 +21,7 @@ const NONCE_HEADER = 'x-nonce';
 
 const intlMiddleware = createMiddleware(routing);
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // 32 字节随机 → base64
   const nonce = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
 

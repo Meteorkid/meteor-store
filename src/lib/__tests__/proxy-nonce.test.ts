@@ -6,11 +6,11 @@ vi.mock('next-intl/middleware', () => ({
     NextResponse.next({ request: { headers: request.headers } }),
 }));
 
-import { middleware } from '@/middleware';
+import { proxy } from '@/proxy';
 
-describe('middleware CSP nonce', () => {
+describe('proxy CSP nonce 传播', () => {
   it('forwards the same nonce to rendering and the response CSP', () => {
-    const response = middleware(new NextRequest('https://imagentx.top/zh'));
+    const response = proxy(new NextRequest('https://imagentx.top/zh'));
     const csp = response.headers.get('content-security-policy');
     const nonce = csp?.match(/'nonce-([^']+)'/)?.[1];
 

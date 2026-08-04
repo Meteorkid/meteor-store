@@ -4,7 +4,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
-// CSP 由 src/middleware.ts 动态生成（每请求一个 nonce 注入到 script-src），
+// CSP 由 src/proxy.ts 动态生成（每请求一个 nonce 注入到 script-src），
 // 这里不再静态设置，避免双重 CSP header 让浏览器无所适从。
 // 其余安全 header 是静态的，仍然从这里发出。
 const securityHeaders = [
