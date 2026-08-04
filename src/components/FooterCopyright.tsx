@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { OPERATOR } from '@/lib/constants';
 import { showToast } from './EasterEggs';
 
 /** Footer 版权行：hover 眨眼（CSS），连点 5 次有小惊喜 */
@@ -21,9 +22,10 @@ export default function FooterCopyright() {
   };
 
   const year = new Date().getFullYear();
-  const icpNumber = t('icpNumber');
-  const policeNumber = t('policeNumber');
-  const operatorName = t('operatorName');
+  // 管局要求「版权所有」与备案主体一致；主体未登记时退回原本的口语化文案
+  const copyright = OPERATOR.name
+    ? t('copyrightOperator', { year, operator: OPERATOR.name })
+    : t('copyrightLine1', { year });
 
   return (
     <div className="space-y-2">
@@ -31,32 +33,31 @@ export default function FooterCopyright() {
         className="footer-wink text-muted-foreground text-sm cursor-default select-none"
         onClick={onClick}
       >
-        <span className="wink-default">{t('copyrightLine1', { year })}</span>
+        <span className="wink-default">{copyright}</span>
         <span className="wink-alt">{t('copyrightLine2', { year })}</span>
       </p>
       {/* 备案信息：未取得的项留空即不渲染，避免把占位符挂到线上被管局驳回 */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600">
-        {icpNumber && (
+        {OPERATOR.icp && (
           <a
             href="https://beian.miit.gov.cn"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-gray-400 transition-colors"
           >
-            {icpNumber}
+            {OPERATOR.icp}
           </a>
         )}
-        {policeNumber && (
+        {OPERATOR.police && (
           <a
             href="https://beian.mps.gov.cn"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-gray-400 transition-colors"
           >
-            {policeNumber}
+            {OPERATOR.police}
           </a>
         )}
-        {operatorName && <span>{operatorName}</span>}
       </div>
     </div>
   );

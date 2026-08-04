@@ -12,6 +12,31 @@ export const ANNUAL_DISCOUNT = 0.8;
  */
 export const SHOW_PRICING = process.env.NEXT_PUBLIC_SHOW_PRICING === 'true';
 
+/**
+ * 经营主体信息，用于备案公示与《电子商务法》第 15 条亮照经营。
+ *
+ * 这是全站唯一数据源——页脚、/contact、/terms、/privacy 都从这里取，
+ * 不要再往 i18n 里塞主体信息的值（i18n 只放标签文案）。
+ * 空字符串表示该项尚未取得，对应的展示行不渲染：宁可不显示，
+ * 也不要把占位符挂到线上，管局会按「信息不实」驳回备案。
+ *
+ * 经营者姓名属个人隐私，公示不需要，也不要登记在这里。
+ */
+export const OPERATOR = {
+  /** 营业执照名称（字号全称） */
+  name: '广州市番禺区流星软件店',
+  /** 统一社会信用代码 */
+  creditCode: '92440113MAKL666E7K',
+  /** 对外公示的经营地址 */
+  address: '',
+  /** ICP 备案号，链接工信部 beian.miit.gov.cn */
+  icp: '粤ICP备2026089905号',
+  /** 公安联网备案号，ICP 备案通过后 30 日内办理 */
+  police: '',
+  /** 争议管辖法院所在地 */
+  jurisdiction: '广州市番禺区',
+} as const;
+
 /** 产品分类颜色映射 */
 export const categoryColors: Record<string, string> = {
   developer: 'text-blue-400 bg-blue-400/10',

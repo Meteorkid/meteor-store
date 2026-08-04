@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Link } from '@/i18n/navigation';
+import { OPERATOR } from '@/lib/constants';
 
 export async function generateMetadata({
   params,
@@ -38,18 +39,24 @@ export default async function TermsPage({
             <h2 className="text-2xl font-semibold mb-4">{t('operatorTitle')}</h2>
             <p className="text-gray-300 leading-relaxed">{t('operatorContent')}</p>
             <dl className="text-gray-300 leading-relaxed mt-3 space-y-1">
-              <div className="flex flex-wrap gap-x-2">
-                <dt className="text-gray-500">{t('operatorName')}：</dt>
-                <dd>{t('operatorNamePlaceholder')}</dd>
-              </div>
-              <div className="flex flex-wrap gap-x-2">
-                <dt className="text-gray-500">{t('operatorCreditCode')}：</dt>
-                <dd>{t('operatorCreditCodePlaceholder')}</dd>
-              </div>
-              <div className="flex flex-wrap gap-x-2">
-                <dt className="text-gray-500">{t('operatorAddress')}：</dt>
-                <dd>{t('operatorAddressPlaceholder')}</dd>
-              </div>
+              {OPERATOR.name && (
+                <div className="flex flex-wrap gap-x-2">
+                  <dt className="text-gray-500">{t('operatorName')}：</dt>
+                  <dd>{OPERATOR.name}</dd>
+                </div>
+              )}
+              {OPERATOR.creditCode && (
+                <div className="flex flex-wrap gap-x-2">
+                  <dt className="text-gray-500">{t('operatorCreditCode')}：</dt>
+                  <dd>{OPERATOR.creditCode}</dd>
+                </div>
+              )}
+              {OPERATOR.address && (
+                <div className="flex flex-wrap gap-x-2">
+                  <dt className="text-gray-500">{t('operatorAddress')}：</dt>
+                  <dd>{OPERATOR.address}</dd>
+                </div>
+              )}
             </dl>
           </section>
 
@@ -120,9 +127,11 @@ export default async function TermsPage({
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">{t('lawTitle')}</h2>
             <p className="text-gray-300 leading-relaxed">{t('lawContent')}</p>
-            <p className="text-gray-300 mt-2">
-              {t('lawJurisdiction')}：{t('lawJurisdictionPlaceholder')}
-            </p>
+            {OPERATOR.jurisdiction && (
+              <p className="text-gray-300 mt-2">
+                {t('lawJurisdiction')}：{OPERATOR.jurisdiction}
+              </p>
+            )}
           </section>
 
           <section className="mb-8">

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { OPERATOR } from '@/lib/constants';
 
 export async function generateMetadata({
   params,
@@ -44,18 +45,24 @@ export default async function ContactPage({
                 <h2 className="text-lg font-semibold">{t('operatorTitle')}</h2>
               </div>
               <dl className="space-y-2 text-sm">
-                <div className="flex flex-wrap gap-x-2">
-                  <dt className="text-gray-500">{t('operatorName')}：</dt>
-                  <dd className="text-gray-300">{t('operatorNamePlaceholder')}</dd>
-                </div>
-                <div className="flex flex-wrap gap-x-2">
-                  <dt className="text-gray-500">{t('operatorCreditCode')}：</dt>
-                  <dd className="text-gray-300">{t('operatorCreditCodePlaceholder')}</dd>
-                </div>
-                <div className="flex flex-wrap gap-x-2">
-                  <dt className="text-gray-500">{t('operatorAddress')}：</dt>
-                  <dd className="text-gray-300">{t('operatorAddressPlaceholder')}</dd>
-                </div>
+                {OPERATOR.name && (
+                  <div className="flex flex-wrap gap-x-2">
+                    <dt className="text-gray-500">{t('operatorName')}：</dt>
+                    <dd className="text-gray-300">{OPERATOR.name}</dd>
+                  </div>
+                )}
+                {OPERATOR.creditCode && (
+                  <div className="flex flex-wrap gap-x-2">
+                    <dt className="text-gray-500">{t('operatorCreditCode')}：</dt>
+                    <dd className="text-gray-300">{OPERATOR.creditCode}</dd>
+                  </div>
+                )}
+                {OPERATOR.address && (
+                  <div className="flex flex-wrap gap-x-2">
+                    <dt className="text-gray-500">{t('operatorAddress')}：</dt>
+                    <dd className="text-gray-300">{OPERATOR.address}</dd>
+                  </div>
+                )}
               </dl>
               <p className="mt-4 text-xs text-gray-600">{t('operatorNote')}</p>
             </div>

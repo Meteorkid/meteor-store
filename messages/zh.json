@@ -67,9 +67,7 @@
     "copyrightTapReward": "再点也不会掉钱出来啦",
     "copyrightLine1": "© {year} Meteor Store · 某个还在攒学费的大学生",
     "copyrightLine2": "© {year} Meteor Store · (｡•̀ᴗ-)✧ 被你发现了",
-    "icpNumber": "粤ICP备2026089905号",
-    "policeNumber": "",
-    "operatorName": ""
+    "copyrightOperator": "© {year} Meteor Store · {operator}"
   },
   "HomePage": {
     "title": "Meteor Store — 开发者工具与 AI 应用",
@@ -265,11 +263,8 @@
     "responseDescription": "我们通常在 24 小时内回复邮件。对于紧急问题，请在邮件标题中注明「紧急」。",
     "operatorTitle": "经营者信息",
     "operatorName": "经营者名称",
-    "operatorNamePlaceholder": "[待填写：个体工商户全称]",
     "operatorCreditCode": "统一社会信用代码",
-    "operatorCreditCodePlaceholder": "[待填写：统一社会信用代码]",
     "operatorAddress": "经营地址",
-    "operatorAddressPlaceholder": "[待填写：营业执照登记地址]",
     "operatorNote": "依据《中华人民共和国电子商务法》第十五条，本页面公示经营者主体信息。"
   },
   "DocsPage": {
@@ -291,11 +286,8 @@
     "operatorTitle": "1. 运营主体",
     "operatorContent": "本网站（imagentx.top）由下列个体工商户运营。访问或使用本站服务，即表示您已阅读、理解并同意受本条款约束；如不同意，请停止使用。",
     "operatorName": "经营者名称",
-    "operatorNamePlaceholder": "[待填写：个体工商户全称]",
     "operatorCreditCode": "统一社会信用代码",
-    "operatorCreditCodePlaceholder": "[待填写：统一社会信用代码]",
     "operatorAddress": "经营地址",
-    "operatorAddressPlaceholder": "[待填写：营业执照登记地址]",
     "serviceTitle": "2. 服务描述",
     "serviceContent": "Meteor Store 提供自主开发的数字产品在线展示与销售服务，产品形态包括 macOS 桌面应用、命令行工具、Web 应用及相关开发辅助工具。部分产品以开源形式免费提供，部分产品为付费授权，具体以各产品页面标注为准。",
     "accountTitle": "3. 账户注册",
@@ -328,7 +320,6 @@
     "lawTitle": "11. 适用法律与争议解决",
     "lawContent": "本条款的订立、效力、解释、履行及争议解决均适用中华人民共和国法律（不含香港特别行政区、澳门特别行政区及台湾地区法律）。因本条款产生的争议，双方应首先友好协商解决；协商不成的，任何一方均可向经营者所在地有管辖权的人民法院提起诉讼。",
     "lawJurisdiction": "管辖法院所在地",
-    "lawJurisdictionPlaceholder": "[待填写：经营者所在地]",
     "contactTitle": "12. 联系方式",
     "contactContent": "如对本条款有任何疑问，请联系我们："
   },
@@ -581,9 +572,7 @@
     "controllerTitle": "1. 个人信息处理者",
     "controllerContent": "本网站（imagentx.top）的个人信息处理者为下列个体工商户。我们依据《中华人民共和国个人信息保护法》《中华人民共和国网络安全法》处理您的个人信息。",
     "controllerName": "经营者名称",
-    "controllerNamePlaceholder": "[待填写：个体工商户全称]",
     "controllerAddress": "经营地址",
-    "controllerAddressPlaceholder": "[待填写：营业执照登记地址]",
     "controllerEmail": "联系邮箱",
     "collectTitle": "2. 信息收集",
     "collectContent": "我们在您使用 Meteor Store 时收集以下信息：",

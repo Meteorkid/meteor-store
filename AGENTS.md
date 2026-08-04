@@ -397,19 +397,26 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 
 ## 经营主体信息（个体工商户合规）
 
-网站以个体工商户主体经营，需公示的信息**全部走 i18n 占位符**，备案通过后统一回填。
-占位符形如 `[待填写：XXX]` / `[TBD: XXX]`，中英各一份，**改一处必须改另一处**。
+主体信息的唯一数据源是 `src/lib/constants.ts` 的 **`OPERATOR`**。
+**i18n 里只放标签文案，不要放主体信息的值**——曾经把值散在 4 个命名空间 × 2 种语言里，
+回填时必漏；`[待填写：XXX]` 占位符还因此被挂到线上，管局按「未准确悬挂备案号」驳回过一次。
 
-| 信息 | 命名空间与 key | 展示位置 |
-|------|---------------|---------|
-| ICP 备案号 | `Footer.icpPlaceholder` | 全站页脚，链接 beian.miit.gov.cn |
-| 公安备案号 | `Footer.policePlaceholder` | 全站页脚，链接 beian.mps.gov.cn |
-| 经营者名称 | `Footer.operatorPlaceholder`、`ContactPage.operatorNamePlaceholder`、`TermsPage.operatorNamePlaceholder`、`PrivacyPage.controllerNamePlaceholder` | 页脚、`/contact`、`/terms`、`/privacy` |
-| 统一社会信用代码 | `ContactPage.operatorCreditCodePlaceholder`、`TermsPage.operatorCreditCodePlaceholder` | `/contact`、`/terms` |
-| 经营地址 | `ContactPage.operatorAddressPlaceholder`、`TermsPage.operatorAddressPlaceholder`、`PrivacyPage.controllerAddressPlaceholder` | `/contact`、`/terms`、`/privacy` |
-| 管辖法院所在地 | `TermsPage.lawJurisdictionPlaceholder` | `/terms` 第 11 节 |
+| 字段 | 展示位置 |
+|------|---------|
+| `name` 执照名称 | 页脚版权行、`/contact`、`/terms` 第 1 节、`/privacy` 第 1 节 |
+| `creditCode` 统一社会信用代码 | `/contact`、`/terms` 第 1 节 |
+| `address` 经营地址 | `/contact`、`/terms` 第 1 节、`/privacy` 第 1 节 |
+| `icp` ICP 备案号 | 全站页脚，链接 beian.miit.gov.cn |
+| `police` 公安备案号 | 全站页脚，链接 beian.mps.gov.cn |
+| `jurisdiction` 管辖法院所在地 | `/terms` 第 11 节 |
 
-回填后用 `grep -rn "待填写\|TBD:" messages/` 确认无残留。
+- **空字符串 = 该项未取得，对应展示行不渲染**。宁可不显示也不要挂占位符：
+  管局审核会逐页核对，占位符等于「信息不实」
+- **经营者姓名不进这个对象，也不对外公示**。《电子商务法》第 15 条要的是执照信息
+  （名称 + 统一社会信用代码），不含经营者姓名
+- 页脚版权行：`OPERATOR.name` 有值时用 `copyrightOperator`（品牌 + 主体名），
+  否则退回 `copyrightLine1`。管局明确要求「版权所有需与备案主体一致」，
+  不要改回纯个人化文案；hover 眨眼的彩蛋行不涉及主体声明，保留
 
 - **法律页面共 4 个**：`/privacy`（13 节，PIPL 口径）、`/terms`（12 节）、`/eula`、`/refund`，
   四个页面都在 Footer 的 `legalLinks` 里，也都进了 `sitemap.ts` 的 `staticPages`（自动生成双语条目）

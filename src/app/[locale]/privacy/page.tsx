@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { OPERATOR } from '@/lib/constants';
 
 export async function generateMetadata({
   params,
@@ -37,14 +38,18 @@ export default async function PrivacyPage({
             <h2 className="text-2xl font-semibold mb-4">{t('controllerTitle')}</h2>
             <p className="text-gray-300 leading-relaxed">{t('controllerContent')}</p>
             <dl className="text-gray-300 leading-relaxed mt-3 space-y-1">
-              <div className="flex flex-wrap gap-x-2">
-                <dt className="text-gray-500">{t('controllerName')}：</dt>
-                <dd>{t('controllerNamePlaceholder')}</dd>
-              </div>
-              <div className="flex flex-wrap gap-x-2">
-                <dt className="text-gray-500">{t('controllerAddress')}：</dt>
-                <dd>{t('controllerAddressPlaceholder')}</dd>
-              </div>
+              {OPERATOR.name && (
+                <div className="flex flex-wrap gap-x-2">
+                  <dt className="text-gray-500">{t('controllerName')}：</dt>
+                  <dd>{OPERATOR.name}</dd>
+                </div>
+              )}
+              {OPERATOR.address && (
+                <div className="flex flex-wrap gap-x-2">
+                  <dt className="text-gray-500">{t('controllerAddress')}：</dt>
+                  <dd>{OPERATOR.address}</dd>
+                </div>
+              )}
               <div className="flex flex-wrap gap-x-2">
                 <dt className="text-gray-500">{t('controllerEmail')}：</dt>
                 <dd><a href="mailto:meteor@stu.gpnu.edu.cn" className="text-purple-400 hover:text-purple-300">meteor@stu.gpnu.edu.cn</a></dd>

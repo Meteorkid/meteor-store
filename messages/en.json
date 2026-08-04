@@ -67,9 +67,7 @@
     "copyrightTapReward": "Keep tapping — no money's coming out",
     "copyrightLine1": "© {year} Meteor Store · a student still saving for tuition",
     "copyrightLine2": "© {year} Meteor Store · (｡•̀ᴗ-)✧ you found me",
-    "icpNumber": "粤ICP备2026089905号",
-    "policeNumber": "",
-    "operatorName": ""
+    "copyrightOperator": "© {year} Meteor Store · {operator}"
   },
   "HomePage": {
     "title": "Meteor Store — Developer Tools & AI Apps",
@@ -265,11 +263,8 @@
     "responseDescription": "We typically respond within 24 hours. For urgent issues, please indicate 'Urgent' in the email subject.",
     "operatorTitle": "Business Information",
     "operatorName": "Registered Name",
-    "operatorNamePlaceholder": "[TBD: registered business name]",
     "operatorCreditCode": "Unified Social Credit Code",
-    "operatorCreditCodePlaceholder": "[TBD: unified social credit code]",
     "operatorAddress": "Registered Address",
-    "operatorAddressPlaceholder": "[TBD: address on business license]",
     "operatorNote": "Business entity details are disclosed here pursuant to Article 15 of the E-Commerce Law of the PRC."
   },
   "DocsPage": {
@@ -291,11 +286,8 @@
     "operatorTitle": "1. Operating Entity",
     "operatorContent": "This website (imagentx.top) is operated by the sole proprietorship listed below. By accessing or using this site you confirm that you have read, understood, and agree to be bound by these terms. If you do not agree, please discontinue use.",
     "operatorName": "Registered Name",
-    "operatorNamePlaceholder": "[TBD: registered business name]",
     "operatorCreditCode": "Unified Social Credit Code",
-    "operatorCreditCodePlaceholder": "[TBD: unified social credit code]",
     "operatorAddress": "Registered Address",
-    "operatorAddressPlaceholder": "[TBD: address on business license]",
     "serviceTitle": "2. Service Description",
     "serviceContent": "Meteor Store showcases and sells digital products we develop ourselves, including macOS desktop applications, command-line tools, web applications, and related developer utilities. Some products are released as free open source software; others require a paid licence, as indicated on each product page.",
     "accountTitle": "3. Account Registration",
@@ -328,7 +320,6 @@
     "lawTitle": "11. Governing Law and Dispute Resolution",
     "lawContent": "The formation, validity, interpretation, performance, and dispute resolution of these terms are governed by the laws of the People’s Republic of China (excluding the laws of Hong Kong SAR, Macao SAR, and Taiwan). Any dispute shall first be resolved through friendly negotiation; failing that, either party may bring proceedings before the competent People’s Court at the operator’s place of business.",
     "lawJurisdiction": "Court of jurisdiction",
-    "lawJurisdictionPlaceholder": "[TBD: operator’s place of business]",
     "contactTitle": "12. Contact",
     "contactContent": "If you have any questions about these terms, please contact us:"
   },
@@ -581,9 +572,7 @@
     "controllerTitle": "1. Personal Information Handler",
     "controllerContent": "This website (imagentx.top) is operated by the sole proprietorship listed below, which acts as the handler of your personal information. We process personal information in accordance with the Personal Information Protection Law and the Cybersecurity Law of the People’s Republic of China.",
     "controllerName": "Registered Name",
-    "controllerNamePlaceholder": "[TBD: registered business name]",
     "controllerAddress": "Registered Address",
-    "controllerAddressPlaceholder": "[TBD: address on business license]",
     "controllerEmail": "Contact Email",
     "collectTitle": "2. Information Collection",
     "collectContent": "We collect the following information when you use Meteor Store:",
