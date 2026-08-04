@@ -5,6 +5,7 @@ import {
   sendNewsletterUnsubscribeConfirmation,
   sendOrderConfirmation,
   sendPasswordReset,
+  sendStudentVerification,
 } from '../email';
 
 // Mock Resend
@@ -234,6 +235,34 @@ describe('sendNewsletterUnsubscribeConfirmation', () => {
     expect(call.subject).toContain('确认退订');
     expect(call.html).toContain(
       'https://www.imagentx.top/zh/newsletter/unsubscribe#token=signed.token%2Fvalue',
+    );
+    expect(call.html).not.toContain('?token=');
+  });
+});
+
+describe('sendStudentVerification', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.RESEND_API_KEY = 'test-key';
+    process.env.RESEND_FROM_EMAIL = 'test@example.com';
+    process.env.RESEND_REPLY_TO_EMAIL = 'support@example.com';
+    process.env.NEXT_PUBLIC_SITE_URL = 'https://www.imagentx.top/';
+  });
+
+  it('学生验证 token 只出现在 URL fragment 并携带 Reply-To', async () => {
+    mockSend.mockResolvedValue({ error: null });
+
+    await sendStudentVerification({
+      email: 'student@mit.edu',
+      token: 'signed.token/value',
+      locale: 'zh',
+    });
+
+    const call = mockSend.mock.calls[0][0];
+    expect(call.replyTo).toBe('support@example.com');
+    expect(call.subject).toContain('学生身份');
+    expect(call.html).toContain(
+      'https://www.imagentx.top/zh/student#token=signed.token%2Fvalue',
     );
     expect(call.html).not.toContain('?token=');
   });

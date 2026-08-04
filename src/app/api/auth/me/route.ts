@@ -15,6 +15,7 @@ export async function GET() {
     .select({
       avatarUrl: users.avatarUrl,
       bio: users.bio,
+      isStudent: users.isStudent,
     })
     .from(users)
     .where(eq(users.id, session.userId))
@@ -25,6 +26,7 @@ export async function GET() {
       ...session,
       avatarUrl: row?.avatarUrl ?? null,
       bio: row?.bio ?? null,
+      isStudent: row?.isStudent ?? false,
       isAdmin: isAdminSession(session),
     },
   });

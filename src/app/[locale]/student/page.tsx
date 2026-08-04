@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import StudentVerificationForm from '@/components/StudentVerificationForm';
 
 export async function generateMetadata({
   params,
@@ -40,21 +41,21 @@ export default async function StudentPage({
             </p>
           </div>
 
-          {/* 暂停公告：在线认证链路升级中，临时改为邮件人工开通 */}
-          <div className="mx-auto max-w-md rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-8 text-left">
-            <h2 className="mb-2 text-lg font-semibold text-amber-200">{t('upgradeNotice')}</h2>
+          <div className="mx-auto max-w-md">
+            <StudentVerificationForm />
+          </div>
+
+          <div className="mx-auto mt-6 max-w-md rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-6 text-left">
+            <h2 className="mb-2 text-base font-semibold text-amber-200">{t('manualTitle')}</h2>
             <p className="text-sm leading-relaxed text-gray-300">
-              {t('upgradeDescription')}
+              {t('manualDescription')}
               <a
                 href={`mailto:meteor@stu.gpnu.edu.cn?subject=${encodeURIComponent(t('emailSubject'))}`}
                 className="mx-1 underline decoration-amber-300/40 underline-offset-4 hover:decoration-amber-300"
               >
                 meteor@stu.gpnu.edu.cn
               </a>
-              {t('upgradeAction')}
-            </p>
-            <p className="mt-3 text-xs text-gray-500">
-              {t('upgradeNote')}
+              {t('manualAction')}
             </p>
           </div>
 

@@ -42,6 +42,7 @@ interface VerificationEmailData {
 
 type PasswordResetEmailData = VerificationEmailData;
 type NewsletterUnsubscribeEmailData = VerificationEmailData;
+type StudentVerificationEmailData = VerificationEmailData;
 
 export function isEmailDeliveryConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY);
@@ -166,6 +167,48 @@ export async function sendNewsletterUnsubscribeConfirmation(
         <p>${copy.body}</p>
         <p style="margin: 28px 0;">
           <a href="${unsubscribeUrl}" style="display: inline-block; padding: 12px 20px; border-radius: 8px; background: #7c3aed; color: #fff; text-decoration: none; font-weight: 600;">${copy.action}</a>
+        </p>
+        <p style="color: #666; font-size: 13px;">${copy.hint}</p>
+      </div>
+    `,
+  });
+
+  if (error) throw new Error(`Email send failed: ${error.message}`);
+}
+
+export async function sendStudentVerification(data: StudentVerificationEmailData) {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://imagentx.top').replace(/\/+$/, '');
+  const verificationUrl = escapeHtml(
+    `${siteUrl}/${data.locale}/student#token=${encodeURIComponent(data.token)}`,
+  );
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const copy = data.locale === 'en'
+    ? {
+        subject: 'Verify your student status - Meteor Store',
+        title: 'Verify student status',
+        body: 'Click the button below to verify this education email for your Meteor Store account. This link expires in 24 hours.',
+        action: 'Verify student status',
+        hint: 'If you did not request this, you can ignore this email.',
+      }
+    : {
+        subject: '验证学生身份 - Meteor Store',
+        title: '验证学生身份',
+        body: '点击下方按钮，将此教育邮箱验证到你的 Meteor Store 账户。链接将在 24 小时后失效。',
+        action: '验证学生身份',
+        hint: '如果不是你发起的请求，可以忽略这封邮件。',
+      };
+
+  const { error } = await getResend().emails.send({
+    from: `Meteor Store <${fromEmail}>`,
+    replyTo: getReplyToEmail(),
+    to: data.email,
+    subject: copy.subject,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
+        <h1>${copy.title}</h1>
+        <p>${copy.body}</p>
+        <p style="margin: 28px 0;">
+          <a href="${verificationUrl}" style="display: inline-block; padding: 12px 20px; border-radius: 8px; background: #7c3aed; color: #fff; text-decoration: none; font-weight: 600;">${copy.action}</a>
         </p>
         <p style="color: #666; font-size: 13px;">${copy.hint}</p>
       </div>

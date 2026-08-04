@@ -38,6 +38,8 @@ export async function exportUserData(userId: string, email: string) {
       bio: users.bio,
       emailVerified: users.emailVerified,
       isStudent: users.isStudent,
+      studentEmail: users.studentEmail,
+      studentVerifiedAt: users.studentVerifiedAt,
       createdAt: users.createdAt,
     }).from(users).where(eq(users.id, userId)),
     db.select({

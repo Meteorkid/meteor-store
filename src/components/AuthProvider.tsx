@@ -9,6 +9,7 @@ interface User {
   name?: string;
   avatarUrl?: string | null;
   emailVerified?: true;
+  isStudent?: boolean;
   /** 只决定要不要显示后台入口；权限本身由服务端每次请求判定 */
   isAdmin?: boolean;
 }

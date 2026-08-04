@@ -37,6 +37,8 @@ export const users = pgTable('users', {
   bio: text('bio'),
   emailVerified: boolean('email_verified').default(false).notNull(),
   isStudent: boolean('is_student').default(false).notNull(),
+  studentEmail: text('student_email').unique(),
+  studentVerifiedAt: text('student_verified_at'),
   createdAt: text('created_at').notNull(),
   /**
    * Token 版本号，写入会话 JWT。改密等"踢掉其他会话"操作递增它，
