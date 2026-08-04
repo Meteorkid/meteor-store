@@ -31,6 +31,10 @@ function getR2RemotePattern(): URL[] {
 }
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    // 避免被用户主目录里的其它 lockfile 误导，固定以当前项目为解析根目录。
+    root: process.cwd(),
+  },
   images: {
     remotePatterns: getR2RemotePattern(),
   },
