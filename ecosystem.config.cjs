@@ -19,8 +19,8 @@ module.exports = {
         PORT: 3000,
         HOSTNAME: '0.0.0.0',
       },
-      // 构建时内存吃紧但运行阶段 1.5G 足够；超限自动重启
-      max_memory_restart: '1536M',
+      // 2G 机器：进程内存上限压低到 1G，避免和系统/nginx 抢内存；超限自动重启
+      max_memory_restart: '1024M',
       out_file: '/var/log/meteor-store/pm2-out.log',
       error_file: '/var/log/meteor-store/pm2-error.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss',

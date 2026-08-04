@@ -24,6 +24,8 @@ echo "==> pnpm install"
 pnpm install --frozen-lockfile
 
 echo "==> pnpm build"
+# 2G 内存机器构建容易 OOM：限制 Node 堆内存（留内存给系统/nginx）+ 建议配 swap
+export NODE_OPTIONS="--max-old-space-size=1536"
 pnpm build
 
 echo "==> 重启 PM2"
