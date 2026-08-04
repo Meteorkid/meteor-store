@@ -21,6 +21,9 @@ export default function FooterCopyright() {
   };
 
   const year = new Date().getFullYear();
+  const icpNumber = t('icpNumber');
+  const policeNumber = t('policeNumber');
+  const operatorName = t('operatorName');
 
   return (
     <div className="space-y-2">
@@ -31,24 +34,29 @@ export default function FooterCopyright() {
         <span className="wink-default">{t('copyrightLine1', { year })}</span>
         <span className="wink-alt">{t('copyrightLine2', { year })}</span>
       </p>
+      {/* 备案信息：未取得的项留空即不渲染，避免把占位符挂到线上被管局驳回 */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600">
-        <a
-          href="https://beian.miit.gov.cn"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-gray-400 transition-colors"
-        >
-          {t('icpPlaceholder')}
-        </a>
-        <a
-          href="https://beian.mps.gov.cn"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-gray-400 transition-colors"
-        >
-          {t('policePlaceholder')}
-        </a>
-        <span>{t('operatorPlaceholder')}</span>
+        {icpNumber && (
+          <a
+            href="https://beian.miit.gov.cn"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gray-400 transition-colors"
+          >
+            {icpNumber}
+          </a>
+        )}
+        {policeNumber && (
+          <a
+            href="https://beian.mps.gov.cn"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gray-400 transition-colors"
+          >
+            {policeNumber}
+          </a>
+        )}
+        {operatorName && <span>{operatorName}</span>}
       </div>
     </div>
   );

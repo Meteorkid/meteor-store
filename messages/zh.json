@@ -67,9 +67,9 @@
     "copyrightTapReward": "再点也不会掉钱出来啦",
     "copyrightLine1": "© {year} Meteor Store · 某个还在攒学费的大学生",
     "copyrightLine2": "© {year} Meteor Store · (｡•̀ᴗ-)✧ 被你发现了",
-    "icpPlaceholder": "[待填写：ICP备案号]",
-    "policePlaceholder": "[待填写：公安备案号]",
-    "operatorPlaceholder": "[待填写：经营者名称]"
+    "icpNumber": "粤ICP备2026089905号",
+    "policeNumber": "",
+    "operatorName": ""
   },
   "HomePage": {
     "title": "Meteor Store — 开发者工具与 AI 应用",

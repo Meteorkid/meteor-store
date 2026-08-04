@@ -67,9 +67,9 @@
     "copyrightTapReward": "Keep tapping — no money's coming out",
     "copyrightLine1": "© {year} Meteor Store · a student still saving for tuition",
     "copyrightLine2": "© {year} Meteor Store · (｡•̀ᴗ-)✧ you found me",
-    "icpPlaceholder": "[TBD: ICP filing number]",
-    "policePlaceholder": "[TBD: Police filing number]",
-    "operatorPlaceholder": "[TBD: Operator name]"
+    "icpNumber": "粤ICP备2026089905号",
+    "policeNumber": "",
+    "operatorName": ""
   },
   "HomePage": {
     "title": "Meteor Store — Developer Tools & AI Apps",
