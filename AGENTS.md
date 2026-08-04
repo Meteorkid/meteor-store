@@ -414,9 +414,11 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
   管局审核会逐页核对，占位符等于「信息不实」
 - **经营者姓名不进这个对象，也不对外公示**。《电子商务法》第 15 条要的是执照信息
   （名称 + 统一社会信用代码），不含经营者姓名
-- 页脚版权行：`OPERATOR.name` 有值时用 `copyrightOperator`（品牌 + 主体名），
-  否则退回 `copyrightLine1`。管局明确要求「版权所有需与备案主体一致」，
-  不要改回纯个人化文案；hover 眨眼的彩蛋行不涉及主体声明，保留
+- 页脚版权行用 `copyrightOperator`（品牌 + 主体名），hover 眨眼那行用
+  `copyrightOperatorAlt`——**两行都必须带主体名**。next-intl 会把整个消息包
+  序列化进页面，任何不含主体的 `©` 字符串都会留在 HTML 源码里，
+  管局明确要求「版权所有需与备案主体一致」，已经因此驳回过一次。
+  连点 5 次的 toast 是临时提示、不构成版权声明，可以随便玩
 
 - **法律页面共 4 个**：`/privacy`（13 节，PIPL 口径）、`/terms`（12 节）、`/eula`、`/refund`，
   四个页面都在 Footer 的 `legalLinks` 里，也都进了 `sitemap.ts` 的 `staticPages`（自动生成双语条目）

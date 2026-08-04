@@ -55,7 +55,6 @@
     "terms": "Terms of Service",
     "eula": "User License Agreement",
     "refund": "Refund Policy",
-    "copyright": "© 2024 Meteor Store. All rights reserved.",
     "tagline": "High-quality developer tools and AI apps to power your business.",
     "docs": "Documentation",
     "blog": "Blog",
@@ -65,9 +64,8 @@
     "feedback": "Feedback",
     "email": "Send Email",
     "copyrightTapReward": "Keep tapping — no money's coming out",
-    "copyrightLine1": "© {year} Meteor Store · a student still saving for tuition",
-    "copyrightLine2": "© {year} Meteor Store · (｡•̀ᴗ-)✧ you found me",
-    "copyrightOperator": "© {year} Meteor Store · {operator}"
+    "copyrightOperator": "© {year} Meteor Store · {operator}",
+    "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ you found me"
   },
   "HomePage": {
     "title": "Meteor Store — Developer Tools & AI Apps",

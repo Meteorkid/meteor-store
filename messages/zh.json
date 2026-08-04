@@ -55,7 +55,6 @@
     "terms": "服务条款",
     "eula": "用户许可协议",
     "refund": "退款政策",
-    "copyright": "© 2024 Meteor Store. 保留所有权利。",
     "tagline": "高质量的开发者工具和 AI 应用，助力你的事业腾飞。",
     "docs": "文档",
     "blog": "博客",
@@ -65,9 +64,8 @@
     "feedback": "反馈建议",
     "email": "发送邮件",
     "copyrightTapReward": "再点也不会掉钱出来啦",
-    "copyrightLine1": "© {year} Meteor Store · 某个还在攒学费的大学生",
-    "copyrightLine2": "© {year} Meteor Store · (｡•̀ᴗ-)✧ 被你发现了",
-    "copyrightOperator": "© {year} Meteor Store · {operator}"
+    "copyrightOperator": "© {year} Meteor Store · {operator}",
+    "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ 被你发现了"
   },
   "HomePage": {
     "title": "Meteor Store — 开发者工具与 AI 应用",

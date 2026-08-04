@@ -22,10 +22,10 @@ export default function FooterCopyright() {
   };
 
   const year = new Date().getFullYear();
-  // 管局要求「版权所有」与备案主体一致；主体未登记时退回原本的口语化文案
-  const copyright = OPERATOR.name
-    ? t('copyrightOperator', { year, operator: OPERATOR.name })
-    : t('copyrightLine1', { year });
+  // 管局要求「版权所有」与备案主体一致。眨眼彩蛋那行同样要带主体名——
+  // 两行都在 DOM 里，缺主体的 © 声明会被判定为不一致
+  const copyright = t('copyrightOperator', { year, operator: OPERATOR.name });
+  const copyrightAlt = t('copyrightOperatorAlt', { year, operator: OPERATOR.name });
 
   return (
     <div className="space-y-2">
@@ -34,7 +34,7 @@ export default function FooterCopyright() {
         onClick={onClick}
       >
         <span className="wink-default">{copyright}</span>
-        <span className="wink-alt">{t('copyrightLine2', { year })}</span>
+        <span className="wink-alt">{copyrightAlt}</span>
       </p>
       {/* 备案信息：未取得的项留空即不渲染，避免把占位符挂到线上被管局驳回 */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600">
