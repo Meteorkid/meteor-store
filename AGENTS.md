@@ -91,15 +91,38 @@
 
 - **全站只有暗色一套主题，不跟随系统深浅色。** 不要加 `@media (prefers-color-scheme: light)`、
   也不要加 `dark:` 变体——整套设计（玻璃、光晕、流星、粒子、`text-white/60` 的对比度基线）
-  都以暗底为前提，翻转背景会直接白底白字。三个地方共同保证：
-  `globals.css` 的 `:root` 固定暗色 token 并声明 `color-scheme: dark`、
-  `[locale]/layout.tsx` 的 `viewport` 导出 `colorScheme: 'dark'` + `themeColor`、
-  `global-error.tsx` 自己带 `style={{ colorScheme: 'dark' }}`（它会替换根布局，拿不到 viewport）。
+  都以暗底为前提，翻转背景会直接白底白字。四个地方共同保证：
+  `globals.css` 的 `:root:root` 固定暗色 token 并声明 `color-scheme: dark`、
+  **根布局** `app/layout.tsx` 的 `viewport` 导出 `colorScheme: 'dark'` + `themeColor`、
+  `global-error.tsx` 自带 `style={{ colorScheme: 'dark' }}` 并单独 `import './globals.css'`
+  （它会替换根布局，viewport 和样式表都拿不到），
+  以及 `src/lib/__tests__/dark-theme.test.ts` 把上述约束钉在 CI 上。
   历史教训：`:root` 曾只放浅色值、暗色值藏在 `prefers-color-scheme: dark` 里，
   于是浅色系统的机器上 `--background` 是近白而周围 `bg-white/5`、`border-white/10` 不变，整站不可读
-- **Open Props（`tokens.css`）自己带一条 `prefers-color-scheme: dark`** 用来切 `--shadow-color`
-  / `--shadow-strength` / `--inner-shadow-highlight`。`globals.css` 的 `:root` 已固定这三个值盖住它
-  （`:where(html)` 特异性为 0，`:root` 必胜）。升级 Open Props 后要复查它有没有新增随系统切换的变量
+- **选择器是 `:root:root` 不是 `:root`，别顺手改回去**：`tokens.css`（自动生成）也用 `:root`
+  定义同名浅色 token，同特异性下只靠 globals 写在 `@import` 后面取胜。重新生成 tokens、
+  给它包一层 `@layer`、或在上面再加一条 `@import` 都会让那个假设失效，代价是全站白底。
+  多写一次 `:root` 把特异性抬到 (0,2,0)，覆盖关系就与源码顺序无关
+- **`viewport` 必须挂在根布局**：Next 沿整条 segment 链收集 viewport，挂根上覆盖所有路由。
+  挂在 `[locale]/layout.tsx` 的话，将来在它之外新增顶层段（根级 not-found、新顶层路由）
+  会静默丢掉 `color-scheme` / `theme-color` 两个 meta
+- **语义 token 要成套改，别只改 background/foreground**：`--secondary` / `--secondary-foreground`
+  曾被漏在浅色档，于是骨架屏（`PageSkeleton` 15 处）、Footer 社交图标在黑底上是近白方块。
+  加新 token 时 `:root:root` 和 `@theme inline` 两处都要写——真实构建实测过，
+  只写前者 Tailwind 不生成对应工具类（产物里 0 处）。注意 dev server 的 Turbopack
+  会缓存旧 CSS，验证这类改动必须跑 `pnpm build` 看产物，别信 dev 里看到的
+- **`text-muted-foreground` / `bg-muted` 是有意留着不生效的**：70 处使用、构建产物 0 处生效。
+  `:root:root` 和 `@theme inline` 两处都没有 muted，类名空转，这些说明文字继承正文的纯白、
+  和标题同色。**这是看过前后对比后定的，不是待修的 bug**——别"顺手补上"token 和映射，
+  那会一次性把全站 70 处说明文字变灰
+- **Open Props（`tokens.css`）带 3 条 `prefers-color-scheme: dark`**：1 条切 `--shadow-color`
+  / `--shadow-strength` / `--inner-shadow-highlight`，已被 `:root:root` 盖住（`:where(html)`
+  特异性为 0）；另 2 条重定义 `@keyframes fade-in-bloom` / `fade-out-bloom`——
+  **keyframes 覆盖不了**，同名规则里媒体查询命中的那条直接生效。目前全站没用这两个动画所以无害，
+  要用之前先确认。升级 Open Props 后变量和 keyframes 都要复查
+- **`tokens.css` 的 `.dark, [data-theme="dark"]` 块是死代码**：源码顺序在前、特异性低于
+  `:root:root`，给 `<html>` 加 `data-theme` 属性也不会生效。该文件头写着「自动生成，请勿手动编辑」，
+  所以留着不动——但别被它误导，主题开关不在那里，也不要试图通过它做切换
 - 液态玻璃用 `.glass`（chrome）/ `.glass-card`（可交互卡片）/ `.glass-lg`（浮层）
 - **正文区域不上玻璃**：长文放半透明材质上会牺牲可读性，材质是给 chrome 用的
 - 玻璃背后要有可折射的内容（光晕/渐变），纯黑底上 `backdrop-filter` 读不出来

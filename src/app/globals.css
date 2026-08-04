@@ -3,7 +3,11 @@
 @plugin "@tailwindcss/typography";
 
 /* Meteor Store 设计系统 - 基于 frontend-design-system */
-:root {
+/* 选择器写成 :root:root 是有意的：tokens.css（自动生成）在 @import 里也用 :root
+   定义了同名的浅色 token，同特异性下只靠「globals 写在后面」取胜。重新生成 tokens、
+   给它包一层 @layer、或在上面再加一条 @import 都会让那个假设失效，代价是全站白底。
+   多写一次 :root 把特异性抬到 (0,2,0)，覆盖关系就与源码顺序无关了。 */
+:root:root {
   /* 全站固定暗色，不跟随系统 prefers-color-scheme。
      玻璃材质、流星、粒子、正文对比度全部按暗底设计，跟随系统会在浅色下变成白底白字。
      声明 color-scheme 让浏览器 UA 部件（表单控件、滚动条、自动填充）也走暗色。 */
@@ -17,9 +21,10 @@
   --primary: var(--purple-6);
   --primary-foreground: var(--purple-0);
 
-  /* 次要颜色 */
-  --secondary: var(--gray-2);
-  --secondary-foreground: var(--gray-9);
+  /* 次要颜色。必须和上面的暗色档配套：这对 token 驱动骨架屏色块（PageSkeleton 有 15 处）、
+     Footer 社交图标、GlowButton 的 secondary 变体。留浅色值会在黑底上砸出一片近白方块。 */
+  --secondary: var(--gray-8);
+  --secondary-foreground: var(--gray-0);
 
   /* 强调色 */
   --accent: var(--violet-6);
@@ -258,6 +263,21 @@ html {
 @keyframes gradient-flow {
   0% { background-position: 0% 50%; }
   100% { background-position: 300% 50%; }
+}
+
+/* 强制颜色模式（Windows 高对比度）下 background-clip: text 仍然生效，
+   而 -webkit-text-fill-color 不在系统的强制覆写清单里，于是文字被裁成透明后整块消失。
+   首页 hero 的两行主标题都在其中，所以三个类一起回落成实色。
+   同样的补丁 .blog-lede__title 也有一份，改这里时记得一并核对。 */
+@media (forced-colors: active) {
+  .gradient-text,
+  .hero-shimmer,
+  .hero-gradient {
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
+    color: CanvasText;
+    filter: none;
+  }
 }
 
 /* Scroll Animation */

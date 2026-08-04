@@ -3,6 +3,9 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import zhMessages from '../../messages/zh.json';
 import enMessages from '../../messages/en.json';
+// global-error 会替换根布局，拿不到 [locale]/layout.tsx 里的那次 import，
+// 不显式引一次的话下面的 Tailwind 类全是空转，只剩 UA 默认样式撑着
+import './globals.css';
 
 function subscribePathname(notify: () => void): () => void {
   if (typeof window === 'undefined') return () => {};

@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { headers } from "next/headers";
@@ -27,18 +27,6 @@ const geistMono = Geist_Mono({
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
-
-/**
- * 全站固定暗色，不跟随系统深浅色设置。
- *
- * colorScheme 会渲染成 <meta name="color-scheme" content="dark">，在样式表下载完成前
- * 就让浏览器按暗色画首屏和 UA 部件，避免浅色系统下的白闪。
- * themeColor 让移动端浏览器地址栏也跟着变黑，否则页面是黑的、外框是白的。
- */
-export const viewport: Viewport = {
-  colorScheme: "dark",
-  themeColor: "#000000",
-};
 
 export async function generateMetadata({
   params,
