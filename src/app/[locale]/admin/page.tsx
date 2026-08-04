@@ -45,6 +45,7 @@ export default async function AdminDashboardPage({
     { label: t('totalComments'), value: stats.totalComments },
     { label: t('pendingComments'), value: stats.pendingComments },
     { label: t('pendingReports'), value: stats.pendingReports },
+    { label: t('pendingFeedback'), value: stats.pendingFeedback },
     { label: t('totalUsers'), value: stats.totalUsers },
   ];
 

@@ -1,5 +1,5 @@
 import { db } from './db';
-import { posts, comments, users, reports } from './db/schema';
+import { posts, comments, feedbacks, users, reports } from './db/schema';
 import { eq, sql, count } from 'drizzle-orm';
 import { getBlogPosts } from '@/data/blog';
 import type { Locale } from '@/i18n/routing';
@@ -13,6 +13,7 @@ export interface AdminStats {
   pendingComments: number;
   totalUsers: number;
   pendingReports: number;
+  pendingFeedback: number;
 }
 
 export interface AdminPost {
@@ -28,7 +29,7 @@ export interface AdminPost {
 }
 
 export async function getAdminStats(): Promise<AdminStats> {
-  const [postCounts, commentCounts, userCount, reportCounts] = await Promise.all([
+  const [postCounts, commentCounts, userCount, reportCounts, feedbackCounts] = await Promise.all([
     db
       .select({
         total: count(),
@@ -48,6 +49,11 @@ export async function getAdminStats(): Promise<AdminStats> {
         pending: sql<number>`count(*) filter (where ${reports.status} = 'pending')`,
       })
       .from(reports),
+    db
+      .select({
+        pending: sql<number>`count(*) filter (where ${feedbacks.status} = 'pending')`,
+      })
+      .from(feedbacks),
   ]);
 
   return {
@@ -58,6 +64,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     pendingComments: commentCounts[0]?.pending ?? 0,
     totalUsers: userCount[0]?.count ?? 0,
     pendingReports: reportCounts[0]?.pending ?? 0,
+    pendingFeedback: feedbackCounts[0]?.pending ?? 0,
   };
 }
 

@@ -885,6 +885,7 @@
     "posts": "Posts",
     "comments": "Comments",
     "reports": "Reports",
+    "feedback": "Feedback",
     "commerce": "Orders & Licenses",
     "inviteCodes": "Invite Codes"
   },
@@ -914,6 +915,25 @@
     "activate": "Reactivate",
     "revoke": "Revoke",
     "updating": "Updating…",
+    "operationFailed": "Operation failed"
+  },
+  "AdminFeedbackPage": {
+    "metaTitle": "Feedback Management - Meteor Store",
+    "metaNotFound": "Page Not Found - Meteor Store",
+    "title": "Feedback Management",
+    "description": "Process bug reports, feature requests, questions, and other user feedback.",
+    "empty": "No feedback",
+    "statusPending": "Pending",
+    "statusResolved": "Resolved",
+    "statusDismissed": "Dismissed",
+    "typeBug": "Bug",
+    "typeFeature": "Feature request",
+    "typeQuestion": "Question",
+    "typeOther": "Other",
+    "typeNightWhisper": "Night whisper",
+    "resolve": "Mark resolved",
+    "dismiss": "Dismiss",
+    "processing": "Processing…",
     "operationFailed": "Operation failed"
   },
   "AdminReviewPage": {
@@ -1440,6 +1460,7 @@
     "totalComments": "Total Comments",
     "pendingComments": "Pending Comments",
     "pendingReports": "Pending Reports",
+    "pendingFeedback": "Pending Feedback",
     "totalUsers": "Total Users",
     "loading": "Loading..."
   },

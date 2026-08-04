@@ -885,6 +885,7 @@
     "posts": "文章管理",
     "comments": "评论管理",
     "reports": "举报管理",
+    "feedback": "反馈管理",
     "commerce": "订单与授权",
     "inviteCodes": "邀请码"
   },
@@ -914,6 +915,25 @@
     "activate": "重新启用",
     "revoke": "撤销授权",
     "updating": "更新中…",
+    "operationFailed": "操作失败"
+  },
+  "AdminFeedbackPage": {
+    "metaTitle": "反馈管理 - Meteor Store",
+    "metaNotFound": "页面未找到 - Meteor Store",
+    "title": "反馈管理",
+    "description": "处理用户提交的缺陷、功能建议、问题和其他反馈。",
+    "empty": "暂无反馈",
+    "statusPending": "待处理",
+    "statusResolved": "已处理",
+    "statusDismissed": "已忽略",
+    "typeBug": "缺陷",
+    "typeFeature": "功能建议",
+    "typeQuestion": "问题",
+    "typeOther": "其他",
+    "typeNightWhisper": "深夜树洞",
+    "resolve": "标记已处理",
+    "dismiss": "忽略",
+    "processing": "处理中…",
     "operationFailed": "操作失败"
   },
   "AdminReviewPage": {
@@ -1440,6 +1460,7 @@
     "totalComments": "评论总数",
     "pendingComments": "待审核评论",
     "pendingReports": "待处理举报",
+    "pendingFeedback": "待处理反馈",
     "totalUsers": "用户总数",
     "loading": "加载中..."
   },

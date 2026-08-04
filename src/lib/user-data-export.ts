@@ -110,7 +110,14 @@ export async function exportUserData(userId: string, email: string) {
       redeemedAt: inviteRedemptions.redeemedAt,
     }).from(inviteRedemptions).where(eq(inviteRedemptions.userId, userId)),
     db.select().from(topicProposals).where(eq(topicProposals.submitterEmail, normalizedEmail)),
-    db.select().from(feedbacks).where(eq(feedbacks.email, normalizedEmail)),
+    db.select({
+      id: feedbacks.id,
+      type: feedbacks.type,
+      content: feedbacks.content,
+      status: feedbacks.status,
+      resolvedAt: feedbacks.resolvedAt,
+      createdAt: feedbacks.createdAt,
+    }).from(feedbacks).where(eq(feedbacks.email, normalizedEmail)),
   ]);
 
   const postIds = postRows.map((post) => post.id);

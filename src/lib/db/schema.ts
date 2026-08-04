@@ -114,6 +114,9 @@ export const feedbacks = pgTable('feedbacks', {
   email: text('email'),                               // 可选
   type: text('type').notNull(),                       // bug | feature | question | other
   content: text('content').notNull(),
+  status: text('status').default('pending').notNull(), // pending | resolved | dismissed
+  resolverId: text('resolver_id'),
+  resolvedAt: text('resolved_at'),
   createdAt: text('created_at').notNull(),
 });
 
