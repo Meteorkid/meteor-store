@@ -4,9 +4,14 @@
 
 /* Meteor Store 设计系统 - 基于 frontend-design-system */
 :root {
+  /* 全站固定暗色，不跟随系统 prefers-color-scheme。
+     玻璃材质、流星、粒子、正文对比度全部按暗底设计，跟随系统会在浅色下变成白底白字。
+     声明 color-scheme 让浏览器 UA 部件（表单控件、滚动条、自动填充）也走暗色。 */
+  color-scheme: dark;
+
   /* 语义化颜色 */
-  --background: var(--color-1);
-  --foreground: var(--color-16);
+  --background: var(--color-16);
+  --foreground: var(--color-1);
 
   /* 主色调 - 紫色渐变 */
   --primary: var(--purple-6);
@@ -21,16 +26,16 @@
   --accent-foreground: var(--violet-0);
 
   /* 卡片 */
-  --card: var(--color-1);
-  --card-foreground: var(--color-16);
+  --card: var(--color-15);
+  --card-foreground: var(--color-1);
 
   /* 弹窗 */
-  --popover: var(--color-1);
-  --popover-foreground: var(--color-16);
+  --popover: var(--color-15);
+  --popover-foreground: var(--color-1);
 
   /* 边框 */
-  --border: var(--gray-3);
-  --input: var(--gray-3);
+  --border: var(--gray-8);
+  --input: var(--gray-8);
 
   /* 破坏性操作 */
   --destructive: var(--red-6);
@@ -54,23 +59,15 @@
   /* 阴影 */
   --shadow: var(--shadow-2);
   --shadow-lg: var(--shadow-4);
-}
 
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: var(--color-16);
-    --foreground: var(--color-1);
-
-    --card: var(--color-15);
-    --card-foreground: var(--color-1);
-
-    --popover: var(--color-15);
-    --popover-foreground: var(--color-1);
-
-    --border: var(--gray-8);
-    --input: var(--gray-8);
-  }
+  /* Open Props（tokens.css）用 prefers-color-scheme 切换阴影配方，
+     浅色系统下阴影会变浅、内阴影高光会反相。这里固定成它的暗色取值，
+     否则同一个页面在两台机器上阴影深浅不一致。 */
+  --shadow-color: 220 40% 2%;
+  --shadow-strength: 25%;
+  --inner-shadow-highlight:
+    inset 0 -0.5px 0 0 hsla(0, 0%, 100%, 0.067),
+    inset 0 0.5px 0 0 rgba(0, 0, 0, 0.467);
 }
 
 @theme inline {

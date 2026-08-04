@@ -89,6 +89,17 @@
 
 ### 材质与颜色
 
+- **全站只有暗色一套主题，不跟随系统深浅色。** 不要加 `@media (prefers-color-scheme: light)`、
+  也不要加 `dark:` 变体——整套设计（玻璃、光晕、流星、粒子、`text-white/60` 的对比度基线）
+  都以暗底为前提，翻转背景会直接白底白字。三个地方共同保证：
+  `globals.css` 的 `:root` 固定暗色 token 并声明 `color-scheme: dark`、
+  `[locale]/layout.tsx` 的 `viewport` 导出 `colorScheme: 'dark'` + `themeColor`、
+  `global-error.tsx` 自己带 `style={{ colorScheme: 'dark' }}`（它会替换根布局，拿不到 viewport）。
+  历史教训：`:root` 曾只放浅色值、暗色值藏在 `prefers-color-scheme: dark` 里，
+  于是浅色系统的机器上 `--background` 是近白而周围 `bg-white/5`、`border-white/10` 不变，整站不可读
+- **Open Props（`tokens.css`）自己带一条 `prefers-color-scheme: dark`** 用来切 `--shadow-color`
+  / `--shadow-strength` / `--inner-shadow-highlight`。`globals.css` 的 `:root` 已固定这三个值盖住它
+  （`:where(html)` 特异性为 0，`:root` 必胜）。升级 Open Props 后要复查它有没有新增随系统切换的变量
 - 液态玻璃用 `.glass`（chrome）/ `.glass-card`（可交互卡片）/ `.glass-lg`（浮层）
 - **正文区域不上玻璃**：长文放半透明材质上会牺牲可读性，材质是给 chrome 用的
 - 玻璃背后要有可折射的内容（光晕/渐变），纯黑底上 `backdrop-filter` 读不出来

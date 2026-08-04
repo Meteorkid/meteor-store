@@ -36,7 +36,9 @@ export default function GlobalError({
   const t = messages.GlobalError;
 
   return (
-    <html lang={locale === 'en' ? 'en' : 'zh-CN'}>
+    // global-error 会替换掉根布局，拿不到 [locale]/layout 的 viewport 声明，
+    // 所以这里自己声明一次 color-scheme，避免浅色系统下错误页出现白色滚动条
+    <html lang={locale === 'en' ? 'en' : 'zh-CN'} style={{ colorScheme: 'dark' }}>
       <body className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center px-4">
           <div className="text-6xl mb-6">💥</div>
