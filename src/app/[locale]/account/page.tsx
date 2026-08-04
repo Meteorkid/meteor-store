@@ -56,7 +56,20 @@ export default async function AccountPage({
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const [user] = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
+  const [user] = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      name: users.name,
+      avatarUrl: users.avatarUrl,
+      bio: users.bio,
+      emailVerified: users.emailVerified,
+      isStudent: users.isStudent,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(eq(users.id, session.userId))
+    .limit(1);
   if (!user) redirect('/login');
 
   const [keys, userPosts] = await Promise.all([
@@ -161,6 +174,19 @@ export default async function AccountPage({
             )}
           </section>
 
+          {user.emailVerified && (
+            <section className="mb-10 rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
+              <h2 className="t-title-3 mb-1.5 text-white/90">{t('myOrders')}</h2>
+              <p className="t-footnote mb-5 text-white/60">{t('myOrdersDesc')}</p>
+              <Link
+                href="/orders"
+                className="inline-flex rounded-xl bg-white px-5 py-2.5 text-[0.9375rem] font-semibold text-black transition-opacity hover:opacity-90"
+              >
+                {t('viewOrders')}
+              </Link>
+            </section>
+          )}
+
           {/* 授权码 */}
           {keys.length > 0 && (
             <section className="mb-10 rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
@@ -247,6 +273,18 @@ export default async function AccountPage({
             initialAvatar={user.avatarUrl ?? null}
             email={user.email}
           />
+
+          <section className="mt-10 rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
+            <h2 className="t-title-3 mb-1.5 text-white/90">{t('dataRights')}</h2>
+            <p className="t-footnote mb-5 text-white/60">{t('dataRightsDesc')}</p>
+            <a
+              href="/api/auth/export"
+              download
+              className="inline-flex rounded-xl border border-white/15 px-5 py-2.5 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-white/[0.06]"
+            >
+              {t('exportData')}
+            </a>
+          </section>
         </div>
       </main>
       <Footer />

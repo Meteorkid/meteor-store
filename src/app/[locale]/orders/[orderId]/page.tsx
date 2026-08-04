@@ -7,7 +7,6 @@ import Footer from '@/components/Footer';
 import { db } from '@/lib/db';
 import { orders, licenseKeys } from '@/lib/db/schema';
 import { findProduct } from '@/lib/products';
-import { SHOW_PRICING } from '@/lib/constants';
 import { getSession } from '@/lib/auth';
 import { getOrderAccess } from '@/lib/order-access';
 import type { Locale } from '@/i18n/routing';
@@ -19,20 +18,6 @@ interface OrderDetailPageProps {
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
   const { orderId, locale } = await params;
   const t = await getTranslations({ locale, namespace: 'OrderPage' });
-
-  // ICP 备案期间隐藏订单详情页
-  if (!SHOW_PRICING) {
-    return (
-      <div className="min-h-screen bg-black text-white">
-        <Header />
-        <main className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">{t('maintenanceTitle')}</h1>
-          <p className="text-gray-400">{t('maintenanceDescription')}</p>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   // 校验 orderId 格式（UUID）
   const isValidOrderId = orderId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId);
@@ -140,6 +125,12 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           )}
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/orders"
+              className="px-6 py-3 bg-white/10 rounded-lg text-white font-medium text-center hover:bg-white/20 transition-colors"
+            >
+              {t('backToOrders')}
+            </Link>
             <Link
               href="/"
               className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white font-medium text-center hover:opacity-90 transition-opacity"

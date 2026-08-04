@@ -1,4 +1,4 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { DeleteObjectsCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { createHash } from 'crypto';
 import { readR2Config, getClient } from './r2-client';
 
@@ -65,4 +65,35 @@ export async function uploadBlogImage(
     url: `${cfg.publicBase}/${key}`,
     key,
   };
+}
+
+/** 账户注销时删除该用户前缀下的博客图片；失败保留孤儿对象供后续清理。 */
+export async function deleteUserBlogImages(userId: string): Promise<void> {
+  const cfg = readR2Config();
+  if (!cfg) return;
+
+  const client = getClient(cfg);
+  const prefix = `blog/${encodeURIComponent(userId)}/`;
+  let continuationToken: string | undefined;
+
+  try {
+    do {
+      const page = await client.send(new ListObjectsV2Command({
+        Bucket: cfg.bucket,
+        Prefix: prefix,
+        ContinuationToken: continuationToken,
+      }));
+      const objects = (page.Contents ?? [])
+        .flatMap((object) => object.Key ? [{ Key: object.Key }] : []);
+      if (objects.length > 0) {
+        await client.send(new DeleteObjectsCommand({
+          Bucket: cfg.bucket,
+          Delete: { Objects: objects },
+        }));
+      }
+      continuationToken = page.IsTruncated ? page.NextContinuationToken : undefined;
+    } while (continuationToken);
+  } catch (error) {
+    console.error('deleteUserBlogImages failed (orphan cleanup needed):', error);
+  }
 }

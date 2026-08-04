@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
 import AvatarUpload from './AvatarUpload';
 
@@ -27,6 +28,7 @@ export default function AccountForms({
 }: AccountFormsProps) {
   const t = useTranslations('AccountPage');
   const { refresh } = useAuth();
+  const router = useRouter();
 
   const [name, setName] = useState(initialName);
   const [bio, setBio] = useState(initialBio);
@@ -39,6 +41,11 @@ export default function AccountForms({
   const [newPassword, setNewPassword] = useState('');
   const [pwStatus, setPwStatus] = useState<Status>('idle');
   const [pwError, setPwError] = useState('');
+
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deleteStatus, setDeleteStatus] = useState<Status>('idle');
+  const [deleteError, setDeleteError] = useState('');
 
   const profileDirty =
     name.trim() !== initialName.trim() ||
@@ -96,6 +103,32 @@ export default function AccountForms({
     } catch (err) {
       setPwStatus('error');
       setPwError(err instanceof Error ? err.message : t('changeFailed'));
+    }
+  }
+
+  async function deleteAccount(e: React.FormEvent) {
+    e.preventDefault();
+    setDeleteStatus('saving');
+    setDeleteError('');
+
+    try {
+      const res = await fetch('/api/auth/account', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          password: deletePassword,
+          confirmation: deleteConfirmation,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || t('deleteFailed'));
+
+      await refresh();
+      router.replace('/');
+      router.refresh();
+    } catch (err) {
+      setDeleteStatus('error');
+      setDeleteError(err instanceof Error ? err.message : t('deleteFailed'));
     }
   }
 
@@ -245,6 +278,52 @@ export default function AccountForms({
               </span>
             )}
           </div>
+        </form>
+      </section>
+
+      <section className="rounded-3xl border border-red-500/20 bg-red-500/[0.03] p-7 md:p-9">
+        <h2 className="t-title-3 mb-1.5 text-red-300">{t('deleteAccount')}</h2>
+        <p className="t-footnote mb-6 text-white/60">{t('deleteAccountHint')}</p>
+
+        <form onSubmit={deleteAccount} className="space-y-4">
+          <div>
+            <label htmlFor="delete-password" className={labelClass}>{t('currentPassword')}</label>
+            <input
+              id="delete-password"
+              type="password"
+              autoComplete="current-password"
+              value={deletePassword}
+              onChange={(e) => {
+                setDeletePassword(e.target.value);
+                setDeleteStatus('idle');
+              }}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label htmlFor="delete-confirmation" className={labelClass}>{t('deleteConfirmation')}</label>
+            <input
+              id="delete-confirmation"
+              value={deleteConfirmation}
+              onChange={(e) => {
+                setDeleteConfirmation(e.target.value);
+                setDeleteStatus('idle');
+              }}
+              placeholder="DELETE"
+              autoComplete="off"
+              className={inputClass}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={!deletePassword || deleteConfirmation !== 'DELETE' || deleteStatus === 'saving'}
+            className="rounded-xl bg-red-600 px-5 py-2.5 text-[0.9375rem] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {deleteStatus === 'saving' ? t('deletingAccount') : t('deleteAccountButton')}
+          </button>
+          {deleteStatus === 'error' && (
+            <p className="t-footnote text-red-400" role="alert">{deleteError}</p>
+          )}
         </form>
       </section>
     </div>
