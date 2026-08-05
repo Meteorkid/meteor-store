@@ -34,9 +34,11 @@ pm2 stop meteor-store 2>/dev/null || true
 sync && echo 3 > /proc/sys/vm/drop_caches
 
 echo "==> pnpm build"
-# 2G 内存机器构建容易 OOM：限制 Node 堆内存 + 停 PM2 释放内存 + drop_caches
+# 2G 内存机器构建容易 OOM：
+# - 限制 Node 堆内存 + 停 PM2 释放内存 + drop_caches
+# - 跳过 TypeScript 检查（CI 已跑过 tsc --noEmit，部署时无需重复）
 export NODE_OPTIONS="--max-old-space-size=1024"
-pnpm build
+SKIP_TYPE_CHECK=1 pnpm build
 
 echo "==> 启动 PM2"
 pm2 reload ecosystem.config.cjs --update-env 2>/dev/null || pm2 start ecosystem.config.cjs

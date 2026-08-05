@@ -35,6 +35,11 @@ const nextConfig: NextConfig = {
     // 避免被用户主目录里的其它 lockfile 误导，固定以当前项目为解析根目录。
     root: process.cwd(),
   },
+  typescript: {
+    // 阿里云 2G 服务器部署时跳过 TS 检查（CI 已跑过 tsc --noEmit）
+    // Vercel 和本地开发仍然检查（SKIP_TYPE_CHECK 未设）
+    ignoreBuildErrors: process.env.SKIP_TYPE_CHECK === '1',
+  },
   images: {
     remotePatterns: getR2RemotePattern(),
   },
