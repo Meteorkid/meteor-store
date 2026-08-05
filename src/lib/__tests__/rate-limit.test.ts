@@ -114,16 +114,30 @@ describe('rateLimit', () => {
 describe('getClientIp', () => {
   beforeEach(() => {
     vi.resetModules();
+    delete process.env.VERCEL;
+    delete process.env.TRUST_NGINX_PROXY;
   });
 
   it('returns "unknown" when not running on Vercel, even with forwarded headers', async () => {
-    delete process.env.VERCEL;
     const { getClientIp } = await importRateLimit();
     const request = new Request('https://example.com', {
       headers: { 'x-forwarded-for': '203.0.113.1' },
     });
 
     expect(getClientIp(request)).toBe('unknown');
+  });
+
+  it('uses the real IP overwritten by the trusted Nginx proxy', async () => {
+    process.env.TRUST_NGINX_PROXY = '1';
+    const { getClientIp } = await importRateLimit();
+    const request = new Request('https://example.com', {
+      headers: {
+        'x-real-ip': '203.0.113.2',
+        'x-forwarded-for': '198.51.100.9, 203.0.113.2',
+      },
+    });
+
+    expect(getClientIp(request)).toBe('203.0.113.2');
   });
 
   it('extracts the last non-private IP from x-forwarded-for on Vercel', async () => {
@@ -134,6 +148,5 @@ describe('getClientIp', () => {
     });
 
     expect(getClientIp(request)).toBe('203.0.113.1');
-    delete process.env.VERCEL;
   });
 });

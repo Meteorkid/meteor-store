@@ -141,6 +141,15 @@ function isValidIp(ip: string): boolean {
  */
 export function getClientIp(request: Request): string {
   const isVercel = process.env.VERCEL === '1';
+  const trustsNginxProxy = process.env.TRUST_NGINX_PROXY === '1';
+
+  // 自托管部署只信任由本机 Nginx 覆盖的 X-Real-IP。
+  // Next 进程必须仅监听回环地址，避免客户端绕过 Nginx 直接伪造该请求头。
+  if (trustsNginxProxy) {
+    const real = request.headers.get('x-real-ip');
+    if (real && !isPrivateIp(real) && isValidIp(real)) return real;
+    return 'unknown';
+  }
 
   // 仅在 Vercel 环境信任代理头
   if (isVercel) {

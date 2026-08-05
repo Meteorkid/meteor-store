@@ -4,7 +4,7 @@
 // 说明：
 // - 用 `pnpm start`（即 next start）而非 standalone，避免 sharp/静态资源拷坑，最省事
 // - cwd 指向项目根，next start 会自动加载根目录的 .env.production（NODE_ENV=production）
-// - PORT/HOSTNAME 由 PM2 注入，Nginx 反代 127.0.0.1:3000
+// - PORT/HOSTNAME 由 PM2 注入，Next 只监听回环地址，由本机 Nginx 反代
 module.exports = {
   apps: [
     {
@@ -17,7 +17,8 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
-        HOSTNAME: '0.0.0.0',
+        HOSTNAME: '127.0.0.1',
+        TRUST_NGINX_PROXY: '1',
       },
       // 2G 机器：进程内存上限压低到 1G，避免和系统/nginx 抢内存；超限自动重启
       max_memory_restart: '1024M',
