@@ -4,7 +4,7 @@
 // 说明：
 // - 用 `pnpm start`（即 next start）而非 standalone，避免 sharp/静态资源拷坑，最省事
 // - cwd 指向项目根，next start 会自动加载根目录的 .env.production（NODE_ENV=production）
-// - PORT/HOSTNAME 由 PM2 注入，Next 只监听回环地址，由本机 Nginx 反代
+// - 启动命令显式传入 --hostname 127.0.0.1，Next 只监听回环地址，由本机 Nginx 反代
 module.exports = {
   apps: [
     {

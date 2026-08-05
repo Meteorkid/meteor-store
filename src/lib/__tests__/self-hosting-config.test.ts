@@ -12,5 +12,10 @@ describe('阿里云自托管配置', () => {
 
     expect(env?.TRUST_NGINX_PROXY).toBe('1');
     expect(env?.HOSTNAME).toBe('127.0.0.1');
+
+    const packageJson = require('../../../package.json') as {
+      scripts?: Record<string, string>;
+    };
+    expect(packageJson.scripts?.start).toContain('--hostname 127.0.0.1');
   });
 });
