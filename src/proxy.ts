@@ -33,8 +33,13 @@ export function proxy(request: NextRequest) {
   // 让 next-intl 处理 locale，并把带 nonce 的请求头继续传给渲染请求
   const intlResponse = intlMiddleware(requestWithNonce);
 
+  // trial 路由（/apps/{id}/trial）会被产品详情页的 iframe 同源内嵌，
+  // 需要放行 frame-ancestors；其余页面一律禁止被 iframe 嵌入。
+  const pathname = new URL(request.url).pathname;
+  const isTrial = /\/apps\/.+\/trial$/.test(pathname);
+
   // 构造本请求的 CSP，把 nonce 注入进去
-  const csp = buildCsp(nonce);
+  const csp = buildCsp(nonce, isTrial);
 
   // 如果是重定向响应，直接返回（不需要添加 CSP）
   if (intlResponse.status >= 300 && intlResponse.status < 400) {
@@ -47,7 +52,7 @@ export function proxy(request: NextRequest) {
   return intlResponse;
 }
 
-function buildCsp(nonce: string): string {
+function buildCsp(nonce: string, isTrial = false): string {
   const isDev = process.env.NODE_ENV === 'development';
   const sentryIngest = 'https://*.ingest.us.sentry.io';
 
@@ -66,7 +71,8 @@ function buildCsp(nonce: string): string {
     `img-src 'self' data: blob: https://www.imagentx.top https://imagentx.top${r2Origin ? ` ${r2Origin}` : ''}`,
     "font-src 'self'",
     `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com ${sentryIngest}`,
-    "frame-ancestors 'none'",
+    // trial 路由允许同源 iframe 内嵌；其余页面禁止被嵌入（防点击劫持）
+    `frame-ancestors ${isTrial ? "'self'" : "'none'"}`,
     "upgrade-insecure-requests",
     // JSON-LD 在 layout.tsx 用 application/ld+json + nonce 注入
   ].join('; ');

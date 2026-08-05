@@ -49,6 +49,15 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: securityHeaders,
       },
+      // trial 路由（/apps/{id}/trial）会被产品详情页的 iframe 同源内嵌，
+      // 需要放行 X-Frame-Options；其余页面保持 DENY（防点击劫持）。
+      // 注意：规则顺序靠后，且在 Next 中具体 source 优先于通配，因此这里覆盖生效。
+      {
+        source: "/:locale/apps/:id/trial",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        ],
+      },
     ];
   },
 };
