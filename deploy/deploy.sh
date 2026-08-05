@@ -29,13 +29,16 @@ done
 echo "==> pnpm install"
 pnpm install --frozen-lockfile
 
+echo "==> 停止 PM2（释放内存给构建）"
+pm2 stop meteor-store 2>/dev/null || true
+sync && echo 3 > /proc/sys/vm/drop_caches
+
 echo "==> pnpm build"
-# 2G 内存机器构建容易 OOM：限制 Node 堆内存（留内存给系统/nginx）+ 建议配 swap
-export NODE_OPTIONS="--max-old-space-size=1280"
+# 2G 内存机器构建容易 OOM：限制 Node 堆内存 + 停 PM2 释放内存 + drop_caches
+export NODE_OPTIONS="--max-old-space-size=1024"
 pnpm build
 
-echo "==> 重启 PM2"
-# 首次 start，之后 reload（--update-env 让进程读取最新环境变量）
+echo "==> 启动 PM2"
 pm2 reload ecosystem.config.cjs --update-env 2>/dev/null || pm2 start ecosystem.config.cjs
 
 echo "==> 保存进程表"
