@@ -1,25 +1,71 @@
-name: Deploy to Aliyun
+name: Deploy to Aliyun (manual)
 
-# push 到 main 后自动部署到阿里云服务器（与 Vercel 体验一致）
+# 服务器只有 2G 内存，在服务器上 `pnpm build`（Next 16 Turbopack）会 OOM 被杀，
+# 所以不再「push 即在服务器构建」。
+# 现在部署有两种方式，都只在本地/GitHub Runner 构建、只上传产物：
+#   1. 本地半自动（推荐）：bash deploy/deploy-local.sh
+#   2. 本工作流（备选）：手动点 Run workflow，在 GitHub Runner（内存充足）构建后上传。
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: 通过 SSH 触发服务器部署
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (on runner, 内存充足不会 OOM)
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_SHOW_PRICING: ${{ secrets.NEXT_PUBLIC_SHOW_PRICING }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+        run: SKIP_TYPE_CHECK=1 pnpm build
+
+      - name: Package .next
+        run: |
+          tar -czf /tmp/meteor-store-next.tar.gz -C . .next
+          echo "产物 $(du -h /tmp/meteor-store-next.tar.gz | cut -f1)"
+
+      - name: Upload & restart on server
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
+          source: /tmp/meteor-store-next.tar.gz
+          target: /var/www/meteor-store/.next.tar.gz
           script: |
             set -euo pipefail
             cd /var/www/meteor-store
-            # deploy.sh 会被本次提交更新，必须先拉取再执行新版脚本。
-            git remote set-url origin https://ghfast.top/https://github.com/Meteorkid/meteor-store.git
-            git pull --ff-only origin main
-            bash deploy/deploy.sh
+            # 同步源码与依赖（只安装，不构建）
+            git remote set-url origin https://ghfast.top/https://github.com/Meteorkid/meteor-store.git 2>/dev/null || true
+            for i in 1 2 3; do
+              if git pull --ff-only origin main; then break; fi
+              echo "git pull 第 $i 次失败，重试中..."
+              sleep 5
+            done
+            pnpm install --frozen-lockfile || true
+            pm2 stop meteor-store 2>/dev/null || true
+            rm -rf .next.rollback
+            if [[ -d .next ]]; then mv .next .next.rollback; fi
+            tar -xzf .next.tar.gz
+            rm -f .next.tar.gz
+            pm2 restart meteor-store --update-env
+            pm2 save
+            echo "==> 部署完成，BUILD_ID: $(cat .next/BUILD_ID)"

@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# 阿里云轻量服务器部署脚本 —— 由 GitHub Actions 远程触发，或手动执行
+# 阿里云轻量服务器部署脚本 —— 【已弃用】
 #
-# 作用：git pull → 安装依赖 → 构建 → 重启 PM2
-# 与 Vercel 体验一致：你只管 git push，这里自动完成剩下的。
+# ⚠️ 服务器只有 2G 内存，`pnpm build`（Next 16 Turbopack）会 OOM 被杀。
+#    请改用「本地构建 + 上传产物」的半自动方式：
+#       bash deploy/deploy-local.sh
+#    或 GitHub 仓库 Actions 页手动触发 "Deploy to Aliyun (manual)"。
+#    本脚本仅在排查时保留，不再由 push 自动触发。
 set -euo pipefail
 
 APP_DIR="/var/www/meteor-store"
