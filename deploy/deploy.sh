@@ -34,6 +34,9 @@ pm2 stop meteor-store 2>/dev/null || true
 sync && echo 3 > /proc/sys/vm/drop_caches
 
 echo "==> pnpm build"
+# 清理可能残留的构建进程和锁文件
+pkill -f 'next build' 2>/dev/null || true
+rm -f .next/build-id.lock 2>/dev/null || true
 # 2G 内存机器构建容易 OOM：
 # - 限制 Node 堆内存 + 停 PM2 释放内存 + drop_caches
 # - 跳过 TypeScript 检查（CI 已跑过 tsc --noEmit，部署时无需重复）
