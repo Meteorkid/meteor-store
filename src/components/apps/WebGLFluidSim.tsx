@@ -2,6 +2,7 @@
 
 import { GUI } from 'dat.gui';
 import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { loadMediaPipe } from '@/lib/apps/mediapipe';
 import './fluid-sim.css';
 
 /**
@@ -54,16 +55,27 @@ export default function WebGLFluidSim() {
     // 否则 fluidSim 初始化时抛 `ReferenceError: dat is not defined`。
     globalThis.dat = { GUI };
 
-    // 动态 import，确保 #fluidCanvas 已在 DOM 中
-    import('@/lib/apps/webgl-fluid-sim/fluidSim')
-      .then((mod) => {
-        if (cancelled) {
-          mod.destroyFluidSim();
-        }
-      })
-      .catch((err) => {
-        console.error('WebGL Fluid Sim init error:', err);
-      });
+    // 先加载 MediaPipe UMD 脚本（window.Hands / window.Camera）。
+    // fluidSim 在模块加载时用 `typeof Hands !== 'undefined'` 判定手势是否可用，
+    // 必须在动态 import 之前完成加载，否则手势/摄像头默认关闭。
+    (async () => {
+      try {
+        await loadMediaPipe();
+      } catch (err) {
+        console.error('MediaPipe load error:', err);
+      }
+
+      // 动态 import，确保 #fluidCanvas 已在 DOM 中
+      import('@/lib/apps/webgl-fluid-sim/fluidSim')
+        .then((mod) => {
+          if (cancelled) {
+            mod.destroyFluidSim();
+          }
+        })
+        .catch((err) => {
+          console.error('WebGL Fluid Sim init error:', err);
+        });
+    })();
 
     return () => {
       cancelled = true;

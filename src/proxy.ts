@@ -76,7 +76,11 @@ function buildCsp(nonce: string, isTrial = false): string {
     `img-src 'self' data: blob: https://www.imagentx.top https://imagentx.top${r2Origin ? ` ${r2Origin}` : ''}`,
     // 放行 Google Fonts 字体文件（font-src 原先只允许 'self'，gstatic 被拦）
     "font-src 'self' https://fonts.gstatic.com",
-    `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com ${sentryIngest}`,
+    // connect-src：数据库/邮件/支付/Sentry 之外，放行 MediaPipe 模型 CDN。
+    // 站内应用（chakra 手势识别、webgl-fluid-sim 手势）在运行时从
+    // cdn.jsdelivr.net 拉取 @mediapipe/hands 的 .wasm / .tflite 模型，
+    // 该 fetch 由 connect-src 管控——不放行则模型加载失败、摄像头无法启动。
+    `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com https://cdn.jsdelivr.net ${sentryIngest}`,
     // trial 路由允许同源 iframe 内嵌；其余页面禁止被嵌入（防点击劫持）
     `frame-ancestors ${isTrial ? "'self'" : "'none'"}`,
     "upgrade-insecure-requests",

@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useGame } from "../GameContext";
 import { useLanguage } from "../LanguageContext";
-// @mediapipe/* 均为 UMD 全局脚本，无 ESM 导出，各自把 Hands/Camera/HAND_CONNECTIONS/drawConnectors 挂到 globalThis
-import "@mediapipe/hands";
-import "@mediapipe/camera_utils";
-import "@mediapipe/drawing_utils";
+// @mediapipe/* 包标记 sideEffects:[]，裸副作用导入会被 webpack tree-shake 掉，
+// 且主文件是 UMD IIFE（无 ESM 导出），因此必须用 <script> 标签加载，
+// 脚本执行后把 Hands/Camera/HAND_CONNECTIONS/drawConnectors/drawLandmarks 挂到 globalThis。
+import { loadMediaPipe } from "@/lib/apps/mediapipe";
 
 // 模块导入
 import { createGestureDetector, SEAL_NAMES, getGestureName } from "../modules/gesture";
@@ -731,6 +731,10 @@ export default function CameraComponent({ onBack, initialJutsu }) {
 
     (async () => {
       try {
+        console.log('[Chakra] Loading MediaPipe scripts...');
+        // 先确保 UMD 脚本已加载（window.Hands / window.Camera 等全局可用）
+        await loadMediaPipe();
+
         console.log('[Chakra] Initializing MediaPipe Hands...');
         const hands = new globalThis.Hands({
           locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
