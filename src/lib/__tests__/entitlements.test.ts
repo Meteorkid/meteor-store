@@ -74,4 +74,22 @@ describe('getUserEntitlements', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('管理员返回全部产品（无需购买）', async () => {
+    // 管理员邮箱来自 ADMIN_EMAILS 环境变量；这里临时设成传入的邮箱
+    const prev = process.env.ADMIN_EMAILS;
+    process.env.ADMIN_EMAILS = 'admin@test.com';
+    try {
+      const result = await getUserEntitlements('u1', 'admin@test.com');
+      const productIds = result.map((r) => r.productId);
+      expect(productIds).toContain('ex-memory');
+      expect(productIds).toContain('tollow');
+      expect(productIds).toContain('webgl-fluid-sim');
+      // 覆盖全部产品（findProduct 的有效 id 数量）
+      expect(result.length).toBeGreaterThan(1);
+    } finally {
+      if (prev === undefined) delete process.env.ADMIN_EMAILS;
+      else process.env.ADMIN_EMAILS = prev;
+    }
+  });
 });

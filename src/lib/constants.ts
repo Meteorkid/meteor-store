@@ -29,9 +29,14 @@ export const SHOW_PRICING = process.env.NEXT_PUBLIC_SHOW_PRICING === 'true';
 export const OPERATOR = {
   /** 营业执照名称（工商登记全称，含类型后缀） */
   name: '广州市番禺区流星软件店（个体工商户）',
-  /** 统一社会信用代码，待从电子执照原文复制核对后填入 */
-  creditCode: '',
-  /** 对外公示的经营地址 */
+  /** 统一社会信用代码（GB 32100 校验位已核） */
+  creditCode: '92440113MAKL668E7K',
+  /**
+   * 对外公示的经营地址。
+   * 执照「经营场所」登记的是网络经营场所，印在证面上的首项是拼多多店铺，
+   * 后接「等」——完整列表以 gsxt.gov.cn 公示为准。待确认 imagentx.top
+   * 是否已在登记列表内再填，不确认前留空（宁可不显示也不挂不实信息）。
+   */
   address: '',
   /** ICP 备案号，链接工信部 beian.miit.gov.cn */
   icp: '粤ICP备2026089905号',
