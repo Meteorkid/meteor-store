@@ -1,4 +1,6 @@
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
@@ -17,5 +19,13 @@ describe('阿里云自托管配置', () => {
       scripts?: Record<string, string>;
     };
     expect(packageJson.scripts?.start).toContain('--hostname 127.0.0.1');
+  });
+
+  it('防止重叠部署并在构建失败时恢复旧产物', () => {
+    const deployScript = readFileSync(resolve(process.cwd(), 'deploy/deploy.sh'), 'utf8');
+
+    expect(deployScript).toContain('flock -n 9');
+    expect(deployScript).toContain('ROLLBACK_DIR');
+    expect(deployScript).toContain('trap restore_previous_build EXIT INT TERM');
   });
 });

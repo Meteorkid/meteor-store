@@ -17,5 +17,9 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
           script: |
+            set -euo pipefail
             cd /var/www/meteor-store
+            # deploy.sh 会被本次提交更新，必须先拉取再执行新版脚本。
+            git remote set-url origin https://ghfast.top/https://github.com/Meteorkid/meteor-store.git
+            git pull --ff-only origin main
             bash deploy/deploy.sh
