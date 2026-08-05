@@ -119,7 +119,6 @@ export default async function LocaleLayout({
     url: "https://www.imagentx.top",
     logo: "https://www.imagentx.top/favicon.svg",
     description: t("description"),
-    sameAs: ["https://github.com/Meteorkid"],
     contactPoint: {
       "@type": "ContactPoint",
       email: "meteor@stu.gpnu.edu.cn",

@@ -1,0 +1,1240 @@
+/* eslint-disable */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+/* ─── Reset & Root ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.tutorial-root {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #04060e 0%, #0a0e1a 30%, #0d1225 60%, #06090f 100%);
+  color: #e2e8f0;
+  font-family: 'Rajdhani', sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ─── 晓组织红云纹样背景 ──────────────────────────────────── */
+.tutorial-root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/apps/chakra-visualizer/assets/akatsuki-clouds.svg');
+  background-size: 300px 300px;
+  background-repeat: repeat;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+  animation: drift-clouds 60s linear infinite;
+}
+@keyframes drift-clouds {
+  from { background-position: 0 0; }
+  to { background-position: 300px 300px; }
+}
+
+/* ─── 角色剪影背景 ───────────────────────────────────────── */
+.naruto-characters {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  background-image: url('/apps/chakra-visualizer/assets/naruto-silhouettes.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ─── 角色图片背景层 ─────────────────────────────────────── */
+.character-images {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+.character-img {
+  position: absolute;
+  object-fit: contain;
+  filter: drop-shadow(0 0 30px rgba(198,40,40,0.3)) brightness(1.1);
+}
+.character-img.naruto-left {
+  left: -2%;
+  bottom: 0;
+  height: 85vh;
+  opacity: 0.2;
+  animation: char-breathe 6s ease-in-out infinite;
+}
+.character-img.naruto-right {
+  right: -2%;
+  bottom: 0;
+  height: 80vh;
+  opacity: 0.18;
+  transform: scaleX(-1);
+  animation: char-breathe-r 7s ease-in-out infinite;
+}
+.character-img.naruto-center {
+  left: 50%;
+  top: 10%;
+  transform: translateX(-50%);
+  height: 60vh;
+  opacity: 0.1;
+  animation: char-pulse 5s ease-in-out infinite;
+  filter: drop-shadow(0 0 60px rgba(198,40,40,0.4)) brightness(1.2);
+}
+.character-img.naruto-float {
+  right: 8%;
+  top: 8%;
+  height: 40vh;
+  opacity: 0.12;
+  animation: char-float 8s ease-in-out infinite;
+}
+@keyframes char-breathe {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.2; }
+  50% { transform: translateY(-20px) scale(1.03); opacity: 0.28; }
+}
+@keyframes char-breathe-r {
+  0%, 100% { transform: scaleX(-1) translateY(0) scale(1); opacity: 0.18; }
+  50% { transform: scaleX(-1) translateY(-20px) scale(1.03); opacity: 0.25; }
+}
+@keyframes char-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.1; }
+  50% { transform: translateX(-50%) scale(1.05); opacity: 0.18; }
+}
+@keyframes char-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.12; }
+  50% { transform: translateY(-15px) rotate(2deg); opacity: 0.2; }
+}
+
+/* ─── 动态技能特效 ───────────────────────────────────────── */
+.skill-effects {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* 螺旋丸 - 蓝色旋转球体 */
+.skill-rasengan {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(21,101,192,0.6) 0%, rgba(66,165,245,0.3) 40%, transparent 70%);
+  box-shadow: 0 0 60px rgba(21,101,192,0.5), 0 0 120px rgba(66,165,245,0.2), inset 0 0 30px rgba(255,255,255,0.2);
+  animation: rasengan-spin 3s linear infinite, rasengan-float 8s ease-in-out infinite;
+}
+.skill-rasengan::before {
+  content: '';
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  animation: spin-fast 1.5s linear infinite;
+}
+.skill-rasengan::after {
+  content: '';
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(66,165,245,0.4) 60%, transparent 100%);
+  animation: pulse-glow 1s ease-in-out infinite alternate;
+}
+.skill-rasengan.r1 { left: 8%; top: 25%; animation-delay: 0s; }
+.skill-rasengan.r2 { right: 12%; top: 40%; animation-delay: -2s; width: 90px; height: 90px; }
+.skill-rasengan.r3 { left: 20%; bottom: 20%; animation-delay: -4s; width: 70px; height: 70px; }
+
+@keyframes rasengan-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes rasengan-float {
+  0%, 100% { translate: 0 0; }
+  25% { translate: 10px -15px; }
+  50% { translate: -5px -25px; }
+  75% { translate: -15px -10px; }
+}
+@keyframes spin-fast {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+@keyframes pulse-glow {
+  0% { opacity: 0.5; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.1); }
+}
+
+/* 千鸟 - 紫色闪电 */
+.skill-chidori {
+  position: absolute;
+  width: 4px;
+  height: 80px;
+  background: linear-gradient(180deg, transparent, rgba(167,139,250,0.8), rgba(124,58,237,0.6), transparent);
+  animation: chidori-flash 2s ease-in-out infinite;
+  filter: blur(0.5px);
+}
+.skill-chidori::before,
+.skill-chidori::after {
+  content: '';
+  position: absolute;
+  width: 3px;
+  background: linear-gradient(180deg, transparent, rgba(192,132,252,0.6), transparent);
+}
+.skill-chidori::before {
+  height: 50px;
+  top: 10px;
+  left: 8px;
+  transform: rotate(15deg);
+  animation: chidori-flash 2s ease-in-out infinite 0.3s;
+}
+.skill-chidori::after {
+  height: 40px;
+  top: 20px;
+  left: -6px;
+  transform: rotate(-20deg);
+  animation: chidori-flash 2s ease-in-out infinite 0.6s;
+}
+.skill-chidori.c1 { right: 15%; top: 20%; }
+.skill-chidori.c2 { left: 25%; top: 35%; animation-delay: -0.8s; height: 60px; }
+.skill-chidori.c3 { right: 30%; bottom: 30%; animation-delay: -1.5s; height: 50px; }
+
+@keyframes chidori-flash {
+  0%, 100% { opacity: 0; transform: scaleY(0.5) translateX(0); }
+  10% { opacity: 1; transform: scaleY(1) translateX(3px); }
+  20% { opacity: 0.3; transform: scaleY(0.8) translateX(-2px); }
+  30% { opacity: 0.9; transform: scaleY(1.1) translateX(1px); }
+  50% { opacity: 0; transform: scaleY(0.6) translateX(-1px); }
+}
+
+/* 火遁 - 橙红色火焰粒子 */
+.skill-fire {
+  position: absolute;
+  width: 20px;
+  height: 30px;
+  background: radial-gradient(ellipse at bottom, rgba(239,108,0,0.8) 0%, rgba(230,74,25,0.4) 50%, transparent 100%);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  animation: fire-flicker 1.5s ease-in-out infinite;
+  filter: blur(1px);
+}
+.skill-fire.f1 { left: 5%; bottom: 25%; animation-delay: 0s; }
+.skill-fire.f2 { left: 8%; bottom: 28%; animation-delay: -0.3s; width: 15px; height: 22px; }
+.skill-fire.f3 { left: 3%; bottom: 30%; animation-delay: -0.7s; width: 12px; height: 18px; }
+.skill-fire.f4 { right: 8%; bottom: 22%; animation-delay: -0.5s; }
+.skill-fire.f5 { right: 5%; bottom: 26%; animation-delay: -1s; width: 16px; height: 24px; }
+.skill-fire.f6 { right: 10%; bottom: 20%; animation-delay: -0.2s; width: 10px; height: 15px; }
+
+@keyframes fire-flicker {
+  0%, 100% { opacity: 0.4; transform: translateY(0) scale(1); }
+  25% { opacity: 0.8; transform: translateY(-10px) scale(1.2); }
+  50% { opacity: 0.3; transform: translateY(-20px) scale(0.8); }
+  75% { opacity: 0.7; transform: translateY(-8px) scale(1.1); }
+}
+
+/* 写轮眼脉冲 - 红色光环 */
+.skill-sharingan-pulse {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 2px solid rgba(198,40,40,0.3);
+  animation: sharingan-pulse 4s ease-in-out infinite;
+}
+.skill-sharingan-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  border: 1px solid rgba(198,40,40,0.2);
+  animation: sharingan-pulse 4s ease-in-out infinite 0.5s;
+}
+.skill-sharingan-pulse.sp1 { left: 50%; top: 20%; transform: translateX(-50%); }
+.skill-sharingan-pulse.sp2 { left: 15%; top: 50%; width: 150px; height: 150px; animation-delay: -1.5s; }
+.skill-sharingan-pulse.sp3 { right: 10%; top: 30%; width: 120px; height: 120px; animation-delay: -3s; }
+
+@keyframes sharingan-pulse {
+  0%, 100% { opacity: 0; transform: translateX(-50%) scale(0.8); }
+  50% { opacity: 0.6; transform: translateX(-50%) scale(1.2); }
+}
+.skill-sharingan-pulse.sp2,
+.skill-sharingan-pulse.sp3 {
+  animation-name: sharingan-pulse-2;
+}
+@keyframes sharingan-pulse-2 {
+  0%, 100% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* 地爆天星 - 黑色引力场 */
+.skill-chibaku {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(10,0,20,0.9) 0%, rgba(30,0,50,0.6) 40%, transparent 70%);
+  box-shadow: 0 0 40px rgba(88,28,135,0.4), 0 0 80px rgba(88,28,135,0.2);
+  animation: chibaku-rotate 10s linear infinite, chibaku-float 6s ease-in-out infinite;
+}
+.skill-chibaku::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  border: 1px solid rgba(120,50,200,0.3);
+  animation: spin-slow 8s linear infinite;
+}
+.skill-chibaku.cb1 { left: 40%; bottom: 15%; }
+.skill-chibaku.cb2 { right: 20%; bottom: 25%; width: 60px; height: 60px; animation-delay: -3s; }
+
+@keyframes chibaku-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes chibaku-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -15px; }
+}
+
+/* 查克拉能量线 */
+.skill-chakra-lines {
+  position: absolute;
+  inset: 0;
+}
+.chakra-line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(198,40,40,0.4), transparent);
+  animation: chakra-flow 3s ease-in-out infinite;
+}
+.chakra-line.cl1 { top: 30%; left: 0; width: 40%; animation-delay: 0s; }
+.chakra-line.cl2 { top: 50%; right: 0; width: 35%; animation-delay: -1s; }
+.chakra-line.cl3 { top: 70%; left: 10%; width: 30%; animation-delay: -2s; }
+.chakra-line.cl4 { top: 20%; right: 5%; width: 25%; animation-delay: -0.5s; }
+
+@keyframes chakra-flow {
+  0% { opacity: 0; transform: scaleX(0); transform-origin: left; }
+  50% { opacity: 0.6; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(0); transform-origin: right; }
+}
+
+/* ─── 装饰元素背景 ───────────────────────────────────────── */
+.naruto-deco {
+  position: fixed;
+  inset: 0;
+  background-image: url('/apps/chakra-visualizer/assets/naruto-deco.svg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+  animation: float-deco 20s ease-in-out infinite alternate;
+}
+@keyframes float-deco {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.02) translate(-10px, -5px); }
+}
+
+/* ─── 忍术元素背景 ───────────────────────────────────────── */
+.naruto-elements {
+  position: fixed;
+  inset: 0;
+  background-image: url('/apps/chakra-visualizer/assets/naruto-elements.svg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+  animation: float-elements 25s ease-in-out infinite alternate;
+}
+@keyframes float-elements {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.01) translate(5px, -8px); }
+}
+
+/* ─── 查克拉漩涡装饰 ─────────────────────────────────────── */
+.chakra-swirl {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.4;
+}
+.chakra-swirl.swirl-1 {
+  top: 15%;
+  left: 8%;
+  width: 120px;
+  height: 120px;
+  background-image: url('/apps/chakra-visualizer/assets/chakra-swirl.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: spin-swirl 20s linear infinite;
+}
+.chakra-swirl.swirl-2 {
+  bottom: 20%;
+  right: 5%;
+  width: 100px;
+  height: 100px;
+  background-image: url('/apps/chakra-visualizer/assets/chakra-swirl.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: spin-swirl 25s linear infinite reverse;
+}
+.chakra-swirl.swirl-3 {
+  top: 60%;
+  left: 15%;
+  width: 80px;
+  height: 80px;
+  background-image: url('/apps/chakra-visualizer/assets/chakra-swirl.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: spin-swirl 18s linear infinite;
+  opacity: 0.3;
+}
+@keyframes spin-swirl {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── 木叶标志角标 ───────────────────────────────────────── */
+.leaf-corner {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.4;
+}
+.leaf-corner.top-left {
+  top: -20px;
+  left: -20px;
+  width: 150px;
+  height: 150px;
+  background-image: url('/apps/chakra-visualizer/assets/leaf-symbol.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: spin-leaf 40s linear infinite;
+}
+.leaf-corner.bottom-right {
+  bottom: -20px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  background-image: url('/apps/chakra-visualizer/assets/leaf-symbol.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: spin-leaf 50s linear infinite reverse;
+}
+@keyframes spin-leaf {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── 写轮眼旋转背景 ─────────────────────────────────────── */
+.sharingan-bg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px;
+  height: 900px;
+  background-image: url('/apps/chakra-visualizer/assets/sharingan-bg.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 0;
+  animation: spin-sharingan 30s linear infinite;
+  opacity: 0.5;
+}
+@keyframes spin-sharingan {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ─── 查克拉粒子 canvas ───────────────────────────────────── */
+.chakra-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── 扫描线 ──────────────────────────────────────────────── */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ─── 顶部装饰线 ──────────────────────────────────────────── */
+.top-accent {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #c62828 30%, #ff5252 50%, #c62828 70%, transparent);
+  z-index: 100;
+  opacity: 0.8;
+}
+
+/* ─── 控制按钮组 ──────────────────────────────────────────── */
+.control-group {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  gap: 8px;
+}
+.control-btn {
+  background: rgba(198,40,40,0.12);
+  border: 1px solid rgba(198,40,40,0.3);
+  color: #e2e8f0;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 7px 14px;
+  border-radius: 100px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+.control-btn:hover {
+  background: rgba(198,40,40,0.25);
+  border-color: #c62828;
+  box-shadow: 0 0 20px rgba(198,40,40,0.3);
+  transform: scale(1.05);
+}
+.mode-btn.active {
+  background: rgba(198,40,40,0.3);
+  border-color: #c62828;
+  color: #ff5252;
+  box-shadow: 0 0 15px rgba(198,40,40,0.4);
+}
+
+/* ─── Hero ─────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 6rem 2rem 3rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.hero.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #c62828;
+  border: 1px solid rgba(198,40,40,0.3);
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+  background: rgba(198,40,40,0.08);
+}
+.master-indicator {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #ff5252;
+  background: rgba(255,82,82,0.08);
+  border: 1px solid rgba(255,82,82,0.25);
+  padding: 4px 14px;
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.hero-title {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+.hero-title-link {
+  text-decoration: none;
+  display: inline-block;
+}
+.hero-title-link:hover .hero-title-en {
+  filter: drop-shadow(0 0 60px rgba(198,40,40,0.6));
+}
+.hero-title-en {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.5rem, 10vw, 7.5rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  background: linear-gradient(160deg, #f8fafc 0%, #c62828 50%, #ff5252 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(198,40,40,0.3));
+  transition: filter 0.3s ease;
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  color: #64748b;
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
+  font-weight: 500;
+}
+.hero-subtitle em {
+  color: #c62828;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.hero-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid rgba(198,40,40,0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(198,40,40,0.04);
+  backdrop-filter: blur(8px);
+}
+.stat {
+  padding: 1rem 2rem;
+  text-align: center;
+}
+.stat-num {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 0.05em;
+  color: #f8fafc;
+  line-height: 1;
+}
+.stat-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #475569;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(198,40,40,0.2);
+}
+
+/* ─── Section label ────────────────────────────────────────── */
+.section-label {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0 2rem;
+  margin-bottom: 2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: #c62828;
+  opacity: 0;
+  transition: opacity 0.6s ease 0.3s;
+}
+.section-label.visible { opacity: 1; }
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(198,40,40,0.3) 50%, transparent);
+  max-width: 200px;
+}
+
+/* ─── 结印手势指南 ────────────────────────────────────────── */
+.seal-guide {
+  position: relative;
+  z-index: 10;
+  max-width: 1100px;
+  margin: 0 auto 2rem;
+  padding: 1.25rem 2rem;
+  background: rgba(198,40,40,0.06);
+  border: 1px solid rgba(198,40,40,0.15);
+  border-radius: 14px;
+  opacity: 0;
+  transition: opacity 0.5s ease 0.2s;
+}
+.seal-guide.visible { opacity: 1; }
+.seal-guide-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #c62828;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.seal-grid {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.seal-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.5rem 0.7rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  min-width: 70px;
+  transition: all 0.2s ease;
+}
+.seal-item:hover {
+  background: rgba(198,40,40,0.1);
+  border-color: rgba(198,40,40,0.3);
+  transform: translateY(-2px);
+}
+.seal-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.seal-char {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+.seal-name {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ─── 角色分组 ─────────────────────────────────────────────── */
+.character-section {
+  position: relative;
+  z-index: 10;
+  max-width: 1300px;
+  margin: 0 auto 2rem;
+  padding: 0 2rem;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.character-section.visible { opacity: 1; }
+.character-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(198,40,40,0.15);
+}
+.character-emoji {
+  font-size: 1.5rem;
+}
+.character-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.1em;
+  color: #e2e8f0;
+}
+
+/* ─── Jutsu Grid ───────────────────────────────────────────── */
+.jutsu-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* ─── Jutsu Card ───────────────────────────────────────────── */
+.jutsu-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(8,13,24,0.85);
+  border: 1px solid rgba(198,40,40,0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  color: #e2e8f0;
+  backdrop-filter: blur(12px);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  padding: 0;
+  opacity: 0;
+  animation: cardReveal 0.5s ease forwards;
+}
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.jutsu-grid.visible .jutsu-card { animation-play-state: running; }
+
+.jutsu-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: var(--c);
+  box-shadow: 0 0 40px var(--glow), 0 20px 40px rgba(0,0,0,0.5);
+}
+.jutsu-card:hover .card-glow-border {
+  opacity: 1;
+}
+
+.card-glow-border {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: radial-gradient(ellipse at 50% 0%, var(--glow) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.card-anime-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c62828;
+  background: rgba(198,40,40,0.1);
+  border: 1px solid rgba(198,40,40,0.25);
+  padding: 3px 8px;
+  border-radius: 100px;
+}
+
+.card-illustration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 1rem 0.5rem;
+  min-height: 130px;
+}
+
+.gesture-svg {
+  filter: drop-shadow(0 0 12px var(--c, #c62828));
+  animation: float-svg 3.5s ease-in-out infinite;
+}
+@keyframes float-svg {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.card-body {
+  padding: 0.75rem 1.25rem 0.5rem;
+}
+.card-kanji {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.8rem;
+  color: #475569;
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+.card-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  color: var(--c);
+  line-height: 1;
+  margin-bottom: 0.6rem;
+}
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.card-gesture-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem 1rem;
+  border-top: 1px solid rgba(198,40,40,0.1);
+  margin-top: 0.5rem;
+}
+.card-hand {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #475569;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.card-arrow {
+  font-size: 1rem;
+  color: rgba(198,40,40,0.2);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.jutsu-card:hover .card-arrow {
+  color: var(--c);
+  transform: translateX(4px);
+}
+
+/* ─── CTA Section ──────────────────────────────────────────── */
+.cta-section {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 3rem 2rem 4rem;
+  opacity: 0;
+  transition: opacity 0.6s ease 0.6s;
+}
+.cta-section.visible { opacity: 1; }
+
+.launch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #1a0000 0%, #2d0a0a 50%, #1a0000 100%);
+  border: 1px solid rgba(198,40,40,0.4);
+  border-radius: 14px;
+  padding: 1.25rem 2.5rem;
+  cursor: pointer;
+  color: #e2e8f0;
+  font-family: 'Rajdhani', sans-serif;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.launch-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(198,40,40,0.15) 0%, rgba(255,82,82,0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.launch-btn:hover {
+  border-color: #c62828;
+  box-shadow: 0 0 40px rgba(198,40,40,0.3), 0 20px 40px rgba(0,0,0,0.4);
+  transform: translateY(-3px);
+}
+.launch-btn:hover::before { opacity: 1; }
+
+.launch-icon {
+  font-size: 1.5rem;
+  color: #c62828;
+  animation: spin-slow 8s linear infinite;
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.launch-text { text-align: left; }
+.launch-main {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.1em;
+  color: #f8fafc;
+  line-height: 1;
+}
+.launch-sub {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.cta-hint {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: #334155;
+}
+
+/* ─── Modal ────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  position: relative;
+  background: #06090f;
+  border: 1px solid var(--c);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 80px var(--glow), 0 40px 80px rgba(0,0,0,0.7);
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(198,40,40,0.2);
+  background: rgba(198,40,40,0.08);
+  color: #94a3b8;
+  font-size: 1rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 2;
+  font-family: sans-serif;
+}
+.modal-close:hover {
+  background: rgba(198,40,40,0.15);
+  color: #e2e8f0;
+  border-color: #c62828;
+}
+
+.modal-top {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 2rem;
+  padding: 2.5rem;
+  border-bottom: 1px solid rgba(198,40,40,0.1);
+}
+
+.modal-illustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(198,40,40,0.04);
+  border: 1px solid rgba(198,40,40,0.15);
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+.modal-info { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.modal-anime {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #c62828;
+}
+.modal-kanji {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 1.2rem;
+  color: #475569;
+  letter-spacing: 0.1em;
+}
+.modal-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  letter-spacing: 0.05em;
+  color: var(--c);
+  line-height: 1;
+  filter: drop-shadow(0 0 20px var(--glow));
+}
+.modal-desc {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  font-weight: 400;
+}
+.modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0.25rem;
+}
+.modal-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+/* 忍术预览动画 */
+.modal-preview {
+  padding: 0 2.5rem;
+}
+.jutsu-preview-canvas {
+  width: 100%;
+  height: 280px;
+  border-radius: 12px;
+  border: 1px solid rgba(198,40,40,0.15);
+  display: block;
+  touch-action: none;
+  user-select: none;
+  mix-blend-mode: screen;
+  background: #000;
+}
+
+.modal-steps {
+  padding: 2rem 2.5rem;
+  border-bottom: 1px solid rgba(198,40,40,0.1);
+}
+.steps-heading {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #c62828;
+  margin-bottom: 1rem;
+}
+.steps-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  counter-reset: steps;
+}
+.steps-list li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  background: rgba(198,40,40,0.04);
+  border: 1px solid rgba(198,40,40,0.1);
+  border-left: 3px solid var(--step-color, #c62828);
+  border-radius: 0 10px 10px 0;
+  padding: 0.75rem 1rem;
+}
+.step-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  color: var(--step-color, #c62828);
+  letter-spacing: 0.05em;
+  min-width: 28px;
+}
+
+.modal-tip {
+  margin: 0 2.5rem;
+  padding: 1rem 1.25rem;
+  background: rgba(234, 179, 8, 0.06);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #ca8a04;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.tip-icon { font-size: 1rem; }
+
+.modal-launch-btn {
+  display: block;
+  width: calc(100% - 5rem);
+  margin: 1.5rem 2.5rem 2.5rem;
+  padding: 1.1rem;
+  background: var(--c);
+  border: none;
+  border-radius: 12px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.1em;
+  color: #04060e;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 25px var(--glow);
+}
+.modal-launch-btn:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 50px var(--glow);
+  transform: translateY(-2px);
+}
+
+/* ─── Footer ───────────────────────────────────────────────── */
+.footer {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid rgba(198,40,40,0.1);
+  font-size: 0.75rem;
+  color: #334155;
+  letter-spacing: 0.05em;
+}
+.footer a {
+  color: #c62828;
+  text-decoration: none;
+}
+.footer a:hover { text-decoration: underline; }
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .hero { padding: 4rem 1.25rem 2rem; }
+  .hero-title-en { font-size: clamp(3rem, 15vw, 5rem); }
+  .jutsu-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 0 1rem; }
+  .card-body { padding: 0.5rem 0.9rem 0.25rem; }
+  .card-name { font-size: 1.3rem; }
+  .card-footer { padding: 0.6rem 0.9rem 0.75rem; }
+  .modal-top { grid-template-columns: 1fr; gap: 1rem; }
+  .modal-top .modal-illustration { padding: 1rem; }
+  .modal-name { font-size: 2.2rem; }
+  .modal-preview { padding: 0 1.5rem; }
+  .jutsu-preview-canvas { height: 200px; }
+  .modal-steps { padding: 1.5rem; }
+  .modal-tip { margin: 0 1.5rem; margin-top: 1rem; }
+  .modal-launch-btn { width: calc(100% - 3rem); margin: 1.25rem 1.5rem 2rem; }
+  .hero-stats { flex-direction: column; gap: 0; }
+  .stat-divider { width: 80px; height: 1px; }
+  .sharingan-bg { width: 500px; height: 500px; }
+}
+
+@media (max-width: 400px) {
+  .jutsu-grid { grid-template-columns: 1fr; }
+}

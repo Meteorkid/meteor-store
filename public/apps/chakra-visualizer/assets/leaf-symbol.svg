@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" opacity="0.06">
+  <!-- 木叶村标志 -->
+  <g fill="none" stroke="#c62828" stroke-width="3" transform="translate(100,100)">
+    <!-- 外圈 -->
+    <circle cx="0" cy="0" r="85" stroke-width="2"/>
+    <!-- 螺旋 -->
+    <path d="M 0,-50 Q 30,-50 30,-20 Q 30,10 0,10 Q -30,10 -30,-15 Q -30,-40 0,-40 Q 20,-40 20,-20 Q 20,0 0,0" stroke-width="2.5" fill="none"/>
+    <!-- 尖角 -->
+    <path d="M 0,-50 L -15,-70 L 0,-55 L 15,-70 Z" stroke-width="2" fill="#c62828" opacity="0.3"/>
+    <!-- 叶脉 -->
+    <path d="M -20,30 Q 0,50 20,30" stroke-width="1.5"/>
+    <path d="M -10,25 Q 0,35 10,25" stroke-width="1"/>
+  </g>
+</svg>

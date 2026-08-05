@@ -87,28 +87,6 @@ export default async function ContactPage({
               </a>
             </div>
 
-            {/* GitHub */}
-            <div className="p-6 bg-white/5 rounded-xl border border-white/10">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">🐙</span>
-                <h2 className="text-lg font-semibold">GitHub</h2>
-              </div>
-              <p className="text-gray-400 mb-3">
-                {t('githubDescription')}
-              </p>
-              <a
-                href="https://github.com/Meteorkid"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors"
-              >
-                github.com/Meteorkid
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </a>
-            </div>
-
             {/* 工作时间 */}
             <div className="p-6 bg-white/5 rounded-xl border border-white/10">
               <div className="flex items-center gap-3 mb-3">

@@ -1,0 +1,361 @@
+/* eslint-disable */
+.typing-practice {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* 使隐藏输入可聚焦但不可见，不影响布局 */
+.hidden-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  outline: none;
+  caret-color: transparent;
+}
+
+.practice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--color-ink0);
+}
+
+.practice-header h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-ink0);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.practice-header p {
+  color: var(--color-ink2);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.practice-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.practice-content {
+  background: var(--color-bg1);
+  border: 1px solid var(--color-line);
+  padding: var(--spacing-xl);
+}
+
+.typing-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin-bottom: var(--spacing-xl);
+  background: var(--color-line);
+  border: 1px solid var(--color-line);
+}
+
+.stat-item {
+  text-align: center;
+  padding: var(--spacing-md);
+  background: var(--color-bg1);
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-ink2);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.stat-value {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-ink0);
+  font-variant-numeric: tabular-nums;
+}
+
+.typing-instructions {
+  background: var(--color-accentsoft);
+  border: 1px solid var(--color-accentdim);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.typing-instructions h3 {
+  color: var(--color-accent);
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.typing-instructions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px var(--spacing-xl);
+}
+
+.typing-instructions li {
+  color: var(--color-ink1);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.typing-instructions li::before {
+  content: '·';
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.typing-instructions li strong {
+  color: var(--color-ink0);
+  font-weight: 600;
+}
+
+.text-container {
+  position: relative;
+}
+
+.text-display {
+  background: var(--color-bg1);
+  border: 1px solid var(--color-line);
+  padding: var(--spacing-xl);
+  min-height: 280px;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  position: relative;
+  cursor: text;
+  outline: none;
+  transition: border-color 0.15s ease;
+  letter-spacing: 0.01em;
+  caret-color: transparent;
+}
+
+/* 覆盖层：绝对覆盖文本区域，屏蔽点击 */
+.overlay-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.text-display:focus {
+  border-color: var(--color-ink2);
+}
+
+.text-display .remaining-char {
+  color: var(--color-ink2);
+  opacity: 0.7;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+  font-weight: 400;
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+  margin-right: 0.05em;
+}
+
+/* 覆盖字符默认样式，具体颜色由correct/error类控制 */
+.text-display .typed-char {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  position: absolute;
+  z-index: 6;
+  font-weight: 500;
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+}
+
+.text-display .typed-char:hover {
+  background-color: var(--color-accentsoft);
+}
+
+.text-display .correct-char {
+  color: var(--color-ink0);
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.text-display .error-char {
+  color: var(--color-hot);
+  background-color: var(--color-accentsoft);
+  padding: 0;
+  border-radius: 1px;
+  text-decoration: none;
+  box-shadow: none;
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+}
+
+/* 指示光标样式 */
+.text-display .current-char {
+  color: transparent;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-weight: 700;
+  box-shadow: none;
+  animation: blink 1s infinite;
+  position: absolute;
+  z-index: 7;
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+}
+
+/* 指示光标的竖线 */
+.text-display .current-char::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 4px;
+  bottom: 8px;
+  width: 1.5px;
+  background: var(--color-ink0);
+  animation: blink 1s infinite;
+}
+
+/* 指示光标的背景高亮 */
+.text-display .current-char::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  bottom: 8px;
+  background: var(--color-accentsoft);
+  border-radius: 1px;
+  animation: blink 1s infinite;
+}
+
+/* 光标闪烁动画 */
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0.2;
+  }
+}
+
+/* 强制刷新光标样式 */
+.text-display .current-char::after,
+.text-display .current-char::before,
+.cursor-indicator {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 光标位置指示器 */
+.cursor-indicator {
+  position: absolute;
+  width: 2px;
+  height: 18px;
+  background: var(--color-accent);
+  border-radius: 1px;
+  animation: cursorPulse 1.5s ease-in-out infinite;
+  z-index: 8;
+  pointer-events: none;
+  top: 4px;
+}
+
+@keyframes cursorPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scaleY(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1.1);
+  }
+}
+
+.practice-section-title,
+.practice-loading {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.practice-load-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin: 0 auto var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  max-width: 720px;
+  color: var(--color-error, #a33);
+  background: color-mix(in srgb, var(--color-error, #a33) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-error, #a33) 24%, transparent);
+  border-radius: var(--radius-md, 8px);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .practice-header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .practice-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .practice-controls {
+    justify-content: center;
+    margin-top: var(--spacing-md);
+  }
+
+  .practice-content {
+    padding: var(--spacing-md);
+  }
+
+  .typing-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .typing-instructions ul {
+    grid-template-columns: 1fr;
+  }
+
+  .text-display {
+    font-size: 1rem;
+    padding: var(--spacing-md);
+    min-height: 220px;
+  }
+}

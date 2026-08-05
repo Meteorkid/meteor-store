@@ -61,10 +61,10 @@ export function runCommand(rawInput: string): CommandResult {
     case 'star':
       return {
         lines: [
-          '可以白嫖！开源的部分随便用，不用不好意思。',
-          '但如果它帮到了你，麻烦去 GitHub 给我点颗小星星 ⭐',
-          '→ https://github.com/Meteorkid',
-          '星星不要钱，但对一个攒学费的大学生来说，比钱还提气。',
+          '可以白嫖！免费功能随便用，不用不好意思。',
+          '但如果它帮到了你，欢迎给我发封邮件聊聊 ⭐',
+          '→ meteor@stu.gpnu.edu.cn',
+          '你的反馈不要钱，但对一个攒学费的大学生来说，比钱还提气。',
         ],
       };
 

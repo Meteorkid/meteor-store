@@ -64,9 +64,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
                 variant="ghost"
                 size="lg"
                 renderAs="a"
-                href="https://github.com/Meteorkid"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/docs"
                 className={isBold ? 'border-white/30 text-white hover:bg-white/10' : ''}
               >
                 {t('githubOpenSource')}

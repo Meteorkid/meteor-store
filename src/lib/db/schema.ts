@@ -5,6 +5,8 @@ export const orders = pgTable('orders', {
   productId: text('product_id').notNull(),             // 'omnicrawl'
   planName: text('plan_name').notNull(),               // 'Starter'
   email: text('email').notNull(),
+  /** 下单时的登录用户 id。可为空（游客直接填邮箱下单）。有值时用于付费门控 / 授权查询。 */
+  userId: text('user_id'),
   amountCny: integer('amount_cny').notNull(),          // 199（元）
   paymentMethod: text('payment_method').notNull(),     // 'alipay' | 'wechat'
   status: text('status').default('pending').notNull(), // pending | paid | failed | refunded

@@ -7,6 +7,7 @@ import { findProduct } from '@/lib/products';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { getSession } from '@/lib/auth';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 
 /**
@@ -111,12 +112,17 @@ export async function POST(request: NextRequest) {
     const now = new Date().toISOString();
     const accessToken = crypto.randomUUID();
 
+    // 记录下单用户（登录则回填 userId，游客保持为空）。用于「我的产品」与付费门控。
+    // 注意：若下单邮箱与登录邮箱不一致，仍以登录用户为准，避免他人在别人的订单上受益。
+    const session = await getSession();
+
     // 先写数据库（pending 状态），再调支付宝，避免用户付款后无订单记录
     await db.insert(orders).values({
       id: orderId,
       productId: productName,
       planName,
       email,
+      userId: session?.userId ?? null,
       amountCny: priceCNY,
       paymentMethod: 'alipay',
       status: 'pending',

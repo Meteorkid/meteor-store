@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" opacity="0.04">
+  <!-- 手里剑 x3 -->
+  <g fill="#c62828" transform="translate(150,200) scale(0.8) rotate(15)">
+    <polygon points="0,-40 7,-7 0,0 -7,-7"/>
+    <polygon points="0,-40 7,-7 0,0 -7,-7" transform="rotate(90)"/>
+    <polygon points="0,-40 7,-7 0,0 -7,-7" transform="rotate(180)"/>
+    <polygon points="0,-40 7,-7 0,0 -7,-7" transform="rotate(270)"/>
+    <circle cx="0" cy="0" r="7" fill="none" stroke="#c62828" stroke-width="1.5"/>
+  </g>
+  <g fill="#1565c0" transform="translate(1400,150) scale(0.6) rotate(-20)">
+    <polygon points="0,-40 7,-7 0,0 -7,-7"/>
+    <polygon points="0,-40 7,-7 0,0 -7,-7" transform="rotate(90)"/>
+    <polygon points="0,-40 7,-7 0,0 -7,-7" transform="rotate(180)"/>
+    <polygon points="0,-40 7,-7 0,0 -7,-7" transform="rotate(270)"/>
+    <circle cx="0" cy="0" r="7" fill="none" stroke="#1565c0" stroke-width="1.5"/>
+  </g>
+  <g fill="#ef6c00" transform="translate(900,750) scale(0.7) rotate(45)">
+    <polygon points="0,-40 7,-7 0,0 -7,-7"/>
+    <polygon points="0,-40 7,-7 0,0 -7,-7" transform="rotate(90)"/>
+    <polygon points="0,-40 7,-7 0,0 -7,-7" transform="rotate(180)"/>
+    <polygon points="0,-40 7,-7 0,0 -7,-7" transform="rotate(270)"/>
+    <circle cx="0" cy="0" r="7" fill="none" stroke="#ef6c00" stroke-width="1.5"/>
+  </g>
+
+  <!-- 苦无 x2 -->
+  <g fill="#475569" transform="translate(300,600) rotate(-30)">
+    <path d="M 0,-35 L 5,-5 L 3,0 L 5,5 L 0,35 L -5,5 L -3,0 L -5,-5 Z"/>
+    <rect x="-8" y="28" width="16" height="6" rx="2"/>
+  </g>
+  <g fill="#475569" transform="translate(1300,500) rotate(20)">
+    <path d="M 0,-35 L 5,-5 L 3,0 L 5,5 L 0,35 L -5,5 L -3,0 L -5,-5 Z"/>
+    <rect x="-8" y="28" width="16" height="6" rx="2"/>
+  </g>
+
+  <!-- 木叶标志 x2 -->
+  <g fill="none" stroke="#c62828" stroke-width="2" transform="translate(100,400) scale(0.5)">
+    <circle cx="0" cy="0" r="40"/>
+    <path d="M 0,-25 Q 15,-25 15,-10 Q 15,5 0,5 Q -15,5 -15,-8 Q -15,-20 0,-20 Q 10,-20 10,-10 Q 10,0 0,0"/>
+    <path d="M 0,-25 L -8,-35 L 0,-28 L 8,-35 Z" fill="#c62828" opacity="0.4"/>
+  </g>
+  <g fill="none" stroke="#1565c0" stroke-width="1.5" transform="translate(1500,350) scale(0.4)">
+    <circle cx="0" cy="0" r="40"/>
+    <path d="M 0,-25 Q 15,-25 15,-10 Q 15,5 0,5 Q -15,5 -15,-8 Q -15,-20 0,-20 Q 10,-20 10,-10 Q 10,0 0,0"/>
+    <path d="M 0,-25 L -8,-35 L 0,-28 L 8,-35 Z" fill="#1565c0" opacity="0.4"/>
+  </g>
+
+  <!-- 查克拉连线 -->
+  <g stroke="#c62828" stroke-width="0.5" opacity="0.3">
+    <path d="M 200,100 Q 400,300 600,200 T 1000,250"/>
+    <path d="M 100,500 Q 300,200 500,400 T 900,300"/>
+    <path d="M 800,100 Q 1000,400 1200,200 T 1500,350"/>
+  </g>
+
+  <!-- 小圆点装饰 -->
+  <circle cx="250" cy="300" r="2" fill="#c62828" opacity="0.3"/>
+  <circle cx="700" cy="150" r="1.5" fill="#1565c0" opacity="0.25"/>
+  <circle cx="1100" cy="400" r="2.5" fill="#ef6c00" opacity="0.2"/>
+  <circle cx="450" cy="700" r="1.8" fill="#c62828" opacity="0.2"/>
+  <circle cx="1350" cy="250" r="2" fill="#1565c0" opacity="0.25"/>
+  <circle cx="600" cy="600" r="1.5" fill="#ef6c00" opacity="0.3"/>
+</svg>

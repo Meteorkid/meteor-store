@@ -269,8 +269,8 @@
     "title": "Documentation Center",
     "description": "Quick start guides for each product. Copy the command and get running in 30 seconds.",
     "notFound": "Can't find what you're looking for?",
-    "checkReadme": "Each project's README has complete API documentation and advanced usage.",
-    "browseGithub": "Browse GitHub",
+    "checkReadme": "Each product page has full feature overviews and quick-start guides.",
+    "browseGithub": "Browse products",
     "detailsLink": "Details →",
     "macAppHint": "macOS app, download and run",
     "download": "Download ↓"
@@ -518,8 +518,8 @@
     "description": "All open source, all free. Every project solves its own itch.",
     "projects": "projects",
     "license": "License",
-    "contribute": "Want to contribute? Issues and Pull Requests are welcome.",
-    "followGithub": "Follow on GitHub",
+    "contribute": "Want to learn more? Browse all products and find the right tool for you.",
+    "followGithub": "Browse products",
     "descOmnicrawl": "All-in-one crawler framework built on Scrapling + curl_cffi + Playwright. One API, three engines, automatic anti-bot bypass.",
     "descExMemory": "LLM + RAG that teaches AI someone's speaking style. Import chat logs to recreate their tone and word choices.",
     "descSkeletonAnatomy": "A 3D human skeleton model in the browser. Supports rotation, zoom, and annotations. For medical students and anatomy enthusiasts.",
@@ -690,7 +690,7 @@
     "pricing": "Pricing",
     "openSource": "Open source",
     "readyTitle": "Ready to start?",
-    "readyDesc": "{name} is fully open source. Browse the code on GitHub, file issues, contribute — or just put it to work.",
+    "readyDesc": "{name} is ready. Pick a plan that fits you and get started — or reach out first.",
     "viewSource": "View source",
     "contactMe": "Contact me",
     "periodMonthly": "mo",
@@ -717,7 +717,11 @@
     "demoTitle": "{name} Live Demo",
     "loadDemo": "Click to load live demo",
     "demoLoadHint": "The demo runs on the product's real site. If loading is slow, open in a new window.",
-    "loadDemoAria": "Load {name} live demo"
+    "loadDemoAria": "Load {name} live demo",
+    "trialTitle": "Try {name} Free",
+    "loadTrial": "Click to try it free",
+    "trialHint": "Experience the full app without purchasing. Buy to keep using it.",
+    "loadTrialAria": "Load {name} free trial"
   },
   "HeroSection": {
     "badge": "Full-Platform Tool Matrix · Continuously Iterating",
@@ -728,7 +732,7 @@
     "trustLinePricing": "Open source · Public code · Continuously maintained",
     "trustLineNoPricing": "Open source · Community driven · Contributions welcome",
     "ctaExplore": "Explore All Products",
-    "ctaGithub": "GitHub Open Source",
+    "ctaGithub": "View docs",
     "statTools": "Premium Tools",
     "statUsers": "Active Users",
     "statRating": "Avg Rating",
@@ -852,7 +856,7 @@
     "faq4Question": "Do products get updates?",
     "faq4Answer": "We continue to maintain our products. The update scope follows the product page, open-source licence, and the licence terms shown at purchase.",
     "faq5Question": "How to get technical support?",
-    "faq5Answer": "You can contact us via email for technical support, or submit an issue on GitHub. We will reply within 24 hours.",
+    "faq5Answer": "You can contact us via email for technical support. We will reply within 24 hours.",
     "faq6Question": "Are enterprise purchases supported?",
     "faq6Answer": "Yes, we offer enterprise products and bulk purchase discounts. Please contact us via email for customized solutions."
   },
@@ -902,7 +906,7 @@
     "subtleDescPricing": "Start free, upgrade as needed, no hidden fees",
     "subtleDescNoPricing": "All products are open source and free, enjoy",
     "browseProducts": "Browse All Products",
-    "githubOpenSource": "GitHub Open Source",
+    "githubOpenSource": "View docs",
     "badgeOpenSource": "Open Source",
     "badgeLifetimeUpdates": "Continuously Maintained",
     "badgeRefund": "7-Day Unused Refund"
@@ -1459,6 +1463,26 @@
   "AuthProvider": {
     "loginFailed": "Login failed",
     "registerFailed": "Registration failed"
+  },
+  "Paywall": {
+    "loadingCheck": "Checking your access…",
+    "lockedTitle": "This feature requires a paid plan",
+    "lockedDesc": "Sign in and purchase a plan to unlock it.",
+    "buyNow": "Buy now",
+    "loginToContinue": "Sign in to continue"
+  },
+  "AppPage": {
+    "placeholder": "The online app for “{name}” is coming soon."
+  },
+  "MyAppsPage": {
+    "title": "My Products",
+    "description": "Apps you have access to. Click to launch.",
+    "loginHint": "Sign in to see the products you purchased.",
+    "loginToContinue": "Sign in to continue",
+    "emptyHint": "You haven't purchased any products yet.",
+    "browseProducts": "Browse products",
+    "annual": "Annual",
+    "launch": "Launch"
   },
   "AdminCommentsPage": {
     "title": "Comment Moderation",

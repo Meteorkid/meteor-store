@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" opacity="0.08">
+  <!-- 鸣人奔跑剪影 -->
+  <g fill="#c62828" transform="translate(50,50) scale(0.8)">
+    <!-- 头部 -->
+    <circle cx="80" cy="30" r="22"/>
+    <!-- 护额 -->
+    <rect x="58" y="20" width="44" height="12" rx="3"/>
+    <!-- 身体 -->
+    <path d="M 65,52 L 55,120 Q 50,130 60,135 L 70,120 L 80,135 L 90,120 L 100,135 Q 110,130 105,120 L 95,52 Z"/>
+    <!-- 左臂（前伸） -->
+    <path d="M 55,60 Q 20,55 5,45 Q 0,43 5,40 Q 15,38 25,42 Q 30,44 35,50" stroke="#c62828" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- 右臂（后甩） -->
+    <path d="M 95,60 Q 130,75 150,90 Q 155,93 148,95 Q 140,97 130,88 Q 120,80 110,70" stroke="#c62828" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- 左腿（前跨） -->
+    <path d="M 65,120 Q 45,160 35,180 Q 32,185 40,188 Q 50,190 55,180 Q 65,160 70,140" stroke="#c62828" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <!-- 右腿（后蹬） -->
+    <path d="M 90,120 Q 110,155 125,175 Q 128,180 120,182 Q 112,184 108,175 Q 95,155 85,135" stroke="#c62828" stroke-width="10" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- 佐助站立剪影 -->
+  <g fill="#1565c0" transform="translate(350,30) scale(0.75)">
+    <!-- 头部 -->
+    <circle cx="70" cy="25" r="20"/>
+    <!-- 刺猬头 -->
+    <path d="M 55,15 L 45,0 L 55,12 L 50,-5 L 60,10 L 65,-8 L 68,12 L 75,-5 L 72,12 L 80,0 L 75,15"/>
+    <!-- 身体 -->
+    <path d="M 55,45 L 48,130 Q 45,140 55,142 L 65,130 L 70,145 L 75,130 L 85,142 Q 95,140 92,130 L 85,45 Z"/>
+    <!-- 左臂 -->
+    <path d="M 50,55 Q 30,70 20,90" stroke="#1565c0" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <!-- 右臂 -->
+    <path d="M 90,55 Q 110,70 120,90" stroke="#1565c0" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <!-- 草雉剑 -->
+    <path d="M 120,90 L 130,140 Q 131,145 128,142 L 118,88" stroke="#1565c0" stroke-width="3" fill="none"/>
+    <!-- 左腿 -->
+    <path d="M 58,130 Q 50,170 48,190" stroke="#1565c0" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <!-- 右腿 -->
+    <path d="M 82,130 Q 90,170 92,190" stroke="#1565c0" stroke-width="10" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- 卡卡西剪影 -->
+  <g fill="#475569" transform="translate(600,40) scale(0.7)">
+    <!-- 头部 -->
+    <circle cx="60" cy="25" r="20"/>
+    <!-- 面罩轮廓 -->
+    <path d="M 45,30 Q 60,45 75,30" fill="none" stroke="#475569" stroke-width="3"/>
+    <!-- 护额（遮住左眼） -->
+    <rect x="40" y="15" width="40" height="10" rx="2"/>
+    <!-- 银发 -->
+    <path d="M 40,18 Q 35,5 45,10 L 50,5 L 55,12 L 65,3 L 68,12 L 75,5 L 72,15"/>
+    <!-- 身体（暗部制服） -->
+    <path d="M 45,45 L 40,130 Q 38,140 48,142 L 55,130 L 60,145 L 65,130 L 72,142 Q 82,140 80,130 L 75,45 Z"/>
+    <!-- 左臂 -->
+    <path d="M 42,55 Q 25,70 15,85" stroke="#475569" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- 右臂 -->
+    <path d="M 78,55 Q 95,70 105,85" stroke="#475569" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- 左腿 -->
+    <path d="M 48,130 Q 42,165 40,185" stroke="#475569" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <!-- 右腿 -->
+    <path d="M 72,130 Q 78,165 80,185" stroke="#475569" stroke-width="9" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- 我爱罗剪影 -->
+  <g fill="#ef6c00" transform="translate(850,35) scale(0.7)">
+    <!-- 头部 -->
+    <circle cx="55" cy="25" r="20"/>
+    <!-- 眼圈 -->
+    <circle cx="48" cy="22" r="6" fill="none" stroke="#ef6c00" stroke-width="2"/>
+    <circle cx="62" cy="22" r="6" fill="none" stroke="#ef6c00" stroke-width="2"/>
+    <!-- 身体 -->
+    <path d="M 40,45 L 35,130 Q 33,140 43,142 L 50,130 L 55,145 L 60,130 L 67,142 Q 77,140 75,130 L 70,45 Z"/>
+    <!-- 葫芦（背后） -->
+    <ellipse cx="85" cy="60" rx="15" ry="25" fill="none" stroke="#ef6c00" stroke-width="3"/>
+    <line x1="85" y1="35" x2="85" y2="25" stroke="#ef6c00" stroke-width="2"/>
+    <!-- 左臂 -->
+    <path d="M 38,55 Q 20,70 10,85" stroke="#ef6c00" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- 右臂 -->
+    <path d="M 72,55 Q 90,70 100,85" stroke="#ef6c00" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- 左腿 -->
+    <path d="M 43,130 Q 37,165 35,185" stroke="#ef6c00" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <!-- 右腿 -->
+    <path d="M 67,130 Q 73,165 75,185" stroke="#ef6c00" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <!-- 沙子特效 -->
+    <circle cx="10" cy="85" r="3" opacity="0.5"/>
+    <circle cx="5" cy="80" r="2" opacity="0.4"/>
+    <circle cx="15" cy="78" r="2.5" opacity="0.3"/>
+  </g>
+</svg>

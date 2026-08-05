@@ -162,6 +162,13 @@
       "when": 1785818032488,
       "tag": "0022_lethal_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1785931257398,
+      "tag": "0023_careless_doctor_faustus",
+      "breakpoints": true
     }
   ]
 }

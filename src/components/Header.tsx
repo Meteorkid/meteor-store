@@ -114,14 +114,6 @@ export default function Header() {
               </Link>
             );
           })}
-          <a
-            href="https://github.com/Meteorkid"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5 transition-all duration-200"
-          >
-            GitHub
-          </a>
           {/* Spotlight 搜索入口 */}
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('spotlight:open'))}
@@ -200,15 +192,6 @@ export default function Header() {
               </Link>
             );
           })}
-          <a
-            href="https://github.com/Meteorkid"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMobileOpen(false)}
-            className="px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
-          >
-            GitHub
-          </a>
           <div className="h-px bg-border my-4" />
           {user ? (
             <div className="space-y-2">

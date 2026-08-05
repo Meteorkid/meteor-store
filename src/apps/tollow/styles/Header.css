@@ -1,0 +1,99 @@
+/* eslint-disable */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-bg1);
+  border-bottom: 2px solid var(--color-ink0);
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--color-ink0);
+  font-family: var(--font-serif);
+  font-weight: 700;
+}
+
+.brand .logo-icon {
+  font-size: 20px;
+}
+
+.brand .brand-name {
+  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-link {
+  color: var(--color-ink1);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: all 0.15s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-ink0);
+  background: var(--color-bg2);
+}
+
+.nav-link.active {
+  color: var(--color-accent);
+  background: var(--color-accentsoft);
+  font-weight: 600;
+}
+
+.header-date {
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  color: var(--color-ink2);
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .header-bar {
+    padding: 0 var(--spacing-md);
+  }
+
+  .brand .brand-name {
+    font-size: 1.1rem;
+  }
+
+  .header-date {
+    display: none;
+  }
+
+  .nav {
+    gap: 2px;
+  }
+
+  .nav-link {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+}

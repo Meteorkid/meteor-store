@@ -54,18 +54,20 @@ const iconMap: Record<string, { svg: ReactNode; color: string }> = {
 };
 
 export default async function DownloadSection({ product }: { product: LocalizedProduct }) {
-  if (!product.downloads?.length) return null;
+  // 过滤掉 GitHub 图标项（商业策略调整后不再对外暴露 GitHub 源码链接）
+  const downloads = product.downloads?.filter((d) => d.icon !== 'github') ?? [];
+  if (!downloads.length) return null;
 
   const t = await getTranslations('ProductDetailPage');
 
   return (
-    <section className="mb-20">
+    <section id="download" className="mb-20 scroll-mt-24">
       <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Download</p>
       <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">{t('getTitle', { name: product.name })}</h2>
       <p className="mb-8 text-gray-400">{t('downloadHint')}</p>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {product.downloads.map((dl, i) => {
+        {downloads.map((dl, i) => {
           const iconInfo = iconMap[dl.icon] || iconMap.github;
           const isRecommended = i === 0;
 

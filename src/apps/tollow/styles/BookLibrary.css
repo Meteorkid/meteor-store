@@ -1,0 +1,243 @@
+/* eslint-disable */
+.book-library {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.library-header {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-xl);
+  border-bottom: 3px double var(--color-ink0);
+}
+
+.library-header h1 {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-ink0);
+  margin-bottom: 12px;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+}
+
+.library-header p {
+  font-size: 1rem;
+  color: var(--color-ink2);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.upload-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.upload-card {
+  background: var(--color-ink0);
+  color: var(--color-bg0);
+  border: 1px solid var(--color-ink0);
+  padding: var(--spacing-xl);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.upload-card:hover {
+  background: var(--color-ink1);
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.upload-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.upload-card p {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.books-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.books-section h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-ink0);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-ink0);
+}
+
+.books-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--color-line);
+  border: 1px solid var(--color-line);
+}
+
+.book-card {
+  background: var(--color-bg1);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: var(--spacing-lg);
+  align-items: start;
+}
+
+.book-card:hover {
+  background: var(--color-bg2);
+}
+
+.book-cover {
+  font-size: 2rem;
+  text-align: center;
+  padding-top: 4px;
+}
+
+.book-info h3 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-ink0);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.book-author {
+  color: var(--color-ink2);
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.book-description {
+  color: var(--color-ink1);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.difficulty {
+  padding: 2px 8px;
+  border-radius: 1px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.difficulty-easy {
+  background: var(--color-accentsoft);
+  color: var(--color-up);
+}
+
+.difficulty-medium {
+  background: var(--color-accentsoft);
+  color: var(--color-hot);
+}
+
+.difficulty-hard {
+  background: var(--color-accentsoft);
+  color: var(--color-accent);
+}
+
+.word-count, .language {
+  background: var(--color-bg2);
+  color: var(--color-ink1);
+  padding: 2px 8px;
+  border-radius: 1px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.features-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.features-section h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-ink0);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-ink0);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--color-line);
+  border: 1px solid var(--color-line);
+}
+
+.feature-card {
+  background: var(--color-bg1);
+  padding: var(--spacing-lg);
+  text-align: center;
+}
+
+.feature-icon {
+  font-size: 1.8rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.feature-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-ink0);
+  margin-bottom: 8px;
+}
+
+.feature-card p {
+  color: var(--color-ink2);
+  line-height: 1.5;
+  font-size: 0.85rem;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .library-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .book-card {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .book-cover {
+    text-align: left;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}

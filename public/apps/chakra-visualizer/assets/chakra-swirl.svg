@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" opacity="0.06">
+  <!-- 查克拉漩涡 -->
+  <g fill="none" stroke="#c62828" stroke-width="1.5" transform="translate(100,100)">
+    <path d="M 0,0 Q 10,-5 15,0 Q 20,5 15,12 Q 8,18 0,15 Q -10,12 -15,5 Q -18,-5 -12,-12 Q -5,-18 5,-15 Q 15,-12 18,-2 Q 20,10 12,18 Q 0,22 -12,18 Q -22,10 -20,-5 Q -18,-20 -5,-22"/>
+    <path d="M 0,0 Q -8,3 -12,8 Q -15,15 -8,18 Q 0,20 8,15 Q 14,8 10,0 Q 6,-10 -2,-12"/>
+    <circle cx="0" cy="0" r="3" fill="#c62828" opacity="0.5"/>
+  </g>
+  <!-- 查克拉气泡 -->
+  <g fill="#c62828" opacity="0.3">
+    <circle cx="140" cy="60" r="2"/>
+    <circle cx="50" cy="150" r="1.5"/>
+    <circle cx="160" cy="140" r="2.5"/>
+    <circle cx="30" cy="40" r="1.8"/>
+    <circle cx="170" cy="80" r="1.2"/>
+  </g>
+</svg>

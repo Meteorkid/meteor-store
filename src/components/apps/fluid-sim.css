@@ -1,0 +1,55 @@
+/* WebGL Fluid Sim — 嵌入容器内的样式（相对容器定位，非全屏 fixed） */
+
+.fluid-sim-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  border-radius: 16px;
+  user-select: none;
+}
+
+.fluid-sim-root canvas#fluidCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  display: block;
+}
+
+.fluid-sim-root canvas#cameraBg {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  filter: blur(18px) brightness(0.7) saturate(1.2);
+}
+
+.fluid-sim-root .fog-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.3) 100%),
+    linear-gradient(180deg, rgba(180, 200, 220, 0.15) 0%, rgba(100, 120, 140, 0.25) 100%);
+  mix-blend-mode: screen;
+}
+
+.fluid-sim-root video#gestureVideo {
+  visibility: hidden;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+}
+
+/* dat.gui 面板保持浮层（默认 fixed 右上角），提高层级避免被容器遮挡 */
+.dg.ac {
+  z-index: 50 !important;
+}

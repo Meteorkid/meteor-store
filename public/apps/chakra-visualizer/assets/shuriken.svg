@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.05">
+  <!-- 手里剑 -->
+  <g fill="#c62828" transform="translate(50,50)">
+    <!-- 4刃 -->
+    <polygon points="0,-45 8,-8 0,0 -8,-8" transform="rotate(0)"/>
+    <polygon points="0,-45 8,-8 0,0 -8,-8" transform="rotate(90)"/>
+    <polygon points="0,-45 8,-8 0,0 -8,-8" transform="rotate(180)"/>
+    <polygon points="0,-45 8,-8 0,0 -8,-8" transform="rotate(270)"/>
+    <!-- 中心 -->
+    <circle cx="0" cy="0" r="8" fill="none" stroke="#c62828" stroke-width="2"/>
+    <circle cx="0" cy="0" r="3"/>
+  </g>
+</svg>

@@ -1,0 +1,56 @@
+/* eslint-disable */
+/* style.css */
+
+body {
+  margin: 0;
+  background: black;
+}
+
+/* Only the webcam feed gets mirrored + fullscreen */
+.camera-view #webcam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+/* Landmark canvas mirrors to match the webcam */
+.camera-view #landmark-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+/* fx effect videos: positioned by JS, centered on hand, NOT mirrored */
+.fx {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+#rasengan {
+  width: 1600px;
+}
+
+#chidori {
+  width: 2400px;
+}
+
+#fireball {
+  width: 2000px;
+  filter: brightness(4) saturate(3);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

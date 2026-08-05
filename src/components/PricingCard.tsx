@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
 import { CheckIconSm } from './CheckIcon';
 import PaymentModal from './PaymentModal';
@@ -33,10 +34,14 @@ export default function PricingCard({
 }: PricingCardProps) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const t = useTranslations('PricingCard');
+  const router = useRouter();
 
   const handlePurchase = () => {
     if (price === 0) {
-      window.open('https://github.com/Meteorkid', '_blank');
+      // 免费方案：跳转到产品详情页的下载区，不再引导到 GitHub
+      if (productId) {
+        router.push(`/products/${productId}#download`);
+      }
       return;
     }
 

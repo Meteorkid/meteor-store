@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" opacity="0.05">
+  <!-- 结印手势剪影 x4 -->
+  <!-- 子印 (Ram) -->
+  <g fill="none" stroke="#c62828" stroke-width="2" transform="translate(200,180) scale(0.6)">
+    <ellipse cx="0" cy="10" rx="20" ry="25"/>
+    <line x1="-15" y1="-15" x2="-25" y2="-40" stroke-linecap="round"/>
+    <line x1="0" y1="-18" x2="0" y2="-45" stroke-linecap="round"/>
+    <line x1="15" y1="-15" x2="25" y2="-40" stroke-linecap="round"/>
+    <line x1="-10" y1="20" x2="-20" y2="40" stroke-linecap="round"/>
+    <line x1="10" y1="20" x2="20" y2="40" stroke-linecap="round"/>
+  </g>
+
+  <!-- 丑印 (Ox) -->
+  <g fill="none" stroke="#1565c0" stroke-width="2" transform="translate(1400,200) scale(0.55)">
+    <ellipse cx="0" cy="10" rx="18" ry="22"/>
+    <path d="M -12,-12 Q -20,-25 -15,-35" stroke-linecap="round"/>
+    <path d="M 12,-12 Q 20,-25 15,-35" stroke-linecap="round"/>
+    <line x1="-8" y1="20" x2="-15" y2="38" stroke-linecap="round"/>
+    <line x1="8" y1="20" x2="15" y2="38" stroke-linecap="round"/>
+    <line x1="0" y1="22" x2="0" y2="42" stroke-linecap="round"/>
+  </g>
+
+  <!-- 未印 (Monkey) -->
+  <g fill="none" stroke="#ef6c00" stroke-width="2" transform="translate(100,700) scale(0.5)">
+    <ellipse cx="0" cy="10" rx="16" ry="20"/>
+    <path d="M -10,-10 L -30,-30 L -25,-35 L -8,-15" stroke-linecap="round"/>
+    <path d="M 10,-10 L 30,-30 L 25,-35 L 8,-15" stroke-linecap="round"/>
+    <line x1="0" y1="20" x2="0" y2="40" stroke-linecap="round"/>
+  </g>
+
+  <!-- 亥印 (Boar) -->
+  <g fill="none" stroke="#475569" stroke-width="2" transform="translate(1500,650) scale(0.5)">
+    <ellipse cx="0" cy="10" rx="18" ry="22"/>
+    <path d="M -12,-15 L -20,-30 L -12,-20" stroke-linecap="round"/>
+    <path d="M 12,-15 L 20,-30 L 12,-20" stroke-linecap="round"/>
+    <path d="M -8,20 L -15,38 L -5,30" stroke-linecap="round"/>
+    <path d="M 8,20 L 15,38 L 5,30" stroke-linecap="round"/>
+  </g>
+
+  <!-- 九尾查克拉尾巴 x3 -->
+  <g fill="none" stroke="#c62828" stroke-width="3" opacity="0.5">
+    <path d="M 600,800 Q 620,700 580,600 Q 560,550 600,500 Q 640,450 620,380" stroke-linecap="round"/>
+    <path d="M 640,820 Q 670,720 640,620 Q 620,570 660,520 Q 700,470 680,400" stroke-linecap="round"/>
+    <path d="M 560,810 Q 540,710 570,610 Q 590,560 550,510 Q 510,460 530,390" stroke-linecap="round"/>
+  </g>
+
+  <!-- 封印术式符号 -->
+  <g fill="none" stroke="#c62828" stroke-width="1.5" transform="translate(800,100)">
+    <circle cx="0" cy="0" r="40"/>
+    <circle cx="0" cy="0" r="30"/>
+    <path d="M 0,-40 L 0,40 M -40,0 L 40,0"/>
+    <path d="M -28,-28 L 28,28 M 28,-28 L -28,28"/>
+    <path d="M 0,-30 Q 15,-15 0,0 Q -15,15 0,30"/>
+  </g>
+
+  <!-- 螺旋丸轨迹 -->
+  <g fill="none" stroke="#1565c0" stroke-width="1.5" transform="translate(400,500)">
+    <path d="M 0,0 Q 20,-10 25,5 Q 28,20 10,25 Q -8,28 -15,10 Q -20,-5 -5,-15 Q 10,-20 20,-8 Q 25,8 10,18 Q -5,22 -12,5"/>
+    <circle cx="0" cy="0" r="5" fill="#1565c0" opacity="0.3"/>
+  </g>
+
+  <!-- 千鸟闪电 -->
+  <g stroke="#a78bfa" stroke-width="2" fill="none" opacity="0.5">
+    <path d="M 1100,300 L 1090,320 L 1105,315 L 1095,340 L 1110,330 L 1100,360"/>
+    <path d="M 1120,290 L 1115,310 L 1125,305 L 1118,330 L 1130,320"/>
+    <path d="M 1080,310 L 1075,330 L 1085,325 L 1078,350"/>
+  </g>
+
+  <!-- 火遁火焰 -->
+  <g fill="#ef6c00" opacity="0.3">
+    <path d="M 300,400 Q 310,370 305,350 Q 315,330 308,310 Q 320,290 315,340 Q 325,360 320,380 Q 330,370 325,350 Q 335,330 330,360 Q 340,380 335,400 Z"/>
+    <path d="M 320,410 Q 325,385 322,370 Q 330,355 326,340 Q 335,325 330,360 Q 338,380 335,400 Z" opacity="0.6"/>
+  </g>
+
+  <!-- 散落的查克拉点 -->
+  <g fill="#c62828">
+    <circle cx="180" cy="350" r="1.5" opacity="0.4"/>
+    <circle cx="750" cy="200" r="2" opacity="0.3"/>
+    <circle cx="1050" cy="500" r="1.8" opacity="0.35"/>
+    <circle cx="350" cy="750" r="2.2" opacity="0.25"/>
+    <circle cx="1250" cy="100" r="1.5" opacity="0.3"/>
+    <circle cx="900" cy="650" r="1.8" opacity="0.2"/>
+    <circle cx="500" cy="300" r="2" opacity="0.25"/>
+    <circle cx="1400" cy="450" r="1.5" opacity="0.3"/>
+    <circle cx="200" cy="600" r="1.8" opacity="0.2"/>
+    <circle cx="650" cy="450" r="2.2" opacity="0.15"/>
+  </g>
+</svg>

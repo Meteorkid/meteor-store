@@ -269,8 +269,8 @@
     "title": "文档中心",
     "description": "每款产品的快速上手指南。复制命令，30 秒跑起来。",
     "notFound": "找不到想要的？",
-    "checkReadme": "每个项目的 README 都有完整 API 文档和进阶用法。",
-    "browseGithub": "浏览 GitHub",
+    "checkReadme": "每款产品详情页都有完整功能介绍和快速上手指南。",
+    "browseGithub": "浏览全部产品",
     "detailsLink": "详情 →",
     "macAppHint": "macOS 应用，下载即装即用",
     "download": "下载 ↓"
@@ -518,8 +518,8 @@
     "description": "全部开源，全部免费。每一款都是自己的痒点产品。",
     "projects": "个项目",
     "license": "协议",
-    "contribute": "想要贡献？欢迎提交 Issue 和 Pull Request。",
-    "followGithub": "在 GitHub 上关注",
+    "contribute": "想要了解更多？浏览全部产品，找到适合你的工具。",
+    "followGithub": "浏览全部产品",
     "descOmnicrawl": "基于 Scrapling + curl_cffi + Playwright 的全能爬虫框架，一套 API 三个引擎，自动绕过反爬。",
     "descExMemory": "LLM + RAG 让 AI 学会一个人的说话风格。导入聊天记录，还原语气和用词习惯。",
     "descSkeletonAnatomy": "浏览器里的 3D 人体骨骼模型，支持旋转、缩放、标注，面向医学生和解剖学爱好者。",
@@ -690,7 +690,7 @@
     "pricing": "定价方案",
     "openSource": "开源",
     "readyTitle": "准备好了吗？",
-    "readyDesc": "{name} 完全开源。在 GitHub 上查看代码、提 Issue、参与贡献——或者直接用起来。",
+    "readyDesc": "{name} 已就绪。选择适合你的方案，立即开始使用——或者先联系我聊聊。",
     "viewSource": "查看源码",
     "contactMe": "联系我",
     "periodMonthly": "月",
@@ -717,7 +717,11 @@
     "demoTitle": "{name} 在线演示",
     "loadDemo": "点击加载在线演示",
     "demoLoadHint": "演示运行在产品真实站点上，若加载缓慢可在新窗口打开。",
-    "loadDemoAria": "加载 {name} 在线演示"
+    "loadDemoAria": "加载 {name} 在线演示",
+    "trialTitle": "免费试用 {name}",
+    "loadTrial": "点击免费体验",
+    "trialHint": "无需购买即可体验完整功能，购买后解锁持续使用。",
+    "loadTrialAria": "加载 {name} 免费试用"
   },
   "HeroSection": {
     "badge": "全平台工具矩阵 · 持续迭代中",
@@ -728,7 +732,7 @@
     "trustLinePricing": "开源驱动 · 公开源码 · 持续维护更新",
     "trustLineNoPricing": "开源驱动 · 社区驱动 · 欢迎贡献",
     "ctaExplore": "探索全部产品",
-    "ctaGithub": "GitHub 开源",
+    "ctaGithub": "查看文档",
     "statTools": "精品工具",
     "statUsers": "活跃用户",
     "statRating": "平均评分",
@@ -852,7 +856,7 @@
     "faq4Question": "产品是否提供更新？",
     "faq4Answer": "我们会持续维护产品；具体更新范围以产品页、开源许可证和购买时的授权说明为准。",
     "faq5Question": "如何获取技术支持？",
-    "faq5Answer": "你可以通过邮件联系我们获取技术支持，或在 GitHub 上提交 Issue。我们会在 24 小时内回复。",
+    "faq5Answer": "你可以通过邮件联系我们获取技术支持，我们会在 24 小时内回复。",
     "faq6Question": "是否支持企业购买？",
     "faq6Answer": "是的，我们提供企业版产品和批量购买优惠。请通过邮件联系我们获取定制方案。"
   },
@@ -902,7 +906,7 @@
     "subtleDescPricing": "免费开始，按需升级，无隐藏费用",
     "subtleDescNoPricing": "所有产品开源免费，欢迎使用",
     "browseProducts": "浏览全部产品",
-    "githubOpenSource": "GitHub 开源",
+    "githubOpenSource": "查看文档",
     "badgeOpenSource": "开源驱动",
     "badgeLifetimeUpdates": "持续维护更新",
     "badgeRefund": "7 天未使用退款"
@@ -1459,6 +1463,26 @@
   "AuthProvider": {
     "loginFailed": "登录失败",
     "registerFailed": "注册失败"
+  },
+  "Paywall": {
+    "loadingCheck": "正在校验你的访问权限…",
+    "lockedTitle": "该功能需要购买",
+    "lockedDesc": "登录后购买相应方案，即可解锁使用。",
+    "buyNow": "去购买",
+    "loginToContinue": "登录后继续"
+  },
+  "AppPage": {
+    "placeholder": "「{name}」的在线应用内容即将上线，敬请期待。"
+  },
+  "MyAppsPage": {
+    "title": "我的产品",
+    "description": "你已获得访问权的应用，点击即可直接使用。",
+    "loginHint": "登录后即可查看你购买的产品。",
+    "loginToContinue": "登录后继续",
+    "emptyHint": "你还没有购买任何产品。",
+    "browseProducts": "浏览产品",
+    "annual": "年付",
+    "launch": "开始使用"
   },
   "AdminCommentsPage": {
     "title": "评论管理",

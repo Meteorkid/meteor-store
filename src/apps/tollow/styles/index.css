@@ -1,0 +1,184 @@
+/* eslint-disable */
+/* ===== 报刊风格设计系统 ===== */
+:root {
+  /* 背景色系 */
+  --color-bg0: #f6f1e6;
+  --color-bg1: #fbf7ee;
+  --color-bg2: #efe7d5;
+
+  /* 边线色 */
+  --color-line: #cfc4ab;
+  --color-linesoft: #ddd3bd;
+
+  /* 墨色文字 */
+  --color-ink0: #1a1610;
+  --color-ink1: #463e31;
+  --color-ink2: #8a7f6c;
+
+  /* 强调色 */
+  --color-accent: #8e2318;
+  --color-accent-hover: #a52a1d;
+  --color-accentdim: #bb8d80;
+  --color-accentsoft: #f0e2da;
+
+  /* 功能色 */
+  --color-up: #1f6b3a;
+  --color-up-hover: #185a30;
+  --color-hot: #c2410c;
+
+  /* 字体 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-serif: Georgia, "Times New Roman", "Songti SC", "STSong", "SimSun", serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* 间距 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg0);
+  color: var(--color-ink0);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* 报刊风全局边框 - 限定范围避免影响第三方组件 */
+.App, .App * {
+  border-color: var(--color-line);
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* 按钮样式 - 报刊风 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: 1px solid var(--color-line);
+  border-radius: 2px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  gap: 8px;
+  background: var(--color-bg1);
+  color: var(--color-ink0);
+  letter-spacing: 0.02em;
+}
+
+.btn:hover {
+  background: var(--color-bg2);
+  border-color: var(--color-ink2);
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-bg0);
+  border-color: var(--color-accent);
+}
+
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.btn-secondary {
+  background: var(--color-ink0);
+  color: var(--color-bg0);
+  border-color: var(--color-ink0);
+}
+
+.btn-secondary:hover {
+  background: var(--color-ink1);
+  border-color: var(--color-ink1);
+}
+
+.btn-success {
+  background: var(--color-up);
+  color: var(--color-bg0);
+  border-color: var(--color-up);
+}
+
+.btn-success:hover {
+  background: var(--color-up-hover);
+  border-color: var(--color-up-hover);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+/* 焦点状态 - 无障碍 */
+.btn:focus-visible,
+.nav-link:focus-visible,
+.book-card:focus-visible,
+.upload-area:focus-visible,
+.tab-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* 禁用状态 */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink2);
+}
+
+/* 减弱动画 - 无障碍 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

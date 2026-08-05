@@ -22,8 +22,12 @@ export interface Product {
     period?: string;
     features: LocalizedText[];
   }[];
-  github: string;
+  /** GitHub 仓库地址。商业策略调整后不再对外暴露，保留字段仅供内部使用，UI 不渲染 */
+  github?: string;
   demo?: string;
+  /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用，
+     产品页会渲染「免费试用」内嵌区块，购买入口对应 /apps/{id} 付费门控 */
+  appUrl?: string;
   /** 快速上手：终端安装命令（可复制）或应用下载页 */
   quickstart?: {
     command?: string;
@@ -67,8 +71,11 @@ export interface LocalizedProduct {
     period?: string;
     features: string[];
   }[];
-  github: string;
+  /** GitHub 仓库地址。商业策略调整后不再对外暴露，保留字段仅供内部使用，UI 不渲染 */
+  github?: string;
   demo?: string;
+  /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用 */
+  appUrl?: string;
   quickstart?: {
     command?: string;
     download?: string;
@@ -157,7 +164,6 @@ export const products: Product[] = [
     },
     downloads: [
       { label: { zh: 'PyPI 安装', en: 'PyPI Install' }, url: 'https://pypi.org/project/omnicrawl/', icon: 'pypi', note: { zh: '推荐，国内镜像源秒装', en: 'Recommended; fast install via China mirror' } },
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/omnicrawl', icon: 'github' },
     ],
     category: 'developer',
     icon: '🕷️',
@@ -230,16 +236,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/ex-memory',
-    quickstart: {
-      command: 'git clone https://github.com/Meteorkid/ex-memory.git && cd ex-memory',
-      note: {
-        zh: '按 README 配置你的 LLM API Key，聊天记录只在本地处理',
-        en: 'Configure your LLM API Key per the README; chat history is processed locally only',
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/ex-memory', icon: 'github' },
-    ],
     category: 'ai',
     icon: '💔',
     gradient: 'from-red-500 to-orange-500',
@@ -255,6 +251,7 @@ export const products: Product[] = [
   },
   {
     id: 'skeleton-anatomy',
+    appUrl: '/apps/skeleton-anatomy',
     name: { zh: 'Skeleton Anatomy', en: 'Skeleton Anatomy' },
     tagline: { zh: '3D 骨骼解剖平台', en: '3D Skeletal Anatomy Platform' },
     description: {
@@ -311,16 +308,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/skeleton-anatomy',
-    quickstart: {
-      command: 'git clone https://github.com/Meteorkid/skeleton-anatomy.git && cd skeleton-anatomy && npm install && npm run dev',
-      note: {
-        zh: '本地跑起来后浏览器打开即可旋转骨骼',
-        en: 'After running locally, open in your browser to rotate the skeleton',
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/skeleton-anatomy', icon: 'github' },
-    ],
     category: 'design',
     icon: '🦴',
     gradient: 'from-gray-500 to-blue-500',
@@ -392,16 +379,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/ui-design-system',
-    quickstart: {
-      command: 'git clone https://github.com/Meteorkid/ui-design-system.git ~/.claude/skills/ui-design-system',
-      note: {
-        zh: '装进 Claude Code 的 skills 目录，下次会话即可生效',
-        en: "Install into Claude Code's skills directory; takes effect on the next session",
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/ui-design-system', icon: 'github' },
-    ],
     category: 'design',
     icon: '🎨',
     gradient: 'from-blue-500 to-cyan-500',
@@ -456,16 +433,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/statux',
-    quickstart: {
-      command: 'git clone https://github.com/Meteorkid/statux.git && cd statux',
-      note: {
-        zh: '按 README 一步配置 iTerm2 状态栏',
-        en: 'Follow the README to set up the iTerm2 status bar in one step',
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/statux', icon: 'github' },
-    ],
     category: 'developer',
     icon: '📊',
     gradient: 'from-green-500 to-emerald-500',
@@ -530,7 +497,6 @@ export const products: Product[] = [
     downloads: [
       { label: { zh: '下载 DMG (Gitee)', en: 'Download DMG (Gitee)' }, url: 'https://gitee.com/Meteorkid/XIsland/releases', icon: 'dmg', note: { zh: '国内高速下载', en: 'Fast download in China' } },
       { label: { zh: 'Gitee 源码', en: 'Gitee Source' }, url: 'https://gitee.com/Meteorkid/XIsland', icon: 'gitee' },
-      { label: { zh: 'GitHub Releases', en: 'GitHub Releases' }, url: 'https://github.com/Meteorkid/XIsland/releases', icon: 'github' },
     ],
     category: 'developer',
     icon: '🏝️',
@@ -547,6 +513,7 @@ export const products: Product[] = [
   },
   {
     id: 'tollow',
+    appUrl: '/apps/tollow',
     name: { zh: 'Tollow', en: 'Tollow' },
     tagline: { zh: '沉浸式打字练习', en: 'Immersive Typing Practice' },
     description: {
@@ -586,16 +553,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/Tollow',
-    quickstart: {
-      command: 'git clone https://github.com/Meteorkid/Tollow.git && cd Tollow && npm install && npm run dev',
-      note: {
-        zh: '本地启动后选一本书，直接开始沉浸式打字',
-        en: 'After launching locally, pick a book and start typing immersively',
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/Tollow', icon: 'github' },
-    ],
     category: 'utility',
     icon: '📈',
     gradient: 'from-yellow-500 to-orange-500',
@@ -648,16 +605,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/XNook',
-    quickstart: {
-      download: 'https://github.com/Meteorkid/XNook/releases',
-      note: {
-        zh: '下载最新版 DMG，拖进「应用程序」即可',
-        en: 'Download the latest DMG and drag into Applications',
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub Releases', en: 'GitHub Releases' }, url: 'https://github.com/Meteorkid/XNook/releases', icon: 'github' },
-    ],
     category: 'utility',
     icon: '📱',
     gradient: 'from-pink-500 to-rose-500',
@@ -673,6 +620,7 @@ export const products: Product[] = [
   },
   {
     id: 'chakra-visualizer',
+    appUrl: '/apps/chakra-visualizer',
     name: { zh: 'Chakra Visualizer', en: 'Chakra Visualizer' },
     tagline: { zh: '手势忍术特效', en: 'Hand-Seal Jutsu Effects' },
     description: {
@@ -712,16 +660,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/Chakra-Visualizer',
-    quickstart: {
-      command: 'git clone https://github.com/Meteorkid/Chakra-Visualizer.git && cd Chakra-Visualizer && npm install && npm run dev',
-      note: {
-        zh: '允许摄像头权限后，结印就能放忍术',
-        en: 'Allow camera access, then form seals to cast jutsu',
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/Chakra-Visualizer', icon: 'github' },
-    ],
     category: 'utility',
     icon: '🌀',
     gradient: 'from-cyan-500 to-blue-500',
@@ -737,6 +675,7 @@ export const products: Product[] = [
   },
   {
     id: 'webgl-fluid-sim',
+    appUrl: '/apps/webgl-fluid-sim',
     name: { zh: 'WebGL Fluid Sim', en: 'WebGL Fluid Sim' },
     tagline: { zh: 'GPU 流体模拟', en: 'GPU Fluid Simulation' },
     description: {
@@ -764,16 +703,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/webgl-fluid-sim',
-    quickstart: {
-      command: 'git clone https://github.com/Meteorkid/webgl-fluid-sim.git && cd webgl-fluid-sim && open index.html',
-      note: {
-        zh: '纯前端，直接打开 HTML 即可体验',
-        en: 'Pure frontend — just open the HTML to experience it',
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/webgl-fluid-sim', icon: 'github' },
-    ],
     category: 'utility',
     icon: '🌊',
     gradient: 'from-sky-500 to-indigo-500',
@@ -815,16 +744,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/claude-phone-control',
-    quickstart: {
-      command: 'git clone https://github.com/Meteorkid/claude-phone-control.git && cd claude-phone-control && bash macos/phone-control.sh',
-      note: {
-        zh: '需要先安装 Tailscale，Windows 用户运行 PowerShell 脚本',
-        en: 'Install Tailscale first; Windows users run the PowerShell script',
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/claude-phone-control', icon: 'github' },
-    ],
     category: 'developer',
     icon: '📲',
     gradient: 'from-emerald-500 to-teal-500',
@@ -866,16 +785,6 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/cursor-source-analyzer',
-    quickstart: {
-      command: 'git clone https://github.com/Meteorkid/cursor-source-analyzer.git && cd cursor-source-analyzer && npm install && npm run dev',
-      note: {
-        zh: '本地启动后可交互浏览 Cursor 架构分析',
-        en: 'After launching locally, interactively browse the Cursor architecture analysis',
-      },
-    },
-    downloads: [
-      { label: { zh: 'GitHub 源码', en: 'GitHub Source' }, url: 'https://github.com/Meteorkid/cursor-source-analyzer', icon: 'github' },
-    ],
     category: 'developer',
     icon: '🔬',
     gradient: 'from-amber-500 to-orange-500',
@@ -927,6 +836,7 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
     })),
     github: product.github,
     demo: product.demo,
+    appUrl: product.appUrl,
     quickstart: product.quickstart
       ? {
           command: product.quickstart.command,

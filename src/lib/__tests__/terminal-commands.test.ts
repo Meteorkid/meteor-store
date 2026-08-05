@@ -63,10 +63,10 @@ describe('runCommand', () => {
     expect(runCommand('konami').action).toBe('burst');
   });
 
-  it('白嫖/free/star 引导去 GitHub 点星', () => {
+  it('白嫖/free/star 引导发邮件反馈', () => {
     for (const cmd of ['白嫖', 'free', 'star']) {
       const { lines } = runCommand(cmd);
-      expect(lines.join('\n')).toContain('github.com/Meteorkid');
+      expect(lines.join('\n')).toContain('meteor@stu.gpnu.edu.cn');
       expect(lines.join('\n')).toContain('⭐');
     }
   });

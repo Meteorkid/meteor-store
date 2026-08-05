@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // 站内集成的第三方应用源码（vendored），不参与本项目 lint
+    "src/apps/**",
+    "src/lib/apps/**",
   ]),
 ]);
 
