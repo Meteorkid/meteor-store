@@ -69,10 +69,13 @@ function buildCsp(nonce: string, isTrial = false): string {
     // MediaPipe 手势识别、three.js 模型加载都依赖 WASM），不放行任意 JS eval。
     // 生产去掉 'unsafe-eval'，仅 WASM 例外；开发环境保留 'unsafe-eval' 供 HMR。
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ''}`,
-    // 样式目前仍依赖大量 inline；保留 'unsafe-inline' 直到样式系统完成 nonce 化
-    "style-src 'self' 'unsafe-inline'",
+    // 样式目前仍依赖大量 inline；保留 'unsafe-inline' 直到样式系统完成 nonce 化。
+    // 放行 Google Fonts 样式表（chakra-visualizer 的 Tutorial.css 用 @import 引入
+    // Bebas Neue / Rajdhani / Noto Sans JP），否则自定义字体不加载（仅非致命警告）。
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     `img-src 'self' data: blob: https://www.imagentx.top https://imagentx.top${r2Origin ? ` ${r2Origin}` : ''}`,
-    "font-src 'self'",
+    // 放行 Google Fonts 字体文件（font-src 原先只允许 'self'，gstatic 被拦）
+    "font-src 'self' https://fonts.gstatic.com",
     `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com ${sentryIngest}`,
     // trial 路由允许同源 iframe 内嵌；其余页面禁止被嵌入（防点击劫持）
     `frame-ancestors ${isTrial ? "'self'" : "'none'"}`,
