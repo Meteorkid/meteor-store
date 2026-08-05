@@ -18,7 +18,13 @@ if [[ ! -f "$ENV_FILE" ]]; then
 fi
 
 echo "==> git pull"
-git pull --ff-only origin main
+# 阿里云访问 GitHub 不稳定：用镜像加速 + 失败重试
+git remote set-url origin https://ghfast.top/https://github.com/Meteorkid/meteor-store.git 2>/dev/null || true
+for i in 1 2 3; do
+  git pull --ff-only origin main && break
+  echo "git pull 第 $i 次失败，重试中..."
+  sleep 5
+done
 
 echo "==> pnpm install"
 pnpm install --frozen-lockfile
