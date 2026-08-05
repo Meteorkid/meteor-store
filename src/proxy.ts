@@ -65,7 +65,10 @@ function buildCsp(nonce: string, isTrial = false): string {
     "default-src 'self'",
     // nonce 替代 'unsafe-inline'：所有内联脚本必须带 nonce 才能跑
     // 'strict-dynamic' 让受 nonce 信任的脚本派生的子脚本也通过
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''}`,
+    // 'wasm-unsafe-eval' 只放行 WebAssembly 编译（站内应用如流体模拟、
+    // MediaPipe 手势识别、three.js 模型加载都依赖 WASM），不放行任意 JS eval。
+    // 生产去掉 'unsafe-eval'，仅 WASM 例外；开发环境保留 'unsafe-eval' 供 HMR。
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ''}`,
     // 样式目前仍依赖大量 inline；保留 'unsafe-inline' 直到样式系统完成 nonce 化
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: blob: https://www.imagentx.top https://imagentx.top${r2Origin ? ` ${r2Origin}` : ''}`,
