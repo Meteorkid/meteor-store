@@ -1,8 +1,8 @@
 /* eslint-disable */
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;700&display=swap');
 
-/* ─── Reset & Root ─────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ─── Reset & Root（scoped 到 .tutorial-root，避免污染全站） ──── */
+.tutorial-root, .tutorial-root *, .tutorial-root *::before, .tutorial-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 .tutorial-root {
   min-height: 100vh;

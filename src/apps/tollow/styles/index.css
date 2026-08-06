@@ -147,28 +147,32 @@
   pointer-events: none;
 }
 
-/* 滚动条样式 */
-::-webkit-scrollbar {
+/* 滚动条样式（scoped 到 .tollow-root） */
+.tollow-root::-webkit-scrollbar,
+.tollow-root *::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-::-webkit-scrollbar-track {
+.tollow-root::-webkit-scrollbar-track,
+.tollow-root *::-webkit-scrollbar-track {
   background: var(--color-bg1);
 }
 
-::-webkit-scrollbar-thumb {
+.tollow-root::-webkit-scrollbar-thumb,
+.tollow-root *::-webkit-scrollbar-thumb {
   background: var(--color-line);
   border-radius: 3px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.tollow-root::-webkit-scrollbar-thumb:hover,
+.tollow-root *::-webkit-scrollbar-thumb:hover {
   background: var(--color-ink2);
 }
 
-/* 减弱动画 - 无障碍 */
+/* 减弱动画 - 无障碍（scoped 到 .tollow-root） */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  .tollow-root *, .tollow-root *::before, .tollow-root *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
