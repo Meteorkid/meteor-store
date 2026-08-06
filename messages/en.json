@@ -1433,7 +1433,8 @@
     "claimFree": "Add to library",
     "claiming": "Adding…",
     "claimFailed": "Could not add it, please try again",
-    "limitedFree": "Free for now"
+    "limitedFree": "Free for now",
+    "discount": "Sale"
   },
   "StoryLetter": {
     "headerTitle": "A Letter from the Store Owner",

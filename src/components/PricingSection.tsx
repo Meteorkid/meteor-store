@@ -55,6 +55,7 @@ export default function PricingSection({ productCount, webAppCount }: PricingSec
               <PricingCard
                 name={plan.name[locale]}
                 price={plan.price}
+                originalPrice={plan.originalPrice}
                 // 买断没有计费周期，价格后面不缀单位；档位名本身已经写着「买断」
                 period={
                   plan.id === 'monthly'

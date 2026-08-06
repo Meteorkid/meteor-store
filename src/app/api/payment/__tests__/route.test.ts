@@ -112,7 +112,7 @@ describe('创建支付订单', () => {
     expect(inserted[0]).toMatchObject({
       productId: 'meteor-pass',
       planName: '年付',
-      amountCny: 299,
+      amountCny: 19,
       billingPeriod: 'annual',
     });
   });
@@ -136,7 +136,7 @@ describe('创建支付订单', () => {
 
     expect(response.status).toBe(200);
     expect(inserted[0]).toMatchObject({
-      amountCny: 39,
+      amountCny: 9,
       billingPeriod: 'monthly',
     });
   });

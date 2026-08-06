@@ -3,7 +3,7 @@ import { findPassPlan, getPassCoverage, isPassActive, passPlans } from '../pass'
 
 describe('findPassPlan', () => {
   it('按 plan id 查得到', () => {
-    expect(findPassPlan('annual')?.price).toBe(299);
+    expect(findPassPlan('annual')?.price).toBe(19);
   });
 
   it('按中文与英文方案名都查得到，且大小写不敏感', () => {

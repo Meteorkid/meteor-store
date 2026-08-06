@@ -25,7 +25,10 @@ export type PassPlanId = 'monthly' | 'annual' | 'lifetime';
 export interface PassPlan {
   id: PassPlanId;
   name: LocalizedText;
+  /** 实际售价（折扣价），支付接口按这个收钱 */
   price: number;
+  /** 划线原价：促销期间展示，仅在定价卡上划线，不参与支付 */
+  originalPrice?: number;
   /** 逻辑字段（'月'/'年'/'买断'），与 products.pricing.period 同一套取值，不双语化 */
   period: string;
   /** 授权有效月数；null 表示永久有效 */
@@ -38,7 +41,8 @@ export const passPlans: PassPlan[] = [
   {
     id: 'monthly',
     name: { zh: '月付', en: 'Monthly' },
-    price: 39,
+    price: 9,
+    originalPrice: 39,
     period: '月',
     durationMonths: 1,
     features: [
@@ -51,13 +55,14 @@ export const passPlans: PassPlan[] = [
   {
     id: 'annual',
     name: { zh: '年付', en: 'Annual' },
-    price: 299,
+    price: 19,
+    originalPrice: 99,
     period: '年',
     durationMonths: 12,
     popular: true,
     features: [
       { zh: '月付的全部权益', en: 'Everything in Monthly' },
-      { zh: '平均每月 ¥24.9，比月付省 36%', en: '¥24.9/month on average — 36% less than monthly' },
+      { zh: '平均每月 ¥1.6，比月付省 82%', en: '¥1.6/month on average — 82% less than monthly' },
       { zh: '优先邮件支持', en: 'Priority email support' },
       { zh: '一次付清，全年不再扣费', en: 'One payment, covers the whole year' },
     ],
@@ -65,7 +70,8 @@ export const passPlans: PassPlan[] = [
   {
     id: 'lifetime',
     name: { zh: '买断', en: 'Lifetime' },
-    price: 899,
+    price: 99,
+    originalPrice: 199,
     period: '买断',
     durationMonths: null,
     features: [

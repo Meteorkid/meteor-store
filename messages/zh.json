@@ -1433,7 +1433,8 @@
     "claimFree": "免费入库",
     "claiming": "入库中…",
     "claimFailed": "入库失败，请稍后重试",
-    "limitedFree": "限免"
+    "limitedFree": "限免",
+    "discount": "折扣"
   },
   "StoryLetter": {
     "headerTitle": "一封来自店主的信",
