@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import type { LocalizedProduct } from '@/data/products';
 import { getTranslations } from 'next-intl/server';
+import { publicReleaseUrl } from '@/lib/release-storage';
+import DownloadCard from './DownloadCard';
 
 const iconMap: Record<string, { svg: ReactNode; color: string }> = {
   gitee: {
@@ -69,36 +71,26 @@ export default async function DownloadSection({ product }: { product: LocalizedP
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {downloads.map((dl, i) => {
           const iconInfo = iconMap[dl.icon] || iconMap.github;
-          const isRecommended = i === 0;
+          // 公开地址在服务端解析：R2_PUBLIC_BASE 不是 NEXT_PUBLIC_ 变量，客户端读不到
+          const publicHref = dl.gated
+            ? null
+            : dl.url ?? (dl.r2Key ? publicReleaseUrl(dl.r2Key) : null);
 
           return (
-            <a
-              key={dl.url}
-              href={dl.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`group relative flex items-start gap-4 rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] ${
-                isRecommended
-                  ? 'border-violet-500/30 bg-violet-500/[0.06] hover:border-violet-500/50 hover:bg-violet-500/[0.1]'
-                  : 'border-white/10 bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.06]'
-              }`}
-            >
-              {isRecommended && (
-                <span className="absolute -top-2.5 right-4 rounded-full bg-violet-600 px-2.5 py-0.5 text-[10px] font-semibold text-white">
-                  {t('recommended')}
-                </span>
-              )}
-              <span className={`mt-0.5 shrink-0 ${iconInfo.color} transition-transform group-hover:scale-110`}>
-                {iconInfo.svg}
-              </span>
-              <div className="min-w-0">
-                <p className="font-semibold text-white">{dl.label}</p>
-                {dl.note && <p className="mt-1 text-xs text-gray-500">{dl.note}</p>}
-              </div>
-              <svg className="ml-auto mt-1 h-4 w-4 shrink-0 text-gray-600 transition-all group-hover:translate-x-0.5 group-hover:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-              </svg>
-            </a>
+            <DownloadCard
+              key={dl.id}
+              productId={product.id}
+              fileId={dl.id}
+              label={dl.label}
+              note={dl.note}
+              icon={iconInfo.svg}
+              iconColor={iconInfo.color}
+              recommended={i === 0}
+              publicHref={publicHref}
+              gated={Boolean(dl.gated)}
+              version={dl.version}
+              sha256={dl.sha256}
+            />
           );
         })}
       </div>
