@@ -721,7 +721,12 @@
     "trialTitle": "Try {name} Free",
     "loadTrial": "Click to try it free",
     "trialHint": "Experience the full app without purchasing. Buy to keep using it.",
-    "loadTrialAria": "Load {name} free trial"
+    "loadTrialAria": "Load {name} free trial",
+    "passPrompt": "Want every app in the store?",
+    "passCta": "See Meteor Pass →",
+    "downloadChecking": "Checking…",
+    "downloadLoginHint": "Sign in to download",
+    "downloadLockedHint": "Unlock to download"
   },
   "HeroSection": {
     "badge": "Full-Platform Tool Matrix · Continuously Iterating",
@@ -868,36 +873,18 @@
     "hint": "hint: Some commands aren't listed in help, like that classic ten-key secret."
   },
   "PricingSection": {
-    "title": "Simple, Transparent Pricing",
-    "subtitle": "Choose the plan that suits you",
-    "monthly": "Monthly",
-    "annual": "Annual",
-    "save": "Save {percent}%",
+    "eyebrow": "Pricing",
+    "title": "One pass, every app unlocked",
+    "subtitle": "One subscription covers all {count} products — {appCount} of them open right in the browser, the rest ship as license keys, and new ones are included automatically. Prefer just one? Buy it on its own.",
     "periodMonthly": "mo",
-    "periodMonthlyAnnual": "mo (annual)",
+    "periodAnnual": "yr",
+    "redeemCta": "Have an invitation code? Redeem it",
     "studentCta": "🎓 Student? Verify with your education email, all free",
-    "enterprisePrompt": "Need larger scale?",
-    "enterpriseCta": "Contact us for custom solutions →"
-  },
-  "FeaturesComparison": {
-    "eyebrow": "Plan Comparison",
-    "title": "Choose the Right Plan",
-    "subtitle": "Start free, upgrade as needed",
-    "popular": "Popular",
-    "plan1Price": "Free",
-    "plan1Desc": "For individual developers trying out",
-    "plan2Desc": "For professional developers and small teams",
-    "plan2Period": "/mo",
-    "plan3Price": "Custom",
-    "plan3Desc": "For large teams and enterprises",
-    "featureCore": "Core Features",
-    "featureCommunitySupport": "Community Support",
-    "featureBasicDocs": "Basic Docs",
-    "featureApiAccess": "API Access",
-    "featurePrioritySupport": "Priority Support",
-    "featureCustomDev": "Custom Development",
-    "featureFullDocs": "Full Docs",
-    "featureDedicatedSupport": "Dedicated Support"
+    "singleAppPrompt": "Only need one app?",
+    "singleAppCta": "See per-app pricing →",
+    "enterprisePrompt": "Using it with a team?",
+    "enterpriseCta": "Contact us for custom solutions →",
+    "scopeNote": "Meteor Pass is a personal-use license covering the individual tier of every app. Team seats, self-hosting and SLA are quoted separately."
   },
   "CTASection": {
     "boldTitle": "Enter the Tool Matrix",
@@ -1442,8 +1429,11 @@
     "popular": "Popular",
     "free": "Free",
     "perYear": "= ¥{amount}/yr",
-    "freeStart": "Start for free",
-    "buyNow": "Buy now"
+    "buyNow": "Buy now",
+    "claimFree": "Add to library",
+    "claiming": "Adding…",
+    "claimFailed": "Could not add it, please try again",
+    "limitedFree": "Free for now"
   },
   "StoryLetter": {
     "headerTitle": "A Letter from the Store Owner",
@@ -1465,7 +1455,6 @@
     "registerFailed": "Registration failed"
   },
   "Paywall": {
-    "loadingCheck": "Checking your access…",
     "lockedTitle": "This feature requires a paid plan",
     "lockedDesc": "Sign in and purchase a plan to unlock it.",
     "buyNow": "Buy now",
@@ -1482,7 +1471,14 @@
     "emptyHint": "You haven't purchased any products yet.",
     "browseProducts": "Browse products",
     "annual": "Annual",
-    "launch": "Launch"
+    "launch": "Launch",
+    "passExpires": "Valid until {date}",
+    "passPlanMonthly": "Monthly",
+    "passPlanAnnual": "Annual",
+    "passPlanLifetime": "Lifetime",
+    "passExpiredTitle": "Your Meteor Pass has expired",
+    "passExpiredHint": "It ended on {date}. Renew to get back into the store.",
+    "passRenew": "Renew Meteor Pass"
   },
   "AdminCommentsPage": {
     "title": "Comment Moderation",
@@ -1612,5 +1608,13 @@
     "actionHint": "Resolving only marks the report. Delete content from its respective admin page.",
     "targetFilterHint": "Filtered to target:",
     "clearTargetFilter": "View all reports"
+  },
+  "RedeemDialog": {
+    "title": "Redeem an invitation code",
+    "description": "Enter your code to get the matching license — no payment needed.",
+    "checking": "Checking your session…",
+    "loginHint": "Sign in first: the license is bound to your account.",
+    "loginToContinue": "Sign in",
+    "closeAriaLabel": "Close redemption dialog"
   }
 }

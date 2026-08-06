@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { redeemInviteCode } from '@/lib/invite';
+import { findPurchasable } from '@/lib/products';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
@@ -28,10 +29,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
 
+  // 回传双语产品名：前端只拿这一个字段就能显示，
+  // 不必把 800 行的产品目录打进客户端 bundle 去反查 id
+  const purchasable = result.productId ? findPurchasable(result.productId) : undefined;
+
   return NextResponse.json({
     success: true,
     licenseKey: result.licenseKey,
     productId: result.productId,
+    productName: purchasable?.name ?? null,
     planName: result.planName,
   });
 }

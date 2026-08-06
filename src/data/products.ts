@@ -2,10 +2,27 @@ import type { LocalizedText } from './blog-sections';
 import type { Locale } from '@/i18n/routing';
 
 export interface DownloadLink {
+  /** 同一产品内唯一的稳定 id，作为下载接口的 file 参数 */
+  id: string;
   label: LocalizedText;
-  url: string;
   icon: 'gitee' | 'pypi' | 'npm' | 'dmg' | 'zip' | 'github';
   note?: LocalizedText;
+  /** 外链下载（GitHub / Gitee / PyPI 等）。与 r2Key 二选一 */
+  url?: string;
+  /**
+   * 安装包在 R2 里的对象 key（见 releaseObjectKey）。与 url 二选一。
+   * 客户端拿不到 R2_PUBLIC_BASE（不是 NEXT_PUBLIC_ 变量），
+   * 所以公开地址一律由服务端组件解析，别在客户端组件里拼。
+   */
+  r2Key?: string;
+  /**
+   * 需要授权才能下载：下载接口校验 entitlement 后签发短时效链接。
+   * 为真时必须配 r2Key——挂在 GitHub/Gitee 上的公开链接门控不了，那是自欺欺人。
+   */
+  gated?: boolean;
+  /** 版本号与 SHA-256 校验和，展示给用户核对（`shasum -a 256`） */
+  version?: string;
+  sha256?: string;
 }
 
 export interface Product {
@@ -18,6 +35,11 @@ export interface Product {
     id: string;
     name: LocalizedText;
     price: number;
+    /**
+     * 限免前的原价。有值时定价卡把它划掉、旁边显示当前价，
+     * 用于「先免费开放、以后再收费」的产品。判断能不能免费拿只看 price，不看它。
+     */
+    originalPrice?: number;
     /** 逻辑字段（'月'/'年'/'买断'），被 `=== '月'` 等判断消费，保持 string 不双语化 */
     period?: string;
     features: LocalizedText[];
@@ -52,10 +74,15 @@ export interface Product {
 
 /** 拍平后的单语产品（按 locale 取值后的形状，供组件消费） */
 export interface LocalizedDownloadLink {
+  id: string;
   label: string;
-  url: string;
   icon: 'gitee' | 'pypi' | 'npm' | 'dmg' | 'zip' | 'github';
   note?: string;
+  url?: string;
+  r2Key?: string;
+  gated?: boolean;
+  version?: string;
+  sha256?: string;
 }
 
 export interface LocalizedProduct {
@@ -68,6 +95,8 @@ export interface LocalizedProduct {
     id: string;
     name: string;
     price: number;
+    /** 限免前的原价，见 Product.pricing.originalPrice */
+    originalPrice?: number;
     period?: string;
     features: string[];
   }[];
@@ -163,7 +192,7 @@ export const products: Product[] = [
       },
     },
     downloads: [
-      { label: { zh: 'PyPI 安装', en: 'PyPI Install' }, url: 'https://pypi.org/project/omnicrawl/', icon: 'pypi', note: { zh: '推荐，国内镜像源秒装', en: 'Recommended; fast install via China mirror' } },
+      { id: 'pypi', label: { zh: 'PyPI 安装', en: 'PyPI Install' }, url: 'https://pypi.org/project/omnicrawl/', icon: 'pypi', note: { zh: '推荐，国内镜像源秒装', en: 'Recommended; fast install via China mirror' } },
     ],
     category: 'developer',
     icon: '🕷️',
@@ -198,7 +227,9 @@ export const products: Product[] = [
       {
         id: 'basic',
         name: { zh: 'Basic', en: 'Basic' },
-        price: 9,
+        // 限时免费：原价保留在 originalPrice 供定价卡划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 9,
         period: '月',
         features: [
           { zh: '100 条消息/月', en: '100 messages/month' },
@@ -210,7 +241,9 @@ export const products: Product[] = [
       {
         id: 'premium',
         name: { zh: 'Premium', en: 'Premium' },
-        price: 19,
+        // 限时免费：原价保留在 originalPrice 供定价卡划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 19,
         period: '月',
         features: [
           { zh: '500 条消息/月', en: '500 messages/month' },
@@ -223,7 +256,9 @@ export const products: Product[] = [
       {
         id: 'ultimate',
         name: { zh: 'Ultimate', en: 'Ultimate' },
-        price: 39,
+        // 限时免费：原价保留在 originalPrice 供定价卡划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 39,
         period: '月',
         features: [
           { zh: '无限消息', en: 'Unlimited messages' },
@@ -341,7 +376,9 @@ export const products: Product[] = [
       {
         id: 'solo',
         name: { zh: 'Solo', en: 'Solo' },
-        price: 9,
+        // 限时免费：原价保留在 originalPrice 供定价卡划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 9,
         period: '月',
         features: [
           { zh: '基础设计规则', en: 'Basic design rules' },
@@ -353,7 +390,9 @@ export const products: Product[] = [
       {
         id: 'team',
         name: { zh: 'Team', en: 'Team' },
-        price: 29,
+        // 限时免费：原价保留在 originalPrice 供定价卡划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 29,
         period: '月',
         features: [
           { zh: '完整设计系统', en: 'Full design system' },
@@ -366,7 +405,9 @@ export const products: Product[] = [
       {
         id: 'enterprise',
         name: { zh: 'Enterprise', en: 'Enterprise' },
-        price: 99,
+        // 限时免费：原价保留在 originalPrice 供定价卡划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 99,
         period: '月',
         features: [
           { zh: '完整设计系统', en: 'Full design system' },
@@ -405,30 +446,20 @@ export const products: Product[] = [
       { zh: 'iTerm2 集成', en: 'iTerm2 integration' },
       { zh: '自定义配置', en: 'Custom configuration' },
       { zh: '轻量级', en: 'Lightweight' },
-      { zh: '开源免费', en: 'Open source and free' },
       { zh: '跨平台支持', en: 'Cross-platform support' },
+      { zh: '开源免费', en: 'Open source and free' },
     ],
+    // 公开免费：安装包不走门控，直接挂 R2 公开地址，不登录也能下
     pricing: [
       {
         id: 'free',
         name: { zh: 'Free', en: 'Free' },
         price: 0,
         features: [
-          { zh: '基础状态显示', en: 'Basic status display' },
+          { zh: '全部功能', en: 'All features' },
+          { zh: '实时状态显示', en: 'Real-time status display' },
+          { zh: 'iTerm2 集成', en: 'iTerm2 integration' },
           { zh: '社区支持', en: 'Community support' },
-          { zh: '开源', en: 'Open source' },
-        ],
-      },
-      {
-        id: 'pro',
-        name: { zh: 'Pro', en: 'Pro' },
-        price: 9,
-        period: '买断',
-        features: [
-          { zh: '高级主题', en: 'Advanced themes' },
-          { zh: '自定义配置', en: 'Custom configuration' },
-          { zh: '优先支持', en: 'Priority support' },
-          { zh: '永久更新', en: 'Lifetime updates' },
         ],
       },
     ],
@@ -495,8 +526,8 @@ export const products: Product[] = [
       },
     },
     downloads: [
-      { label: { zh: '下载 DMG (Gitee)', en: 'Download DMG (Gitee)' }, url: 'https://gitee.com/Meteorkid/XIsland/releases', icon: 'dmg', note: { zh: '国内高速下载', en: 'Fast download in China' } },
-      { label: { zh: 'Gitee 源码', en: 'Gitee Source' }, url: 'https://gitee.com/Meteorkid/XIsland', icon: 'gitee' },
+      { id: 'dmg-gitee', label: { zh: '下载 DMG (Gitee)', en: 'Download DMG (Gitee)' }, url: 'https://gitee.com/Meteorkid/XIsland/releases', icon: 'dmg', note: { zh: '国内高速下载', en: 'Fast download in China' } },
+      { id: 'source-gitee', label: { zh: 'Gitee 源码', en: 'Gitee Source' }, url: 'https://gitee.com/Meteorkid/XIsland', icon: 'gitee' },
     ],
     category: 'developer',
     icon: '🏝️',
@@ -583,15 +614,6 @@ export const products: Product[] = [
       { zh: '低资源占用', en: 'Low resource usage' },
     ],
     pricing: [
-      {
-        id: 'free',
-        name: { zh: 'Free', en: 'Free' },
-        price: 0,
-        features: [
-          { zh: '基础功能', en: 'Basic features' },
-          { zh: '社区支持', en: 'Community support' },
-        ],
-      },
       {
         id: 'pro',
         name: { zh: 'Pro', en: 'Pro' },
@@ -831,6 +853,7 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
       id: p.id,
       name: p.name[locale],
       price: p.price,
+      originalPrice: p.originalPrice,
       period: p.period,
       features: p.features.map((f) => f[locale]),
     })),
@@ -845,10 +868,15 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
         }
       : undefined,
     downloads: product.downloads?.map((d) => ({
+      id: d.id,
       label: d.label[locale],
-      url: d.url,
       icon: d.icon,
       note: d.note ? d.note[locale] : undefined,
+      url: d.url,
+      r2Key: d.r2Key,
+      gated: d.gated,
+      version: d.version,
+      sha256: d.sha256,
     })),
     category: product.category,
     icon: product.icon,

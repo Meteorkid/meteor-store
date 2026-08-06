@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import MeteorConfetti from '@/components/MeteorConfetti';
 import { db } from '@/lib/db';
 import { orders, licenseKeys } from '@/lib/db/schema';
-import { findProduct } from '@/lib/products';
+import { findPurchasable } from '@/lib/products';
 import { SHOW_PRICING } from '@/lib/constants';
 import { getSession } from '@/lib/auth';
 import { getOrderAccess } from '@/lib/order-access';
@@ -60,7 +60,7 @@ export default async function SuccessPage({ searchParams, params }: SuccessPageP
     }
   }
 
-  const product = order ? findProduct(order.productId) : null;
+  const product = order ? findPurchasable(order.productId) : null;
 
   return (
     <div className="min-h-screen bg-black text-white">

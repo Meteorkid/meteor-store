@@ -12,7 +12,8 @@ export const orders = pgTable('orders', {
   status: text('status').default('pending').notNull(), // pending | paid | failed | refunded
   alipayTradeNo: text('alipay_trade_no'),              // 支付宝交易号
   paidAt: text('paid_at'),                             // ISO 时间
-  billingPeriod: text('billing_period').default('monthly').notNull(), // monthly | annual
+  // 单品：monthly | annual；Meteor Pass 还会写入 lifetime（买断档）
+  billingPeriod: text('billing_period').default('monthly').notNull(),
   deliveryStatus: text('delivery_status').default('pending').notNull(), // pending | processing | emailed | failed
   deliveryClaimedAt: text('delivery_claimed_at'),       // 原子交付认领时间；崩溃后允许超时重试
   accessToken: text('access_token').notNull(),  // 订单详情页访问凭证

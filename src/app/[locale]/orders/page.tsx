@@ -8,7 +8,7 @@ import { Link } from '@/i18n/navigation';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
-import { findProduct } from '@/lib/products';
+import { findPurchasable } from '@/lib/products';
 import type { Locale } from '@/i18n/routing';
 
 export const dynamic = 'force-dynamic';
@@ -85,7 +85,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ locale:
           ) : (
             <div className="space-y-3">
               {rows.map((order) => {
-                const product = findProduct(order.productId);
+                const product = findPurchasable(order.productId);
                 return (
                   <Link
                     key={order.id}

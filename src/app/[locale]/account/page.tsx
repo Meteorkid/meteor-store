@@ -10,7 +10,7 @@ import AccountForms from '@/components/AccountForms';
 import { db } from '@/lib/db';
 import { users, licenseKeys, posts } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
-import { products } from '@/data/products';
+import { findPurchasable } from '@/lib/products';
 import type { Locale } from '@/i18n/routing';
 
 export async function generateMetadata({
@@ -196,7 +196,9 @@ export default async function AccountPage({
               </p>
               <div className="space-y-3">
                 {keys.map((k) => {
-                  const product = products.find((p) => p.id === k.productId);
+                  // 用 findPurchasable 而不是 products：Pass 的授权码也会出现在这里，
+                  // 只查 products 会把它显示成原始 id「meteor-pass」
+                  const product = findPurchasable(k.productId);
                   const st = statusLabel[k.status] ?? statusLabel.active;
                   return (
                     <div

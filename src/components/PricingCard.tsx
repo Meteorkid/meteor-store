@@ -6,11 +6,14 @@ import { useRouter } from '@/i18n/navigation';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
 import { CheckIconSm } from './CheckIcon';
 import PaymentModal from './PaymentModal';
+import { useAuth } from './AuthProvider';
 
 interface PricingCardProps {
   name: string;
   price: number;
   basePrice?: number;
+  /** 限免前的原价：有值时划掉展示，说明当前 ¥0 是折扣价而不是产品本身不值钱 */
+  originalPrice?: number;
   period?: string;
   features: string[];
   isPopular?: boolean;
@@ -24,6 +27,7 @@ export default function PricingCard({
   name,
   price,
   basePrice,
+  originalPrice,
   period,
   features,
   isPopular,
@@ -33,15 +37,43 @@ export default function PricingCard({
   isAnnual,
 }: PricingCardProps) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [claiming, setClaiming] = useState(false);
+  const [claimError, setClaimError] = useState('');
   const t = useTranslations('PricingCard');
   const router = useRouter();
+  const { user } = useAuth();
+
+  /**
+   * 免费入库：把产品记进当前账号，之后 /apps 能打开、订单记录里也查得到。
+   * 以前这里是跳 /products/{id}#download，但多数产品没有下载区，
+   * 站内应用又要 entitlement 才放行，免费档等于拿不到也用不了。
+   */
+  const handleClaim = async () => {
+    if (!productId) return;
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    setClaiming(true);
+    setClaimError('');
+    try {
+      const res = await fetch('/api/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      router.push('/apps');
+    } catch (err) {
+      setClaimError(err instanceof Error ? err.message : t('claimFailed'));
+      setClaiming(false);
+    }
+  };
 
   const handlePurchase = () => {
     if (price === 0) {
-      // 免费方案：跳转到产品详情页的下载区，不再引导到 GitHub
-      if (productId) {
-        router.push(`/products/${productId}#download`);
-      }
+      handleClaim();
       return;
     }
 
@@ -80,7 +112,17 @@ export default function PricingCard({
         {/* Price */}
         <div className="mb-6">
           {price === 0 ? (
-            <span className="text-3xl font-bold text-emerald-400">{t('free')}</span>
+            <div className="flex items-baseline gap-2">
+              {originalPrice ? (
+                <span className="text-lg text-white/30 line-through">¥{originalPrice}</span>
+              ) : null}
+              <span className="text-3xl font-bold text-emerald-400">{t('free')}</span>
+              {originalPrice ? (
+                <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">
+                  {t('limitedFree')}
+                </span>
+              ) : null}
+            </div>
           ) : (
             <>
               <div className="flex items-baseline gap-1">
@@ -109,14 +151,19 @@ export default function PricingCard({
         {/* CTA Button */}
         <button
           onClick={handlePurchase}
-          className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+          disabled={claiming}
+          className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-300 disabled:opacity-50 ${
             isPopular
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 shadow-lg shadow-primary/20'
               : 'bg-white/[0.06] text-white hover:bg-white/[0.1] border border-white/[0.06]'
           }`}
         >
-          {price === 0 ? t('freeStart') : t('buyNow')}
+          {price === 0 ? (claiming ? t('claiming') : t('claimFree')) : t('buyNow')}
         </button>
+
+        {claimError && (
+          <p className="mt-3 text-center text-sm text-red-400">{claimError}</p>
+        )}
       </div>
 
       <PaymentModal

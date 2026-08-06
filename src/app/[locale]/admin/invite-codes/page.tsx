@@ -7,6 +7,7 @@ import InviteCodeManager from '@/components/InviteCodeManager';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
 import { products } from '@/data/products';
+import { PASS_NAME, PASS_PRODUCT_ID, passPlans } from '@/data/pass';
 import type { Locale } from '@/i18n/routing';
 
 export async function generateMetadata({
@@ -37,14 +38,25 @@ export default async function InviteCodesPage({
   const session = await getSession();
   if (!session || !isAdminSession(session)) notFound();
 
-  const productOptions = products.map((p) => ({
-    id: p.id,
-    name: p.name[locale as Locale],
-    plans: p.pricing.map((pr) => ({
-      id: pr.id,
-      name: pr.name[locale as Locale],
+  // 全站会员排在最前：发 Pass 是最常用的赠码场景，单品发码次之
+  const productOptions = [
+    {
+      id: PASS_PRODUCT_ID,
+      name: PASS_NAME[locale as Locale],
+      plans: passPlans.map((plan) => ({
+        id: plan.id,
+        name: plan.name[locale as Locale],
+      })),
+    },
+    ...products.map((p) => ({
+      id: p.id,
+      name: p.name[locale as Locale],
+      plans: p.pricing.map((pr) => ({
+        id: pr.id,
+        name: pr.name[locale as Locale],
+      })),
     })),
-  }));
+  ];
 
   return (
     <div className="min-h-screen bg-black text-white">

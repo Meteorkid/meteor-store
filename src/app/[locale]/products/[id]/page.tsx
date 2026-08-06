@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import TransitionLink from '@/components/TransitionLink';
+import { Link } from '@/i18n/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PricingCard from '@/components/PricingCard';
@@ -129,6 +130,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                   name={plan.name}
                   price={isAnnual && plan.period === '月' ? Math.floor(plan.price * ANNUAL_DISCOUNT) : plan.price}
                   basePrice={plan.price}
+                  originalPrice={plan.originalPrice}
                   period={
                     isAnnual && plan.period === '月'
                       ? t('periodMonthlyAnnual')
@@ -146,6 +148,19 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                 />
               ))}
             </div>
+
+            {/* 单品与全站会员是同一套商业模式的两条路径，这里给出通往 Pass 的入口。
+                用 next-intl 的 Link 而不是 TransitionLink：后者是原生 next/link，
+                不补语言前缀，而路由是 localePrefix:'always'，英文用户会被弹回中文首页 */}
+            <p className="mt-8 text-center text-sm text-white/60">
+              {t('passPrompt')}
+              <Link
+                href="/#pricing"
+                className="ml-2 text-violet-300 transition-colors hover:text-violet-200"
+              >
+                {t('passCta')}
+              </Link>
+            </p>
           </section>
         )}
 

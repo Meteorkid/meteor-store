@@ -1,16 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import type { Locale } from '@/i18n/routing';
 
-export default function RedeemForm() {
+interface RedeemFormProps {
+  /** 弹窗里用：外层已经有标题，表单不再自带 h1，避免一页两个 h1 */
+  hideHeading?: boolean;
+}
+
+export default function RedeemForm({ hideHeading }: RedeemFormProps = {}) {
   const t = useTranslations('RedeemPage');
+  const locale = useLocale() as Locale;
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<{
     licenseKey: string;
     productId: string;
+    /** 接口回传的双语产品名；老数据或产品已下架时为 null，回落到原始 id */
+    productName: { zh: string; en: string } | null;
     planName: string;
   } | null>(null);
   const [copied, setCopied] = useState(false);
@@ -54,7 +63,7 @@ export default function RedeemForm() {
         <div className="text-4xl">&#127881;</div>
         <h2 className="t-title-2">{t('successTitle')}</h2>
         <p className="text-sm text-gray-400">
-          {result.productId} - {result.planName}
+          {result.productName?.[locale] ?? result.productId} - {result.planName}
         </p>
 
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.05] p-4">
@@ -85,10 +94,14 @@ export default function RedeemForm() {
 
   return (
     <div className="w-full max-w-sm">
-      <h1 className="mb-2 text-2xl font-bold">{t('title')}</h1>
-      <p className="mb-8 text-sm text-gray-400">
-        {t('description')}
-      </p>
+      {!hideHeading && (
+        <>
+          <h1 className="mb-2 text-2xl font-bold">{t('title')}</h1>
+          <p className="mb-8 text-sm text-gray-400">
+            {t('description')}
+          </p>
+        </>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

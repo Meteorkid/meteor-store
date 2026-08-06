@@ -4,6 +4,7 @@ import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { createAlipayOrder, createAlipayMobileOrder, isAlipayConfigured } from '@/lib/alipay';
 import { findProduct } from '@/lib/products';
+import { PASS_NAME, PASS_PRODUCT_ID, findPassPlan } from '@/data/pass';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
@@ -65,35 +66,55 @@ export async function POST(request: NextRequest) {
 
     const { productName, planName, email, isMobile, isAnnual } = parsed.data;
 
-    // 从产品目录查找（单次查找，避免冗余）
-    const product = findProduct(productName);
-    if (!product) {
-      return NextResponse.json(
-        { error: '产品不存在' },
-        { status: 400 }
+    // 售卖对象有两种：单个产品，或全站会员 Meteor Pass。
+    // Pass 的三档本身就是计费周期（月付/年付/买断），价格是直接定的，
+    // 因此**不套用** ANNUAL_DISCOUNT——客户端传来的 isAnnual 在这条分支里忽略。
+    let priceCNY: number;
+    let billingPeriod: string;
+    let resolvedPlanName: string;
+    let subjectName: string;
+
+    if (productName === PASS_PRODUCT_ID) {
+      const plan = findPassPlan(planName);
+      if (!plan) {
+        return NextResponse.json({ error: '方案不存在' }, { status: 400 });
+      }
+      priceCNY = plan.price;
+      billingPeriod = plan.id;
+      resolvedPlanName = plan.name.zh;
+      subjectName = PASS_NAME.zh;
+    } else {
+      // 从产品目录查找（单次查找，避免冗余）
+      const product = findProduct(productName);
+      if (!product) {
+        return NextResponse.json(
+          { error: '产品不存在' },
+          { status: 400 }
+        );
+      }
+
+      const tier = product.pricing.find(
+        (t) => t.name.zh.toLowerCase() === planName.toLowerCase()
       );
+      if (!tier) {
+        return NextResponse.json(
+          { error: '方案不存在' },
+          { status: 400 }
+        );
+      }
+
+      // 年付折扣仅适用于月付方案，买断和年付方案不适用
+      const isMonthly = tier.period === '月';
+      const validAnnual = isAnnual && isMonthly;
+
+      // 计算实际价格：年付月付方案时应用折扣 × 12 个月
+      priceCNY = validAnnual
+        ? Math.floor(tier.price * ANNUAL_DISCOUNT * 12)
+        : tier.price;
+      billingPeriod = validAnnual ? 'annual' : 'monthly';
+      resolvedPlanName = tier.name.zh;
+      subjectName = product.name.zh;
     }
-
-    const tier = product.pricing.find(
-      (t) => t.name.zh.toLowerCase() === planName.toLowerCase()
-    );
-    if (!tier) {
-      return NextResponse.json(
-        { error: '方案不存在' },
-        { status: 400 }
-      );
-    }
-
-    // 年付折扣仅适用于月付方案，买断和年付方案不适用
-    const isMonthly = tier.period === '月';
-    const validAnnual = isAnnual && isMonthly;
-
-    // 计算实际价格：年付月付方案时应用折扣 × 12 个月
-    const basePrice = tier.price;
-    const priceCNY = validAnnual
-      ? Math.floor(basePrice * ANNUAL_DISCOUNT * 12)
-      : basePrice;
-    const billingPeriod = validAnnual ? 'annual' : 'monthly';
 
     // 免费方案由产品页直接进入公开下载，不创建订单和授权码。
     // 这样既避免不可达的“免费订单成功但前端报错”分支，也不提供批量发码入口。
@@ -120,7 +141,7 @@ export async function POST(request: NextRequest) {
     await db.insert(orders).values({
       id: orderId,
       productId: productName,
-      planName,
+      planName: resolvedPlanName,
       email,
       userId: session?.userId ?? null,
       amountCny: priceCNY,
@@ -132,8 +153,8 @@ export async function POST(request: NextRequest) {
     });
 
     // 再创建支付宝订单
-    const subject = `${product.name.zh} - ${planName}`;
-    const body_text = `购买 ${product.name.zh} 的 ${planName} 方案`;
+    const subject = `${subjectName} - ${resolvedPlanName}`;
+    const body_text = `购买 ${subjectName} 的 ${resolvedPlanName} 方案`;
 
     let payUrl: string;
     try {

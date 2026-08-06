@@ -721,7 +721,12 @@
     "trialTitle": "免费试用 {name}",
     "loadTrial": "点击免费体验",
     "trialHint": "无需购买即可体验完整功能，购买后解锁持续使用。",
-    "loadTrialAria": "加载 {name} 免费试用"
+    "loadTrialAria": "加载 {name} 免费试用",
+    "passPrompt": "想把站内应用全部拿下？",
+    "passCta": "看 Meteor Pass 全站会员 →",
+    "downloadChecking": "校验中…",
+    "downloadLoginHint": "登录后可下载",
+    "downloadLockedHint": "获得授权后可下载"
   },
   "HeroSection": {
     "badge": "全平台工具矩阵 · 持续迭代中",
@@ -868,36 +873,18 @@
     "hint": "hint: 有些命令没写在 help 里，比如那句经典的十键秘技。"
   },
   "PricingSection": {
-    "title": "简单透明的定价",
-    "subtitle": "选择适合你的方案",
-    "monthly": "月付",
-    "annual": "年付",
-    "save": "省 {percent}%",
+    "eyebrow": "定价",
+    "title": "一张通行证，解锁全部应用",
+    "subtitle": "一次订阅，覆盖站内全部 {count} 款产品——其中 {appCount} 款可在浏览器直接打开，其余发放授权码，新上架的自动包含。只想要其中一个？也可以单买。",
     "periodMonthly": "月",
-    "periodMonthlyAnnual": "月 (年付)",
+    "periodAnnual": "年",
+    "redeemCta": "有邀请码？点此兑换",
     "studentCta": "🎓 学生？用教育邮箱验证，全部免费",
-    "enterprisePrompt": "需要更大的规模？",
-    "enterpriseCta": "联系我们获取定制方案 →"
-  },
-  "FeaturesComparison": {
-    "eyebrow": "方案对比",
-    "title": "选择适合你的方案",
-    "subtitle": "从免费开始，按需升级",
-    "popular": "推荐",
-    "plan1Price": "免费",
-    "plan1Desc": "适合个人开发者试用",
-    "plan2Desc": "适合专业开发者和小团队",
-    "plan2Period": "/月",
-    "plan3Price": "定制",
-    "plan3Desc": "适合大型团队和企业",
-    "featureCore": "核心功能",
-    "featureCommunitySupport": "社区支持",
-    "featureBasicDocs": "基础文档",
-    "featureApiAccess": "API 访问",
-    "featurePrioritySupport": "优先支持",
-    "featureCustomDev": "定制开发",
-    "featureFullDocs": "完整文档",
-    "featureDedicatedSupport": "专属支持"
+    "singleAppPrompt": "只想要其中一个应用？",
+    "singleAppCta": "看单个应用的定价 →",
+    "enterprisePrompt": "团队或企业使用？",
+    "enterpriseCta": "联系我们获取定制方案 →",
+    "scopeNote": "Pass 为个人使用授权，覆盖站内应用的个人档；团队席位、私有部署与 SLA 请单独联系。"
   },
   "CTASection": {
     "boldTitle": "进入工具矩阵",
@@ -1442,8 +1429,11 @@
     "popular": "推荐",
     "free": "免费",
     "perYear": "= ¥{amount}/年",
-    "freeStart": "免费开始",
-    "buyNow": "立即购买"
+    "buyNow": "立即购买",
+    "claimFree": "免费入库",
+    "claiming": "入库中…",
+    "claimFailed": "入库失败，请稍后重试",
+    "limitedFree": "限免"
   },
   "StoryLetter": {
     "headerTitle": "一封来自店主的信",
@@ -1465,7 +1455,6 @@
     "registerFailed": "注册失败"
   },
   "Paywall": {
-    "loadingCheck": "正在校验你的访问权限…",
     "lockedTitle": "该功能需要购买",
     "lockedDesc": "登录后购买相应方案，即可解锁使用。",
     "buyNow": "去购买",
@@ -1482,7 +1471,14 @@
     "emptyHint": "你还没有购买任何产品。",
     "browseProducts": "浏览产品",
     "annual": "年付",
-    "launch": "开始使用"
+    "launch": "开始使用",
+    "passExpires": "有效期至 {date}",
+    "passPlanMonthly": "月付",
+    "passPlanAnnual": "年付",
+    "passPlanLifetime": "买断",
+    "passExpiredTitle": "你的 Meteor Pass 已过期",
+    "passExpiredHint": "有效期已于 {date} 结束，续订后可以继续使用站内产品。",
+    "passRenew": "续订 Meteor Pass"
   },
   "AdminCommentsPage": {
     "title": "评论管理",
@@ -1612,5 +1608,13 @@
     "actionHint": "采纳只标记举报状态,删除内容请到对应管理页操作",
     "targetFilterHint": "已过滤到目标:",
     "clearTargetFilter": "查看全部举报"
+  },
+  "RedeemDialog": {
+    "title": "兑换邀请码",
+    "description": "输入邀请码，直接拿到对应的授权，无需付款。",
+    "checking": "正在检查登录状态…",
+    "loginHint": "兑换邀请码需要先登录账号，授权会绑定到该账号。",
+    "loginToContinue": "去登录",
+    "closeAriaLabel": "关闭兑换弹窗"
   }
 }

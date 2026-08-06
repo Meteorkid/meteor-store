@@ -4,6 +4,7 @@ import { isAdminSession } from '@/lib/admin';
 import { createInviteCode, listInviteCodes, revokeInviteCode } from '@/lib/invite';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { products } from '@/data/products';
+import { PASS_PRODUCT_ID, passPlans } from '@/data/pass';
 
 function forbidden() {
   return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -34,19 +35,30 @@ export async function POST(req: NextRequest) {
   const memo = typeof body?.memo === 'string' ? body.memo.trim() : undefined;
   const expiresAt = typeof body?.expiresAt === 'string' ? body.expiresAt : undefined;
 
-  const product = products.find((p) => p.id === productId);
-  if (!product) {
-    return NextResponse.json({ error: '产品不存在' }, { status: 400 });
-  }
-  const plan = product.pricing.find((p) => p.id === planId);
-  if (!plan) {
-    return NextResponse.json({ error: '套餐不存在' }, { status: 400 });
+  // 邀请码可以发单个产品，也可以直接发全站会员 Meteor Pass
+  let planName: string;
+  if (productId === PASS_PRODUCT_ID) {
+    const plan = passPlans.find((p) => p.id === planId);
+    if (!plan) {
+      return NextResponse.json({ error: '套餐不存在' }, { status: 400 });
+    }
+    planName = plan.name.en;
+  } else {
+    const product = products.find((p) => p.id === productId);
+    if (!product) {
+      return NextResponse.json({ error: '产品不存在' }, { status: 400 });
+    }
+    const plan = product.pricing.find((p) => p.id === planId);
+    if (!plan) {
+      return NextResponse.json({ error: '套餐不存在' }, { status: 400 });
+    }
+    planName = plan.name.en;
   }
 
   const result = await createInviteCode({
     productId,
     planId,
-    planName: plan.name.en,
+    planName,
     maxUses,
     memo,
     expiresAt,

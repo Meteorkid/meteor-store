@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { findProduct } from './products';
+import { findPurchasable } from './products';
 
 let resendClient: Resend | null = null;
 
@@ -219,7 +219,7 @@ export async function sendStudentVerification(data: StudentVerificationEmailData
 }
 
 export async function sendOrderConfirmation(data: OrderEmailData) {
-  const product = findProduct(data.productId);
+  const product = findPurchasable(data.productId);
   const productName = escapeHtml(product?.name?.zh || data.productId);
   const planName = escapeHtml(data.planName);
   const orderId = escapeHtml(data.orderId);

@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { db } from '@/lib/db';
 import { orders, licenseKeys } from '@/lib/db/schema';
-import { findProduct } from '@/lib/products';
+import { findPurchasable } from '@/lib/products';
 import { getSession } from '@/lib/auth';
 import { getOrderAccess } from '@/lib/order-access';
 import type { Locale } from '@/i18n/routing';
@@ -40,7 +40,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
   if (!order) notFound();
 
-  const product = findProduct(order.productId);
+  const product = findPurchasable(order.productId);
   const [license] = await db.select().from(licenseKeys).where(eq(licenseKeys.orderId, orderId)).limit(1);
 
   const statusMap: Record<string, { label: string; color: string }> = {
