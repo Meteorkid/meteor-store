@@ -9,7 +9,7 @@ interface TrialPageProps {
 }
 
 /**
- * 免门控试用路由：直接渲染应用本体，不套 PaywallGate、不带全站 Header/Footer。
+ * 免门控试用路由：直接渲染应用本体，不做授权判定、不带全站 Header/Footer。
  * 供产品详情页的「免费试用」内嵌 iframe 使用，未购用户也能体验完整功能。
  */
 export default async function TrialPage({ params }: TrialPageProps) {

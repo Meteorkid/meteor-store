@@ -13,9 +13,10 @@ import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
 import TerminalSection from '@/components/TerminalSection';
 import PricingSection from '@/components/PricingSection';
-import FeaturesComparison from '@/components/FeaturesComparison';
 import CTASection from '@/components/CTASection';
 import BackToTop from '@/components/BackToTop';
+import { appComponents } from '@/components/apps/registry';
+import { products } from '@/data/products';
 import { SHOW_PRICING } from '@/lib/constants';
 
 export async function generateMetadata({
@@ -73,11 +74,15 @@ export default async function Home({
       {/* Testimonials Section */}
       <TestimonialsSection />
 
-      {/* Pricing Section */}
-      {SHOW_PRICING && <PricingSection />}
-
-      {/* Features Comparison */}
-      {SHOW_PRICING && <FeaturesComparison />}
+      {/* Pricing Section —— 全站唯一的定价区块。
+          数量在服务端算：appComponents 是「真的能在浏览器打开」的唯一权威，
+          products 里带 appUrl 但没注册进去的产品只会渲染成占位符，不能算数 */}
+      {SHOW_PRICING && (
+        <PricingSection
+          productCount={products.length}
+          webAppCount={Object.keys(appComponents).length}
+        />
+      )}
 
       {/* Newsletter Section */}
       <NewsletterSection />
