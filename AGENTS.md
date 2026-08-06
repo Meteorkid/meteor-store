@@ -308,6 +308,131 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - **兑换用条件更新**（`WHERE id AND status='active' AND used_count < max_uses`），原子操作防竞态
 - 兑换生成 license key 时，`orderId` 写 `INV-{redemptionId}` 以与购买订单区分
 - 需要登录才能兑换；管理后台同样走 404-非-403 模式
+- 管理后台的产品下拉里 **Meteor Pass 排第一**（发 Pass 是最常用的赠码场景），单品在后
+- 用户侧两个兑换入口共用 `RedeemForm`：定价区的「有邀请码？点此兑换」按钮打开
+  `RedeemDialog` 弹窗（未登录时引导登录），以及独立页 `/redeem`——
+  **`/redeem` 别删**，兑换成功邮件里发的是那个链接
+
+## 商业模式：Meteor Pass + 单品
+
+全站**只有一个定价区块**：首页 `#pricing` 的 `PricingSection`，卖全站会员 **Meteor Pass**。
+历史上首页并排放过两个：`PricingSection` 拼三个不同产品的中间档当成三个档位卖
+（¥79/月、¥19/月、¥49/**年** 并排，单位都不统一，三张卡全标「推荐」，年付开关只对月付档生效），
+外加一个 `FeaturesComparison` 渲染完全虚构的 Basic/Pro/Enterprise——
+两个都和后端的真实模型对不上，已删除，**不要再加回来**。
+
+价格与权益的唯一数据源是 [src/data/pass.ts](file:///Users/meteor/github/meteor-store/src/data/pass.ts)，
+**改价只动这一个文件**：
+
+| 档位 | plan id | 价格 | 有效期 |
+|------|---------|------|--------|
+| 月付 | `monthly` | ¥39/月 | 1 个月 |
+| 年付 | `annual` | ¥299/年 | 12 个月 |
+| 买断 | `lifetime` | ¥899 | 永久 |
+
+- **Pass 不进 `products` 数组**：它不是产品，没有产品页、不进 sitemap、`/apps/meteor-pass` 是 404。
+  `findProduct` 只认真实产品；订单页 / 成功页 / 确认邮件这些「要显示买了什么」的地方用 `findPurchasable`
+- **Pass 不套 `ANNUAL_DISCOUNT`**：三个档位本身就是计费周期，价格是直接定的。
+  支付接口的 Pass 分支**忽略**客户端传来的 `isAnnual`
+- 档位 id 存进 `orders.billing_period`（`monthly`/`annual`/`lifetime`），`plan_name` 存中文档位名；
+  邀请码发的 Pass 则把档位存在 `invite_codes.plan_id`
+- **只有 Pass 会过期**。单品订单沿用历史行为：付了就一直可用，没有到期概念——
+  两者不一致是有意为之，给单品补上到期会追溯性地收回老客户已有的访问权
+- 有效期算在 `getPassCoverage`，返回 `lifetime | until | unknown` **三种**结果。
+  别再合并成 `string | null`：null 曾同时表示「永久」和「算不出来」，
+  于是任何一条脏 `billing_period`（手工补单、导入脚本、改档位 id）都静默兑换成
+  永久免费的全站会员。现在档位查不到按**最短档**兜底并 `console.warn`，
+  起算时间缺失/非法判为 `unknown` 直接不放行
+- 月末下单要钳到目标月最后一天（1/31 + 1 个月 = 2/28，不是 3/3），否则每次都白送两三天
+- **多条 Pass 授权按时间顺序叠加**（`accumulatePass`）：续费从「现有到期时间」与
+  「本次发放时间」里更晚的那个起算。取「最新一条」的写法会让提前一周续费白丢一周，
+  也会让年付用户兑一张月付邀请码后看到到期时间不升反降
+- **单品授权优先于 Pass**：自己买断的产品不该显示成「靠会员在用」，Pass 只填补没被单品覆盖的产品。
+  Pass 展开的条目带 `viaPass: true`，`/apps` 靠它避免把档位后缀追加成「年付 · 年付」；
+  档位本身走 `passPlanId` 由页面本地化，**别把中文档位名塞进 `planName`**，英文站会漏出来
+- **权益文案不能写得比实际交付更满**：12 款产品里只有 4 款（`appComponents` 注册表里的）
+  真能在浏览器打开，其余是发授权码。定价页的两个数字由服务端从
+  `products.length` 和 `Object.keys(appComponents).length` 算出来传给 `PricingSection`，
+  不要写死，也不要让客户端组件 import 整个 products（800 行会被打进 bundle）。
+  `src/data/__tests__/pass.test.ts` 把「不得再出现『无需下载』『解锁全部站内应用』」钉在 CI 上
+
+### 免费档与「免费入库」
+
+**¥0 档位一律走 `POST /api/claim` 入库，不要再跳 `/products/{id}#download`。**
+免费产品以前是条死路：多数产品根本没有下载区，站内应用又要 entitlement 才放行，
+免费用户永远拿不到——免费档等于既买不到也用不了。
+
+- 入库实现上复用 `orders`：写一条 ¥0 的 `status='paid'` 订单，
+  `getUserEntitlements` 照常认，「我的产品」「订单记录」都不用改
+- **不发授权码、不发邮件**，`delivery_status` 用 `'not_required'`：
+  既绕开 `/api/payment/delivery-retry` 的重试队列（它只捞 failed/pending/processing），
+  又能通过授权判定里「未交付订单不查授权码状态」那条。
+  写成 `'pending'` 会给每次免费入库发一封信，写成 `'emailed'` 会因为查不到授权码
+  而让入库的产品在 `/apps` 里直接消失
+- 入库接口按 `product.pricing` 里**当前**是否存在 ¥0 档判定，
+  限免产品的原价在 `originalPrice` 里，不参与判断；Pass 不在 `products` 里，天然拿不到
+
+### 限免：`pricing[].originalPrice`
+
+某个档位「先免费开放、以后再收费」时，把原价挪进 `originalPrice`、`price` 置 0。
+定价卡会把原价划掉、旁边标「限免」。判断能不能免费拿只看 `price`，
+所以支付接口的零价拦截、列表页的 `minPrice`、入库接口全都自动正确，无需额外分支。
+
+当前状态（2026-08）：`ex-memory`、`ui-design-system` 限免；
+`statux` 公开免费（安装包不门控，不登录也能下）；
+`xnook` 纯付费（¥9 买断，安装包走 R2 门控）；`xisland` 免费档 + ¥12 买断，安装包走 R2 门控。
+
+### 安装包分发（Cloudflare R2 + 预签名 URL）
+
+复用头像/博客图片那套 R2 配置，服务层在
+[src/lib/release-storage.ts](file:///Users/meteor/github/meteor-store/src/lib/release-storage.ts)，
+下载接口 `GET /api/download/[productId]?file={下载条目 id}`，
+上传走 [scripts/upload-release.mjs](file:///Users/meteor/github/meteor-store/scripts/upload-release.mjs)。
+
+- **绝不能把文件读出来由 route handler 转发**：Vercel serverless 响应体上限约 4.5MB，
+  dmg 动辄几十 MB，必然失败。接口只做三件事：校验授权、签一条 5 分钟有效的预签名 URL、
+  302 过去让浏览器直连 R2。R2 出网流量免费，分发二进制的带宽成本为零
+- **也不能放 `public/`**：那里完全公开，付费产品的门控就白做了，二进制进 git 还会撑大部署包
+- 对象 key 是 `releases/{productId}/{version}/{文件名}`，**带版本号**：
+  已发布的构建产物不该被新版悄悄覆盖
+- **`file` 参数是下载条目 id，不是路径**：对象 key 一律由服务端从 products.ts 查出来，
+  客户端传什么都变不成 bucket 里的任意对象
+- **`gated: true` 必须配 `r2Key`**：挂在 GitHub/Gitee 公开链接上的「门控」是自欺欺人，
+  接口宁可返回 503 也不放行。测试钉住了这条
+- 签名链接的 302 响应带 `Cache-Control: no-store`，被 CDN 缓存下来等于门控作废
+- 门控判定用的是 entitlement（购买 / 免费入库 / Pass / 邀请码 / 管理员都算），
+  所以有免费档的产品「入库」后同样能下
+- `DownloadCard` 里那段登录/授权判断**只是显示层**，真关卡在接口——
+  安装包地址从头到尾没进过页面。这和 `/apps/{id}` 必须服务端门控不矛盾：
+  那里渲染的是应用本体，藏在客户端等于没藏
+- **R2_PUBLIC_BASE 不是 `NEXT_PUBLIC_` 变量**，客户端读不到。公开下载地址一律
+  由服务端组件（DownloadSection）解析好再传给客户端组件
+
+**macOS 分发前必须签名 + 公证**，否则用户下载后被 Gatekeeper 拦下，比没有下载更糟。
+上传前自查：`spctl -a -t open --context context:primary-signature -v X.dmg`
+与 `xcrun stapler validate X.dmg`。
+
+### 站内应用的门控必须在服务端
+
+`/apps/{id}` 直接在服务端组件里 `getSession()` + `getUserEntitlements()`，
+没权限就**不渲染应用组件**。原来套的客户端 `PaywallGate`（已删除）只是「不显示」，
+应用本体照样进 RSC 负载，扒一眼网络响应就能拿到。Pass 会过期，是全站第一个
+真正需要「收回已授予访问权」的场景，客户端隐藏这个强度不够。
+代价是该页从静态变成按请求渲染——它本来就因人而异，可以接受。
+`/apps/{id}/trial` 是有意免门控的试用路由，不受此约束。
+
+### 授权来源有三条，`getUserEntitlements` 必须全认
+
+管理员（`ADMIN_EMAILS`）、已支付订单、**已兑换的邀请码**。
+
+第三条以前是漏的：兑换只写 `license_keys` 不写 `orders`，而授权判定只查 `orders`，
+于是兑换过的用户拿到 key 却打不开应用。现在按 `invite_redemptions` 关联查，
+并要求对应授权码 `status='active'`。
+
+**撤销授权码对两条来源都要生效**，否则退款后没有任何手段收回访问权
+（¥899 买断 Pass 尤其扎眼）。订单侧用 `delivery_status` 区分窗口期：
+已 `emailed` 的订单要求授权码仍是 active，未交付的照常放行——
+一律要求授权码会把刚付完钱、还没发码的人挡在门外。
 
 ### 注册滑块验证
 
@@ -486,6 +611,10 @@ pnpm build                  # 构建
 | 给所有表加外键约束 | 出现孤儿评论/点赞/收藏/举报记录时。当前全站无外键,设计上已预期 |
 | 评论树形查询优化 | 评论量增长后服务端按层级返回,加 `parentId` 索引 |
 | /admin/comments 也加举报联动入口 | 评论量大后,目前仅 /admin/posts 有,且评论侧已有逐条举报按钮 |
+| Pass 到期提醒与续费 | 卖出第一笔月付/年付 Pass。支付宝走的是单次付款不是代扣,到期后是**静默失效**,至少要在到期前发封邮件（`/apps` 的过期空态已经会提示,但用户得自己来看） |
+| 后台加订单状态流转（paid → refunded） | 出现第一笔退款。目前只能靠撤销授权码间接收回访问权,订单本身还停在 paid |
+| 上传 xnook / xisland / statux 的安装包 | 分发链路已就绪,但**还没有任何产品配了 `r2Key`**——签名公证好 dmg 后跑 `scripts/upload-release.mjs`,把它打印的条目粘进 products.ts 即可上线。xnook 在此之前是「付了 ¥9 拿不到东西」 |
+| 限免产品恢复收费 | ex-memory / ui-design-system 想开始收费时,把 `originalPrice` 挪回 `price` 即可;在那之前它们也没有实际交付物,需要一并解决 |
 
 **已完成的待办**（从上表移除,留作记录）：
 - ✅ 阅读进度条（`BlogReadingProgress` 已上线,挂在 `/blog/[slug]` 和 `/blog/p/[id]`）
