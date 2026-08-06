@@ -41,7 +41,7 @@ export default function TollowApp() {
   }, []);
 
   return (
-    <div className="tollow-app h-screen w-full overflow-auto">
+    <div className="tollow-root tollow-app h-screen w-full overflow-auto">
       <TollowAppInner />
     </div>
   );

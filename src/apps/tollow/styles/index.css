@@ -1,6 +1,6 @@
 /* eslint-disable */
-/* ===== 报刊风格设计系统 ===== */
-:root {
+/* ===== 报刊风格设计系统（scoped 到 .tollow-root，避免污染全站） ===== */
+.tollow-root {
   /* 背景色系 */
   --color-bg0: #f6f1e6;
   --color-bg1: #fbf7ee;
@@ -38,21 +38,7 @@
   --spacing-lg: 24px;
   --spacing-xl: 32px;
   --spacing-2xl: 48px;
-}
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  line-height: 1.5;
-  -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: transparent;
-}
-
-body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -60,6 +46,12 @@ body {
   color: var(--color-ink0);
   line-height: 1.6;
   min-height: 100vh;
+}
+
+.tollow-root * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 /* 报刊风全局边框 - 限定范围避免影响第三方组件 */

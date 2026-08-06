@@ -19,7 +19,7 @@ const ChakraVisualizerRoot = dynamic(
 
 export default function ChakraVisualizerApp() {
   return (
-    <div className="fixed inset-0 z-0 bg-black overflow-y-auto">
+    <div className="chakra-visualizer-root fixed inset-0 z-0 bg-black overflow-y-auto">
       <LanguageProvider>
         <GameProvider>
           <ChakraVisualizerRoot />

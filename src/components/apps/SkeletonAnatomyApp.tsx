@@ -17,7 +17,7 @@ const SkeletonAnatomyRoot = dynamic(
 
 export default function SkeletonAnatomyApp() {
   return (
-    <div className="min-h-screen w-full bg-black">
+    <div className="skeleton-anatomy-root min-h-screen w-full bg-black">
       <SkeletonAnatomyRoot />
     </div>
   );

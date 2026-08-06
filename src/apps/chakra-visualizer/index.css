@@ -1,6 +1,6 @@
 /* eslint-disable */
-/* index.css */
-body {
+/* index.css — scoped 到 .chakra-visualizer-root，避免污染全站 */
+.chakra-visualizer-root {
   margin: 0;
   padding: 0;
   background-color: #000;
