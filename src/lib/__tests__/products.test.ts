@@ -29,6 +29,7 @@ describe('产品公开下载源', () => {
       'gitee.com/Meteorkid/ui-design-system',
       'gitee.com/Meteorkid/statux',
       'gitee.com/Meteorkid/Tollow',
+      'gitee.com/Meteorkid/XIsland',
       'gitee.com/Meteorkid/XNook',
       'gitee.com/Meteorkid/Chakra-Visualizer',
       'gitee.com/Meteorkid/webgl-fluid-sim',
@@ -42,7 +43,23 @@ describe('产品公开下载源', () => {
     }
   });
 
-  it('保留已确认可用的 XIsland Gitee 镜像', () => {
-    expect(JSON.stringify(findProduct('xisland'))).toContain('gitee.com/Meteorkid/XIsland');
+  it('安装包统一走 R2 分发：付费产品门控，免费产品公开', () => {
+    const xnook = findProduct('xnook');
+    const xisland = findProduct('xisland');
+    const statux = findProduct('statux');
+
+    // 付费产品（xnook / xisland）：下载条目必须标 gated 且配 r2Key
+    for (const product of [xnook, xisland]) {
+      for (const d of product?.downloads ?? []) {
+        expect(d.gated).toBe(true);
+        expect(d.r2Key).toBeTruthy();
+      }
+    }
+
+    // 免费产品（statux）：不门控，但同样走 R2 分发（配 r2Key）
+    for (const d of statux?.downloads ?? []) {
+      expect(d.gated).not.toBe(true);
+      expect(d.r2Key).toBeTruthy();
+    }
   });
 });

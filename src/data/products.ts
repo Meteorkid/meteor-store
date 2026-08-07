@@ -465,8 +465,8 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/statux',
     downloads: [
-      { id: 'macos-arm64', label: { zh: 'macOS 二进制 (Apple 芯片)', en: 'macOS Binary (Apple Silicon)' }, url: 'https://github.com/Meteorkid/statux/releases/download/v0.4.3/statux-darwin-arm64', icon: 'zip', version: '0.4.3', sha256: 'adffbebf3eaade18a36ea54eec7c4b7dc83229f85fd2b98de6f82deadd8c63d1' },
-      { id: 'macos-x64', label: { zh: 'macOS 二进制 (Intel)', en: 'macOS Binary (Intel)' }, url: 'https://github.com/Meteorkid/statux/releases/download/v0.4.3/statux-darwin-x64', icon: 'zip', version: '0.4.3', sha256: '89ecdbbfae35a79a444130009c544ffea478ad1353c47831dcf734de93487ae0' },
+      { id: 'macos-arm64', label: { zh: 'macOS 二进制 (Apple 芯片)', en: 'macOS Binary (Apple Silicon)' }, r2Key: 'releases/statux/0.4.3/statux-darwin-arm64', icon: 'zip', version: '0.4.3', sha256: '1178a59f6a7463c7f4613b172f8e24858a3051ce98091969dc43dd19a7055cbe' },
+      { id: 'macos-x64', label: { zh: 'macOS 二进制 (Intel)', en: 'macOS Binary (Intel)' }, r2Key: 'releases/statux/0.4.3/statux-darwin-x64', icon: 'zip', version: '0.4.3', sha256: 'b2090041350bd9d75b138d562ae414187389b093c194bafa6dd3dcadb5b60914' },
     ],
     category: 'developer',
     icon: '📊',
@@ -522,17 +522,8 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/XIsland',
-    quickstart: {
-      download: 'https://gitee.com/Meteorkid/XIsland/releases',
-      note: {
-        zh: '下载最新版 DMG，拖进「应用程序」即可',
-        en: 'Download the latest DMG and drag into Applications',
-      },
-    },
     downloads: [
-      { id: 'dmg', label: { zh: '下载 DMG', en: 'Download DMG' }, url: 'https://github.com/Meteorkid/XIsland/releases/download/v1.12.0/XIsland-1.12.0.dmg', icon: 'dmg', version: '1.12.0', sha256: '5f8f69fb08625ab3facd635afec6f523e5edd144a5a92a9836c24e2f884a5d38' },
-      { id: 'dmg-gitee', label: { zh: '下载 DMG (Gitee)', en: 'Download DMG (Gitee)' }, url: 'https://gitee.com/Meteorkid/XIsland/releases', icon: 'dmg', note: { zh: '国内高速下载', en: 'Fast download in China' } },
-      { id: 'source-gitee', label: { zh: 'Gitee 源码', en: 'Gitee Source' }, url: 'https://gitee.com/Meteorkid/XIsland', icon: 'gitee' },
+      { id: 'dmg', label: { zh: '下载 DMG', en: 'Download DMG' }, r2Key: 'releases/xisland/1.12.0/XIsland-1.12.0.dmg', icon: 'dmg', gated: true, version: '1.12.0', sha256: '5f8f69fb08625ab3facd635afec6f523e5edd144a5a92a9836c24e2f884a5d38' },
     ],
     category: 'developer',
     icon: '🏝️',
@@ -636,8 +627,9 @@ export const products: Product[] = [
       {
         id: 'dmg',
         label: { zh: '下载 DMG', en: 'Download DMG' },
-        url: 'https://github.com/Meteorkid/XNook/releases/download/v1.3.15/XNook-1.3.15.dmg',
+        r2Key: 'releases/xnook/1.3.15/XNook-1.3.15.dmg',
         icon: 'dmg',
+        gated: true,
         version: '1.3.15',
         sha256: '821b29c5573d6530bed1a036efa0cddb64e821b9c795b0de605b69fc1ac6c087',
       },
