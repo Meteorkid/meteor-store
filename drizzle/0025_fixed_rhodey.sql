@@ -1,0 +1,1 @@
+ALTER TABLE "posts" ADD COLUMN "event_date" text;

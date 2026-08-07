@@ -142,6 +142,7 @@ export async function getUserFavoritePosts(
         draft: p.draft,
         href: `/blog/${p.slug}`,
         author: null,
+        eventDate: p.eventDate,
       });
     }
   }
@@ -163,6 +164,7 @@ export async function getUserFavoritePosts(
             draft: false,
             href: `/blog/p/${p.id}`,
             author: p.authorName,
+            eventDate: p.eventDate ?? (p.publishedAt ?? p.createdAt).slice(0, 10),
           });
         }
       }

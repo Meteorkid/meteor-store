@@ -30,6 +30,7 @@ export interface UserPost {
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  eventDate: string | null;
 }
 
 /** 短 id，直接作为 URL：/blog/p/{id}。与文件文章的 slug 空间隔开，不会撞。 */
@@ -63,6 +64,7 @@ interface PostRow {
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  eventDate: string | null;
   authorName: string | null;
   authorBio: string | null;
   authorAvatarUrl: string | null;
@@ -105,6 +107,7 @@ const postColumns = {
   publishedAt: posts.publishedAt,
   createdAt: posts.createdAt,
   updatedAt: posts.updatedAt,
+  eventDate: posts.eventDate,
   authorName: users.name,
   authorBio: users.bio,
   authorAvatarUrl: users.avatarUrl,
@@ -119,11 +122,14 @@ export async function createPost(input: {
   sectionId: string;
   tags: string[];
   status: Extract<PostStatus, 'draft' | 'pending' | 'published'>;
+  /** 内容描述事件的时间，YYYY-MM-DD，可选 */
+  eventDate?: string | null;
 }): Promise<string> {
   const id = newPostId();
   const now = new Date().toISOString();
   const tags = normalizeTags(input.tags);
   const publishedAt = input.status === 'published' ? now : null;
+  const eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
 
   await db.insert(posts).values({
     id,
@@ -133,6 +139,7 @@ export async function createPost(input: {
     content: input.content,
     sectionId: input.sectionId,
     status: input.status,
+    eventDate,
     publishedAt,
     createdAt: now,
     updatedAt: now,
@@ -289,6 +296,8 @@ export async function updatePost(input: {
   content?: string;
   sectionId?: string;
   tags?: string[];
+  /** 内容描述事件的时间，YYYY-MM-DD，可选；空串清空 */
+  eventDate?: string | null;
   submit?: boolean;
   /** 管理员直发：跳过审核，published 编辑后保持 published，提交直接发布。 */
   adminPublish?: boolean;
@@ -325,6 +334,7 @@ export async function updatePost(input: {
   if (input.excerpt !== undefined) updates.excerpt = input.excerpt;
   if (input.content !== undefined) updates.content = input.content;
   if (input.sectionId !== undefined) updates.sectionId = input.sectionId;
+  if (input.eventDate !== undefined) updates.eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
 
   // 进入 pending 清掉旧审核留痕
   if (newStatus === 'pending') {

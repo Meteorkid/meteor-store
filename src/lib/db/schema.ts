@@ -86,6 +86,7 @@ export const posts = pgTable('posts', {
   reviewNote: text('review_note'),                    // 驳回理由，作者可见
   reviewerId: text('reviewer_id'),                    // 审核留痕
   reviewedAt: text('reviewed_at'),
+  eventDate: text('event_date'),                      // 内容描述事件的时间，YYYY-MM-DD，可空
   publishedAt: text('published_at'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),

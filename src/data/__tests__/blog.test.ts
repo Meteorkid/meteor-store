@@ -66,6 +66,12 @@ describe('内容文件', () => {
       expect(p.readingTime).toBeGreaterThan(0);
     });
   });
+
+  it('eventDate 缺省时回落到 date，且格式合法', () => {
+    blogPosts.forEach((p) => {
+      expect(p.eventDate, 'eventDate 缺失').toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+  });
 });
 
 describe('toSummary', () => {
@@ -78,7 +84,7 @@ describe('toSummary', () => {
 
   it('返回的字段集合是固定白名单，新增字段不会被无意带到客户端', () => {
     expect(Object.keys(toSummary(blogPosts[0])).sort()).toEqual(
-      ['date', 'draft', 'excerpt', 'readingTime', 'section', 'slug', 'tags', 'title'],
+      ['date', 'draft', 'eventDate', 'excerpt', 'readingTime', 'section', 'slug', 'tags', 'title'],
     );
   });
 });

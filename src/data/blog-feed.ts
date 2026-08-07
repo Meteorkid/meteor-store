@@ -21,6 +21,8 @@ export interface FeedPost extends BlogPost {
   href: string;
   /** 投稿的作者名；站主自己的文章为 null */
   author: string | null;
+  /** 事件时间，两条来源都已在各自的合并层兜底为非空 */
+  eventDate: string;
 }
 
 export type FeedPostSummary = Omit<FeedPost, 'content'>;
@@ -42,6 +44,7 @@ export function toFeedSummary(post: FeedPost): FeedPostSummary {
     draft: post.draft,
     href: post.href,
     author: post.author,
+    eventDate: post.eventDate,
   };
 }
 
@@ -75,6 +78,8 @@ export const getFeedPosts = cache(async (locale: Locale): Promise<FeedPost[]> =>
         draft: false,
         href: `/blog/p/${p.id}`,
         author: p.authorName,
+        // 事件时间缺省回落到发布时间
+        eventDate: p.eventDate ?? (p.publishedAt ?? p.createdAt).slice(0, 10),
       }));
     } catch (err) {
       console.error('读取投稿失败，本次只展示文件文章', err);

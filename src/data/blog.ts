@@ -31,6 +31,8 @@ const FrontmatterSchema = z.object({
   tags: z.array(z.string()).default([]),
   /** 草稿只在开发环境可见，可以放心提交半成品 */
   draft: z.boolean().default(false),
+  /** 内容描述事件发生的时间，YYYY-MM-DD，可选；缺省回落到 date */
+  eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '事件日期需为 YYYY-MM-DD').optional(),
 });
 
 export interface BlogPost {
@@ -43,6 +45,8 @@ export interface BlogPost {
   readingTime: number;
   tags: string[];
   draft: boolean;
+  /** 事件时间，缺省回落到 date */
+  eventDate: string;
 }
 
 /** 列表页只需要这些字段，正文不进客户端 bundle */
@@ -88,6 +92,7 @@ function loadPosts(locale?: Locale): BlogPost[] {
       ...parsed.data,
       content: content.trim(),
       readingTime: estimateReadingTime(content),
+      eventDate: parsed.data.eventDate ?? parsed.data.date,
     };
   });
 
@@ -115,5 +120,6 @@ export function toSummary(post: BlogPost): BlogPostSummary {
     readingTime: post.readingTime,
     tags: post.tags,
     draft: post.draft,
+    eventDate: post.eventDate,
   };
 }

@@ -14,6 +14,7 @@ const posts: FeedPostSummary[] = [
     draft: false,
     href: '/blog/older',
     author: null,
+    eventDate: '2026-01-01',
   },
   {
     slug: 'newer',
@@ -26,6 +27,7 @@ const posts: FeedPostSummary[] = [
     draft: false,
     href: '/blog/newer',
     author: null,
+    eventDate: '2026-05-01',
   },
 ];
 
@@ -82,6 +84,7 @@ describe('buildRssFeed', () => {
           draft: false,
           href: '/blog/p/AbC123',
           author: '张三',
+          eventDate: '2026-06-01',
         },
       ],
       options,
