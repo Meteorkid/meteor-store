@@ -4,13 +4,14 @@ import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import BlogListClient from '@/components/BlogListClient';
-import { blogSections } from '@/data/blog-sections';
-import { findFeedTag, getFeedPostsByTag, getFeedTags, toFeedSummary } from '@/data/blog-feed';
+import BlogList from '@/components/BlogList';
+import { findFeedTag, getFeedTags } from '@/data/blog-feed';
+import { getSectionBySlug } from '@/data/blog-sections';
 import { routing, type Locale } from '@/i18n/routing';
 
 interface TagPageProps {
   params: Promise<{ locale: string; tag: string }>;
+  searchParams: Promise<{ section?: string }>;
 }
 
 // 构建时预渲染已有标签；投稿带来的新标签走按需渲染，审核通过时 revalidate
@@ -33,15 +34,16 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
     : { title: t('notFound') };
 }
 
-export default async function BlogTagPage({ params }: TagPageProps) {
+export default async function BlogTagPage({ params, searchParams }: TagPageProps) {
   const { locale, tag: tagParam } = await params;
+  const sp = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'BlogTagPage' });
   const tag = await findFeedTag(locale as Locale, decodeURIComponent(tagParam));
   if (!tag) notFound();
 
-  const posts = (await getFeedPostsByTag(locale as Locale, tag.key)).map(toFeedSummary);
-  const counts = Object.fromEntries(blogSections.map((s) => [s.id, 0]));
+  // 双重筛选：标签固定为当前路由，分区可选 ?section= 叠加
+  const section = sp.section ? getSectionBySlug(sp.section) : undefined;
 
   return (
     <div className="blog-scope min-h-screen bg-black text-white">
@@ -62,7 +64,11 @@ export default async function BlogTagPage({ params }: TagPageProps) {
             </Link>
           </header>
 
-          <BlogListClient posts={posts} counts={counts} />
+          <BlogList
+            activeTag={{ key: tag.key, label: tag.label }}
+            sectionId={section?.id}
+            locale={locale as Locale}
+          />
         </div>
       </main>
       <Footer />

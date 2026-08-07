@@ -3,6 +3,8 @@ import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogList from '@/components/BlogList';
+import { findFeedTag } from '@/data/blog-feed';
+import { getSectionBySlug } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
 
 export async function generateMetadata({
@@ -24,11 +26,18 @@ export async function generateMetadata({
 
 export default async function BlogPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ section?: string; tag?: string }>;
 }) {
   const { locale } = await params;
+  const sp = await searchParams;
   const t = await getTranslations({ locale, namespace: 'BlogPage' });
+
+  // 双重筛选：?section= 与 ?tag= 同时生效，可叠加
+  const section = sp.section ? getSectionBySlug(sp.section) : undefined;
+  const tag = sp.tag ? await findFeedTag(locale as Locale, sp.tag) : undefined;
 
   return (
     <div className="blog-scope min-h-screen bg-black text-white">
@@ -49,7 +58,11 @@ export default async function BlogPage({
             </a>
           </header>
 
-          <BlogList locale={locale as Locale} />
+          <BlogList
+            locale={locale as Locale}
+            sectionId={section?.id}
+            activeTag={tag ? { key: tag.key, label: tag.label } : null}
+          />
         </div>
       </main>
       <Footer />

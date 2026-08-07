@@ -93,6 +93,23 @@ export async function getFeedPostsBySection(locale: Locale, sectionId: BlogSecti
   return (await getFeedPosts(locale)).filter((p) => p.section === sectionId);
 }
 
+/**
+ * 分区 × 标签双重筛选：两个维度都可选、可独立保留。
+ * 分区与标签不再互斥——分区页选中标签、标签页选中分区都用这个函数合并过滤。
+ */
+export async function getFeedPostsBySectionAndTag(
+  locale: Locale,
+  sectionId: BlogSectionId | undefined,
+  tagKey: string | undefined,
+): Promise<FeedPost[]> {
+  const posts = await getFeedPosts(locale);
+  return posts.filter((p) => {
+    if (sectionId && p.section !== sectionId) return false;
+    if (tagKey && !p.tags.some((t) => normalizeTag(t) === tagKey)) return false;
+    return true;
+  });
+}
+
 /** 各分区文章数 */
 export async function getSectionCounts(locale: Locale): Promise<Record<string, number>> {
   const posts = await getFeedPosts(locale);

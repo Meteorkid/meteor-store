@@ -13,6 +13,7 @@ import type { TagSummary } from '@/data/blog-tags';
 import type { Locale } from '@/i18n/routing';
 import { useAuth } from './AuthProvider';
 import BlogTimeline from './BlogTimeline';
+import type { ActiveTag } from './BlogList';
 
 type SortMode = 'newest' | 'oldest' | 'reading-time' | 'event-newest' | 'event-oldest';
 
@@ -45,9 +46,11 @@ interface BlogListClientProps {
   posts: FeedPostSummary[];
   /** 各分区文章数，由服务端算好传入，避免把正文带进来 */
   counts: Record<string, number>;
-  /** 当前分区，未传表示「全部」 */
+  /** 当前分区，未传表示「全部」。与 activeTag 可叠加双重筛选 */
   activeSectionId?: BlogSectionId;
-  /** 导航里展示的热门标签；标签页与分区页不需要重复展示 */
+  /** 当前标签，未传表示「全部」。与 activeSectionId 可叠加双重筛选 */
+  activeTag?: ActiveTag | null;
+  /** 导航里展示的热门标签，所有列表页都展示，作为第二重筛选入口 */
   hotTags?: TagSummary[];
   /** 标签总数，用于「全部标签」入口 */
   totalTagCount?: number;
@@ -59,6 +62,7 @@ export default function BlogListClient({
   posts,
   counts,
   activeSectionId,
+  activeTag = null,
   hotTags,
   totalTagCount = 0,
   favoriteCounts = {},
@@ -78,6 +82,19 @@ export default function BlogListClient({
   }, []);
 
   const showSectionLabel = !activeSectionId;
+
+  // 双重筛选：分区维度选中时，标签链接带上 ?section=；标签维度选中时，分区链接带上 ?tag=
+  const activeSectionSlug = activeSectionId ? getSectionById(activeSectionId)?.slug : undefined;
+  const withTag = (path: string) => (activeTag ? `${path}?tag=${encodeURIComponent(activeTag.label)}` : path);
+  const withSection = (path: string) =>
+    activeSectionSlug ? `${path}?section=${encodeURIComponent(activeSectionSlug)}` : path;
+
+  // 当前标签若不在热门列表里（冷门标签页），补在列表最前，保证高亮可见
+  const displayTags = useMemo<TagSummary[]>(() => {
+    if (!hotTags) return [];
+    if (!activeTag || hotTags.some((t) => t.key === activeTag.key)) return hotTags;
+    return [{ key: activeTag.key, label: activeTag.label, count: 0, href: `/blog/tag/${encodeURIComponent(activeTag.label)}` }, ...hotTags];
+  }, [hotTags, activeTag]);
 
   const filtered = useMemo(() => {
     const result = [...posts];
@@ -121,7 +138,7 @@ export default function BlogListClient({
           className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <Link
-            href="/blog"
+            href={withTag('/blog')}
             aria-current={activeSectionId ? undefined : 'page'}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
               activeSectionId
@@ -142,7 +159,7 @@ export default function BlogListClient({
                 return (
                   <Link
                     key={s.id}
-                    href={`/blog/section/${s.slug}`}
+                    href={withTag(`/blog/section/${s.slug}`)}
                     title={s.description[locale]}
                     aria-current={active ? 'page' : undefined}
                     style={{ '--tab-accent': s.rgb } as React.CSSProperties}
@@ -162,21 +179,29 @@ export default function BlogListClient({
         </nav>
       </div>
 
-      {/* 热门标签：动态层。分区是骨架，标签是当下大家在聊什么 */}
-      {hotTags && hotTags.length > 0 && (
+      {/* 热门标签：动态层。分区是骨架，标签是当下大家在聊什么。与分区维度并存，支持双重筛选 */}
+      {displayTags.length > 0 && (
         <nav aria-label={t('tagsAria')} className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-2">
           <span className="t-eyebrow mr-1 text-white/45">{t('hotTags')}</span>
-          {hotTags.map((tag) => (
-            <Link
-              key={tag.key}
-              href={tag.href}
-              className="t-footnote inline-flex items-baseline gap-1 rounded-lg px-2.5 py-1 text-white/70 transition-colors duration-200 hover:bg-white/[0.06] hover:text-white"
-            >
-              #{tag.label}
-              <span className="tabular-nums text-white/45">{tag.count}</span>
-            </Link>
-          ))}
-          {totalTagCount > hotTags.length && (
+          {displayTags.map((tag) => {
+            const active = activeTag?.key === tag.key;
+            return (
+              <Link
+                key={tag.key}
+                href={withSection(tag.href)}
+                aria-current={active ? 'page' : undefined}
+                className={`t-footnote inline-flex items-baseline gap-1 rounded-lg px-2.5 py-1 transition-colors duration-200 ${
+                  active
+                    ? 'bg-white/[0.14] text-white'
+                    : 'text-white/70 hover:bg-white/[0.06] hover:text-white'
+                }`}
+              >
+                #{tag.label}
+                {tag.count > 0 && <span className="tabular-nums text-white/45">{tag.count}</span>}
+              </Link>
+            );
+          })}
+          {totalTagCount > (hotTags?.length ?? 0) && (
             <Link
               href="/blog/tags"
               className="t-footnote rounded-lg px-2.5 py-1 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
