@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import AdvancedProductCard from './AdvancedProductCard';
 import { localizeProducts } from '@/data/products';
+import { selectHomeFeaturedProducts } from '@/data/homepage';
 import type { Locale } from '@/i18n/routing';
 
 const categories = [
@@ -18,12 +19,12 @@ const categories = [
 export default function ProductShowcase() {
   const t = useTranslations('ProductShowcase');
   const locale = useLocale() as Locale;
-  const products = localizeProducts(locale);
+  const allProducts = localizeProducts(locale);
   const [activeCategory, setActiveCategory] = useState('全部');
 
   const filteredProducts = activeCategory === '全部'
-    ? products
-    : products.filter(p => p.category === activeCategory);
+    ? selectHomeFeaturedProducts(allProducts)
+    : allProducts.filter((product) => product.category === activeCategory);
 
   return (
     <section id="products" className="py-20">

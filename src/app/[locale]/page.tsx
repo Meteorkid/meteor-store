@@ -14,7 +14,7 @@ import TerminalSection from '@/components/TerminalSection';
 import PricingSection from '@/components/PricingSection';
 import CTASection from '@/components/CTASection';
 import BackToTop from '@/components/BackToTop';
-import { appComponents } from '@/components/apps/registry';
+import { webAppCount } from '@/data/app-manifest';
 import { products } from '@/data/products';
 import { SHOW_PRICING } from '@/lib/constants';
 
@@ -62,12 +62,12 @@ export default async function Home({
       <TestimonialsSection />
 
       {/* Pricing Section —— 全站唯一的定价区块。
-          数量在服务端算：appComponents 是「真的能在浏览器打开」的唯一权威，
-          products 里带 appUrl 但没注册进去的产品只会渲染成占位符，不能算数 */}
+          数量在服务端算：app-manifest 是可安全导入的站内应用轻量清单，
+          并由类型与测试保证它和组件注册表、products 中的 appUrl 保持一致 */}
       {SHOW_PRICING && (
         <PricingSection
           productCount={products.length}
-          webAppCount={Object.keys(appComponents).length}
+          webAppCount={webAppCount}
         />
       )}
 

@@ -11,7 +11,7 @@ import type { Locale } from '@/i18n/routing';
 interface PricingSectionProps {
   /** 站内产品总数 */
   productCount: number;
-  /** 其中能在浏览器里直接打开的（已注册进 appComponents 的）数量 */
+  /** 其中能在浏览器里直接打开的（已登记进 app-manifest 的）数量 */
   webAppCount: number;
 }
 
