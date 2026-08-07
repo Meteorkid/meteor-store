@@ -605,7 +605,7 @@
 }
 
 /* ========== 加载动画 ========== */
-@keyframes pulse {
+@keyframes skeleton-anatomy-pulse {
   0%, 100% { opacity: 0.4; width: 30%; }
   50% { opacity: 1; width: 80%; }
 }

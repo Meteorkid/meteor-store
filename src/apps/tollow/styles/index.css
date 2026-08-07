@@ -59,7 +59,7 @@
   border-color: var(--color-line);
 }
 
-.container {
+.tollow-root .container {
   max-width: 960px;
   margin: 0 auto;
   padding: 0 var(--spacing-lg);

@@ -96,7 +96,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => {
             const active = isActiveLink(link.href, pathname);
             return (
@@ -132,7 +132,7 @@ export default function Header() {
         </nav>
 
         {/* Mobile: 搜索 + Hamburger */}
-        <div className="md:hidden flex items-center gap-1">
+        <div className="lg:hidden flex items-center gap-1">
         <button
           onClick={() => window.dispatchEvent(new CustomEvent('spotlight:open'))}
           aria-label={t('search')}
@@ -145,7 +145,7 @@ export default function Header() {
         <LanguageSwitcher />
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+          className="lg:hidden relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
           aria-label={mobileOpen ? t('closeMenu') : t('openMenu')}
         >
           <div className="w-5 h-4 flex flex-col justify-between">
@@ -171,7 +171,7 @@ export default function Header() {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`md:hidden fixed inset-0 top-16 bg-background/95 backdrop-blur-xl transition-all duration-300 z-40 ${
+        className={`lg:hidden fixed inset-0 top-16 bg-background/95 backdrop-blur-xl transition-all duration-300 z-40 ${
           mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >

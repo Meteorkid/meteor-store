@@ -6,7 +6,6 @@ import HeroSection from '@/components/HeroSection';
 import ProductShowcase from '@/components/ProductShowcase';
 import ProductDemo from '@/components/ProductDemo';
 import FeaturesSection from '@/components/FeaturesSection';
-import StatsSection from '@/components/StatsSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import PartnersSection from '@/components/PartnersSection';
 import NewsletterSection from '@/components/NewsletterSection';
@@ -39,7 +38,6 @@ export default async function Home({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'HomePage' });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -47,9 +45,6 @@ export default async function Home({
 
       {/* Hero Section */}
       <HeroSection />
-
-      {/* Stats Section */}
-      <StatsSection />
 
       {/* Partners Section */}
       <PartnersSection />
@@ -60,16 +55,8 @@ export default async function Home({
       {/* Product Demo */}
       <ProductDemo />
 
-      {/* Features Section */}
+      {/* Features Section（核心能力） */}
       <FeaturesSection layout="grid" featureCount={6} />
-
-      {/* Features List */}
-      <FeaturesSection
-        layout="list"
-        title={t('coreAdvantages')}
-        subtitle={t('coreAdvantagesSubtitle')}
-        featureCount={4}
-      />
 
       {/* Testimonials Section */}
       <TestimonialsSection />
@@ -93,9 +80,8 @@ export default async function Home({
       {/* 店主的终端 — 彩蛋区 & 作者小序入口 */}
       <TerminalSection />
 
-      {/* CTA Sections */}
+      {/* CTA Section */}
       <CTASection variant="bold" />
-      <CTASection variant="subtle" />
 
       <Footer showSocial />
 

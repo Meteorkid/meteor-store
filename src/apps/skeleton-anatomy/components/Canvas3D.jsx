@@ -33,7 +33,7 @@ function Loader() {
             height: '100%',
             background: '#ff6b35',
             borderRadius: 2,
-            animation: 'pulse 1.5s ease-in-out infinite',
+            animation: 'skeleton-anatomy-pulse 1.5s ease-in-out infinite',
           }} />
         </div>
       </div>

@@ -30,7 +30,9 @@ interface Props {
 
 export default function ScrambleText({ text, className = '', delay = 0 }: Props) {
   const reduced = useReducedMotion();
-  const [display, setDisplay] = useState('');
+  // SSR 与首帧默认显示原文，避免慢 hydration / 脚本失败时留下大块视觉空洞；
+  // 客户端 effect 再用乱码覆盖做 scramble 渐进增强
+  const [display, setDisplay] = useState(text);
 
   // 安静模式直接渲染原文，跳过动画 effect
   useEffect(() => {
@@ -55,6 +57,5 @@ export default function ScrambleText({ text, className = '', delay = 0 }: Props)
   }, [text, delay, reduced]);
 
   if (reduced) return <span className={className}>{text}</span>;
-  if (!display) return <span className={className} style={{ visibility: 'hidden' }}>{text}</span>;
   return <span className={className}>{display}</span>;
 }
