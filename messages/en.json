@@ -238,7 +238,8 @@
     "free": "Free",
     "from": "from",
     "details": "Details",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "comingSoon": "Coming Soon"
   },
   "BlogPage": {
     "title": "Blog",
@@ -688,6 +689,8 @@
     "liveDemo": "Live demo",
     "features": "Features",
     "pricing": "Pricing",
+    "comingSoon": "Coming Soon",
+    "comingSoonDesc": "{name} is being polished and will be available soon. Stay tuned.",
     "openSource": "Open source",
     "readyTitle": "Ready to start?",
     "readyDesc": "{name} is ready. Pick a plan that fits you and get started — or reach out first.",

@@ -41,6 +41,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '产品不存在' }, { status: 400 });
   }
 
+  // 即将上架的产品暂不出售，任何档位都不能领取
+  if (product.status === 'coming_soon') {
+    return NextResponse.json({ error: '该产品即将上架，暂未开放' }, { status: 400 });
+  }
+
   // 能不能免费拿只看当前价：限免产品的原价留在 originalPrice 里，不参与判断
   const freeTier = product.pricing.find((tier) => tier.price === 0);
   if (!freeTier) {

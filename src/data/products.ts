@@ -50,6 +50,8 @@ export interface Product {
   /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用，
      产品页会渲染「免费试用」内嵌区块，购买入口对应 /apps/{id} 付费门控 */
   appUrl?: string;
+  /** 产品状态。'coming_soon' 表示暂不出售：卡片与详情页显示「即将上架」，不渲染定价/购买入口 */
+  status?: 'coming_soon';
   /** 快速上手：终端安装命令（可复制）或应用下载页 */
   quickstart?: {
     command?: string;
@@ -105,6 +107,8 @@ export interface LocalizedProduct {
   demo?: string;
   /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用 */
   appUrl?: string;
+  /** 产品状态。'coming_soon' 表示暂不出售：卡片与详情页显示「即将上架」，不渲染定价/购买入口 */
+  status?: 'coming_soon';
   quickstart?: {
     command?: string;
     download?: string;
@@ -209,6 +213,7 @@ export const products: Product[] = [
   },
   {
     id: 'ex-memory',
+    status: 'coming_soon',
     name: { zh: 'Ex-Memory', en: 'Ex-Memory' },
     tagline: { zh: '前任记忆智能体', en: 'Ex-Partner Memory Agent' },
     description: {
@@ -358,6 +363,7 @@ export const products: Product[] = [
   },
   {
     id: 'ui-design-system',
+    status: 'coming_soon',
     name: { zh: 'UI Design System', en: 'UI Design System' },
     tagline: { zh: 'AI Agent 设计系统', en: 'AI Agent Design System' },
     description: {
@@ -867,6 +873,7 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
     github: product.github,
     demo: product.demo,
     appUrl: product.appUrl,
+    status: product.status,
     quickstart: product.quickstart
       ? {
           command: product.quickstart.command,

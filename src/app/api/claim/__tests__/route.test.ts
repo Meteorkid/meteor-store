@@ -102,13 +102,14 @@ describe('免费入库', () => {
     expect(inserted[0].paidAt).toBeTruthy();
   });
 
-  it('限免产品（原价 ¥9，现价 ¥0）同样可以入库', async () => {
+  it('即将上架的产品（暂不出售）不能靠入库接口领取', async () => {
     const { POST } = await import('../route');
 
+    // ex-memory 已标 coming_soon：即使有 ¥0 档也不能白拿
     const response = await POST(post({ productId: 'ex-memory' }));
 
-    expect(response.status).toBe(200);
-    expect(inserted[0]).toMatchObject({ productId: 'ex-memory', amountCny: 0 });
+    expect(response.status).toBe(400);
+    expect(inserted).toHaveLength(0);
   });
 
   it('已经拥有时幂等返回，不重复写订单', async () => {

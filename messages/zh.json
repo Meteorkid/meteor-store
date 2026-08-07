@@ -238,7 +238,8 @@
     "free": "免费",
     "from": "起",
     "details": "详情",
-    "viewDetails": "查看详情"
+    "viewDetails": "查看详情",
+    "comingSoon": "即将上架"
   },
   "BlogPage": {
     "title": "博客",
@@ -688,6 +689,8 @@
     "liveDemo": "在线演示",
     "features": "功能特点",
     "pricing": "定价方案",
+    "comingSoon": "即将上架",
+    "comingSoonDesc": "{name} 正在打磨中，即将上线，敬请期待。",
     "openSource": "开源",
     "readyTitle": "准备好了吗？",
     "readyDesc": "{name} 已就绪。选择适合你的方案，立即开始使用——或者先联系我聊聊。",

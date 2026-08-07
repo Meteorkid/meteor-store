@@ -93,6 +93,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // 即将上架的产品暂不出售，任何档位都不能下单
+      if (product.status === 'coming_soon') {
+        return NextResponse.json(
+          { error: '该产品即将上架，暂未开放' },
+          { status: 400 }
+        );
+      }
+
       const tier = product.pricing.find(
         (t) => t.name.zh.toLowerCase() === planName.toLowerCase()
       );
