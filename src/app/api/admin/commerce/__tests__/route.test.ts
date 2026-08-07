@@ -16,9 +16,11 @@ vi.mock('@/lib/rate-limit', () => ({
 
 const listCommerce = vi.fn();
 const setLicenseStatus = vi.fn();
+const refund = vi.fn();
 vi.mock('@/lib/admin-commerce', () => ({
   listCommerceOperations: (...args: unknown[]) => listCommerce(...args),
   setLicenseStatus: (...args: unknown[]) => setLicenseStatus(...args),
+  refundOrder: (...args: unknown[]) => refund(...args),
 }));
 
 const fulfill = vi.fn();
@@ -40,6 +42,7 @@ describe('商业运维接口', () => {
     listCommerce.mockResolvedValue({ orders: [], licenses: [] });
     fulfill.mockResolvedValue({ status: 'emailed' });
     setLicenseStatus.mockResolvedValue(true);
+    refund.mockResolvedValue('refunded');
   });
 
   it('返回订单和授权运维列表', async () => {
@@ -72,5 +75,25 @@ describe('商业运维接口', () => {
 
     expect(response.status).toBe(200);
     expect(setLicenseStatus).toHaveBeenCalledWith('license-id', 'revoked');
+  });
+
+  it('退款调用退款状态机', async () => {
+    const { PATCH } = await import('../route');
+    const orderId = 'b3f1c2d4-0000-4000-8000-000000000002';
+
+    const response = await PATCH(request({ action: 'refund-order', orderId }));
+
+    expect(response.status).toBe(200);
+    expect(refund).toHaveBeenCalledWith(orderId);
+  });
+
+  it('订单已不是已支付状态时退款返回 409', async () => {
+    const { PATCH } = await import('../route');
+    refund.mockResolvedValueOnce('skipped');
+    const orderId = 'b3f1c2d4-0000-4000-8000-000000000003';
+
+    const response = await PATCH(request({ action: 'refund-order', orderId }));
+
+    expect(response.status).toBe(409);
   });
 });

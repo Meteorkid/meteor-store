@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isAdminSession } from '@/lib/admin';
-import { listCommerceOperations, setLicenseStatus } from '@/lib/admin-commerce';
+import { listCommerceOperations, refundOrder, setLicenseStatus } from '@/lib/admin-commerce';
 import { getSession } from '@/lib/auth';
 import { fulfillOrder } from '@/lib/order-fulfillment';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
@@ -15,6 +15,10 @@ const ActionSchema = z.discriminatedUnion('action', [
     action: z.literal('set-license-status'),
     licenseId: z.string().min(1).max(100),
     status: z.enum(['active', 'revoked']),
+  }),
+  z.object({
+    action: z.literal('refund-order'),
+    orderId: z.string().uuid(),
   }),
 ]);
 
@@ -54,6 +58,17 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: '交付仍然失败，请检查邮件配置和日志' }, { status: 502 });
     }
     return NextResponse.json({ success: true, status: result.status });
+  }
+
+  if (parsed.data.action === 'refund-order') {
+    const result = await refundOrder(parsed.data.orderId);
+    if (result === 'not-found') {
+      return NextResponse.json({ error: '订单不存在' }, { status: 404 });
+    }
+    if (result === 'skipped') {
+      return NextResponse.json({ error: '订单已不是已支付状态，无法退款' }, { status: 409 });
+    }
+    return NextResponse.json({ success: true });
   }
 
   const updated = await setLicenseStatus(parsed.data.licenseId, parsed.data.status);

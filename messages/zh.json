@@ -915,7 +915,7 @@
     "metaTitle": "订单与授权 - Meteor Store",
     "metaNotFound": "页面未找到 - Meteor Store",
     "title": "订单与授权",
-    "description": "查看最近 100 条记录，重试失败交付，并管理授权码状态。退款必须通过真实支付渠道处理，此处不提供手工改状态。",
+    "description": "查看最近 100 条记录，重试失败交付，管理授权码状态，以及退款（标记订单已退款并撤销授权码）。",
     "ordersTitle": "最近订单",
     "ordersEmpty": "暂无订单",
     "licensesTitle": "最近授权码",
@@ -936,6 +936,9 @@
     "retrying": "重试中…",
     "activate": "重新启用",
     "revoke": "撤销授权",
+    "refundOrder": "退款",
+    "refunding": "退款中…",
+    "refundConfirm": "确认退款？订单将标记为已退款，关联授权码一并撤销，用户访问权限立即收回。实际打款请在支付宝商户后台操作。",
     "updating": "更新中…",
     "operationFailed": "操作失败"
   },

@@ -283,3 +283,42 @@ export async function sendAdminAlert(subject: string, details: Record<string, st
     console.error('Admin alert email failed:', err);
   }
 }
+
+interface PassExpiryReminderEmailData {
+  email: string;
+  expiresAt: string;
+}
+
+/**
+ * 发送 Meteor Pass 到期提醒邮件。
+ * 用 expiresAt 计算剩余天数，并给出续费入口（定价区）。
+ */
+export async function sendPassExpiryReminder(data: PassExpiryReminderEmailData) {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://imagentx.top').replace(/\/+$/, '');
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+
+  const daysLeft = Math.max(0, Math.ceil(
+    (new Date(data.expiresAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000),
+  ));
+  const renewUrl = escapeHtml(`${siteUrl}/#pricing`);
+
+  const { error } = await getResend().emails.send({
+    from: `Meteor Store <${fromEmail}>`,
+    replyTo: getReplyToEmail(),
+    to: data.email,
+    subject: 'Meteor Pass 即将到期，别忘了续费',
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">⏳ Meteor Pass 即将到期</h1>
+        <p>您的 Meteor Pass 全站会员将于 <strong>${escapeHtml(data.expiresAt.slice(0, 10))}</strong> 到期，还剩 <strong>${daysLeft}</strong> 天。</p>
+        <p>到期后，站内产品将不再解锁。续费后有效期自动顺延，不会浪费已购时长。</p>
+        <p style="margin: 28px 0;">
+          <a href="${renewUrl}" style="display: inline-block; padding: 12px 20px; border-radius: 8px; background: #7c3aed; color: #fff; text-decoration: none; font-weight: 600;">立即续费</a>
+        </p>
+        <p style="color: #666; font-size: 13px;">如果您近期已续费，请忽略本邮件。有任何问题请回复此邮件。</p>
+      </div>
+    `,
+  });
+
+  if (error) throw new Error(`Email send failed: ${error.message}`);
+}

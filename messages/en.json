@@ -915,7 +915,7 @@
     "metaTitle": "Orders & Licenses - Meteor Store",
     "metaNotFound": "Page Not Found - Meteor Store",
     "title": "Orders & Licenses",
-    "description": "Review the latest 100 records, retry failed deliveries, and manage license status. Refunds must go through the real payment provider; this page does not fake payment state.",
+    "description": "Review the latest 100 records, retry failed deliveries, manage license status, and refund orders (mark refunded and revoke the license).",
     "ordersTitle": "Recent Orders",
     "ordersEmpty": "No orders",
     "licensesTitle": "Recent Licenses",
@@ -936,6 +936,9 @@
     "retrying": "Retrying…",
     "activate": "Reactivate",
     "revoke": "Revoke",
+    "refundOrder": "Refund",
+    "refunding": "Refunding…",
+    "refundConfirm": "Refund this order? It will be marked refunded and the license revoked, immediately revoking access. Actually returning the money happens in the Alipay merchant console.",
     "updating": "Updating…",
     "operationFailed": "Operation failed"
   },

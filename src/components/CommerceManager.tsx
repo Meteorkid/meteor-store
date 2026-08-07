@@ -97,6 +97,22 @@ export default function CommerceManager({
     }
   };
 
+  const refundOrder = async (orderId: string) => {
+    if (!window.confirm(t('refundConfirm'))) return;
+    setBusy(`refund:${orderId}`);
+    setError('');
+    try {
+      await patch({ action: 'refund-order', orderId });
+      setOrders((current) => current.map((order) => (
+        order.id === orderId ? { ...order, status: 'refunded' } : order
+      )));
+    } catch (operationError) {
+      setError(operationError instanceof Error ? operationError.message : t('operationFailed'));
+    } finally {
+      setBusy('');
+    }
+  };
+
   return (
     <div className="space-y-10">
       {error && (
@@ -111,6 +127,7 @@ export default function CommerceManager({
           <div className="space-y-3">
             {orders.map((order) => {
               const canRetry = order.status === 'paid' && ['pending', 'failed'].includes(order.deliveryStatus);
+              const canRefund = order.status === 'paid';
               return (
                 <article key={order.id} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -133,6 +150,16 @@ export default function CommerceManager({
                         className="ml-auto rounded-lg bg-violet-600 px-3 py-1.5 font-medium text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
                       >
                         {busy === `order:${order.id}` ? t('retrying') : t('retryDelivery')}
+                      </button>
+                    )}
+                    {canRefund && (
+                      <button
+                        type="button"
+                        disabled={busy === `refund:${order.id}`}
+                        onClick={() => refundOrder(order.id)}
+                        className="ml-auto rounded-lg border border-red-500/30 px-3 py-1.5 font-medium text-red-300 transition-colors hover:bg-red-500/10 disabled:opacity-50"
+                      >
+                        {busy === `refund:${order.id}` ? t('refunding') : t('refundOrder')}
                       </button>
                     )}
                   </div>

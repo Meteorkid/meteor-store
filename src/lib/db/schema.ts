@@ -220,6 +220,22 @@ export const postFavorites = pgTable('post_favorites', {
  *
  * 状态机：pending →（管理员处理）→ resolved（采纳,通常会再删/驳被举报内容）/ dismissed（驳回）
  */
+/**
+ * Pass 到期提醒记录。按 (email, expiresAt) 去重：同一用户对同一个到期日
+ * 只发一次提醒，续费后到期日顺延才会有新的提醒。这张表让到期提醒是幂等的，
+ * 定时任务无论跑多频繁都不会重复骚扰用户。
+ */
+export const passReminders = pgTable('pass_reminders', {
+  id: text('id').primaryKey(),
+  email: text('email').notNull(),
+  /** 到期日（ISO）；用户续费后到期日变化，才允许对新到期日再发一次 */
+  expiresAt: text('expires_at').notNull(),
+  sentAt: text('sent_at').notNull(),
+}, (t) => [
+  uniqueIndex('pass_reminders_email_expiry_idx').on(t.email, t.expiresAt),
+  index('pass_reminders_email_idx').on(t.email),
+]);
+
 export const reports = pgTable('reports', {
   id: text('id').primaryKey(),
   /** 'comment' = 评论；'post' = 读者投稿（数据库文章） */
