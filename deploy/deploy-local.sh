@@ -32,9 +32,9 @@ echo "==> 1. 本地生产构建（NEXT_PUBLIC_* 与线上一致，见 .env.produ
 export NODE_ENV=production
 SKIP_TYPE_CHECK=1 pnpm build
 
-echo "==> 2. 打包 .next"
+echo "==> 2. 打包 .next（排除 .next/dev 开发缓存，避免产物膨胀到数百 MB）"
 rm -f "$TAR"
-tar -czf "$TAR" -C . .next
+tar -czf "$TAR" --exclude='.next/dev' -C . .next
 echo "   产物 $(du -h "$TAR" | cut -f1)"
 
 echo "==> 3. 上传 .next 到服务器"
