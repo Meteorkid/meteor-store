@@ -29,6 +29,7 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
   const [content, setContent] = useState(initialPost?.content ?? '');
   const [sectionId, setSectionId] = useState(initialPost?.sectionId ?? (blogSections[0].id as string));
   const [tagInput, setTagInput] = useState(initialPost?.tags.join(', ') ?? '');
+  const [eventDate, setEventDate] = useState(initialPost?.eventDate ?? '');
   const [preview, setPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
   const [error, setError] = useState('');
@@ -63,6 +64,7 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
           content: content.trim(),
           sectionId,
           tags,
+          eventDate: eventDate.trim() || null,
           submit,
         }),
       });
@@ -194,6 +196,19 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
             </p>
           )}
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="post-event-date" className={labelClass}>
+          {t('eventDateLabel')} <span className="font-normal text-white/45">（{t('eventDateHint')}）</span>
+        </label>
+        <input
+          id="post-event-date"
+          type="date"
+          value={eventDate}
+          onChange={(e) => setEventDate(e.target.value)}
+          className={`${inputClass} cursor-pointer`}
+        />
       </div>
 
       <div>

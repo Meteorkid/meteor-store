@@ -16,6 +16,12 @@ export const PostSubmissionSchema = z.object({
   content: z.string().trim().min(200, '正文至少 200 字').max(50_000, '正文太长了'),
   sectionId: z.enum(SECTION_IDS),
   tags: z.array(z.string().trim().min(1).max(24)).max(8, '最多 8 个标签').default([]),
+  // 内容描述事件的时间，YYYY-MM-DD，可选
+  eventDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, '事件日期需为 YYYY-MM-DD')
+    .optional()
+    .nullable(),
   // 存草稿还是提交审核
   submit: z.boolean().default(false),
 });
@@ -64,6 +70,7 @@ export async function POST(req: NextRequest) {
   const id = await createPost({
     authorId: session.userId,
     ...data,
+    eventDate: data.eventDate ?? null,
     status: submit ? (isAdmin ? 'published' : 'pending') : 'draft',
   });
 

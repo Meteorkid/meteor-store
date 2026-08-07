@@ -18,6 +18,12 @@ const PatchSchema = z.object({
   content: z.string().trim().min(200, '正文至少 200 字').max(50_000, '正文太长了').optional(),
   sectionId: z.enum(SECTION_IDS).optional(),
   tags: z.array(z.string().trim().min(1).max(24)).max(8, '最多 8 个标签').optional(),
+  // 内容描述事件的时间，YYYY-MM-DD，可选；null 清空
+  eventDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, '事件日期需为 YYYY-MM-DD')
+    .optional()
+    .nullable(),
   submit: z.boolean().optional(),
 });
 
@@ -69,7 +75,8 @@ export async function PATCH(
     data.excerpt !== undefined ||
     data.content !== undefined ||
     data.sectionId !== undefined ||
-    data.tags !== undefined;
+    data.tags !== undefined ||
+    data.eventDate !== undefined;
   if (!hasField && !data.submit) {
     return NextResponse.json({ error: '没有要修改的内容' }, { status: 400 });
   }
@@ -84,6 +91,7 @@ export async function PATCH(
     content: data.content,
     sectionId: data.sectionId,
     tags: data.tags,
+    eventDate: data.eventDate,
     submit: data.submit,
     adminPublish: isAdmin || undefined,
     // 管理员越权编辑：可编辑任何人的投稿，包括 pending 状态

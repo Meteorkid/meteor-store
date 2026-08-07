@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { FeedPostSummary } from '@/data/blog-feed';
@@ -12,13 +12,19 @@ import {
 import type { TagSummary } from '@/data/blog-tags';
 import type { Locale } from '@/i18n/routing';
 import { useAuth } from './AuthProvider';
+import BlogTimeline from './BlogTimeline';
 
-type SortMode = 'newest' | 'oldest' | 'reading-time';
+type SortMode = 'newest' | 'oldest' | 'reading-time' | 'event-newest' | 'event-oldest';
 
-const sortOptions: { value: SortMode; labelKey: 'sortNewest' | 'sortOldest' | 'sortShortest' }[] = [
+const sortOptions: {
+  value: SortMode;
+  labelKey: 'sortNewest' | 'sortOldest' | 'sortShortest' | 'sortEventNewest' | 'sortEventOldest';
+}[] = [
   { value: 'newest', labelKey: 'sortNewest' },
   { value: 'oldest', labelKey: 'sortOldest' },
   { value: 'reading-time', labelKey: 'sortShortest' },
+  { value: 'event-newest', labelKey: 'sortEventNewest' },
+  { value: 'event-oldest', labelKey: 'sortEventOldest' },
 ];
 
 const channelGroups = getSectionsByChannel();
@@ -62,6 +68,15 @@ export default function BlogListClient({
   const locale = useLocale() as Locale;
   const t = useTranslations('BlogList');
 
+  // 时间轴锚点注册表：slug → 文章 DOM 元素（排序/加载后由 React 更新 ref）
+  const anchorsRef = useRef<Map<string, HTMLElement>>(new Map());
+  const registerAnchor = useCallback((slug: string) => {
+    return (el: HTMLElement | null) => {
+      if (el) anchorsRef.current.set(slug, el);
+      else anchorsRef.current.delete(slug);
+    };
+  }, []);
+
   const showSectionLabel = !activeSectionId;
 
   const filtered = useMemo(() => {
@@ -77,6 +92,12 @@ export default function BlogListClient({
       case 'reading-time':
         result.sort((a, b) => a.readingTime - b.readingTime);
         break;
+      case 'event-newest':
+        result.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
+        break;
+      case 'event-oldest':
+        result.sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+        break;
     }
 
     return result;
@@ -89,6 +110,9 @@ export default function BlogListClient({
     <div className="relative">
       {/* 光晕垫在工具条背后，玻璃才有东西可折射 */}
       <div aria-hidden className="blog-glow" />
+
+      {/* 右侧垂直时间轴：文章数 >= 2 时展示 */}
+      {filtered.length >= 2 && <BlogTimeline posts={filtered} anchorsRef={anchorsRef} />}
 
       {/* 一个玻璃工具条收纳全部导航与筛选，而不是散落的小字 */}
       <div className="blog-toolbar glass relative mb-12 p-2">
@@ -165,9 +189,23 @@ export default function BlogListClient({
 
       {/* 排序 */}
       <div className="mb-10 flex items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
-        <div role="group" aria-labelledby="blog-sort-label" className="flex items-center gap-1">
+        <div role="group" aria-labelledby="blog-sort-label" className="flex flex-wrap items-center gap-x-1 gap-y-1">
           <span id="blog-sort-label" className="t-eyebrow mr-1 text-white/45">{t('sort')}</span>
-          {sortOptions.map((opt) => (
+          {sortOptions.slice(0, 3).map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setSort(opt.value)}
+              aria-pressed={sort === opt.value}
+              className={`t-footnote rounded-lg px-2.5 py-1 transition-colors duration-200 ${
+                sort === opt.value ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
+              }`}
+            >
+              {t(opt.labelKey)}
+            </button>
+          ))}
+          <span aria-hidden className="mx-1 h-4 w-px bg-white/15" />
+          {sortOptions.slice(3).map((opt) => (
             <button
               key={opt.value}
               type="button"
@@ -207,6 +245,7 @@ export default function BlogListClient({
             <div aria-hidden className="blog-lede-halo" />
             <Link
               href={lede.href}
+              ref={registerAnchor(lede.slug)}
               className="glass-card group relative block rounded-3xl p-7 md:p-11"
             >
               <div className="t-footnote mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -249,6 +288,7 @@ export default function BlogListClient({
                   <Link
                     key={post.slug}
                     href={post.href}
+                    ref={registerAnchor(post.slug)}
                     style={{ ...accentStyle(post.section), animationDelay: `${Math.min(i, 8) * 45}ms` }}
                     className="blog-row group"
                   >
