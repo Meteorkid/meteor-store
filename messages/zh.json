@@ -530,7 +530,7 @@
   "PricingPage": {
     "eyebrow": "定价",
     "title": "Meteor Pass · 全站会员",
-    "description": "一次订阅，解锁站内全部产品。按需选择月付、年付或买断。"
+    "description": "一次订阅，解锁站内全部 {count} 款产品——其中 {appCount} 款可在浏览器直接打开。按需选择月付、年付或买断。"
   },
   "StoryPage": {
     "title": "一封来自店主的信",

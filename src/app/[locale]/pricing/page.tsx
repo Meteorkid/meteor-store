@@ -43,15 +43,21 @@ export default async function PricingPage({
     <div className="min-h-screen bg-black text-white">
       <Header />
       <main className="container mx-auto px-4 py-16 md:py-20">
-        <div className="mx-auto max-w-5xl">
+        {/* Hero：眉标「定价」唯一出现一次，标题用星宿流光渐变，副标题带产品数量 */}
+        <div className="mx-auto max-w-5xl mb-14">
           <p className="t-eyebrow text-primary mb-4 text-center">{t('eyebrow')}</p>
-          <h1 className="t-title-1 text-foreground mb-3 text-center">{t('title')}</h1>
-          <p className="text-muted-foreground mx-auto mb-4 max-w-2xl text-center text-lg">
-            {t('description')}
+          <h1 className="t-title-1 hero-gradient mb-4 text-center">{t('title')}</h1>
+          <p className="text-muted-foreground mx-auto max-w-2xl text-center text-lg">
+            {t('description', { count: products.length, appCount: webAppCount })}
           </p>
         </div>
 
-        <PricingSection productCount={products.length} webAppCount={webAppCount} />
+        <PricingSection
+          productCount={products.length}
+          webAppCount={webAppCount}
+          cosmic
+          showHeader={false}
+        />
       </main>
       <Footer />
     </div>

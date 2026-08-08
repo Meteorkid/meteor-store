@@ -530,7 +530,7 @@
   "PricingPage": {
     "eyebrow": "Pricing",
     "title": "Meteor Pass · All-Access Pass",
-    "description": "One subscription unlocks every product in the store. Pick monthly, annual, or lifetime."
+    "description": "One subscription unlocks all {count} products in the store — {appCount} open right in the browser. Pick monthly, annual, or lifetime."
   },
   "StoryPage": {
     "title": "A Letter from the Store Owner",
