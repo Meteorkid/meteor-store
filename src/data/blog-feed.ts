@@ -91,26 +91,12 @@ export const getFeedPosts = cache(async (locale: Locale): Promise<FeedPost[]> =>
   return [...getBlogPosts(locale).map(fromFile), ...userPosts].sort((a, b) => b.date.localeCompare(a.date));
 });
 
-export async function getFeedPostsBySection(locale: Locale, sectionId: BlogSectionId): Promise<FeedPost[]> {
-  return (await getFeedPosts(locale)).filter((p) => p.sections.includes(sectionId));
-}
-
-/**
- * 分区 × 标签双重筛选：两个维度都可选、可独立保留。
- * 分区与标签不再互斥——分区页选中标签、标签页选中分区都用这个函数合并过滤。
- * 分区按「任一所属分区命中」匹配：跨区文章会出现在它所属的每个分区页。
- */
-export async function getFeedPostsBySectionAndTag(
+export async function getFeedPostsBySection(
   locale: Locale,
   sectionId: BlogSectionId | undefined,
-  tagKey: string | undefined,
 ): Promise<FeedPost[]> {
   const posts = await getFeedPosts(locale);
-  return posts.filter((p) => {
-    if (sectionId && !p.sections.includes(sectionId)) return false;
-    if (tagKey && !p.tags.some((t) => normalizeTag(t) === tagKey)) return false;
-    return true;
-  });
+  return sectionId ? posts.filter((p) => p.sections.includes(sectionId)) : posts;
 }
 
 /** 各分区文章数：跨区文章计入它所属的每个分区 */
@@ -140,4 +126,16 @@ export async function findFeedTag(locale: Locale, input: string): Promise<TagSum
 export async function getFeedPostsByTag(locale: Locale, input: string): Promise<FeedPost[]> {
   const key = normalizeTag(input);
   return (await getFeedPosts(locale)).filter((p) => p.tags.some((t) => normalizeTag(t) === key));
+}
+
+/**
+ * 多标签解析：把 URL 里的多个标签输入统一解析成 TagSummary。
+ * 找不到的输入直接跳过（不抛错），返回顺序与输入一致。
+ */
+export async function findFeedTags(locale: Locale, inputs: string[]): Promise<TagSummary[]> {
+  const tags = await getFeedTags(locale);
+  return inputs
+    .map((input) => normalizeTag(input))
+    .map((key) => tags.find((t) => t.key === key))
+    .filter((t): t is TagSummary => Boolean(t));
 }

@@ -75,7 +75,7 @@ export default async function MyAppsPage({ params }: MyAppsPageProps) {
                   {t('passExpiredHint', { date: formatExpiry(passExpiredAt) })}
                 </p>
                 <Link
-                  href="/#pricing"
+                  href="/pricing"
                   className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-gray-200"
                 >
                   {t('passRenew')}

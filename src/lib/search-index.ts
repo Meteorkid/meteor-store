@@ -52,7 +52,7 @@ const STATIC_PAGES: Array<Omit<SearchEntry, 'keywords' | 'initials' | 'fullPinyi
   { id: 'anchor-faq', title: '常见问题', subtitle: '首页 · FAQ', group: '页面', href: '/#faq', extra: 'faq 常见 问题 疑问' },
   { id: 'anchor-terminal', title: '店主的终端', subtitle: '首页 · 会用的人自然会用', group: '页面', href: '/#terminal', extra: 'terminal 终端 命令 彩蛋' },
   ...(SHOW_PRICING
-    ? [{ id: 'anchor-pricing', title: '定价', subtitle: '首页 · 价格方案', group: '页面' as const, href: '/#pricing', extra: 'pricing 价格 定价 方案 多少钱' }]
+    ? [{ id: 'anchor-pricing', title: '定价', subtitle: 'Meteor Pass · 全站会员', group: '页面' as const, href: '/pricing', extra: 'pricing 价格 定价 方案 多少钱' }]
     : []),
 ];
 

@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { products } from '@/data/products';
 import { blogSections } from '@/data/blog-sections';
 import { getFeedPosts, getFeedTags } from '@/data/blog-feed';
-import { SITE_URL } from '@/lib/constants';
+import { SHOW_PRICING, SITE_URL } from '@/lib/constants';
 
 const BASE_URL = SITE_URL;
 const LOCALES = ['zh', 'en'] as const;
@@ -14,6 +14,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     { url: BASE_URL, lastModified: now, changeFrequency: 'weekly' as const, priority: 1 },
     { url: `${BASE_URL}/products`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.9 },
+    ...(SHOW_PRICING
+      ? [{ url: `${BASE_URL}/pricing`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.8 }]
+      : []),
     { url: `${BASE_URL}/blog`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.6 },
     { url: `${BASE_URL}/blog/stars`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.4 },
     { url: `${BASE_URL}/story`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.5 },

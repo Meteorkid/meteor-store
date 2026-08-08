@@ -527,6 +527,11 @@
     "descClaudePhoneControl": "用手机浏览器远程控制 Mac/Windows 上的 Claude Code，一行命令启动，扫码即连。",
     "descCursorSourceAnalyzer": "交互式剖析 Cursor AI 编辑器的内部架构，9 大分析维度，ReactFlow 架构图。"
   },
+  "PricingPage": {
+    "eyebrow": "定价",
+    "title": "Meteor Pass · 全站会员",
+    "description": "一次订阅，解锁站内全部产品。按需选择月付、年付或买断。"
+  },
   "StoryPage": {
     "title": "一封来自店主的信",
     "description": "一个大学生和他的学费的故事——Meteor Store 店主的自述。",
@@ -1424,6 +1429,10 @@
     "starMap": "星图",
     "hotTags": "热门标签",
     "allTags": "全部 {count} 个标签 →",
+    "selectedTags": "已选标签",
+    "selectedAria": "已选标签",
+    "removeTag": "移除标签 {tag}",
+    "clearAllTags": "清除全部",
     "sort": "排序",
     "sortByPublish": "发布时间",
     "sortByEvent": "事件时间",
@@ -1432,6 +1441,7 @@
     "count": "{count} 篇",
     "write": "写一篇",
     "empty": "这里还没有文章",
+    "emptyFiltered": "所选标签下还没有文章，换个组合看看",
     "minutes": "{count} 分钟",
     "readMore": "读下去",
     "favoritesCount": "{count} 次收藏"

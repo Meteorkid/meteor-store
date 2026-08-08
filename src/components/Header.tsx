@@ -11,7 +11,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 const navLinks = [
   { key: 'home', href: '/' },
   { key: 'products', href: '/products' },
-  ...(SHOW_PRICING ? [{ key: 'pricing', href: '/#pricing' }] : []),
+  ...(SHOW_PRICING ? [{ key: 'pricing', href: '/pricing' }] : []),
   { key: 'docs', href: '/docs' },
   { key: 'blog', href: '/blog' },
   { key: 'openSource', href: '/open-source' },

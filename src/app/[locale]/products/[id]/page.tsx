@@ -164,7 +164,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             <p className="mt-8 text-center text-sm text-white/60">
               {t('passPrompt')}
               <Link
-                href="/#pricing"
+                href="/pricing"
                 className="ml-2 text-violet-300 transition-colors hover:text-violet-200"
               >
                 {t('passCta')}

@@ -527,6 +527,11 @@
     "descClaudePhoneControl": "Remotely control Claude Code on Mac/Windows from your phone browser. One command to start, scan to connect.",
     "descCursorSourceAnalyzer": "Interactive analysis of the Cursor AI editor's internal architecture. 9 dimensions with a ReactFlow diagram."
   },
+  "PricingPage": {
+    "eyebrow": "Pricing",
+    "title": "Meteor Pass · All-Access Pass",
+    "description": "One subscription unlocks every product in the store. Pick monthly, annual, or lifetime."
+  },
   "StoryPage": {
     "title": "A Letter from the Store Owner",
     "description": "A college student and his tuition story — Meteor Store owner's self-narrative.",
@@ -1424,6 +1429,10 @@
     "starMap": "Star Map",
     "hotTags": "Hot Tags",
     "allTags": "All {count} tags →",
+    "selectedTags": "Selected",
+    "selectedAria": "Selected tags",
+    "removeTag": "Remove tag {tag}",
+    "clearAllTags": "Clear all",
     "sort": "Sort",
     "sortByPublish": "Published",
     "sortByEvent": "Event",
@@ -1432,6 +1441,7 @@
     "count": "{count} posts",
     "write": "Write a Post",
     "empty": "No posts here yet",
+    "emptyFiltered": "No posts match these tags yet. Try another combination.",
     "minutes": "{count} min",
     "readMore": "Read More",
     "favoritesCount": "{count} saves"

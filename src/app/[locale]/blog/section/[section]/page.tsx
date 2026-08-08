@@ -5,13 +5,13 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogList from '@/components/BlogList';
 import TopicProposalForm from '@/components/TopicProposalForm';
-import { findFeedTag } from '@/data/blog-feed';
+import { findFeedTags } from '@/data/blog-feed';
 import { blogScopeStyle, blogSections, getSectionBySlug } from '@/data/blog-sections';
 import { routing, type Locale } from '@/i18n/routing';
 
 interface SectionPageProps {
   params: Promise<{ locale: string; section: string }>;
-  searchParams: Promise<{ tag?: string }>;
+  searchParams: Promise<{ tags?: string }>;
 }
 
 export function generateStaticParams() {
@@ -43,8 +43,10 @@ export default async function BlogSectionPage({ params, searchParams }: SectionP
   const section = getSectionBySlug(slug);
   if (!section) notFound();
 
-  // 双重筛选：分区固定为当前路由，标签可选 ?tag= 叠加
-  const tag = sp.tag ? await findFeedTag(locale as Locale, sp.tag) : undefined;
+  // 分区固定为当前路由；?tags=a,b 逗号分隔带入初始标签，客户端继续原位增删
+  const initialTags = sp.tags
+    ? await findFeedTags(locale as Locale, sp.tags.split(',').filter(Boolean))
+    : [];
 
   return (
     <div className="blog-scope min-h-screen bg-black text-white" style={blogScopeStyle(section.id)}>
@@ -86,7 +88,7 @@ export default async function BlogSectionPage({ params, searchParams }: SectionP
 
           <BlogList
             sectionId={section.id}
-            activeTag={tag ? { key: tag.key, label: tag.label } : null}
+            initialTags={initialTags}
             locale={locale as Locale}
           />
 

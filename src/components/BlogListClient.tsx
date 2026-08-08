@@ -9,11 +9,10 @@ import {
   getSectionsByChannel,
   type BlogSectionId,
 } from '@/data/blog-sections';
-import type { TagSummary } from '@/data/blog-tags';
+import { normalizeTag, type TagSummary } from '@/data/blog-tags';
 import type { Locale } from '@/i18n/routing';
 import { useAuth } from './AuthProvider';
 import BlogTimeline from './BlogTimeline';
-import type { ActiveTag } from './BlogList';
 
 /** 排序维度：按发布时间 date，还是按内容描述的事件时间 eventDate */
 type SortDimension = 'date' | 'eventDate';
@@ -46,11 +45,11 @@ interface BlogListClientProps {
   posts: FeedPostSummary[];
   /** 各分区文章数，由服务端算好传入，避免把正文带进来 */
   counts: Record<string, number>;
-  /** 当前分区，未传表示「全部」。与 activeTag 可叠加双重筛选 */
+  /** 当前分区，未传表示「全部」。分区是骨架，标签在其上多选叠加 */
   activeSectionId?: BlogSectionId;
-  /** 当前标签，未传表示「全部」。与 activeSectionId 可叠加双重筛选 */
-  activeTag?: ActiveTag | null;
-  /** 导航里展示的热门标签，所有列表页都展示，作为第二重筛选入口 */
+  /** 初始选中的标签（来自 URL 等外部入口），交客户端原位增删 */
+  initialTags?: TagSummary[];
+  /** 导航里展示的热门标签，作为第一屏的多选入口 */
   hotTags?: TagSummary[];
   /** 标签总数，用于「全部标签」入口 */
   totalTagCount?: number;
@@ -62,13 +61,15 @@ export default function BlogListClient({
   posts,
   counts,
   activeSectionId,
-  activeTag = null,
+  initialTags = [],
   hotTags,
   totalTagCount = 0,
   favoriteCounts = {},
 }: BlogListClientProps) {
   const [dimension, setDimension] = useState<SortDimension>('date');
   const [direction, setDirection] = useState<SortDirection>('desc');
+  // 选中的标签集：点击热门标签切换，❌ 移除单个，清除全部一键清空
+  const [selectedTags, setSelectedTags] = useState<TagSummary[]>(initialTags);
   const { user } = useAuth();
   const locale = useLocale() as Locale;
   const t = useTranslations('BlogList');
@@ -84,28 +85,29 @@ export default function BlogListClient({
 
   const showSectionLabel = !activeSectionId;
 
-  // 双重筛选：分区维度选中时，标签链接带上 ?section=；标签维度选中时，分区链接带上 ?tag=
-  const activeSectionSlug = activeSectionId ? getSectionById(activeSectionId)?.slug : undefined;
-  const withTag = (path: string) => (activeTag ? `${path}?tag=${encodeURIComponent(activeTag.label)}` : path);
-  const withSection = (path: string) =>
-    activeSectionSlug ? `${path}?section=${encodeURIComponent(activeSectionSlug)}` : path;
+  const toggleTag = useCallback((tag: TagSummary) => {
+    setSelectedTags((prev) =>
+      prev.some((t) => t.key === tag.key)
+        ? prev.filter((t) => t.key !== tag.key)
+        : [...prev, tag],
+    );
+  }, []);
 
-  // 当前标签若不在热门列表里（冷门标签页），补在列表最前，保证高亮可见
-  const displayTags = useMemo<TagSummary[]>(() => {
-    if (!hotTags) return [];
-    if (!activeTag || hotTags.some((t) => t.key === activeTag.key)) return hotTags;
-    return [{ key: activeTag.key, label: activeTag.label, count: 0, href: `/blog/tag/${encodeURIComponent(activeTag.label)}` }, ...hotTags];
-  }, [hotTags, activeTag]);
+  const clearTags = useCallback(() => setSelectedTags([]), []);
 
+  // 多标签「任一命中」：命中任一已选标签的文章都保留；不选标签时为全部
   const filtered = useMemo(() => {
     const getTime = (p: FeedPostSummary) => (dimension === 'date' ? p.date : p.eventDate);
-    const result = [...posts];
+    const result = [...posts].filter((p) => {
+      if (selectedTags.length === 0) return true;
+      return selectedTags.some((tag) => p.tags.some((t) => normalizeTag(t) === tag.key));
+    });
     result.sort((a, b) => {
       const cmp = getTime(a).localeCompare(getTime(b));
       return direction === 'desc' ? -cmp : cmp;
     });
     return result;
-  }, [posts, dimension, direction]);
+  }, [posts, selectedTags, dimension, direction]);
 
   const [lede, ...rest] = filtered;
   const ledeSection = lede ? getSectionById(lede.section) : undefined;
@@ -135,7 +137,7 @@ export default function BlogListClient({
             <span className="sr-only">{t('starMap')}</span>
           </Link>
           <Link
-            href={withTag('/blog')}
+            href="/blog"
             aria-current={activeSectionId ? undefined : 'page'}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
               activeSectionId
@@ -156,7 +158,7 @@ export default function BlogListClient({
                 return (
                   <Link
                     key={s.id}
-                    href={withTag(`/blog/section/${s.slug}`)}
+                    href={`/blog/section/${s.slug}`}
                     title={s.description[locale]}
                     aria-current={active ? 'page' : undefined}
                     style={{ '--tab-accent': s.rgb } as React.CSSProperties}
@@ -176,26 +178,68 @@ export default function BlogListClient({
         </nav>
       </div>
 
-      {/* 热门标签：动态层。分区是骨架，标签是当下大家在聊什么。与分区维度并存，支持双重筛选 */}
-      {displayTags.length > 0 && (
+      {/* 已选标签：原位管理，每个带 ✕ 移除，一键清除全部 */}
+      {selectedTags.length > 0 && (
+        <div aria-label={t('selectedAria')} className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-2">
+          <span className="t-eyebrow mr-1 text-white/45">{t('selectedTags')}</span>
+          {selectedTags.map((tag) => (
+            <span
+              key={tag.key}
+              className="t-footnote inline-flex items-center gap-1.5 rounded-lg bg-white/[0.12] px-2.5 py-1 text-white"
+            >
+              #{tag.label}
+              <button
+                type="button"
+                onClick={() => toggleTag(tag)}
+                aria-label={t('removeTag', { tag: tag.label })}
+                className="-m-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-white/60 transition-colors duration-200 hover:bg-white/[0.14] hover:text-white"
+              >
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </span>
+          ))}
+          <button
+            type="button"
+            onClick={clearTags}
+            className="t-footnote rounded-lg px-2.5 py-1 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
+          >
+            {t('clearAllTags')}
+          </button>
+        </div>
+      )}
+
+      {/* 热门标签：动态层。分区是骨架，标签是当下大家在聊什么。点击即原位多选，可叠加 */}
+      {hotTags && hotTags.length > 0 && (
         <nav aria-label={t('tagsAria')} className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-2">
           <span className="t-eyebrow mr-1 text-white/45">{t('hotTags')}</span>
-          {displayTags.map((tag) => {
-            const active = activeTag?.key === tag.key;
+          {hotTags.map((tag) => {
+            const on = selectedTags.some((t) => t.key === tag.key);
             return (
-              <Link
+              <button
                 key={tag.key}
-                href={withSection(tag.href)}
-                aria-current={active ? 'page' : undefined}
+                type="button"
+                onClick={() => toggleTag(tag)}
+                aria-pressed={on}
                 className={`t-footnote inline-flex items-baseline gap-1 rounded-lg px-2.5 py-1 transition-colors duration-200 ${
-                  active
+                  on
                     ? 'bg-white/[0.14] text-white'
                     : 'text-white/70 hover:bg-white/[0.06] hover:text-white'
                 }`}
               >
                 #{tag.label}
                 {tag.count > 0 && <span className="tabular-nums text-white/45">{tag.count}</span>}
-              </Link>
+              </button>
             );
           })}
           {totalTagCount > (hotTags?.length ?? 0) && (
@@ -244,7 +288,7 @@ export default function BlogListClient({
           })}
         </div>
         <div className="t-footnote flex items-center gap-3">
-          <span className="tabular-nums text-white/60">{t('count', { count: posts.length })}</span>
+          <span className="tabular-nums text-white/60">{t('count', { count: filtered.length })}</span>
           <span aria-hidden className="text-white/15">·</span>
           {/* 读完想写一篇的时候，入口该在这里 */}
           <Link
@@ -259,8 +303,17 @@ export default function BlogListClient({
       {filtered.length === 0 ? (
         <div className="py-14 text-center">
           <p className="t-body text-white/60">
-            {t('empty')}
+            {selectedTags.length > 0 ? t('emptyFiltered') : t('empty')}
           </p>
+          {selectedTags.length > 0 && (
+            <button
+              type="button"
+              onClick={clearTags}
+              className="t-footnote mt-4 rounded-lg px-3 py-1.5 text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
+            >
+              {t('clearAllTags')}
+            </button>
+          )}
         </div>
       ) : (
         <>

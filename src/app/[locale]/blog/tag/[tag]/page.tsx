@@ -65,7 +65,7 @@ export default async function BlogTagPage({ params, searchParams }: TagPageProps
           </header>
 
           <BlogList
-            activeTag={{ key: tag.key, label: tag.label }}
+            initialTags={[tag]}
             sectionId={section?.id}
             locale={locale as Locale}
           />

@@ -300,7 +300,7 @@ export async function sendPassExpiryReminder(data: PassExpiryReminderEmailData) 
   const daysLeft = Math.max(0, Math.ceil(
     (new Date(data.expiresAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000),
   ));
-  const renewUrl = escapeHtml(`${siteUrl}/#pricing`);
+  const renewUrl = escapeHtml(`${siteUrl}/zh/pricing`);
 
   const { error } = await getResend().emails.send({
     from: `Meteor Store <${fromEmail}>`,

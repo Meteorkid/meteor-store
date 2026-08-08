@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogList from '@/components/BlogList';
-import { findFeedTag } from '@/data/blog-feed';
+import { findFeedTags } from '@/data/blog-feed';
 import { getSectionBySlug } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
 
@@ -29,15 +29,17 @@ export default async function BlogPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ section?: string; tag?: string }>;
+  searchParams: Promise<{ section?: string; tags?: string }>;
 }) {
   const { locale } = await params;
   const sp = await searchParams;
   const t = await getTranslations({ locale, namespace: 'BlogPage' });
 
-  // 双重筛选：?section= 与 ?tag= 同时生效，可叠加
+  // 分区筛选走服务端；标签从 ?tags=a,b 逗号分隔带入，客户端继续原位增删
   const section = sp.section ? getSectionBySlug(sp.section) : undefined;
-  const tag = sp.tag ? await findFeedTag(locale as Locale, sp.tag) : undefined;
+  const initialTags = sp.tags
+    ? await findFeedTags(locale as Locale, sp.tags.split(',').filter(Boolean))
+    : [];
 
   return (
     <div className="blog-scope min-h-screen bg-black text-white">
@@ -61,7 +63,7 @@ export default async function BlogPage({
           <BlogList
             locale={locale as Locale}
             sectionId={section?.id}
-            activeTag={tag ? { key: tag.key, label: tag.label } : null}
+            initialTags={initialTags}
           />
         </div>
       </main>
