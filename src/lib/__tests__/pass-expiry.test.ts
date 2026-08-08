@@ -21,11 +21,21 @@ let passOrders: Array<{
 // 已存在的提醒记录（模拟幂等去重）
 let existingReminders: Array<{ email: string; expiresAt: string }> = [];
 
-// 用表对象身份区分两条查询：
-//  - from(orders)          → leftJoin().where() 返回 passOrders
-//  - from(passReminders)   → 直接 thenable 返回 existingReminders
+// 邀请码兑换的 Pass 数据（默认无）
+let passInvites: Array<{
+  email: string;
+  grantedAt: string | null;
+  planId: string;
+  licenseStatus: string | null;
+}> = [];
+
+// 用表对象身份区分三条查询：
+//  - from(orders)              → leftJoin().where() 返回 passOrders
+//  - from(passReminders)       → 直接 thenable 返回 existingReminders
+//  - from(inviteRedemptions)   → innerJoin().innerJoin().where() 返回 passInvites
 const ORDERS_TABLE = { __table: 'orders' };
 const PASS_REMINDERS_TABLE = { __table: 'pass_reminders' };
+const INVITE_REDEMPTIONS_TABLE = { __table: 'invite_redemptions' };
 
 vi.mock('@/lib/db', () => ({
   db: {
@@ -33,6 +43,15 @@ vi.mock('@/lib/db', () => ({
       from: (table: { __table?: string }) => {
         if (table.__table === 'pass_reminders') {
           return Promise.resolve(existingReminders);
+        }
+        if (table.__table === 'invite_redemptions') {
+          return {
+            innerJoin: () => ({
+              innerJoin: () => ({
+                innerJoin: () => ({ where: async () => passInvites }),
+              }),
+            }),
+          };
         }
         return {
           leftJoin: () => ({ where: async () => passOrders }),
@@ -52,6 +71,9 @@ vi.mock('@/lib/db/schema', () => ({
   orders: ORDERS_TABLE,
   licenseKeys: {},
   passReminders: PASS_REMINDERS_TABLE,
+  inviteCodes: {},
+  inviteRedemptions: INVITE_REDEMPTIONS_TABLE,
+  users: {},
 }));
 
 describe('Meteor Pass 到期提醒服务', () => {
@@ -59,6 +81,7 @@ describe('Meteor Pass 到期提醒服务', () => {
     sentMails.length = 0;
     inserted.length = 0;
     existingReminders = [];
+    passInvites = [];
   });
 
   it('只提醒即将到期的 Pass，跳过买断、已撤销与已过期', async () => {
@@ -139,5 +162,43 @@ describe('Meteor Pass 到期提醒服务', () => {
     expect(result.reminded).toBe(0);
     expect(result.skipped).toBe(1);
     expect(sentMails).toHaveLength(0);
+  });
+
+  it('邀请码兑换的月付 Pass 也会收到到期提醒', async () => {
+    const { notifyExpiringPasses } = await import('@/lib/pass-expiry');
+
+    const now = new Date('2026-08-07T00:00:00Z');
+    // 本测试只关心邀请码兑换的 Pass，订单来源置空避免残留上个用例的数据
+    passOrders = [];
+    // 邀请码兑换的月付 Pass：redeemedAt 作为起算时间，planId=monthly → 1 个月后到期
+    passInvites = [
+      {
+        email: 'invite@example.com',
+        grantedAt: '2026-07-09T00:00:00Z',
+        planId: 'monthly',
+        licenseStatus: 'active',
+      },
+      // 买断不过期，不提醒
+      {
+        email: 'invite2@example.com',
+        grantedAt: now.toISOString(),
+        planId: 'lifetime',
+        licenseStatus: 'active',
+      },
+      // 已撤销 → 跳过
+      {
+        email: 'invite3@example.com',
+        grantedAt: '2026-07-09T00:00:00Z',
+        planId: 'monthly',
+        licenseStatus: 'revoked',
+      },
+    ];
+
+    const result = await notifyExpiringPasses(now);
+
+    expect(result.reminded).toBe(1);
+    expect(sentMails).toHaveLength(1);
+    expect(sentMails[0].email).toBe('invite@example.com');
+    expect(inserted).toHaveLength(1);
   });
 });

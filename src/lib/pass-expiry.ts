@@ -1,7 +1,14 @@
 import crypto from 'crypto';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 import { db } from './db';
-import { licenseKeys, orders, passReminders } from './db/schema';
+import {
+  inviteCodes,
+  inviteRedemptions,
+  licenseKeys,
+  orders,
+  passReminders,
+  users,
+} from './db/schema';
 import { PASS_PRODUCT_ID, getPassCoverage } from '@/data/pass';
 import { sendPassExpiryReminder } from './email';
 
@@ -41,26 +48,50 @@ async function findPendingCandidates(
     .leftJoin(licenseKeys, eq(licenseKeys.orderId, orders.id))
     .where(and(eq(orders.productId, PASS_PRODUCT_ID), eq(orders.status, 'paid')));
 
+  // 邀请码兑换的 Pass 不写 orders（orderId 是 INV-{redemptionId}），
+  // 只落 license_keys + invite_redemptions。不查这里，兑换的月付/年付 Pass
+  // 到期就会静默失效、没有任何提醒。档位在 invite_codes.plan_id，起算时间用 redeemedAt。
+  const passInvites = await db
+    .select({
+      email: users.email,
+      grantedAt: inviteRedemptions.redeemedAt,
+      planId: inviteCodes.planId,
+      licenseStatus: licenseKeys.status,
+    })
+    .from(inviteRedemptions)
+    .innerJoin(inviteCodes, eq(inviteRedemptions.inviteCodeId, inviteCodes.id))
+    .innerJoin(users, eq(inviteRedemptions.userId, users.id))
+    .innerJoin(licenseKeys, eq(licenseKeys.key, inviteRedemptions.licenseKey))
+    .where(and(eq(inviteCodes.productId, PASS_PRODUCT_ID), ne(licenseKeys.status, 'revoked')));
+
   const byKey = new Map<string, { email: string; expiresAt: string }>();
+  const nowTime = now.getTime();
+
+  const collect = (email: string, planKey: string | null, grantedAt: string | null) => {
+    const coverage = getPassCoverage(planKey, grantedAt);
+    if (coverage.kind !== 'until') return; // lifetime 不过期，unknown 算不出
+    const expiresAt = new Date(coverage.expiresAt).getTime();
+    if (expiresAt <= nowTime || expiresAt > nowTime + windowMs) return;
+
+    // 同一用户的多条授权对同一个到期日只算一次
+    byKey.set(`${email.toLowerCase()}::${coverage.expiresAt}`, {
+      email,
+      expiresAt: coverage.expiresAt,
+    });
+  };
 
   for (const order of passOrders) {
     // 已交付但授权码被撤销 = 已退款，跳过
     if (order.licenseStatus === 'revoked') continue;
-
-    const coverage = getPassCoverage(order.billingPeriod, order.grantedAt);
-    if (coverage.kind !== 'until') continue; // lifetime 不过期，unknown 算不出
-    const expiresAt = new Date(coverage.expiresAt).getTime();
-    const nowTime = now.getTime();
-    if (expiresAt <= nowTime || expiresAt > nowTime + windowMs) continue;
-
-    // 同一用户的多条订单对同一个到期日只算一次
-    byKey.set(`${order.email.toLowerCase()}::${coverage.expiresAt}`, {
-      email: order.email,
-      expiresAt: coverage.expiresAt,
-    });
+    collect(order.email, order.billingPeriod, order.grantedAt);
   }
 
-  return { ordersChecked: passOrders.length, candidates: Array.from(byKey.values()) };
+  for (const invite of passInvites) {
+    if (invite.licenseStatus === 'revoked') continue;
+    collect(invite.email, invite.planId, invite.grantedAt);
+  }
+
+  return { ordersChecked: passOrders.length + passInvites.length, candidates: Array.from(byKey.values()) };
 }
 
 /**
