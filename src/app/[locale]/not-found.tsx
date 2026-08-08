@@ -13,6 +13,29 @@ export default function NotFound() {
       <KaleidoscopeCanvas />
 
       <div className="relative text-center">
+        {/* 北斗七星：斗柄指向下方的「回首页」，一颗暗淡的星为你指路 */}
+        <svg
+          viewBox="0 0 100 100"
+          aria-hidden="true"
+          className="mx-auto mb-6 h-14 w-14"
+          style={{ transform: 'rotate(180deg)' }}
+        >
+          <path
+            d="M28 22 L30 62 L64 72 L72 18 L28 22 M64 72 L82 50 L90 32 L93 12"
+            fill="none"
+            stroke="rgba(255,255,255,0.35)"
+            strokeWidth="3"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+          <circle cx="72" cy="18" r="6" fill="#e8e8f4" style={{ filter: 'drop-shadow(0 0 4px rgba(167,139,250,0.9))' }} />
+          <circle cx="28" cy="22" r="4" fill="#cfcfe0" />
+          <circle cx="30" cy="62" r="4" fill="#c9c9dc" />
+          <circle cx="64" cy="72" r="4" fill="#c9c9dc" />
+          <circle cx="82" cy="50" r="4" fill="#dcdce8" />
+          <circle cx="90" cy="32" r="4" fill="#dcdce8" />
+          <circle cx="93" cy="12" r="4" fill="#cfcfe0" />
+        </svg>
         <p className="text-8xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
           404
         </p>

@@ -17,6 +17,7 @@ vi.mock('../blog', async (importOriginal) => {
       content: '正文',
       date: '2026-05-01',
       section: 'debate',
+      sections: ['debate'],
       readingTime: 2,
       tags: ['法律', 'AI'],
       draft: false,
@@ -28,6 +29,7 @@ vi.mock('../blog', async (importOriginal) => {
       content: '正文',
       date: '2026-01-01',
       section: 'tech',
+      sections: ['tech'],
       readingTime: 3,
       tags: ['AI'],
       draft: false,
@@ -53,6 +55,7 @@ function userPost(over: Partial<Record<string, unknown>> = {}) {
     excerpt: '摘要',
     content: '正文内容',
     sectionId: 'debate',
+    sections: ['debate'],
     status: 'published',
     reviewNote: null,
     tags: ['法律'],
@@ -150,6 +153,13 @@ describe('getSectionCounts', () => {
   it('投稿计入所属分区', async () => {
     getPublishedUserPosts.mockResolvedValue([userPost()]);
     expect(await getSectionCounts('zh')).toMatchObject({ debate: 2, tech: 1 });
+  });
+
+  it('跨区文章计入它所属的每个分区', async () => {
+    getPublishedUserPosts.mockResolvedValue([
+      userPost({ sectionId: 'tech', sections: ['tech', 'debate'] }),
+    ]);
+    expect(await getSectionCounts('zh')).toMatchObject({ debate: 2, tech: 2 });
   });
 });
 

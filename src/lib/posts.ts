@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { db } from './db';
-import { posts, postTags, users } from './db/schema';
+import { posts, postTags, postSections, users } from './db/schema';
 import { normalizeTag } from '@/data/blog-tags';
 import type { BlogSectionId } from '@/data/blog-sections';
 
@@ -24,6 +24,8 @@ export interface UserPost {
   excerpt: string;
   content: string;
   sectionId: BlogSectionId;
+  /** 全部所属分区（含主分区）。跨区文章会出现在多个分区页。 */
+  sections: BlogSectionId[];
   status: PostStatus;
   reviewNote: string | null;
   tags: string[];
@@ -73,10 +75,10 @@ interface PostRow {
 async function attachTags(rows: PostRow[]): Promise<UserPost[]> {
   if (rows.length === 0) return [];
 
-  const links = await db
-    .select()
-    .from(postTags)
-    .where(inArray(postTags.postId, rows.map((r) => r.id)));
+  const [links, sectionLinks] = await Promise.all([
+    db.select().from(postTags).where(inArray(postTags.postId, rows.map((r) => r.id))),
+    db.select().from(postSections).where(inArray(postSections.postId, rows.map((r) => r.id))),
+  ]);
 
   const byPost = new Map<string, string[]>();
   for (const link of links) {
@@ -85,14 +87,27 @@ async function attachTags(rows: PostRow[]): Promise<UserPost[]> {
     byPost.set(link.postId, list);
   }
 
-  return rows.map((r) => ({
-    ...r,
-    sectionId: r.sectionId as BlogSectionId,
-    status: r.status as PostStatus,
-    tags: byPost.get(r.id) ?? [],
-    authorBio: r.authorBio,
-    authorAvatarUrl: r.authorAvatarUrl,
-  }));
+  // sections 以主分区排头，其余按插入顺序
+  const sectionsByPost = new Map<string, string[]>();
+  for (const link of sectionLinks) {
+    const list = sectionsByPost.get(link.postId) ?? [];
+    list.push(link.sectionId);
+    sectionsByPost.set(link.postId, list);
+  }
+
+  return rows.map((r) => {
+    const sections = sectionsByPost.get(r.id) ?? [];
+    if (sections.length === 0) sections.push(r.sectionId);
+    return {
+      ...r,
+      sectionId: r.sectionId as BlogSectionId,
+      sections: sections as BlogSectionId[],
+      status: r.status as PostStatus,
+      tags: byPost.get(r.id) ?? [],
+      authorBio: r.authorBio,
+      authorAvatarUrl: r.authorAvatarUrl,
+    };
+  });
 }
 
 const postColumns = {
@@ -113,6 +128,19 @@ const postColumns = {
   authorAvatarUrl: users.avatarUrl,
 };
 
+/** 分区去重、去空，主分区排头。用户输入不可信。 */
+function normalizeSections(primary: string, extras: string[] = []): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const id of [primary, ...extras]) {
+    const v = id.trim();
+    if (!v || seen.has(v)) continue;
+    seen.add(v);
+    out.push(v);
+  }
+  return out;
+}
+
 /** 创建投稿。status 由调用方决定：存草稿、提交审核、或直接发布（管理员）。 */
 export async function createPost(input: {
   authorId: string;
@@ -120,6 +148,8 @@ export async function createPost(input: {
   excerpt: string;
   content: string;
   sectionId: string;
+  /** 全部所属分区（含主分区）。缺省时只有主分区。 */
+  sections?: string[];
   tags: string[];
   status: Extract<PostStatus, 'draft' | 'pending' | 'published'>;
   /** 内容描述事件的时间，YYYY-MM-DD，可选 */
@@ -128,6 +158,7 @@ export async function createPost(input: {
   const id = newPostId();
   const now = new Date().toISOString();
   const tags = normalizeTags(input.tags);
+  const sections = normalizeSections(input.sectionId, input.sections);
   const publishedAt = input.status === 'published' ? now : null;
   const eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
 
@@ -145,26 +176,27 @@ export async function createPost(input: {
     updatedAt: now,
   });
 
-  // Neon HTTP 驱动不支持事务。若 postTags 写入失败，需要回滚刚插入的 post，
-  // 否则会留下一条没有标签、但作者仍可见的「半成品」文章。
-  if (tags.length > 0) {
-    try {
+  // Neon HTTP 驱动不支持事务。若关联写入失败，需要回滚刚插入的 post，
+  // 否则会留下一条没有标签/分区、但作者仍可见的「半成品」文章。
+  try {
+    await db.insert(postSections).values(sections.map((s) => ({ postId: id, sectionId: s })));
+    if (tags.length > 0) {
       await db.insert(postTags).values(tags.map((t) => ({ postId: id, ...t })));
-    } catch (err) {
-      console.error('insert postTags failed, rolling back post:', err);
-      try {
-        await db.delete(posts).where(eq(posts.id, id));
-      } catch (rollbackErr) {
-        // 回滚也失败：把 post 留作 draft 兜底，至少不会出现在 pending 队列里
-        console.error('rollback post failed:', rollbackErr);
-        await db
-          .update(posts)
-          .set({ status: 'draft', updatedAt: new Date().toISOString() })
-          .where(eq(posts.id, id))
-          .catch(() => undefined);
-      }
-      throw err;
     }
+  } catch (err) {
+    console.error('insert post sections/tags failed, rolling back post:', err);
+    try {
+      await db.delete(posts).where(eq(posts.id, id));
+    } catch (rollbackErr) {
+      // 回滚也失败：把 post 留作 draft 兜底，至少不会出现在 pending 队列里
+      console.error('rollback post failed:', rollbackErr);
+      await db
+        .update(posts)
+        .set({ status: 'draft', updatedAt: new Date().toISOString() })
+        .where(eq(posts.id, id))
+        .catch(() => undefined);
+    }
+    throw err;
   }
 
   return id;
@@ -285,8 +317,9 @@ export type UpdatePostResult =
  * status 判断分支，存在轻微竞态（作者并发编辑自己的文章），最坏情况是状态
  * 归一化与预期不符，不会越权或损坏数据。
  *
- * Neon HTTP 不支持事务，标签更新用「全删重建」而非 diff——标签数量小（≤8），
- * diff 没必要。若标签写入失败，文章内容已更新，作者可再次保存重试。
+ * Neon HTTP 不支持事务，标签/分区更新用「全删重建」而非 diff——标签数量小
+ * （≤8）、分区更少，diff 没必要。若关联写入失败，文章内容已更新，作者可
+ * 再次保存重试。
  */
 export async function updatePost(input: {
   postId: string;
@@ -295,6 +328,8 @@ export async function updatePost(input: {
   excerpt?: string;
   content?: string;
   sectionId?: string;
+  /** 全部所属分区（含主分区）。传入时整组覆盖。 */
+  sections?: string[];
   tags?: string[];
   /** 内容描述事件的时间，YYYY-MM-DD，可选；空串清空 */
   eventDate?: string | null;
@@ -372,6 +407,12 @@ export async function updatePost(input: {
     }
   }
 
+  if (input.sections !== undefined) {
+    await db.delete(postSections).where(eq(postSections.postId, input.postId));
+    const newSections = normalizeSections(input.sectionId ?? row.sectionId, input.sections);
+    await db.insert(postSections).values(newSections.map((s) => ({ postId: input.postId, sectionId: s })));
+  }
+
   return { ok: true, status: newStatus, wasPublished, oldSectionId: row.sectionId, newSectionId };
 }
 
@@ -434,6 +475,7 @@ export async function deletePost(input: {
 
   await db.delete(posts).where(and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId)));
   await db.delete(postTags).where(eq(postTags.postId, input.postId));
+  await db.delete(postSections).where(eq(postSections.postId, input.postId));
 
   return { ok: true, wasPublished: row.status === 'published' };
 }

@@ -183,6 +183,13 @@
       "when": 1786127683935,
       "tag": "0025_fixed_rhodey",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1786172693834,
+      "tag": "0026_supreme_gamora",
+      "breakpoints": true
     }
   ]
 }

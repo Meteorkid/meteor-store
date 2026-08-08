@@ -51,6 +51,8 @@ export default function PostSignature() {
           Meteor
         </p>
         <p className="text-white/50 text-sm">{t('signature')}</p>
+        {/* 星宿收尾：斗柄又指了一回东 */}
+        <p className="text-white/30 text-xs mt-2 tabular-nums">{t('starlog')}</p>
       </div>
     </div>
   );

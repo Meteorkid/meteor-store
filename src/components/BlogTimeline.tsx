@@ -57,8 +57,23 @@ const PLANETS = [
   'radial-gradient(circle at 32% 28%, #bcdcff 0%, #5b9bd5 42%, #1f4e9a 78%, #0f2b5e 100%)',
 ];
 
-/** 把手星球：暗色中性渐变 + 弱光晕，不抢节点星球的视觉 */
-const HANDLE_BG = 'radial-gradient(circle at 32% 28%, #4a4a55 0%, #26262e 55%, #141419 100%)';
+/**
+ * 北斗七星（星官名 + viewBox 0..100 内的归一化坐标）。
+ * 把手以北斗小勺呈现：斗柄朝向随时间轴位置旋转，隐喻「斗柄指四时」。
+ */
+const BEIDOU = [
+  { x: 72, y: 18, name: '天枢 Dubhe' },
+  { x: 28, y: 22, name: '天璇 Merak' },
+  { x: 30, y: 62, name: '天玑 Phecda' },
+  { x: 64, y: 72, name: '天权 Megrez' },
+  { x: 82, y: 50, name: '玉衡 Alioth' },
+  { x: 90, y: 32, name: '开阳 Mizar' },
+  { x: 93, y: 12, name: '摇光 Alkaid' },
+];
+
+/** 北斗星点之间的连线（斗魁四边形 + 斗柄），不含星点本身 */
+const BEIDOU_LINES =
+  'M28 22 L30 62 L64 72 L72 18 L28 22 M64 72 L82 50 L90 32 L93 12';
 
 /** 格式化成编辑部风格：2026.07.01 */
 function formatDate(date: string): string {
@@ -294,15 +309,40 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
             }}
             className="relative block cursor-grab touch-none select-none rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 active:cursor-grabbing"
           >
-            {/* 把手星球（比节点大一号，带更强光晕） */}
-            <span
-              className="relative block h-4 w-4 rounded-full"
-              style={{
-                background: HANDLE_BG,
-                boxShadow: '0 0 8px rgba(100,100,110,0.55), 0 0 2px rgba(255,255,255,0.25)',
-              }}
-            >
-              <span className="absolute left-[3px] top-[2px] h-[3px] w-[3px] rounded-full bg-white/90" />
+            {/* 北斗七星把手：斗柄朝向随时间轴位置旋转（斗柄指四时） */}
+            <span className="relative block h-10 w-10">
+              {/* 微弱光晕，让北斗在暗底上可读但不抢戏 */}
+              <span
+                aria-hidden
+                className="absolute inset-0 rounded-full blur-md"
+                style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.22), transparent 70%)' }}
+              />
+              <svg
+                viewBox="0 0 100 100"
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full"
+                style={{
+                  transformBox: 'fill-box',
+                  transformOrigin: 'center',
+                  transform: `rotate(${Math.round(p * 360)}deg)`,
+                }}
+              >
+                {/* 连线 */}
+                <path
+                  d={BEIDOU_LINES}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.35)"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+                {/* 星点：每颗带星官名，可 hover 悬浮显示 */}
+                {BEIDOU.map((s) => (
+                  <circle key={s.name} cx={s.x} cy={s.y} r="4.5" fill="#e8e8f4">
+                    <title>{s.name}</title>
+                  </circle>
+                ))}
+              </svg>
             </span>
           </button>
 

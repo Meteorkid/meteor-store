@@ -134,6 +134,16 @@ export default function BlogListClient({
           className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <Link
+            href="/blog/stars"
+            title={t('starMap')}
+            className="shrink-0 rounded-full px-3 py-2 text-sm font-medium text-white/50 transition-colors duration-200 hover:text-white"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="inline-block">
+              <path d="M12 2l2.9 6.26 6.6.64-5 4.4 1.5 6.5L12 16.9 5.99 19.8 7.5 13.3l-5-4.4 6.6-.64z" />
+            </svg>
+            <span className="sr-only">{t('starMap')}</span>
+          </Link>
+          <Link
             href={withTag('/blog')}
             aria-current={activeSectionId ? undefined : 'page'}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${

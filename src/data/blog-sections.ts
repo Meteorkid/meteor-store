@@ -24,6 +24,8 @@ export interface BlogSection {
   rgb: string;
   /** 是否在分区页展示「提议话题」表单 */
   allowProposals: boolean;
+  /** 星象知识：分区对应的二十八宿与四象，用于分区页头部装饰 */
+  star?: { sus: LocalizedText; beast: LocalizedText };
 }
 
 /** 拍平后的单语分区（按 locale 取值后的形状，供组件消费） */
@@ -35,6 +37,8 @@ export interface LocalizedBlogSection {
   channelId: string;
   rgb: string;
   allowProposals: boolean;
+  /** 当前 locale 下的星象徽章文本（如「参宿 · 西方白虎」） */
+  star?: string;
 }
 
 /** 拍平后的单语频道 */
@@ -75,6 +79,7 @@ export const blogSections = [
     channelId: 'dev',
     rgb: '167 139 250',
     allowProposals: false,
+    star: { sus: { zh: '参宿', en: 'Cān Sù' }, beast: { zh: '西方白虎', en: 'White Tiger' } },
   },
   {
     id: 'tech',
@@ -87,6 +92,7 @@ export const blogSections = [
     channelId: 'dev',
     rgb: '56 189 248',
     allowProposals: false,
+    star: { sus: { zh: '井宿', en: 'Jǐng Sù' }, beast: { zh: '南方朱雀', en: 'Vermilion Bird' } },
   },
   {
     id: 'story',
@@ -99,6 +105,7 @@ export const blogSections = [
     channelId: 'dev',
     rgb: '251 191 36',
     allowProposals: false,
+    star: { sus: { zh: '斗宿', en: 'Dǒu Sù' }, beast: { zh: '北方玄武', en: 'Black Tortoise' } },
   },
   {
     id: 'emotion',
@@ -111,6 +118,7 @@ export const blogSections = [
     channelId: 'humanities',
     rgb: '251 113 133',
     allowProposals: true,
+    star: { sus: { zh: '心宿', en: 'Xīn Sù' }, beast: { zh: '东方青龙', en: 'Azure Dragon' } },
   },
   {
     id: 'literature',
@@ -123,6 +131,7 @@ export const blogSections = [
     channelId: 'humanities',
     rgb: '52 211 153',
     allowProposals: true,
+    star: { sus: { zh: '奎宿', en: 'Kuí Sù' }, beast: { zh: '西方白虎', en: 'White Tiger' } },
   },
   {
     id: 'debate',
@@ -135,6 +144,7 @@ export const blogSections = [
     channelId: 'humanities',
     rgb: '232 121 249',
     allowProposals: true,
+    star: { sus: { zh: '觜宿', en: 'Zī Sù' }, beast: { zh: '西方白虎', en: 'White Tiger' } },
   },
 ] as const satisfies readonly BlogSection[];
 
@@ -167,6 +177,7 @@ export function localizeSection(section: BlogSectionEntry, locale: Locale): Loca
     channelId: section.channelId,
     rgb: section.rgb,
     allowProposals: section.allowProposals,
+    star: section.star ? `${section.star.sus[locale]} · ${section.star.beast[locale]}` : undefined,
   };
 }
 

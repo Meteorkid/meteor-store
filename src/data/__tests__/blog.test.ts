@@ -42,6 +42,12 @@ describe('内容文件', () => {
     expect(data.title, 'title 缺失').toBeTruthy();
     expect(data.excerpt, 'excerpt 缺失').toBeTruthy();
     expect(sectionIds.has(data.section), `section "${data.section}" 不在已定义的分区里`).toBe(true);
+    if (data.sections !== undefined) {
+      const arr = Array.isArray(data.sections) ? data.sections : [data.sections];
+      arr.forEach((s) =>
+        expect(sectionIds.has(s), `sections 里的 "${s}" 不在已定义的分区里`).toBe(true),
+      );
+    }
 
     const date = data.date instanceof Date ? data.date.toISOString().slice(0, 10) : data.date;
     expect(String(date), 'date 需为 YYYY-MM-DD').toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -84,7 +90,7 @@ describe('toSummary', () => {
 
   it('返回的字段集合是固定白名单，新增字段不会被无意带到客户端', () => {
     expect(Object.keys(toSummary(blogPosts[0])).sort()).toEqual(
-      ['date', 'draft', 'eventDate', 'excerpt', 'readingTime', 'section', 'slug', 'tags', 'title'],
+      ['date', 'draft', 'eventDate', 'excerpt', 'readingTime', 'section', 'sections', 'slug', 'tags', 'title'],
     );
   });
 });

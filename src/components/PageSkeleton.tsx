@@ -3,6 +3,19 @@ import LoadingQuip from './LoadingQuip';
 export default function PageSkeleton() {
   return (
     <div className="min-h-screen">
+      {/* 星空底纹：静态星点，衬在骨架之下 */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 opacity-40"
+        style={{
+          backgroundImage:
+            'radial-gradient(1px 1px at 12% 28%, rgba(255,255,255,.5) 50%, transparent 50%),' +
+            'radial-gradient(1.5px 1.5px at 68% 12%, rgba(255,255,255,.4) 50%, transparent 50%),' +
+            'radial-gradient(1px 1px at 42% 64%, rgba(255,255,255,.35) 50%, transparent 50%),' +
+            'radial-gradient(2px 2px at 85% 45%, rgba(196,181,253,.4) 50%, transparent 50%),' +
+            'radial-gradient(1px 1px at 25% 82%, rgba(255,255,255,.3) 50%, transparent 50%)',
+        }}
+      />
       {/* Header skeleton */}
       <div className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4">

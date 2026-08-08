@@ -8,6 +8,21 @@ import { showToast } from './EasterEggs';
 interface Star {
   x: number; y: number; size: number; twinkle: number;
 }
+
+/** 北斗七星（归一化 0..1 坐标）：流星雨夜空里偶尔浮现的一勺北斗，又缓缓隐去 */
+const BEIDOU = [
+  { x: 0.72, y: 0.18 },
+  { x: 0.28, y: 0.22 },
+  { x: 0.30, y: 0.62 },
+  { x: 0.64, y: 0.72 },
+  { x: 0.82, y: 0.50 },
+  { x: 0.90, y: 0.32 },
+  { x: 0.93, y: 0.12 },
+];
+/** 北斗连线：斗魁四边形 + 斗柄（索引指向 BEIDOU） */
+const BEIDOU_LINKS: [number, number][] = [
+  [1, 2], [2, 3], [3, 0], [0, 1], [3, 4], [4, 5], [5, 6],
+];
 interface Meteor {
   x: number; y: number; vx: number; vy: number; life: number; hue: number; big?: boolean;
 }
@@ -153,6 +168,28 @@ export default function MeteorShower() {
     observer.observe(canvas);
 
     let raf = 0;
+    // 北斗偶现状态机：正常时不打扰，隔一阵浮现一勺北斗又隐去
+    let beidouStart = 0;
+    let beidouNext = performance.now() + 18000 + Math.random() * 25000;
+    const drawBeidou = (alpha: number) => {
+      const pts = BEIDOU.map((b) => ({ x: b.x * canvas.width, y: b.y * canvas.height }));
+      ctx.strokeStyle = `rgba(205,205,255,${0.5 * alpha})`;
+      ctx.lineWidth = 1.5;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      BEIDOU_LINKS.forEach(([a, b]) => {
+        ctx.moveTo(pts[a].x, pts[a].y);
+        ctx.lineTo(pts[b].x, pts[b].y);
+      });
+      ctx.stroke();
+      BEIDOU.forEach((p, i) => {
+        ctx.beginPath();
+        ctx.arc(p.x * canvas.width, p.y * canvas.height, i === 0 ? 3.2 : 2.4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232,232,244,${alpha})`;
+        ctx.fill();
+      });
+    };
     const animate = (now: number) => {
       raf = requestAnimationFrame(animate);
       if (!visible) return;
@@ -196,6 +233,18 @@ export default function MeteorShower() {
         ctx.lineTo(m.x - m.vx * len, m.y - m.vy * len);
         ctx.stroke();
         if (m.life <= 0 || m.y > canvas.height + 30) meteors.splice(i, 1);
+      }
+
+      // 北斗偶现：淡入 → 停留 → 淡出
+      if (now >= beidouNext && beidouStart === 0) beidouStart = now;
+      if (beidouStart > 0) {
+        const t = now - beidouStart;
+        let alpha = 0;
+        if (t < 1400) alpha = t / 1400;
+        else if (t < 5200) alpha = 1;
+        else if (t < 6600) alpha = 1 - (t - 5200) / 1400;
+        else { alpha = 0; beidouStart = 0; beidouNext = now + 26000 + Math.random() * 30000; }
+        if (alpha > 0) drawBeidou(alpha);
       }
     };
     raf = requestAnimationFrame(animate);

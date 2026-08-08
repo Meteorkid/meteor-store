@@ -115,6 +115,23 @@ export const postTags = pgTable('post_tags', {
   index('post_tags_tag_idx').on(t.tag),
 ]);
 
+/**
+ * 文章与分区的关联（多对多）。
+ *
+ * 一篇文章可以同时属于多个分区（跨区出现）。posts.section_id 保留为主分区，
+ * 用于 RSS / JSON-LD / sitemap / 面包屑这些必须选唯一分区的场景；这张表存
+ * 全部所属分区。复用 postTags 的关联表模式：分区数固定且很少，用关联表
+ * 便于按分区索引、统计每个分区多少篇。
+ */
+export const postSections = pgTable('post_sections', {
+  postId: text('post_id').notNull(),
+  sectionId: text('section_id').notNull(),   // 对应 blog-sections 的分区 id
+}, (t) => [
+  primaryKey({ columns: [t.postId, t.sectionId] }),
+  // 分区页 / 分区计数都从 section 侧查
+  index('post_sections_section_idx').on(t.sectionId),
+]);
+
 export const feedbacks = pgTable('feedbacks', {
   id: text('id').primaryKey(),                        // FB{timestamp}{random}
   email: text('email'),                               // 可选

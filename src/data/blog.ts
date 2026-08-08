@@ -28,6 +28,8 @@ const FrontmatterSchema = z.object({
     v instanceof Date ? v.toISOString().slice(0, 10) : v,
   ).pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期需为 YYYY-MM-DD')),
   section: z.enum(SECTION_IDS),
+  /** 跨区：除主分区外的其它所属分区。缺省时只有主分区。 */
+  sections: z.array(z.enum(SECTION_IDS)).default([]),
   tags: z.array(z.string()).default([]),
   /** 草稿只在开发环境可见，可以放心提交半成品 */
   draft: z.boolean().default(false),
@@ -42,6 +44,8 @@ export interface BlogPost {
   content: string;
   date: string;
   section: BlogSectionId;
+  /** 全部所属分区（含主分区，排头）。跨区文章会出现在多个分区页。 */
+  sections: BlogSectionId[];
   readingTime: number;
   tags: string[];
   draft: boolean;
@@ -93,6 +97,8 @@ function loadPosts(locale?: Locale): BlogPost[] {
       content: content.trim(),
       readingTime: estimateReadingTime(content),
       eventDate: parsed.data.eventDate ?? parsed.data.date,
+      // 跨区：sections 缺省时只有主分区，主分区排头
+      sections: [parsed.data.section, ...parsed.data.sections],
     };
   });
 
@@ -117,6 +123,7 @@ export function toSummary(post: BlogPost): BlogPostSummary {
     excerpt: post.excerpt,
     date: post.date,
     section: post.section,
+    sections: post.sections,
     readingTime: post.readingTime,
     tags: post.tags,
     draft: post.draft,

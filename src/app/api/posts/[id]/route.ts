@@ -17,6 +17,7 @@ const PatchSchema = z.object({
   excerpt: z.string().trim().min(10, '摘要至少 10 个字').max(200, '摘要不要超过 200 字').optional(),
   content: z.string().trim().min(200, '正文至少 200 字').max(50_000, '正文太长了').optional(),
   sectionId: z.enum(SECTION_IDS).optional(),
+  sections: z.array(z.enum(SECTION_IDS)).max(8, '分区不要超过 8 个').optional(),
   tags: z.array(z.string().trim().min(1).max(24)).max(8, '最多 8 个标签').optional(),
   // 内容描述事件的时间，YYYY-MM-DD，可选；null 清空
   eventDate: z
@@ -75,6 +76,7 @@ export async function PATCH(
     data.excerpt !== undefined ||
     data.content !== undefined ||
     data.sectionId !== undefined ||
+    data.sections !== undefined ||
     data.tags !== undefined ||
     data.eventDate !== undefined;
   if (!hasField && !data.submit) {
@@ -90,6 +92,7 @@ export async function PATCH(
     excerpt: data.excerpt,
     content: data.content,
     sectionId: data.sectionId,
+    sections: data.sections,
     tags: data.tags,
     eventDate: data.eventDate,
     submit: data.submit,

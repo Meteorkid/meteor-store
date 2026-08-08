@@ -28,6 +28,9 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? '');
   const [content, setContent] = useState(initialPost?.content ?? '');
   const [sectionId, setSectionId] = useState(initialPost?.sectionId ?? (blogSections[0].id as string));
+  const [extraSectionIds, setExtraSectionIds] = useState<string[]>(
+    initialPost?.sections?.filter((s) => s !== initialPost.sectionId) ?? [],
+  );
   const [tagInput, setTagInput] = useState(initialPost?.tags.join(', ') ?? '');
   const [eventDate, setEventDate] = useState(initialPost?.eventDate ?? '');
   const [preview, setPreview] = useState<string | null>(null);
@@ -63,6 +66,7 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
           excerpt: excerpt.trim(),
           content: content.trim(),
           sectionId,
+          sections: [sectionId, ...extraSectionIds],
           tags,
           eventDate: eventDate.trim() || null,
           submit,
@@ -163,7 +167,7 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="post-section" className={labelClass}>
-            {t('sectionLabel')}
+            {t('sectionPrimaryLabel')}
           </label>
           <select
             id="post-section"
@@ -177,8 +181,45 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
               </option>
             ))}
           </select>
+          <p className="t-footnote mt-1.5 text-white/45">{t('sectionLabel')}</p>
         </div>
 
+        <div>
+          <span className={labelClass}>
+            {t('sectionsLabel')} <span className="font-normal text-white/45">（{t('sectionsHint')}）</span>
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {blogSections
+              .filter((s) => s.id !== sectionId)
+              .map((s) => {
+                const checked = extraSectionIds.includes(s.id);
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() =>
+                      setExtraSectionIds((prev) =>
+                        checked ? prev.filter((id) => id !== s.id) : [...prev, s.id],
+                      )
+                    }
+                    aria-pressed={checked}
+                    className={`rounded-lg border px-3 py-1.5 text-[0.8125rem] transition-colors ${
+                      checked
+                        ? 'border-violet-500/50 bg-violet-500/15 text-violet-100'
+                        : 'border-white/10 bg-black/25 text-white/60 hover:border-white/25 hover:text-white'
+                    }`}
+                  >
+                    {s.label[locale]}
+                  </button>
+                );
+              })}
+          </div>
+        </div>
+
+        <div className="sm:col-span-2" />
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="post-tags" className={labelClass}>
             {t('tagsLabel')} <span className="font-normal text-white/45">（{t('tagsHint')}）</span>

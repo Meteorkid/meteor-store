@@ -673,7 +673,15 @@
   "BlogSectionPage": {
     "blogSuffix": "Meteor Store 博客",
     "notFound": "分区未找到 - Meteor Store",
-    "subscribe": "订阅"
+    "subscribe": "订阅",
+    "starTooltip": "本分区对应的二十八宿与四象"
+  },
+  "StarMap": {
+    "title": "星图",
+    "description": "把博客里的文章铺成夜空，每颗星按事件时间串成一条星轨。",
+    "legend": "每颗星是一篇文章 · hover 看标题 · 点击前往",
+    "hint": "顺着星轨拖拽，就是一场从早到晚的观星。",
+    "aria": "博客星图：按事件时间排列的文章星座"
   },
   "BlogTagPage": {
     "blogSuffix": "Meteor Store 博客",
@@ -1020,6 +1028,9 @@
     "excerptLabel": "摘要",
     "excerptHint": "10–200 字，显示在列表里",
     "sectionLabel": "分区",
+    "sectionPrimaryLabel": "主分区",
+    "sectionsLabel": "可同时归入其它分区",
+    "sectionsHint": "跨区：勾选后这篇文章会同时出现在对应分区页",
     "tagsLabel": "标签",
     "tagsHint": "逗号或空格分隔，最多 8 个",
     "tagsPlaceholder": "法律, 随笔",
@@ -1407,12 +1418,14 @@
     "favorites": "{count} 次收藏"
   },
   "PostSignature": {
-    "signature": "—— 店主"
+    "signature": "—— 店主",
+    "starlog": "斗柄又指了一回东"
   },
   "BlogList": {
     "sectionsAria": "博客分区",
     "tagsAria": "热门标签",
     "all": "全部",
+    "starMap": "星图",
     "hotTags": "热门标签",
     "allTags": "全部 {count} 个标签 →",
     "sort": "排序",

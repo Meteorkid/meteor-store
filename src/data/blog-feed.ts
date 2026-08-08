@@ -39,6 +39,7 @@ export function toFeedSummary(post: FeedPost): FeedPostSummary {
     excerpt: post.excerpt,
     date: post.date,
     section: post.section,
+    sections: post.sections,
     readingTime: post.readingTime,
     tags: post.tags,
     draft: post.draft,
@@ -73,6 +74,7 @@ export const getFeedPosts = cache(async (locale: Locale): Promise<FeedPost[]> =>
         // publishedAt 是 ISO 时间戳，列表和排序都只用到日期部分
         date: (p.publishedAt ?? p.createdAt).slice(0, 10),
         section: p.sectionId,
+        sections: p.sections,
         readingTime: estimateReadingTime(p.content),
         tags: p.tags,
         draft: false,
@@ -90,12 +92,13 @@ export const getFeedPosts = cache(async (locale: Locale): Promise<FeedPost[]> =>
 });
 
 export async function getFeedPostsBySection(locale: Locale, sectionId: BlogSectionId): Promise<FeedPost[]> {
-  return (await getFeedPosts(locale)).filter((p) => p.section === sectionId);
+  return (await getFeedPosts(locale)).filter((p) => p.sections.includes(sectionId));
 }
 
 /**
  * 分区 × 标签双重筛选：两个维度都可选、可独立保留。
  * 分区与标签不再互斥——分区页选中标签、标签页选中分区都用这个函数合并过滤。
+ * 分区按「任一所属分区命中」匹配：跨区文章会出现在它所属的每个分区页。
  */
 export async function getFeedPostsBySectionAndTag(
   locale: Locale,
@@ -104,17 +107,19 @@ export async function getFeedPostsBySectionAndTag(
 ): Promise<FeedPost[]> {
   const posts = await getFeedPosts(locale);
   return posts.filter((p) => {
-    if (sectionId && p.section !== sectionId) return false;
+    if (sectionId && !p.sections.includes(sectionId)) return false;
     if (tagKey && !p.tags.some((t) => normalizeTag(t) === tagKey)) return false;
     return true;
   });
 }
 
-/** 各分区文章数 */
+/** 各分区文章数：跨区文章计入它所属的每个分区 */
 export async function getSectionCounts(locale: Locale): Promise<Record<string, number>> {
   const posts = await getFeedPosts(locale);
   return posts.reduce<Record<string, number>>((acc, p) => {
-    acc[p.section] = (acc[p.section] ?? 0) + 1;
+    for (const sectionId of p.sections) {
+      acc[sectionId] = (acc[sectionId] ?? 0) + 1;
+    }
     return acc;
   }, {});
 }

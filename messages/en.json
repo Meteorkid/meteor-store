@@ -673,7 +673,15 @@
   "BlogSectionPage": {
     "blogSuffix": "Meteor Store Blog",
     "notFound": "Section Not Found - Meteor Store",
-    "subscribe": "Subscribe"
+    "subscribe": "Subscribe",
+    "starTooltip": "The 28 mansions and Four Symbols for this section"
+  },
+  "StarMap": {
+    "title": "Star Map",
+    "description": "An atlas of the blog posts spread across the night sky, each star strung into a trail by event time.",
+    "legend": "Each star is a post · hover to read the title · click to open",
+    "hint": "Follow the star trail to watch the sky from dawn to dusk.",
+    "aria": "Blog star map: a constellation of posts ordered by event time"
   },
   "BlogTagPage": {
     "blogSuffix": "Meteor Store Blog",
@@ -1020,6 +1028,9 @@
     "excerptLabel": "Excerpt",
     "excerptHint": "10–200 chars, shown in the list",
     "sectionLabel": "Section",
+    "sectionPrimaryLabel": "Primary section",
+    "sectionsLabel": "Also belongs to",
+    "sectionsHint": "Cross-section: checked posts appear on those section pages too",
     "tagsLabel": "Tags",
     "tagsHint": "Separated by commas or spaces, up to 8",
     "tagsPlaceholder": "Law, Essay",
@@ -1407,12 +1418,14 @@
     "favorites": "{count} saves"
   },
   "PostSignature": {
-    "signature": "— Storekeeper"
+    "signature": "— Storekeeper",
+    "starlog": "The ladle has turned east once more"
   },
   "BlogList": {
     "sectionsAria": "Blog sections",
     "tagsAria": "Hot tags",
     "all": "All",
+    "starMap": "Star Map",
     "hotTags": "Hot Tags",
     "allTags": "All {count} tags →",
     "sort": "Sort",

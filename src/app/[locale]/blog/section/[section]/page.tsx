@@ -64,6 +64,17 @@ export default async function BlogSectionPage({ params, searchParams }: SectionP
               </h1>
               <span aria-hidden className="t-footnote text-white/20">/</span>
               <p className="t-footnote text-white/60">{section.description[locale as Locale]}</p>
+              {section.star && (
+                <span
+                  className="t-footnote inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-white/65"
+                  title={t('starTooltip')}
+                >
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 2l2.9 6.26 6.6.64-5 4.4 1.5 6.5L12 16.9 5.99 19.8 7.5 13.3l-5-4.4 6.6-.64z" />
+                  </svg>
+                  {section.star.sus[locale as Locale]} · {section.star.beast[locale as Locale]}
+                </span>
+              )}
             </div>
             <a
               href={`/blog/section/${section.slug}/feed.xml`}

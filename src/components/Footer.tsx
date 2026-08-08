@@ -127,8 +127,26 @@ export default function Footer({ showSocial = false }: FooterProps) {
           )}
         </div>
 
+        {/* 星象装饰线：暗夜之上的一线星轨，衬在版权行上方 */}
+        <div aria-hidden className="mx-auto mb-6 flex w-full max-w-xs items-center justify-center">
+          <svg viewBox="0 0 200 24" className="h-6 w-full opacity-40">
+            <path
+              d="M16 12 L58 6 L100 18 L158 8 L190 14"
+              fill="none"
+              stroke="rgba(255,255,255,0.35)"
+              strokeWidth="1"
+              strokeLinecap="round"
+            />
+            <circle cx="16" cy="12" r="2" fill="#e8e8f4" />
+            <circle cx="58" cy="6" r="2.4" fill="#c9c9dc" />
+            <circle cx="100" cy="18" r="2" fill="#dcdce8" />
+            <circle cx="158" cy="8" r="2.6" fill="#e8e8f4" />
+            <circle cx="190" cy="14" r="2" fill="#cfcfe0" />
+          </svg>
+        </div>
+
         {/* Bottom bar */}
-        <div className="border-t border-border mt-12 pt-8">
+        <div className="border-t border-border mt-6 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <FooterCopyright />
             <div className="flex gap-6">
