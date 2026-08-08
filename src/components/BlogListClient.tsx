@@ -15,16 +15,17 @@ import { useAuth } from './AuthProvider';
 import BlogTimeline from './BlogTimeline';
 import type { ActiveTag } from './BlogList';
 
-type SortMode = 'newest' | 'oldest' | 'event-newest' | 'event-oldest';
+/** 排序维度：按发布时间 date，还是按内容描述的事件时间 eventDate */
+type SortDimension = 'date' | 'eventDate';
+/** 排序方向：desc 降序（新在前），asc 升序（旧在前） */
+type SortDirection = 'desc' | 'asc';
 
-const sortOptions: {
-  value: SortMode;
-  labelKey: 'sortNewest' | 'sortOldest' | 'sortEventNewest' | 'sortEventOldest';
+const sortDimensions: {
+  value: SortDimension;
+  labelKey: 'sortByPublish' | 'sortByEvent';
 }[] = [
-  { value: 'newest', labelKey: 'sortNewest' },
-  { value: 'oldest', labelKey: 'sortOldest' },
-  { value: 'event-newest', labelKey: 'sortEventNewest' },
-  { value: 'event-oldest', labelKey: 'sortEventOldest' },
+  { value: 'date', labelKey: 'sortByPublish' },
+  { value: 'eventDate', labelKey: 'sortByEvent' },
 ];
 
 const channelGroups = getSectionsByChannel();
@@ -66,7 +67,8 @@ export default function BlogListClient({
   totalTagCount = 0,
   favoriteCounts = {},
 }: BlogListClientProps) {
-  const [sort, setSort] = useState<SortMode>('newest');
+  const [dimension, setDimension] = useState<SortDimension>('date');
+  const [direction, setDirection] = useState<SortDirection>('desc');
   const { user } = useAuth();
   const locale = useLocale() as Locale;
   const t = useTranslations('BlogList');
@@ -96,25 +98,14 @@ export default function BlogListClient({
   }, [hotTags, activeTag]);
 
   const filtered = useMemo(() => {
+    const getTime = (p: FeedPostSummary) => (dimension === 'date' ? p.date : p.eventDate);
     const result = [...posts];
-
-    switch (sort) {
-      case 'newest':
-        result.sort((a, b) => b.date.localeCompare(a.date));
-        break;
-      case 'oldest':
-        result.sort((a, b) => a.date.localeCompare(b.date));
-        break;
-      case 'event-newest':
-        result.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
-        break;
-      case 'event-oldest':
-        result.sort((a, b) => a.eventDate.localeCompare(b.eventDate));
-        break;
-    }
-
+    result.sort((a, b) => {
+      const cmp = getTime(a).localeCompare(getTime(b));
+      return direction === 'desc' ? -cmp : cmp;
+    });
     return result;
-  }, [posts, sort]);
+  }, [posts, dimension, direction]);
 
   const [lede, ...rest] = filtered;
   const ledeSection = lede ? getSectionById(lede.section) : undefined;
@@ -222,33 +213,35 @@ export default function BlogListClient({
       <div className="mb-10 flex items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
         <div role="group" aria-labelledby="blog-sort-label" className="flex flex-wrap items-center gap-x-1 gap-y-1">
           <span id="blog-sort-label" className="t-eyebrow mr-1 text-white/45">{t('sort')}</span>
-          {sortOptions.slice(0, 2).map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setSort(opt.value)}
-              aria-pressed={sort === opt.value}
-              className={`t-footnote rounded-lg px-2.5 py-1 transition-colors duration-200 ${
-                sort === opt.value ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
-              }`}
-            >
-              {t(opt.labelKey)}
-            </button>
-          ))}
-          <span aria-hidden className="mx-1 h-4 w-px bg-white/15" />
-          {sortOptions.slice(3).map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setSort(opt.value)}
-              aria-pressed={sort === opt.value}
-              className={`t-footnote rounded-lg px-2.5 py-1 transition-colors duration-200 ${
-                sort === opt.value ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
-              }`}
-            >
-              {t(opt.labelKey)}
-            </button>
-          ))}
+          {sortDimensions.map((dim) => {
+            const active = dimension === dim.value;
+            return (
+              <button
+                key={dim.value}
+                type="button"
+                onClick={() => {
+                  if (active) {
+                    // 再点一次当前维度 = 切换升序/降序
+                    setDirection(direction === 'desc' ? 'asc' : 'desc');
+                  } else {
+                    // 切到另一个维度，默认降序（新/晚在前）
+                    setDimension(dim.value);
+                    setDirection('desc');
+                  }
+                }}
+                aria-pressed={active}
+                title={active ? t(direction === 'desc' ? 'sortDesc' : 'sortAsc') : undefined}
+                className={`t-footnote inline-flex items-center gap-1 rounded-lg px-2.5 py-1 transition-colors duration-200 ${
+                  active ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
+                }`}
+              >
+                {t(dim.labelKey)}
+                <span aria-hidden className="text-[0.8em] leading-none">
+                  {active ? (direction === 'desc' ? '↓' : '↑') : '↕'}
+                </span>
+              </button>
+            );
+          })}
         </div>
         <div className="t-footnote flex items-center gap-3">
           <span className="tabular-nums text-white/60">{t('count', { count: posts.length })}</span>
