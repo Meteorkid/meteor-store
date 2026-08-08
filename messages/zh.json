@@ -1477,7 +1477,13 @@
     "searchPlaceholder": "搜索标签…",
     "matchCount": "匹配到 {matched} / {total} 个标签",
     "totalCount": "共 {total} 个标签",
-    "noMatch": "没有匹配的标签"
+    "noMatch": "没有匹配的标签",
+    "multiSelectHint": "点标签可多选，选完点「浏览」去筛选文章",
+    "selectedTags": "已选标签",
+    "selectedAria": "已选标签",
+    "removeTag": "移除标签 {tag}",
+    "clearAllTags": "清除全部",
+    "browse": "浏览 {count} 个标签下的文章"
   },
   "AuthProvider": {
     "loginFailed": "登录失败",

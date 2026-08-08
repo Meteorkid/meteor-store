@@ -1477,7 +1477,13 @@
     "searchPlaceholder": "Search tags…",
     "matchCount": "Matched {matched} / {total} tags",
     "totalCount": "{total} tags in total",
-    "noMatch": "No matching tags"
+    "noMatch": "No matching tags",
+    "multiSelectHint": "Select multiple tags, then click Browse to filter posts",
+    "selectedTags": "Selected tags",
+    "selectedAria": "Selected tags",
+    "removeTag": "Remove tag {tag}",
+    "clearAllTags": "Clear all",
+    "browse": "Browse posts under {count} tags"
   },
   "AuthProvider": {
     "loginFailed": "Login failed",
