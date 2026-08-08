@@ -516,20 +516,16 @@
   },
   "OpenSourcePage": {
     "title": "开源项目",
-    "description": "全部开源，全部免费。每一款都是自己的痒点产品。",
+    "description": "采用 MIT 协议的真开源项目。源码可自由使用、修改与分发，每一款都是从自己的痒点出发打磨的工具。",
     "projects": "个项目",
     "license": "协议",
     "contribute": "想要了解更多？浏览全部产品，找到适合你的工具。",
     "followGithub": "浏览全部产品",
     "descOmnicrawl": "基于 Scrapling + curl_cffi + Playwright 的全能爬虫框架，一套 API 三个引擎，自动绕过反爬。",
-    "descExMemory": "LLM + RAG 让 AI 学会一个人的说话风格。导入聊天记录，还原语气和用词习惯。",
-    "descSkeletonAnatomy": "浏览器里的 3D 人体骨骼模型，支持旋转、缩放、标注，面向医学生和解剖学爱好者。",
-    "descUiDesignSystem": "Claude Code 的 UI/UX 设计 Skill。三层 Token 体系 + shadcn 组件最佳实践。",
-    "descStatux": "终端状态栏工具，在 iTerm2 里实时显示 AI Agent 运行状态。",
-    "descXisland": "把 iPhone 的灵动岛搬到 macOS 菜单栏，显示系统状态和音乐控制。",
-    "descTollow": "沉浸式长文打字练习。选一本书，逐段练习，支持中英文。",
-    "descXnook": "macOS 效率小工具集，窗口管理、快捷键、剪贴板增强。",
-    "descChakraVisualizer": "用摄像头捕捉手势，识别火影忍者结印并播放忍术特效。纯前端实现。"
+    "descChakraVisualizer": "用摄像头捕捉手势，识别火影忍者结印并播放忍术特效。纯前端实现。",
+    "descWebglFluidSim": "基于 WebGL 的实时流体模拟，GPU 加速丝滑 60fps，支持手势交互与摄像头背景叠加。",
+    "descClaudePhoneControl": "用手机浏览器远程控制 Mac/Windows 上的 Claude Code，一行命令启动，扫码即连。",
+    "descCursorSourceAnalyzer": "交互式剖析 Cursor AI 编辑器的内部架构，9 大分析维度，ReactFlow 架构图。"
   },
   "StoryPage": {
     "title": "一封来自店主的信",

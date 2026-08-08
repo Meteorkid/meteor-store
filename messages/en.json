@@ -516,20 +516,16 @@
   },
   "OpenSourcePage": {
     "title": "Open Source Projects",
-    "description": "All open source, all free. Every project solves its own itch.",
+    "description": "Truly open-source projects released under the MIT license. Source code is free to use, modify, and distribute — every one built from our own itch.",
     "projects": "projects",
     "license": "License",
     "contribute": "Want to learn more? Browse all products and find the right tool for you.",
     "followGithub": "Browse products",
     "descOmnicrawl": "All-in-one crawler framework built on Scrapling + curl_cffi + Playwright. One API, three engines, automatic anti-bot bypass.",
-    "descExMemory": "LLM + RAG that teaches AI someone's speaking style. Import chat logs to recreate their tone and word choices.",
-    "descSkeletonAnatomy": "A 3D human skeleton model in the browser. Supports rotation, zoom, and annotations. For medical students and anatomy enthusiasts.",
-    "descUiDesignSystem": "A UI/UX design Skill for Claude Code. Three-layer Token system + shadcn component best practices.",
-    "descStatux": "Terminal status bar tool that shows real-time AI Agent status in iTerm2.",
-    "descXisland": "Brings iPhone's Dynamic Island to the macOS menu bar, showing system status and music controls.",
-    "descTollow": "Immersive long-form typing practice. Pick a book, practice paragraph by paragraph. Supports Chinese and English.",
-    "descXnook": "macOS productivity toolkit: window management, shortcuts, and clipboard enhancement.",
-    "descChakraVisualizer": "Captures hand gestures via webcam, recognizes Naruto hand seals, and plays jutsu effects. Pure frontend implementation."
+    "descChakraVisualizer": "Captures hand gestures via webcam, recognizes Naruto hand seals, and plays jutsu effects. Pure frontend implementation.",
+    "descWebglFluidSim": "Real-time WebGL fluid simulation. GPU-accelerated, smooth 60fps, with gesture interaction and camera background overlay.",
+    "descClaudePhoneControl": "Remotely control Claude Code on Mac/Windows from your phone browser. One command to start, scan to connect.",
+    "descCursorSourceAnalyzer": "Interactive analysis of the Cursor AI editor's internal architecture. 9 dimensions with a ReactFlow diagram."
   },
   "StoryPage": {
     "title": "A Letter from the Store Owner",

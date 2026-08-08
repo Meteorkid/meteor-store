@@ -46,6 +46,8 @@ export interface Product {
   }[];
   /** GitHub 仓库地址。商业策略调整后不再对外暴露，保留字段仅供内部使用，UI 不渲染 */
   github?: string;
+  /** 开源许可证。'mit' 才算是真开源，会进 /open-source 页面；其余产品（源码可用-非商业等）不展示为开源 */
+  license?: 'mit';
   demo?: string;
   /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用，
      产品页会渲染「免费试用」内嵌区块，购买入口对应 /apps/{id} 付费门控 */
@@ -104,6 +106,8 @@ export interface LocalizedProduct {
   }[];
   /** GitHub 仓库地址。商业策略调整后不再对外暴露，保留字段仅供内部使用，UI 不渲染 */
   github?: string;
+  /** 开源许可证。'mit' 才算是真开源，会进 /open-source 页面；其余产品（源码可用-非商业等）不展示为开源 */
+  license?: 'mit';
   demo?: string;
   /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用 */
   appUrl?: string;
@@ -188,6 +192,7 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/omnicrawl',
+    license: 'mit',
     quickstart: {
       command: 'pip install omnicrawl',
       note: {
@@ -695,6 +700,7 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/Chakra-Visualizer',
+    license: 'mit',
     category: 'utility',
     icon: '🌀',
     gradient: 'from-cyan-500 to-blue-500',
@@ -738,6 +744,7 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/webgl-fluid-sim',
+    license: 'mit',
     category: 'utility',
     icon: '🌊',
     gradient: 'from-sky-500 to-indigo-500',
@@ -779,6 +786,7 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/claude-phone-control',
+    license: 'mit',
     category: 'developer',
     icon: '📲',
     gradient: 'from-emerald-500 to-teal-500',
@@ -820,6 +828,7 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/cursor-source-analyzer',
+    license: 'mit',
     category: 'developer',
     icon: '🔬',
     gradient: 'from-amber-500 to-orange-500',
@@ -871,6 +880,7 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
       features: p.features.map((f) => f[locale]),
     })),
     github: product.github,
+    license: product.license,
     demo: product.demo,
     appUrl: product.appUrl,
     status: product.status,

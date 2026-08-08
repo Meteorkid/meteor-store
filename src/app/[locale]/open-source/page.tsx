@@ -31,14 +31,10 @@ const languageColors: Record<string, string> = {
 
 const projectMeta: Record<string, { language: string; descKey: string }> = {
   omnicrawl: { language: 'Python', descKey: 'descOmnicrawl' },
-  'ex-memory': { language: 'Python', descKey: 'descExMemory' },
-  'skeleton-anatomy': { language: 'TypeScript', descKey: 'descSkeletonAnatomy' },
-  'ui-design-system': { language: 'TypeScript', descKey: 'descUiDesignSystem' },
-  statux: { language: 'TypeScript', descKey: 'descStatux' },
-  xisland: { language: 'Swift', descKey: 'descXisland' },
-  tollow: { language: 'TypeScript', descKey: 'descTollow' },
-  xnook: { language: 'Swift', descKey: 'descXnook' },
   'chakra-visualizer': { language: 'TypeScript', descKey: 'descChakraVisualizer' },
+  'webgl-fluid-sim': { language: 'TypeScript', descKey: 'descWebglFluidSim' },
+  'claude-phone-control': { language: 'TypeScript', descKey: 'descClaudePhoneControl' },
+  'cursor-source-analyzer': { language: 'TypeScript', descKey: 'descCursorSourceAnalyzer' },
 };
 
 export default async function OpenSourcePage({
@@ -49,7 +45,10 @@ export default async function OpenSourcePage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'OpenSourcePage' });
 
-  const localizedProducts = products.map((p) => localizeProduct(p, locale as Locale));
+  const openSourceProducts = products.filter((p) => p.license === 'mit');
+  const localizedProducts = openSourceProducts.map((p) =>
+    localizeProduct(p, locale as Locale),
+  );
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -67,7 +66,7 @@ export default async function OpenSourcePage({
 
           {/* Stats bar */}
           <div className="mb-14 flex flex-wrap gap-6 text-sm text-gray-500">
-            <span><strong className="text-white">{products.length}</strong> {t('projects')}</span>
+            <span><strong className="text-white">{localizedProducts.length}</strong> {t('projects')}</span>
             <span><strong className="text-white">MIT</strong> {t('license')}</span>
           </div>
 
@@ -115,6 +114,11 @@ export default async function OpenSourcePage({
                           {p}
                         </span>
                       ))}
+                    </span>
+
+                    {/* License */}
+                    <span className="rounded border border-emerald-400/30 bg-emerald-400/10 px-1.5 py-0.5 text-[11px] text-emerald-300">
+                      MIT
                     </span>
                   </div>
                 </Link>

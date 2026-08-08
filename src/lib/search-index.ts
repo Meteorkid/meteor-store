@@ -45,7 +45,7 @@ const STATIC_PAGES: Array<Omit<SearchEntry, 'keywords' | 'initials' | 'fullPinyi
   { id: 'page-feedback', title: '反馈建议', subtitle: '深夜也有树洞', group: '页面', href: '/feedback', extra: 'feedback bug 建议 树洞' },
   { id: 'page-contact', title: '联系我们', group: '页面', href: '/contact', extra: 'contact 邮箱 email' },
   { id: 'page-student', title: '学生免费计划', subtitle: '用教育邮箱验证，全部产品免费', group: '页面', href: '/student', extra: 'student 学生 edu 教育 免费 优惠 大学' },
-  { id: 'page-open-source', title: '开源项目', subtitle: '全部开源，全部免费', group: '页面', href: '/open-source', extra: 'open source 开源 github' },
+  { id: 'page-open-source', title: '开源项目', subtitle: 'MIT 协议的真开源项目', group: '页面', href: '/open-source', extra: 'open source 开源 github MIT' },
   { id: 'page-playground', title: 'Playground', subtitle: '在线试玩，不用安装', group: '页面', href: '/playground', extra: 'playground 试玩 demo 演示 体验' },
   { id: 'page-login', title: '登录 / 注册', subtitle: '邮箱登录或创建账户', group: '页面', href: '/login', extra: 'login register 登录 注册 账户 sign in sign up' },
   { id: 'anchor-products', title: '产品展示', subtitle: '首页 · 产品矩阵', group: '页面', href: '/#products', extra: '产品 矩阵 展示' },
