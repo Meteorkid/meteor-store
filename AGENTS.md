@@ -384,11 +384,16 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 
 ### 安装包分发（Cloudflare R2 + 预签名 URL）
 
-复用头像/博客图片那套 R2 配置，服务层在
+安装包放在**独立的私有 bucket**（`R2_RELEASE_BUCKET`），与头像/博客图片的公开
+bucket 完全隔离。服务层在
 [src/lib/release-storage.ts](file:///Users/meteor/github/meteor-store/src/lib/release-storage.ts)，
 下载接口 `GET /api/download/[productId]?file={下载条目 id}`，
 上传走 [scripts/upload-release.mjs](file:///Users/meteor/github/meteor-store/scripts/upload-release.mjs)。
 
+- **安装包绝不能走公开 URL（免费产品也一样）**：公开 bucket 让对象本身暴露，
+  猜中 `releases/{product}/{version}/{文件名}` 就能绕过购买门控直接拖走付费 dmg。
+  更不能用公开 bucket + 预签名「伪装门控」——预签名只护链接时效，护不了对象本体。
+  私有 bucket 必须不绑定公开域名、不开 r2.dev，只接受预签名 URL
 - **绝不能把文件读出来由 route handler 转发**：Vercel serverless 响应体上限约 4.5MB，
   dmg 动辄几十 MB，必然失败。接口只做三件事：校验授权、签一条 5 分钟有效的预签名 URL、
   302 过去让浏览器直连 R2。R2 出网流量免费，分发二进制的带宽成本为零
@@ -400,13 +405,13 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - **`gated: true` 必须配 `r2Key`**：挂在 GitHub/Gitee 公开链接上的「门控」是自欺欺人，
   接口宁可返回 503 也不放行。测试钉住了这条
 - 签名链接的 302 响应带 `Cache-Control: no-store`，被 CDN 缓存下来等于门控作废
+- **免费产品（statux）也走预签名**：非门控的 `r2Key` 条目同样由接口签短时效链接，
+  只是不校验登录/授权。这样免费安装包同样没有公开落点，猜路径也拖不走
 - 门控判定用的是 entitlement（购买 / 免费入库 / Pass / 邀请码 / 管理员都算），
   所以有免费档的产品「入库」后同样能下
 - `DownloadCard` 里那段登录/授权判断**只是显示层**，真关卡在接口——
   安装包地址从头到尾没进过页面。这和 `/apps/{id}` 必须服务端门控不矛盾：
   那里渲染的是应用本体，藏在客户端等于没藏
-- **R2_PUBLIC_BASE 不是 `NEXT_PUBLIC_` 变量**，客户端读不到。公开下载地址一律
-  由服务端组件（DownloadSection）解析好再传给客户端组件
 
 **macOS 分发前必须签名 + 公证**，否则用户下载后被 Gatekeeper 拦下，比没有下载更糟。
 上传前自查：`spctl -a -t open --context context:primary-signature -v X.dmg`

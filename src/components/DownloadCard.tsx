@@ -15,8 +15,6 @@ interface DownloadCardProps {
   icon: ReactNode;
   iconColor: string;
   recommended: boolean;
-  /** 公开下载的目标地址；门控条目传 null，地址由下载接口签发 */
-  publicHref: string | null;
   gated: boolean;
   version?: string;
   sha256?: string;
@@ -38,7 +36,6 @@ export default function DownloadCard({
   icon,
   iconColor,
   recommended,
-  publicHref,
   gated,
   version,
   sha256,
@@ -104,11 +101,13 @@ export default function DownloadCard({
     </svg>
   );
 
-  // 公开下载：直接给链接
+  // 非门控：无需登录，但对象在私有 bucket，地址由下载接口临时签发，这里不落死链接
   if (!gated) {
-    if (!publicHref) return null;
     return (
-      <a href={publicHref} target="_blank" rel="noopener noreferrer" className={`${cardClass} hover:scale-[1.02]`}>
+      <a
+        href={`/api/download/${productId}?file=${encodeURIComponent(fileId)}`}
+        className={`${cardClass} hover:scale-[1.02]`}
+      >
         {body}
         {arrow}
       </a>

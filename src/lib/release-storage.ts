@@ -1,16 +1,20 @@
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { getClient, readR2Config } from './r2-client';
+import { getClient, readReleaseR2Config } from './r2-client';
 
 /**
- * 安装包分发（Cloudflare R2）—— 复用头像/博客图片那套 R2 配置与共享客户端。
+ * 安装包分发（Cloudflare R2）—— 独立私有 bucket（R2_RELEASE_BUCKET），
+ * 与头像/博客图片的公开 bucket 完全隔离。
  *
- * **付费产品的安装包不能走公开 URL**，也不能让 route handler 把文件读出来再吐给浏览器：
- * Vercel 的 serverless 响应体上限约 4.5MB，而 dmg 动辄几十 MB，代理转发必然失败。
- * 正确做法是服务端校验授权后签发一条**短时效预签名 URL**，让浏览器直连 R2 下载。
- * R2 出网流量免费，分发二进制的带宽成本为零。
+ * **安装包绝不能走公开 URL**（哪怕是免费产品）：公开 bucket 会让对象本身暴露，
+ * 猜中路径就能绕过门控直接拖走付费安装包。也不能让 route handler 把文件读出来
+ * 再吐给浏览器：Vercel 的 serverless 响应体上限约 4.5MB，而 dmg 动辄几十 MB，
+ * 代理转发必然失败。
  *
- * 免费公开的产品不用签名，直接挂 `R2_PUBLIC_BASE` 下的固定地址即可。
+ * 正确做法是服务端校验授权后签发一条**短时效预签名 URL**，让浏览器直连私有
+ * bucket 下载。R2 出网流量免费，分发二进制的带宽成本为零。
+ *
+ * 该私有 bucket 必须不绑定公开域名、不开 r2.dev，否则预签名门控作废。
  */
 
 /** 预签名链接有效期。够点一次下载，短到捡到链接也很快失效 */
@@ -24,24 +28,17 @@ export function releaseObjectKey(productId: string, version: string, fileName: s
   return `releases/${productId}/${version}/${fileName}`;
 }
 
-/** 公开下载地址：免费产品用，无需签名 */
-export function publicReleaseUrl(key: string): string | null {
-  const cfg = readR2Config();
-  if (!cfg) return null;
-  return `${cfg.publicBase}/${key}`;
-}
-
 /**
  * 签发一条限时下载链接。
  *
  * `downloadFileName` 会写进 Content-Disposition，否则浏览器会拿 key 里那串路径当文件名。
- * 返回 null 表示 R2 未配置——调用方应当据此返回 503，而不是把错误当成「没有权限」。
+ * 返回 null 表示私有 bucket 未配置——调用方应当据此返回 503，而不是把错误当成「没有权限」。
  */
 export async function createSignedReleaseUrl(
   key: string,
   downloadFileName: string,
 ): Promise<string | null> {
-  const cfg = readR2Config();
+  const cfg = readReleaseR2Config();
   if (!cfg) return null;
 
   const command = new GetObjectCommand({
@@ -59,8 +56,8 @@ export async function uploadRelease(
   body: Uint8Array,
   contentType: string,
 ): Promise<void> {
-  const cfg = readR2Config();
-  if (!cfg) throw new Error('R2 未配置，无法上传安装包');
+  const cfg = readReleaseR2Config();
+  if (!cfg) throw new Error('R2 安装包私有 bucket 未配置，无法上传安装包');
 
   await getClient(cfg).send(
     new PutObjectCommand({

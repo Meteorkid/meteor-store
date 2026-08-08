@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { findProduct } from '@/lib/products';
 import { getUserEntitlements } from '@/lib/entitlements';
-import { createSignedReleaseUrl, publicReleaseUrl } from '@/lib/release-storage';
+import { createSignedReleaseUrl } from '@/lib/release-storage';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 /**
@@ -36,13 +36,27 @@ export async function GET(
     return NextResponse.json({ error: '下载不存在' }, { status: 404 });
   }
 
-  // 公开下载没有校验可言，直接把人送到目标地址，省得调用方还要分两种链接处理
+  // 非门控：外部链接直接跳；R2 对象一律签短时效链接（私有 bucket，不签拿不到）。
+  // 免费产品无需登录，但对象本体不公开，猜路径也拖不走。
   if (!download.gated) {
-    const target = download.url ?? (download.r2Key ? publicReleaseUrl(download.r2Key) : null);
-    if (!target) {
+    if (download.url) {
+      return NextResponse.redirect(download.url, {
+        status: 302,
+        headers: { 'Cache-Control': 'no-store' },
+      });
+    }
+    if (!download.r2Key) {
       return NextResponse.json({ error: '下载暂不可用' }, { status: 503 });
     }
-    return NextResponse.redirect(target, { status: 302, headers: { 'Cache-Control': 'no-store' } });
+    const publicFileName = download.r2Key.split('/').pop() || `${productId}-download`;
+    const publicSigned = await createSignedReleaseUrl(download.r2Key, publicFileName);
+    if (!publicSigned) {
+      return NextResponse.json({ error: '下载服务未配置' }, { status: 503 });
+    }
+    return NextResponse.redirect(publicSigned, {
+      status: 302,
+      headers: { 'Cache-Control': 'no-store' },
+    });
   }
 
   if (!download.r2Key) {

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import type { LocalizedProduct } from '@/data/products';
 import { getTranslations } from 'next-intl/server';
-import { publicReleaseUrl } from '@/lib/release-storage';
 import DownloadCard from './DownloadCard';
 
 const iconMap: Record<string, { svg: ReactNode; color: string }> = {
@@ -71,11 +70,7 @@ export default async function DownloadSection({ product }: { product: LocalizedP
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {downloads.map((dl, i) => {
           const iconInfo = iconMap[dl.icon] || iconMap.github;
-          // 公开地址在服务端解析：R2_PUBLIC_BASE 不是 NEXT_PUBLIC_ 变量，客户端读不到
-          const publicHref = dl.gated
-            ? null
-            : dl.url ?? (dl.r2Key ? publicReleaseUrl(dl.r2Key) : null);
-
+          // 下载地址一律由 /api/download 签发（私有 bucket），不在页面落地公开链接
           return (
             <DownloadCard
               key={dl.id}
@@ -86,7 +81,6 @@ export default async function DownloadSection({ product }: { product: LocalizedP
               icon={iconInfo.svg}
               iconColor={iconInfo.color}
               recommended={i === 0}
-              publicHref={publicHref}
               gated={Boolean(dl.gated)}
               version={dl.version}
               sha256={dl.sha256}

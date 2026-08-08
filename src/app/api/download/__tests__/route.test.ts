@@ -17,7 +17,6 @@ vi.mock('@/lib/entitlements', () => ({
 const createSignedReleaseUrl = vi.fn();
 vi.mock('@/lib/release-storage', () => ({
   createSignedReleaseUrl: (...args: unknown[]) => createSignedReleaseUrl(...args),
-  publicReleaseUrl: (key: string) => `https://cdn.example.com/${key}`,
 }));
 
 /**
@@ -31,6 +30,7 @@ const gatedProduct = {
   id: 'xnook',
   downloads: [
     { id: 'xnook-dmg', label: {}, icon: 'dmg', r2Key: 'releases/xnook/1.0.0/XNook.dmg', gated: true },
+    { id: 'public-r2', label: {}, icon: 'zip', r2Key: 'releases/statux/0.4.3/statux-darwin-arm64' },
     { id: 'public-zip', label: {}, icon: 'zip', url: 'https://example.com/x.zip' },
     { id: 'broken', label: {}, icon: 'dmg', gated: true },
   ],
@@ -68,6 +68,22 @@ describe('安装包下载', () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.get('location')).toBe('https://example.com/x.zip');
+  });
+
+  it('免费 R2 对象也签发私有链接，无需登录', async () => {
+    getSession.mockResolvedValue(null);
+    createSignedReleaseUrl.mockResolvedValue('https://r2.example.com/signed-public?sig=x');
+    const { GET } = await import('../[productId]/route');
+
+    const response = await GET(...get('xnook', 'public-r2'));
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('location')).toBe('https://r2.example.com/signed-public?sig=x');
+    // 免费安装包同样走私有 bucket 预签名，不校验授权但也不落公开地址
+    expect(createSignedReleaseUrl).toHaveBeenCalledWith(
+      'releases/statux/0.4.3/statux-darwin-arm64',
+      'statux-darwin-arm64',
+    );
   });
 
   it('门控条目未登录时 401，不签发任何链接', async () => {

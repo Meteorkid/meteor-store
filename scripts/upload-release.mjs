@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * 把安装包（dmg / pkg / zip / tar.gz）上传到 Cloudflare R2，
+ * 把安装包（dmg / pkg / zip / tar.gz）上传到 Cloudflare R2 的**私有** bucket
+ * （R2_RELEASE_BUCKET，与头像/博客图片的公开 bucket 隔离），
  * 并打印可以直接粘进 src/data/products.ts 的 downloads 条目。
  *
  * 为什么是脚本而不是网页上传：安装包动辄几十 MB，走 API 要分片、要断点续传，
@@ -10,7 +11,7 @@
  *   set -a && . ./.env.local && set +a && \
  *   node scripts/upload-release.mjs --product xnook --version 1.2.0 --file ~/build/XNook.dmg
  *
- *   --gated        标记为需要授权才能下载（付费产品用，默认公开）
+ *   --gated        付费产品用：下载需要登录且持有该产品授权（免费产品省略）
  *   --label-zh     下载卡片上的中文名，默认「下载 DMG」之类按扩展名推断
  *   --label-en     英文名
  *   --dry-run      只算校验和、打印计划，不上传
@@ -56,14 +57,13 @@ function readR2Config() {
   const accountId = process.env.R2_ACCOUNT_ID;
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
   const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
-  const bucket = process.env.R2_BUCKET;
-  const publicBase = process.env.R2_PUBLIC_BASE;
-  if (!accountId || !accessKeyId || !secretAccessKey || !bucket || !publicBase) {
+  const bucket = process.env.R2_RELEASE_BUCKET;
+  if (!accountId || !accessKeyId || !secretAccessKey || !bucket) {
     throw new Error(
-      'R2 配置不完整：需要 R2_ACCOUNT_ID / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET / R2_PUBLIC_BASE',
+      'R2 配置不完整：需要 R2_ACCOUNT_ID / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_RELEASE_BUCKET',
     );
   }
-  return { accountId, accessKeyId, secretAccessKey, bucket, publicBase };
+  return { accountId, accessKeyId, secretAccessKey, bucket };
 }
 
 // 与 src/lib/release-storage.ts 保持一致
@@ -146,9 +146,9 @@ async function main() {
 
   console.log(`\n把下面这段加进 src/data/products.ts 里 ${args.product} 的 downloads：\n`);
   console.log(entry);
-  if (!args.gated) {
-    console.log(`\n公开下载地址：${cfg.publicBase}/${key}`);
-  }
+  // 所有安装包都在私有 bucket，只通过 /api/download[productId] 签发的预签名 URL 下载，
+  // 没有公开地址可打印。
+  console.log('\n上传到私有 bucket，发布后由下载接口签发限时链接。');
 }
 
 main().catch((err) => {
