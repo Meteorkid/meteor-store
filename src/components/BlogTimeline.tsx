@@ -62,18 +62,19 @@ const PLANETS = [
  * 把手以北斗小勺呈现：斗柄朝向随时间轴位置旋转，隐喻「斗柄指四时」。
  */
 const BEIDOU = [
-  { x: 72, y: 18, name: '天枢 Dubhe' },
-  { x: 28, y: 22, name: '天璇 Merak' },
-  { x: 30, y: 62, name: '天玑 Phecda' },
-  { x: 64, y: 72, name: '天权 Megrez' },
-  { x: 82, y: 50, name: '玉衡 Alioth' },
-  { x: 90, y: 32, name: '开阳 Mizar' },
-  { x: 93, y: 12, name: '摇光 Alkaid' },
+  { x: 36, y: 12, name: '天枢 Dubhe' },
+  { x: 12, y: 34, name: '天璇 Merak' },
+  { x: 34, y: 62, name: '天玑 Phecda' },
+  { x: 58, y: 42, name: '天权 Megrez' },
+  { x: 76, y: 56, name: '玉衡 Alioth' },
+  { x: 87, y: 70, name: '开阳 Mizar' },
+  { x: 94, y: 85, name: '摇光 Alkaid' },
 ];
 
-/** 北斗星点之间的连线（斗魁四边形 + 斗柄），不含星点本身 */
+/** 北斗星点之间的连线（斗魁四边形 + 斗柄），不含星点本身。
+ * 斗口（天枢-天璇）朝上，斗柄从斗底天权朝外弧线延伸，是标准北斗勺形。 */
 const BEIDOU_LINES =
-  'M28 22 L30 62 L64 72 L72 18 L28 22 M64 72 L82 50 L90 32 L93 12';
+  'M36 12 L12 34 L34 62 L58 42 L36 12 M58 42 L76 56 L87 70 L94 85';
 
 /** 格式化成编辑部风格：2026.07.01 */
 function formatDate(date: string): string {

@@ -21,20 +21,20 @@ export default function NotFound() {
           style={{ transform: 'rotate(180deg)' }}
         >
           <path
-            d="M28 22 L30 62 L64 72 L72 18 L28 22 M64 72 L82 50 L90 32 L93 12"
+            d="M36 12 L12 34 L34 62 L58 42 L36 12 M58 42 L76 56 L87 70 L94 85"
             fill="none"
             stroke="rgba(255,255,255,0.35)"
             strokeWidth="3"
             strokeLinejoin="round"
             strokeLinecap="round"
           />
-          <circle cx="72" cy="18" r="6" fill="#e8e8f4" style={{ filter: 'drop-shadow(0 0 4px rgba(167,139,250,0.9))' }} />
-          <circle cx="28" cy="22" r="4" fill="#cfcfe0" />
-          <circle cx="30" cy="62" r="4" fill="#c9c9dc" />
-          <circle cx="64" cy="72" r="4" fill="#c9c9dc" />
-          <circle cx="82" cy="50" r="4" fill="#dcdce8" />
-          <circle cx="90" cy="32" r="4" fill="#dcdce8" />
-          <circle cx="93" cy="12" r="4" fill="#cfcfe0" />
+          <circle cx="36" cy="12" r="6" fill="#e8e8f4" style={{ filter: 'drop-shadow(0 0 4px rgba(167,139,250,0.9))' }} />
+          <circle cx="12" cy="34" r="4" fill="#cfcfe0" />
+          <circle cx="34" cy="62" r="4" fill="#c9c9dc" />
+          <circle cx="58" cy="42" r="4" fill="#c9c9dc" />
+          <circle cx="76" cy="56" r="4" fill="#dcdce8" />
+          <circle cx="87" cy="70" r="4" fill="#dcdce8" />
+          <circle cx="94" cy="85" r="4" fill="#cfcfe0" />
         </svg>
         <p className="text-8xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
           404
