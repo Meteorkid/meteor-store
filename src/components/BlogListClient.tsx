@@ -15,15 +15,14 @@ import { useAuth } from './AuthProvider';
 import BlogTimeline from './BlogTimeline';
 import type { ActiveTag } from './BlogList';
 
-type SortMode = 'newest' | 'oldest' | 'reading-time' | 'event-newest' | 'event-oldest';
+type SortMode = 'newest' | 'oldest' | 'event-newest' | 'event-oldest';
 
 const sortOptions: {
   value: SortMode;
-  labelKey: 'sortNewest' | 'sortOldest' | 'sortShortest' | 'sortEventNewest' | 'sortEventOldest';
+  labelKey: 'sortNewest' | 'sortOldest' | 'sortEventNewest' | 'sortEventOldest';
 }[] = [
   { value: 'newest', labelKey: 'sortNewest' },
   { value: 'oldest', labelKey: 'sortOldest' },
-  { value: 'reading-time', labelKey: 'sortShortest' },
   { value: 'event-newest', labelKey: 'sortEventNewest' },
   { value: 'event-oldest', labelKey: 'sortEventOldest' },
 ];
@@ -105,9 +104,6 @@ export default function BlogListClient({
         break;
       case 'oldest':
         result.sort((a, b) => a.date.localeCompare(b.date));
-        break;
-      case 'reading-time':
-        result.sort((a, b) => a.readingTime - b.readingTime);
         break;
       case 'event-newest':
         result.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
@@ -216,7 +212,7 @@ export default function BlogListClient({
       <div className="mb-10 flex items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
         <div role="group" aria-labelledby="blog-sort-label" className="flex flex-wrap items-center gap-x-1 gap-y-1">
           <span id="blog-sort-label" className="t-eyebrow mr-1 text-white/45">{t('sort')}</span>
-          {sortOptions.slice(0, 3).map((opt) => (
+          {sortOptions.slice(0, 2).map((opt) => (
             <button
               key={opt.value}
               type="button"
