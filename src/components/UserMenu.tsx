@@ -113,7 +113,7 @@ export default function UserMenu() {
               </>
             )}
             <Link
-              href="/products"
+              href="/apps"
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
