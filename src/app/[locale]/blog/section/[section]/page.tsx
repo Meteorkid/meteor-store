@@ -7,6 +7,7 @@ import BlogList from '@/components/BlogList';
 import TopicProposalForm from '@/components/TopicProposalForm';
 import { findFeedTags } from '@/data/blog-feed';
 import { blogScopeStyle, blogSections, getSectionBySlug } from '@/data/blog-sections';
+import { FOUR_SYMBOLS } from '@/data/celestial';
 import { routing, type Locale } from '@/i18n/routing';
 
 interface SectionPageProps {
@@ -47,6 +48,11 @@ export default async function BlogSectionPage({ params, searchParams }: SectionP
   const initialTags = sp.tags
     ? await findFeedTags(locale as Locale, sp.tags.split(',').filter(Boolean))
     : [];
+  const starSymbol = section.star ? FOUR_SYMBOLS[section.star.symbolId] : undefined;
+  const starLabel = section.star
+    ? `${section.star.sus[locale as Locale]} · ${section.star.beast[locale as Locale]}`
+    : undefined;
+  const starReason = section.star?.reason[locale as Locale];
 
   return (
     <div className="blog-scope min-h-screen bg-black text-white" style={blogScopeStyle(section.id)}>
@@ -66,15 +72,37 @@ export default async function BlogSectionPage({ params, searchParams }: SectionP
               </h1>
               <span aria-hidden className="t-footnote text-white/20">/</span>
               <p className="t-footnote text-white/60">{section.description[locale as Locale]}</p>
-              {section.star && (
-                <span
-                  className="t-footnote inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-white/65"
-                  title={t('starTooltip')}
-                >
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M12 2l2.9 6.26 6.6.64-5 4.4 1.5 6.5L12 16.9 5.99 19.8 7.5 13.3l-5-4.4 6.6-.64z" />
-                  </svg>
-                  {section.star.sus[locale as Locale]} · {section.star.beast[locale as Locale]}
+              {section.star && starSymbol && starLabel && starReason && (
+                <span className="group relative inline-flex">
+                  <span
+                    tabIndex={0}
+                    aria-describedby={`star-reason-${section.id}`}
+                    aria-label={`${t('starTooltip')}：${starLabel}。${starReason}`}
+                    className="t-footnote inline-flex items-center gap-1.5 rounded-full border bg-white/[0.04] px-2.5 py-1 text-white/65 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-white/50"
+                    style={{
+                      borderColor: `rgb(${starSymbol.rgb} / 0.45)`,
+                      boxShadow: `inset 0 0 16px rgb(${starSymbol.rgb} / 0.06)`,
+                    }}
+                  >
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      style={{ color: `rgb(${starSymbol.rgb})` }}
+                    >
+                      <path d="M12 2l2.9 6.26 6.6.64-5 4.4 1.5 6.5L12 16.9 5.99 19.8 7.5 13.3l-5-4.4 6.6-.64z" />
+                    </svg>
+                    {starLabel}
+                  </span>
+                  <span
+                    id={`star-reason-${section.id}`}
+                    role="tooltip"
+                    className="pointer-events-none absolute left-0 top-full z-30 mt-2 w-max max-w-[min(18rem,calc(100vw-2rem))] translate-y-1 rounded-xl border border-white/10 bg-black/90 px-3 py-2 text-xs leading-relaxed text-white/75 opacity-0 shadow-xl backdrop-blur-md transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100"
+                  >
+                    {starReason}
+                  </span>
                 </span>
               )}
             </div>

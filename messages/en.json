@@ -682,7 +682,7 @@
     "description": "An atlas of the blog posts spread across the night sky, each star strung into a trail by event time.",
     "legend": "Each star is a post · hover to read the title · click to open",
     "hint": "Follow the star trail to watch the sky from dawn to dusk.",
-    "aria": "Blog star map: a constellation of posts ordered by event time"
+    "aria": "Blog star map: posts ordered by event time within the Twenty-Eight Mansions"
   },
   "BlogTagPage": {
     "blogSuffix": "Meteor Store Blog",
@@ -1420,7 +1420,12 @@
   },
   "PostSignature": {
     "signature": "— Storekeeper",
-    "starlog": "The ladle has turned east once more"
+    "starlog": {
+      "spring": "The Dipper points east · spring stirs",
+      "summer": "The Dipper points south · summer glows",
+      "autumn": "The Dipper points west · autumn gathers",
+      "winter": "The Dipper points north · winter keeps"
+    }
   },
   "BlogList": {
     "sectionsAria": "Blog sections",

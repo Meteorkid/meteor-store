@@ -25,6 +25,8 @@ export type PassPlanId = 'monthly' | 'annual' | 'lifetime';
 export interface PassPlan {
   id: PassPlanId;
   name: LocalizedText;
+  /** 星象文化副标，只做视觉叙事，不参与支付或授权判断 */
+  celestialLabel: LocalizedText;
   /** 实际售价（折扣价），支付接口按这个收钱 */
   price: number;
   /** 划线原价：促销期间展示，仅在定价卡上划线，不参与支付 */
@@ -41,6 +43,7 @@ export const passPlans: PassPlan[] = [
   {
     id: 'monthly',
     name: { zh: '月付', en: 'Monthly' },
+    celestialLabel: { zh: '月相一轮', en: 'One lunar cycle' },
     price: 9,
     originalPrice: 39,
     period: '月',
@@ -55,6 +58,7 @@ export const passPlans: PassPlan[] = [
   {
     id: 'annual',
     name: { zh: '年付', en: 'Annual' },
+    celestialLabel: { zh: '斗转一周', en: 'One turn of the Dipper' },
     price: 19,
     originalPrice: 99,
     period: '年',
@@ -70,6 +74,7 @@ export const passPlans: PassPlan[] = [
   {
     id: 'lifetime',
     name: { zh: '买断', en: 'Lifetime' },
+    celestialLabel: { zh: '长明不息', en: 'Everlasting light' },
     price: 99,
     originalPrice: 199,
     period: '买断',

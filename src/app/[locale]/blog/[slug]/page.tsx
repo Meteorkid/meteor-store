@@ -144,7 +144,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             ))}
           </div>
 
-          <PostSignature />
+          <PostSignature date={post.date} />
 
           <PostStats targetId={post.slug} />
 

@@ -1,7 +1,10 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { useLocale } from 'next-intl';
 import type { FeedPostSummary } from '@/data/blog-feed';
+import { SEVEN_LUMINARIES } from '@/data/celestial';
+import type { Locale } from '@/i18n/routing';
 
 /**
  * 博客列表右侧垂直时间轴：以当前页文章节点为刻度，按方案 A（锚点映射）实现。
@@ -12,7 +15,7 @@ import type { FeedPostSummary } from '@/data/blog-feed';
  * - 页面滚动：按锚点区间反向插值更新把手（只读跟随，不写回滚动）
  * - 点击节点 / 键盘：平滑滚动
  *
- * 视觉：每个节点是一颗小星球（径向渐变球体 + 高光 + 光晕），把手旁悬浮当前所在
+ * 视觉：每个节点按七曜循环（径向渐变球体 + 高光 + 光晕），把手旁悬浮当前所在
  * 文章的事件日期标签，随滚动实时更新。
  *
  * 锚点由父组件（BlogListClient）通过 anchorsRef 注册，键为文章 slug。
@@ -33,29 +36,6 @@ const HEADER_OFFSET = 80;
  * 采样只影响可见刻度，把手拖动/滚动跟随仍走全部文章锚点，定位精确到每篇。
  */
 const MAX_NODES = 15;
-
-/**
- * 八大行星配色（径向渐变：左上高光 → 主色环带 → 深色核心），节点按序循环取用，
- * 让每颗星球颜色各异，贴近真实行星的观感。
- */
-const PLANETS = [
-  // 水星：灰褐
-  'radial-gradient(circle at 32% 28%, #ece8e0 0%, #b8aea4 42%, #7a6f63 78%, #453e36 100%)',
-  // 金星：米黄
-  'radial-gradient(circle at 32% 28%, #fdf3d7 0%, #eed9a9 40%, #c9a24b 76%, #8a6a2f 100%)',
-  // 地球：蓝绿
-  'radial-gradient(circle at 32% 28%, #dff3ff 0%, #5fb8e8 42%, #1e6fbc 78%, #0f3f7a 100%)',
-  // 火星：红褐
-  'radial-gradient(circle at 32% 28%, #fbd8d0 0%, #e07a5f 42%, #b03a2e 78%, #6e2018 100%)',
-  // 木星：橙褐
-  'radial-gradient(circle at 32% 28%, #fbe9c8 0%, #e8b06a 42%, #b5651d 78%, #6e3a10 100%)',
-  // 土星：金黄
-  'radial-gradient(circle at 32% 28%, #faf0cd 0%, #e8cf8a 42%, #c9a24b 78%, #7a5c22 100%)',
-  // 天王星：青绿
-  'radial-gradient(circle at 32% 28%, #e1f7f4 0%, #9adbd2 42%, #4db8b0 78%, #2a6f6a 100%)',
-  // 海王星：深蓝
-  'radial-gradient(circle at 32% 28%, #bcdcff 0%, #5b9bd5 42%, #1f4e9a 78%, #0f2b5e 100%)',
-];
 
 /**
  * 北斗七星（星官名 + viewBox 0..100 内的归一化坐标）。
@@ -82,6 +62,7 @@ function formatDate(date: string): string {
 }
 
 export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
+  const locale = useLocale() as Locale;
   const railRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLButtonElement>(null);
   const rafRef = useRef(0);
@@ -209,17 +190,17 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
         {/* 轨道：渐变细线 + 上下渐隐 */}
         <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-white/25 to-transparent" />
 
-        {/* 节点刻度：一颗颗小星球（文章多时均匀采样） */}
+        {/* 节点刻度：七曜循环（文章多时均匀采样） */}
         {visibleIndices.map((idx) => {
           const post = posts[idx];
           const ratio = posts.length > 1 ? idx / (posts.length - 1) : 0;
           const active = !dragging && Math.abs(p - ratio) < 0.5 / Math.max(posts.length - 1, 1);
-          const planetBg = PLANETS[idx % PLANETS.length];
+          const luminary = SEVEN_LUMINARIES[idx % SEVEN_LUMINARIES.length];
           return (
             <button
               key={post.slug}
               type="button"
-              title={`${formatDate(post.eventDate)} · ${post.title}`}
+              title={`${luminary.label[locale]} · ${formatDate(post.eventDate)} · ${post.title}`}
               aria-label={`${formatDate(post.eventDate)} · ${post.title}`}
               aria-pressed={active}
               onClick={() => smoothScrollToP(ratio)}
@@ -244,7 +225,7 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
                 <span
                   className="absolute inset-0 rounded-full transition-shadow duration-200"
                   style={{
-                    background: planetBg,
+                    background: luminary.gradient,
                     boxShadow: active
                       ? '0 0 10px rgba(167,139,250,0.85)'
                       : '0 0 6px rgba(167,139,250,0.4)',

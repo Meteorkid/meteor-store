@@ -682,7 +682,7 @@
     "description": "把博客里的文章铺成夜空，每颗星按事件时间串成一条星轨。",
     "legend": "每颗星是一篇文章 · hover 看标题 · 点击前往",
     "hint": "顺着星轨拖拽，就是一场从早到晚的观星。",
-    "aria": "博客星图：按事件时间排列的文章星座"
+    "aria": "博客星图：文章按事件时间排列，外缘标注二十八宿"
   },
   "BlogTagPage": {
     "blogSuffix": "Meteor Store 博客",
@@ -1420,7 +1420,12 @@
   },
   "PostSignature": {
     "signature": "—— 店主",
-    "starlog": "斗柄又指了一回东"
+    "starlog": {
+      "spring": "斗柄东指 · 春生有信",
+      "summer": "斗柄南指 · 长夏有光",
+      "autumn": "斗柄西指 · 秋收成章",
+      "winter": "斗柄北指 · 冬藏待新"
+    }
   },
   "BlogList": {
     "sectionsAria": "博客分区",

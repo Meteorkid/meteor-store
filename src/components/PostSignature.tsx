@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Dancing_Script } from 'next/font/google';
+import { getCelestialSeason } from '@/lib/celestial-season';
 
 const cursive = Dancing_Script({
   subsets: ['latin'],
@@ -18,9 +19,10 @@ const cursive = Dancing_Script({
  * 简化掉羽毛笔装饰——每篇文章都带羽毛笔太重，保留核心仪式感即可。
  * 流星线动画用 IntersectionObserver 滚动到可见时触发，和 /story 一致。
  */
-export default function PostSignature() {
+export default function PostSignature({ date }: { date: string }) {
   const t = useTranslations('PostSignature');
   const streakRef = useRef<HTMLDivElement>(null);
+  const season = getCelestialSeason(date);
 
   useEffect(() => {
     const el = streakRef.current;
@@ -51,8 +53,8 @@ export default function PostSignature() {
           Meteor
         </p>
         <p className="text-white/50 text-sm">{t('signature')}</p>
-        {/* 星宿收尾：斗柄又指了一回东 */}
-        <p className="text-white/30 text-xs mt-2 tabular-nums">{t('starlog')}</p>
+      {/* 星宿收尾：斗柄随文章日期指向当季方位 */}
+        <p className="text-white/30 text-xs mt-2 tabular-nums">{t(`starlog.${season}`)}</p>
       </div>
     </div>
   );

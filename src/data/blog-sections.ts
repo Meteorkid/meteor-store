@@ -3,6 +3,7 @@
  * 新增/调整分区只改这个文件：类型、路由、筛选按钮、sitemap 都从这里推导。
  */
 import type { Locale } from '@/i18n/routing';
+import { FOUR_SYMBOLS, type FourSymbolId } from './celestial';
 
 /** 双语文本：所有需要展示给用户的文本字段都用这个结构 */
 export type LocalizedText = { zh: string; en: string };
@@ -25,7 +26,12 @@ export interface BlogSection {
   /** 是否在分区页展示「提议话题」表单 */
   allowProposals: boolean;
   /** 星象知识：分区对应的二十八宿与四象，用于分区页头部装饰 */
-  star?: { sus: LocalizedText; beast: LocalizedText };
+  star?: {
+    sus: LocalizedText;
+    beast: LocalizedText;
+    symbolId: FourSymbolId;
+    reason: LocalizedText;
+  };
 }
 
 /** 拍平后的单语分区（按 locale 取值后的形状，供组件消费） */
@@ -39,6 +45,8 @@ export interface LocalizedBlogSection {
   allowProposals: boolean;
   /** 当前 locale 下的星象徽章文本（如「参宿 · 西方白虎」） */
   star?: string;
+  starReason?: string;
+  starRgb?: string;
 }
 
 /** 拍平后的单语频道 */
@@ -79,7 +87,15 @@ export const blogSections = [
     channelId: 'dev',
     rgb: '167 139 250',
     allowProposals: false,
-    star: { sus: { zh: '参宿', en: 'Cān Sù' }, beast: { zh: '西方白虎', en: 'White Tiger' } },
+    star: {
+      sus: { zh: '参宿', en: 'Cān Sù' },
+      beast: { zh: '西方白虎', en: 'White Tiger' },
+      symbolId: 'whiteTiger',
+      reason: {
+        zh: '参宿群星明列，取产品成列、各见其光之意',
+        en: 'Its ordered stars evoke products taking shape and finding their light.',
+      },
+    },
   },
   {
     id: 'tech',
@@ -92,7 +108,15 @@ export const blogSections = [
     channelId: 'dev',
     rgb: '56 189 248',
     allowProposals: false,
-    star: { sus: { zh: '井宿', en: 'Jǐng Sù' }, beast: { zh: '南方朱雀', en: 'Vermilion Bird' } },
+    star: {
+      sus: { zh: '井宿', en: 'Jǐng Sù' },
+      beast: { zh: '南方朱雀', en: 'Vermilion Bird' },
+      symbolId: 'vermilionBird',
+      reason: {
+        zh: '井为基础，取技术深挖与共同供给之意',
+        en: 'The Well evokes foundations, depth, and shared infrastructure.',
+      },
+    },
   },
   {
     id: 'story',
@@ -105,7 +129,15 @@ export const blogSections = [
     channelId: 'dev',
     rgb: '251 191 36',
     allowProposals: false,
-    star: { sus: { zh: '斗宿', en: 'Dǒu Sù' }, beast: { zh: '北方玄武', en: 'Black Tortoise' } },
+    star: {
+      sus: { zh: '斗宿', en: 'Dǒu Sù' },
+      beast: { zh: '北方玄武', en: 'Black Tortoise' },
+      symbolId: 'blackTortoise',
+      reason: {
+        zh: '斗柄纪时，取成长由岁月串成之意',
+        en: 'The Dipper marks time, echoing a story built across the years.',
+      },
+    },
   },
   {
     id: 'emotion',
@@ -118,7 +150,15 @@ export const blogSections = [
     channelId: 'humanities',
     rgb: '251 113 133',
     allowProposals: true,
-    star: { sus: { zh: '心宿', en: 'Xīn Sù' }, beast: { zh: '东方青龙', en: 'Azure Dragon' } },
+    star: {
+      sus: { zh: '心宿', en: 'Xīn Sù' },
+      beast: { zh: '东方青龙', en: 'Azure Dragon' },
+      symbolId: 'azureDragon',
+      reason: {
+        zh: '心为苍龙之心，照见关系与自省',
+        en: "The Heart is the Azure Dragon's heart, fitting reflection and relationships.",
+      },
+    },
   },
   {
     id: 'literature',
@@ -131,7 +171,15 @@ export const blogSections = [
     channelId: 'humanities',
     rgb: '52 211 153',
     allowProposals: true,
-    star: { sus: { zh: '奎宿', en: 'Kuí Sù' }, beast: { zh: '西方白虎', en: 'White Tiger' } },
+    star: {
+      sus: { zh: '奎宿', en: 'Kuí Sù' },
+      beast: { zh: '西方白虎', en: 'White Tiger' },
+      symbolId: 'whiteTiger',
+      reason: {
+        zh: '奎主文章，取文思与书写之意',
+        en: 'Kui is traditionally linked with writing and literary talent.',
+      },
+    },
   },
   {
     id: 'debate',
@@ -144,7 +192,15 @@ export const blogSections = [
     channelId: 'humanities',
     rgb: '232 121 249',
     allowProposals: true,
-    star: { sus: { zh: '觜宿', en: 'Zī Sù' }, beast: { zh: '西方白虎', en: 'White Tiger' } },
+    star: {
+      sus: { zh: '觜宿', en: 'Zī Sù' },
+      beast: { zh: '西方白虎', en: 'White Tiger' },
+      symbolId: 'whiteTiger',
+      reason: {
+        zh: '觜有喙意，取言辞交锋之意',
+        en: 'Zui evokes a beak: language sharpened through debate.',
+      },
+    },
   },
 ] as const satisfies readonly BlogSection[];
 
@@ -178,6 +234,8 @@ export function localizeSection(section: BlogSectionEntry, locale: Locale): Loca
     rgb: section.rgb,
     allowProposals: section.allowProposals,
     star: section.star ? `${section.star.sus[locale]} · ${section.star.beast[locale]}` : undefined,
+    starReason: section.star?.reason[locale],
+    starRgb: section.star ? FOUR_SYMBOLS[section.star.symbolId].rgb : undefined,
   };
 }
 

@@ -96,6 +96,13 @@ describe('isPassActive', () => {
 });
 
 describe('passPlans', () => {
+  it('每个档位都有双语星象副标', () => {
+    passPlans.forEach((plan) => {
+      expect(plan.celestialLabel.zh).toBeTruthy();
+      expect(plan.celestialLabel.en).toBeTruthy();
+    });
+  });
+
   it('年付比按月付满一年便宜，否则年付档没有存在意义', () => {
     const monthly = passPlans.find((p) => p.id === 'monthly')!;
     const annual = passPlans.find((p) => p.id === 'annual')!;

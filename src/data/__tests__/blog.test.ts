@@ -4,6 +4,7 @@ import { join } from 'path';
 import matter from 'gray-matter';
 import { blogPosts, estimateReadingTime, toSummary } from '../blog';
 import { blogSections } from '../blog-sections';
+import { FOUR_SYMBOLS } from '../celestial';
 
 const CONTENT_DIR = join(process.cwd(), 'content/blog/zh');
 const files = readdirSync(CONTENT_DIR).filter((f) => f.endsWith('.md'));
@@ -76,6 +77,20 @@ describe('内容文件', () => {
   it('eventDate 缺省时回落到 date，且格式合法', () => {
     blogPosts.forEach((p) => {
       expect(p.eventDate, 'eventDate 缺失').toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+  });
+});
+
+describe('博客分区星象', () => {
+  it('每个分区都有可解释的星宿、四象与双语说明', () => {
+    blogSections.forEach((section) => {
+      expect(section.star, `${section.id} 缺少星宿映射`).toBeTruthy();
+      const star = section.star!;
+      expect(star.sus.zh).toBeTruthy();
+      expect(star.sus.en).toBeTruthy();
+      expect(star.reason.zh).toBeTruthy();
+      expect(star.reason.en).toBeTruthy();
+      expect(FOUR_SYMBOLS[star.symbolId]).toBeTruthy();
     });
   });
 });

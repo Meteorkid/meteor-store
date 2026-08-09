@@ -67,7 +67,7 @@ export default function PricingSection({
         <div className="relative max-w-5xl mx-auto">
           {cosmic && <ConstellationField />}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className={`grid grid-cols-1 gap-8 md:grid-cols-3 ${cosmic ? 'pl-4 md:pl-0' : ''}`}>
             {passPlans.map((plan, index) => (
               <div
                 key={plan.id}
@@ -76,6 +76,7 @@ export default function PricingSection({
               >
                 <PricingCard
                   name={plan.name[locale]}
+                  subtitle={plan.celestialLabel[locale]}
                   price={plan.price}
                   originalPrice={plan.originalPrice}
                   // 买断没有计费周期，价格后面不缀单位；档位名本身已经写着「买断」
@@ -181,78 +182,109 @@ function ConstellationField() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 hidden md:block"
+      className="pointer-events-none absolute inset-0"
     >
-      {/* 星轨连线：三颗主星之间的贯穿线，两端渐隐 */}
-      <svg
-        className="absolute inset-0 h-full w-full"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <linearGradient id="pricing-orbit" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#a78bfa" stopOpacity="0" />
-            <stop offset="50%" stopColor="#a78bfa" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        {/* 贯穿三卡的星轨 */}
-        <path
-          d="M 16 34 C 30 20, 38 42, 50 30 C 60 20, 70 42, 84 34"
-          fill="none"
-          stroke="url(#pricing-orbit)"
-          strokeWidth="0.35"
-          strokeLinecap="round"
-        />
-        {/* 次级伴线，增加层次 */}
-        <path
-          d="M 16 34 L 50 30 L 84 34"
-          fill="none"
-          stroke="#a78bfa"
-          strokeOpacity="0.28"
-          strokeWidth="0.2"
-          strokeLinecap="round"
-          strokeDasharray="1.4 2.4"
-        />
-      </svg>
-
-      {/* 三颗主星：光晕 + 星核 */}
-      {SPEC.map((s, i) => (
-        <span
-          key={i}
-          className="absolute -translate-x-1/2 -translate-y-1/2"
-          style={{ left: s.x, top: s.y }}
+      <div className="absolute inset-0 hidden md:block">
+        {/* 星轨连线：三颗主星之间的贯穿线，两端渐隐 */}
+        <svg
+          className="absolute inset-0 h-full w-full"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
         >
+          <defs>
+            <linearGradient id="pricing-orbit" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#a78bfa" stopOpacity="0" />
+              <stop offset="50%" stopColor="#a78bfa" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {/* 贯穿三卡的星轨 */}
+          <path
+            d="M 16 34 C 30 20, 38 42, 50 30 C 60 20, 70 42, 84 34"
+            fill="none"
+            stroke="url(#pricing-orbit)"
+            strokeWidth="0.35"
+            strokeLinecap="round"
+          />
+          {/* 次级伴线，增加层次 */}
+          <path
+            d="M 16 34 L 50 30 L 84 34"
+            fill="none"
+            stroke="#a78bfa"
+            strokeOpacity="0.28"
+            strokeWidth="0.2"
+            strokeLinecap="round"
+            strokeDasharray="1.4 2.4"
+          />
+        </svg>
+
+        {/* 三颗主星：光晕 + 星核 */}
+        {SPEC.map((s, i) => (
           <span
-            className="absolute rounded-full blur-[6px]"
+            key={i}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ left: s.x, top: s.y }}
+          >
+            <span
+              className="absolute rounded-full blur-[6px]"
+              style={{
+                width: s.halo,
+                height: s.halo,
+                left: -s.halo / 2,
+                top: -s.halo / 2,
+                background: 'radial-gradient(circle, rgba(167,139,250,0.5), transparent 70%)',
+              }}
+            />
+            <span
+              className="block rounded-full bg-white"
+              style={{ width: s.r * 4, height: s.r * 4, boxShadow: '0 0 8px rgba(167,139,250,0.9)' }}
+            />
+          </span>
+        ))}
+
+        {/* 背景散星 */}
+        {FIELD_STARS.map((s, i) => (
+          <span
+            key={`f${i}`}
+            className="absolute rounded-full bg-white/70"
             style={{
-              width: s.halo,
-              height: s.halo,
-              left: -s.halo / 2,
-              top: -s.halo / 2,
-              background: 'radial-gradient(circle, rgba(167,139,250,0.5), transparent 70%)',
+              width: s.r * 2,
+              height: s.r * 2,
+              left: `${s.x}%`,
+              top: `${s.y}%`,
             }}
           />
-          <span
-            className="block rounded-full bg-white"
-            style={{ width: s.r * 4, height: s.r * 4, boxShadow: '0 0 8px rgba(167,139,250,0.9)' }}
-          />
-        </span>
-      ))}
+        ))}
+      </div>
 
-      {/* 背景散星 */}
-      {FIELD_STARS.map((s, i) => (
-        <span
-          key={`f${i}`}
-          className="absolute rounded-full bg-white/70"
-          style={{
-            width: s.r * 2,
-            height: s.r * 2,
-            left: `${s.x}%`,
-            top: `${s.y}%`,
-          }}
-        />
-      ))}
+      {/* 移动端纵向星轨：在卡片左侧保留三档之间的文化联系 */}
+      <div className="absolute -left-1 inset-y-2 w-5 md:hidden">
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 20 100" preserveAspectRatio="none">
+          <path
+            d="M10 2 C3 20, 17 34, 10 50 C3 66, 17 80, 10 98"
+            fill="none"
+            stroke="#a78bfa"
+            strokeOpacity="0.42"
+            strokeWidth="0.6"
+            strokeLinecap="round"
+          />
+          <path
+            d="M10 16 L10 50 L10 84"
+            fill="none"
+            stroke="#a78bfa"
+            strokeOpacity="0.24"
+            strokeWidth="0.35"
+            strokeDasharray="1.5 2.5"
+          />
+        </svg>
+        {[16, 50, 84].map((top) => (
+          <span
+            key={top}
+            className="absolute left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_8px_rgba(167,139,250,0.95)]"
+            style={{ top: `${top}%` }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

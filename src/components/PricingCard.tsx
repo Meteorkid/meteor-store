@@ -10,6 +10,7 @@ import { useAuth } from './AuthProvider';
 
 interface PricingCardProps {
   name: string;
+  subtitle?: string;
   price: number;
   basePrice?: number;
   /** 限免前的原价：有值时划掉展示，说明当前 ¥0 是折扣价而不是产品本身不值钱 */
@@ -25,6 +26,7 @@ interface PricingCardProps {
 
 export default function PricingCard({
   name,
+  subtitle,
   price,
   basePrice,
   originalPrice,
@@ -105,9 +107,16 @@ export default function PricingCard({
         )}
 
         {/* Plan Name */}
-        <h3 className={`text-sm font-medium mb-4 ${isPopular ? 'text-primary' : 'text-muted-foreground'}`}>
-          {name}
-        </h3>
+        <div className="mb-4">
+          <h3 className={`text-sm font-medium ${isPopular ? 'text-primary' : 'text-muted-foreground'}`}>
+            {name}
+          </h3>
+          {subtitle && (
+            <p className={`t-footnote mt-1 ${isPopular ? 'text-purple-300/55' : 'text-white/35'}`}>
+              {subtitle}
+            </p>
+          )}
+        </div>
 
         {/* Price */}
         <div className="mb-6">
