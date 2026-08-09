@@ -3,8 +3,8 @@ import { NextRequest } from 'next/server';
 
 const state = vi.hoisted(() => ({
   session: null as null | { userId: string; email: string; emailVerified: true },
-  queryResults: [] as Array<Array<{ count: number }>>,
-  selectCalls: 0,
+  statsRow: null as null | Record<string, number>,
+  viewRecorded: { targetId: null as string | null, calls: 0 },
 }));
 
 vi.mock('@/lib/auth', () => ({
@@ -13,49 +13,56 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/db', () => ({
   db: {
-    select: () => {
-      const rows = state.queryResults[state.selectCalls] ?? [];
-      state.selectCalls += 1;
-      return {
-        from: () => ({
-          where: async () => rows,
-        }),
-      };
-    },
+    execute: async () => ({ rows: state.statsRow ? [state.statsRow] : [] }),
   },
 }));
 
-import { GET } from '../route';
+vi.mock('@/lib/views-likes', () => ({
+  recordView: async (targetId: string) => {
+    state.viewRecorded.targetId = targetId;
+    state.viewRecorded.calls += 1;
+  },
+}));
+
+import { POST } from '../route';
 
 function request(targetId?: string): NextRequest {
   const url = new URL('http://localhost/api/post-stats');
-  if (targetId) url.searchParams.set('targetId', targetId);
-  return new NextRequest(url);
+  if (targetId) {
+    return new NextRequest(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetId }),
+    });
+  }
+  return new NextRequest(url, { method: 'POST' });
 }
 
-describe('GET /api/post-stats', () => {
+describe('POST /api/post-stats', () => {
   beforeEach(() => {
     state.session = null;
-    state.queryResults = [];
-    state.selectCalls = 0;
+    state.statsRow = null;
+    state.viewRecorded = { targetId: null, calls: 0 };
   });
 
-  it('缺少 targetId 时返回 400 且不查询数据库', async () => {
-    const response = await GET(request());
+  it('缺少 targetId 时返回 400 且不记录 view、不查库', async () => {
+    const response = await POST(request());
 
     expect(response.status).toBe(400);
-    expect(state.selectCalls).toBe(0);
+    expect(state.viewRecorded.calls).toBe(0);
   });
 
-  it('匿名访问返回四项计数，用户状态固定为 false', async () => {
-    state.queryResults = [
-      [{ count: 9 }],
-      [{ count: 4 }],
-      [{ count: 3 }],
-      [{ count: 2 }],
-    ];
+  it('匿名访问返回四项计数，用户状态固定为 false，并记录一次 view', async () => {
+    state.statsRow = {
+      view_count: 9,
+      like_count: 4,
+      comment_count: 3,
+      favorite_count: 2,
+      liked: 0,
+      favorited: 0,
+    };
 
-    const response = await GET(request('post-1'));
+    const response = await POST(request('post-1'));
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
@@ -66,21 +73,22 @@ describe('GET /api/post-stats', () => {
       favoriteCount: 2,
       favorited: false,
     });
-    expect(state.selectCalls).toBe(4);
+    expect(state.viewRecorded.targetId).toBe('post-1');
+    expect(state.viewRecorded.calls).toBe(1);
   });
 
-  it('登录用户同时返回点赞和收藏状态', async () => {
+  it('登录用户返回点赞和收藏状态', async () => {
     state.session = { userId: 'U1', email: 'user@example.com', emailVerified: true };
-    state.queryResults = [
-      [{ count: 12 }],
-      [{ count: 5 }],
-      [{ count: 1 }],
-      [{ count: 4 }],
-      [{ count: 3 }],
-      [{ count: 1 }],
-    ];
+    state.statsRow = {
+      view_count: 12,
+      like_count: 5,
+      comment_count: 4,
+      favorite_count: 3,
+      liked: 1,
+      favorited: 1,
+    };
 
-    const response = await GET(request('post-2'));
+    const response = await POST(request('post-2'));
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
@@ -91,6 +99,5 @@ describe('GET /api/post-stats', () => {
       favoriteCount: 3,
       favorited: true,
     });
-    expect(state.selectCalls).toBe(6);
   });
 });

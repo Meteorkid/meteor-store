@@ -250,6 +250,22 @@ export async function getPublishedUserPosts(): Promise<UserPost[]> {
 }
 
 /**
+ * 按 id 批量取已发布的投稿。「我的收藏」页用——只拉收藏命中的那几篇，
+ * 避免 getPublishedUserPosts 那样把全表（含 content）都捞进内存再筛。
+ * 传入的 id 里可能混入文件文章的 slug，它们不会命中任何投稿，天然被忽略。
+ */
+export async function getPublishedUserPostsByIds(ids: string[]): Promise<UserPost[]> {
+  if (ids.length === 0) return [];
+  const rows = await db
+    .select(postColumns)
+    .from(posts)
+    .leftJoin(users, eq(posts.authorId, users.id))
+    .where(and(eq(posts.status, 'published'), inArray(posts.id, ids)));
+
+  return attachTags(rows);
+}
+
+/**
  * 审核。只有 pending 的文章能被审——用条件更新而不是先查后写，
  * 避免两个管理员同时点造成重复处理。
  */

@@ -2,7 +2,7 @@ import { eq, and, sql, inArray } from 'drizzle-orm';
 import { db } from './db';
 import { postFavorites } from './db/schema';
 import { getBlogPosts } from '@/data/blog';
-import { getPublishedUserPosts } from './posts';
+import { getPublishedUserPostsByIds } from './posts';
 import { estimateReadingTime } from '@/data/blog';
 import type { FeedPostSummary } from '@/data/blog-feed';
 import type { Locale } from '@/i18n/routing';
@@ -148,10 +148,11 @@ export async function getUserFavoritePosts(
     }
   }
 
-  // 3. 从数据库投稿筛（英文 locale 下不加载投稿——投稿都是中文）
+  // 3. 从数据库投稿筛（英文 locale 下不加载投稿——投稿都是中文）。
+  //    只按收藏命中的 id 批量查，避免全表（含 content）拉进内存再筛。
   if (locale === 'zh') {
     try {
-      const rows = await getPublishedUserPosts();
+      const rows = await getPublishedUserPostsByIds([...targetIdSet]);
       for (const p of rows) {
         if (targetIdSet.has(p.id)) {
           results.push({

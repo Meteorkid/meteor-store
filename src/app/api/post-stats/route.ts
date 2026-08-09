@@ -1,74 +1,79 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { db } from '@/lib/db';
-import { comments, likes, pageViews, postFavorites } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
+import { getClientIp, rateLimit } from '@/lib/rate-limit';
+import { recordView } from '@/lib/views-likes';
+
+const StatsSchema = z.object({
+  targetId: z.string().min(1).max(200),
+});
+
+interface StatsRow {
+  view_count: number;
+  like_count: number;
+  comment_count: number;
+  favorite_count: number;
+  liked: number;
+  favorited: number;
+}
 
 /**
- * 文章统计聚合接口：一次请求拉取 views / likes / comments / favorites 计数
- * 与当前用户的 liked / favorited 状态。
+ * 文章统计聚合接口：一次请求记录一次浏览并拉取 views / likes / comments / favorites
+ * 计数与当前用户的 liked / favorited 状态。
  *
- * PostStats 组件原本要打 4 个独立请求,这里合并为 1 个,减少连接成本和 RTT。
- * 不限流:GET 接口、所有数据本来就对公众可见、计数查询走索引开销很小。
+ * PostStats 组件原本要打 2 个请求（POST /api/views + GET /api/post-stats），合并为 1 个；
+ * 内部 6 个独立 count(*) 也压成单条 SQL 子查询——Neon HTTP 下每个 count 都是一次网络往返，
+ * 两处合并都直接减少 RTT 与数据库连接。
  *
- * 字段说明:
- *  - viewCount: page_views 行数
- *  - likeCount / liked: likes 表行数 + 当前用户是否命中
- *  - commentCount: comments 表 status='approved' 行数(只统计公开可见)
- *  - favoriteCount / favorited: post_favorites 行数 + 当前用户是否命中
+ * 限流：POST 会写 page_views，按 IP 限流（区别于纯读接口）。
  */
-export async function GET(req: NextRequest) {
-  const targetId = req.nextUrl.searchParams.get('targetId');
-  if (!targetId) {
-    return NextResponse.json({ error: '缺少 targetId' }, { status: 400 });
+export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  const { limited } = await rateLimit(`post-stats:${ip}`, 60, 60_000, { fallback: 'memory' });
+  if (limited) {
+    return NextResponse.json({ error: '操作太频繁了，稍后再试' }, { status: 429 });
   }
+
+  const body = await req.json().catch(() => null);
+  const parsed = StatsSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+  }
+  const targetId = parsed.data.targetId;
 
   const session = await getSession();
   const userId = session?.userId ?? null;
 
-  // 4 个独立查询并行执行,不互相依赖
-  // 视图: count(*)
-  // 点赞: count(*) + 当前用户命中
-  // 评论: count(*) WHERE status='approved'
-  // 收藏: count(*) + 当前用户命中
-  const [viewRow, likeRow, likeStatusRow, commentRow, favoriteRow, favoriteStatusRow] =
-    await Promise.all([
-      db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(pageViews)
-        .where(eq(pageViews.targetId, targetId)),
-      db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(likes)
-        .where(eq(likes.targetId, targetId)),
-      userId
-        ? db
-            .select({ count: sql<number>`count(*)::int` })
-            .from(likes)
-            .where(and(eq(likes.targetId, targetId), eq(likes.userId, userId)))
-        : Promise.resolve([{ count: 0 }]),
-      db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(comments)
-        .where(and(eq(comments.targetId, targetId), eq(comments.status, 'approved'))),
-      db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(postFavorites)
-        .where(eq(postFavorites.targetId, targetId)),
-      userId
-        ? db
-            .select({ count: sql<number>`count(*)::int` })
-            .from(postFavorites)
-            .where(and(eq(postFavorites.targetId, targetId), eq(postFavorites.userId, userId)))
-        : Promise.resolve([{ count: 0 }]),
-    ]);
+  // 记录一次浏览（去重由 page_views 的 (target_id, ip_hash) 唯一约束兜底）
+  await recordView(targetId, ip);
 
+  // 单条 SQL 聚合：4 项计数 + 2 项用户状态（未登录时状态置 0）
+  const likeStatus = userId
+    ? sql`(SELECT count(*)::int FROM likes WHERE target_id = ${targetId} AND user_id = ${userId})`
+    : sql`0`;
+  const favoriteStatus = userId
+    ? sql`(SELECT count(*)::int FROM post_favorites WHERE target_id = ${targetId} AND user_id = ${userId})`
+    : sql`0`;
+
+  const result = await db.execute(sql<StatsRow>`
+    SELECT
+      (SELECT count(*)::int FROM page_views WHERE target_id = ${targetId}) AS view_count,
+      (SELECT count(*)::int FROM likes WHERE target_id = ${targetId}) AS like_count,
+      (SELECT count(*)::int FROM comments WHERE target_id = ${targetId} AND status = 'approved') AS comment_count,
+      (SELECT count(*)::int FROM post_favorites WHERE target_id = ${targetId}) AS favorite_count,
+      ${likeStatus} AS liked,
+      ${favoriteStatus} AS favorited
+  `);
+
+  const row = result.rows[0];
   return NextResponse.json({
-    viewCount: viewRow[0]?.count ?? 0,
-    likeCount: likeRow[0]?.count ?? 0,
-    liked: (likeStatusRow[0]?.count ?? 0) > 0,
-    commentCount: commentRow[0]?.count ?? 0,
-    favoriteCount: favoriteRow[0]?.count ?? 0,
-    favorited: (favoriteStatusRow[0]?.count ?? 0) > 0,
+    viewCount: row?.view_count ?? 0,
+    likeCount: row?.like_count ?? 0,
+    liked: Number(row?.liked ?? 0) > 0,
+    commentCount: row?.comment_count ?? 0,
+    favoriteCount: row?.favorite_count ?? 0,
+    favorited: Number(row?.favorited ?? 0) > 0,
   });
 }

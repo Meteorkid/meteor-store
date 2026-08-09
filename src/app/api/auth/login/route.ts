@@ -5,6 +5,7 @@ import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
 import { createEmailVerificationResendTicket } from '@/lib/email-verification';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { assertMatchingOrigin } from '@/lib/csrf';
 import { eq } from 'drizzle-orm';
 
 /**
@@ -18,6 +19,10 @@ function getDummyHash(): Promise<string> {
 }
 
 export async function POST(req: NextRequest) {
+  // CSRF 纵深防御：写接口必须来自本站 Origin
+  const forbidden = assertMatchingOrigin(req);
+  if (forbidden) return forbidden;
+
   const body = await req.json().catch(() => null);
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body?.password === 'string' ? body.password : '';

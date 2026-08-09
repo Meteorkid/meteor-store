@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { runCancellableTask } from '@/lib/cancellable-task';
@@ -79,30 +79,14 @@ export default function ReportModeration() {
     },
   );
 
-  const fetchReports = useCallback(async () => {
-    setLoading(true);
-    setFetchError(false);
-    try {
-      const params = new URLSearchParams();
-      if (filter) params.set('status', filter);
-      if (targetFilter.targetType) params.set('targetType', targetFilter.targetType);
-      if (targetFilter.targetId) params.set('targetId', targetFilter.targetId);
-      const qs = params.toString();
-      const res = await fetch(`/api/admin/reports${qs ? `?${qs}` : ''}`);
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
-      setReports(data.reports ?? []);
-    } catch {
-      setFetchError(true);
-      setReports([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [filter, targetFilter]);
+  // reloadKey 用于在 resolve/dismiss 等操作后触发重新拉取：自增一次即让 effect 重跑
+  const [reloadKey, setReloadKey] = useState(0);
 
-  // filter/targetFilter 变化时进入 loading：渲染期调整状态
-  const [prevFetchKey, setPrevFetchKey] = useState(`${filter}:${targetFilter.targetType ?? ''}:${targetFilter.targetId ?? ''}`);
-  const fetchKey = `${filter}:${targetFilter.targetType ?? ''}:${targetFilter.targetId ?? ''}`;
+  // filter/targetFilter/reloadKey 变化时进入 loading：渲染期调整状态
+  const [prevFetchKey, setPrevFetchKey] = useState(
+    `${filter}:${targetFilter.targetType ?? ''}:${targetFilter.targetId ?? ''}:0`,
+  );
+  const fetchKey = `${filter}:${targetFilter.targetType ?? ''}:${targetFilter.targetId ?? ''}:${reloadKey}`;
   if (fetchKey !== prevFetchKey) {
     setPrevFetchKey(fetchKey);
     setLoading(true);
@@ -130,7 +114,7 @@ export default function ReportModeration() {
         onSettled: () => setLoading(false),
       },
     );
-  }, [filter, targetFilter]);
+  }, [filter, targetFilter, reloadKey]);
 
   // 用户手动切 tab:清掉 targetFilter 和 URL 参数,回到全部视图
   function changeFilter(next: FilterStatus) {
@@ -162,7 +146,7 @@ export default function ReportModeration() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t('operationFailed'));
       showFeedback('success', action === 'resolve' ? t('reportResolved') : t('reportDismissed'));
-      fetchReports();
+      setReloadKey((k) => k + 1);
     } catch (err) {
       showFeedback('error', err instanceof Error ? err.message : t('operationFailed'));
     } finally {
@@ -252,7 +236,7 @@ export default function ReportModeration() {
           <p className="t-body text-red-300">{t('operationFailed')}</p>
           <button
             type="button"
-            onClick={fetchReports}
+            onClick={() => setReloadKey((k) => k + 1)}
             className="mt-4 rounded-lg bg-white/10 px-4 py-2 text-sm text-white/70 transition-colors hover:bg-white/20"
           >
             Retry

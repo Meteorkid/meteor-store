@@ -186,7 +186,8 @@ export const comments = pgTable('comments', {
 }, (t) => [
   index('comments_target_idx').on(t.targetId, t.createdAt),
   index('comments_author_idx').on(t.authorId),
-  index('comments_status_idx').on(t.status),
+  // 管理员列表按 status 过滤 + createdAt 排序，复合索引一次覆盖两者
+  index('comments_status_created_idx').on(t.status, t.createdAt),
 ]);
 
 /**
@@ -270,7 +271,8 @@ export const reports = pgTable('reports', {
   resolvedAt: text('resolved_at'),
   createdAt: text('created_at').notNull(),
 }, (t) => [
-  index('reports_status_idx').on(t.status),
+  // 管理员列表按 status 过滤 + createdAt 排序，复合索引一次覆盖两者
+  index('reports_status_created_idx').on(t.status, t.createdAt),
   index('reports_target_idx').on(t.targetType, t.targetId),
   index('reports_reporter_idx').on(t.reporterId),
 ]);

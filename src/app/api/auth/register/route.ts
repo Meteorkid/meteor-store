@@ -10,9 +10,14 @@ import {
   createEmailVerificationToken,
 } from '@/lib/email-verification';
 import { isEmailDeliveryConfigured, sendEmailVerification } from '@/lib/email';
+import { assertMatchingOrigin } from '@/lib/csrf';
 import { eq } from 'drizzle-orm';
 
 export async function POST(req: NextRequest) {
+  // CSRF 纵深防御：写接口必须来自本站 Origin
+  const forbidden = assertMatchingOrigin(req);
+  if (forbidden) return forbidden;
+
   // 每次注册要跑一次 bcrypt cost 12（约 250ms CPU），不限流既能批量灌垃圾账号，
   // 也能靠并发注册把 serverless 的执行时间账单打上去。failClosed 同 login。
   const ip = getClientIp(req);

@@ -10,6 +10,7 @@ import { orders } from '@/lib/db/schema';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { getSession } from '@/lib/auth';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
+import { assertMatchingOrigin } from '@/lib/csrf';
 
 /**
  * 生成唯一订单 ID，带碰撞重试
@@ -40,6 +41,10 @@ const PaymentSchema = z.object({
 
 // 创建支付订单
 export async function POST(request: NextRequest) {
+  // CSRF 纵深防御：写接口必须来自本站 Origin
+  const forbidden = assertMatchingOrigin(request);
+  if (forbidden) return forbidden;
+
   // ICP 备案期间暂停销售
   if (!SHOW_PRICING) {
     return NextResponse.json({ error: '销售暂停中，敬请期待' }, { status: 503 });

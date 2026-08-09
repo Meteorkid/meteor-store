@@ -6,6 +6,7 @@ import { orders } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
 import { findProduct } from '@/lib/products';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { assertMatchingOrigin } from '@/lib/csrf';
 
 /**
  * 免费入库 —— 把带 ¥0 档位的产品记进当前账号。
@@ -21,6 +22,10 @@ import { rateLimit, getClientIp } from '@/lib/rate-limit';
  * 又能通过授权判定里「未交付订单不查授权码状态」那条。
  */
 export async function POST(request: NextRequest) {
+  // CSRF 纵深防御：写接口必须来自本站 Origin
+  const forbidden = assertMatchingOrigin(request);
+  if (forbidden) return forbidden;
+
   const ip = getClientIp(request);
   const { limited } = await rateLimit(`claim:${ip}`, 20, 60_000, { fallback: 'memory' });
   if (limited) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { runCancellableTask } from '@/lib/cancellable-task';
@@ -61,27 +61,14 @@ export default function CommentModeration() {
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [fetchError, setFetchError] = useState(false);
 
-  const fetchComments = useCallback(async () => {
-    setLoading(true);
-    setFetchError(false);
-    try {
-      const params = filter ? `?status=${filter}` : '';
-      const res = await fetch(`/api/admin/comments${params}`);
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
-      setComments(data.comments ?? []);
-    } catch {
-      setFetchError(true);
-      setComments([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [filter]);
+  // reloadKey 用于在审核/删除等操作后触发重新拉取：自增一次即让 effect 重跑
+  const [reloadKey, setReloadKey] = useState(0);
 
-  // filter 变化时进入 loading：渲染期调整状态，避免 effect 里同步 setState
-  const [prevFilter, setPrevFilter] = useState(filter);
-  if (filter !== prevFilter) {
-    setPrevFilter(filter);
+  // filter/reloadKey 变化时进入 loading：渲染期调整状态，避免 effect 里同步 setState
+  const [prevFetchKey, setPrevFetchKey] = useState(`${filter}:0`);
+  const fetchKey = `${filter}:${reloadKey}`;
+  if (fetchKey !== prevFetchKey) {
+    setPrevFetchKey(fetchKey);
     setLoading(true);
     setFetchError(false);
   }
@@ -103,7 +90,7 @@ export default function CommentModeration() {
         onSettled: () => setLoading(false),
       },
     );
-  }, [filter]);
+  }, [filter, reloadKey]);
 
   function showFeedback(type: 'success' | 'error', message: string) {
     setFeedback({ type, message });
@@ -121,7 +108,7 @@ export default function CommentModeration() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t('operationFailed'));
       showFeedback('success', t('commentApproved'));
-      fetchComments();
+      setReloadKey((k) => k + 1);
     } catch (err) {
       showFeedback('error', err instanceof Error ? err.message : t('operationFailed'));
     } finally {
@@ -140,7 +127,7 @@ export default function CommentModeration() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t('operationFailed'));
       showFeedback('success', t('commentRejected'));
-      fetchComments();
+      setReloadKey((k) => k + 1);
     } catch (err) {
       showFeedback('error', err instanceof Error ? err.message : t('operationFailed'));
     } finally {
@@ -156,7 +143,7 @@ export default function CommentModeration() {
       if (!res.ok) throw new Error(data.error || t('operationFailed'));
       showFeedback('success', t('commentDeleted'));
       setDeleteConfirmId(null);
-      fetchComments();
+      setReloadKey((k) => k + 1);
     } catch (err) {
       showFeedback('error', err instanceof Error ? err.message : t('operationFailed'));
     } finally {
@@ -226,7 +213,7 @@ export default function CommentModeration() {
           <p className="t-body text-red-300">{t('operationFailed')}</p>
           <button
             type="button"
-            onClick={fetchComments}
+            onClick={() => setReloadKey((k) => k + 1)}
             className="mt-4 rounded-lg bg-white/10 px-4 py-2 text-sm text-white/70 transition-colors hover:bg-white/20"
           >
             Retry

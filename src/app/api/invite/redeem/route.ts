@@ -3,8 +3,13 @@ import { getSession } from '@/lib/auth';
 import { redeemInviteCode } from '@/lib/invite';
 import { findPurchasable } from '@/lib/products';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { assertMatchingOrigin } from '@/lib/csrf';
 
 export async function POST(req: NextRequest) {
+  // CSRF 纵深防御：写接口必须来自本站 Origin
+  const forbidden = assertMatchingOrigin(req);
+  if (forbidden) return forbidden;
+
   const ip = getClientIp(req);
   const { limited } = await rateLimit(`redeem:ip:${ip}`, 10, 60_000, { fallback: 'memory' });
   if (limited) {

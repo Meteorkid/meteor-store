@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from './AuthProvider';
+import { runCancellableTask } from '@/lib/cancellable-task';
 
 interface PostStatsProps {
   targetId: string; // The post slug (for file posts) or post id (for database posts)
@@ -36,37 +37,46 @@ export default function PostStats({
   const [favorited, setFavorited] = useState(initialFavorited);
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
 
-  // On mount, record a view and fetch fresh stats.
-  // 用聚合接口 /api/post-stats 一次拿全 4 项计数和当前用户的 liked/favorited 状态,
-  // 替代之前 4 个独立 fetch——减少请求数和 RTT。
+  // 挂载时一次请求：记录一次浏览并拿全 4 项计数 + 当前用户 liked/favorited 状态。
+  // 合并 POST /api/views 与 GET /api/post-stats 为单次 POST，减少 1 次 RTT。
   useEffect(() => {
-    // Record view (fire-and-forget)
-    fetch('/api/views', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ targetId }),
-    }).catch(() => {
-      /* 不影响阅读体验 */
-    });
-
-    // Fetch fresh stats
-    const fetchStats = async () => {
-      try {
-        const res = await fetch(`/api/post-stats?targetId=${encodeURIComponent(targetId)}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        setViewCount(data.viewCount ?? 0);
-        setLikeCount(data.likeCount ?? 0);
-        setLiked(data.liked ?? false);
-        setCommentCount(data.commentCount ?? 0);
-        setFavoriteCount(data.favoriteCount ?? 0);
-        setFavorited(data.favorited ?? false);
-      } catch {
-        /* 统计加载失败不影响阅读 */
-      }
-    };
-
-    fetchStats();
+    return runCancellableTask(
+      fetch('/api/post-stats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetId }),
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) =>
+          data
+            ? {
+                viewCount: data.viewCount ?? 0,
+                likeCount: data.likeCount ?? 0,
+                liked: data.liked ?? false,
+                commentCount: data.commentCount ?? 0,
+                favoriteCount: data.favoriteCount ?? 0,
+                favorited: data.favorited ?? false,
+              }
+            : null,
+        ),
+      {
+        onSuccess: (stats) => {
+          if (!stats) return;
+          setViewCount(stats.viewCount);
+          setLikeCount(stats.likeCount);
+          setLiked(stats.liked);
+          setCommentCount(stats.commentCount);
+          setFavoriteCount(stats.favoriteCount);
+          setFavorited(stats.favorited);
+        },
+        onError: () => {
+          /* 统计加载失败不影响阅读 */
+        },
+        onSettled: () => {
+          /* 无额外清理 */
+        },
+      },
+    );
   }, [targetId]);
 
   const handleLike = useCallback(async () => {
