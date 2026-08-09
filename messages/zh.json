@@ -22,7 +22,7 @@
     "home": "首页",
     "products": "产品",
     "pricing": "定价",
-    "docs": "文档",
+    "docs": "帮助",
     "blog": "博客",
     "openSource": "开源",
     "pathfinder": "公益学习路径",
@@ -56,7 +56,7 @@
     "eula": "用户许可协议",
     "refund": "退款政策",
     "tagline": "高质量的开发者工具和 AI 应用，助力你的事业腾飞。",
-    "docs": "文档",
+    "docs": "帮助中心",
     "blog": "博客",
     "story": "本店店主的一封信 ☄",
     "rss": "RSS 订阅",
@@ -267,14 +267,25 @@
     "operatorNote": "依据《中华人民共和国电子商务法》第十五条，本页面公示经营者主体信息。"
   },
   "DocsPage": {
-    "title": "文档中心",
-    "description": "每款产品的快速上手指南。复制命令，30 秒跑起来。",
-    "notFound": "找不到想要的？",
-    "checkReadme": "每款产品详情页都有完整功能介绍和快速上手指南。",
-    "browseGithub": "浏览全部产品",
-    "detailsLink": "详情 →",
-    "macAppHint": "macOS 应用，下载即装即用",
-    "download": "下载 ↓"
+    "eyebrow": "Help Center",
+    "title": "帮助中心",
+    "description": "这里收录用户常见问题和 Meteor Store 的官方解答，帮助你顺利完成下载、授权与产品使用。",
+    "updatedAt": "更新于 {date}",
+    "feedbackEyebrow": "需要更多帮助？",
+    "notFound": "没有找到答案？",
+    "checkReadme": "把你遇到的问题告诉我们。我们会核实情况，并把具有普遍价值的解答持续补充到帮助中心。",
+    "submitQuestion": "提交问题"
+  },
+  "HelpArticlePage": {
+    "breadcrumbsLabel": "当前位置",
+    "helpCenter": "帮助中心",
+    "updatedAt": "更新于 {date}",
+    "relatedEyebrow": "继续查看",
+    "relatedTitle": "相关问题",
+    "unresolvedTitle": "仍未解决？",
+    "unresolvedDescription": "提交你遇到的具体问题，并附上必要的环境与错误信息，我们会尽快核实。",
+    "submitQuestion": "提交问题",
+    "backToHelp": "返回帮助中心"
   },
   "TermsPage": {
     "title": "服务条款",
@@ -749,7 +760,7 @@
     "trustLinePricing": "开源驱动 · 公开源码 · 持续维护更新",
     "trustLineNoPricing": "开源驱动 · 社区驱动 · 欢迎贡献",
     "ctaExplore": "探索全部产品",
-    "ctaGithub": "查看文档",
+    "ctaGithub": "查看帮助",
     "statTools": "精品工具",
     "statUsers": "活跃用户",
     "statRating": "平均评分",
@@ -905,7 +916,7 @@
     "subtleDescPricing": "免费开始，按需升级，无隐藏费用",
     "subtleDescNoPricing": "所有产品开源免费，欢迎使用",
     "browseProducts": "浏览全部产品",
-    "githubOpenSource": "查看文档",
+    "githubOpenSource": "查看帮助",
     "badgeOpenSource": "开源驱动",
     "badgeLifetimeUpdates": "持续维护更新",
     "badgeRefund": "7 天未使用退款"
@@ -1300,7 +1311,7 @@
   },
   "SpotlightSearch": {
     "dialogAriaLabel": "全站搜索",
-    "placeholder": "找产品、找文档，支持拼音 · 输入 meteor 试试",
+    "placeholder": "找产品、找帮助，支持拼音 · 输入 meteor 试试",
     "inputAriaLabel": "搜索",
     "resultsAriaLabel": "搜索结果",
     "recentLabel": "最近访问",
@@ -1320,7 +1331,7 @@
     "descStatux": "iTerm2 状态栏里的 AI Agent 监控面板。",
     "descTollow": "沉浸式长文打字练习，选一本书开始。",
     "viewDetails": "查看详情 →",
-    "readDocs": "阅读文档"
+    "readDocs": "查看帮助"
   },
   "TopicProposal": {
     "validationError": "标题至少 4 个字，理由至少 10 个字",

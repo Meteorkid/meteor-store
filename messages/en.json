@@ -22,7 +22,7 @@
     "home": "Home",
     "products": "Products",
     "pricing": "Pricing",
-    "docs": "Docs",
+    "docs": "Help",
     "blog": "Blog",
     "openSource": "Open Source",
     "pathfinder": "Pathfinder",
@@ -56,7 +56,7 @@
     "eula": "User License Agreement",
     "refund": "Refund Policy",
     "tagline": "High-quality developer tools and AI apps to power your business.",
-    "docs": "Documentation",
+    "docs": "Help Center",
     "blog": "Blog",
     "story": "A Letter from the Store Owner ☄",
     "rss": "RSS Feed",
@@ -267,14 +267,25 @@
     "operatorNote": "Business entity details are disclosed here pursuant to Article 15 of the E-Commerce Law of the PRC."
   },
   "DocsPage": {
-    "title": "Documentation Center",
-    "description": "Quick start guides for each product. Copy the command and get running in 30 seconds.",
-    "notFound": "Can't find what you're looking for?",
-    "checkReadme": "Each product page has full feature overviews and quick-start guides.",
-    "browseGithub": "Browse products",
-    "detailsLink": "Details →",
-    "macAppHint": "macOS app, download and run",
-    "download": "Download ↓"
+    "eyebrow": "Help Center",
+    "title": "Help Center",
+    "description": "Find official answers to common questions about downloading, licensing, and using Meteor Store products.",
+    "updatedAt": "Updated {date}",
+    "feedbackEyebrow": "Need more help?",
+    "notFound": "Didn't find an answer?",
+    "checkReadme": "Tell us what went wrong. We verify each issue and add broadly useful answers to the Help Center over time.",
+    "submitQuestion": "Submit a question"
+  },
+  "HelpArticlePage": {
+    "breadcrumbsLabel": "Breadcrumbs",
+    "helpCenter": "Help Center",
+    "updatedAt": "Updated {date}",
+    "relatedEyebrow": "Keep reading",
+    "relatedTitle": "Related questions",
+    "unresolvedTitle": "Still need help?",
+    "unresolvedDescription": "Send us the details of your issue, including the relevant environment and error message, and we'll look into it.",
+    "submitQuestion": "Submit a question",
+    "backToHelp": "Back to Help Center"
   },
   "TermsPage": {
     "title": "Terms of Service",
@@ -749,7 +760,7 @@
     "trustLinePricing": "Open source · Public code · Continuously maintained",
     "trustLineNoPricing": "Open source · Community driven · Contributions welcome",
     "ctaExplore": "Explore All Products",
-    "ctaGithub": "View docs",
+    "ctaGithub": "View help",
     "statTools": "Premium Tools",
     "statUsers": "Active Users",
     "statRating": "Avg Rating",
@@ -905,7 +916,7 @@
     "subtleDescPricing": "Start free, upgrade as needed, no hidden fees",
     "subtleDescNoPricing": "All products are open source and free, enjoy",
     "browseProducts": "Browse All Products",
-    "githubOpenSource": "View docs",
+    "githubOpenSource": "View help",
     "badgeOpenSource": "Open Source",
     "badgeLifetimeUpdates": "Continuously Maintained",
     "badgeRefund": "7-Day Unused Refund"
@@ -1300,7 +1311,7 @@
   },
   "SpotlightSearch": {
     "dialogAriaLabel": "Site-wide search",
-    "placeholder": "Find products, docs — supports pinyin · try typing meteor",
+    "placeholder": "Find products and help — supports pinyin · try typing meteor",
     "inputAriaLabel": "Search",
     "resultsAriaLabel": "Search results",
     "recentLabel": "Recently visited",
@@ -1320,7 +1331,7 @@
     "descStatux": "AI Agent monitoring panel in the iTerm2 status bar.",
     "descTollow": "Immersive long-form typing practice — pick a book to start.",
     "viewDetails": "View details →",
-    "readDocs": "Read the docs"
+    "readDocs": "View help"
   },
   "TopicProposal": {
     "validationError": "Title needs at least 4 characters, reason at least 10",

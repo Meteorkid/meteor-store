@@ -17,6 +17,21 @@ describe('buildIndex', () => {
     expect(groups.has('彩蛋')).toBe(true);
   });
 
+  it('将全部帮助文章索引到各自详情页', () => {
+    const helpArticles = index.filter(e => e.id.startsWith('help-article-'));
+    expect(helpArticles).toHaveLength(6);
+    expect(helpArticles.every(e => e.group === '帮助')).toBe(true);
+    expect(helpArticles.map(e => e.href)).toContain('/docs/macos-cannot-open-app');
+  });
+
+  it('帮助文章按当前语言建立索引', () => {
+    const englishIndex = buildIndex('en');
+    const english = englishIndex.find(e => e.id === 'help-article-macos-cannot-open-app');
+    expect(english?.title).toMatch(/Mac|macOS/);
+    expect(english?.href).toBe('/docs/macos-cannot-open-app');
+    expect(englishIndex.find(e => e.id === 'page-docs')?.title).toBe('Help Center');
+  });
+
   it('锚点条目带 hash 路由', () => {
     const faqAnchor = index.find(e => e.id === 'anchor-faq');
     expect(faqAnchor?.href).toBe('/#faq');
@@ -42,6 +57,11 @@ describe('searchEntries', () => {
   it('FAQ 答案文本可被搜到（非商业 FAQ，不受 SHOW_PRICING 开关影响）', () => {
     const results = searchEntries('技术支持', 'zh');
     expect(results.some(r => r.group === '帮助')).toBe(true);
+  });
+
+  it('用户问题可直达对应帮助文章', () => {
+    const results = searchEntries('无法打开', 'zh');
+    expect(results.some(r => r.href === '/docs/macos-cannot-open-app')).toBe(true);
   });
 
   it('彩蛋命令可被发现', () => {

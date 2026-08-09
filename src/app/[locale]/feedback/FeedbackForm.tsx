@@ -7,11 +7,15 @@ import { useIsLateNight } from '@/lib/motion';
 const TYPE_VALUES = ['bug', 'feature', 'question', 'other'] as const;
 const NIGHT_VALUE = 'night-whisper';
 
+interface FeedbackFormProps {
+  initialType?: '' | 'question';
+}
+
 /** 深夜树洞：0:00–5:00 出现的特殊反馈类型，可以不留邮箱只说心事 */
-export default function FeedbackForm() {
+export default function FeedbackForm({ initialType = '' }: FeedbackFormProps) {
   const t = useTranslations('FeedbackPage');
   const [email, setEmail] = useState('');
-  const [type, setType] = useState('');
+  const [type, setType] = useState<string>(initialType);
   const [content, setContent] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');

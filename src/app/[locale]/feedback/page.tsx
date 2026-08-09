@@ -20,10 +20,13 @@ export async function generateMetadata({
 
 export default async function FeedbackPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ type?: string | string[] }>;
 }) {
   const { locale } = await params;
+  const { type } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'FeedbackPage' });
 
   return (
@@ -35,7 +38,7 @@ export default async function FeedbackPage({
           <p className="text-gray-400 mb-10">
             {t('description')}
           </p>
-          <FeedbackForm />
+          <FeedbackForm initialType={type === 'question' ? 'question' : ''} />
         </div>
       </main>
       <Footer />

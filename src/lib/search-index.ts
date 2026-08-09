@@ -5,6 +5,7 @@ import { localizeProducts } from '@/data/products';
 import { allFaqs } from '@/components/FAQSection';
 import { SHOW_PRICING, categoryLabels } from '@/lib/constants';
 import { blogSections } from '@/data/blog-sections';
+import { localizeHelpArticles } from '@/data/help-articles';
 import type { Locale } from '@/i18n/routing';
 import { pinyin } from 'pinyin-pro';
 
@@ -39,7 +40,7 @@ function toFullPinyin(str: string): string {
 const STATIC_PAGES: Array<Omit<SearchEntry, 'keywords' | 'initials' | 'fullPinyin'> & { extra?: string }> = [
   { id: 'page-home', title: '首页', group: '页面', href: '/', extra: 'home index 主页' },
   { id: 'page-products', title: '全部产品', group: '页面', href: '/products', extra: 'products 工具 列表' },
-  { id: 'page-docs', title: '文档', group: '页面', href: '/docs', extra: 'docs 使用 指南 快速上手' },
+  { id: 'page-docs', title: '帮助中心', group: '页面', href: '/docs', extra: 'help docs 帮助 问题 解答 安装 授权' },
   { id: 'page-blog', title: '博客', group: '页面', href: '/blog', extra: 'blog 文章' },
   { id: 'page-story', title: '一封来自店主的信', subtitle: '作者小序 · 一个大学生和他的学费', group: '页面', href: '/story', extra: 'story 关于 作者 店主 小序 学费 流星雨' },
   { id: 'page-feedback', title: '反馈建议', subtitle: '深夜也有树洞', group: '页面', href: '/feedback', extra: 'feedback bug 建议 树洞' },
@@ -87,12 +88,18 @@ export function buildIndex(locale: Locale): SearchEntry[] {
     }),
   );
 
-  const pageEntries: SearchEntry[] = STATIC_PAGES.map(({ extra, ...page }) =>
-    withPinyin(page.title, {
+  const pageEntries: SearchEntry[] = STATIC_PAGES.map(({ extra, ...page }) => {
+    const title = page.id === 'page-docs' && locale === 'en' ? 'Help Center' : page.title;
+    const localizedExtra = page.id === 'page-docs' && locale === 'en'
+      ? 'help docs questions answers installation licensing'
+      : extra;
+
+    return withPinyin(title, {
       ...page,
-      keywords: [page.title, page.subtitle || '', extra || ''].join(' ').toLowerCase(),
-    }),
-  );
+      title,
+      keywords: [title, page.subtitle || '', localizedExtra || ''].join(' ').toLowerCase(),
+    });
+  });
 
   const faqEntries: SearchEntry[] = allFaqs
     .filter(f => SHOW_PRICING || !f.commercial)
@@ -106,6 +113,17 @@ export function buildIndex(locale: Locale): SearchEntry[] {
         keywords: `${f.question} ${f.answer}`.toLowerCase(),
       }),
     );
+
+  const helpArticleEntries: SearchEntry[] = localizeHelpArticles(locale).map(article =>
+    withPinyin(article.title, {
+      id: `help-article-${article.slug}`,
+      title: article.title,
+      subtitle: article.excerpt,
+      group: '帮助',
+      href: `/docs/${article.slug}`,
+      keywords: [article.title, article.excerpt, ...article.keywords].join(' ').toLowerCase(),
+    }),
+  );
 
   const sectionEntries: SearchEntry[] = blogSections.map(s =>
     withPinyin(s.label[locale], {
@@ -129,7 +147,14 @@ export function buildIndex(locale: Locale): SearchEntry[] {
     }),
   );
 
-  return [...productEntries, ...pageEntries, ...sectionEntries, ...faqEntries, ...eggEntries];
+  return [
+    ...productEntries,
+    ...pageEntries,
+    ...sectionEntries,
+    ...helpArticleEntries,
+    ...faqEntries,
+    ...eggEntries,
+  ];
 }
 
 const cachedIndexes: Partial<Record<Locale, SearchEntry[]>> = {};

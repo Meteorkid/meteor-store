@@ -480,6 +480,22 @@ bucket 完全隔离。服务层在
 - 正文里的原生 HTML 会被 sanitize **丢弃**（不是转义显示），所以渲染不受信任的内容也安全
 - 动了插件链就要跑 `src/lib/__tests__/markdown.test.ts`，那里有 10 个 XSS 攻击向量的回归用例
 
+### 帮助中心
+
+`/docs` 是帮助中心索引，独立问题页是 `/docs/{slug}`。官方从 `/feedback` 中筛选有普遍价值的
+问题，脱敏并核实后整理成静态文章；**不要自动公开用户原文**，也不要为此给反馈表加公开回答字段。
+
+- 文章标题、摘要、分类、排序、更新时间与关键词的唯一数据源是
+  `src/data/help-articles.ts`。Spotlight 在客户端运行，因此这个文件必须保持浏览器安全，
+  **不能导入 `fs` 或服务端 Markdown 加载器**
+- 正文放在 `content/help/{locale}/{slug}.md`，中英文必须同名成对存在；slug 只取自元数据清单。
+  新增文章时同时补元数据、两种语言正文，并跑 `src/data/__tests__/help.test.ts`
+- 正文继续复用 `markdownToHtml`。后续截图放 `public/help/{slug}/`，优先 WebP，必须有非空 alt；
+  关键操作不能只画在图里，文字步骤也要完整
+- “仍未解决”统一链接 `/feedback?type=question`，只预选现有问题类型，不新增提交接口
+- macOS 安全提示以 Apple 官方指引为准：可以说明“隐私与安全性 → 仍要打开”，
+  **不要指导关闭 Gatekeeper、开启任何来源或运行绕过命令**。帮助文档不能替代安装包签名与公证
+
 ### 头像对象存储（Cloudflare R2）
 
 头像走 S3 兼容的 Cloudflare R2，避免 base64 data URL 入库膨胀 `users` 表。

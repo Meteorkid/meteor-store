@@ -2,10 +2,28 @@ import type { MetadataRoute } from 'next';
 import { products } from '@/data/products';
 import { blogSections } from '@/data/blog-sections';
 import { getFeedPosts, getFeedTags } from '@/data/blog-feed';
+import { helpArticles } from '@/data/help-articles';
 import { SHOW_PRICING, SITE_URL } from '@/lib/constants';
 
 const BASE_URL = SITE_URL;
 const LOCALES = ['zh', 'en'] as const;
+
+export function getHelpSitemapEntries(): MetadataRoute.Sitemap {
+  return helpArticles.flatMap((article) =>
+    LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/docs/${article.slug}`,
+      lastModified: article.updatedAt,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh/docs/${article.slug}`,
+          en: `${BASE_URL}/en/docs/${article.slug}`,
+        },
+      },
+    }))
+  );
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
@@ -76,6 +94,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
+  const helpPages = getHelpSitemapEntries();
+
   // 博客分区页面双语版本
   const blogSectionPages = blogSections.flatMap((section) =>
     LOCALES.map((locale) => ({
@@ -136,5 +156,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
   ];
 
-  return [...localizedStaticPages, ...productPages, ...blogSectionPages, ...blogPostPages, ...tagPages];
+  return [
+    ...localizedStaticPages,
+    ...productPages,
+    ...helpPages,
+    ...blogSectionPages,
+    ...blogPostPages,
+    ...tagPages,
+  ];
 }
