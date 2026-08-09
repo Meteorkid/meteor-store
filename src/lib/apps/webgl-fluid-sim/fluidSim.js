@@ -155,8 +155,21 @@ let cameraInstance = null;
 // ============================================
 // 背景模式
 // ============================================
+// 主动在用户手势内请求摄像头权限。Chrome 要求 getUserMedia 必须发生在「临时用户
+// 激活」窗口内；切换背景/手势后 startCamera 前还要 await initHands()（首次会下载
+// 手势模型），真正的 getUserMedia 往往落在激活过期之后，权限弹窗不会出现。所以
+// 在用户点击的瞬间先预请求一次，授权会持久保留，之后的 startCamera() 才能成功。
+function prewarmCamera() {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+    navigator.mediaDevices
+        .getUserMedia({ video: { width: 256, height: 192 } })
+        .then((stream) => stream.getTracks().forEach((t) => t.stop()))
+        .catch(() => { /* 用户拒绝或失败：后续 startCamera 静默降级 */ });
+}
+
 function setBgMode(mode) {
     bgMode = mode;
+    if (mode === 'camera') prewarmCamera();
 
     // 重置所有背景状态
     cameraBg.style.display = 'none';
@@ -413,6 +426,7 @@ async function toggleGesture() {
     gestureEnabled = !gestureEnabled;
 
     if (gestureEnabled) {
+        prewarmCamera();
         await initHands();
         if (!handsInstance) { gestureEnabled = false; gestureToggling = false; return; }
         fingerStates = [];
