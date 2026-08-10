@@ -488,6 +488,25 @@ export const helpArticles: HelpArticleMeta[] = [
     },
   },
 
+  {
+    slug: 'blog-publishing-api',
+    category: 'community',
+    kind: 'how-to',
+    order: 40,
+    readingMinutes: 5,
+    updatedAt: '2026-08-11',
+    commercial: false,
+    relatedSlugs: ['submit-and-manage-blog-posts', 'create-and-verify-account'],
+    title: { zh: '使用 API 发布博客文章（Codex / Claude Code）', en: 'Publish Blog Posts via API (Codex / Claude Code)' },
+    excerpt: {
+      zh: '通过个人访问令牌在 Codex、Claude Code 等工具中创建、编辑和发布博客投稿。',
+      en: 'Create, edit, and publish blog posts via personal access tokens in Codex, Claude Code, and other tools.',
+    },
+    keywords: {
+      zh: ['API', '博客', '发布', '令牌', 'Codex', 'Claude Code', '自动化'],
+      en: ['API', 'blog', 'publish', 'token', 'Codex', 'Claude Code', 'automation'],
+    },
+  },
   // ========== 在线工具 (2) ==========
   {
     slug: 'use-playground',
@@ -619,7 +638,7 @@ export const EXPECTED_SLUGS: readonly string[] = [
   'open-or-download-owned-product', 'meteor-pass-access-and-renewal',
   'macos-cannot-open-app', 'get-product-after-purchase', 'use-license-key', 'product-updates',
   // 博客与社区
-  'browse-blog-tags-and-rss', 'interact-with-blog-posts', 'submit-and-manage-blog-posts',
+  'browse-blog-tags-and-rss', 'interact-with-blog-posts', 'submit-and-manage-blog-posts', 'blog-publishing-api',
   // 在线工具
   'use-playground', 'use-pathfinder',
   // 售后与支持

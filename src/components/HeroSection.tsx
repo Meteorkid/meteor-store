@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import GlowButton from './GlowButton';
+import HeroCanvas from "./HeroCanvas";
 import Aurora from './Aurora';
 import ScrambleText from './ScrambleText';
 import MagneticWrap from './MagneticWrap';
@@ -14,6 +15,7 @@ export default function HeroSection() {
     <section className="relative overflow-hidden min-h-screen flex items-center">
       {/* Aurora flowing gradient background */}
       <Aurora />
+      <HeroCanvas />
 
       {/* Interactive particle constellation */}
 

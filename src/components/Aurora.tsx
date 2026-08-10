@@ -3,7 +3,7 @@
 export default function Aurora({ className = '' }: { className?: string }) {
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`} aria-hidden="true">
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-[#0a0015]/70 to-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0015] to-black" />
       <div
         className="absolute inset-[-50%] opacity-60 blur-[100px] animate-aurora-1"
         style={{

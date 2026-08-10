@@ -6,7 +6,7 @@ import { createFrameGuard, useReducedMotion } from '@/lib/motion';
 
 export default function HeroCanvas({ className = '' }: { className?: string }) {
   const pathname = usePathname();
-  const isQuiet = /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname);
+  const isQuiet = /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname) || /^\/(?:zh|en)$/.test(pathname);
   if (isQuiet) return null;
   const ref = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
