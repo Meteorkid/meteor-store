@@ -52,7 +52,7 @@ export default async function ApiGuidePage({
               </p>
             </div>
             <a
-              href="/docs/blog-publishing-api.md"
+              href="/api/guide"
               download
               className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
             >
