@@ -249,7 +249,7 @@ export default function CommentSection({ targetId }: { targetId: string }) {
                 {/* UGC 条款提示:提交评论即视为同意 EULA 第 8 节 */}
                 <p className="t-footnote mt-2 text-white/30">
                   {t.rich('ugcConsent', {
-                    link: (chunks) => (
+                    eula: (chunks) => (
                       <Link href="/eula" className="text-white/50 underline decoration-white/15 underline-offset-4 transition-colors hover:text-white/80">
                         {chunks}
                       </Link>

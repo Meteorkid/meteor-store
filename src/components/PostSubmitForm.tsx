@@ -360,7 +360,7 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
       {/* UGC 条款提示:提交即视为同意 EULA 第 8 节 */}
       <p className="t-footnote mt-3 text-white/40">
         {t.rich('ugcConsent', {
-          link: (chunks) => (
+          eula: (chunks) => (
             <Link href="/eula" className="text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white">
               {chunks}
             </Link>
