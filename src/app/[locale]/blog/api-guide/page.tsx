@@ -5,8 +5,14 @@ import { setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { markdownToHtml } from '@/lib/markdown';
+import { routing } from '@/i18n/routing';
 
 export const dynamic = 'force-static';
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
 
 export async function generateMetadata({
   params,

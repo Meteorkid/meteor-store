@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import PricingCard from './PricingCard';
 import RedeemDialog from './RedeemDialog';
-import { PASS_NAME, PASS_PRODUCT_ID, passPlans } from '@/data/pass';
+import { useAuth } from './AuthProvider';
+import { PASS_NAME, PASS_PRODUCT_ID, passPlans, type PassPlanId } from '@/data/pass';
 import type { Locale } from '@/i18n/routing';
 
 interface PricingSectionProps {
@@ -44,6 +45,16 @@ export default function PricingSection({
   const t = useTranslations('PricingSection');
   const locale = useLocale() as Locale;
   const [redeemOpen, setRedeemOpen] = useState(false);
+  const { user } = useAuth();
+  const [currentPassPlan, setCurrentPassPlan] = useState<PassPlanId | null>(null);
+
+  useEffect(() => {
+    if (!user) { setCurrentPassPlan(null); return; }
+    fetch('/api/pass/status')
+      .then((r) => r.json())
+      .then((d) => setCurrentPassPlan(d.hasPass ? d.currentPlan : null))
+      .catch(() => setCurrentPassPlan(null));
+  }, [user]);
 
   return (
     <section id="pricing" className="py-20">
@@ -91,6 +102,7 @@ export default function PricingSection({
                   isPopular={plan.popular}
                   productId={PASS_PRODUCT_ID}
                   productName={PASS_NAME[locale]}
+                  currentPassPlan={currentPassPlan}
                 />
               </div>
             ))}

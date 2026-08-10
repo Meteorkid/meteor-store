@@ -1536,7 +1536,10 @@
     "claiming": "Adding…",
     "claimFailed": "Could not add it, please try again",
     "limitedFree": "Free for now",
-    "discount": "Sale"
+    "discount": "Sale",
+    "renew": "Renew",
+    "upgrade": "Upgrade",
+    "owned": "Owned"
   },
   "StoryLetter": {
     "headerTitle": "A Letter from the Store Owner",
@@ -1732,5 +1735,13 @@
     "currentStar": "Current article (primary star)",
     "reasonTag": "Shared tag: {tag}",
     "reasonSection": "Also in {section}"
+  },
+  "PassOwnedBadge": {
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "lifetime": "Lifetime",
+    "badge": "You are a {plan} Meteor Pass member — all products unlocked",
+    "hint": "Manage subscription",
+    "manageLink": "View Pass"
   }
 }

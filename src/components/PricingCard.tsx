@@ -8,6 +8,8 @@ import { CheckIconSm } from './CheckIcon';
 import PaymentModal from './PaymentModal';
 import { useAuth } from './AuthProvider';
 
+import type { PassPlanId } from '@/data/pass';
+
 interface PricingCardProps {
   name: string;
   subtitle?: string;
@@ -22,6 +24,8 @@ interface PricingCardProps {
   productName?: string;
   href?: string;
   isAnnual?: boolean;
+  /** 用户当前持有的 Pass 档位，用于智能 CTA 文案 */
+  currentPassPlan?: PassPlanId | null;
 }
 
 export default function PricingCard({
@@ -37,6 +41,7 @@ export default function PricingCard({
   productName,
   href,
   isAnnual,
+  currentPassPlan,
 }: PricingCardProps) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [claiming, setClaiming] = useState(false);
@@ -168,17 +173,63 @@ export default function PricingCard({
         </ul>
 
         {/* CTA Button */}
-        <button
-          onClick={handlePurchase}
-          disabled={claiming}
-          className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-300 disabled:opacity-50 ${
-            isPopular
-              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 shadow-lg shadow-primary/20'
-              : 'bg-white/[0.06] text-white hover:bg-white/[0.1] border border-white/[0.06]'
-          }`}
-        >
-          {price === 0 ? (claiming ? t('claiming') : t('claimFree')) : t('buyNow')}
-        </button>
+        {(() => {
+          // 智能 CTA：根据用户当前 Pass 档位显示不同文案
+          const getCtaText = () => {
+            if (price === 0) return claiming ? t('claiming') : t('claimFree');
+            if (!currentPassPlan) return t('buyNow');
+            
+            // 从产品名推断卡片的档位（PricingSection 传的是 Pass plan）
+            const cardPlan = name.includes('月付') ? 'monthly' 
+              : name.includes('年付') ? 'annual' 
+              : name.includes('买断') ? 'lifetime' 
+              : name.includes('Monthly') ? 'monthly'
+              : name.includes('Annual') ? 'annual'
+              : name.includes('Lifetime') ? 'lifetime'
+              : null;
+            
+            if (!cardPlan) return t('buyNow');
+            
+            const rank = { monthly: 1, annual: 2, lifetime: 3 } as Record<string, number>;
+            const currentRank = rank[currentPassPlan] ?? 0;
+            const cardRank = rank[cardPlan] ?? 0;
+            
+            // 已拥有同档或更高档
+            if (currentRank >= cardRank) {
+              return currentPassPlan === cardPlan ? t('renew') : t('owned');
+            }
+            // 升级场景
+            return t('upgrade');
+          };
+
+          const ctaText = getCtaText();
+          const isOwned = currentPassPlan && (() => {
+            const rank = { monthly: 1, annual: 2, lifetime: 3 } as Record<string, number>;
+            const cardPlan = name.includes('月付') ? 'monthly' 
+              : name.includes('年付') ? 'annual' 
+              : name.includes('买断') ? 'lifetime' 
+              : name.includes('Monthly') ? 'monthly'
+              : name.includes('Annual') ? 'annual'
+              : name.includes('Lifetime') ? 'lifetime'
+              : null;
+            if (!cardPlan) return false;
+            return (rank[currentPassPlan] ?? 0) >= (rank[cardPlan] ?? 0);
+          })();
+
+          return (
+            <button
+              onClick={handlePurchase}
+              disabled={claiming || isOwned}
+              className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-300 disabled:opacity-50 ${
+                isPopular
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 shadow-lg shadow-primary/20'
+                  : 'bg-white/[0.06] text-white hover:bg-white/[0.1] border border-white/[0.06]'
+              }`}
+            >
+              {ctaText}
+            </button>
+          );
+        })()}
 
         {claimError && (
           <p className="mt-3 text-center text-sm text-red-400">{claimError}</p>

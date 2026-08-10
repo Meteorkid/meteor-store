@@ -1536,7 +1536,10 @@
     "claiming": "入库中…",
     "claimFailed": "入库失败，请稍后重试",
     "limitedFree": "限免",
-    "discount": "折扣"
+    "discount": "折扣",
+    "renew": "续订",
+    "upgrade": "升级",
+    "owned": "已拥有"
   },
   "StoryLetter": {
     "headerTitle": "一封来自店主的信",
@@ -1732,5 +1735,13 @@
     "currentStar": "当前文章（主星）",
     "reasonTag": "共同标签：{tag}",
     "reasonSection": "同属{section}"
+  },
+  "PassOwnedBadge": {
+    "monthly": "月付",
+    "annual": "年付",
+    "lifetime": "买断",
+    "badge": "你已是 {plan} Meteor Pass 会员，本站全部产品均已解锁",
+    "hint": "管理订阅",
+    "manageLink": "查看 Pass"
   }
 }

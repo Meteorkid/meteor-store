@@ -11,6 +11,7 @@ import InstallCommand from '@/components/InstallCommand';
 import DownloadSection from '@/components/DownloadSection';
 import ProductDemoEmbed from '@/components/ProductDemoEmbed';
 import ProductAppTrial from '@/components/ProductAppTrial';
+import PassOwnedBadge from '@/components/PassOwnedBadge';
 import { products, localizeProduct } from '@/data/products';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 import { routing, type Locale } from '@/i18n/routing';
@@ -121,6 +122,8 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         </section>
 
         {SHOW_PRICING && (
+          <>
+          <PassOwnedBadge />
           <section id="pricing" className="mb-16">
             <h2 className="mb-6 text-center text-2xl font-bold text-white">{t('pricing')}</h2>
             {product.status === 'coming_soon' ? (
@@ -173,6 +176,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
               </>
             )}
           </section>
+          </>
         )}
 
         <section className="mb-8 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-violet-950/40 via-zinc-950 to-purple-950/30 p-8 text-center md:p-14">
