@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { usePathname } from '@/i18n/navigation';
 import { createFrameGuard, isLateNight, useReducedMotion } from '@/lib/motion';
 import { showToast } from './EasterEggs';
 
@@ -35,6 +36,11 @@ interface TrailDot {
  * 深夜（0-5点）流星减速 30%、色调偏暖；监听 meteor:burst 事件进入爆发模式（Konami/console 触发）。
  */
 export default function MeteorShower() {
+  // 静默页面（后台、认证、法律、退款）不渲染
+  const pathname = usePathname();
+  const isQuiet = /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname);
+  if (isQuiet) return null;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reducedMotion = useReducedMotion();
   const t = useTranslations('MeteorShower');
