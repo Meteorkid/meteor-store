@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import GlowButton from './GlowButton';
-import HeroCanvas from './HeroCanvas';
 import Aurora from './Aurora';
 import ScrambleText from './ScrambleText';
 import MagneticWrap from './MagneticWrap';
@@ -17,7 +16,6 @@ export default function HeroSection() {
       <Aurora />
 
       {/* Interactive particle constellation */}
-      <HeroCanvas />
 
       {/* Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.04)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />

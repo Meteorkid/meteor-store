@@ -10,6 +10,7 @@ import ScrollAnimateInit from "@/components/ScrollAnimateInit";
 import EasterEggs from "@/components/EasterEggs";
 import SpotlightSearch from "@/components/SpotlightSearch";
 import FilmGrain from "@/components/FilmGrain";
+import HeroCanvas from "@/components/HeroCanvas";
 import MeteorShower from "@/components/MeteorShower";
 import { AuthProvider } from "@/components/AuthProvider";
 import "../globals.css";
@@ -157,6 +158,7 @@ export default async function LocaleLayout({
             <EasterEggs />
             <SpotlightSearch />
             <FilmGrain />
+            <HeroCanvas />
             <MeteorShower />
             {children}
           </AuthProvider>

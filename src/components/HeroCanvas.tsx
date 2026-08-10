@@ -1,9 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useReducedMotion } from '@/lib/motion';
+import { usePathname } from '@/i18n/navigation';
+import { createFrameGuard, useReducedMotion } from '@/lib/motion';
 
 export default function HeroCanvas({ className = '' }: { className?: string }) {
+  const pathname = usePathname();
+  const isQuiet = /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname);
+  if (isQuiet) return null;
   const ref = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
 
@@ -29,10 +33,21 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
     const streaks: Streak[] = [];
     const sparks: Spark[] = [];
     const rings: { x: number; y: number; r: number; a: number }[] = [];
+    let starCount = 0, dotCount = 0;
     let nextStreak = 0;
 
+    let degraded = false;
+    const frameGuard = createFrameGuard(() => {
+      degraded = true;
+      starCount = Math.floor(starCount / 2);
+      dotCount = Math.floor(dotCount / 2);
+      stars = stars.slice(0, starCount);
+      dots = dots.slice(0, dotCount);
+    });
+
     function initStars() {
-      const n = isMobile ? 100 : 180;
+      starCount = isMobile ? 100 : 180;
+      const n = starCount;
       stars = Array.from({ length: n }, () => ({
         x: Math.random() * W, y: Math.random() * H,
         r: Math.random() * 1.5 + 0.3,
@@ -43,7 +58,8 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
     }
 
     function initDots() {
-      const n = isMobile ? 25 : 55;
+      dotCount = isMobile ? 25 : 55;
+      const n = dotCount;
       dots = Array.from({ length: n }, () => ({
         x: W * 0.1 + Math.random() * W * 0.8,
         y: H * 0.1 + Math.random() * H * 0.8,
@@ -129,6 +145,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
       lt = now;
       const t = now / 1000;
       ctx.clearRect(0, 0, W, H);
+      frameGuard(now);
 
       // Stars with parallax + twinkle
       for (const s of stars) {
@@ -159,7 +176,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
       }
 
       // Constellation connection lines (desktop only)
-      if (!isMobile) {
+      if (!isMobile && !degraded) {
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         for (let i = 0; i < dots.length; i++) {
@@ -206,7 +223,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
       }
 
       // Cursor spotlight
-      if (mouse.active) {
+      if (mouse.active && !degraded) {
         const gr = 110 * dpr;
         const g = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, gr);
         g.addColorStop(0, 'rgba(139,92,246,0.1)');
@@ -312,7 +329,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
   return (
     <canvas
       ref={ref}
-      className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}
+      className={`fixed inset-0 w-full h-full pointer-events-none ${className}`}
       aria-hidden="true"
     />
   );
