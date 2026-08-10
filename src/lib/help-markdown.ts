@@ -163,10 +163,10 @@ export function renderHelpMarkdown(
       rel: ['noopener', 'noreferrer'],
       protocols: ['http', 'https'],
     })
-    .use(rehypeHelpHeadings)
     .use(rehypeSanitize, helpSchema)
-    .use(rehypeHelpImages(slug))
-    .use(rehypeHelpExternalLinks(locale))
+    .use(rehypeHelpHeadings)
+    .use(rehypeHelpImages, slug)
+    .use(rehypeHelpExternalLinks, locale)
     .use(rehypeStringify)
     .processSync(content);
 

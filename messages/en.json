@@ -272,7 +272,15 @@
     "revoke": "Revoke token",
     "revoking": "Revoking…",
     "revoked": "Token revoked.",
-    "revokeFailed": "Couldn't revoke the token. Please try again later."
+    "revokeFailed": "Couldn't revoke the token. Please try again later.",
+    "howToUse": "How to use this token?",
+    "usageCodex": "Codex",
+    "usageCodexDesc": "Set the environment variable in your terminal, then use natural language to manage your blog:",
+    "usageClaude": "Claude Code",
+    "usageClaudeDesc": "Log into Claude Code, then write articles in natural language:",
+    "usageCurl": "curl / other tools",
+    "usageGuideLink": "For full parameters, response formats, and caveats, see the",
+    "usageGuideLabel": "usage guide →"
   },
   "ProductsPage": {
     "title": "Products",
