@@ -288,7 +288,7 @@ export default function MeteorShower() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="absolute inset-0 w-full h-full pointer-events-none"
+      className="fixed inset-0 w-full h-full pointer-events-none"
       style={{ opacity: 0.85 }}
     />
   );
