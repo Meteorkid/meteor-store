@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { FeedPostSummary } from '@/data/blog-feed';
@@ -36,6 +36,10 @@ export default function StarMap({ posts }: StarMapProps) {
   const nodes = useMemo(() => {
     const sorted = [...posts].sort((a, b) => a.eventDate.localeCompare(b.eventDate));
     if (sorted.length === 0) return [];
+    if (sorted.length === 1) {
+      const r = hashString(sorted[0].slug);
+      return [{ key: sorted[0].slug, p: sorted[0], x: W / 2, y: H / 2, size: 4 }];
+    }
     return sorted.map((p, i) => {
       const r = hashString(p.slug);
       const x = PAD + (i / (sorted.length - 1)) * (W - PAD * 2);
@@ -47,10 +51,57 @@ export default function StarMap({ posts }: StarMapProps) {
     });
   }, [posts]);
 
+  const [viewMode, setViewMode] = useState<'time' | 'relation'>('time');
+
+  // 关系视图连线：共享标签或分区的文章之间连线
+  const relationLines = useMemo(() => {
+    if (viewMode !== 'relation' || nodes.length < 2) return [];
+    const lines: { x1: number; y1: number; x2: number; y2: number; color: string }[] = [];
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i].p;
+        const b = nodes[j].p;
+        const sharedTags = a.tags.filter((t: string) => b.tags.includes(t));
+        const sharedSections = (a.sections ?? []).filter((s: string) => (b.sections ?? []).includes(s));
+        if (sharedTags.length > 0 || sharedSections.length > 0) {
+          lines.push({
+            x1: nodes[i].x, y1: nodes[i].y,
+            x2: nodes[j].x, y2: nodes[j].y,
+            color: 'rgba(167,139,250,0.2)',
+          });
+        }
+      }
+    }
+    return lines;
+  }, [viewMode, nodes]);
+
   const line = nodes.map((n) => `${n.x.toFixed(1)},${n.y.toFixed(1)}`).join(' ');
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-black/40">
+      {/* 视图切换 */}
+      <div className="absolute top-3 right-3 z-10 flex gap-1">
+        <button
+          type="button"
+          aria-pressed={viewMode === 'time'}
+          onClick={() => setViewMode('time')}
+          className={`rounded-full px-3 py-1 text-xs transition-colors ${
+            viewMode === 'time' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70'
+          }`}
+        >
+          {t('viewTime')}
+        </button>
+        <button
+          type="button"
+          aria-pressed={viewMode === 'relation'}
+          onClick={() => setViewMode('relation')}
+          className={`rounded-full px-3 py-1 text-xs transition-colors ${
+            viewMode === 'relation' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70'
+          }`}
+        >
+          {t('viewRelation')}
+        </button>
+      </div>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="h-auto w-full"
@@ -59,8 +110,8 @@ export default function StarMap({ posts }: StarMapProps) {
       >
         <MansionFrame locale={locale} />
 
-        {/* 星轨连线：一条贯穿的银河，把文章串起来 */}
-        {nodes.length > 1 && (
+        {/* 时间视图：星轨连线 */}
+        {viewMode === 'time' && nodes.length > 1 && (
           <polyline
             points={line}
             fill="none"
@@ -70,6 +121,17 @@ export default function StarMap({ posts }: StarMapProps) {
             strokeLinecap="round"
           />
         )}
+
+        {/* 关系视图：真实关系连线 */}
+        {viewMode === 'relation' && relationLines.map((l, i) => (
+          <line
+            key={`rel-${i}`}
+            x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+            stroke={l.color}
+            strokeWidth="0.8"
+            opacity="0.4"
+          />
+        ))}
 
         {nodes.map(({ key, p, x, y, size }) => (
           <Link key={key} href={p.href} className="group" aria-label={`${p.title}`}>

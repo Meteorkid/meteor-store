@@ -744,7 +744,9 @@
     "description": "An atlas of the blog posts spread across the night sky, each star strung into a trail by event time.",
     "legend": "Each star is a post · hover to read the title · click to open",
     "hint": "Follow the star trail to watch the sky from dawn to dusk.",
-    "aria": "Blog star map: posts ordered by event time within the Twenty-Eight Mansions"
+    "aria": "Blog star map: posts ordered by event time within the Twenty-Eight Mansions",
+    "viewTime": "Timeline",
+    "viewRelation": "Relation Map"
   },
   "BlogTagPage": {
     "blogSuffix": "Meteor Store Blog",
