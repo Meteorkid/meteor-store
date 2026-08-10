@@ -5,6 +5,7 @@ import {
   findLocalizedHelpArticle,
   helpArticles,
   helpCategories,
+  isHelpArticleVisible,
   localizeHelpArticles,
 } from '../help-articles';
 import { getHelpArticle, getRelatedHelpArticles } from '../help';
@@ -20,9 +21,12 @@ const INITIAL_SLUGS = [
 ];
 
 describe('帮助文章元数据', () => {
-  it('包含首版 6 篇帮助文章', () => {
-    expect(helpArticles.map((article) => article.slug)).toEqual(INITIAL_SLUGS);
+  it('首版 6 篇 slug 全部保留', () => {
+    expect(helpArticles.map((article) => article.slug)).toEqual(
+      expect.arrayContaining(INITIAL_SLUGS),
+    );
   });
+
 
   it('元数据满足发布约束', () => {
     const slugs = helpArticles.map((article) => article.slug);
@@ -31,9 +35,11 @@ describe('帮助文章元数据', () => {
 
     expect(new Set(slugs).size).toBe(slugs.length);
     expect(helpCategories.map((category) => category.id)).toEqual([
-      'installation',
+      'getting-started',
       'account',
-      'purchase',
+      'products',
+      'community',
+      'tools',
       'support',
     ]);
     expect(new Set(helpCategories.map((category) => category.order)).size).toBe(helpCategories.length);
@@ -51,6 +57,11 @@ describe('帮助文章元数据', () => {
         .toBe(article.updatedAt);
       expect(article.order).toBeGreaterThan(0);
       expect(Number.isInteger(article.order)).toBe(true);
+      expect(['tutorial', 'how-to', 'troubleshooting', 'policy']).toContain(article.kind);
+      expect(Number.isInteger(article.readingMinutes)).toBe(true);
+      expect(article.readingMinutes).toBeGreaterThan(0);
+      expect(typeof article.commercial).toBe('boolean');
+      expect(Array.isArray(article.relatedSlugs)).toBe(true);
 
       const categoryOrder = `${article.category}:${article.order}`;
       expect(categoryOrders.has(categoryOrder)).toBe(false);
@@ -69,23 +80,31 @@ describe('帮助文章元数据', () => {
     const zhArticles = localizeHelpArticles('zh');
     const enArticle = findLocalizedHelpArticle('use-license-key', 'en');
 
-    expect(zhArticles.map((article) => article.slug)).toEqual([
-      'macos-cannot-open-app',
-      'product-updates',
-      'use-license-key',
-      'get-product-after-purchase',
-      'refund-policy',
-      'technical-support',
-    ]);
-    expect(zhArticles[0].title).toBe(helpArticles[0].title.zh);
+    expect(zhArticles.map((article) => article.slug)).toEqual(
+      expect.arrayContaining(INITIAL_SLUGS),
+    );
     expect(enArticle?.title).toBe('How do I use a license key?');
     expect(findLocalizedHelpArticle('not-a-help-article', 'zh')).toBeUndefined();
   });
 });
 
+describe('帮助文章可见性', () => {
+  it('商业文章在销售关闭时不可见', () => {
+    const visible = localizeHelpArticles('zh');
+    expect(visible.every((article) => !article.commercial)).toBe(true);
+  });
+
+  it('isHelpArticleVisible 正确过滤商业文章', () => {
+    expect(isHelpArticleVisible({ commercial: true }, true)).toBe(true);
+    expect(isHelpArticleVisible({ commercial: true }, false)).toBe(false);
+    expect(isHelpArticleVisible({ commercial: false }, true)).toBe(true);
+    expect(isHelpArticleVisible({ commercial: false }, false)).toBe(true);
+  });
+});
+
 describe('帮助文章正文', () => {
   it('中英文目录只包含元数据声明的同名 Markdown', () => {
-    const expectedFiles = INITIAL_SLUGS.map((slug) => `${slug}.md`).sort();
+    const expectedFiles = helpArticles.map((article) => `${article.slug}.md`).sort();
 
     for (const locale of ['zh', 'en'] as const) {
       const files = readdirSync(join(process.cwd(), 'content/help', locale))

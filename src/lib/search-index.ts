@@ -2,7 +2,7 @@
 // 纯函数实现，不依赖 DOM，便于单元测试
 
 import { localizeProducts } from '@/data/products';
-import { allFaqs } from '@/components/FAQSection';
+import { localizeFaqs } from '@/data/faqs';
 import { SHOW_PRICING, categoryLabels } from '@/lib/constants';
 import { blogSections } from '@/data/blog-sections';
 import { localizeHelpArticles } from '@/data/help-articles';
@@ -101,8 +101,7 @@ export function buildIndex(locale: Locale): SearchEntry[] {
     });
   });
 
-  const faqEntries: SearchEntry[] = allFaqs
-    .filter(f => SHOW_PRICING || !f.commercial)
+  const faqEntries: SearchEntry[] = localizeFaqs(locale, SHOW_PRICING)
     .map((f, i) =>
       withPinyin(f.question, {
         id: `faq-${i}`,

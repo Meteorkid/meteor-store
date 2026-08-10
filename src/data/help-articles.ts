@@ -1,6 +1,8 @@
 import type { Locale } from '@/i18n/routing';
 
-export type HelpCategory = 'installation' | 'account' | 'purchase' | 'support';
+export type HelpCategory = 'getting-started' | 'account' | 'products' | 'community' | 'tools' | 'support';
+
+export type HelpArticleKind = 'tutorial' | 'how-to' | 'troubleshooting' | 'policy';
 
 interface LocalizedText {
   zh: string;
@@ -21,8 +23,13 @@ export interface HelpCategoryMeta {
 export interface HelpArticleMeta {
   slug: string;
   category: HelpCategory;
+  kind: HelpArticleKind;
   order: number;
+  readingMinutes: number;
   updatedAt: string;
+  featured?: boolean;
+  commercial: boolean;
+  relatedSlugs: string[];
   title: LocalizedText;
   excerpt: LocalizedText;
   keywords: LocalizedKeywords;
@@ -31,8 +38,13 @@ export interface HelpArticleMeta {
 export interface LocalizedHelpArticle {
   slug: string;
   category: HelpCategory;
+  kind: HelpArticleKind;
   order: number;
+  readingMinutes: number;
   updatedAt: string;
+  featured?: boolean;
+  commercial: boolean;
+  relatedSlugs: string[];
   title: string;
   excerpt: string;
   keywords: string[];
@@ -40,36 +52,50 @@ export interface LocalizedHelpArticle {
 
 export const helpCategories: HelpCategoryMeta[] = [
   {
-    id: 'installation',
+    id: 'getting-started',
     order: 1,
-    label: { zh: '安装与下载', en: 'Installation & Downloads' },
+    label: { zh: '初识与导航', en: 'Getting Started' },
   },
   {
     id: 'account',
     order: 2,
-    label: { zh: '账户与授权', en: 'Account & Licensing' },
+    label: { zh: '账户与资格', en: 'Account & Eligibility' },
   },
   {
-    id: 'purchase',
+    id: 'products',
     order: 3,
-    label: { zh: '购买与交付', en: 'Purchases & Delivery' },
+    label: { zh: '产品获取与使用', en: 'Products & Access' },
+  },
+  {
+    id: 'community',
+    order: 4,
+    label: { zh: '博客与社区', en: 'Blog & Community' },
+  },
+  {
+    id: 'tools',
+    order: 5,
+    label: { zh: '在线工具', en: 'Online Tools' },
   },
   {
     id: 'support',
-    order: 4,
-    label: { zh: '售后与支持', en: 'After-sales & Support' },
+    order: 6,
+    label: { zh: '售后与支持', en: 'Support & Policies' },
   },
 ];
 
 export const helpArticles: HelpArticleMeta[] = [
   {
     slug: 'macos-cannot-open-app',
-    category: 'installation',
-    order: 1,
+    category: 'products',
+    kind: 'troubleshooting',
+    order: 10,
+    readingMinutes: 3,
     updatedAt: '2026-08-09',
+    commercial: false,
+    relatedSlugs: [],
     title: { zh: 'macOS 下载后无法打开应用怎么办？', en: 'What if a downloaded app will not open on macOS?' },
     excerpt: {
-      zh: '了解 macOS 安全提示的原因，以及使用“仍要打开”的安全处理步骤。',
+      zh: '了解 macOS 安全提示的原因，以及使用"仍要打开"的安全处理步骤。',
       en: 'Learn why macOS shows security warnings and how to use Open Anyway safely.',
     },
     keywords: {
@@ -79,12 +105,16 @@ export const helpArticles: HelpArticleMeta[] = [
   },
   {
     slug: 'get-product-after-purchase',
-    category: 'purchase',
-    order: 1,
+    category: 'products',
+    kind: 'how-to',
+    order: 20,
+    readingMinutes: 3,
     updatedAt: '2026-08-09',
+    commercial: false,
+    relatedSlugs: [],
     title: { zh: '购买后如何获取产品？', en: 'How do I access a product after purchase?' },
     excerpt: {
-      zh: '从支付成功页、邮件、订单记录和“我的产品”找到购买内容。',
+      zh: '从支付成功页、邮件、订单记录和"我的产品"找到购买内容。',
       en: 'Find your purchase from the payment result, email, order history, or My Products.',
     },
     keywords: {
@@ -94,9 +124,13 @@ export const helpArticles: HelpArticleMeta[] = [
   },
   {
     slug: 'use-license-key',
-    category: 'account',
-    order: 1,
+    category: 'products',
+    kind: 'how-to',
+    order: 30,
+    readingMinutes: 3,
     updatedAt: '2026-08-09',
+    commercial: false,
+    relatedSlugs: [],
     title: { zh: '如何使用授权码？', en: 'How do I use a license key?' },
     excerpt: {
       zh: '了解在哪里查看授权码，以及哪些产品需要手动输入授权码。',
@@ -109,9 +143,13 @@ export const helpArticles: HelpArticleMeta[] = [
   },
   {
     slug: 'product-updates',
-    category: 'installation',
-    order: 2,
+    category: 'products',
+    kind: 'how-to',
+    order: 40,
+    readingMinutes: 2,
     updatedAt: '2026-08-09',
+    commercial: false,
+    relatedSlugs: [],
     title: { zh: '如何获取产品更新？', en: 'How do I get product updates?' },
     excerpt: {
       zh: '从产品页确认当前版本，并了解小版本与大版本更新的区别。',
@@ -125,8 +163,12 @@ export const helpArticles: HelpArticleMeta[] = [
   {
     slug: 'refund-policy',
     category: 'support',
-    order: 1,
+    kind: 'policy',
+    order: 10,
+    readingMinutes: 2,
     updatedAt: '2026-08-09',
+    commercial: false,
+    relatedSlugs: [],
     title: { zh: '如何申请退款？', en: 'How do I request a refund?' },
     excerpt: {
       zh: '查看退款申请入口、所需订单信息和完整退款政策。',
@@ -140,8 +182,12 @@ export const helpArticles: HelpArticleMeta[] = [
   {
     slug: 'technical-support',
     category: 'support',
-    order: 2,
+    kind: 'how-to',
+    order: 20,
+    readingMinutes: 2,
     updatedAt: '2026-08-09',
+    commercial: false,
+    relatedSlugs: [],
     title: { zh: '如何联系技术支持？', en: 'How do I contact technical support?' },
     excerpt: {
       zh: '提交清晰的问题信息，帮助我们更快复现并定位故障。',
@@ -156,13 +202,26 @@ export const helpArticles: HelpArticleMeta[] = [
 
 const categoryOrder = new Map(helpCategories.map((category) => [category.id, category.order]));
 
-export function localizeHelpArticles(locale: Locale): LocalizedHelpArticle[] {
+export function isHelpArticleVisible(
+  article: Pick<HelpArticleMeta, 'commercial'>,
+  showPricing: boolean,
+): boolean {
+  return showPricing || article.commercial !== true;
+}
+
+export function localizeHelpArticles(locale: Locale, showPricing = true): LocalizedHelpArticle[] {
   return helpArticles
+    .filter((article) => isHelpArticleVisible(article, showPricing))
     .map((article) => ({
       slug: article.slug,
       category: article.category,
+      kind: article.kind,
       order: article.order,
+      readingMinutes: article.readingMinutes,
       updatedAt: article.updatedAt,
+      featured: article.featured,
+      commercial: article.commercial,
+      relatedSlugs: article.relatedSlugs,
       title: article.title[locale],
       excerpt: article.excerpt[locale],
       keywords: [...article.keywords[locale]],

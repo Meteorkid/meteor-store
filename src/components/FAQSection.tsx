@@ -1,56 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { SHOW_PRICING } from '@/lib/constants';
+import { localizeFaqs } from '@/data/faqs';
+import type { Locale } from '@/i18n/routing';
 
-export const allFaqs = [
-  {
-    question: '如何购买产品？',
-    answer: '选择你想要的产品和方案，点击「立即购买」，通过支付宝完成支付。支付成功后，确认邮件会自动发送到你的邮箱。',
-    questionKey: 'faq1Question',
-    answerKey: 'faq1Answer',
-    commercial: true,
-  },
-  {
-    question: '购买后如何获取产品？',
-    answer: '支付成功后，我们会通过邮件发送订单信息和激活码；下载入口保留在产品页。',
-    questionKey: 'faq2Question',
-    answerKey: 'faq2Answer',
-    commercial: true,
-  },
-  {
-    question: '是否支持退款？',
-    answer: '支持。未实际使用的误购可在付款后 7 天内申请，其他情形按退款政策处理。',
-    questionKey: 'faq3Question',
-    answerKey: 'faq3Answer',
-    commercial: true,
-  },
-  {
-    question: '产品是否提供更新？',
-    answer: '我们会持续维护产品，具体更新范围以产品页和授权说明为准。',
-    questionKey: 'faq4Question',
-    answerKey: 'faq4Answer',
-    commercial: false,
-  },
-  {
-    question: '如何获取技术支持？',
-    answer: '你可以通过邮件联系我们获取技术支持，或在 GitHub 上提交 Issue。我们会在 24 小时内回复。',
-    questionKey: 'faq5Question',
-    answerKey: 'faq5Answer',
-    commercial: false,
-  },
-  {
-    question: '是否支持企业购买？',
-    answer: '是的，我们提供企业版产品和批量购买优惠。请通过邮件联系我们获取定制方案。',
-    questionKey: 'faq6Question',
-    answerKey: 'faq6Answer',
-    commercial: true,
-  },
-];
+
 
 // 备案期间隐藏销售相关 FAQ
-const faqs = SHOW_PRICING ? allFaqs : allFaqs.filter(f => !f.commercial);
+const localizedFaqs = localizeFaqs('zh' as Locale, SHOW_PRICING);
 
 function FAQItem({ faq, isOpen, onToggle }: {
   faq: { question: string; answer: string };
@@ -123,10 +82,10 @@ export default function FAQSection() {
         </div>
 
         <div className="max-w-3xl mx-auto">
-          {faqs.map((faq, index) => (
+          {localizedFaqs.map((faq, index) => (
             <FAQItem
               key={faq.question}
-              faq={{ question: t(faq.questionKey), answer: t(faq.answerKey) }}
+              faq={{ question: faq.question, answer: faq.answer }}
               isOpen={openIndex === index}
               onToggle={() => setOpenIndex(openIndex === index ? null : index)}
             />
