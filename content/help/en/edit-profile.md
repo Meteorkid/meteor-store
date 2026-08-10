@@ -1,6 +1,8 @@
 ## What you will accomplish
 
-Update your display name, avatar, and bio from the Account Center so your personalized information appears in blog comments, post author sections, and other places around the site.
+
+
+![Account profile page](/help/edit-profile/en/step-01-profile.webp "Account settings page")Update your display name, avatar, and bio from the Account Center so your personalized information appears in blog comments, post author sections, and other places around the site.
 
 ## When to use this
 

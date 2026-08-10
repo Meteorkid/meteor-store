@@ -4,12 +4,16 @@ macOS 使用 Gatekeeper 检查从互联网下载的 App，包括开发者签名�
 
 只有在你从 Meteor Store 官方产品页下载、文件名符合预期，并且看到“无法验证开发者”或“Apple 无法检查其是否包含恶意软件”一类提示时，才继续下面的步骤。
 
+![macOS Gatekeeper 安全警告弹窗](/help/macos-cannot-open-app/shared/step-01-security-warning.webp "macOS 提示无法验证开发者的安全警告弹窗")
+
 ## 使用“仍要打开”
 
 1. 在“访达”中尝试打开这个 App 一次，然后关闭出现的安全提示。
 2. 打开苹果菜单中的“系统设置”。
 3. 进入“隐私与安全性”，向下滚动到“安全性”区域。
 4. 找到刚才被阻止的 App，点按“仍要打开”。这个按钮只会在你尝试打开 App 后的一段时间内出现。
+
+![系统设置-仍要打开按钮](/help/macos-cannot-open-app/shared/step-02-open-anyway.webp "macOS 系统设置隐私与安全性中的仍要打开按钮")
 5. 再次核对 App 名称；确认文件来自可信来源后，按系统提示验证身份并点按“打开”。
 
 macOS 会把这个 App 保存为安全设置中的例外，以后可像其他 App 一样打开。Apple 的完整说明见[《在 Mac 上安全地打开 App》](https://support.apple.com/zh-cn/102445)。

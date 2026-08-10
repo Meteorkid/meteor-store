@@ -1,6 +1,8 @@
 ## 什么是 Playground
 
-Playground 是 Meteor Store 提供的在线产品体验区，网址是 `/playground`。它汇集了店内在浏览器中就能体验的产品演示，让你不用下载、不用注册、不用登录，直接在网页上感受产品能做什么。
+
+
+![Playground 页面概览](/help/use-playground/zh/step-01-playground-tabs.webp "Playground 页面")Playground 是 Meteor Store 提供的在线产品体验区，网址是 `/playground`。它汇集了店内在浏览器中就能体验的产品演示，让你不用下载、不用注册、不用登录，直接在网页上感受产品能做什么。
 
 每个产品的演示都模拟了一个真实的终端窗口——你看到的命令和输出虽然不是你的电脑在真实执行，但它们复刻了产品在实际使用中的界面和反馈，足够让你判断它是不是你需要的工具。
 

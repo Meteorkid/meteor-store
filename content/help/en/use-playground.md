@@ -1,5 +1,9 @@
 ## What is Playground
 
+
+
+![Playground page overview](/help/use-playground/en/step-01-playground-tabs.webp "Playground page")![Playground page overview](/help/use-playground/en/step-01-playground-tabs.webp "Playground page with multiple product tabs for trying demos")
+
 Playground is Meteor Store's online product demo area, available at `/playground`. It collects in-browser demonstrations of several products, so you can get a feel for what they do without downloading, registering, or logging in.
 
 Each product demo simulates a real terminal window — the commands and output you see are not actually running on your computer, but they faithfully reproduce the interface and feedback you would get when using the product for real. That is enough to decide whether it is the right tool for you.

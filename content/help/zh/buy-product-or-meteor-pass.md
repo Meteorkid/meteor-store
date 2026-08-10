@@ -1,6 +1,8 @@
 ## 两种购买方式：单品 vs Meteor Pass
 
-Meteor Store 提供了两种购买路径，分别适合不同的需求：
+
+
+![Meteor Store 定价区](/help/buy-product-or-meteor-pass/zh/step-01-pricing-section.webp "定价区域")Meteor Store 提供了两种购买路径，分别适合不同的需求：
 
 - **购买单品**：在某一个产品的详情页选择付费档位，只买这一件。买完后该产品永久归你使用。
 - **购买 Meteor Pass**：全站会员，一次付费解锁站内全部产品——包括将来新上架的。Pass 按周期付费，月付和年付会过期，买断制永久有效。

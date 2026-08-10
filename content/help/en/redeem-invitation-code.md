@@ -1,6 +1,8 @@
 ## What is an invitation code
 
-An invitation code (invite code) is a redemption voucher created by an admin. It follows the format `INV-XXXX-XXXX-XXXX` — four groups of four uppercase letters and digits, separated by hyphens. Redeeming an invitation code gives you a product license without paying — effectively, the admin covered the cost on your behalf.
+
+
+![Invitation code redemption page](/help/redeem-invitation-code/en/step-01-redeem-input.webp "Redemption page")An invitation code (invite code) is a redemption voucher created by an admin. It follows the format `INV-XXXX-XXXX-XXXX` — four groups of four uppercase letters and digits, separated by hyphens. Redeeming an invitation code gives you a product license without paying — effectively, the admin covered the cost on your behalf.
 
 Invitation codes are typically distributed by the store owner through email, community activities, or other channels. If you haven't received one, no code currently applies to your account.
 

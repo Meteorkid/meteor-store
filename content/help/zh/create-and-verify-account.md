@@ -1,6 +1,8 @@
 ## 你将完成什么
 
-注册 Meteor Store 账户并完成邮箱验证，之后就可以收藏文章、投稿博客、获取免费产品和管理订单。
+
+
+![Meteor Store 注册表单](/help/create-and-verify-account/zh/step-01-register-form.webp "Meteor Store 注册页面")注册 Meteor Store 账户并完成邮箱验证，之后就可以收藏文章、投稿博客、获取免费产品和管理订单。
 
 ## 开始前准备
 
@@ -34,6 +36,8 @@
 ### 查收验证邮件
 
 注册成功后，页面会提示你前往邮箱查收验证邮件。同时会显示收件地址的脱敏形式（如 `te**@example.com`），方便你确认是否有误。
+
+![注册后邮箱验证提示](/help/create-and-verify-account/zh/step-02-email-verification.webp "Meteor Store 邮箱验证提示页面")
 
 如果在收件箱中找不到邮件，请检查垃圾邮件和推广邮件分类。
 

@@ -1,6 +1,8 @@
 ## Find your products on the My Products page
 
-Everything you have access to lives on the My Products page. Click your avatar in the top-right corner of the navigation bar and select "My Products" from the dropdown.
+
+
+!["My Products" page](/help/open-or-download-owned-product/en/step-01-my-products-list.webp "My Products page")Everything you have access to lives on the My Products page. Click your avatar in the top-right corner of the navigation bar and select "My Products" from the dropdown.
 
 Your access can come from four different sources, but they all show up in the same place:
 

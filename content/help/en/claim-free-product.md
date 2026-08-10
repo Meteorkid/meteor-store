@@ -1,6 +1,8 @@
 ## Which products are available for free
 
-Some products on Meteor Store include a ¥0 pricing tier — meaning you can add them to your account without paying anything. On the product listing page, if a card shows ¥0 as the lowest price, that product has at least one free tier.
+
+
+![Free badge on product page](/help/claim-free-product/en/step-01-free-badge.webp "Product detail page showing free badge")Some products on Meteor Store include a ¥0 pricing tier — meaning you can add them to your account without paying anything. On the product listing page, if a card shows ¥0 as the lowest price, that product has at least one free tier.
 
 Open the product detail page and look for the ¥0 tier in the pricing section. If the ¥0 price appears next to a crossed-out original price (for example, "¥99"), the product is on a time-limited free promotion — the price may go back up later, but users who already claimed it keep their access.
 

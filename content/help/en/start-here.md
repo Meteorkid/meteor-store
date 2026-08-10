@@ -1,6 +1,8 @@
 ## Welcome to Meteor Store
 
-Meteor Store is a toolkit site for developers and creators, built and maintained by an indie maker. It carries online apps you can open right in the browser, macOS tools you download and run locally, and software products delivered as license keys.
+
+
+![Meteor Store homepage](/help/start-here/en/step-01-homepage.webp "Meteor Store homepage")Meteor Store is a toolkit site for developers and creators, built and maintained by an indie maker. It carries online apps you can open right in the browser, macOS tools you download and run locally, and software products delivered as license keys.
 
 If this is your first time on the site, this article will walk you through what is here and where to begin.
 

@@ -1,10 +1,14 @@
 ## 什么是 Pathfinder
 
-Pathfinder 是 Meteor Store 提供的免费行动方案生成工具，网址是 `/pathfinder`。你输入一个目标，描述你当前的情况和限制条件，Pathfinder 会为你生成一份结构化的执行计划——包含具体任务、完成标准、所需资源和每一步的操作建议。
+
+
+![Pathfinder 目标输入表单](/help/use-pathfinder/zh/step-01-goal-form.webp "Pathfinder 页面")Pathfinder 是 Meteor Store 提供的免费行动方案生成工具，网址是 `/pathfinder`。你输入一个目标，描述你当前的情况和限制条件，Pathfinder 会为你生成一份结构化的执行计划——包含具体任务、完成标准、所需资源和每一步的操作建议。
 
 这个工具的核心理念是：很多人不是没有目标，而是不知道从哪一步开始。Pathfinder 把模糊的想法拆解成可执行的步骤，帮你跨过「想到」和「做到」之间的那道坎。
 
 ## 打开 Pathfinder
+
+![Pathfinder 目标输入表单](/help/use-pathfinder/zh/step-01-goal-form.webp "Pathfinder 页面，包含目标描述、现实条件和排除项三个输入框")
 
 Pathfinder 对所有人开放，不需要登录。进入方式：
 

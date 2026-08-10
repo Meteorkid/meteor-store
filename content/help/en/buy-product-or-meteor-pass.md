@@ -1,6 +1,8 @@
 ## Two ways to buy: single product vs Meteor Pass
 
-Meteor Store offers two purchase paths, each suited to different needs:
+
+
+![Meteor Store pricing section](/help/buy-product-or-meteor-pass/en/step-01-pricing-section.webp "Pricing area")Meteor Store offers two purchase paths, each suited to different needs:
 
 - **Buy a single product** — Choose a paid tier on a product's detail page and buy that one product. Once purchased, the product is yours permanently.
 - **Buy Meteor Pass** — A site-wide membership. One payment unlocks every product in the store, including products added in the future. Pass subscriptions (monthly and annual) expire; the lifetime option is permanent.

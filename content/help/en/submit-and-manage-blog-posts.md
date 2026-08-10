@@ -1,6 +1,8 @@
 ## Who can submit
 
-Any user with a registered and email-verified account can submit articles to the Meteor Store blog. Reader submissions appear in the same blog listing as the store owner's articles and are publicly visible once approved.
+
+
+![Blog submission editor](/help/submit-and-manage-blog-posts/en/step-01-editor-form.webp "Markdown submission editor")Any user with a registered and email-verified account can submit articles to the Meteor Store blog. Reader submissions appear in the same blog listing as the store owner's articles and are publicly visible once approved.
 
 Before submitting, make sure your article's topic fits one of the blog's six sections. If you are unsure, browse the existing articles in each section to see where your topic belongs.
 

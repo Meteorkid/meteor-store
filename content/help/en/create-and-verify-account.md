@@ -1,6 +1,8 @@
 ## What you will accomplish
 
-Create a Meteor Store account and verify your email address. Once verified you can favorite articles, submit blog posts, claim free products, and manage your orders.
+
+
+![Meteor Store registration form](/help/create-and-verify-account/en/step-01-register-form.webp "Meteor Store registration page")Create a Meteor Store account and verify your email address. Once verified you can favorite articles, submit blog posts, claim free products, and manage your orders.
 
 ## Before you start
 

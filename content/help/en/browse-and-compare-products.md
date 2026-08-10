@@ -1,6 +1,8 @@
 ## The product listing page
 
-Click "Products" in the top navigation bar to open the product listing page. This page shows every available product in Meteor Store as a grid of cards.
+
+
+![Product list page](/help/browse-and-compare-products/en/step-01-product-list.webp "Product listing page")Click "Products" in the top navigation bar to open the product listing page. This page shows every available product in Meteor Store as a grid of cards.
 
 Each product card carries four pieces of information: the product icon and name, a one-line tagline, a category label, and the lowest price. The lowest price is the minimum across all pricing tiers for that product, including free tiers. If a product has a ¥0 tier, the card shows ¥0 as the lowest price.
 

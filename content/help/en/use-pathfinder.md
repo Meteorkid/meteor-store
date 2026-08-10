@@ -1,6 +1,8 @@
 ## What is Pathfinder
 
-Pathfinder is a free action-plan generator provided by Meteor Store, available at `/pathfinder`. You describe a goal and your current situation, and Pathfinder produces a structured execution plan — with concrete tasks, completion criteria, recommended resources, and step-by-step guidance.
+
+
+![Pathfinder goal input form](/help/use-pathfinder/en/step-01-goal-form.webp "Pathfinder page")Pathfinder is a free action-plan generator provided by Meteor Store, available at `/pathfinder`. You describe a goal and your current situation, and Pathfinder produces a structured execution plan — with concrete tasks, completion criteria, recommended resources, and step-by-step guidance.
 
 The core idea behind Pathfinder is simple: most people know what they want, but they do not know where to start. Pathfinder breaks a vague ambition into actionable steps, bridging the gap between thinking about something and actually doing it.
 
