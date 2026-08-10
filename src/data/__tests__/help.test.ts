@@ -90,7 +90,7 @@ describe('帮助文章元数据', () => {
 
 describe('帮助文章可见性', () => {
   it('商业文章在销售关闭时不可见', () => {
-    const visible = localizeHelpArticles('zh');
+    const visible = localizeHelpArticles('zh', false);
     expect(visible.every((article) => !article.commercial)).toBe(true);
   });
 

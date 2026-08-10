@@ -625,3 +625,106 @@ export const EXPECTED_SLUGS: readonly string[] = [
   // 售后与支持
   'refund-policy', 'technical-support',
 ];
+
+/** 新手路径定义 */
+export interface HelpJourney {
+  id: string;
+  order: number;
+  label: LocalizedText;
+  description: LocalizedText;
+  slugSequence: string[];
+}
+
+export const helpJourneys: HelpJourney[] = [
+  {
+    id: 'explore',
+    order: 1,
+    label: { zh: '初次访问', en: 'First Visit' },
+    description: {
+      zh: '浏览产品、了解网站功能和产品类型',
+      en: 'Browse products and learn about site features and product types',
+    },
+    slugSequence: [
+      'start-here',
+      'navigate-and-search',
+      'understand-product-types',
+      'browse-and-compare-products',
+    ],
+  },
+  {
+    id: 'free-trial',
+    order: 2,
+    label: { zh: '免费试用', en: 'Free Trial' },
+    description: {
+      zh: '注册账户、试用产品、免费获取',
+      en: 'Create an account, try products, and claim free ones',
+    },
+    slugSequence: [
+      'create-and-verify-account',
+      'online-trial-vs-full-access',
+      'claim-free-product',
+      'open-or-download-owned-product',
+    ],
+  },
+  {
+    id: 'purchase',
+    order: 3,
+    label: { zh: '购买与获取', en: 'Purchase & Access' },
+    description: {
+      zh: '了解定价、完成购买、获取并使用产品',
+      en: 'Learn about pricing, make a purchase, and access your products',
+    },
+    slugSequence: [
+      'buy-product-or-meteor-pass',
+      'get-product-after-purchase',
+      'redeem-invitation-code',
+      'open-or-download-owned-product',
+      'use-license-key',
+    ],
+  },
+  {
+    id: 'contribute',
+    order: 4,
+    label: { zh: '参与社区', en: 'Join the Community' },
+    description: {
+      zh: '注册、浏览博客、投稿并管理文章',
+      en: 'Register, browse the blog, submit and manage posts',
+    },
+    slugSequence: [
+      'create-and-verify-account',
+      'browse-blog-tags-and-rss',
+      'interact-with-blog-posts',
+      'submit-and-manage-blog-posts',
+    ],
+  },
+  {
+    id: 'troubleshoot',
+    order: 5,
+    label: { zh: '遇到问题', en: 'Troubleshooting' },
+    description: {
+      zh: '解决常见问题、申请退款、联系支持',
+      en: 'Resolve common issues, request refunds, and contact support',
+    },
+    slugSequence: [
+      'macos-cannot-open-app',
+      'login-and-reset-password',
+      'product-updates',
+      'refund-policy',
+      'technical-support',
+    ],
+  },
+];
+
+/** 检查路径中所有引用的 slug 是否存在于文章列表中 */
+export function validateJourneySlugs(articles: HelpArticleMeta[]): string[] {
+  const slugSet = new Set(articles.map((a) => a.slug));
+  const errors: string[] = [];
+  for (const journey of helpJourneys) {
+    for (const slug of journey.slugSequence) {
+      if (!slugSet.has(slug)) {
+        errors.push(`路径 "${journey.id}" 引用了不存在的 slug: "${slug}"`);
+      }
+    }
+  }
+  return errors;
+}

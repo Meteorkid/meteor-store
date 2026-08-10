@@ -172,8 +172,8 @@ export default function BlogApiTokenManager() {
           <button type="button" onClick={copyToken} className="mt-3 rounded-xl border border-amber-100/30 px-3.5 py-2 text-sm font-semibold text-amber-50 transition-colors hover:bg-amber-100/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200">
             {t('copyToken')}
           </button>
-          <details className="mt-4">
-            <summary className="cursor-pointer text-sm text-amber-100/80 hover:text-amber-50 transition-colors">{t('howToUse')}</summary>
+          <div className="mt-4 border-t border-amber-100/15 pt-4">
+            <p className="text-sm font-semibold text-amber-100/90">{t('howToUse')}</p>
             <div className="mt-3 space-y-3 text-sm text-amber-100/70">
               <div>
                 <p className="font-semibold text-amber-100/90">{t('usageCodex')}</p>
@@ -194,7 +194,7 @@ export default function BlogApiTokenManager() {
                 <a href="https://github.com/Meteorkid/meteor-store/blob/main/docs/blog-publishing-api.md" target="_blank" rel="noreferrer" className="underline decoration-amber-100/25 underline-offset-4 hover:text-amber-50">{t('usageGuideLabel')}</a>
               </p>
             </div>
-          </details>
+          </div>
         </div>
       )}
 

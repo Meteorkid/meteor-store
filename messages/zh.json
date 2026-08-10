@@ -1118,7 +1118,9 @@
     "uploadImage": "插入图片",
     "uploadImageHint": "上传图片到对象存储，自动插入 Markdown 语法（WebP/JPEG/PNG/GIF，最大 5MB）",
     "uploading": "上传中…",
-    "imageUploadFailed": "图片上传失败"
+    "imageUploadFailed": "图片上传失败",
+    "apiTokenHint": "也可以用 Codex、Claude Code 通过 API 令牌来写文章和发布，",
+    "apiTokenLink": "创建令牌 →"
   },
   "BlogMyPostsPage": {
     "metaTitle": "我的投稿 - Meteor Store 博客",
@@ -1137,7 +1139,9 @@
     "deleteLink": "删除",
     "deleteConfirm": "删除后无法恢复，确定吗？",
     "deleting": "删除中…",
-    "actionFailed": "操作失败"
+    "actionFailed": "操作失败",
+    "apiTokenHint": "也可以用 Codex、Claude Code 通过 API 令牌来写文章和发布，",
+    "apiTokenLink": "创建令牌 →"
   },
   "BlogTagsPage": {
     "metaTitle": "全部标签 - Meteor Store 博客",

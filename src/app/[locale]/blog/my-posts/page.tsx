@@ -60,7 +60,16 @@ export default async function MyPostsPage({
             </Link>
           </header>
 
-          {posts.length === 0 ? (
+          <div className="mb-6 rounded-xl border border-violet-400/15 bg-violet-400/[0.04] px-5 py-3">
+            <p className="t-footnote text-white/65">
+              {t('apiTokenHint')}
+              <Link href="/account" className="text-violet-300 underline decoration-violet-300/35 underline-offset-4 transition-colors hover:text-violet-200">
+                {t('apiTokenLink')}
+              </Link>
+            </p>
+          </div>
+
+                    {posts.length === 0 ? (
             <p className="t-body py-16 text-center text-white/60">{t('empty')}</p>
           ) : (
             <div>

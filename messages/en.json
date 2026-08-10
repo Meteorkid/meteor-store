@@ -1118,7 +1118,9 @@
     "uploadImage": "Insert Image",
     "uploadImageHint": "Upload image to object storage and insert Markdown syntax (WebP/JPEG/PNG/GIF, max 5MB)",
     "uploading": "Uploading…",
-    "imageUploadFailed": "Image upload failed"
+    "imageUploadFailed": "Image upload failed",
+    "apiTokenHint": "You can also use Codex or Claude Code with an API token to write and publish, ",
+    "apiTokenLink": "create a token →"
   },
   "BlogMyPostsPage": {
     "metaTitle": "My Posts - Meteor Store Blog",
@@ -1137,7 +1139,9 @@
     "deleteLink": "Delete",
     "deleteConfirm": "This cannot be undone. Are you sure?",
     "deleting": "Deleting…",
-    "actionFailed": "Action failed"
+    "actionFailed": "Action failed",
+    "apiTokenHint": "You can also use Codex or Claude Code with an API token to write and publish, ",
+    "apiTokenLink": "create a token →"
   },
   "BlogTagsPage": {
     "metaTitle": "All Tags - Meteor Store Blog",

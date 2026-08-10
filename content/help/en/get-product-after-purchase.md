@@ -1,22 +1,22 @@
-## Check these four places first
+## Check These Four Places First
 
-After payment succeeds, look for your purchase in this order:
+After a successful payment, check the following in this order:
 
-1. **Payment success page:** Keep the order details shown there until you have confirmed delivery.
-2. **Confirmation email:** Check the inbox, spam folder, and promotions folder of the purchase email address.
-3. **Order history:** Sign in with the account used for the purchase and open [Order History](/en/orders) to check the order and delivery status.
-4. **Account:** Open your [Account](/en/account) to see issued license keys. The account email must be verified.
+1. **Payment success page**: Save the order information on the page before closing it.
+2. **Confirmation email**: Check your inbox, spam folder, and promotions tab for the purchase email.
+3. **Order history**: Log into the account used for purchase and open [Order History](/en/orders) to check your order and delivery status.
+4. **Account center**: Go to [Account Center](/en/account) to view issued license keys; your email must be verified.
 
-Register or sign in with the same email address used for the purchase. The store cannot automatically associate the order with a different email address.
+If you purchased without logging in (guest checkout), delivery information is sent to the email you provided, but the order will not be automatically linked to your existing account. If you have questions, [contact technical support](/en/docs/technical-support) with your order number and purchase email for verification.
 
-## Access the right product type
+## Accessing Content by Product Type
 
-- **Web apps:** Go to [My Products](/en/apps) and launch an app covered by your account entitlement.
-- **Installable products:** Open the relevant page from [Products](/en/products), then choose the installer for your system in its download section. Paid downloads verify your account entitlement on the server.
-- **Free products claimed to your account:** These do not send a license key or delivery email. Access them from My Products or the relevant product page after signing in.
+- **In-browser apps**: Go to [My Products](/en/apps) and open the app from your licensed product entries.
+- **Installable products**: Go to [Products](/en/products), open the product page, and select the appropriate installer in the download section. Paid downloads will verify your account authorization server-side.
+- **Free claimed products**: No license key or delivery email is sent. After logging in, access them from My Products or the product page.
 
-## If a paid order has not been delivered
+## Payment Successful but Not Yet Delivered
 
-Email can occasionally be delayed. Check the order status, the spelling of your email address, and the spam folder first. If more than 24 hours have passed since successful payment and you still have no delivery information, [contact technical support](/en/docs/technical-support) with the order number, purchase email, product name, and payment time.
+Emails can occasionally be delayed. First check your order status and verify your email spelling and spam folder. If delivery information is still missing after 24 hours, [contact technical support](/en/docs/technical-support) with your order number, purchase email, product name, and payment time.
 
-If the issue cannot be resolved by redelivery or another remedy, also review the [Refund Policy](/en/refund). That page is the authority for refund eligibility and the formal request process.
+If the issue cannot be resolved through re-delivery or other means, also review the [Refund Policy](/en/refund). Refund eligibility and the formal application process are detailed on that page.

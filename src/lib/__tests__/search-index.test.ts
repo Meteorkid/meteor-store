@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { localizeHelpArticles } from '@/data/help-articles';
 import { buildIndex, searchEntries } from '../search-index';
 
 describe('buildIndex', () => {
@@ -19,7 +20,8 @@ describe('buildIndex', () => {
 
   it('将全部帮助文章索引到各自详情页', () => {
     const helpArticles = index.filter(e => e.id.startsWith('help-article-'));
-    expect(helpArticles).toHaveLength(6);
+    const visibleCount = localizeHelpArticles("zh").length;
+    expect(helpArticles).toHaveLength(visibleCount);
     expect(helpArticles.every(e => e.group === '帮助')).toBe(true);
     expect(helpArticles.map(e => e.href)).toContain('/docs/macos-cannot-open-app');
   });

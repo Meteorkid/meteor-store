@@ -1,25 +1,29 @@
-## Where to find a license key
+## License Keys vs. Invitation Codes
 
-After a purchase or invitation redemption, your license key may appear in:
+License keys and invitation codes are two different types of codes:
 
-- the order confirmation email;
-- [Order History](/en/orders) and the relevant order details;
-- the [Account](/en/account) page for a verified email address.
+- **Invitation codes**: Formatted as `INV-XXXX-XXXX-XXXX`, used to redeem a product license. Enter an invitation code on the [Redeem page](/en/redeem) and the system will automatically generate a corresponding license key.
+- **License keys**: Automatically issued after a purchase or invitation code redemption, used to activate products within applications. Their format differs from invitation codes and they cannot be used on the redeem page.
 
-If an older key is missing from your account, first confirm that the signed-in and purchase email addresses match and that the account email has been verified.
+If you received a code starting with `INV-`, please [redeem the invitation code](/en/docs/redeem-invitation-code) first before using the license key. Do not enter the invitation code directly into an application's activation field.
 
-## Whether you need to enter it manually
+## Where to Find Your License Key
 
-Meteor Store does not have one activation field shared by every product.
+License keys can be found in the following places:
 
-- Web apps and protected installer downloads recognize the entitlement of your signed-in account, so you normally do not paste a key.
-- Enter the key only when a desktop app or another specific product explicitly asks for it in that product’s own interface.
-- Never enter a key into an unfamiliar website, form, or third-party tool.
+1. **Account Center**: Log in and go to [Account Center](/en/account) to view issued license keys in the "My License Keys" section.
+2. **Order History**: Go to [Order History](/en/orders), find the corresponding order, and click to view details and license keys.
+3. **Delivery email**: After a successful purchase or redemption, the license key is sent to the email you used to register or make the purchase.
 
-## If the key does not work
+## Which Products Require Manual License Key Entry
 
-Check that the product name, purchased plan, and key status match the product you are using. When copying, avoid leading or trailing spaces instead of retyping similar-looking characters.
+Not all products require manual license key entry. In-browser apps automatically recognize your account authorization after login without additional input. License keys are primarily used for installable desktop applications: when you first open or access the activation screen, the application will prompt you to enter your license key.
 
-If the problem continues, [submit a question](/en/feedback?type=question) with the product name, order number, and exact error message. You may provide only the final four characters of the key for reference. **Never send the complete license key or your account password.**
+Check the product page and the product's own prompts for specific instructions on whether a license key is needed.
 
-A license key is a usage credential. Do not publish it, forward it to unrelated people, or leave it visible in screenshots.
+## What to Do If You Cannot Find Your License Key
+
+1. Make sure you are logged into the correct account and your email has been verified.
+2. Check your [Account Center](/en/account) and [Order History](/en/orders).
+3. If more than 30 minutes have passed since purchase or redemption without receiving the key, check your email's spam and promotions folders.
+4. If you still cannot find it, [contact technical support](/en/docs/technical-support) with your order number or redemption details.
