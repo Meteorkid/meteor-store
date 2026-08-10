@@ -172,6 +172,29 @@ export default function BlogApiTokenManager() {
           <button type="button" onClick={copyToken} className="mt-3 rounded-xl border border-amber-100/30 px-3.5 py-2 text-sm font-semibold text-amber-50 transition-colors hover:bg-amber-100/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200">
             {t('copyToken')}
           </button>
+          <details className="mt-4">
+            <summary className="cursor-pointer text-sm text-amber-100/80 hover:text-amber-50 transition-colors">{t('howToUse')}</summary>
+            <div className="mt-3 space-y-3 text-sm text-amber-100/70">
+              <div>
+                <p className="font-semibold text-amber-100/90">{t('usageCodex')}</p>
+                <p className="mt-0.5">{t('usageCodexDesc')}</p>
+                <code className="mt-1.5 block break-all rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/80 select-all">{`export MSB_TOKEN="${oneTimeToken}"`}</code>
+              </div>
+              <div>
+                <p className="font-semibold text-amber-100/90">{t('usageClaude')}</p>
+                <p className="mt-0.5">{t('usageClaudeDesc')}</p>
+                <code className="mt-1.5 block break-all rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/80 select-all">{`/login --api-key ${oneTimeToken}`}</code>
+              </div>
+              <div>
+                <p className="font-semibold text-amber-100/90">{t('usageCurl')}</p>
+                <code className="mt-1.5 block break-all rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/80 select-all">{`curl -H "Authorization: Bearer ${oneTimeToken}" https://www.imagentx.top/api/v1/blog/sections`}</code>
+              </div>
+              <p className="text-xs text-amber-100/50">
+                {t('usageGuideLink')}{' '}
+                <a href="https://github.com/Meteorkid/meteor-store/blob/main/docs/blog-publishing-api.md" target="_blank" rel="noreferrer" className="underline decoration-amber-100/25 underline-offset-4 hover:text-amber-50">{t('usageGuideLabel')}</a>
+              </p>
+            </div>
+          </details>
         </div>
       )}
 

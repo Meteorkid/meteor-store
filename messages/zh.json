@@ -272,7 +272,15 @@
     "revoke": "撤销令牌",
     "revoking": "正在撤销…",
     "revoked": "令牌已撤销。",
-    "revokeFailed": "撤销令牌失败，请稍后重试。"
+    "revokeFailed": "撤销令牌失败，请稍后重试。",
+    "howToUse": "拿到令牌后怎么用？",
+    "usageCodex": "Codex",
+    "usageCodexDesc": "在终端设置环境变量，然后自然语言对话即可管理博客：",
+    "usageClaude": "Claude Code",
+    "usageClaudeDesc": "启动 Claude Code 后登录，即可用自然语言写文章：",
+    "usageCurl": "curl / 其他工具",
+    "usageGuideLink": "完整参数、响应格式和注意事项见",
+    "usageGuideLabel": "调用指南 →"
   },
   "ProductsPage": {
     "title": "产品",
