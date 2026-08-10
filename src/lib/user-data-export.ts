@@ -1,19 +1,25 @@
 import { eq, inArray, or } from 'drizzle-orm';
+import { isAdminSession } from './admin';
+import { getBlogImageLimitBytes } from './blog-image-quota';
 import { db } from './db';
 import {
+  blogImages,
   comments,
   feedbacks,
   inviteRedemptions,
   licenseKeys,
   likes,
   orders,
+  personalAccessTokens,
   postFavorites,
+  postSections,
   posts,
   postTags,
   reports,
   topicProposals,
   users,
 } from './db/schema';
+import { deriveTokenStatus } from './personal-access-tokens';
 
 export async function exportUserData(userId: string, email: string) {
   const normalizedEmail = email.trim().toLowerCase();
@@ -29,6 +35,8 @@ export async function exportUserData(userId: string, email: string) {
     redemptionRows,
     proposalRows,
     feedbackRows,
+    tokenRows,
+    imageRows,
   ] = await Promise.all([
     db.select({
       id: users.id,
@@ -40,6 +48,8 @@ export async function exportUserData(userId: string, email: string) {
       isStudent: users.isStudent,
       studentEmail: users.studentEmail,
       studentVerifiedAt: users.studentVerifiedAt,
+      tokenVersion: users.tokenVersion,
+      blogImageBytes: users.blogImageBytes,
       createdAt: users.createdAt,
     }).from(users).where(eq(users.id, userId)),
     db.select({
@@ -72,6 +82,7 @@ export async function exportUserData(userId: string, email: string) {
       status: posts.status,
       reviewNote: posts.reviewNote,
       reviewedAt: posts.reviewedAt,
+      eventDate: posts.eventDate,
       publishedAt: posts.publishedAt,
       createdAt: posts.createdAt,
       updatedAt: posts.updatedAt,
@@ -120,16 +131,56 @@ export async function exportUserData(userId: string, email: string) {
       resolvedAt: feedbacks.resolvedAt,
       createdAt: feedbacks.createdAt,
     }).from(feedbacks).where(eq(feedbacks.email, normalizedEmail)),
+    db.select({
+      name: personalAccessTokens.name,
+      tokenPrefix: personalAccessTokens.tokenPrefix,
+      scopes: personalAccessTokens.scopes,
+      tokenVersion: personalAccessTokens.tokenVersion,
+      expiresAt: personalAccessTokens.expiresAt,
+      lastUsedAt: personalAccessTokens.lastUsedAt,
+      revokedAt: personalAccessTokens.revokedAt,
+      createdAt: personalAccessTokens.createdAt,
+    }).from(personalAccessTokens).where(eq(personalAccessTokens.userId, userId)),
+    db.select({
+      objectKey: blogImages.objectKey,
+      sizeBytes: blogImages.sizeBytes,
+      status: blogImages.status,
+      createdAt: blogImages.createdAt,
+      updatedAt: blogImages.updatedAt,
+      uploadedAt: blogImages.uploadedAt,
+    }).from(blogImages).where(eq(blogImages.userId, userId)),
   ]);
 
   const postIds = postRows.map((post) => post.id);
-  const tagRows = postIds.length > 0
-    ? await db.select().from(postTags).where(inArray(postTags.postId, postIds))
-    : [];
+  const [tagRows, sectionRows] = postIds.length > 0
+    ? await Promise.all([
+        db.select().from(postTags).where(inArray(postTags.postId, postIds)),
+        db.select().from(postSections).where(inArray(postSections.postId, postIds)),
+      ])
+    : [[], []];
+
+  const account = accountRows[0] ?? null;
+  const imageLimitBytes = getBlogImageLimitBytes(isAdminSession(account ? {
+    email: account.email,
+    emailVerified: account.emailVerified,
+  } : null));
+  const imageUsedBytes = account?.blogImageBytes ?? 0;
+  const publicAccount = account ? {
+    id: account.id,
+    email: account.email,
+    name: account.name,
+    avatarUrl: account.avatarUrl,
+    bio: account.bio,
+    emailVerified: account.emailVerified,
+    isStudent: account.isStudent,
+    studentEmail: account.studentEmail,
+    studentVerifiedAt: account.studentVerifiedAt,
+    createdAt: account.createdAt,
+  } : null;
 
   return {
     exportedAt: new Date().toISOString(),
-    account: accountRows[0] ?? null,
+    account: publicAccount,
     commerce: {
       orders: orderRows,
       licenses: licenseRows,
@@ -138,14 +189,38 @@ export async function exportUserData(userId: string, email: string) {
     content: {
       posts: postRows,
       postTags: tagRows,
+      postSections: sectionRows,
       comments: commentRows,
       topicProposals: proposalRows,
       feedback: feedbackRows,
+      blogImages: {
+        count: imageRows.length,
+        quota: {
+          usedBytes: imageUsedBytes,
+          limitBytes: imageLimitBytes,
+          remainingBytes: Math.max(0, imageLimitBytes - imageUsedBytes),
+        },
+        items: imageRows,
+      },
     },
     activity: {
       favorites: favoriteRows,
       likes: likeRows,
       reports: reportRows,
+    },
+    security: {
+      personalAccessTokens: tokenRows.map((token) => {
+        return {
+          name: token.name,
+          tokenPrefix: token.tokenPrefix,
+          scopes: token.scopes,
+          expiresAt: token.expiresAt,
+          lastUsedAt: token.lastUsedAt,
+          revokedAt: token.revokedAt,
+          createdAt: token.createdAt,
+          status: deriveTokenStatus(token, account?.tokenVersion ?? token.tokenVersion),
+        };
+      }),
     },
   };
 }

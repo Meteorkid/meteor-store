@@ -35,6 +35,23 @@ export interface UserPost {
   eventDate: string | null;
 }
 
+export type UserPostSummary = Pick<
+  UserPost,
+  | 'id'
+  | 'authorId'
+  | 'title'
+  | 'excerpt'
+  | 'sectionId'
+  | 'sections'
+  | 'status'
+  | 'reviewNote'
+  | 'tags'
+  | 'publishedAt'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'eventDate'
+>;
+
 /** 短 id，直接作为 URL：/blog/p/{id}。与文件文章的 slug 空间隔开，不会撞。 */
 export function newPostId(): string {
   return crypto.randomBytes(8).toString('base64url');
@@ -72,7 +89,15 @@ interface PostRow {
   authorAvatarUrl: string | null;
 }
 
-async function attachTags(rows: PostRow[]): Promise<UserPost[]> {
+type PostWithRelations<T extends { id: string; sectionId: string }> = Omit<T, 'sectionId'> & {
+  sectionId: BlogSectionId;
+  sections: BlogSectionId[];
+  tags: string[];
+};
+
+async function attachRelations<T extends { id: string; sectionId: string }>(
+  rows: T[],
+): Promise<PostWithRelations<T>[]> {
   if (rows.length === 0) return [];
 
   const [links, sectionLinks] = await Promise.all([
@@ -96,18 +121,25 @@ async function attachTags(rows: PostRow[]): Promise<UserPost[]> {
   }
 
   return rows.map((r) => {
-    const sections = sectionsByPost.get(r.id) ?? [];
-    if (sections.length === 0) sections.push(r.sectionId);
+    // SQL 未声明顺序，不能把关联表返回的第一项当主分区。
+    // 主分区始终来自 posts.section_id，其余关系按查询结果去重追加。
+    const linkedSections = sectionsByPost.get(r.id) ?? [];
+    const sections = Array.from(new Set([
+      r.sectionId,
+      ...linkedSections.filter((sectionId) => sectionId !== r.sectionId),
+    ]));
     return {
       ...r,
       sectionId: r.sectionId as BlogSectionId,
       sections: sections as BlogSectionId[],
-      status: r.status as PostStatus,
       tags: byPost.get(r.id) ?? [],
-      authorBio: r.authorBio,
-      authorAvatarUrl: r.authorAvatarUrl,
-    };
+    } as PostWithRelations<T>;
   });
+}
+
+async function attachTags(rows: PostRow[]): Promise<UserPost[]> {
+  const related = await attachRelations(rows);
+  return related.map((row) => ({ ...row, status: row.status as PostStatus }));
 }
 
 const postColumns = {
@@ -126,6 +158,20 @@ const postColumns = {
   authorName: users.name,
   authorBio: users.bio,
   authorAvatarUrl: users.avatarUrl,
+};
+
+const postSummaryColumns = {
+  id: posts.id,
+  authorId: posts.authorId,
+  title: posts.title,
+  excerpt: posts.excerpt,
+  sectionId: posts.sectionId,
+  status: posts.status,
+  reviewNote: posts.reviewNote,
+  publishedAt: posts.publishedAt,
+  createdAt: posts.createdAt,
+  updatedAt: posts.updatedAt,
+  eventDate: posts.eventDate,
 };
 
 /** 分区去重、去空，主分区排头。用户输入不可信。 */
@@ -154,7 +200,7 @@ export async function createPost(input: {
   status: Extract<PostStatus, 'draft' | 'pending' | 'published'>;
   /** 内容描述事件的时间，YYYY-MM-DD，可选 */
   eventDate?: string | null;
-}): Promise<string> {
+}): Promise<{ id: string; updatedAt: string }> {
   const id = newPostId();
   const now = new Date().toISOString();
   const tags = normalizeTags(input.tags);
@@ -162,44 +208,54 @@ export async function createPost(input: {
   const publishedAt = input.status === 'published' ? now : null;
   const eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
 
-  await db.insert(posts).values({
-    id,
-    authorId: input.authorId,
-    title: input.title,
-    excerpt: input.excerpt,
-    content: input.content,
-    sectionId: input.sectionId,
-    status: input.status,
-    eventDate,
-    publishedAt,
-    createdAt: now,
-    updatedAt: now,
-  });
+  const ctes = [sql`
+    inserted_post AS (
+      INSERT INTO "posts" (
+        "id", "author_id", "title", "excerpt", "content", "section_id", "status",
+        "review_note", "reviewer_id", "reviewed_at", "event_date", "published_at",
+        "created_at", "updated_at"
+      )
+      VALUES (
+        ${id}, ${input.authorId}, ${input.title}, ${input.excerpt}, ${input.content},
+        ${input.sectionId}, ${input.status}, NULL, NULL, NULL, ${eventDate},
+        ${publishedAt}, ${now}, ${now}
+      )
+      RETURNING "id", "updated_at"
+    )
+  `, sql`
+    inserted_sections AS (
+      INSERT INTO "post_sections" ("post_id", "section_id")
+      SELECT inserted_post."id", incoming."section_id"
+      FROM inserted_post
+      CROSS JOIN (
+        VALUES ${sql.join(sections.map((sectionId) => sql`(${sectionId})`), sql`, `)}
+      ) AS incoming("section_id")
+      RETURNING "post_id"
+    )
+  `];
 
-  // Neon HTTP 驱动不支持事务。若关联写入失败，需要回滚刚插入的 post，
-  // 否则会留下一条没有标签/分区、但作者仍可见的「半成品」文章。
-  try {
-    await db.insert(postSections).values(sections.map((s) => ({ postId: id, sectionId: s })));
-    if (tags.length > 0) {
-      await db.insert(postTags).values(tags.map((t) => ({ postId: id, ...t })));
-    }
-  } catch (err) {
-    console.error('insert post sections/tags failed, rolling back post:', err);
-    try {
-      await db.delete(posts).where(eq(posts.id, id));
-    } catch (rollbackErr) {
-      // 回滚也失败：把 post 留作 draft 兜底，至少不会出现在 pending 队列里
-      console.error('rollback post failed:', rollbackErr);
-      await db
-        .update(posts)
-        .set({ status: 'draft', updatedAt: new Date().toISOString() })
-        .where(eq(posts.id, id))
-        .catch(() => undefined);
-    }
-    throw err;
+  if (tags.length > 0) {
+    ctes.push(sql`
+      inserted_tags AS (
+        INSERT INTO "post_tags" ("post_id", "tag", "label")
+        SELECT inserted_post."id", incoming."tag", incoming."label"
+        FROM inserted_post
+        CROSS JOIN (
+          VALUES ${sql.join(tags.map((tag) => sql`(${tag.tag}, ${tag.label})`), sql`, `)}
+        ) AS incoming("tag", "label")
+        RETURNING "post_id"
+      )
+    `);
   }
 
-  return id;
+  const result = await db.execute<{ id: string; updated_at: string }>(sql`
+    WITH ${sql.join(ctes, sql`, `)}
+    SELECT "id", "updated_at" FROM inserted_post
+  `);
+  const created = result.rows[0];
+  if (!created) throw new Error('Post insert returned no row');
+
+  return { id: created.id, updatedAt: created.updated_at };
 }
 
 export async function getPostById(id: string): Promise<UserPost | null> {
@@ -208,6 +264,19 @@ export async function getPostById(id: string): Promise<UserPost | null> {
     .from(posts)
     .leftJoin(users, eq(posts.authorId, users.id))
     .where(eq(posts.id, id))
+    .limit(1);
+
+  const [post] = await attachTags(rows);
+  return post ?? null;
+}
+
+/** v1 私有读取：所有权直接进入 SQL 条件，跨用户与不存在统一返回 null。 */
+export async function getPostByAuthor(id: string, authorId: string): Promise<UserPost | null> {
+  const rows = await db
+    .select(postColumns)
+    .from(posts)
+    .leftJoin(users, eq(posts.authorId, users.id))
+    .where(and(eq(posts.id, id), eq(posts.authorId, authorId)))
     .limit(1);
 
   const [post] = await attachTags(rows);
@@ -223,6 +292,19 @@ export async function getPostsByAuthor(authorId: string): Promise<UserPost[]> {
     .orderBy(desc(posts.updatedAt));
 
   return attachTags(rows);
+}
+
+/** v1 列表：数据库侧限制最近 100 篇，并且不选择可能很长的 Markdown 正文。 */
+export async function getPostSummariesByAuthor(authorId: string): Promise<UserPostSummary[]> {
+  const rows = await db
+    .select(postSummaryColumns)
+    .from(posts)
+    .where(eq(posts.authorId, authorId))
+    .orderBy(desc(posts.updatedAt))
+    .limit(100);
+
+  const related = await attachRelations(rows);
+  return related.map((row) => ({ ...row, status: row.status as PostStatus }));
 }
 
 /** 审核队列：待审的排前面，先提交的先处理 */
@@ -316,7 +398,10 @@ export type UpdatePostResult =
       oldSectionId: string;
       newSectionId: string;
     }
-  | { ok: false; reason: 'notFound' | 'notAuthor' | 'pendingCannotEdit' };
+  | {
+      ok: false;
+      reason: 'notFound' | 'notAuthor' | 'pendingCannotEdit' | 'concurrentUpdate';
+    };
 
 /**
  * 编辑投稿。
@@ -329,13 +414,9 @@ export type UpdatePostResult =
  * - pending：不允许编辑，调用方应先 withdrawPost。避免审核中内容被偷改，
  *   导致管理员看到的和审的不一致。
  *
- * authorId 校验放在 update 的 where 条件里，原子防越权。状态规则需先查一次
- * status 判断分支，存在轻微竞态（作者并发编辑自己的文章），最坏情况是状态
- * 归一化与预期不符，不会越权或损坏数据。
- *
- * Neon HTTP 不支持事务，标签/分区更新用「全删重建」而非 diff——标签数量小
- * （≤8）、分区更少，diff 没必要。若关联写入失败，文章内容已更新，作者可
- * 再次保存重试。
+ * authorId、预读 status 与 updatedAt 都进入最终 UPDATE 条件：提交、审核或另一
+ * 次保存先完成时，本次旧写入不会覆盖新状态/版本。标签或分区变化时，主表与
+ * 关系表通过单条 data-modifying CTE 原子更新。
  */
 export async function updatePost(input: {
   postId: string;
@@ -350,29 +431,37 @@ export async function updatePost(input: {
   /** 内容描述事件的时间，YYYY-MM-DD，可选；空串清空 */
   eventDate?: string | null;
   submit?: boolean;
-  /** 管理员直发：跳过审核，published 编辑后保持 published，提交直接发布。 */
+  /** 管理员直发：仅与 asAdmin 同时为 true 时生效。 */
   adminPublish?: boolean;
-  /** 管理员越权编辑：true 时 where 条件只用 id，不校验 authorId。
+  /** 管理员越权编辑：true 时最终写入不校验 authorId。
    *  API 层必须先验证 isAdminSession 再传此参数。 */
   asAdmin?: boolean;
 }): Promise<UpdatePostResult> {
   const [row] = await db
-    .select({ status: posts.status, sectionId: posts.sectionId })
+    .select({
+      authorId: posts.authorId,
+      status: posts.status,
+      sectionId: posts.sectionId,
+      updatedAt: posts.updatedAt,
+    })
     .from(posts)
     .where(eq(posts.id, input.postId))
     .limit(1);
 
   if (!row) return { ok: false, reason: 'notFound' };
+  if (!input.asAdmin && row.authorId !== input.authorId) {
+    return { ok: false, reason: 'notAuthor' };
+  }
   // 管理员可以编辑 pending（审核中需要修正），普通作者不行
   if (row.status === 'pending' && !input.asAdmin) return { ok: false, reason: 'pendingCannotEdit' };
 
   const wasPublished = row.status === 'published';
-  const now = new Date().toISOString();
+  const now = nextUpdatedAt(row.updatedAt);
 
   // 管理员直发：已发布保持发布，提交直接发布
   // 普通用户：已发布 → pending 重审，提交 → pending
   let newStatus: PostStatus;
-  if (input.adminPublish) {
+  if (input.asAdmin && input.adminPublish) {
     newStatus = wasPublished ? 'published' : input.submit ? 'published' : 'draft';
   } else {
     newStatus = wasPublished ? 'pending' : input.submit ? 'pending' : 'draft';
@@ -404,36 +493,156 @@ export async function updatePost(input: {
     updates.publishedAt = now;
   }
 
-  // 管理员越权编辑：where 只用 id；普通作者：where 用 id + authorId 防越权
+  // 管理员越权编辑不校验 authorId；两条路径都锁定预读状态与版本，防止旧保存
+  // 覆盖已经提交、审核或由另一客户端更新的内容。
   const whereClause = input.asAdmin
-    ? eq(posts.id, input.postId)
-    : and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId));
+    ? and(
+        eq(posts.id, input.postId),
+        eq(posts.status, row.status),
+        eq(posts.updatedAt, row.updatedAt),
+      )
+    : and(
+        eq(posts.id, input.postId),
+        eq(posts.authorId, input.authorId),
+        eq(posts.status, row.status),
+        eq(posts.updatedAt, row.updatedAt),
+      );
 
-  const result = await db.update(posts).set(updates).where(whereClause);
+  const normalizedTags = input.tags === undefined ? undefined : normalizeTags(input.tags);
+  const normalizedSections = input.sections === undefined
+    ? undefined
+    : normalizeSections(input.sectionId ?? row.sectionId, input.sections);
 
-  if (((result as { rowCount?: number }).rowCount ?? 0) === 0) {
-    return { ok: false, reason: 'notAuthor' };
-  }
-
-  if (input.tags !== undefined) {
-    await db.delete(postTags).where(eq(postTags.postId, input.postId));
-    const newTags = normalizeTags(input.tags);
-    if (newTags.length > 0) {
-      await db.insert(postTags).values(newTags.map((t) => ({ postId: input.postId, ...t })));
+  let updated = false;
+  if (normalizedTags !== undefined || normalizedSections !== undefined) {
+    const assignments = [
+      sql`"updated_at" = ${now}`,
+      sql`"status" = ${newStatus}`,
+    ];
+    if (input.title !== undefined) assignments.push(sql`"title" = ${input.title}`);
+    if (input.excerpt !== undefined) assignments.push(sql`"excerpt" = ${input.excerpt}`);
+    if (input.content !== undefined) assignments.push(sql`"content" = ${input.content}`);
+    if (input.sectionId !== undefined) assignments.push(sql`"section_id" = ${input.sectionId}`);
+    if (input.eventDate !== undefined) {
+      assignments.push(sql`"event_date" = ${input.eventDate?.trim() ? input.eventDate.trim() : null}`);
     }
+    if (newStatus === 'pending') {
+      assignments.push(
+        sql`"review_note" = null`,
+        sql`"reviewer_id" = null`,
+        sql`"reviewed_at" = null`,
+      );
+    }
+    if (wasPublished && newStatus !== 'published') {
+      assignments.push(sql`"published_at" = null`);
+    }
+    if (newStatus === 'published' && !wasPublished) {
+      assignments.push(sql`"published_at" = ${now}`);
+    }
+
+    const ownerCondition = input.asAdmin
+      ? sql.empty()
+      : sql`AND "author_id" = ${input.authorId}`;
+    const ctes = [sql`
+      updated_post AS (
+        UPDATE "posts"
+        SET ${sql.join(assignments, sql`, `)}
+        WHERE "id" = ${input.postId}
+          ${ownerCondition}
+          AND "status" = ${row.status}
+          AND "updated_at" = ${row.updatedAt}
+        RETURNING "id"
+      )
+    `];
+
+    if (normalizedTags !== undefined) {
+      const removeOtherTags = normalizedTags.length > 0
+        ? sql`AND "tag" NOT IN (${sql.join(normalizedTags.map((tag) => sql`${tag.tag}`), sql`, `)})`
+        : sql.empty();
+      ctes.push(sql`
+        deleted_tags AS (
+          DELETE FROM "post_tags"
+          WHERE "post_id" IN (SELECT "id" FROM updated_post)
+            ${removeOtherTags}
+          RETURNING "post_id"
+        )
+      `);
+
+      if (normalizedTags.length > 0) {
+        ctes.push(sql`
+          upserted_tags AS (
+            INSERT INTO "post_tags" ("post_id", "tag", "label")
+            SELECT updated_post."id", incoming."tag", incoming."label"
+            FROM updated_post
+            CROSS JOIN (
+              VALUES ${sql.join(normalizedTags.map((tag) => sql`(${tag.tag}, ${tag.label})`), sql`, `)}
+            ) AS incoming("tag", "label")
+            ON CONFLICT ("post_id", "tag")
+            DO UPDATE SET "label" = EXCLUDED."label"
+            RETURNING "post_id"
+          )
+        `);
+      }
+    }
+
+    if (normalizedSections !== undefined) {
+      const removeOtherSections = normalizedSections.length > 0
+        ? sql`AND "section_id" NOT IN (${sql.join(normalizedSections.map((sectionId) => sql`${sectionId}`), sql`, `)})`
+        : sql.empty();
+      ctes.push(sql`
+        deleted_sections AS (
+          DELETE FROM "post_sections"
+          WHERE "post_id" IN (SELECT "id" FROM updated_post)
+            ${removeOtherSections}
+          RETURNING "post_id"
+        )
+      `);
+
+      if (normalizedSections.length > 0) {
+        ctes.push(sql`
+          inserted_sections AS (
+            INSERT INTO "post_sections" ("post_id", "section_id")
+            SELECT updated_post."id", incoming."section_id"
+            FROM updated_post
+            CROSS JOIN (
+              VALUES ${sql.join(normalizedSections.map((sectionId) => sql`(${sectionId})`), sql`, `)}
+            ) AS incoming("section_id")
+            ON CONFLICT ("post_id", "section_id") DO NOTHING
+            RETURNING "post_id"
+          )
+        `);
+      }
+    }
+
+    const result = await db.execute(sql<{ id: string }>`
+      WITH ${sql.join(ctes, sql`, `)}
+      SELECT "id" FROM updated_post
+    `);
+    updated = result.rows.length > 0;
+  } else {
+    const result = await db.update(posts).set(updates).where(whereClause);
+    updated = ((result as { rowCount?: number }).rowCount ?? 0) > 0;
   }
 
-  if (input.sections !== undefined) {
-    await db.delete(postSections).where(eq(postSections.postId, input.postId));
-    const newSections = normalizeSections(input.sectionId ?? row.sectionId, input.sections);
-    await db.insert(postSections).values(newSections.map((s) => ({ postId: input.postId, sectionId: s })));
+  if (!updated) {
+    const [current] = await db
+      .select({ authorId: posts.authorId })
+      .from(posts)
+      .where(eq(posts.id, input.postId))
+      .limit(1);
+
+    if (!current) return { ok: false, reason: 'notFound' };
+    if (!input.asAdmin && current.authorId !== input.authorId) {
+      return { ok: false, reason: 'notAuthor' };
+    }
+    return { ok: false, reason: 'concurrentUpdate' };
   }
 
   return { ok: true, status: newStatus, wasPublished, oldSectionId: row.sectionId, newSectionId };
 }
 
 export type WithdrawPostResult =
-  | { ok: true }
+  | { ok: true; updatedAt: string }
   | { ok: false; reason: 'notFound' | 'notAuthor' | 'notPending' };
 
 /**
@@ -453,7 +662,7 @@ export async function withdrawPost(input: {
     );
 
   if (((result as { rowCount?: number }).rowCount ?? 0) > 0) {
-    return { ok: true };
+    return { ok: true, updatedAt: now };
   }
 
   const [row] = await db
@@ -494,4 +703,241 @@ export async function deletePost(input: {
   await db.delete(postSections).where(eq(postSections.postId, input.postId));
 
   return { ok: true, wasPublished: row.status === 'published' };
+}
+
+export type VersionedPostMutationResult =
+  | { ok: true; status: PostStatus; updatedAt: string }
+  | { ok: false; reason: 'notFound' | 'invalidState' | 'versionConflict' };
+
+/** updatedAt 同时充当 API 乐观锁版本；即使服务器时钟回拨也必须严格递增。 */
+function nextUpdatedAt(expectedUpdatedAt: string): string {
+  const now = Date.now();
+  const expected = Date.parse(expectedUpdatedAt);
+  return new Date(Number.isFinite(expected) ? Math.max(now, expected + 1) : now).toISOString();
+}
+
+async function classifyVersionedMutationFailure(input: {
+  postId: string;
+  authorId: string;
+  expectedUpdatedAt: string;
+}): Promise<Extract<VersionedPostMutationResult, { ok: false }>> {
+  const [row] = await db
+    .select({ status: posts.status, updatedAt: posts.updatedAt })
+    .from(posts)
+    .where(and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId)))
+    .limit(1);
+
+  if (!row) return { ok: false, reason: 'notFound' };
+  if (row.status !== 'draft' && row.status !== 'rejected') {
+    return { ok: false, reason: 'invalidState' };
+  }
+  return { ok: false, reason: 'versionConflict' };
+}
+
+/**
+ * v1 显式提交。管理员能力只决定目标状态，不改变文章所有权条件。
+ * 条件更新确保同一个 expectedUpdatedAt 最多只有一个请求成功。
+ */
+export async function submitPostVersioned(input: {
+  postId: string;
+  authorId: string;
+  expectedUpdatedAt: string;
+  publish: boolean;
+}): Promise<VersionedPostMutationResult> {
+  const updatedAt = nextUpdatedAt(input.expectedUpdatedAt);
+  const status: Extract<PostStatus, 'pending' | 'published'> = input.publish ? 'published' : 'pending';
+
+  const result = await db
+    .update(posts)
+    .set({
+      status,
+      reviewNote: null,
+      reviewerId: null,
+      reviewedAt: null,
+      publishedAt: input.publish ? updatedAt : null,
+      updatedAt,
+    })
+    .where(and(
+      eq(posts.id, input.postId),
+      eq(posts.authorId, input.authorId),
+      inArray(posts.status, ['draft', 'rejected']),
+      eq(posts.updatedAt, input.expectedUpdatedAt),
+    ));
+
+  if (((result as { rowCount?: number }).rowCount ?? 0) === 0) {
+    return classifyVersionedMutationFailure(input);
+  }
+
+  return { ok: true, status, updatedAt };
+}
+
+/** v1 草稿更新：只接受本人 draft/rejected，并用 updatedAt 做乐观锁。 */
+export async function updatePostDraftVersioned(input: {
+  postId: string;
+  authorId: string;
+  expectedUpdatedAt: string;
+  title?: string;
+  excerpt?: string;
+  content?: string;
+  sectionId?: string;
+  sections?: string[];
+  tags?: string[];
+  eventDate?: string | null;
+}): Promise<VersionedPostMutationResult> {
+  let rebuiltSections: string[] | undefined;
+  if (input.sectionId !== undefined || input.sections !== undefined) {
+    const [currentPost] = await db
+      .select({ sectionId: posts.sectionId })
+      .from(posts)
+      .where(and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId)))
+      .limit(1);
+
+    const currentSections = input.sections === undefined && currentPost
+      ? await db
+          .select({ sectionId: postSections.sectionId })
+          .from(postSections)
+          .where(eq(postSections.postId, input.postId))
+          .limit(8)
+      : [];
+
+    const primarySection = input.sectionId ?? currentPost?.sectionId ?? input.sections?.[0] ?? '';
+    const requestedSections = input.sections ?? currentSections.map((section) => section.sectionId);
+    rebuiltSections = normalizeSections(primarySection, requestedSections);
+  }
+
+  const updatedAt = nextUpdatedAt(input.expectedUpdatedAt);
+  const updates: Record<string, string | null> = {
+    status: 'draft',
+    reviewNote: null,
+    reviewerId: null,
+    reviewedAt: null,
+    updatedAt,
+  };
+
+  if (input.title !== undefined) updates.title = input.title;
+  if (input.excerpt !== undefined) updates.excerpt = input.excerpt;
+  if (input.content !== undefined) updates.content = input.content;
+  if (input.sectionId !== undefined) updates.sectionId = input.sectionId;
+  if (input.eventDate !== undefined) {
+    updates.eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
+  }
+
+  const tags = input.tags === undefined ? undefined : normalizeTags(input.tags);
+
+  // 关系集合与 posts.updated_at 必须共享同一条数据库语句。否则旧 PATCH
+  // 可能在乐观锁成功后被 submit 抢先，再继续改写审核中的标签或分区。
+  if (tags !== undefined || rebuiltSections !== undefined) {
+    const assignments = [
+      sql`"status" = 'draft'`,
+      sql`"review_note" = null`,
+      sql`"reviewer_id" = null`,
+      sql`"reviewed_at" = null`,
+      sql`"updated_at" = ${updatedAt}`,
+    ];
+    if (input.title !== undefined) assignments.push(sql`"title" = ${input.title}`);
+    if (input.excerpt !== undefined) assignments.push(sql`"excerpt" = ${input.excerpt}`);
+    if (input.content !== undefined) assignments.push(sql`"content" = ${input.content}`);
+    if (input.sectionId !== undefined) assignments.push(sql`"section_id" = ${input.sectionId}`);
+    if (input.eventDate !== undefined) {
+      assignments.push(sql`"event_date" = ${input.eventDate?.trim() ? input.eventDate.trim() : null}`);
+    }
+
+    const ctes = [sql`
+      updated_post AS (
+        UPDATE "posts"
+        SET ${sql.join(assignments, sql`, `)}
+        WHERE "id" = ${input.postId}
+          AND "author_id" = ${input.authorId}
+          AND "status" IN ('draft', 'rejected')
+          AND "updated_at" = ${input.expectedUpdatedAt}
+        RETURNING "id"
+      )
+    `];
+
+    if (tags !== undefined) {
+      const removeOtherTags = tags.length > 0
+        ? sql`AND "tag" NOT IN (${sql.join(tags.map((tag) => sql`${tag.tag}`), sql`, `)})`
+        : sql.empty();
+      ctes.push(sql`
+        deleted_tags AS (
+          DELETE FROM "post_tags"
+          WHERE "post_id" IN (SELECT "id" FROM updated_post)
+            ${removeOtherTags}
+          RETURNING "post_id"
+        )
+      `);
+
+      if (tags.length > 0) {
+        ctes.push(sql`
+          upserted_tags AS (
+            INSERT INTO "post_tags" ("post_id", "tag", "label")
+            SELECT updated_post."id", incoming."tag", incoming."label"
+            FROM updated_post
+            CROSS JOIN (
+              VALUES ${sql.join(tags.map((tag) => sql`(${tag.tag}, ${tag.label})`), sql`, `)}
+            ) AS incoming("tag", "label")
+            ON CONFLICT ("post_id", "tag")
+            DO UPDATE SET "label" = EXCLUDED."label"
+            RETURNING "post_id"
+          )
+        `);
+      }
+    }
+
+    if (rebuiltSections !== undefined) {
+      const removeOtherSections = rebuiltSections.length > 0
+        ? sql`AND "section_id" NOT IN (${sql.join(rebuiltSections.map((sectionId) => sql`${sectionId}`), sql`, `)})`
+        : sql.empty();
+      ctes.push(sql`
+        deleted_sections AS (
+          DELETE FROM "post_sections"
+          WHERE "post_id" IN (SELECT "id" FROM updated_post)
+            ${removeOtherSections}
+          RETURNING "post_id"
+        )
+      `);
+
+      if (rebuiltSections.length > 0) {
+        ctes.push(sql`
+          inserted_sections AS (
+            INSERT INTO "post_sections" ("post_id", "section_id")
+            SELECT updated_post."id", incoming."section_id"
+            FROM updated_post
+            CROSS JOIN (
+              VALUES ${sql.join(rebuiltSections.map((sectionId) => sql`(${sectionId})`), sql`, `)}
+            ) AS incoming("section_id")
+            ON CONFLICT ("post_id", "section_id") DO NOTHING
+            RETURNING "post_id"
+          )
+        `);
+      }
+    }
+
+    const result = await db.execute(sql<{ id: string }>`
+      WITH ${sql.join(ctes, sql`, `)}
+      SELECT "id" FROM updated_post
+    `);
+
+    if (result.rows.length === 0) {
+      return classifyVersionedMutationFailure(input);
+    }
+
+    return { ok: true, status: 'draft', updatedAt };
+  }
+
+  const result = await db
+    .update(posts)
+    .set(updates)
+    .where(and(
+      eq(posts.id, input.postId),
+      eq(posts.authorId, input.authorId),
+      inArray(posts.status, ['draft', 'rejected']),
+      eq(posts.updatedAt, input.expectedUpdatedAt),
+    ));
+
+  if (((result as { rowCount?: number }).rowCount ?? 0) === 0) {
+    return classifyVersionedMutationFailure(input);
+  }
+
+  return { ok: true, status: 'draft', updatedAt };
 }

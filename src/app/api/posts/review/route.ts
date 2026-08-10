@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
 import { rateLimit } from '@/lib/rate-limit';
-import { getPostById, reviewPost } from '@/lib/posts';
-import { getSectionById } from '@/data/blog-sections';
+import { reviewPost } from '@/lib/posts';
+import { revalidatePublishedPaths } from '@/lib/revalidate';
 
 export const ReviewSchema = z.object({
   postId: z.string().min(1),
@@ -55,27 +54,11 @@ export async function POST(req: NextRequest) {
   }
 
   if (approve) {
-    // 通过即发布。这些页面都是静态生成的，这里按需失效让新文章立刻可见，
-    // 同时不必把整个博客改成动态渲染。
-    // 路径都带 locale 前缀，两个语言版本都要失效。
-    const post = await getPostById(postId);
-
-    for (const locale of ['zh', 'en'] as const) {
-      revalidatePath(`/${locale}/blog`);
-      revalidatePath(`/${locale}/blog/feed.xml`);
-      revalidatePath(`/${locale}/blog/tags`);
-      revalidatePath(`/${locale}/blog/tag/[tag]`, 'page');
-    }
-    revalidatePath('/sitemap.xml');
-
-    if (post) {
-      const section = getSectionById(post.sectionId);
-      if (section) {
-        for (const locale of ['zh', 'en'] as const) {
-          revalidatePath(`/${locale}/blog/section/${section.slug}`);
-          revalidatePath(`/${locale}/blog/section/${section.slug}/feed.xml`);
-        }
-      }
+    // 跨区文章会出现在多个分区；统一失效全部公开路径，避免只刷新主分区。
+    try {
+      revalidatePublishedPaths();
+    } catch (error) {
+      console.error('published post cache revalidation failed:', error);
     }
   }
 

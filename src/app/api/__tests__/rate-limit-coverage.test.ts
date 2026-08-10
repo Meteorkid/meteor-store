@@ -19,6 +19,14 @@ const EXEMPT: Record<string, string> = {
   'payment/alipay/notify/route.ts': '支付宝带验签的回调，限流会误伤其失败重试',
 };
 
+/** 需要跨入口共用同一限流 key 的少数路由；测试同时钉住路由调用和 guard 内的真实 rateLimit。 */
+const SHARED_GUARDS: Record<string, { call: RegExp; file: string }> = {
+  'blog/upload-image/route.ts': {
+    call: /checkBlogImageUploadRateLimit\(/,
+    file: join(process.cwd(), 'src/lib/blog-image-upload-guard.ts'),
+  },
+};
+
 function findRouteFiles(dir: string, base = ''): string[] {
   return readdirSync(dir).flatMap((entry) => {
     const full = join(dir, entry);
@@ -46,6 +54,16 @@ describe('API 路由的限流覆盖', () => {
       // 豁免项也要保持豁免理由与实现一致：别默默加了限流却还挂在豁免名单里
       expect(source, `${rel} 已豁免（${EXEMPT[rel]}），但它现在调用了 rateLimit，请从豁免名单移除`)
         .not.toMatch(/rateLimit\(/);
+      return;
+    }
+
+    const sharedGuard = SHARED_GUARDS[rel];
+    if (sharedGuard) {
+      expect(source, `${rel} 必须调用批准的共享限流 guard`).toMatch(sharedGuard.call);
+      expect(
+        readFileSync(sharedGuard.file, 'utf-8'),
+        `${rel} 的共享限流 guard 内没有调用 rateLimit()`,
+      ).toMatch(/rateLimit\(/);
       return;
     }
 

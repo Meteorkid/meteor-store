@@ -1,31 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { sendAdminAlert } from '@/lib/email';
 import { createPost, getPostsByAuthor } from '@/lib/posts';
-import { blogSections } from '@/data/blog-sections';
+import { PostSubmissionSchema } from '@/lib/post-validation';
 import { revalidatePublishedPaths } from '@/lib/revalidate';
 
-const SECTION_IDS = blogSections.map((s) => s.id) as [string, ...string[]];
-
-export const PostSubmissionSchema = z.object({
-  title: z.string().trim().min(4, '标题太短了').max(80, '标题不要超过 80 字'),
-  excerpt: z.string().trim().min(10, '摘要至少 10 个字').max(200, '摘要不要超过 200 字'),
-  content: z.string().trim().min(200, '正文至少 200 字').max(50_000, '正文太长了'),
-  sectionId: z.enum(SECTION_IDS),
-  sections: z.array(z.enum(SECTION_IDS)).max(8, '分区不要超过 8 个').default([]),
-  tags: z.array(z.string().trim().min(1).max(24)).max(8, '最多 8 个标签').default([]),
-  // 内容描述事件的时间，YYYY-MM-DD，可选
-  eventDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, '事件日期需为 YYYY-MM-DD')
-    .optional()
-    .nullable(),
-  // 存草稿还是提交审核
-  submit: z.boolean().default(false),
-});
+export { PostSubmissionSchema } from '@/lib/post-validation';
 
 export async function GET() {
   const session = await getSession();
@@ -68,7 +50,7 @@ export async function POST(req: NextRequest) {
 
   const isAdmin = isAdminSession(session);
 
-  const id = await createPost({
+  const created = await createPost({
     authorId: session.userId,
     ...data,
     eventDate: data.eventDate ?? null,
@@ -87,8 +69,16 @@ export async function POST(req: NextRequest) {
 
   // 管理员直接发布时刷新公开缓存
   if (submit && isAdmin) {
-    revalidatePublishedPaths();
+    try {
+      revalidatePublishedPaths();
+    } catch (error) {
+      console.error('published post cache revalidation failed:', error);
+    }
   }
 
-  return NextResponse.json({ success: true, id, status: submit ? (isAdmin ? 'published' : 'pending') : 'draft' });
+  return NextResponse.json({
+    success: true,
+    id: created.id,
+    status: submit ? (isAdmin ? 'published' : 'pending') : 'draft',
+  });
 }

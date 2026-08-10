@@ -27,8 +27,10 @@ vi.mock('@/lib/posts', () => ({
 }));
 
 const revalidated: string[] = [];
+let revalidateError: Error | null = null;
 vi.mock('next/cache', () => ({
   revalidatePath: (path: string) => {
+    if (revalidateError) throw revalidateError;
     revalidated.push(path);
   },
 }));
@@ -51,6 +53,7 @@ describe('POST /api/posts/review', () => {
     reviewResult = true;
     reviewCalls.length = 0;
     revalidated.length = 0;
+    revalidateError = null;
     limited = false;
   });
 
@@ -137,6 +140,24 @@ describe('POST /api/posts/review', () => {
       expect(revalidated).toContain('/zh/blog/section/debate/feed.xml');
       expect(revalidated).toContain('/en/blog/section/debate/feed.xml');
       expect(revalidated).toContain('/sitemap.xml');
+    });
+
+    it('审核已成功后即使缓存刷新失败仍返回 200', async () => {
+      revalidateError = new Error('cache unavailable');
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      try {
+        const res = await POST(request({ postId: 'p1', approve: true }));
+
+        expect(res.status).toBe(200);
+        expect(reviewCalls).toHaveLength(1);
+        expect(errorSpy).toHaveBeenCalledWith(
+          'published post cache revalidation failed:',
+          expect.any(Error),
+        );
+      } finally {
+        errorSpy.mockRestore();
+      }
     });
 
     it('标签页整条动态路由一起失效，避免漏掉大小写不同的规范地址', async () => {

@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
+import { scrubSentryEvent } from './src/lib/sentry-scrub';
 
 // middleware 与 edge 运行时走这份配置
 Sentry.init({
@@ -6,5 +7,6 @@ Sentry.init({
   enabled: process.env.NODE_ENV === 'production',
   tracesSampleRate: 0.1,
   sendDefaultPii: false,
+  beforeSend: scrubSentryEvent,
   debug: false,
 });

@@ -197,6 +197,20 @@
       "when": 1786247613337,
       "tag": "0027_dusty_firebird",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1786299062070,
+      "tag": "0028_secret_infant_terrible",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1786341540603,
+      "tag": "0029_unknown_wallow",
+      "breakpoints": true
     }
   ]
 }

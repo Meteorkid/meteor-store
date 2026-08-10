@@ -160,11 +160,47 @@ describe('PATCH /api/posts/[id]', () => {
     expect(mocks.revalidatePath).toHaveBeenCalled();
   });
 
+  it('编辑已成功后即使缓存刷新失败仍返回 200', async () => {
+    updateResult = {
+      ok: true,
+      status: 'pending',
+      wasPublished: true,
+      oldSectionId: 'law',
+      newSectionId: 'law',
+    };
+    mocks.revalidatePath.mockImplementationOnce(() => {
+      throw new Error('cache unavailable');
+    });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    try {
+      const [req, ctx] = patchReq('P1', { title: '编辑标题测试' });
+      const res = await PATCH(req, ctx);
+
+      expect(res.status).toBe(200);
+      expect(errorSpy).toHaveBeenCalledWith(
+        'published post cache revalidation failed:',
+        expect.any(Error),
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('编辑 pending 被拒 409', async () => {
     updateResult = { ok: false, reason: 'pendingCannotEdit' };
     const [req, ctx] = patchReq('P1', { title: '编辑标题测试' });
     const res = await PATCH(req, ctx);
     expect(res.status).toBe(409);
+  });
+
+  it('并发更新未命中时返回明确的 409 重试提示', async () => {
+    updateResult = { ok: false, reason: 'concurrentUpdate' };
+    const [req, ctx] = patchReq('P1', { title: '编辑标题测试' });
+    const res = await PATCH(req, ctx);
+
+    expect(res.status).toBe(409);
+    await expect(res.json()).resolves.toEqual({ error: '文章已被其他客户端修改，请刷新后重试' });
   });
 
   it('编辑 - 不是作者 403', async () => {

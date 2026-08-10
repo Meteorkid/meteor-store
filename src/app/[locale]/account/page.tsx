@@ -7,6 +7,7 @@ import { Link } from '@/i18n/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AccountForms from '@/components/AccountForms';
+import BlogApiTokenManager from '@/components/BlogApiTokenManager';
 import { db } from '@/lib/db';
 import { users, licenseKeys, posts } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
@@ -267,6 +268,8 @@ export default async function AccountPage({
               </div>
             </section>
           )}
+
+          {user.emailVerified && <BlogApiTokenManager />}
 
           {/* 个人资料表单 + 密码修改 */}
           <AccountForms

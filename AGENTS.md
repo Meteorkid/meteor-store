@@ -525,9 +525,26 @@ bucket 完全隔离。服务层在
   投稿在审核中还没有最终 id，且作者可能频繁编辑换图；用 userId 便于按用户清理
 - **不做删除接口**：博客图片 URL 写进 Markdown 后就和文章绑定，
   替换/删除图片会导致历史文章裂图。孤儿对象靠后续清理脚本处理（与头像不同）
-- **限流每用户每分钟 10 次**（一篇博客可能有多张图），比头像（5 次）宽松
-- **MIME 与大小校验在服务端做**：WebP / JPEG / PNG / GIF，最大 5MB，不信任客户端
+- **配额由 PostgreSQL 硬保证**：普通已验证用户 200 MiB、当前管理员 1 GiB。`users.blog_image_bytes`
+  是并发判断计数器，`blog_images` 是对象账本；上传必须走 `allocating → reserved → ready`，
+  不能用 R2 LIST、应用内 SUM 或 Redis 当持久配额。相同 ready 图片复用 URL，不重复计费
+- **两条入口共用门控**：Cookie 与 PAT 都使用同一个每用户 10 次/分钟、全站 30 次/分钟限流 key，
+  且读取 multipart 前先拿单进程 4 并发槽位。Redis 异常 fail closed，未配置时退化为内存限流；
+  release 必须放 `finally`
+- **格式与大小校验在服务端做**：WebP / JPEG / PNG / GIF，最大 5MB / 4000 万像素；
+  用 Sharp 解码确认真实格式，不信任客户端 MIME，multipart 也要在解析前限制总字节数
 - **未配置 R2 时返回 503**：不降级到 data URL——博客正文里嵌 base64 会撑爆 `posts.content`
+- **R2 与数据库失败窗口要可对账**：新对象使用完整 SHA-256 key，历史 16 位 key 继续识别；
+  `scripts/reconcile-blog-images.mjs` 默认 dry-run，只有 `--apply` 才回填/修复账本，永不自动删
+  R2 对象。单独 dry-run 只做 LIST / SELECT / HEAD，可在线运行，但结果只是当时快照
+- **`reconcile --apply` 不得与上传并发**：它会分步回填/修复账本，最后重算
+  `users.blog_image_bytes`。从 `--apply` 开始到最终 recalibrate 完成必须停止 PM2
+  或用等效方式冻结两个图片上传入口，否则并发预占可能被重算覆盖而短暂放宽配额
+- **生产顺序固定**：停 PM2/冻结上传 → 确认备份或 Neon 恢复点 → 先 `0028`、
+  再 `0029` → dry-run → `--apply` → 二次 dry-run → 部署新应用 → restart PM2 并做健康检查。
+  `--apply` 或二次 dry-run 失败时保持停写，不得部署或 restart，排障后从 dry-run 重新核对。
+  两个迁移都是 additive，新应用失败可回滚旧应用并保留新表/列，但旧应用不提供 PAT 功能；
+  回滚窗口产生的新 R2 图片必须在下次发布前重新对账
 - **站主的文章**（`content/blog/*.md`）也通过同一接口上传图片：登录后用 `/blog/submit` 页面
   上传拿 URL，再在本地 `.md` 文件里写。这是为了不在仓库里引入二进制资源
 - **Markdown 渲染管线已放行 `loading` 属性**（见 [src/lib/markdown.ts](file:///Users/meteor/github/meteor-store/src/lib/markdown.ts)
@@ -538,6 +555,39 @@ bucket 完全隔离。服务层在
   无需 `<Image>` 组件。`next.config.ts` 的 `images.remotePatterns` 从 `R2_PUBLIC_BASE`
   构建时自动派生。相对路径图片不被改写。Vercel Hobby 计划每月 1000 次免费优化额度
 
+### 博客发布 API（个人访问令牌）
+
+Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户自己的数据库投稿**；
+不会操作 `content/blog/*.md`。调用指南在 `docs/blog-publishing-api.md`，机器合约在
+`GET /api/v1/blog/openapi.json`。
+
+- PAT 表是 `personal_access_tokens`。令牌格式为 `msb_...`，完整值只在创建成功时返回一次；
+  数据库只存 SHA-256、显示前缀、scope 和时间元数据。令牌不能进 URL、日志、Sentry、仓库、
+  `AGENTS.md` 或长期提示词
+- 每用户最多 10 枚有效 PAT 由 nullable `slot`、1–10 检查约束和 `(user_id, slot)` 唯一索引保证；
+  创建前按数据库当前 `users.token_version` 释放已撤销/过期/版本失效记录的槽位，再原子选择空槽，
+  插入时重新确认邮箱仍已验证且版本未变化。不要退回会并发穿透的
+  “先 count 再 insert”
+- 令牌管理接口 `/api/blog/tokens` 使用正常 Cookie 会话；创建还要复核当前密码，写操作做
+  Origin 校验。v1 内容接口只接受 `Authorization: Bearer`，不复用 Cookie
+- 四项 scope 独立：`blog:read`、`blog:write`、`blog:submit`、`blog:image`。改密造成
+  `tokenVersion` 变化、撤销、过期、邮箱取消验证或账户删除后，旧 PAT 立即失效
+- 创建文章永远是 `draft`；提交必须单独调用 `/submit`。普通用户进入 `pending`，管理员也只能
+  直发**自己的**文章，PAT 路径永远不能传 `asAdmin` / `adminPublish`
+- v1 的 `PATCH` 只改本人 `draft/rejected`，`published` 首版只读。修改和提交必须携带服务端最近
+  返回的 `expectedUpdatedAt`；正文行与 `post_tags` / `post_sections` 必须在同一原子数据库语句中
+  更新，创建也必须在单条 data-modifying CTE 中写完主表与关系，不能退回多语句补偿或
+  “先改 posts、再删建关系”的竞态实现
+- 现有 Cookie 网页编辑虽然保持原状态策略，也必须把预读的 `status + updatedAt` 带入最终
+  UPDATE（普通作者另带 `authorId`），并让主表与关系写共享一条 CTE；否则会与提交、审核或
+  另一客户端保存交错，覆盖审核中内容。CAS 失败统一按并发冲突处理
+- 四项 scope 不隐式包含：POST/PATCH/submit/withdraw 只返回 `id/status/updatedAt/previewUrls`，
+  完整正文只能由 `blog:read` 的 GET 读取。发布主状态写入成功后，缓存失效异常只记录告警，
+  不得把已成功发布伪装成 500
+- 私有响应统一 `Cache-Control: no-store` + `Vary: Authorization`，错误分支使用稳定 `error.code`。
+  图片上传在 multipart 解析前限制请求体，并按实际解码格式校验，不信任客户端 MIME
+- 部署顺序是**先执行 `0028` 数据库迁移，再部署引用 PAT 表的应用代码**；应用启动不会自动迁移
+
 ## 安全约束
 
 ### 所有写接口必须限流
@@ -546,7 +596,9 @@ bucket 完全隔离。服务层在
 有 `POST/PUT/PATCH/DELETE` 就必须调用 `rateLimit()`，豁免要在该测试的 `EXEMPT` 里写明理由。
 
 **新加写接口忘了限流，CI 会红。** 这条约束之前只靠「记得加」维持，结果 login/register
-长期完全没有限流——恰好是全站计算最贵的两个端点。
+长期完全没有限流——恰好是全站计算最贵的两个端点。需要让多个入口共用同一个限流 key 时，
+可调用经该测试显式登记的共享 guard；测试必须同时钉住 Route 调用和 guard 内部的 `rateLimit()`，
+不能把共享 helper 当成无条件豁免。
 
 选项怎么选：
 
@@ -685,7 +737,7 @@ pnpm build                  # 构建
 <claude-mem-context>
 # Memory Context
 
-# [meteor-store] recent context, 2026-08-08 3:16pm GMT+8
+# [meteor-store] recent context, 2026-08-10 10:13pm GMT+8
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE

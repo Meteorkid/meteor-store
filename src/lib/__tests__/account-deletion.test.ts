@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { users } from '../db/schema';
+import { blogImages, personalAccessTokens, postSections, users } from '../db/schema';
 
 const state = vi.hoisted(() => ({
   posts: [{ id: 'P1', status: 'published' }],
@@ -69,6 +69,12 @@ describe('账户数据删除顺序', () => {
     });
 
     expect(state.deletedTables.at(-1)).toBe(users);
+    expect(state.deletedTables).toContain(blogImages);
+    expect(state.deletedTables.indexOf(blogImages)).toBeLessThan(
+      state.deletedTables.indexOf(users),
+    );
+    expect(state.deletedTables).toContain(personalAccessTokens);
+    expect(state.deletedTables).toContain(postSections);
     expect(revalidate).toHaveBeenCalledOnce();
     expect(deleteAvatar).toHaveBeenCalledWith('avatars/U1/avatar.webp');
     expect(deleteImages).toHaveBeenCalledWith('U1');

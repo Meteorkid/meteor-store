@@ -1,11 +1,14 @@
 import { and, eq, inArray, or } from 'drizzle-orm';
 import { db } from './db';
 import {
+  blogImages,
   comments,
   feedbacks,
   inviteRedemptions,
   likes,
+  personalAccessTokens,
   postFavorites,
+  postSections,
   posts,
   postTags,
   reports,
@@ -31,6 +34,8 @@ export async function deleteUserAccount(input: DeleteUserAccountInput): Promise<
   const postIds = userPosts.map((post) => post.id);
 
   const cleanup: Promise<unknown>[] = [
+    db.delete(blogImages).where(eq(blogImages.userId, input.userId)),
+    db.delete(personalAccessTokens).where(eq(personalAccessTokens.userId, input.userId)),
     db.delete(comments).where(eq(comments.authorId, input.userId)),
     db.delete(posts).where(eq(posts.authorId, input.userId)),
     db.delete(inviteRedemptions).where(eq(inviteRedemptions.userId, input.userId)),
@@ -59,6 +64,7 @@ export async function deleteUserAccount(input: DeleteUserAccountInput): Promise<
   ];
   if (postIds.length > 0) {
     cleanup.push(db.delete(postTags).where(inArray(postTags.postId, postIds)));
+    cleanup.push(db.delete(postSections).where(inArray(postSections.postId, postIds)));
   }
 
   await Promise.all(cleanup);

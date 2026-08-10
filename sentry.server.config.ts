@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
+import { scrubSentryEvent } from './src/lib/sentry-scrub';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -8,5 +9,6 @@ Sentry.init({
   tracesSampleRate: 0.1,
   // 不自动附带 IP、cookie、请求体等个人信息
   sendDefaultPii: false,
+  beforeSend: scrubSentryEvent,
   debug: false,
 });

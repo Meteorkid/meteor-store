@@ -1,4 +1,5 @@
-import { pgTable, text, integer, boolean, primaryKey, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { pgTable, text, integer, bigint, boolean, primaryKey, index, uniqueIndex, check } from 'drizzle-orm/pg-core';
 
 export const orders = pgTable('orders', {
   id: text('id').primaryKey(),                        // crypto.randomUUID()
@@ -49,7 +50,62 @@ export const users = pgTable('users', {
    * 不一致即视为过期——所有旧设备上持有的 token 立即失效。
    */
   tokenVersion: integer('token_version').default(0).notNull(),
-});
+  /** 博客图片已预占或已上传的总字节数；由图片账本原子维护。 */
+  blogImageBytes: bigint('blog_image_bytes', { mode: 'number' }).default(0).notNull(),
+}, (t) => [
+  check('users_blog_image_bytes_non_negative', sql`${t.blogImageBytes} >= 0`),
+]);
+
+/**
+ * 博客图片对象账本。
+ *
+ * allocating 不计入用户计数；reserved / ready 均计入。数据库与 R2 无法共享事务，
+ * 因此保留中间态供上传补偿和对账脚本安全修复。
+ */
+export const blogImages = pgTable('blog_images', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  objectKey: text('object_key').notNull(),
+  sizeBytes: integer('size_bytes').notNull(),
+  status: text('status').notNull(), // allocating | reserved | ready
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+  uploadedAt: text('uploaded_at'),
+}, (t) => [
+  check('blog_images_size_range', sql`${t.sizeBytes} between 1 and 5000000`),
+  check('blog_images_status_valid', sql`${t.status} in ('allocating', 'reserved', 'ready')`),
+  uniqueIndex('blog_images_object_key_idx').on(t.objectKey),
+  index('blog_images_user_idx').on(t.userId),
+  index('blog_images_status_updated_idx').on(t.status, t.updatedAt),
+]);
+
+/**
+ * 博客个人访问令牌（PAT）。
+ *
+ * 完整令牌只在创建时返回一次，数据库仅保存 SHA-256。管理员身份不写入令牌，
+ * 每次使用时都根据已验证用户邮箱与 ADMIN_EMAILS 动态计算。
+ */
+export const personalAccessTokens = pgTable('personal_access_tokens', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  name: text('name').notNull(),
+  tokenHash: text('token_hash').notNull(),
+  tokenPrefix: text('token_prefix').notNull(),
+  scopes: text('scopes').array().notNull(),
+  /** 创建令牌时的 users.token_version；改密或重置密码后旧令牌立即失效。 */
+  tokenVersion: integer('token_version').notNull(),
+  /** 1–10 的活跃槽位；撤销、过期或版本失效后释放为 null。 */
+  slot: integer('slot'),
+  expiresAt: text('expires_at').notNull(),
+  lastUsedAt: text('last_used_at'),
+  revokedAt: text('revoked_at'),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  check('personal_access_tokens_slot_range', sql`${t.slot} is null or ${t.slot} between 1 and 10`),
+  uniqueIndex('personal_access_tokens_hash_idx').on(t.tokenHash),
+  uniqueIndex('personal_access_tokens_user_slot_idx').on(t.userId, t.slot),
+  index('personal_access_tokens_user_created_idx').on(t.userId, t.createdAt),
+]);
 
 /**
  * 读者提交的话题提议（半开放模式）。
