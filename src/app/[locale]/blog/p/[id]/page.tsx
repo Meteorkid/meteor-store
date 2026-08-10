@@ -6,6 +6,9 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogReadingProgress from '@/components/BlogReadingProgress';
+import RelatedPosts from '@/components/RelatedPosts';
+import { getRelatedPosts } from '@/lib/related-posts';
+import { getFeedPosts } from '@/data/blog-feed';
 import { getPostById } from '@/lib/posts';
 import { getSession } from '@/lib/auth';
 import { blogScopeStyle, getSectionById } from '@/data/blog-sections';
@@ -61,6 +64,17 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
   const isAdmin = !!session && isAdminSession(session);
   // 管理员或作者本人可编辑；管理员走 admin=1 路径有越权编辑能力
   const canEdit = isAdmin || isAuthor;
+
+  // 相关阅读：已发布文章才计算
+  let relatedFeedPosts: Awaited<ReturnType<typeof getRelatedPosts>> = [];
+  if (post.status === 'published') {
+    const feed = await getFeedPosts(locale as Locale);
+    relatedFeedPosts = getRelatedPosts(
+      { href: `/blog/p/${post.id}`, sections: [post.sectionId], tags: post.tags },
+      feed,
+      3,
+    );
+  }
   const editHref = `/blog/submit?id=${post.id}${isAdmin ? '&admin=1' : ''}`;
 
   return (
@@ -211,6 +225,14 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
               )}
             </div>
           </div>
+
+          {/* 相关阅读：仅已发布文章展示 */}
+          {!isPreview && (
+            <RelatedPosts
+              posts={relatedFeedPosts}
+              accentRgb={section?.rgb}
+            />
+          )}
 
           {/* 预览模式（非 published）不显示统计和评论：文章还没公开 */}
           {!isPreview && (

@@ -17,5 +17,8 @@ export function revalidatePublishedPaths() {
       revalidatePath(`/${locale}/blog/section/${section.slug}/feed.xml`);
     }
   }
+  // 使文章详情页失效（新投稿发布后，旧文章的"小星官"同步刷新）
+  revalidatePath('/[locale]/blog/[slug]', 'page');
+  revalidatePath('/[locale]/blog/p/[id]', 'page');
   revalidatePath('/sitemap.xml');
 }

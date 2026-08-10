@@ -969,6 +969,17 @@ html {
   transform-origin: 0 50%;
   background: linear-gradient(90deg, rgb(var(--blog-accent) / 0.25), rgb(var(--blog-accent)));
 }
+/* 漏刻：进度条末端的极淡刻度 */
+.blog-progress::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 8px;
+  background: rgba(255,255,255,0.25);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .blog-stagger > * {

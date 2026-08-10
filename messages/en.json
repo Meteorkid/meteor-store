@@ -1718,5 +1718,12 @@
     "loginHint": "Sign in first: the license is bound to your account.",
     "loginToContinue": "Sign in",
     "closeAriaLabel": "Close redemption dialog"
+  },
+  "RelatedPosts": {
+    "title": "Continue Reading",
+    "asterism": "Little Asterism",
+    "currentStar": "Current article (primary star)",
+    "reasonTag": "Shared tag: {tag}",
+    "reasonSection": "Also in {section}"
   }
 }

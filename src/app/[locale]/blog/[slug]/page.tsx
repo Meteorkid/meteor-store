@@ -5,6 +5,8 @@ import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getBlogPosts } from '@/data/blog';
+import { getRelatedPosts } from '@/lib/related-posts';
+import RelatedPosts from '@/components/RelatedPosts';
 import { blogScopeStyle, getSectionById } from '@/data/blog-sections';
 import { markdownToHtml } from '@/lib/markdown';
 import BlogReadingProgress from '@/components/BlogReadingProgress';
@@ -59,11 +61,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     post.slug
   }.md`;
 
-  // 同分区的其他文章，最新 3 篇
-  const related = posts
-    .filter((p) => p.section === post.section && p.slug !== post.slug)
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 3);
+  // 相关阅读：按共同标签、分区重叠、时间接近度排序
+  const related = getRelatedPosts(
+    { href: `/blog/${post.slug}`, sections: post.sections ?? [post.section], tags: post.tags },
+    posts.map((p) => ({ ...p, href: `/blog/${p.slug}`, eventDate: p.eventDate ?? p.date, author: null })),
+    3,
+  );
 
   return (
     <div
@@ -148,29 +151,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           <PostStats targetId={post.slug} />
 
-          {related.length > 0 && (
-            <section className="mt-20">
-              <h2 className="t-eyebrow mb-1 text-white/60">{t('continueReading')}</h2>
-              <div className="mt-5">
-                {related.map((item, i) => (
-                  <Link key={item.slug} href={`/blog/${item.slug}`} className="blog-row group">
-                    <div className="blog-row__inner flex items-baseline gap-5 py-5">
-                      <span className="blog-row__index t-footnote shrink-0 text-white/60">
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="t-title-4 mb-1 text-white/90 transition-colors duration-200 group-hover:text-white">
-                          {item.title}
-                        </h3>
-                        <p className="t-footnote line-clamp-1 text-white/60">{item.excerpt}</p>
-                      </div>
-                      <span aria-hidden className="blog-row__arrow hidden shrink-0 text-white/50 sm:block">→</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+          <RelatedPosts
+            posts={related}
+            accentRgb={section?.rgb}
+          />
 
           <CommentSection targetId={post.slug} />
 

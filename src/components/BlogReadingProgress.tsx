@@ -17,7 +17,10 @@ export default function BlogReadingProgress() {
       rafId = 0;
       const el = barRef.current;
       if (!el) return;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const article = document.querySelector('article') || document.querySelector('.blog-prose');
+      const max = (article
+        ? article.getBoundingClientRect().bottom + window.scrollY - window.innerHeight
+        : document.documentElement.scrollHeight - window.innerHeight);
       const ratio = max > 0 ? Math.min(window.scrollY / max, 1) : 0;
       el.style.transform = `scaleX(${ratio})`;
     };
