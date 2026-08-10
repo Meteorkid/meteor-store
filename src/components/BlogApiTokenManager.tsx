@@ -149,8 +149,6 @@ export default function BlogApiTokenManager() {
         <p className="t-footnote mt-1.5 text-white/60">{t('description')}</p>
         <a
           href="/blog/api-guide"
-          target="_blank"
-          rel="noreferrer"
           className="t-footnote mt-2 inline-block text-violet-300 underline decoration-violet-300/35 underline-offset-4 transition-colors hover:text-violet-200"
         >
           {t('usageGuide')}
@@ -191,7 +189,7 @@ export default function BlogApiTokenManager() {
               </div>
               <p className="text-xs text-amber-100/50">
                 {t('usageGuideLink')}{' '}
-                <a href="/blog/api-guide" target="_blank" rel="noreferrer" className="underline decoration-amber-100/25 underline-offset-4 hover:text-amber-50">{t('usageGuideLabel')}</a>
+                <a href="/blog/api-guide" className="underline decoration-amber-100/25 underline-offset-4 hover:text-amber-50">{t('usageGuideLabel')}</a>
               </p>
             </div>
           </div>
