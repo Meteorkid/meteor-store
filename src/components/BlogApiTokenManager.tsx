@@ -155,6 +155,15 @@ export default function BlogApiTokenManager() {
         >
           {t('openApi')}
         </a>
+        <span aria-hidden className="mx-2 text-white/25">·</span>
+        <a
+          href="https://github.com/Meteorkid/meteor-store/blob/main/docs/blog-publishing-api.md"
+          target="_blank"
+          rel="noreferrer"
+          className="t-footnote mt-2 inline-block text-violet-300 underline decoration-violet-300/35 underline-offset-4 transition-colors hover:text-violet-200"
+        >
+          {t('usageGuide')}
+        </a>
       </div>
 
       {oneTimeToken && (

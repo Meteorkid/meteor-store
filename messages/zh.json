@@ -280,7 +280,8 @@
     "usageClaudeDesc": "启动 Claude Code 后登录，即可用自然语言写文章：",
     "usageCurl": "curl / 其他工具",
     "usageGuideLink": "完整参数、响应格式和注意事项见",
-    "usageGuideLabel": "调用指南 →"
+    "usageGuideLabel": "调用指南 →",
+    "usageGuide": "完整调用指南 →"
   },
   "ProductsPage": {
     "title": "产品",
