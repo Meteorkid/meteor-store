@@ -38,6 +38,7 @@ export const SEVEN_LUMINARIES: Array<{
   label: CelestialLabel;
   gradient: string;
 }> = [
+
   {
     id: 'sun',
     label: { zh: '日曜', en: 'Rì Yào · Sun' },
@@ -49,19 +50,14 @@ export const SEVEN_LUMINARIES: Array<{
     gradient: 'radial-gradient(circle at 32% 28%, #ffffff 0%, #dbe4ef 42%, #94a3b8 78%, #475569 100%)',
   },
   {
-    id: 'mercury',
-    label: { zh: '辰星', en: 'Chén Xīng · Mercury' },
-    gradient: 'radial-gradient(circle at 32% 28%, #ece8e0 0%, #b8aea4 42%, #7a6f63 78%, #453e36 100%)',
-  },
-  {
-    id: 'venus',
-    label: { zh: '太白', en: 'Tài Bái · Venus' },
-    gradient: 'radial-gradient(circle at 32% 28%, #fffdf1 0%, #eed9a9 42%, #c9a24b 78%, #8a6a2f 100%)',
-  },
-  {
     id: 'mars',
     label: { zh: '荧惑', en: 'Yíng Huò · Mars' },
     gradient: 'radial-gradient(circle at 32% 28%, #fbd8d0 0%, #e07a5f 42%, #b03a2e 78%, #6e2018 100%)',
+  },
+  {
+    id: 'mercury',
+    label: { zh: '辰星', en: 'Chén Xīng · Mercury' },
+    gradient: 'radial-gradient(circle at 32% 28%, #ece8e0 0%, #b8aea4 42%, #7a6f63 78%, #453e36 100%)',
   },
   {
     id: 'jupiter',
@@ -69,8 +65,12 @@ export const SEVEN_LUMINARIES: Array<{
     gradient: 'radial-gradient(circle at 32% 28%, #fbe9c8 0%, #e8b06a 42%, #b5651d 78%, #6e3a10 100%)',
   },
   {
+    id: 'venus',
+    label: { zh: '太白', en: 'Tài Bái · Venus' },
+    gradient: 'radial-gradient(circle at 32% 28%, #fffdf1 0%, #eed9a9 42%, #c9a24b 78%, #8a6a2f 100%)',
+  },{
     id: 'saturn',
     label: { zh: '镇星', en: 'Zhèn Xīng · Saturn' },
     gradient: 'radial-gradient(circle at 32% 28%, #faf0cd 0%, #e8cf8a 42%, #c9a24b 78%, #7a5c22 100%)',
-  },
+  }
 ];

@@ -195,7 +195,8 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
           const post = posts[idx];
           const ratio = posts.length > 1 ? idx / (posts.length - 1) : 0;
           const active = !dragging && Math.abs(p - ratio) < 0.5 / Math.max(posts.length - 1, 1);
-          const luminary = SEVEN_LUMINARIES[idx % SEVEN_LUMINARIES.length];
+          const weekday = new Date(post.eventDate + 'T00:00:00').getUTCDay();
+          const luminary = SEVEN_LUMINARIES[weekday];
           return (
             <button
               key={post.slug}

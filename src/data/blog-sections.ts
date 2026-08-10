@@ -134,8 +134,8 @@ export const blogSections = [
       beast: { zh: '北方玄武', en: 'Black Tortoise' },
       symbolId: 'blackTortoise',
       reason: {
-        zh: '斗柄纪时，取成长由岁月串成之意',
-        en: 'The Dipper marks time, echoing a story built across the years.',
+        zh: '斗宿为北方玄武七宿之首，主体为南斗六星；取成长由岁月串成之意',
+        en: 'The Dipper mansion heads the Black Tortoise; its main stars form the Southern Dipper — a story built across the years.',
       },
     },
   },

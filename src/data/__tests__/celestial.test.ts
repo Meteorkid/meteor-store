@@ -27,4 +27,22 @@ describe('中国星象数据', () => {
       expect(luminary.gradient).toContain('radial-gradient');
     });
   });
+
+  it('七曜顺序对应星期天至星期六', () => {
+    const expectedIds = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
+    SEVEN_LUMINARIES.forEach((luminary, i) => {
+      expect(luminary.id).toBe(expectedIds[i]);
+    });
+  });
+
+  it('斗宿属于北方玄武七宿之首', () => {
+    const blackTortoiseGroup = MANSION_GROUPS.find((g) => g.symbolId === 'blackTortoise');
+    expect(blackTortoiseGroup).toBeDefined();
+    expect(blackTortoiseGroup!.mansions[0]).toBe('斗');
+
+    // 验证斗宿恰好出现一次，且只在玄武组
+    const allMansions = MANSION_GROUPS.flatMap((g) => g.mansions);
+    expect(allMansions.filter((m) => m === '斗').length).toBe(1);
+  });
+
 });
