@@ -6,6 +6,7 @@ import { localizeProducts } from '@/data/products';
 import type { Locale } from '@/i18n/routing';
 import { SHOW_PRICING } from '@/lib/constants';
 import FooterCopyright from './FooterCopyright';
+import BrandMark from './BrandMark';
 
 const resourceLinks = [
   { key: 'docs', href: '/docs' },
@@ -47,7 +48,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">🚀</span>
+              <BrandMark className="h-7 w-7" />
               <span className="text-xl font-bold gradient-text">
                 Meteor Store
               </span>
@@ -142,6 +143,21 @@ export default function Footer({ showSocial = false }: FooterProps) {
             <circle cx="100" cy="18" r="2" fill="#dcdce8" />
             <circle cx="158" cy="8" r="2.6" fill="#e8e8f4" />
             <circle cx="190" cy="14" r="2" fill="#cfcfe0" />
+          </svg>
+        </div>
+
+        {/* 店灯：一盏极简的灯，衬在版权行上方 */}
+        <div aria-label="店灯——仍有人在" role="img" className="mx-auto mb-6 flex w-full justify-center">
+          <svg viewBox="0 0 24 36" className="h-8 w-auto opacity-25" fill="none">
+            {/* 灯座 */}
+            <rect x="8" y="30" width="8" height="3" rx="1" fill="rgba(255,255,255,0.5)" />
+            {/* 灯身 */}
+            <path d="M9 30 L7 14 L17 14 L15 30 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
+            {/* 灯芯 / 火焰 */}
+            <ellipse cx="12" cy="11" rx="2.5" ry="4" fill="rgba(251,191,36,0.35)" />
+            <ellipse cx="12" cy="10" rx="1.2" ry="2.5" fill="rgba(251,191,36,0.55)" />
+            {/* 光晕 */}
+            <circle cx="12" cy="8" r="6" fill="rgba(251,191,36,0.06)" />
           </svg>
         </div>
 
