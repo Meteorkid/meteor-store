@@ -195,8 +195,8 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
           const post = posts[idx];
           const ratio = posts.length > 1 ? idx / (posts.length - 1) : 0;
           const active = !dragging && Math.abs(p - ratio) < 0.5 / Math.max(posts.length - 1, 1);
-          const weekday = new Date(post.eventDate + 'T00:00:00').getUTCDay();
-          const luminary = SEVEN_LUMINARIES[weekday];
+          const weekday = new Date((post.eventDate || '').slice(0, 10) + 'T00:00:00').getUTCDay();
+          const luminary = SEVEN_LUMINARIES[isNaN(weekday) ? 0 : weekday];
           return (
             <button
               key={post.slug}
@@ -335,7 +335,7 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
               className="pointer-events-none absolute right-full top-1/2 mr-2 -translate-y-1/2 whitespace-nowrap rounded-full border border-white/15 bg-black/50 px-2 py-0.5 text-[11px] tabular-nums text-white/85 backdrop-blur-sm"
               aria-hidden="true"
             >
-              {formatDate(currentPost.eventDate)}
+              {currentPost.eventDate ? formatDate(currentPost.eventDate) : ''}
             </span>
           )}
         </div>
