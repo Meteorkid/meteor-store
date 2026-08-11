@@ -146,6 +146,7 @@ export default function MeteorShower() {
       wrapper.style.cssText = [
         'position:absolute', 'top:15%', 'right:-200px', 'z-index:20',
         'cursor:pointer', 'pointer-events:auto',
+        'width:200px', 'height:40px',
         'transition:right 3.6s cubic-bezier(.22,.5,.33,1), top 3.6s cubic-bezier(.22,.5,.33,1), opacity .4s ease',
       ].join(';');
 
