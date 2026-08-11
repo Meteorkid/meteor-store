@@ -9,9 +9,10 @@ import {
   localizeHelpArticles,
 } from '@/data/help-articles';
 import { getHelpArticle, getRelatedHelpArticles } from '@/data/help';
-import { renderHelpMarkdown, type HelpHeading } from '@/lib/help-markdown';
+import { renderHelpMarkdown } from '@/lib/help-markdown';
 import HelpCosmicBg from '@/components/help/HelpCosmicBg';
 import { StarDust, ConstellationDot, MeteorTrail } from '@/components/help/HelpDecorations';
+import HelpToc from '@/components/help/HelpToc';
 import { OpenInPanelButton } from '@/components/help/OpenInPanelButton';
 import { Link } from '@/i18n/navigation';
 import { routing, type Locale } from '@/i18n/routing';
@@ -260,7 +261,7 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
                         aria-hidden
                         className="absolute left-[3px] top-2 h-[calc(100%-16px)] w-px bg-gradient-to-b from-violet-400/15 via-violet-400/10 to-transparent"
                       />
-                      <HelpTocList headings={headings} />
+                      <HelpToc headings={headings} variant="sidebar" />
                     </nav>
                   </div>
                 </aside>
@@ -301,34 +302,6 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
         }}
       />
     </div>
-  );
-}
-
-/** 星图风格目录列表 */
-function HelpTocList({ headings }: { headings: HelpHeading[] }) {
-  return (
-    <ul className="space-y-2.5">
-      {headings.map((heading) => (
-        <li
-          key={heading.id}
-          style={{ paddingLeft: heading.level === 3 ? '1rem' : '0' }}
-          className="relative"
-        >
-          {/* 节点 */}
-          <span
-            aria-hidden
-            className="absolute left-0 top-[0.6rem] h-1.5 w-1.5 rounded-full bg-white/15 transition-all duration-300 group-hover:bg-violet-300/60 group-hover:shadow-[0_0_4px_rgba(196,181,253,0.4)]"
-            style={{ left: heading.level === 3 ? '0.5rem' : '0' }}
-          />
-          <a
-            href={`#${heading.id}`}
-            className="group t-footnote block rounded-sm py-1 pl-4 text-white/45 outline-none transition-colors hover:text-white/80 focus-visible:ring-2 focus-visible:ring-violet-300"
-          >
-            {heading.text}
-          </a>
-        </li>
-      ))}
-    </ul>
   );
 }
 

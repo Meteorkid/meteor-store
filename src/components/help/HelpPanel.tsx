@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useHelpPanel } from './HelpPanelContext';
+import HelpToc from './HelpToc';
 import { MeteorTrail, ConstellationDot } from './HelpDecorations';
 import { useLocale } from 'next-intl';
 
@@ -171,26 +172,9 @@ export default function HelpPanel() {
 
           {article && !loading && !error && (
             <>
-              {/* 目录 */}
-              {article.headings.length > 1 && (
-                <details className="mb-6" open>
-                  <summary className="t-footnote mb-3 cursor-pointer text-white/40 outline-none hover:text-white/60">
-                    {isZh ? '目录' : 'On this page'}
-                  </summary>
-                  <nav className="relative border-l border-white/[0.06] pl-3">
-                    {article.headings.map((h) => (
-                      <a
-                        key={h.id}
-                        href={`#${h.id}`}
-                        className="t-footnote block rounded-sm py-1 text-white/45 outline-none transition-colors hover:text-white/75 focus-visible:ring-2 focus-visible:ring-violet-300"
-                        style={{ paddingLeft: h.level === 3 ? '0.75rem' : '0' }}
-                      >
-                        {h.text}
-                      </a>
-                    ))}
-                  </nav>
-                </details>
-              )}
+
+              
+              <HelpToc headings={article.headings} variant="collapsible" />
 
               {/* 正文 */}
               <div
