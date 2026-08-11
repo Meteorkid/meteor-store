@@ -12,6 +12,7 @@ import { getHelpArticle, getRelatedHelpArticles } from '@/data/help';
 import { renderHelpMarkdown, type HelpHeading } from '@/lib/help-markdown';
 import HelpCosmicBg from '@/components/help/HelpCosmicBg';
 import { StarDust, ConstellationDot, MeteorTrail } from '@/components/help/HelpDecorations';
+import { OpenInPanelButton } from '@/components/help/OpenInPanelButton';
 import { Link } from '@/i18n/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
@@ -153,7 +154,10 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
                     </time>
                   </div>
 
-                  <h1 className="t-title-1 mb-4 text-white">{article.title}</h1>
+                  <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                  <h1 className="t-title-1 text-white">{article.title}</h1>
+                  <OpenInPanelButton slug={article.slug} variant="text" />
+                </div>
                   <p className="t-body max-w-3xl text-white/60">{article.excerpt}</p>
                 </header>
 

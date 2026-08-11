@@ -13,6 +13,8 @@ import FilmGrain from "@/components/FilmGrain";
 import HeroCanvas from "@/components/HeroCanvas";
 import MeteorShower from "@/components/MeteorShower";
 import { AuthProvider } from "@/components/AuthProvider";
+import { HelpPanelProvider } from "@/components/help/HelpPanelContext";
+import HelpPanel from "@/components/help/HelpPanel";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -155,12 +157,15 @@ export default async function LocaleLayout({
             <ScrollAnimateInit />
           </Suspense>
           <AuthProvider>
+            <HelpPanelProvider>
             <EasterEggs />
             <SpotlightSearch />
             <FilmGrain />
             <HeroCanvas />
             <MeteorShower />
             {children}
+            <HelpPanel />
+            </HelpPanelProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

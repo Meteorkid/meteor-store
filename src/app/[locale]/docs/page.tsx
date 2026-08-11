@@ -7,6 +7,7 @@ import { buildHelpSearchEntries } from '@/data/help-search.server';
 import HelpCenterSearch from '@/components/help/HelpCenterSearch';
 import HelpCosmicBg from '@/components/help/HelpCosmicBg';
 import { MeteorTrail, StarDust, ConstellationDot, SectionDivider } from '@/components/help/HelpDecorations';
+import { OpenInPanelButton } from '@/components/help/OpenInPanelButton';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { SHOW_PRICING } from '@/lib/constants';
@@ -190,17 +191,20 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                               {article.excerpt}
                             </p>
                           </div>
-                          {/* 流星箭头 */}
-                          <span
-                            aria-hidden
-                            className="mt-1 shrink-0 text-white/25 transition-all duration-300 group-hover:translate-x-1 group-hover:text-violet-300/70 group-hover:drop-shadow-[0_0_4px_rgba(196,181,253,0.3)] motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
-                          >
-                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                              <path d="M5 12h12m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                              <circle cx="18.5" cy="12" r="1.5" fill="currentColor" opacity="0.3" />
-                            </svg>
-                          </span>
-                        </div>
+                          {/* 操作按钮组 */}
+                          <div className="mt-1 flex shrink-0 items-center gap-1">
+                            <OpenInPanelButton slug={article.slug} variant="icon" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 motion-reduce:transition-none" />
+                            <span
+                              aria-hidden
+                              className="text-white/25 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-violet-300/70 group-hover:drop-shadow-[0_0_4px_rgba(196,181,253,0.3)] motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+                            >
+                              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M5 12h12m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <circle cx="18.5" cy="12" r="1.5" fill="currentColor" opacity="0.3" />
+                              </svg>
+                            </span>
+                          </div>
+                          </div>
                       </Link>
                     ))}
                   </div>
