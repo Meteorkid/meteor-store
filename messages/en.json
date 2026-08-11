@@ -731,6 +731,7 @@
     "rejectedReason": "Reason: {reason}",
     "backToMyPosts": "← Back to My Posts",
     "editPost": "Edit",
+    "eventDate": "Event date",
     "editOnGithub": "Edit on GitHub",
     "report": "Report"
   },

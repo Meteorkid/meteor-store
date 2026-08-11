@@ -148,6 +148,14 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
                   </time>
                 </>
               )}
+              {post.eventDate && post.eventDate !== post.publishedAt?.slice(0, 10) && (
+                <>
+                  <span aria-hidden className="text-white/20">·</span>
+                  <time className="tabular-nums text-white/60" dateTime={post.eventDate}>
+                    {post.eventDate.replace(/-/g, '.')}
+                  </time>
+                </>
+              )}
               <span aria-hidden className="text-white/20">·</span>
               <span className="text-white/60">{t('readerSubmission')}</span>
               {canEdit && (

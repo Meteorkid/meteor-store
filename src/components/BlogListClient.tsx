@@ -331,8 +331,8 @@ export default function BlogListClient({
                     {ledeSection.label[locale]}
                   </span>
                 )}
-                <time className="tabular-nums text-white/60" dateTime={lede.date}>
-                  {formatDate(lede.date)}
+                <time className="tabular-nums text-white/60" dateTime={dimension === 'date' ? lede.date : lede.eventDate}>
+                  {formatDate(dimension === 'date' ? lede.date : lede.eventDate)}
                 </time>
                 <span aria-hidden className="text-white/20">·</span>
                 <span className="text-white/60">{t('minutes', { count: lede.readingTime })}</span>
@@ -376,8 +376,8 @@ export default function BlogListClient({
 
                       <div className="min-w-0 flex-1">
                         <div className="t-footnote mb-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                          <time className="tabular-nums text-white/60" dateTime={post.date}>
-                            {formatDate(post.date)}
+                          <time className="tabular-nums text-white/60" dateTime={dimension === 'date' ? post.date : post.eventDate}>
+                            {formatDate(dimension === 'date' ? post.date : post.eventDate)}
                           </time>
                           {showSectionLabel && section && (
                             <>

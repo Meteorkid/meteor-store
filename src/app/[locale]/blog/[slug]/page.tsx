@@ -120,6 +120,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <time className="tabular-nums text-white/60" dateTime={post.date}>
                 {post.date.replace(/-/g, '.')}
               </time>
+              {post.eventDate && post.eventDate !== post.date && (
+                <>
+                  <span aria-hidden className="text-white/20">·</span>
+                  <time className="tabular-nums text-white/60" dateTime={post.eventDate}>
+                    {post.eventDate.replace(/-/g, '.')}
+                  </time>
+                </>
+              )}
               <span aria-hidden className="text-white/20">·</span>
               <span className="text-white/60">{t('minutes', { count: post.readingTime })}</span>
               <span aria-hidden className="text-white/20">·</span>

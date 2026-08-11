@@ -731,6 +731,7 @@
     "rejectedReason": "原因：{reason}",
     "backToMyPosts": "← 回到我的投稿",
     "editPost": "编辑",
+    "eventDate": "事件时间",
     "editOnGithub": "在 GitHub 上编辑",
     "report": "举报"
   },
