@@ -74,6 +74,7 @@ export async function PATCH(
     sections: data.sections,
     tags: data.tags,
     eventDate: data.eventDate,
+    locale: data.locale,
     submit: data.submit,
     adminPublish: isAdmin || undefined,
     // 管理员越权编辑：可编辑任何人的投稿，包括 pending 状态

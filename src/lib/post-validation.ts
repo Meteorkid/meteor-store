@@ -28,6 +28,7 @@ const postFields = {
   sections: z.array(z.enum(SECTION_IDS)).max(8, '分区不要超过 8 个').default([]),
   tags: z.array(z.string().trim().min(1).max(24)).max(8, '最多 8 个标签').default([]),
   eventDate: eventDateSchema,
+  locale: z.enum(['zh', 'en']).default('zh'),
 };
 
 /** 浏览器投稿接口使用的完整表单，保留原有 submit 默认值与中文错误。 */
@@ -46,6 +47,7 @@ export const PostPatchSchema = z.object({
   sections: z.array(z.enum(SECTION_IDS)).max(8, '分区不要超过 8 个').optional(),
   tags: z.array(z.string().trim().min(1).max(24)).max(8, '最多 8 个标签').optional(),
   eventDate: eventDateSchema,
+  locale: z.enum(['zh', 'en']).optional(),
   submit: z.boolean().optional(),
 });
 
@@ -64,6 +66,7 @@ const blogApiUpdateFields = {
   sections: z.array(z.enum(SECTION_IDS)).max(8, '分区不要超过 8 个').optional(),
   tags: z.array(z.string().trim().min(1).max(24)).max(8, '最多 8 个标签').optional(),
   eventDate: eventDateSchema,
+  locale: z.enum(['zh', 'en']).optional(),
 };
 
 /** v1 草稿修改必须显式携带服务端返回的版本，并至少修改一个内容字段。 */

@@ -2,6 +2,8 @@
 title: "Building an AI Memory System from Scratch: Ex-Memory Technical Deep Dive"
 excerpt: "How do LLM + RAG let an AI learn someone's speaking style? A look at the vector retrieval and fine-tuning behind Ex-Memory."
 date: 2026-06-20
+draft: true
+
 section: tech
 tags: [AI, RAG, LLM, "Ex-Memory"]
 ---

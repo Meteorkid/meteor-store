@@ -2,6 +2,8 @@
 title: Meteor Store Is Officially Live
 excerpt: Nine products, one website, one college student. A few words on why I built this site, and how it came together with the help of AI.
 date: 2026-07-05
+draft: true
+
 section: story
 tags: [Meteor Store, 开源, 大学生]
 ---

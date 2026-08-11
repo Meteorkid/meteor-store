@@ -143,6 +143,7 @@ export const posts = pgTable('posts', {
   reviewerId: text('reviewer_id'),                    // 审核留痕
   reviewedAt: text('reviewed_at'),
   eventDate: text('event_date'),                      // 内容描述事件的时间，YYYY-MM-DD，可空
+  locale: text('locale').default('zh').notNull(),   // zh | en，投稿语言版本
   publishedAt: text('published_at'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),

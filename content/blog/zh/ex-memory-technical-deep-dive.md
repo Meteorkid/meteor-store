@@ -2,6 +2,8 @@
 title: "从零搭建 AI 记忆系统：Ex-Memory 技术解析"
 excerpt: "LLM + RAG 如何让 AI 学会一个人的说话风格？聊聊 Ex-Memory 背后的向量检索与微调技术。"
 date: 2026-06-20
+draft: true
+
 section: tech
 tags: [AI, RAG, LLM, "Ex-Memory"]
 ---

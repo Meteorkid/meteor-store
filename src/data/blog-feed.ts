@@ -54,7 +54,7 @@ export function toFeedSummary(post: FeedPost): FeedPostSummary {
  *
  * 数据库读失败时降级为只有文件文章：投稿看不见比整个博客 500 好。
  *
- * 英文版下不加载用户投稿：投稿都是中文，中英混杂体验不好。
+ * 按当前语言版本加载对应投稿。
  *
  * 用 React cache() 包裹：同一请求内多次调用（BlogList 的 Promise.all、
  * sitemap.ts、tag 页等）只打一次数据库。不跨请求——审核通过 revalidatePath
@@ -63,9 +63,8 @@ export function toFeedSummary(post: FeedPost): FeedPostSummary {
 export const getFeedPosts = cache(async (locale: Locale): Promise<FeedPost[]> => {
   let userPosts: FeedPost[] = [];
 
-  if (locale === 'zh') {
-    try {
-      const rows = await getPublishedUserPosts();
+  try {
+    const rows = await getPublishedUserPosts(locale);
       userPosts = rows.map((p) => ({
         slug: p.id,
         title: p.title,
@@ -83,9 +82,8 @@ export const getFeedPosts = cache(async (locale: Locale): Promise<FeedPost[]> =>
         // 事件时间缺省回落到发布时间
         eventDate: p.eventDate ?? (p.publishedAt ?? p.createdAt).slice(0, 10),
       }));
-    } catch (err) {
-      console.error('读取投稿失败，本次只展示文件文章', err);
-    }
+  } catch (err) {
+    console.error('读取投稿失败，本次只展示文件文章', err);
   }
 
   return [...getBlogPosts(locale).map(fromFile), ...userPosts].sort((a, b) => b.date.localeCompare(a.date));

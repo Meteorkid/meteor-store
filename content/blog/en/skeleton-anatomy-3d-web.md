@@ -2,6 +2,8 @@
 title: "Rendering a Full Human Skeleton in the Browser: Skeleton Anatomy Dev Notes"
 excerpt: Hands-on experience building a 3D medical education app with Three.js + React, including model optimization, interaction design, and mobile adaptation.
 date: 2026-06-28
+draft: true
+
 section: product
 tags: [Three.js, 3D, 医学, Skeleton Anatomy]
 ---

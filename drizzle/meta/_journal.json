@@ -211,6 +211,13 @@
       "when": 1786341540603,
       "tag": "0029_unknown_wallow",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1786467892012,
+      "tag": "0030_add_posts_locale",
+      "breakpoints": true
     }
   ]
 }

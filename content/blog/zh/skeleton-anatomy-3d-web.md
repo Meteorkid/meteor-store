@@ -2,6 +2,8 @@
 title: 在浏览器里渲染完整人体骨骼：Skeleton Anatomy 开发笔记
 excerpt: Three.js + React 搭建 3D 医学教育应用的实战经验，包括模型优化、交互设计和移动端适配。
 date: 2026-06-28
+draft: true
+
 section: product
 tags: [Three.js, 3D, 医学, Skeleton Anatomy]
 ---

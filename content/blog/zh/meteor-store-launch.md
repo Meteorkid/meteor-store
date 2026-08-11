@@ -2,6 +2,8 @@
 title: Meteor Store 正式上线
 excerpt: 9 款产品、一个网站、一个大学生。聊聊我为什么要做这个网站，以及它是怎么被 AI 搭出来的。
 date: 2026-07-05
+draft: true
+
 section: story
 tags: [Meteor Store, 开源, 大学生]
 ---

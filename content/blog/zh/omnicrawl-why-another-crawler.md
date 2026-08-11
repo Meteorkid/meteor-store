@@ -2,6 +2,8 @@
 title: OmniCrawl：为什么我们要重新发明爬虫框架
 excerpt: 现有爬虫框架的痛点、OmniCrawl 的设计哲学，以及我们如何用三个引擎解决反反爬难题。
 date: 2026-07-01
+draft: true
+
 section: tech
 tags: [Python, 爬虫, 反爬, OmniCrawl]
 ---

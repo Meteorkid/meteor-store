@@ -2,9 +2,11 @@
 title: Spouse First — Respect for Choice or Path Dependence?
 excerpt: The Civil Code lists the spouse first among close relatives. The case for it is solid; the case against it is equally solid — and the real disagreement may not be about the ordering itself.
 date: 2026-07-30
+draft: true
+
 section: debate
 tags: [法律, 家庭, 民法典]
-draft: false
+
 ---
 Outside the operating room, a nurse holds up a consent form and asks: is family here yet?
 

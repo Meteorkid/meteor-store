@@ -33,6 +33,7 @@ export interface UserPost {
   createdAt: string;
   updatedAt: string;
   eventDate: string | null;
+  locale: string;
 }
 
 export type UserPostSummary = Pick<
@@ -50,6 +51,7 @@ export type UserPostSummary = Pick<
   | 'createdAt'
   | 'updatedAt'
   | 'eventDate'
+  | 'locale' 
 >;
 
 /** 短 id，直接作为 URL：/blog/p/{id}。与文件文章的 slug 空间隔开，不会撞。 */
@@ -84,6 +86,7 @@ interface PostRow {
   createdAt: string;
   updatedAt: string;
   eventDate: string | null;
+  locale: string;
   authorName: string | null;
   authorBio: string | null;
   authorAvatarUrl: string | null;
@@ -155,6 +158,7 @@ const postColumns = {
   createdAt: posts.createdAt,
   updatedAt: posts.updatedAt,
   eventDate: posts.eventDate,
+  locale: posts.locale,
   authorName: users.name,
   authorBio: users.bio,
   authorAvatarUrl: users.avatarUrl,
@@ -172,6 +176,7 @@ const postSummaryColumns = {
   createdAt: posts.createdAt,
   updatedAt: posts.updatedAt,
   eventDate: posts.eventDate,
+  locale: posts.locale,
 };
 
 /** 分区去重、去空，主分区排头。用户输入不可信。 */
@@ -200,6 +205,8 @@ export async function createPost(input: {
   status: Extract<PostStatus, 'draft' | 'pending' | 'published'>;
   /** 内容描述事件的时间，YYYY-MM-DD，可选 */
   eventDate?: string | null;
+  /** 投稿语言版本，默认 zh */
+  locale?: string;
 }): Promise<{ id: string; updatedAt: string }> {
   const id = newPostId();
   const now = new Date().toISOString();
@@ -208,17 +215,19 @@ export async function createPost(input: {
   const publishedAt = input.status === 'published' ? now : null;
   const eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
 
+  const locale = input.locale?.trim() || 'zh';
+
   const ctes = [sql`
     inserted_post AS (
       INSERT INTO "posts" (
         "id", "author_id", "title", "excerpt", "content", "section_id", "status",
         "review_note", "reviewer_id", "reviewed_at", "event_date", "published_at",
-        "created_at", "updated_at"
+        "locale", "created_at", "updated_at"
       )
       VALUES (
         ${id}, ${input.authorId}, ${input.title}, ${input.excerpt}, ${input.content},
         ${input.sectionId}, ${input.status}, NULL, NULL, NULL, ${eventDate},
-        ${publishedAt}, ${now}, ${now}
+        ${publishedAt}, ${locale}, ${now}, ${now}
       )
       RETURNING "id", "updated_at"
     )
@@ -320,12 +329,15 @@ export async function getPendingPosts(): Promise<UserPost[]> {
 }
 
 /** 已发布的用户文章，供博客列表与 RSS 合并 */
-export async function getPublishedUserPosts(): Promise<UserPost[]> {
+export async function getPublishedUserPosts(locale?: string): Promise<UserPost[]> {
+  const conditions = [eq(posts.status, 'published')];
+  if (locale) conditions.push(eq(posts.locale, locale));
+  
   const rows = await db
     .select(postColumns)
     .from(posts)
     .leftJoin(users, eq(posts.authorId, users.id))
-    .where(eq(posts.status, 'published'))
+    .where(and(...conditions))
     .orderBy(desc(posts.publishedAt));
 
   return attachTags(rows);
@@ -430,6 +442,8 @@ export async function updatePost(input: {
   tags?: string[];
   /** 内容描述事件的时间，YYYY-MM-DD，可选；空串清空 */
   eventDate?: string | null;
+  /** 投稿语言版本 */
+  locale?: string;
   submit?: boolean;
   /** 管理员直发：仅与 asAdmin 同时为 true 时生效。 */
   adminPublish?: boolean;
@@ -475,6 +489,7 @@ export async function updatePost(input: {
   if (input.content !== undefined) updates.content = input.content;
   if (input.sectionId !== undefined) updates.sectionId = input.sectionId;
   if (input.eventDate !== undefined) updates.eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
+  if (input.locale !== undefined) updates.locale = input.locale?.trim() || 'zh';
 
   // 进入 pending 清掉旧审核留痕
   if (newStatus === 'pending') {
@@ -525,6 +540,9 @@ export async function updatePost(input: {
     if (input.sectionId !== undefined) assignments.push(sql`"section_id" = ${input.sectionId}`);
     if (input.eventDate !== undefined) {
       assignments.push(sql`"event_date" = ${input.eventDate?.trim() ? input.eventDate.trim() : null}`);
+    }
+    if (input.locale !== undefined) {
+      assignments.push(sql`"locale" = ${input.locale?.trim() || 'zh'}`);
     }
     if (newStatus === 'pending') {
       assignments.push(
@@ -783,6 +801,7 @@ export async function updatePostDraftVersioned(input: {
   sections?: string[];
   tags?: string[];
   eventDate?: string | null;
+  locale?: string;
 }): Promise<VersionedPostMutationResult> {
   let rebuiltSections: string[] | undefined;
   if (input.sectionId !== undefined || input.sections !== undefined) {
@@ -821,6 +840,9 @@ export async function updatePostDraftVersioned(input: {
   if (input.eventDate !== undefined) {
     updates.eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
   }
+  if (input.locale !== undefined) {
+    updates.locale = input.locale?.trim() || 'zh';
+  }
 
   const tags = input.tags === undefined ? undefined : normalizeTags(input.tags);
 
@@ -840,6 +862,9 @@ export async function updatePostDraftVersioned(input: {
     if (input.sectionId !== undefined) assignments.push(sql`"section_id" = ${input.sectionId}`);
     if (input.eventDate !== undefined) {
       assignments.push(sql`"event_date" = ${input.eventDate?.trim() ? input.eventDate.trim() : null}`);
+    }
+    if (input.locale !== undefined) {
+      assignments.push(sql`"locale" = ${input.locale?.trim() || 'zh'}`);
     }
 
     const ctes = [sql`

@@ -1,0 +1,1 @@
+ALTER TABLE "posts" ADD COLUMN "locale" text DEFAULT 'zh' NOT NULL;

@@ -2,9 +2,11 @@
 title: 以星河为笺：一间软件小店的夜空手记
 excerpt: 流星、深夜、信纸、星轨、二十八宿与一把更早递出的伞——这些并非散落的装饰，而是一间软件小店用来讲述时间、作品与行动的语言。
 date: 2026-08-09
+draft: true
+
 section: story
 tags: [Meteor Store, 设计, 中国星宿, 品牌故事]
-draft: false
+
 ---
 
 倘若你在深夜打开 Meteor Store，最先遇见的，大约不是某件商品，而是一小片黑。

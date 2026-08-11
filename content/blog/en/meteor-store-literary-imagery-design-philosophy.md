@@ -2,9 +2,11 @@
 title: "Written in Starlight: Night Notes from a Little Software Shop"
 excerpt: "Meteors, late nights, handwritten letters, star trails, the Twenty-Eight Mansions, and an umbrella offered before the rain—these are not scattered decorations, but the language of a little software shop."
 date: 2026-08-09
+draft: true
+
 section: story
 tags: [Meteor Store, design, Chinese astronomy, brand story]
-draft: false
+
 ---
 
 Late at night, this shop feels most like itself.
