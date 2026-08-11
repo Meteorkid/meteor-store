@@ -139,35 +139,100 @@ export default function MeteorShower() {
 
     // 许愿大流星：DOM 层实现可点击 + 键盘可达
     const spawnWishMeteor = () => {
-      const btn = document.createElement('button');
-      btn.textContent = tRef.current('wishButtonText');
-      btn.setAttribute('aria-label', tRef.current('wishButtonAria'));
-      btn.style.cssText = [
-        'position:absolute', 'top:18%', 'right:-160px', 'z-index:20',
-        'background:rgba(30,15,60,0.75)', 'border:1px solid rgba(196,181,253,0.4)',
-        'color:#e9d5ff', 'font-size:13px', 'padding:6px 14px', 'border-radius:999px',
-        'cursor:pointer', 'backdrop-filter:blur(4px)',
-        'transition:right 3.2s cubic-bezier(.25,.5,.35,1), opacity .5s ease',
-        'box-shadow:0 0 24px rgba(167,139,250,0.4)',
+      const wrapper = document.createElement('div');
+      wrapper.setAttribute('role', 'button');
+      wrapper.setAttribute('tabindex', '0');
+      wrapper.setAttribute('aria-label', tRef.current('wishButtonAria'));
+      wrapper.style.cssText = [
+        'position:absolute', 'top:15%', 'right:-200px', 'z-index:20',
+        'cursor:pointer', 'pointer-events:auto',
+        'transition:right 3.6s cubic-bezier(.22,.5,.33,1), top 3.6s cubic-bezier(.22,.5,.33,1), opacity .4s ease',
       ].join(';');
-      btn.onclick = () => {
+
+      /* 流星尾迹 — 渐隐光带 */
+      const tail = document.createElement('div');
+      tail.style.cssText = [
+        'position:absolute', 'right:0', 'top:50%',
+        'width:120px', 'height:2px',
+        'background:linear-gradient(90deg, transparent, rgba(196,181,253,0.15) 20%, rgba(167,139,250,0.6) 60%, rgba(232,225,255,0.9))',
+        'border-radius:1px',
+        'transform:translateY(-50%) rotate(-3deg)',
+        'pointer-events:none',
+      ].join(';');
+
+      /* 流星尾迹光晕 — 更宽更淡的版本 */
+      const tailGlow = document.createElement('div');
+      tailGlow.style.cssText = [
+        'position:absolute', 'right:0', 'top:50%',
+        'width:140px', 'height:6px',
+        'background:linear-gradient(90deg, transparent, rgba(139,92,246,0.08) 30%, rgba(167,139,250,0.25) 65%, rgba(196,181,253,0.4))',
+        'border-radius:3px',
+        'filter:blur(2px)',
+        'transform:translateY(-50%) rotate(-3deg)',
+        'pointer-events:none',
+      ].join(';');
+
+      /* 流星核 — 亮白紫光点 */
+      const head = document.createElement('div');
+      head.style.cssText = [
+        'position:absolute', 'right:-3px', 'top:50%',
+        'width:8px', 'height:8px',
+        'border-radius:50%',
+        'background:radial-gradient(circle, #f5f0ff 10%, #c4b5fd 40%, rgba(139,92,246,0.4) 70%, transparent 100%)',
+        'box-shadow:0 0 12px 4px rgba(196,181,253,0.5), 0 0 24px 8px rgba(139,92,246,0.25)',
+        'transform:translateY(-50%)',
+        'animation:wish-head-pulse 1.6s ease-in-out infinite',
+        'pointer-events:none',
+      ].join(';');
+
+      /* 文字标签 */
+      const label = document.createElement('span');
+      label.textContent = tRef.current('wishButtonText');
+      label.style.cssText = [
+        'position:absolute', 'right:12px', 'top:50%',
+        'transform:translateY(-140%)',
+        'font-size:12px', 'color:#e9d5ff',
+        'white-space:nowrap',
+        'text-shadow:0 0 8px rgba(167,139,250,0.5)',
+        'pointer-events:none',
+        'letter-spacing:0.04em',
+      ].join(';');
+
+      wrapper.appendChild(tailGlow);
+      wrapper.appendChild(tail);
+      wrapper.appendChild(head);
+      wrapper.appendChild(label);
+
+      wrapper.onclick = () => {
         showToast(tRef.current('wishRecorded'), 5000);
-        btn.remove();
+        wrapper.remove();
         wishActive = false;
         rearmIdle();
       };
-      canvas.parentElement?.appendChild(btn);
-      requestAnimationFrame(() => { btn.style.right = 'calc(100% + 160px)'; });
-      setTimeout(() => {
-        btn.style.opacity = '0';
-        setTimeout(() => {
-          btn.remove();
+      wrapper.onkeydown = (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          showToast(tRef.current('wishRecorded'), 5000);
+          wrapper.remove();
           wishActive = false;
           rearmIdle();
-        }, 500);
-      }, 3400);
-    };
+        }
+      };
 
+      canvas.parentElement?.appendChild(wrapper);
+      requestAnimationFrame(() => {
+        wrapper.style.right = 'calc(100% + 200px)';
+        wrapper.style.top = '35%';
+      });
+      setTimeout(() => {
+        wrapper.style.opacity = '0';
+        setTimeout(() => {
+          wrapper.remove();
+          wishActive = false;
+          rearmIdle();
+        }, 400);
+      }, 3600);
+    };
     // 主循环（离屏暂停）
     let visible = true;
     const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });

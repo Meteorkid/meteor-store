@@ -641,6 +641,58 @@ html {
   animation: spotlightFade 150ms ease forwards;
 }
 
+
+/* Spotlight 退场 */
+@keyframes spotlightOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.97) translateY(4px); }
+}
+.animate-spotlight-out {
+  animation: spotlightOut 150ms var(--ease-in-spring) forwards;
+}
+@keyframes spotlightFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+.animate-spotlight-fade-out {
+  animation: spotlightFadeOut 120ms ease forwards;
+}
+
+/* Spotlight 面板弹性入场（带轻微 overshoot） */
+@keyframes spotlightPanelIn {
+  0% { opacity: 0; transform: scale(0.94) translateY(12px); }
+  60% { opacity: 1; transform: scale(1.02) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-spotlight-panel-in {
+  animation: spotlightPanelIn 280ms var(--ease-out-spring) forwards;
+}
+@keyframes spotlightPanelOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.96) translateY(6px); }
+}
+.animate-spotlight-panel-out {
+  animation: spotlightPanelOut 160ms var(--ease-in-spring) forwards;
+}
+
+/* 搜索结果逐项淡入 */
+@keyframes searchResultIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-search-result-in {
+  animation: searchResultIn 200ms var(--ease-out-spring) both;
+}
+
+/* 搜索图标旋转（搜索中） */
+@keyframes searchIconSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: searchIconSpin 0.8s linear infinite;
+}
+
 /* 页面过渡（View Transitions，渐进增强：Chrome 126+ 跨文档导航生效） */
 @view-transition {
   navigation: auto;
@@ -721,6 +773,12 @@ html {
   .animate-pulse-glow,
   .animate-spotlight-in,
   .animate-spotlight-fade,
+  .animate-spotlight-out,
+  .animate-spotlight-fade-out,
+  .animate-spotlight-panel-in,
+  .animate-spotlight-panel-out,
+  .animate-search-result-in,
+  .animate-spin,
   .animate-aurora-1,
   .animate-aurora-2,
   .animate-aurora-3,
@@ -996,5 +1054,15 @@ html {
   .blog-row:hover .blog-row__inner,
   .blog-row:hover .blog-row__arrow {
     transform: none;
+  }
+}
+
+/* 许愿流星核脉动 */
+@keyframes wish-head-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px 4px rgba(196,181,253,0.5), 0 0 24px 8px rgba(139,92,246,0.25);
+  }
+  50% {
+    box-shadow: 0 0 18px 6px rgba(196,181,253,0.7), 0 0 32px 12px rgba(139,92,246,0.35);
   }
 }
