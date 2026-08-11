@@ -1,9 +1,10 @@
 import { db } from './db';
-import { posts, comments, feedbacks, users, reports } from './db/schema';
-import { eq, sql, count } from 'drizzle-orm';
+import { posts, comments, feedbacks, users, reports, orders, inviteCodes, inviteRedemptions } from './db/schema';
+import { eq, sql, count, and } from 'drizzle-orm';
 import { getBlogPosts } from '@/data/blog';
 import type { Locale } from '@/i18n/routing';
 import { getSectionById } from '@/data/blog-sections';
+import { PASS_PRODUCT_ID } from '@/data/pass';
 
 export interface AdminStats {
   totalPosts: number;
@@ -14,6 +15,11 @@ export interface AdminStats {
   totalUsers: number;
   pendingReports: number;
   pendingFeedback: number;
+  activePassCount: number;
+  passMonthly: number;
+  passAnnual: number;
+  passLifetime: number;
+  inviteRedemptionCount: number;
 }
 
 export interface AdminPost {
@@ -29,7 +35,7 @@ export interface AdminPost {
 }
 
 export async function getAdminStats(): Promise<AdminStats> {
-  const [postCounts, commentCounts, userCount, reportCounts, feedbackCounts] = await Promise.all([
+  const [postCounts, commentCounts, userCount, reportCounts, feedbackCounts, passCounts, inviteCount] = await Promise.all([
     db
       .select({
         total: count(),
@@ -54,6 +60,17 @@ export async function getAdminStats(): Promise<AdminStats> {
         pending: sql<number>`count(*) filter (where ${feedbacks.status} = 'pending')`,
       })
       .from(feedbacks),
+    db
+      .select({
+        total: sql<number>`count(*) filter (where ${orders.productId} = '${PASS_PRODUCT_ID}' and ${orders.status} = 'paid')`,
+        monthly: sql<number>`count(*) filter (where ${orders.productId} = '${PASS_PRODUCT_ID}' and ${orders.status} = 'paid' and ${orders.billingPeriod} = 'monthly')`,
+        annual: sql<number>`count(*) filter (where ${orders.productId} = '${PASS_PRODUCT_ID}' and ${orders.status} = 'paid' and ${orders.billingPeriod} = 'annual')`,
+        lifetime: sql<number>`count(*) filter (where ${orders.productId} = '${PASS_PRODUCT_ID}' and ${orders.status} = 'paid' and ${orders.billingPeriod} = 'lifetime')`,
+      })
+      .from(orders),
+    db
+      .select({ count: count() })
+      .from(inviteRedemptions),
   ]);
 
   return {
@@ -65,6 +82,11 @@ export async function getAdminStats(): Promise<AdminStats> {
     totalUsers: userCount[0]?.count ?? 0,
     pendingReports: reportCounts[0]?.pending ?? 0,
     pendingFeedback: feedbackCounts[0]?.pending ?? 0,
+    activePassCount: passCounts[0]?.total ?? 0,
+    passMonthly: passCounts[0]?.monthly ?? 0,
+    passAnnual: passCounts[0]?.annual ?? 0,
+    passLifetime: passCounts[0]?.lifetime ?? 0,
+    inviteRedemptionCount: inviteCount[0]?.count ?? 0,
   };
 }
 

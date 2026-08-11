@@ -49,6 +49,14 @@ export default async function AdminDashboardPage({
     { label: t('totalUsers'), value: stats.totalUsers },
   ];
 
+  const passCards = [
+    { label: t('activePass'), value: stats.activePassCount },
+    { label: t('passMonthly'), value: stats.passMonthly },
+    { label: t('passAnnual'), value: stats.passAnnual },
+    { label: t('passLifetime'), value: stats.passLifetime },
+    { label: t('inviteRedemptions'), value: stats.inviteRedemptionCount },
+  ];
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
@@ -68,6 +76,19 @@ export default async function AdminDashboardPage({
               >
                 <p className="t-footnote text-white/50">{card.label}</p>
                 <p className="t-title-1 mt-2 text-white">{card.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <h2 className="t-title-3 mt-12 mb-4 text-white/70">{t('passSection')}</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {passCards.map((card) => (
+              <div
+                key={card.label}
+                className="glass-card rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.03] p-6"
+              >
+                <p className="t-footnote text-emerald-300/70">{card.label}</p>
+                <p className="t-title-1 mt-2 text-emerald-300">{card.value}</p>
               </div>
             ))}
           </div>

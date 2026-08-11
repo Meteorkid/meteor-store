@@ -1651,7 +1651,13 @@
     "pendingReports": "待处理举报",
     "pendingFeedback": "待处理反馈",
     "totalUsers": "用户总数",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "passSection": "Meteor Pass 统计",
+    "activePass": "有效 Pass",
+    "passMonthly": "月付",
+    "passAnnual": "年付",
+    "passLifetime": "买断",
+    "inviteRedemptions": "邀请码兑换"
   },
   "AdminPostsPage": {
     "metaTitle": "文章管理 - Meteor Store",

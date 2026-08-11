@@ -28,6 +28,10 @@
 
   /* 强调色 */
   --accent: var(--violet-6);
+
+  /* 液态玻璃透明度：1.0 = 默认，0.3 = 更通透，2.0 = 更厚实。
+     由 GlassPreference 组件通过 JS 写入 html.style */
+  --glass-alpha: 1;
   --accent-foreground: var(--violet-0);
 
   /* 卡片 */
@@ -520,9 +524,9 @@ html {
   backdrop-filter: blur(20px) saturate(1.6);
   background: linear-gradient(
     135deg,
-    rgba(139,92,246,0.06) 0%,
-    rgba(20,16,34,0.55) 50%,
-    rgba(139,92,246,0.03) 100%
+    rgb(139 92 246 / calc(0.06 * var(--glass-alpha))) 0%,
+    rgb(20 16 34 / calc(0.55 * var(--glass-alpha))) 50%,
+    rgb(139 92 246 / calc(0.03 * var(--glass-alpha))) 100%
   );
   border-top: 1px solid rgba(255,255,255,0.15);
   border-left: 1px solid rgba(255,255,255,0.08);
@@ -558,9 +562,9 @@ html {
   backdrop-filter: blur(16px) saturate(1.5);
   background: linear-gradient(
     145deg,
-    rgba(139,92,246,0.05) 0%,
-    rgba(20,16,34,0.50) 50%,
-    rgba(99,102,241,0.03) 100%
+    rgb(139 92 246 / calc(0.05 * var(--glass-alpha))) 0%,
+    rgb(20 16 34 / calc(0.50 * var(--glass-alpha))) 50%,
+    rgb(99 102 241 / calc(0.03 * var(--glass-alpha))) 100%
   );
   border-top: 1px solid rgba(255,255,255,0.12);
   border-left: 1px solid rgba(255,255,255,0.06);

@@ -138,6 +138,13 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        {/* 防闪烁：在 React 渲染前读取本地存储的玻璃透明度偏好 */}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `try{var a=localStorage.getItem('glass-alpha');if(a){document.documentElement.style.setProperty('--glass-alpha',a)}}catch(e){}`,
+          }}
+        />
         {/* JSON-LD 结构化数据 - 数据为硬编码静态内容，安全 */}
         <script
           type="application/ld+json"

@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AccountForms from '@/components/AccountForms';
 import BlogApiTokenManager from '@/components/BlogApiTokenManager';
+import GlassPreference from '@/components/GlassPreference';
 import PassStatusCard from '@/components/PassStatusCard';
 import { db } from '@/lib/db';
 import { users, licenseKeys, posts, orders, postFavorites } from '@/lib/db/schema';
@@ -243,6 +244,8 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
           {user.emailVerified && <BlogApiTokenManager />}
 
           <AccountForms initialName={user.name ?? ''} initialBio={user.bio ?? ''} initialAvatar={user.avatarUrl ?? null} email={user.email} />
+
+          <GlassPreference />
 
           <section className="mt-8 rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
             <h2 className="t-title-3 mb-1.5 text-white/90">{t('dataRights')}</h2>

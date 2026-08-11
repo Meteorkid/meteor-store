@@ -1651,7 +1651,13 @@
     "pendingReports": "Pending Reports",
     "pendingFeedback": "Pending Feedback",
     "totalUsers": "Total Users",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "passSection": "Meteor Pass Stats",
+    "activePass": "Active Pass",
+    "passMonthly": "Monthly",
+    "passAnnual": "Annual",
+    "passLifetime": "Lifetime",
+    "inviteRedemptions": "Invite Redemptions"
   },
   "AdminPostsPage": {
     "metaTitle": "Post Management - Meteor Store",
