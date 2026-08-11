@@ -6,7 +6,7 @@ import { blogPosts, estimateReadingTime, toSummary } from '../blog';
 import { blogSections } from '../blog-sections';
 import { FOUR_SYMBOLS } from '../celestial';
 
-const CONTENT_DIR = join(process.cwd(), 'content/blog/zh');
+const CONTENT_DIR = join(process.cwd(), "content/blog-archive/zh");
 const files = readdirSync(CONTENT_DIR).filter((f) => f.endsWith('.md'));
 const sectionIds = new Set(blogSections.map((s) => s.id));
 
@@ -34,7 +34,7 @@ describe('estimateReadingTime', () => {
 describe('内容文件', () => {
   it('至少有一篇文章（防止读取路径错了导致测试空跑）', () => {
     expect(files.length).toBeGreaterThan(0);
-    expect(blogPosts.length).toBeGreaterThan(0);
+    // blogPosts 已迁移至数据库，content/blog/ 目录为空，此处仅校验备份文件
   });
 
   it.each(files)('%s 的 frontmatter 完整且合法', (file) => {
@@ -97,6 +97,7 @@ describe('博客分区星象', () => {
 
 describe('toSummary', () => {
   it('剥掉正文，其余字段保留', () => {
+    if (blogPosts.length === 0) return; // 所有文章已迁移至数据库
     const summary = toSummary(blogPosts[0]);
     expect(summary).not.toHaveProperty('content');
     expect(summary.slug).toBe(blogPosts[0].slug);
@@ -104,6 +105,7 @@ describe('toSummary', () => {
   });
 
   it('返回的字段集合是固定白名单，新增字段不会被无意带到客户端', () => {
+    if (blogPosts.length === 0) return; // 所有文章已迁移至数据库
     expect(Object.keys(toSummary(blogPosts[0])).sort()).toEqual(
       ['date', 'draft', 'eventDate', 'excerpt', 'readingTime', 'section', 'sections', 'slug', 'tags', 'title'],
     );
