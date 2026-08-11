@@ -93,7 +93,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                   <span key={category.id} className="flex items-center gap-2">
                     <a
                       href={`#${category.id}`}
-                      className="group relative inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.02] px-4 py-1.5 text-sm text-white/50 outline-none backdrop-blur-sm transition-all duration-300 hover:border-violet-400/40 hover:bg-white/[0.05] hover:text-white/85 hover:shadow-[0_0_12px_rgba(139,92,246,0.15)] focus-visible:ring-2 focus-visible:ring-violet-300"
+                      className="glass group relative inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm text-white/50 outline-none transition-all duration-300 hover:text-white/85 focus-visible:ring-2 focus-visible:ring-violet-300"
                     >
                       <span
                         aria-hidden
@@ -166,7 +166,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                         {category.label[currentLocale]}
                       </h2>
                     </div>
-                    <span className="t-footnote tabular-nums rounded-full border border-white/[0.06] bg-white/[0.02] px-3 py-0.5 text-white/30 backdrop-blur-sm">
+                    <span className="glass t-footnote tabular-nums rounded-full px-3 py-0.5 text-white/30">
                       {category.articles.length}
                     </span>
                   </div>
@@ -175,7 +175,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                       <Link
                         key={article.slug}
                         href={`/docs/${article.slug}`}
-                        className="group relative block overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.01] p-5 outline-none backdrop-blur-sm transition-all duration-300 hover:border-violet-400/20 hover:bg-white/[0.03] hover:shadow-[0_0_20px_rgba(139,92,246,0.06)] motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                        className="glass-card group relative block overflow-hidden rounded-2xl p-5 outline-none motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                       >
                         {/* 左上角星点 */}
                         <div
@@ -213,7 +213,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
             </div>
 
             {/* 底部反馈区 — 星云 + 流星 */}
-            <section className="relative mt-24 overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] px-6 py-12 text-center backdrop-blur-sm md:px-12 md:py-16">
+            <section className="glass-card relative mt-24 overflow-hidden rounded-3xl px-6 py-12 text-center md:px-12 md:py-16">
               {/* 星云背景 */}
               <div
                 aria-hidden

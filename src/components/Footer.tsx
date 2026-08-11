@@ -42,7 +42,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
   }));
 
   return (
-    <footer className="border-t border-border bg-background/50">
+    <footer className="glass border-t border-white/[0.06]">
       <div className="container mx-auto px-4 py-16">
         <div className={`grid grid-cols-1 md:grid-cols-2 ${SHOW_PRICING ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-12`}>
           {/* Brand */}

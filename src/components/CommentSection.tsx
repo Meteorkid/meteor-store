@@ -207,7 +207,7 @@ export default function CommentSection({ targetId }: { targetId: string }) {
       )}
 
       {/* 发表评论 */}
-      <div className="mt-8">
+      <div className="glass-card mt-8 rounded-2xl p-5">
         {user ? (
           <form onSubmit={submit}>
             {replyTo && (

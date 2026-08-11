@@ -130,10 +130,10 @@ export default function FeaturesSection({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {features.map((feature, index) => (
-              <div
+              <GlassCard
                 key={feature.titleKey}
-                className="flex gap-5 scroll-animate"
-                style={{ animationDelay: `${index * 0.08}s` }}
+                className="flex gap-5 p-5 rounded-2xl scroll-animate"
+                tilt
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
                   {feature.icon}
@@ -154,7 +154,7 @@ export default function FeaturesSection({
                     </ul>
                   )}
                 </div>
-              </div>
+              </GlassCard>
             ))}
           </div>
         )}

@@ -76,7 +76,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ locale:
           </div>
 
           {rows.length === 0 ? (
-            <div className="rounded-3xl border border-white/[0.07] bg-white/[0.02] p-10 text-center">
+            <div className="glass-card rounded-3xl p-10 text-center">
               <p className="text-sm text-white/55">{t('empty')}</p>
               <Link href="/products" className="mt-5 inline-block text-sm text-violet-400 transition-colors hover:text-violet-300">
                 {t('browseProducts')}
@@ -90,7 +90,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ locale:
                   <Link
                     key={order.id}
                     href={`/orders/${order.id}`}
-                    className="block rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 transition-colors hover:border-white/15 hover:bg-white/[0.04]"
+                    className="glass-card block rounded-2xl p-5"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">

@@ -54,8 +54,8 @@ export default async function MyAppsPage({ params }: MyAppsPageProps) {
           <p className="mb-10 text-white/50">{t('description')}</p>
 
           {!session ? (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-              <div className="mb-4 text-4xl">👋</div>
+            <div className="glass-card rounded-2xl p-10 text-center">
+              <svg className="mx-auto mb-4 w-10 h-10 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
               <p className="mb-6 text-white/60">{t('loginHint')}</p>
               <Link
                 href="/login"
@@ -68,8 +68,8 @@ export default async function MyAppsPage({ params }: MyAppsPageProps) {
             /* Pass 到期是静默失效（支付宝是单次付款不是代扣），
                不单独说明的话用户会以为是 bug */
             passExpiredAt ? (
-              <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.05] p-10 text-center">
-                <div className="mb-4 text-4xl">⏳</div>
+              <div className="glass-card !border-amber-500/20 !bg-amber-500/[0.05] rounded-2xl p-10 text-center">
+                <svg className="mx-auto mb-4 w-10 h-10 text-amber-400/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <p className="mb-2 text-white/80">{t('passExpiredTitle')}</p>
                 <p className="mb-6 text-sm text-white/50">
                   {t('passExpiredHint', { date: formatExpiry(passExpiredAt) })}
@@ -82,8 +82,8 @@ export default async function MyAppsPage({ params }: MyAppsPageProps) {
                 </Link>
               </div>
             ) : (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-                <div className="mb-4 text-4xl">🛍️</div>
+              <div className="glass-card rounded-2xl p-10 text-center">
+                <svg className="mx-auto mb-4 w-10 h-10 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
                 <p className="mb-6 text-white/60">{t('emptyHint')}</p>
                 <Link
                   href="/products"
@@ -98,7 +98,7 @@ export default async function MyAppsPage({ params }: MyAppsPageProps) {
               {entitlements.map((e) => (
                 <li
                   key={e.productId}
-                  className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+                  className="glass-card flex items-center justify-between rounded-2xl p-5"
                 >
                   <div>
                     <h2 className="text-lg font-semibold text-white">{e.productName}</h2>

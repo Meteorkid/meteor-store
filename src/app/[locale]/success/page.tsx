@@ -81,7 +81,7 @@ export default async function SuccessPage({ searchParams, params }: SuccessPageP
               </p>
 
               {/* 订单详情 */}
-              <div className="bg-white/5 rounded-lg p-4 mb-8 text-left">
+              <div className="glass-card rounded-lg p-4 mb-8 text-left">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-gray-400">{t('orderId')}</span>
                   <span className="text-white font-mono">{order.id}</span>
@@ -124,7 +124,7 @@ export default async function SuccessPage({ searchParams, params }: SuccessPageP
               <p className="text-gray-400 mb-8">
                 {t('processingDescription')}
               </p>
-              <div className="bg-white/5 rounded-lg p-4 mb-8 text-left">
+              <div className="glass-card rounded-lg p-4 mb-8 text-left">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">{t('orderId')}</span>
                   <span className="text-white font-mono">{order.id}</span>

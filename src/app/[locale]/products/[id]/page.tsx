@@ -128,7 +128,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
           <section id="pricing" className="mb-16">
             <h2 className="mb-6 text-center text-2xl font-bold text-white">{t('pricing')}</h2>
             {product.status === 'coming_soon' ? (
-              <div className="mx-auto max-w-2xl rounded-3xl border border-white/10 bg-white/[0.03] px-8 py-12 text-center">
+              <div className="glass-card mx-auto max-w-2xl rounded-3xl px-8 py-12 text-center">
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">{t('comingSoon')}</p>
                 <p className="text-lg text-gray-300">
                   {t('comingSoonDesc', { name: product.name })}

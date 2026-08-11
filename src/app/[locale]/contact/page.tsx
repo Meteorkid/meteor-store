@@ -39,9 +39,9 @@ export default async function ContactPage({
           {/* 联系方式卡片 */}
           <div className="space-y-6">
             {/* 经营者信息（《电子商务法》第 15 条要求的主体公示） */}
-            <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+            <div className="glass-card p-6 rounded-xl">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">🏪</span>
+                <svg className="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z" /></svg>
                 <h2 className="text-lg font-semibold">{t('operatorTitle')}</h2>
               </div>
               <dl className="space-y-2 text-sm">
@@ -68,9 +68,9 @@ export default async function ContactPage({
             </div>
 
             {/* 邮箱 */}
-            <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+            <div className="glass-card p-6 rounded-xl">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">📧</span>
+                <svg className="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
                 <h2 className="text-lg font-semibold">{t('email')}</h2>
               </div>
               <p className="text-gray-400 mb-3">
@@ -88,9 +88,9 @@ export default async function ContactPage({
             </div>
 
             {/* 工作时间 */}
-            <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+            <div className="glass-card p-6 rounded-xl">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">⏰</span>
+                <svg className="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <h2 className="text-lg font-semibold">{t('responseTime')}</h2>
               </div>
               <p className="text-gray-400">

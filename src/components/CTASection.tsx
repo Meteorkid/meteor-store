@@ -60,7 +60,7 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
           {/* Trust Badges */}
           <div className="mt-10 flex flex-wrap justify-center gap-6 text-sm text-white/60">
             {trustBadges.map((item) => (
-              <div key={item} className="flex items-center gap-1.5">
+              <div key={item} className="glass flex items-center gap-1.5 rounded-full px-4 py-1.5">
                 <svg
                   className="w-4 h-4 text-white/80"
                   fill="none"

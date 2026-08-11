@@ -182,7 +182,7 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
                         <Link
                           key={related.slug}
                           href={`/docs/${related.slug}`}
-                          className="group relative block overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.01] px-4 py-3.5 outline-none backdrop-blur-sm transition-all duration-300 hover:border-violet-400/20 hover:bg-white/[0.03] focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                          className="glass-card group relative block overflow-hidden rounded-xl px-4 py-3.5 outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                         >
                           <div
                             aria-hidden
@@ -199,7 +199,7 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
                 )}
 
                 {/* 仍未解决 — 星云 CTA */}
-                <section className="relative mt-16 overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] px-6 py-10 text-center backdrop-blur-sm md:px-10">
+                <section className="glass-card relative mt-16 overflow-hidden rounded-3xl px-6 py-10 text-center md:px-10">
                   <div
                     aria-hidden
                     className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(139,92,246,0.2),transparent_55%),radial-gradient(circle_at_85%_80%,rgba(168,85,247,0.08),transparent_30%)]"

@@ -82,7 +82,7 @@ export default async function OpenSourcePage({
                 <Link
                   key={product.id}
                   href={`/products/${product.id}`}
-                  className="group flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 transition-all hover:border-white/15 hover:bg-white/[0.04]"
+                  className="glass-card group flex flex-col justify-between rounded-2xl p-6"
                 >
                   <div>
                     <div className="mb-3 flex items-center gap-3">

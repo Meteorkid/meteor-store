@@ -92,7 +92,7 @@ export default async function StudentPage({
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+    <div className="glass-card rounded-xl p-5">
       <p className="mb-2 font-semibold text-white">{q}</p>
       <p className="text-sm leading-relaxed text-gray-400">{a}</p>
     </div>
