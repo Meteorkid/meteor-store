@@ -20,7 +20,7 @@ const HELP_LINES = [
   '  白嫖      真的可以',
   '  clear    清屏',
   '  exit     退出（试试就知道）',
-  '  …以及一些没写在这里的',
+  '  easter   彩蛋完全指南',
 ];
 
 /** 执行一条终端命令，返回输出行与可选动作 */
@@ -119,6 +119,38 @@ export function runCommand(rawInput: string): CommandResult {
       return { lines: ['嘘——这个词不该被直接说出来的。不过既然你诚心诚意地问了…'], action: 'burst' };
 
     case 'clear':
+
+    case 'easter':
+    case '彩蛋':
+    case 'secrets':
+      return {
+        lines: [
+          '🎭 本站彩蛋完全指南',
+          '',
+          '⌨️ 键盘秘技：',
+          '  ↑↑↓↓←→←→BA  →  Konami 秘技，触发流星雨爆发',
+          '  输入 "meteor"  →  召唤流星（任意页面直接打字）',
+          '',
+          '🖱️ 鼠标互动：',
+          '  连点 Logo 7 次  →  同 Konami 效果',
+          '  双击页面空白处  →  从点击处放出小流星',
+          '  静止鼠标 10 秒  →  许愿流星飞过，可点击许愿',
+          '',
+          '📱 页面互动：',
+          '  切到其他标签页    →  标题栏会挽留你',
+          '  滚动到页面底部     →  初次到达会送一颗流星',
+          '  凌晨 0-5 点访问    →  随机深夜问候',
+          '',
+          '💻 控制台 API（按 F12 打开）：',
+          '  meteor.story()   →  店主的一封信',
+          '  meteor.hire()    →  店主的联系方式',
+          '  meteor.secret()  →  触发流星爆发',
+          '',
+          '📟 本终端其他隐藏命令：',
+          '  vim · sudo rm · 42 · cat secret.txt · 白嫖 · 晚安 · emo',
+        ],
+      };
+
       return { lines: [], action: 'clear' };
 
     default:
@@ -127,4 +159,4 @@ export function runCommand(rawInput: string): CommandResult {
 }
 
 /** 移动端快捷命令按钮组 */
-export const QUICK_COMMANDS = ['help', 'story', 'author', 'hug', 'coffee', 'ls'];
+export const QUICK_COMMANDS = ['help', 'story', 'author', 'hug', 'coffee', 'ls', 'easter'];
