@@ -42,6 +42,11 @@ export default function AccountForms({
   const [pwStatus, setPwStatus] = useState<Status>('idle');
   const [pwError, setPwError] = useState('');
 
+  const [newEmail, setNewEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [emailStatus, setEmailStatus] = useState<Status>('idle');
+  const [emailError, setEmailError] = useState('');
+
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [deleteStatus, setDeleteStatus] = useState<Status>('idle');
@@ -103,6 +108,30 @@ export default function AccountForms({
     } catch (err) {
       setPwStatus('error');
       setPwError(err instanceof Error ? err.message : t('changeFailed'));
+    }
+  }
+
+  async function changeEmail(e: React.FormEvent) {
+    e.preventDefault();
+    setEmailStatus('saving');
+    setEmailError('');
+
+    try {
+      const res = await fetch('/api/auth/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newEmail: newEmail.trim(), password: emailPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || t('changeFailed'));
+
+      setNewEmail('');
+      setEmailPassword('');
+      setEmailStatus('saved');
+      await refresh();
+    } catch (err) {
+      setEmailStatus('error');
+      setEmailError(err instanceof Error ? err.message : t('changeFailed'));
     }
   }
 
@@ -209,6 +238,71 @@ export default function AccountForms({
             {profileStatus === 'error' && (
               <span className="t-footnote text-red-400" role="alert">
                 {profileError}
+              </span>
+            )}
+          </div>
+        </form>
+      </section>
+
+      {/* 修改邮箱 */}
+      <section className="rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
+        <h2 className="t-title-3 mb-1.5 text-white/90">{t('changeEmail')}</h2>
+        <p className="t-footnote mb-6 text-white/60">
+          {t('changeEmailHint')}
+        </p>
+
+        <form onSubmit={changeEmail} className="space-y-4">
+          <div>
+            <label htmlFor="account-new-email" className={labelClass}>
+              {t('newEmail')}
+            </label>
+            <input
+              id="account-new-email"
+              type="email"
+              autoComplete="email"
+              value={newEmail}
+              onChange={(e) => {
+                setNewEmail(e.target.value);
+                setEmailStatus('idle');
+              }}
+              placeholder="new@example.com"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="account-email-password" className={labelClass}>
+              {t('currentPassword')}
+            </label>
+            <input
+              id="account-email-password"
+              type="password"
+              autoComplete="current-password"
+              value={emailPassword}
+              onChange={(e) => {
+                setEmailPassword(e.target.value);
+                setEmailStatus('idle');
+              }}
+              className={inputClass}
+            />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              type="submit"
+              disabled={!newEmail || !emailPassword || emailStatus === 'saving'}
+              className="rounded-xl bg-white px-5 py-2.5 text-[0.9375rem] font-semibold text-black transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {emailStatus === 'saving' ? t('changing') : t('changeEmail')}
+            </button>
+            {emailStatus === 'saved' && (
+              <span className="t-footnote text-emerald-400" role="status">
+                {t('emailChanged')}
+              </span>
+            )}
+            {emailStatus === 'error' && (
+              <span className="t-footnote text-red-400" role="alert">
+                {emailError}
               </span>
             )}
           </div>

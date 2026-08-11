@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import GlowButton from './GlowButton';
-import InfiniteTunnel from './InfiniteTunnel';
+import BlackHole from './BlackHole';
 import { SHOW_PRICING } from '@/lib/constants';
 
 interface CTASectionProps {
@@ -27,8 +27,8 @@ export default function CTASection({ variant = 'subtle' }: CTASectionProps) {
               : 'backdrop-blur-xl bg-white/[0.03] border-t border-l border-r border-b border-t-white/[0.12] border-l-white/[0.06] border-r-white/[0.04] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_4px_24px_rgba(0,0,0,0.25)]'
           }`}
         >
-          {/* 无限隧道背景：进入工具矩阵的纵深感 */}
-          {isBold && <InfiniteTunnel />}
+          {/* 动态黑洞背景：吸积盘 + 光子环 + 引力透镜 */}
+          {isBold && <BlackHole />}
 
           {/* Floating orbs */}
           {isBold && (

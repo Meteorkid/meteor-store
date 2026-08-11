@@ -9,7 +9,7 @@ import { useLocale } from 'next-intl';
 interface HelpArticleData {
   title: string;
   html: string;
-  headings: { id: string; text: string; level: number }[];
+  headings: { id: string; text: string; level: 2 | 3 }[];
   category: string;
 }
 

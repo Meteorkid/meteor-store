@@ -63,3 +63,12 @@ trae比赛/
 
 # 个体工商户注册材料（含个人身份信息，不入库）
 个体工商户材料/
+
+# Playwright
+test-results/
+playwright-report/
+.playwright/
+
+# 技术文档（单独分发，不进仓库）
+docs/技术文档-docx/
+docs/技术文档-md/

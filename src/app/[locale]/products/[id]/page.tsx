@@ -12,6 +12,7 @@ import DownloadSection from '@/components/DownloadSection';
 import ProductDemoEmbed from '@/components/ProductDemoEmbed';
 import ProductAppTrial from '@/components/ProductAppTrial';
 import PassOwnedBadge from '@/components/PassOwnedBadge';
+import ProductPricingCards from '@/components/ProductPricingCards';
 import { products, localizeProduct } from '@/data/products';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 import { routing, type Locale } from '@/i18n/routing';
@@ -135,31 +136,26 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
               </div>
             ) : (
               <>
-            <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
-              {product.pricing.map((plan, index) => (
-                <PricingCard
-                  key={plan.name}
-                  name={plan.name}
-                  price={isAnnual && plan.period === '月' ? Math.floor(plan.price * ANNUAL_DISCOUNT) : plan.price}
-                  basePrice={plan.price}
-                  originalPrice={plan.originalPrice}
-                  period={
-                    isAnnual && plan.period === '月'
-                      ? t('periodMonthlyAnnual')
-                      : plan.period === '月'
-                        ? t('periodMonthly')
-                        : plan.period === '年'
-                          ? t('periodYearly')
-                          : t('periodLifetime')
-                  }
-                  features={plan.features}
-                  isPopular={index === 1}
-                  productId={product.id}
-                  productName={product.name}
-                  isAnnual={isAnnual && plan.period === '月'}
-                />
-              ))}
-            </div>
+            <ProductPricingCards
+              plans={product.pricing.map((plan) => ({
+                name: plan.name,
+                price: isAnnual && plan.period === '月' ? Math.floor(plan.price * ANNUAL_DISCOUNT) : plan.price,
+                basePrice: plan.price,
+                originalPrice: plan.originalPrice,
+                period: isAnnual && plan.period === '月'
+                  ? t('periodMonthlyAnnual')
+                  : plan.period === '月'
+                    ? t('periodMonthly')
+                    : plan.period === '年'
+                      ? t('periodYearly')
+                      : t('periodLifetime'),
+                features: plan.features,
+                isPopular: false,
+              }))}
+              productId={product.id}
+              productName={product.name}
+              isAnnual={isAnnual && product.pricing.some((p) => p.period === '月')}
+            />
 
             {/* 单品与全站会员是同一套商业模式的两条路径，这里给出通往 Pass 的入口。
                 用 next-intl 的 Link 而不是 TransitionLink：后者是原生 next/link，

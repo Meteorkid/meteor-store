@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 提问 / 讨论
+    url: https://github.com/Meteorkid/meteor-store/discussions
+    about: 使用问题、使用建议请到 Discussions
+  - name: 📖 帮助中心
+    url: https://imagentx.top/docs
+    about: 常见问题请先查看帮助中心

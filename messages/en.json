@@ -229,7 +229,31 @@
     "changing": "Changing…",
     "changed": "Changed",
     "saveFailed": "Save failed",
-    "changeFailed": "Change failed"
+    "changeFailed": "Change failed",
+    "favoritesCount": "Favorites",
+    "favoritesCountLabel": "Favorites",
+    "ordersCount": "Orders",
+    "keysCount": "License Keys",
+    "quickApps": "My Products",
+    "quickAppsDesc": "Purchased apps & tools",
+    "quickPosts": "My Posts",
+    "quickPostsDesc": "Manage blog posts",
+    "quickFavorites": "My Favorites",
+    "quickFavoritesDesc": "Bookmarked articles",
+    "quickOrders": "Order History",
+    "quickOrdersDesc": "Purchase history & details",
+    "quickRedeem": "Redeem Code",
+    "quickRedeemDesc": "Use an invitation code",
+    "timelineTitle": "Recent Activity",
+    "timelinePost": "Submitted",
+    "timelineOrder": "Purchased",
+    "changeEmail": "Change Email",
+    "changeEmailHint": "You will need to verify your new email address.",
+    "newEmail": "New Email",
+    "emailChanged": "Email changed, please check your inbox for verification",
+    "myProfile": "My Public Profile",
+    "myProfileDesc": "Your shareable profile page",
+    "viewProfile": "View Public Profile"
   },
   "BlogApiTokenManager": {
     "title": "Blog API tokens",
@@ -1382,7 +1406,8 @@
     "groupProduct": "Products",
     "groupPage": "Pages",
     "groupHelp": "Help",
-    "groupEasterEgg": "Easter eggs"
+    "groupEasterEgg": "Easter eggs",
+    "groupBlog": "Blog"
   },
   "PlaygroundTabs": {
     "descOmnicrawl": "Three-engine crawler framework: one command, auto-selects the best engine.",
@@ -1744,5 +1769,21 @@
     "badge": "You are a {plan} Meteor Pass member — all products unlocked",
     "hint": "Manage subscription",
     "manageLink": "View Pass"
+  },
+  "ProfilePage": {
+    "title": "Profile",
+    "noPosts": "No published posts yet",
+    "publishedPosts": "Published Posts",
+    "joinedAt": "Joined",
+    "posts": "Posts",
+    "favorites": "Favorites"
+  },
+  "PassStatusCard": {
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "lifetime": "Lifetime",
+    "lifetimeDesc": "Yours forever",
+    "expiresOn": "Expires on {date}",
+    "manage": "Manage Pass"
   }
 }

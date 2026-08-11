@@ -1,0 +1,66 @@
+name: Deploy to Staging (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (staging)
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.STAGING_SITE_URL }}
+          NEXT_PUBLIC_SHOW_PRICING: ${{ secrets.NEXT_PUBLIC_SHOW_PRICING }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.SENTRY_STAGING_DSN }}
+          STAGING: "true"
+        run: SKIP_TYPE_CHECK=1 pnpm build
+
+      - name: Package .next
+        run: |
+          tar -czf /tmp/meteor-store-staging-next.tar.gz -C . .next
+          echo "产物 $(du -h /tmp/meteor-store-staging-next.tar.gz | cut -f1)"
+
+      - name: Upload & restart staging
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          script: |
+            set -euo pipefail
+            STAGING_DIR="/var/www/meteor-store/staging"
+            STAGING_PORT=3001
+            STAGING_PM2_NAME="meteor-store-staging"
+
+            mkdir -p "$STAGING_DIR"
+            cd /var/www/meteor-store
+            pnpm install --frozen-lockfile || true
+
+            cd "$STAGING_DIR"
+            if [[ -d .next ]]; then mv .next .next.rollback; fi
+            tar -xzf /tmp/meteor-store-staging-next.tar.gz
+            rm -f /tmp/meteor-store-staging-next.tar.gz
+
+            export PORT="$STAGING_PORT"
+            pm2 stop "$STAGING_PM2_NAME" 2>/dev/null || true
+            pm2 start node_modules/.bin/next --name "$STAGING_PM2_NAME" -- start -p "$STAGING_PORT" || true
+            pm2 restart "$STAGING_PM2_NAME" --update-env
+            pm2 save
+
+            echo "==> Staging 部署完成，BUILD_ID: $(cat .next/BUILD_ID)"

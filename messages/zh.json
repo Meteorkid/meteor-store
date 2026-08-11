@@ -229,7 +229,31 @@
     "changing": "修改中…",
     "changed": "已修改",
     "saveFailed": "保存失败",
-    "changeFailed": "修改失败"
+    "changeFailed": "修改失败",
+    "favoritesCount": "收藏",
+    "favoritesCountLabel": "收藏数",
+    "ordersCount": "订单",
+    "keysCount": "授权码",
+    "quickApps": "我的产品",
+    "quickAppsDesc": "已购应用与工具",
+    "quickPosts": "我的投稿",
+    "quickPostsDesc": "管理博客文章",
+    "quickFavorites": "我的收藏",
+    "quickFavoritesDesc": "收藏的文章",
+    "quickOrders": "订单记录",
+    "quickOrdersDesc": "购买历史与详情",
+    "quickRedeem": "兑换邀请码",
+    "quickRedeemDesc": "使用邀请码获取产品",
+    "timelineTitle": "最近活动",
+    "timelinePost": "投稿了",
+    "timelineOrder": "购买了",
+    "changeEmail": "修改邮箱",
+    "changeEmailHint": "修改后需要重新验证新邮箱。",
+    "newEmail": "新邮箱",
+    "emailChanged": "邮箱已修改，请查收验证邮件",
+    "myProfile": "我的公开主页",
+    "myProfileDesc": "分享给其他人的个人页面",
+    "viewProfile": "查看公开主页"
   },
   "BlogApiTokenManager": {
     "title": "博客 API 令牌",
@@ -1382,7 +1406,8 @@
     "groupProduct": "产品",
     "groupPage": "页面",
     "groupHelp": "帮助",
-    "groupEasterEgg": "彩蛋"
+    "groupEasterEgg": "彩蛋",
+    "groupBlog": "博客"
   },
   "PlaygroundTabs": {
     "descOmnicrawl": "三引擎爬虫框架：一行命令，自动选择最优引擎。",
@@ -1744,5 +1769,21 @@
     "badge": "你已是 {plan} Meteor Pass 会员，本站全部产品均已解锁",
     "hint": "管理订阅",
     "manageLink": "查看 Pass"
+  },
+  "ProfilePage": {
+    "title": "个人主页",
+    "noPosts": "还没有发布过文章",
+    "publishedPosts": "发布的文章",
+    "joinedAt": "加入于",
+    "posts": "文章",
+    "favorites": "收藏"
+  },
+  "PassStatusCard": {
+    "monthly": "月付",
+    "annual": "年付",
+    "lifetime": "买断",
+    "lifetimeDesc": "永久有效，一次拥有终身享用",
+    "expiresOn": "有效期至 {date}",
+    "manage": "管理 Pass"
   }
 }

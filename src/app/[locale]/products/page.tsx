@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import CategoryFilter from '@/components/CategoryFilter';
+import PassOwnedBadge from '@/components/PassOwnedBadge';
 import { products, localizeProduct } from '@/data/products';
 import type { Locale } from '@/i18n/routing';
 
@@ -32,6 +33,8 @@ export default async function ProductsPage({ searchParams, params }: Props) {
           <h1 className="t-display mb-4 text-white">{t('title')}</h1>
           <p className="t-body text-gray-400">{t('description')}</p>
         </div>
+
+        <PassOwnedBadge />
 
         {/* Category Filter */}
         <CategoryFilter selected={selectedCategory} />

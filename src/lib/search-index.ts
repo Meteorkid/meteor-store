@@ -9,7 +9,7 @@ import { localizeHelpArticles } from '@/data/help-articles';
 import type { Locale } from '@/i18n/routing';
 import { pinyin } from 'pinyin-pro';
 
-export type SearchGroup = '产品' | '页面' | '帮助' | '彩蛋';
+export type SearchGroup = '产品' | '页面' | '帮助' | '博客' | '彩蛋';
 
 export interface SearchEntry {
   id: string;
@@ -73,6 +73,29 @@ function withPinyin(title: string, entry: Omit<SearchEntry, 'initials' | 'fullPi
 }
 
 /** 构建全站搜索索引（按 locale 构建并缓存） */
+
+
+/** 博客文章最小数据：只需标题、摘要、路径、标签即可参与搜索 */
+export interface BlogPostSearchData {
+  title: string;
+  excerpt: string;
+  href: string;
+  tags: string[];
+}
+
+/** 将博客文章转为搜索条目 */
+export function blogPostsToEntries(posts: BlogPostSearchData[]): SearchEntry[] {
+  return posts.map((post, i) =>
+    withPinyin(post.title, {
+      id: `blog-post-${i}`,
+      title: post.title,
+      subtitle: post.excerpt,
+      group: '博客',
+      href: post.href,
+      keywords: [post.title, post.excerpt, ...post.tags, '博客 文章'].join(' ').toLowerCase(),
+    }),
+  );
+}
 export function buildIndex(locale: Locale): SearchEntry[] {
   const products = localizeProducts(locale);
   const productEntries: SearchEntry[] = products.map(p =>
@@ -189,16 +212,53 @@ function scoreTerm(entry: SearchEntry, term: string): number {
   return 0;
 }
 
-/**
- * 搜索：多词项须全部命中（AND），得分求和排序。
- * 中文靠子串匹配天然可用；拉丁字母自动匹配拼音首字母与全拼。
- */
-export function searchEntries(query: string, locale: Locale, limit = 8): SearchEntry[] {
-  const index = getIndex(locale);
+/** 内部搜索实现：对给定索引执行搜索，不依赖 locale 缓存 */
+// ── 分组过滤前缀 ──────────────────────────────────────
+
+export interface ParsedQuery {
+  /** 去掉前缀后的实际搜索词 */
+  query: string;
+  /** 限定分组（null = 不限） */
+  groupFilter: SearchGroup | null;
+}
+
+const FILTER_PREFIXES: Array<{ prefix: string; group: SearchGroup }> = [
+  { prefix: 'blog:', group: '博客' },
+  { prefix: 'help:', group: '帮助' },
+  { prefix: '产品:', group: '产品' },
+  { prefix: 'page:', group: '页面' },
+];
+
+/** 解析搜索输入中的分组过滤前缀 */
+export function parseSearchQuery(input: string): ParsedQuery {
+  const trimmed = input.trim();
+  // @前缀 → 产品
+  if (trimmed.startsWith('@')) {
+    return { query: trimmed.slice(1).trim(), groupFilter: '产品' };
+  }
+  for (const { prefix, group } of FILTER_PREFIXES) {
+    if (trimmed.toLowerCase().startsWith(prefix)) {
+      return { query: trimmed.slice(prefix.length).trim(), groupFilter: group };
+    }
+  }
+  return { query: trimmed, groupFilter: null };
+}
+
+interface SearchResult {
+  entry: SearchEntry;
+  /** 是否由模糊匹配兜底命中 */
+  fuzzy: boolean;
+}
+
+function searchInIndex(index: SearchEntry[], query: string, limit: number, groupFilter: SearchGroup | null = null): SearchResult[] {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length === 0) return [];
 
-  return index
+  // 分组过滤
+  const candidates = groupFilter ? index.filter(e => e.group === groupFilter) : index;
+  if (terms.length === 0) return [];
+
+  const exact: SearchResult[] = candidates
     .map(entry => {
       let total = 0;
       for (const term of terms) {
@@ -211,7 +271,162 @@ export function searchEntries(query: string, locale: Locale, limit = 8): SearchE
     .filter((r): r is { entry: SearchEntry; total: number } => r !== null)
     .sort((a, b) => b.total - a.total)
     .slice(0, limit)
-    .map(r => r.entry);
+    .map(r => ({ entry: r.entry, fuzzy: false }));
+
+  // 模糊匹配兜底：精确结果不足 3 条时补几个
+  if (exact.length < 3) {
+    const fuzzy = fuzzySearch(candidates, query, limit - exact.length);
+    const exactIds = new Set(exact.map(e => e.entry.id));
+    for (const f of fuzzy) {
+      if (!exactIds.has(f.id)) exact.push({ entry: f, fuzzy: true });
+    }
+  }
+
+  return exact;
+}
+
+/**
+ * 搜索：多词项须全部命中（AND），得分求和排序。
+ * 中文靠子串匹配天然可用；拉丁字母自动匹配拼音首字母与全拼。
+ */
+export function searchEntries(query: string, locale: Locale, limit = 8): SearchEntry[] {
+  const parsed = parseSearchQuery(query);
+  const results = searchInIndex(getIndex(locale), parsed.query, limit, parsed.groupFilter);
+  return results.map(r => r.entry);
+}
+
+/** 返回带模糊标记的搜索结果 */
+export function searchEntriesWithMeta(query: string, locale: Locale, limit = 8): { results: SearchEntry[]; hasFuzzy: boolean } {
+  const parsed = parseSearchQuery(query);
+  const results = searchInIndex(getIndex(locale), parsed.query, limit, parsed.groupFilter);
+  return {
+    results: results.map(r => r.entry),
+    hasFuzzy: results.some(r => r.fuzzy),
+  };
+}
+
+/**
+ * 搜索（含博客文章）：服务端用，比 searchEntries 多索引了博客文章。
+ * blogPosts 来自 getFeedPosts()，因异步读取数据库而不能进客户端同步索引。
+ */
+export function searchEntriesWithBlogPosts(
+  query: string,
+  locale: Locale,
+  blogPosts: BlogPostSearchData[],
+  limit = 8,
+): SearchEntry[] {
+  const parsed = parseSearchQuery(query);
+  const baseIndex = getIndex(locale);
+  const blogEntries = blogPostsToEntries(blogPosts);
+  const results = searchInIndex([...baseIndex, ...blogEntries], parsed.query, limit, parsed.groupFilter);
+  return results.map(r => r.entry);
+}
+
+/** 搜索（含博客文章 + 模糊标记），供 API 端点使用 */
+export function searchEntriesWithBlogPostsMeta(
+  query: string,
+  locale: Locale,
+  blogPosts: BlogPostSearchData[],
+  limit = 8,
+): { results: SearchEntry[]; hasFuzzy: boolean } {
+  const parsed = parseSearchQuery(query);
+  const baseIndex = getIndex(locale);
+  const blogEntries = blogPostsToEntries(blogPosts);
+  const results = searchInIndex([...baseIndex, ...blogEntries], parsed.query, limit, parsed.groupFilter);
+  return {
+    results: results.map(r => r.entry),
+    hasFuzzy: results.some(r => r.fuzzy),
+  };
+}
+
+
+// ── 快速计算 ──────────────────────────────────────────
+
+/** 快速计算结果，客户端即时求值不依赖 API */
+export interface QuickMathResult {
+  expression: string;
+  result: string;
+}
+
+const MATH_SAFE = /^[\d\s+\-*/.%()^]*$/;
+const MATH_HAS_NUMBER = /\d/;
+
+export function tryQuickMath(query: string): QuickMathResult | null {
+  const trimmed = query.trim();
+  if (!MATH_HAS_NUMBER.test(trimmed) || !MATH_SAFE.test(trimmed)) return null;
+  if (!/[+\-*/%^]/.test(trimmed.replace(/\s/g, ''))) return null;
+  try {
+    const expr = trimmed.replace(/\^/g, '**');
+    const result = Function('"use strict"; return (' + expr + ')')();
+    if (result === undefined || result === null || !Number.isFinite(result)) return null;
+    return { expression: trimmed, result: String(Math.round(result * 1e10) / 1e10) };
+  } catch {
+    return null;
+  }
+}
+
+// ── 模糊匹配 ──────────────────────────────────────────
+
+/** Levenshtein 编辑距离 */
+export function levenshtein(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  let curr = new Array<number>(n + 1);
+  for (let i = 1; i <= m; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= n; j++) {
+      curr[j] = a[i - 1] === b[j - 1]
+        ? prev[j - 1]
+        : 1 + Math.min(prev[j], curr[j - 1], prev[j - 1]);
+    }
+    [prev, curr] = [curr, prev];
+  }
+  return prev[n];
+}
+
+/** 在索引中用模糊匹配兜底（编辑距离 ≤ 2），返回低优先级的备选结果 */
+function fuzzySearch(index: SearchEntry[], query: string, limit: number): SearchEntry[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 3) return [];
+  const scored = index
+    .map(entry => {
+      const title = entry.title.toLowerCase();
+      const d = levenshtein(q, title.slice(0, Math.max(q.length + 3, title.length)));
+      if (d > 2) return null;
+      return { entry, total: Math.max(0, 10 - d * 3) };
+    })
+    .filter((r): r is { entry: SearchEntry; total: number } => r !== null)
+    .sort((a, b) => b.total - a.total)
+    .slice(0, Math.min(3, limit));
+  return scored.map(r => r.entry);
+}
+
+// ── 路径面包屑 ────────────────────────────────────────
+
+const GROUP_BREADCRUMB: Record<SearchGroup, string> = {
+  '产品': '全部产品',
+  '页面': '',
+  '帮助': '帮助中心',
+  '博客': '博客',
+  '彩蛋': '店主的终端',
+};
+
+const GROUP_ROOT: Record<SearchGroup, string> = {
+  '产品': '/products',
+  '页面': '/',
+  '帮助': '/docs',
+  '博客': '/blog',
+  '彩蛋': '/',
+};
+
+/** 获取条目的路径面包屑，用于显示"所属分类 > 条目名" */
+export function getBreadcrumb(entry: SearchEntry): { label: string; href: string } | null {
+  const rootLabel = GROUP_BREADCRUMB[entry.group];
+  if (rootLabel == null) return null;
+  return { label: rootLabel, href: GROUP_ROOT[entry.group] };
 }
 
 // ── 高亮 ──────────────────────────────────────────────
@@ -239,6 +454,7 @@ function mergeRanges(ranges: HighlightRange[]): HighlightRange[] {
 export function getHighlightRanges(text: string, query: string): HighlightRange[] {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length === 0) return [];
+
 
   const chars = Array.from(text);
   const textLower = chars.map(c => c.toLowerCase()).join('');
