@@ -96,7 +96,8 @@ export default function PricingCard({
   return (
     <>
       <div
-        className={`glass-card group relative rounded-2xl p-6 overflow-visible transition-all duration-300 ${
+        style={{ overflow: 'visible' }}
+        className={`glass-card group relative rounded-2xl p-6 transition-all duration-300 ${
           isPopular
             ? '!bg-gradient-to-b !from-primary/10 !via-primary/5 !to-transparent !border-t-purple-400/40 !border-l-purple-400/20 !border-r-purple-400/10 !border-b-purple-400/5 !shadow-xl !shadow-primary/10 scale-[1.02] [box-shadow:inset_0_1px_0_rgba(168,85,247,0.2),0_8px_40px_rgba(139,92,246,0.15)]'
             : ''
@@ -104,7 +105,7 @@ export default function PricingCard({
       >
         {/* Popular Badge */}
         {isPopular && (
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
             <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-[11px] font-semibold text-white tracking-wide uppercase">
               {t('popular')}
             </span>
