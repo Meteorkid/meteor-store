@@ -1,4 +1,4 @@
-import { notFound, permanentRedirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import type { Metadata } from 'next';
@@ -16,7 +16,6 @@ import PostSignature from '@/components/PostSignature';
 import AdminGithubEditLink from '@/components/AdminGithubEditLink';
 import { routing, type Locale } from '@/i18n/routing';
 import { safeJsonLd } from '@/lib/seo';
-import { getRedirectId } from '@/data/blog-redirects';
 
 interface BlogPostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -54,13 +53,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   const posts = getBlogPosts(locale as Locale);
   const post = posts.find((p) => p.slug === slug);
-  if (!post) {
-    const redirectId = getRedirectId(locale, slug);
-    if (redirectId) {
-      permanentRedirect(`/${locale}/blog/p/${redirectId}`);
-    }
-    notFound();
-  }
+  if (!post) notFound();
 
   const section = getSectionById(post.section);
 

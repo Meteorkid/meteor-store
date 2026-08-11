@@ -60,6 +60,47 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // 文件文章迁移到数据库投稿后的 301 重定向
+  async redirects() {
+    const slugs: Record<string, string> = {
+      // zh
+      'baxian-love-is-holding-up': 'rLP5ZNk6CUw',
+      'ex-memory-technical-deep-dive': '8mgqUTBA_aE',
+      'meteor-store-launch': '6BnBgpSxIYY',
+      'meteor-store-literary-imagery-design-philosophy': '6Yqtk5rLvwo',
+      'omnicrawl-why-another-crawler': 'jsGpMNYGJHE',
+      'skeleton-anatomy-3d-web': '5NBMhcphSpo',
+      'spouse-first-in-law': 'IWclJQYnHh8',
+      // en (same slugs, different ids)
+    };
+    const enIds: Record<string, string> = {
+      'baxian-love-is-holding-up': 'H2F_SGUPd6Y',
+      'ex-memory-technical-deep-dive': 'cb3DqBWjt4c',
+      'meteor-store-launch': 'x0lZUuE0mcQ',
+      'meteor-store-literary-imagery-design-philosophy': 'MdtXYqdEJS0',
+      'omnicrawl-why-another-crawler': 'urxZic77Ldw',
+      'skeleton-anatomy-3d-web': '2LefwlrU0Cg',
+      'spouse-first-in-law': 'fCkmSkUaQ0E',
+    };
+
+    const redirects = [];
+    for (const [slug, id] of Object.entries(slugs)) {
+      redirects.push({
+        source: `/zh/blog/${slug}`,
+        destination: `/zh/blog/p/${id}`,
+        permanent: true,
+      });
+    }
+    for (const [slug, id] of Object.entries(enIds)) {
+      redirects.push({
+        source: `/en/blog/${slug}`,
+        destination: `/en/blog/p/${id}`,
+        permanent: true,
+      });
+    }
+    return redirects;
+  },
 };
 
 const nextConfigWithIntl = withNextIntl(nextConfig);
