@@ -62,7 +62,7 @@ export default function StarMap({ posts }: StarMapProps) {
         const a = nodes[i].p;
         const b = nodes[j].p;
         const sharedTags = a.tags.filter((t: string) => b.tags.includes(t));
-        const sharedSections = (a.sections ?? []).filter((s: string) => (b.sections ?? []).includes(s));
+        const sharedSections = (a.sections ?? []).filter((s: string) => (b.sections as readonly string[] ?? []).includes(s));
         if (sharedTags.length > 0 || sharedSections.length > 0) {
           lines.push({
             x1: nodes[i].x, y1: nodes[i].y,

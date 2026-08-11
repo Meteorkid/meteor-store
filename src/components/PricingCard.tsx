@@ -219,7 +219,7 @@ export default function PricingCard({
           return (
             <button
               onClick={handlePurchase}
-              disabled={claiming || isOwned}
+              disabled={claiming || !!isOwned}
               className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-300 disabled:opacity-50 ${
                 isPopular
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 shadow-lg shadow-primary/20'

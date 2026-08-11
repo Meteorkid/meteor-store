@@ -10,7 +10,7 @@ interface RelatedPostsProps {
   accentRgb?: string;
 }
 
-function reasonLabel(reason: string, t: (key: string) => string): string {
+function reasonLabel(reason: string, t: (key: string, values?: Record<string, string | number | Date>) => string): string {
   if (reason.startsWith('tag:')) {
     return t('reasonTag', { tag: reason.slice(4) });
   }
