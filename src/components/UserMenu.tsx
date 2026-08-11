@@ -6,11 +6,25 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
 
+interface PassStatus {
+  hasPass: boolean;
+  currentPlan: string | null;
+}
+
 export default function UserMenu() {
   const t = useTranslations('Header');
   const { user, loading, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const [passStatus, setPassStatus] = useState<PassStatus | null>(null);
+
+  useEffect(() => {
+    if (!user) { setPassStatus(null); return; }
+    fetch('/api/pass/status')
+      .then((r) => r.json())
+      .then((d) => setPassStatus(d))
+      .catch(() => {});
+  }, [user]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -42,9 +56,15 @@ export default function UserMenu() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white transition-transform hover:scale-105 overflow-hidden"
+        className="relative flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white transition-transform hover:scale-105 overflow-hidden"
         aria-label={t('userMenuAria')}
       >
+        {passStatus?.hasPass && (
+          <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500 border border-black" />
+          </span>
+        )}
         {user.avatarUrl ? (
           <Image
             src={user.avatarUrl}
@@ -62,7 +82,14 @@ export default function UserMenu() {
       {open && (
         <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-zinc-950/95 shadow-2xl backdrop-blur-xl">
           <div className="border-b border-white/[0.06] px-4 py-3">
-            <p className="text-sm font-medium text-white">{user.name || t('defaultUserName')}</p>
+            <p className="text-sm font-medium text-white flex items-center gap-2">
+              {user.name || t('defaultUserName')}
+              {passStatus?.hasPass && (
+                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-purple-500/20 to-emerald-500/20 border border-emerald-400/30 px-2 py-0.5 text-[10px] font-bold tracking-wider text-emerald-300">
+                  PASS
+                </span>
+              )}
+            </p>
             <p className="text-xs text-gray-500">{user.email}</p>
           </div>
           <div className="py-1">
