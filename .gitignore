@@ -72,3 +72,4 @@ playwright-report/
 # 技术文档（单独分发，不进仓库）
 docs/技术文档-docx/
 docs/技术文档-md/
+.tmp-build/
