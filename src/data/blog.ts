@@ -78,6 +78,7 @@ function loadPosts(locale?: Locale): BlogPost[] {
   // 如果目录不存在，回退到默认目录
   const actualDir = existsSync(blogDir) ? blogDir : join(CONTENT_DIR, 'zh');
 
+  if (!existsSync(actualDir)) return [];
   const files = readdirSync(actualDir).filter((f) => f.endsWith('.md'));
 
   const posts = files.map((file) => {
