@@ -115,6 +115,31 @@ export function runCommand(rawInput: string): CommandResult {
     case 'date':
       return { lines: ['又是为学费奋斗的一天。'] };
 
+
+    case 'neofetch': {
+      const rows = [
+        '         ✦     ☄     ✦',
+        '    ╭──────────────────────────────╮',
+        '    │     Meteor Store  · 店主终端     │',
+        '    ├──────────────────────────────┤',
+        '    │ OS       │ Next.js 16 · Vercel    │',
+        '    │ Shell    │ 阿里云 2G 轻量 · PM2    │',
+        '    │ DB       │ Neon Postgres · Drizzle │',
+        '    │ Cache    │ Upstash Redis           │',
+        '    │ Monitor  │ Sentry                  │',
+        '    │ Payment  │ 支付宝                   │',
+        '    │ Lang     │ TypeScript · React 19    │',
+        '    │ Style    │ Tailwind 4 · 暗色主题    │',
+        '    │ Theme    │ 流星 · 星空 · 玻璃拟态   │',
+        '    ├──────────────────────────────┤',
+        '    │ 产品     │ 12 款开发者工具          │',
+        '    │ 博客     │ 星辰分区 · 读者投稿       │',
+        '    │ 店主     │ 大学生 · 赚学费           │',
+        '    ╰──────────────────────────────╯',
+      ];
+      return { lines: rows };
+    }
+
     case 'konami':
       return { lines: ['嘘——这个词不该被直接说出来的。不过既然你诚心诚意地问了…'], action: 'burst' };
 
@@ -160,3 +185,15 @@ export function runCommand(rawInput: string): CommandResult {
 
 /** 移动端快捷命令按钮组 */
 export const QUICK_COMMANDS = ['help', 'story', 'author', 'hug', 'coffee', 'ls', 'easter'];
+
+/** 所有可 Tab 补全的命令名 */
+export const ALL_COMMANDS = [
+  'help', 'story', 'author', 'whoami', 'ls', 'cat',
+  'easter', '彩蛋', 'secrets', 'meteor', '流星', 'konami',
+  '白嫖', 'free', 'star', 'coffee', '奶茶', 'hug', '晚安', 'emo',
+  'ping', 'date', '42', 'vim', 'exit', 'clear', 'sudo',
+  'neofetch',
+];
+
+// 更新移动端快捷按钮
+(QUICK_COMMANDS as string[]).push('neofetch');
