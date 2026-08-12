@@ -227,7 +227,7 @@ function Scene() {
     if (particlesRef.current) (particlesRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
 
     gl.setRenderTarget(sceneRT);
-    gl.setClearColor(0, 0, 0, 0);  // 透明
+    gl.setClearColor(0x000000, 0);  // 透明
     gl.render(scene, camera);
     gl.setRenderTarget(null);
 
@@ -248,10 +248,10 @@ function Scene() {
       </mesh>
       <points ref={particlesRef}>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-aAngle" count={pData.ang.length} array={pData.ang} itemSize={1} />
-          <bufferAttribute attach="attributes-aRadius" count={pData.rad.length} array={pData.rad} itemSize={1} />
-          <bufferAttribute attach="attributes-aSize" count={pData.sz.length} array={pData.sz} itemSize={1} />
-          <bufferAttribute attach="attributes-aSpeed" count={pData.sp.length} array={pData.sp} itemSize={1} />
+          <bufferAttribute attach="attributes-aAngle" args={[pData.ang, 1]} />
+          <bufferAttribute attach="attributes-aRadius" args={[pData.rad, 1]} />
+          <bufferAttribute attach="attributes-aSize" args={[pData.sz, 1]} />
+          <bufferAttribute attach="attributes-aSpeed" args={[pData.sp, 1]} />
         </bufferGeometry>
         <shaderMaterial
           vertexShader={particlesVertShader} fragmentShader={particlesFragShader}
