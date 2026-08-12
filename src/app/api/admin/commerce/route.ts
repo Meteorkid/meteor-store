@@ -61,7 +61,16 @@ export async function PATCH(req: NextRequest) {
   }
 
   if (parsed.data.action === 'refund-order') {
-    const result = await refundOrder(parsed.data.orderId);
+    let result: Awaited<ReturnType<typeof refundOrder>>;
+    try {
+      result = await refundOrder(parsed.data.orderId);
+    } catch (error) {
+      // 支付宝退款被拒 / 网络失败等：钱没退，订单已回滚，向管理员给出明确原因
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : '退款失败，请稍后重试' },
+        { status: 502 },
+      );
+    }
     if (result === 'not-found') {
       return NextResponse.json({ error: '订单不存在' }, { status: 404 });
     }

@@ -96,4 +96,16 @@ describe('商业运维接口', () => {
 
     expect(response.status).toBe(409);
   });
+
+  it('支付宝退款被拒时返回 502 并透出原因', async () => {
+    const { PATCH } = await import('../route');
+    refund.mockRejectedValueOnce(new Error('支付宝拒绝退款（40004）：交易不存在'));
+    const orderId = 'b3f1c2d4-0000-4000-8000-000000000004';
+
+    const response = await PATCH(request({ action: 'refund-order', orderId }));
+    const body = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(body.error).toContain('交易不存在');
+  });
 });

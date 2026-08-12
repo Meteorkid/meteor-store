@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import QRCode from 'qrcode';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
 
 interface PaymentModalProps {
@@ -17,6 +18,8 @@ interface PaymentModalProps {
   isAnnual?: boolean;
 }
 
+type PaymentMethod = 'alipay' | 'wechat';
+
 export default function PaymentModal({
   isOpen,
   onClose,
@@ -30,12 +33,25 @@ export default function PaymentModal({
 }: PaymentModalProps) {
   const t = useTranslations('PaymentModal');
   const [email, setEmail] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('alipay');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [qrDataUrl, setQrDataUrl] = useState('');
   const modalRef = useRef<HTMLDivElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const onCloseRef = useRef(onClose);
   useEffect(() => { onCloseRef.current = onClose; });
+
+  // 打开弹窗时重置为初始状态（渲染期调整派生状态，避免上次二维码残留）
+  const [prevOpen, setPrevOpen] = useState(isOpen);
+  if (isOpen !== prevOpen) {
+    setPrevOpen(isOpen);
+    if (isOpen) {
+      setQrDataUrl('');
+      setError('');
+    }
+  }
 
   // Focus trap + Escape key
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -63,24 +79,56 @@ export default function PaymentModal({
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
-      // Auto-focus email input
       setTimeout(() => emailInputRef.current?.focus(), 100);
     }
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
     };
   }, [isOpen, handleKeyDown]);
 
   if (!isOpen) return null;
 
-  const handleAlipayPayment = async () => {
+  const stopPolling = () => {
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+  };
+
+  // 微信 Native 扫码后轮询订单状态，支付成功跳转订单页
+  const startPolling = (orderIdToPoll: string, token: string) => {
+    stopPolling();
+    pollTimerRef.current = setInterval(async () => {
+      try {
+        const response = await fetch(
+          `/api/payment?orderId=${encodeURIComponent(orderIdToPoll)}&token=${encodeURIComponent(token)}`
+        );
+        const data = await response.json();
+        if (data.status === 'paid') {
+          stopPolling();
+          window.location.href = `/orders/${orderIdToPoll}`;
+        } else if (data.status === 'failed') {
+          stopPolling();
+          setLoading(false);
+          setError(t('paymentFailed', { error: t('orderFailed') }));
+        }
+      } catch {
+        // 轮询失败静默，下一次再试
+      }
+    }, 3000);
+  };
+
+  const handlePayment = async () => {
     if (!email) {
       setError(t('emailRequired'));
       return;
     }
     setError('');
-
     setLoading(true);
 
     try {
@@ -92,7 +140,7 @@ export default function PaymentModal({
         body: JSON.stringify({
           productName: productId,
           planName,
-          paymentMethod: 'alipay',
+          paymentMethod,
           email,
           isMobile,
           isAnnual,
@@ -101,11 +149,34 @@ export default function PaymentModal({
 
       const data = await response.json();
 
-      if (data.success && data.payUrl) {
-        window.location.href = data.payUrl;
-      } else {
+      if (!data.success) {
         setError(t('paymentFailed', { error: data.error }));
+        setLoading(false);
+        return;
       }
+
+      if (paymentMethod === 'wechat') {
+        if (data.channel === 'h5' && data.h5Url) {
+          // 手机：拉起微信
+          window.location.href = data.h5Url;
+          return;
+        }
+        if (data.codeUrl) {
+          // 桌面：渲染二维码 + 轮询
+          const dataUrl = await QRCode.toDataURL(data.codeUrl, { margin: 1, width: 240 });
+          setQrDataUrl(dataUrl);
+          setLoading(false);
+          startPolling(data.orderId, data.accessToken);
+          return;
+        }
+      }
+
+      // 支付宝：直接跳转
+      if (data.payUrl) {
+        window.location.href = data.payUrl;
+        return;
+      }
+      setError(t('paymentFailed', { error: t('noPaymentUrl') }));
     } catch {
       setError(t('networkError'));
     } finally {
@@ -114,8 +185,10 @@ export default function PaymentModal({
   };
 
   const handleClose = () => {
+    stopPolling();
     setEmail('');
     setError('');
+    setQrDataUrl('');
     onClose();
   };
 
@@ -173,12 +246,54 @@ export default function PaymentModal({
             )}
           </div>
 
-          {/* 支付方式（仅支付宝） */}
-          <div className="mb-6">
-            <div className="py-3 px-4 rounded-lg bg-blue-500/10 border border-blue-500/30 text-center">
-              <span className="text-blue-400 font-medium">💙 {t('alipay')}</span>
-            </div>
+          {/* 支付方式选择 */}
+          <div className="mb-6 grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('alipay')}
+              className={`py-3 px-4 rounded-lg border text-center transition-colors ${
+                paymentMethod === 'alipay'
+                  ? 'bg-blue-500/15 border-blue-500/50 text-blue-300'
+                  : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+              }`}
+            >
+              <span className="inline-flex items-center justify-center gap-2">
+                <svg viewBox="0 0 20 20" className="h-5 w-5 flex-shrink-0" aria-hidden="true">
+                  <rect width="20" height="20" rx="4.5" fill="#1677FF" />
+                  <text x="10" y="14.3" textAnchor="middle" fontSize="12" fontWeight="700" fill="#fff" fontFamily="'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">支</text>
+                </svg>
+                <span className="font-medium">{t('alipay')}</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('wechat')}
+              className={`py-3 px-4 rounded-lg border text-center transition-colors ${
+                paymentMethod === 'wechat'
+                  ? 'bg-green-500/15 border-green-500/50 text-green-300'
+                  : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+              }`}
+            >
+              <span className="inline-flex items-center justify-center gap-2">
+                <svg viewBox="0 0 24 24" className="h-5 w-5 flex-shrink-0" fill="#07C160" aria-hidden="true">
+                  <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.032zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/>
+                </svg>
+                <span className="font-medium">{t('wechat')}</span>
+              </span>
+            </button>
           </div>
+
+          {/* 微信 Native 二维码 */}
+          {qrDataUrl && (
+            <div className="mb-6 flex flex-col items-center gap-3">
+              <img
+                src={qrDataUrl}
+                alt={t('wechatQrAlt')}
+                className="h-60 w-60 rounded-lg bg-white p-2"
+              />
+              <p className="text-center text-sm text-gray-300">{t('wechatScanHint')}</p>
+            </div>
+          )}
 
           {/* Email Input */}
           <div className="mb-6">
@@ -201,11 +316,11 @@ export default function PaymentModal({
 
           {/* Submit Button */}
           <button
-            onClick={handleAlipayPayment}
-            disabled={loading || !email}
+            onClick={handlePayment}
+            disabled={loading || !email || !!qrDataUrl}
             className="w-full py-3 rounded-lg font-medium transition-all bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? t('processing') : t('payWithAlipay')}
+            {loading ? t('processing') : paymentMethod === 'wechat' ? t('payWithWechat') : t('payWithAlipay')}
           </button>
 
           {/* Footer */}

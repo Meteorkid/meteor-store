@@ -17,6 +17,7 @@ const API_ROOT = join(process.cwd(), 'src/app/api');
 const EXEMPT: Record<string, string> = {
   'auth/logout/route.ts': '只清除 cookie，无计算成本也无滥用价值',
   'payment/alipay/notify/route.ts': '支付宝带验签的回调，限流会误伤其失败重试',
+  'payment/wechat/notify/route.ts': '微信带验签的回调，限流会误伤其失败重试',
 };
 
 /** 需要跨入口共用同一限流 key 的少数路由；测试同时钉住路由调用和 guard 内的真实 rateLimit。 */

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { createAlipayOrder, createAlipayMobileOrder, isAlipayConfigured } from '@/lib/alipay';
+import { createWechatOrder, isWechatConfigured } from '@/lib/wechat';
 import { findProduct } from '@/lib/products';
 import { PASS_NAME, PASS_PRODUCT_ID, findPassPlan } from '@/data/pass';
 import { db } from '@/lib/db';
@@ -33,7 +34,7 @@ async function generateOrderId(maxRetries = 3): Promise<string> {
 const PaymentSchema = z.object({
   productName: z.string().min(1).max(100).regex(/^[a-zA-Z0-9-]+$/, 'productName must be a slug'),
   planName: z.string().min(1).max(100),
-  paymentMethod: z.literal('alipay'),
+  paymentMethod: z.literal('alipay').or(z.literal('wechat')),
   email: z.string().email().max(254),
   isMobile: z.boolean().optional(),
   isAnnual: z.boolean().optional(),
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { productName, planName, email, isMobile, isAnnual } = parsed.data;
+    const { productName, planName, email, isMobile, isAnnual, paymentMethod } = parsed.data;
 
     // 售卖对象有两种：单个产品，或全站会员 Meteor Pass。
     // Pass 的三档本身就是计费周期（月付/年付/买断），价格是直接定的，
@@ -137,11 +138,15 @@ export async function POST(request: NextRequest) {
 
     // 创建支付、验签和商户核对缺一不可。必须在写入订单前拦截半配置状态，
     // 避免用户能付款但异步回调永远无法完成交付。
-    if (!isAlipayConfigured()) {
+    if (paymentMethod === 'wechat') {
+      if (!isWechatConfigured()) {
+        return NextResponse.json({ error: '支付服务暂不可用' }, { status: 503 });
+      }
+    } else if (!isAlipayConfigured()) {
       return NextResponse.json({ error: '支付服务暂不可用' }, { status: 503 });
     }
 
-    // 先生成订单号（带碰撞检查），用于支付宝回调关联
+    // 先生成订单号（带碰撞检查），用于回调关联
     const orderId = await generateOrderId();
     const now = new Date().toISOString();
     const accessToken = crypto.randomUUID();
@@ -150,7 +155,7 @@ export async function POST(request: NextRequest) {
     // 注意：若下单邮箱与登录邮箱不一致，仍以登录用户为准，避免他人在别人的订单上受益。
     const session = await getSession();
 
-    // 先写数据库（pending 状态），再调支付宝，避免用户付款后无订单记录
+    // 先写数据库（pending 状态），再调支付渠道，避免用户付款后无订单记录
     await db.insert(orders).values({
       id: orderId,
       productId: productName,
@@ -158,17 +163,49 @@ export async function POST(request: NextRequest) {
       email,
       userId: session?.userId ?? null,
       amountCny: priceCNY,
-      paymentMethod: 'alipay',
+      paymentMethod,
       status: 'pending',
       billingPeriod,
       accessToken,
       createdAt: now,
     });
 
-    // 再创建支付宝订单
     const subject = `${subjectName} - ${resolvedPlanName}`;
     const body_text = `购买 ${subjectName} 的 ${resolvedPlanName} 方案`;
 
+    // 微信：桌面 Native 返回 codeUrl（前端渲染二维码），手机 H5 返回 h5Url（前端跳转拉起微信）
+    if (paymentMethod === 'wechat') {
+      try {
+        const result = await createWechatOrder({
+          orderId,
+          amountCny: priceCNY,
+          description: subject,
+          clientIp: ip,
+          channel: isMobile ? 'h5' : 'native',
+        });
+        return NextResponse.json({
+          success: true,
+          orderId,
+          accessToken,
+          paymentMethod,
+          channel: isMobile ? 'h5' : 'native',
+          ...result,
+          amount: priceCNY,
+          message: '订单创建成功',
+        });
+      } catch (err) {
+        console.error('Wechat order create error:', err);
+        await db.update(orders)
+          .set({ status: 'failed' })
+          .where(eq(orders.id, orderId));
+        return NextResponse.json(
+          { error: '支付渠道创建失败，请稍后重试' },
+          { status: 502 }
+        );
+      }
+    }
+
+    // 支付宝：桌面 page.pay，手机 wap.pay，均返回可跳转的 payUrl
     let payUrl: string;
     try {
       payUrl = isMobile
@@ -189,6 +226,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       orderId,
+      accessToken,
+      paymentMethod,
       payUrl,
       amount: priceCNY,
       message: '订单创建成功',

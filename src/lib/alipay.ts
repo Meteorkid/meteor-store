@@ -214,3 +214,110 @@ export function verifyAlipayNotify(params: Record<string, string>): boolean {
   if (!sign) return false;
   return verify(rest, sign);
 }
+
+/**
+ * 对支付宝接口响应的原始 JSON 字符串验签。
+ * 退款等主动查询类接口的响应签名，是用 `alipay_xxx_response` 的完整 JSON 字符串
+ * 作为待签名内容（而非 notify 通知那种逐 k=v 拼接），因此不能复用 verify()。
+ */
+function verifyRaw(source: string, signature: string): boolean {
+  if (!source || !signature) return false;
+  try {
+    const verifier = crypto.createVerify('RSA-SHA256').update(source);
+    return verifier.verify(getAlipayConfig().alipayPublicKey, signature, 'base64');
+  } catch {
+    return false;
+  }
+}
+
+export type RefundAlipayResult =
+  | { success: true; fundChange: boolean }
+  | { success: false; code: string; msg: string };
+
+/**
+ * 主动调用支付宝退款（alipay.trade.refund），把已支付订单的钱原路退回。
+ *
+ * 与 page.pay/wap.pay 拼跳转 URL 不同，退款是服务端主动 POST 到 gateway 并解析 JSON 响应，
+ * 且必须对响应整体验签，确认是支付宝返回的，防止伪造退款结果。
+ *
+ * 返回值语义：
+ * - success=true            退款指令已被支付宝受理（fund_change 表示是否实际发生资金变更）
+ * - success=false, code/msg 支付宝业务拒绝（如交易不存在、已全额退款、金额超限等）
+ * - throw                   验签失败 / 网络错误 / 响应结构异常（调用方应视为失败并回滚本地状态）
+ */
+export async function refundAlipayOrder(params: {
+  outTradeNo: string;
+  tradeNo: string;
+  refundAmount: number;
+}): Promise<RefundAlipayResult> {
+  const config = getAlipayConfig();
+  if (!config.appId || !config.privateKey || !config.alipayPublicKey) {
+    throw new Error('Alipay configuration missing: APP_ID / PRIVATE_KEY / PUBLIC_KEY not set');
+  }
+
+  const { outTradeNo, tradeNo, refundAmount } = params;
+  const bizContent = {
+    out_trade_no: outTradeNo,
+    trade_no: tradeNo,
+    refund_amount: refundAmount.toFixed(2),
+    refund_reason: '用户退款',
+  };
+
+  const requestParams: Record<string, string> = {
+    app_id: config.appId,
+    method: 'alipay.trade.refund',
+    charset: 'utf-8',
+    sign_type: 'RSA2',
+    timestamp: getAlipayTimestamp(),
+    version: '1.0',
+    biz_content: JSON.stringify(bizContent),
+  };
+  requestParams.sign = sign(requestParams);
+
+  let response: Response;
+  try {
+    response = await fetch(config.gateway, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(requestParams).toString(),
+      // 退款不涉及用户跳转，超时即视为失败，避免一直挂着
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch (error) {
+    throw new Error(`支付宝退款请求失败：无法连接网关（${error instanceof Error ? error.message : '未知错误'}）`);
+  }
+
+  if (!response.ok) {
+    throw new Error(`支付宝退款请求失败：HTTP ${response.status}`);
+  }
+
+  let data: Record<string, unknown>;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error('支付宝退款响应无法解析为 JSON');
+  }
+
+  const resp = data.alipay_trade_refund_response;
+  if (typeof resp !== 'object' || resp === null) {
+    throw new Error('支付宝退款响应缺少 alipay_trade_refund_response');
+  }
+
+  // 验签：源串是 alipay_trade_refund_response 的原始 JSON 字符串
+  const source = JSON.stringify(resp);
+  const signature = typeof data.sign === 'string' ? data.sign : '';
+  if (!verifyRaw(source, signature)) {
+    throw new Error('支付宝退款响应验签失败');
+  }
+
+  const code = String((resp as { code?: unknown }).code ?? '');
+  if (code !== '10000') {
+    const msg =
+      String((resp as { sub_msg?: unknown }).sub_msg ?? '') ||
+      String((resp as { msg?: unknown }).msg ?? '') ||
+      '未知错误';
+    return { success: false, code, msg };
+  }
+
+  return { success: true, fundChange: (resp as { fund_change?: string }).fund_change === 'Y' };
+}

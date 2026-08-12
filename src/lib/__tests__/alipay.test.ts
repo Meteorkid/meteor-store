@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('alipay', () => {
   let mockSign: ReturnType<typeof vi.fn>;
@@ -153,6 +153,112 @@ describe('alipay', () => {
       });
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe('refundAlipayOrder', () => {
+    function stubFetch(response: {
+      ok?: boolean;
+      status?: number;
+      body: unknown;
+    }): ReturnType<typeof vi.fn> {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: response.ok ?? true,
+        status: response.status ?? 200,
+        json: async () => response.body,
+      });
+      vi.stubGlobal('fetch', fetchMock);
+      return fetchMock;
+    }
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('成功退款调用 alipay.trade.refund，验签通过并返回 fundChange', async () => {
+      mockVerify.mockReturnValue(true);
+      const fetchMock = stubFetch({
+        body: {
+          alipay_trade_refund_response: { code: '10000', msg: 'Success', fund_change: 'Y' },
+          sign: 'refund-signature',
+        },
+      });
+
+      const { refundAlipayOrder } = await importAlipay();
+      const result = await refundAlipayOrder({
+        outTradeNo: 'order-1',
+        tradeNo: 'alipay-trade-1',
+        refundAmount: 39,
+      });
+
+      expect(result).toEqual({ success: true, fundChange: true });
+
+      const [url, opts] = fetchMock.mock.calls[0] as [string, { body: string }];
+      expect(url).toContain('gateway.do');
+      expect(opts.body).toContain('method=alipay.trade.refund');
+      // refund_amount / out_trade_no / trade_no 在 URL 编码的 biz_content 里
+      const bizContent = new URLSearchParams(opts.body).get('biz_content') ?? '';
+      expect(bizContent).toContain('"refund_amount":"39.00"');
+      expect(bizContent).toContain('"out_trade_no":"order-1"');
+      expect(bizContent).toContain('"trade_no":"alipay-trade-1"');
+      expect(opts.body).toContain('sign=');
+    });
+
+    it('校验响应验签，验签失败抛错（防止伪造退款结果）', async () => {
+      mockVerify.mockReturnValue(false);
+      stubFetch({
+        body: {
+          alipay_trade_refund_response: { code: '10000', msg: 'Success' },
+          sign: 'forged-signature',
+        },
+      });
+
+      const { refundAlipayOrder } = await importAlipay();
+      await expect(refundAlipayOrder({
+        outTradeNo: 'order-2',
+        tradeNo: 'alipay-trade-2',
+        refundAmount: 39,
+      })).rejects.toThrow('验签失败');
+    });
+
+    it('支付宝业务拒绝（code 非 10000）时返回失败结果', async () => {
+      mockVerify.mockReturnValue(true);
+      stubFetch({
+        body: {
+          alipay_trade_refund_response: {
+            code: '40004',
+            msg: 'Business Failed',
+            sub_code: 'ACQ.TRADE_NOT_EXIST',
+            sub_msg: '交易不存在',
+          },
+          sign: 'refund-signature',
+        },
+      });
+
+      const { refundAlipayOrder } = await importAlipay();
+      const result = await refundAlipayOrder({
+        outTradeNo: 'order-3',
+        tradeNo: 'alipay-trade-3',
+        refundAmount: 39,
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.code).toBe('40004');
+        expect(result.msg).toContain('交易不存在');
+      }
+    });
+
+    it('HTTP 非 2xx 时抛错', async () => {
+      mockVerify.mockReturnValue(true);
+      stubFetch({ ok: false, status: 500, body: {} });
+
+      const { refundAlipayOrder } = await importAlipay();
+      await expect(refundAlipayOrder({
+        outTradeNo: 'order-4',
+        tradeNo: 'alipay-trade-4',
+        refundAmount: 39,
+      })).rejects.toThrow('HTTP 500');
     });
   });
 });

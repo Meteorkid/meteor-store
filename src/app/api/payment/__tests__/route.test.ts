@@ -36,6 +36,13 @@ vi.mock('@/lib/alipay', () => ({
   isAlipayConfigured: () => alipayConfigured(),
 }));
 
+const createWechat = vi.fn();
+const wechatConfigured = vi.fn();
+vi.mock('@/lib/wechat', () => ({
+  createWechatOrder: (...args: unknown[]) => createWechat(...args),
+  isWechatConfigured: () => wechatConfigured(),
+}));
+
 // 下单时会读会话回填 userId；测试按游客下单处理（真实 getSession 依赖请求上下文，测试里取不到）
 vi.mock('@/lib/auth', () => ({ getSession: async () => null }));
 
@@ -48,6 +55,7 @@ describe('创建支付订单', () => {
     inserted.length = 0;
     alipayConfigured.mockReturnValue(true);
     createDesktopOrder.mockResolvedValue('https://openapi.alipay.com/pay');
+    wechatConfigured.mockReturnValue(true);
   });
 
   it('零价方案不走支付，改由 /api/claim 免费入库', async () => {
@@ -159,5 +167,73 @@ describe('创建支付订单', () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({ error: '方案不存在' });
     expect(inserted).toHaveLength(0);
+  });
+
+  it('微信 Native 下单（桌面）返回 codeUrl 并写 paymentMethod=wechat', async () => {
+    createWechat.mockResolvedValue({ codeUrl: 'weixin://wxpay/bizpayurl?pr=abc' });
+    const { POST } = await import('../route');
+    const request = new Request('https://www.imagentx.top/api/payment', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        productName: 'xnook',
+        planName: 'Pro',
+        paymentMethod: 'wechat',
+        email: 'buyer@example.com',
+        isMobile: false,
+      }),
+    }) as unknown as NextRequest;
+
+    const response = await POST(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(createWechat).toHaveBeenCalledWith(expect.objectContaining({ channel: 'native' }));
+    expect(body.codeUrl).toBe('weixin://wxpay/bizpayurl?pr=abc');
+    expect(inserted[0]).toMatchObject({ paymentMethod: 'wechat' });
+  });
+
+  it('微信 H5 下单（手机）返回 h5Url', async () => {
+    createWechat.mockResolvedValue({ h5Url: 'https://wx.tenpay.com/cgi-bin/mmpayweb-bin/h5' });
+    const { POST } = await import('../route');
+    const request = new Request('https://www.imagentx.top/api/payment', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        productName: 'xnook',
+        planName: 'Pro',
+        paymentMethod: 'wechat',
+        email: 'buyer@example.com',
+        isMobile: true,
+      }),
+    }) as unknown as NextRequest;
+
+    const response = await POST(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(createWechat).toHaveBeenCalledWith(expect.objectContaining({ channel: 'h5' }));
+    expect(body.h5Url).toContain('wx.tenpay.com');
+  });
+
+  it('微信配置不完整时不下单返回 503', async () => {
+    wechatConfigured.mockReturnValue(false);
+    const { POST } = await import('../route');
+    const request = new Request('https://www.imagentx.top/api/payment', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        productName: 'xnook',
+        planName: 'Pro',
+        paymentMethod: 'wechat',
+        email: 'buyer@example.com',
+      }),
+    }) as unknown as NextRequest;
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(503);
+    expect(inserted).toHaveLength(0);
+    expect(createWechat).not.toHaveBeenCalled();
   });
 });
