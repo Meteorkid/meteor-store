@@ -1,9 +1,18 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import dynamic from 'next/dynamic';
 import GlowButton from './GlowButton';
-import BlackHole from './BlackHole';
 import { SHOW_PRICING } from '@/lib/constants';
+
+const BlackHole = dynamic(() => import('./BlackHole'), {
+  ssr: false,
+  loading: () => (
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      <div className="h-64 w-64 animate-pulse rounded-full bg-white/[0.02]" />
+    </div>
+  ),
+});
 
 interface CTASectionProps {
   variant?: 'bold' | 'subtle';

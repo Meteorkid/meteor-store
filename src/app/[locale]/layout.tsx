@@ -138,6 +138,8 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        {/* DNS 预解析：提前建立外部资源连接 */}
+        <link rel="dns-prefetch" href="//pub-2cd69bb8e53f47a7802ded60c1d358b0.r2.dev" />
         {/* 防闪烁：在 React 渲染前读取本地存储的玻璃透明度偏好 */}
         <script
           nonce={nonce}

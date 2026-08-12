@@ -1,5 +1,3 @@
-'use client';
-
 /**
  * 共享品牌符号：一枚流星。
  * Header 与 Footer 共用，替代此前的 ☄️ / 🚀 emoji。

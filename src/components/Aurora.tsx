@@ -1,5 +1,3 @@
-'use client';
-
 export default function Aurora({ className = '' }: { className?: string }) {
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`} aria-hidden="true">

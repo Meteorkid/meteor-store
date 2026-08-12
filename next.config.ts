@@ -41,10 +41,26 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: process.env.SKIP_TYPE_CHECK === '1',
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [375, 768, 1024, 1280, 1536],
     remotePatterns: getR2RemotePattern(),
   },
   headers() {
     return [
+      // 静态资源长期缓存（文件名含 content hash）
+      {
+        source: "/_next/static/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      // 公开资源
+      {
+        source: "/favicon.ico",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=604800" },
+        ],
+      },
       {
         source: "/(.*)",
         headers: securityHeaders,
