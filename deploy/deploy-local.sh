@@ -52,6 +52,12 @@ ssh -o StrictHostKeyChecking=no "$SERVER" "
     sleep 5
   done
   pnpm install --frozen-lockfile || true
+  # 安装/更新 logrotate 配置（公安备案：日志留存 ≥ 60 天）
+  mkdir -p /var/log/meteor-store
+  cp deploy/logrotate.conf /etc/logrotate.d/imagentx.top
+  # 同步 nginx 配置（含日志格式声明）
+  cp deploy/nginx.conf /etc/nginx/conf.d/imagentx.top.conf
+  nginx -t && nginx -s reload
   # 停止 PM2 释放内存，备份旧产物，解压新产物
   pm2 stop meteor-store 2>/dev/null || true
   rm -rf .next.rollback

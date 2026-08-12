@@ -25,6 +25,9 @@ module.exports = {
       out_file: '/var/log/meteor-store/pm2-out.log',
       error_file: '/var/log/meteor-store/pm2-error.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
+      // 公安备案要求日志留存 ≥ 60 天
+      retain_days: 60,
+      max_log_file_size: '10M',
       autorestart: true,
     },
   ],
