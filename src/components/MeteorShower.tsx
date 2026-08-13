@@ -38,13 +38,12 @@ interface TrailDot {
 export default function MeteorShower() {
   // 静默页面（后台、认证、法律、退款）不渲染
   const pathname = usePathname();
-  const isQuiet = /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname);
-  if (isQuiet) return null;
-
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reducedMotion = useReducedMotion();
   const t = useTranslations('MeteorShower');
   const tRef = useRef(t);
+  const isQuiet = /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname);
+
   useEffect(() => {
     tRef.current = t;
   }, [t]);
@@ -331,6 +330,8 @@ export default function MeteorShower() {
       window.removeEventListener('mousemove', onMouseMove);
     };
   }, [reducedMotion]);
+
+  if (isQuiet) return null;
 
   if (reducedMotion) {
     // 安静模式：静态星空渐变，不动但依然好看

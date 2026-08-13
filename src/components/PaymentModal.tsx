@@ -194,20 +194,21 @@ export default function PaymentModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        {/* Backdrop */}
+      <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain">
+        {/* Backdrop：fixed，不随弹窗内容滚动 */}
         <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm"
           onClick={handleClose}
         />
 
+        <div className="flex min-h-full items-center justify-center p-4">
         {/* Modal */}
         <div
           ref={modalRef}
           role="dialog"
           aria-modal="true"
           aria-label={t('dialogAriaLabel')}
-          className="glass-lg relative w-full max-w-md mx-4 bg-[rgba(20,16,34,0.8)] rounded-2xl p-6 animate-spotlight-in"
+          className="glass-lg relative w-full max-w-md bg-[rgba(20,16,34,0.8)] rounded-2xl p-6 animate-spotlight-in"
         >
           {/* Close button */}
           <button
@@ -327,6 +328,7 @@ export default function PaymentModal({
           <p className="text-center text-gray-500 text-xs mt-6">
             {t('securePayment')}
           </p>
+        </div>
         </div>
       </div>
     </>
