@@ -40,18 +40,31 @@ jobs:
           tar -czf /tmp/meteor-store-next.tar.gz -C . .next
           echo "产物 $(du -h /tmp/meteor-store-next.tar.gz | cut -f1)"
 
-      - name: Upload & restart on server
-        uses: appleboy/ssh-action@v1.2.0
+      # scp-action 的 target 是远端「目录」而非文件名：它会把 source 打包后解压进该目录。
+      # strip_components=1 去掉包内 tmp/ 前缀，落盘为 meteor-store-next.tar.gz
+      - name: Upload .next.tar.gz to server
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
           source: /tmp/meteor-store-next.tar.gz
-          target: /var/www/meteor-store/.next.tar.gz
+          target: /var/www/meteor-store
+          strip_components: 1
+
+      - name: Restart on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
           script: |
             set -euo pipefail
             cd /var/www/meteor-store
+            # 确认上传的产物已就位
+            test -f meteor-store-next.tar.gz
             # 同步源码与依赖（只安装，不构建）
             git remote set-url origin https://ghfast.top/https://github.com/Meteorkid/meteor-store.git 2>/dev/null || true
             for i in 1 2 3; do
@@ -63,8 +76,8 @@ jobs:
             pm2 stop meteor-store 2>/dev/null || true
             rm -rf .next.rollback
             if [[ -d .next ]]; then mv .next .next.rollback; fi
-            tar -xzf .next.tar.gz
-            rm -f .next.tar.gz
+            tar -xzf meteor-store-next.tar.gz
+            rm -f meteor-store-next.tar.gz
             pm2 restart meteor-store --update-env
             pm2 save
             echo "==> 部署完成，BUILD_ID: $(cat .next/BUILD_ID)"
