@@ -326,9 +326,9 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 
 | 档位 | plan id | 价格 | 有效期 |
 |------|---------|------|--------|
-| 月付 | `monthly` | ¥39/月 | 1 个月 |
-| 年付 | `annual` | ¥299/年 | 12 个月 |
-| 买断 | `lifetime` | ¥899 | 永久 |
+| 月付 | `monthly` | ¥9/月（原价 ¥39） | 1 个月 |
+| 年付 | `annual` | ¥19/年（原价 ¥99） | 12 个月 |
+| 买断 | `lifetime` | ¥99（原价 ¥199） | 永久 |
 
 - **Pass 不进 `products` 数组**：它不是产品，没有产品页、不进 sitemap、`/apps/meteor-pass` 是 404。
   `findProduct` 只认真实产品；订单页 / 成功页 / 确认邮件这些「要显示买了什么」的地方用 `findPurchasable`
@@ -435,7 +435,7 @@ bucket 完全隔离。服务层在
 并要求对应授权码 `status='active'`。
 
 **撤销授权码对两条来源都要生效**，否则退款后没有任何手段收回访问权
-（¥899 买断 Pass 尤其扎眼）。订单侧用 `delivery_status` 区分窗口期：
+（¥99 买断 Pass 尤其扎眼）。订单侧用 `delivery_status` 区分窗口期：
 已 `emailed` 的订单要求授权码仍是 active，未交付的照常放行——
 一律要求授权码会把刚付完钱、还没发码的人挡在门外。
 
@@ -686,7 +686,7 @@ pnpm build                  # 构建
 | /admin/comments 也加举报联动入口 | 评论量大后,目前仅 /admin/posts 有,且评论侧已有逐条举报按钮 |
 | Pass 到期提醒与续费 | 卖出第一笔月付/年付 Pass。支付宝走的是单次付款不是代扣,到期后是**静默失效**,至少要在到期前发封邮件（`/apps` 的过期空态已经会提示,但用户得自己来看） |
 | 后台加订单状态流转（paid → refunded） | 出现第一笔退款。目前只能靠撤销授权码间接收回访问权,订单本身还停在 paid |
-| 上传 xnook / xisland / statux 的安装包 | 分发链路已就绪,但**还没有任何产品配了 `r2Key`**——签名公证好 dmg 后跑 `scripts/upload-release.mjs`,把它打印的条目粘进 products.ts 即可上线。xnook 在此之前是「付了 ¥9 拿不到东西」 |
+| 上传 xnook / xisland / statux 的安装包 | products.ts 已配好 r2Key 条目（statux 0.4.3 非门控、xisland 1.12.0 / xnook 1.3.15 门控）。发新版时签名公证后跑 `scripts/upload-release.mjs`,把新条目粘进 products.ts 即可；上线前确认对应对象已传到 R2 私有 bucket |
 | 限免产品恢复收费 | ex-memory / ui-design-system 想开始收费时,把 `originalPrice` 挪回 `price` 即可;在那之前它们也没有实际交付物,需要一并解决 |
 
 **已完成的待办**（从上表移除,留作记录）：
