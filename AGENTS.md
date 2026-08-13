@@ -111,10 +111,10 @@
   加新 token 时 `:root:root` 和 `@theme inline` 两处都要写——真实构建实测过，
   只写前者 Tailwind 不生成对应工具类（产物里 0 处）。注意 dev server 的 Turbopack
   会缓存旧 CSS，验证这类改动必须跑 `pnpm build` 看产物，别信 dev 里看到的
-- **`text-muted-foreground` / `bg-muted` 是有意留着不生效的**：70 处使用、构建产物 0 处生效。
+- **`text-muted-foreground` / `bg-muted` 是有意留着不生效的**：65 处使用、构建产物 0 处生效。
   `:root:root` 和 `@theme inline` 两处都没有 muted，类名空转，这些说明文字继承正文的纯白、
   和标题同色。**这是看过前后对比后定的，不是待修的 bug**——别"顺手补上"token 和映射，
-  那会一次性把全站 70 处说明文字变灰
+  那会一次性把全站 65 处说明文字变灰
 - **Open Props（`tokens.css`）带 3 条 `prefers-color-scheme: dark`**：1 条切 `--shadow-color`
   / `--shadow-strength` / `--inner-shadow-highlight`，已被 `:root:root` 盖住（`:where(html)`
   特异性为 0）；另 2 条重定义 `@keyframes fade-in-bloom` / `fade-out-bloom`——
@@ -154,7 +154,7 @@
 
 ## 内容流程
 
-文章有**两条来源**：站主的在 `content/blog/*.md`，读者投稿在数据库 `posts` 表。
+文章现在都走数据库 `posts` 表一条来源。
 
 **读的时候只从 `src/data/blog-feed.ts` 取，不要直接 import `blogPosts`。**
 直接 import 不会报错，只会静默漏掉全部读者投稿——列表少几篇、标签计数偏低，
@@ -175,7 +175,11 @@
 
 ### 站主的文章
 
-`content/blog/*.md`，构建时读取，**slug 取自文件名**。
+站主文件文章已整体迁入 `posts` 表（`scripts/migrate-file-posts.mjs`），
+`content/blog/` 现为空，原文保留在 `content/blog-archive/{locale}/` 仅作备份。
+新文章与读者投稿共用 `src/lib/posts.ts` 同一条管线（draft → pending → published，先审后发）。
+
+旧 frontmatter 是历史归档格式，仅供参考：
 
 ```markdown
 ---
@@ -189,7 +193,8 @@ draft: true                # 草稿只在开发环境可见
 正文……
 ```
 
-- frontmatter 走 zod 校验，**不合法直接抛错让构建失败**——宁可 CI 红，也不要静默上线一篇分区写错的文章
+归档时代的行为，新文章不再适用：
+- slug 取自文件名；frontmatter 走 zod 校验，**不合法直接抛错让构建失败**——宁可 CI 红，也不要静默上线一篇分区写错的文章
 - `readingTime` 自动算（中文 400 字/分 + 英文 200 词/分），不要手填
 - `draft: true` 可以安心提交进 git，生产构建会当它不存在
 - 发布 = 一次部署。这是选文件而非数据库的代价，换来的是版本历史、可 diff、可离线写、不绑厂商
@@ -258,21 +263,27 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 ### PostStats 聚合接口
 
 文章页的统计组件 `PostStats` 挂载时一次性拉取 views/likes/comments/favorites 计数
-和当前用户的 liked/favorited 状态，**用聚合接口 `GET /api/post-stats`** 替代原本的
+和当前用户的 liked/favorited 状态，**用聚合接口 `POST /api/post-stats`** 替代原本的
 4 个独立 fetch（views/likes/comments/favorites 各一个），减少请求数和 RTT。
 
 - 接口在 [src/app/api/post-stats/route.ts](file:///Users/meteor/github/meteor-store/src/app/api/post-stats/route.ts)，
-  6 个查询并行执行（view count / like count / like status / comment count / favorite count / favorite status）
-- **GET 不限流**：所有数据本来就对公众可见，计数查询走索引开销很小
+  每次请求会 `recordView` 记一次浏览（合并了原来的 `POST /api/views`）；
+  view/like/comment/favorite 四项计数与 liked/favorited 两项状态压成**单条 SQL 子查询**——
+  Neon HTTP 下每个 count 都是一次网络往返，压成一条直接减少 RTT 与数据库连接
+- **按 IP 限流 60 次/分钟**：POST 会写 `page_views`，不是纯读接口
 - 评论数只统计 `status='approved'`（与 `/api/comments` GET 的过滤一致）
-- 点赞/收藏状态查询当前用户命中：未登录时跳过那两个查询（用 `Promise.resolve([{count:0}])` 占位保持并行结构）
+- 点赞/收藏状态查询当前用户命中：未登录时两个状态子查询直接以 SQL `0` 占位，不额外发查询
 
 ### 作者落款（个性签名）
 
-文章末尾的作者落款分两种，对应两条来源：
+文章末尾落款只有一种：`/blog/p/[id]` 渲染作者落款区块（头像 + 昵称 + bio），
+站主文章迁库后同样走这条路径。`PostSignature`（`src/components/PostSignature.tsx`）
+已随 `/blog/[slug]` 死路由成为死代码（文件文章为空时该路由必然 notFound，历史 slug
+由 next.config.ts 301 到 `/blog/p/{id}`），可移除（含 `messages/*.json` 的 PostSignature 命名空间）。
 
-- **站主文件文章** `/blog/[slug]`：末尾自动渲染 `PostSignature` 组件（流星划线 + Dancing Script 手写体 "Meteor" + "—— 店主"），样式参考 `/story` 页面。站主无需在 markdown 里手写签名——组件自动注入，每篇文章都有。组件在 [src/components/PostSignature.tsx](file:///Users/meteor/github/meteor-store/src/components/PostSignature.tsx)
-- **读者投稿** `/blog/p/[id]`：末尾自动渲染作者落款区块（头像 + 昵称 + bio）。bio 来自 `users.bio` 字段，用户在 `/account` 页面设置（label 显示为「个性签名」）。`posts.ts` 的 `postColumns` 已 JOIN `users.bio` 和 `users.avatarUrl`，`UserPost` 类型带 `authorBio` / `authorAvatarUrl`
+bio 来自 `users.bio` 字段，用户在 `/account` 页面设置（label 显示为「个性签名」）。
+`posts.ts` 的 `postColumns` 已 JOIN `users.bio` 和 `users.avatarUrl`，`UserPost` 类型带
+`authorBio` / `authorAvatarUrl`。
 
 **bio 字段就是个性签名**，不是单独的字段。200 字上限，profile 接口已支持更新。
 改 bio 不需要 revalidate——投稿详情页是动态渲染的。
@@ -287,12 +298,12 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - 后台对非管理员返回 **404 而非 403**，且 `generateMetadata` 也要跟着权限走——
   写成静态 `metadata` 的话，标题栏会写着「待审核」，等于告诉他这里有个后台
 - **管理员越权编辑投稿**：`/admin/posts` 表里每条投稿旁有「编辑」链接，
-  跳到 `/blog/submit?id={postId}&admin=1`。该页用 `isAdminEmail(session.email)` 校验后，
+  跳到 `/blog/submit?id={postId}&admin=1`。该页用 `isAdminSession(session)` 校验后，
   调 `updatePost({ ..., asAdmin: true })`。`asAdmin` 让 `where` 只用 `id` 不带 `authorId`，
   并允许编辑 `pending` 状态（审核中需要修正的情况）。
-  API 层 `src/app/api/posts/[id]/route.ts` 必须先验 `isAdminEmail` 再传 `asAdmin`，
+  API 层 `src/app/api/posts/[id]/route.ts` 必须先验 `isAdminSession` 再传 `asAdmin`，
   **绝不能让前端直接传 `asAdmin: true`**
-- 站主文件文章的「编辑」链接直接指向 GitHub 仓库 `content/blog/{slug}.md` 的 web 编辑器
+- 站主文件文章的「编辑」链接指向归档文件，格式是 GitHub 仓库 `content/blog/{locale}/{slug}.md` 的 web 编辑器
   （仓库 owner 是 `Meteorkid`，不是 `meteor-store`——这是历史命名，别改）
 - 管理员直发模式 `adminPublish`：投稿由管理员创建时跳过审核直接发布；已发布文章编辑后
   保持 `published` 不下架。仅 `asAdmin` 路径下生效，普通作者走 `submit` 流程
@@ -545,8 +556,9 @@ bucket 完全隔离。服务层在
   `--apply` 或二次 dry-run 失败时保持停写，不得部署或 restart，排障后从 dry-run 重新核对。
   两个迁移都是 additive，新应用失败可回滚旧应用并保留新表/列，但旧应用不提供 PAT 功能；
   回滚窗口产生的新 R2 图片必须在下次发布前重新对账
-- **站主的文章**（`content/blog/*.md`）也通过同一接口上传图片：登录后用 `/blog/submit` 页面
-  上传拿 URL，再在本地 `.md` 文件里写。这是为了不在仓库里引入二进制资源
+- **站主的文章**也通过同一接口上传图片：登录后用 `/blog/submit` 页面上传拿 URL，
+  与读者投稿共用同一条图片上传链路（文章已迁入 `posts` 表，不再写本地 `.md`）。
+  这是为了不在仓库里引入二进制资源
 - **Markdown 渲染管线已放行 `loading` 属性**（见 [src/lib/markdown.ts](file:///Users/meteor/github/meteor-store/src/lib/markdown.ts)
   的 `schema.attributes.img`），R2 URL 走 `R2_PUBLIC_BASE` CSP 白名单无需额外配置
 - **next/image 优化已启用**：`rehypeNextImage` 插件在 sanitize 之后把外链 img 的 src
@@ -684,8 +696,7 @@ pnpm build                  # 构建
 | 给所有表加外键约束 | 出现孤儿评论/点赞/收藏/举报记录时。当前全站无外键,设计上已预期 |
 | 评论树形查询优化 | 评论量增长后服务端按层级返回,加 `parentId` 索引 |
 | /admin/comments 也加举报联动入口 | 评论量大后,目前仅 /admin/posts 有,且评论侧已有逐条举报按钮 |
-| Pass 到期提醒与续费 | 卖出第一笔月付/年付 Pass。支付宝走的是单次付款不是代扣,到期后是**静默失效**,至少要在到期前发封邮件（`/apps` 的过期空态已经会提示,但用户得自己来看） |
-| 后台加订单状态流转（paid → refunded） | 出现第一笔退款。目前只能靠撤销授权码间接收回访问权,订单本身还停在 paid |
+| Pass 续费流程（到期自动续/一键续费） | 当前支付宝/微信都是单次付款不是代扣,到期后是**静默失效**;提醒已上线,续费入口还没做 |
 | 上传 xnook / xisland / statux 的安装包 | products.ts 已配好 r2Key 条目（statux 0.4.3 非门控、xisland 1.12.0 / xnook 1.3.15 门控）。发新版时签名公证后跑 `scripts/upload-release.mjs`,把新条目粘进 products.ts 即可；上线前确认对应对象已传到 R2 私有 bucket |
 | 限免产品恢复收费 | ex-memory / ui-design-system 想开始收费时,把 `originalPrice` 挪回 `price` 即可;在那之前它们也没有实际交付物,需要一并解决 |
 
@@ -698,6 +709,8 @@ pnpm build                  # 构建
 - ✅ 博客收藏功能（`post_favorites` 表 + `/api/blog/favorites` + `/blog/favorites` 页）
 - ✅ `feedback`/`topics/propose` 输入净化统一（抽 `src/lib/sanitize.ts` 的 `sanitizeUserInput`,旧 `sanitizeInput` re-export 标 @deprecated）
 - ✅ 用户协议 UGC 条款（EULA 第 8 节:8.1 内容授权 / 8.2 内容责任 / 8.3 审核与下架;提交表单与评论输入区加入「提交即同意」链接到 /eula）
+- ✅ Pass 到期提醒（`notifyExpiringPasses` + `/api/cron/pass-expiry` + `pass_reminders` 表唯一索引保证幂等）
+- ✅ 后台订单状态流转（paid → refunded）：`refundOrder` + `/api/admin/commerce` 的 `refund-order`（原路退款 + 撤销授权码）；出现第一笔真实退款时按流程走一遍验证
 - ✅ 修完全部 `react-hooks/set-state-in-effect` warning（实际 15 处,非原记的 7 处）,`eslint.config.mjs` 的 warn 覆盖已删,恢复为 error。改法:`useSyncExternalStore` 用于 matchMedia/深夜判定/locale/random quip 等外部状态;"渲染期调整状态"用于依赖变化重置派生状态(SpotlightSearch/InviteCodeManager/TerminalSection);fetch-on-mount 改用内联 fetch + `.then()` 回调,setState 全部异步,并保留事件处理器用的 `fetchXxx` wrapper
 
 **开放 UGC 前还没做的合规项**：（已全部完成）用户协议 UGC 条款、举报入口均已上线。
