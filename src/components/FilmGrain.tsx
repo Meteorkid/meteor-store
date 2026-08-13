@@ -11,7 +11,10 @@ export default function FilmGrain() {
     const size = 150;
     const c = document.createElement('canvas');
     c.width = size; c.height = size;
-    const ctx = c.getContext('2d')!;
+    const ctx = c.getContext('2d');
+    // 浏览器对活跃 canvas 上下文数量有上限，耗尽时 getContext 返回 null；
+    // 纹理事关装饰，拿不到就静默跳过，不让它把整站带崩
+    if (!ctx) return;
     const img = ctx.createImageData(size, size);
     for (let i = 0; i < img.data.length; i += 4) {
       const v = Math.random() * 255;
@@ -19,7 +22,11 @@ export default function FilmGrain() {
       img.data[i + 3] = 255;
     }
     ctx.putImageData(img, 0, 0);
-    el.style.backgroundImage = `url(${c.toDataURL('image/png')})`;
+    try {
+      el.style.backgroundImage = `url(${c.toDataURL('image/png')})`;
+    } catch {
+      // toDataURL 在异常环境（安全策略/内存）可能抛错；失败时保持无纹理，不影响页面
+    }
   }, []);
 
   return (

@@ -224,12 +224,21 @@ export default function EasterEggs() {
 
   // 深夜问候（每会话一次，随机不重复靠会话内记录已用索引）
   useEffect(() => {
-    if (!isLateNight() || sessionStorage.getItem('meteor:night-greeted')) return;
-    sessionStorage.setItem('meteor:night-greeted', '1');
-    const used = JSON.parse(localStorage.getItem('meteor:night-used') || '[]') as number[];
-    const pool = NIGHT_GREETING_KEYS.map((_, i) => i).filter(i => !used.includes(i));
-    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : Math.floor(Math.random() * NIGHT_GREETING_KEYS.length);
-    localStorage.setItem('meteor:night-used', JSON.stringify(pool.length > 0 ? [...used, pick] : [pick]));
+    if (!isLateNight()) return;
+    let pick = 0;
+    try {
+      if (sessionStorage.getItem('meteor:night-greeted')) return;
+      sessionStorage.setItem('meteor:night-greeted', '1');
+      // localStorage 里的旧数据可能不是合法 JSON（版本残留/被写坏），解析失败按空处理
+      let used: number[] = [];
+      try { used = JSON.parse(localStorage.getItem('meteor:night-used') || '[]') as number[]; } catch { used = []; }
+      const pool = NIGHT_GREETING_KEYS.map((_, i) => i).filter(i => !used.includes(i));
+      pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : Math.floor(Math.random() * NIGHT_GREETING_KEYS.length);
+      localStorage.setItem('meteor:night-used', JSON.stringify(pool.length > 0 ? [...used, pick] : [pick]));
+    } catch {
+      // 隐私模式/配额超限时 storage 写入会抛错；问候只是彩蛋，失败静默跳过
+      return;
+    }
     const timer = setTimeout(() => showToast(`${tRef.current(NIGHT_GREETING_KEYS[pick])} 🌙`, 6000), 2500);
     return () => clearTimeout(timer);
   }, []);
