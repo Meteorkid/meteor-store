@@ -3,7 +3,6 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { usePathname } from '@/i18n/navigation';
 import { createKonamiMatcher, createWordMatcher, isLateNight, useReducedMotion } from '@/lib/motion';
 
 // ---------- 轻量 toast（零依赖，屏幕阅读器可感知） ----------
@@ -93,9 +92,6 @@ const KONAMI_TOAST_KEYS = {
 } as const;
 
 export default function EasterEggs() {
-  const pathname = usePathname();
-  // 文章阅读页：底部弹 toast / 横穿流星会被误读成加载进度条，破坏沉浸感，关闭自动彩蛋
-  const isReadingPage = /^(?:\/[a-z]{2})?\/blog\/p\/[^/]+/.test(pathname);
   const router = useRouter();
   const reducedMotion = useReducedMotion();
   const t = useTranslations('EasterEggs');
@@ -228,7 +224,7 @@ export default function EasterEggs() {
 
   // 深夜问候（每会话一次，随机不重复靠会话内记录已用索引）
   useEffect(() => {
-    if (!isLateNight() || isReadingPage) return;
+    if (!isLateNight()) return;
     let pick = 0;
     try {
       if (sessionStorage.getItem('meteor:night-greeted')) return;
@@ -249,7 +245,6 @@ export default function EasterEggs() {
 
   // 滚动到底奖励（首次）
   useEffect(() => {
-    if (isReadingPage) return;
     if (sessionStorage.getItem('meteor:bottom-rewarded')) return;
     const onScroll = () => {
       const nearBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 8;
