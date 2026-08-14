@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { runCancellableTask } from '@/lib/cancellable-task';
 import { BLOG_API_SCOPES, type BlogApiScope, type TokenMetadata } from '@/lib/blog-api-contract';
 
@@ -147,12 +148,12 @@ export default function BlogApiTokenManager() {
       <div className="mb-6">
         <h2 className="t-title-3 text-white/90">{t('title')}</h2>
         <p className="t-footnote mt-1.5 text-white/60">{t('description')}</p>
-        <a
+        <Link
           href="/blog/api-guide"
           className="t-footnote mt-2 inline-block text-violet-300 underline decoration-violet-300/35 underline-offset-4 transition-colors hover:text-violet-200"
         >
           {t('usageGuide')}
-        </a>
+        </Link>
       </div>
 
       {oneTimeToken && (
@@ -189,7 +190,7 @@ export default function BlogApiTokenManager() {
               </div>
               <p className="text-xs text-amber-100/50">
                 {t('usageGuideLink')}{' '}
-                <a href="/blog/api-guide" className="underline decoration-amber-100/25 underline-offset-4 hover:text-amber-50">{t('usageGuideLabel')}</a>
+                <Link href="/blog/api-guide" className="underline decoration-amber-100/25 underline-offset-4 hover:text-amber-50">{t('usageGuideLabel')}</Link>
               </p>
             </div>
           </div>

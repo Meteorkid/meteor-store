@@ -59,8 +59,8 @@ if [[ ! -f "$ENV_FILE" ]]; then
 fi
 
 echo "==> git pull"
-# 阿里云访问 GitHub 不稳定：用镜像加速 + 失败重试
-git remote set-url origin https://ghfast.top/https://github.com/Meteorkid/meteor-store.git 2>/dev/null || true
+# 直连 GitHub 官方源（不用第三方镜像——镜像可投毒，服务器会执行仓库代码）
+git remote set-url origin https://github.com/Meteorkid/meteor-store.git 2>/dev/null || true
 pull_succeeded=0
 for i in 1 2 3; do
   if git pull --ff-only origin main; then

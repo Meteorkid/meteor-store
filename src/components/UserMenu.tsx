@@ -18,12 +18,23 @@ export default function UserMenu() {
   const ref = useRef<HTMLDivElement>(null);
   const [passStatus, setPassStatus] = useState<PassStatus | null>(null);
 
+  // 渲染期调整：user 由有变无时重置 Pass 状态（React Compiler：不在 effect 里同步 setState）
+  const [prevUser, setPrevUser] = useState(user);
+  if (user !== prevUser) {
+    setPrevUser(user);
+    if (!user) setPassStatus(null);
+  }
+
   useEffect(() => {
-    if (!user) { setPassStatus(null); return; }
+    if (!user) return;
+    let cancelled = false;
     fetch('/api/pass/status')
       .then((r) => r.json())
-      .then((d) => setPassStatus(d))
+      .then((d) => {
+        if (!cancelled) setPassStatus(d);
+      })
       .catch(() => {});
+    return () => { cancelled = true; };
   }, [user]);
 
   useEffect(() => {

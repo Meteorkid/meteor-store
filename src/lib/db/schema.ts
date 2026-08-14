@@ -52,8 +52,33 @@ export const users = pgTable('users', {
   tokenVersion: integer('token_version').default(0).notNull(),
   /** 博客图片已预占或已上传的总字节数；由图片账本原子维护。 */
   blogImageBytes: bigint('blog_image_bytes', { mode: 'number' }).default(0).notNull(),
+  /** TOTP 两步验证密文（AES-256-GCM，密钥由 JWT_SECRET 派生，见 lib/totp.ts）。 */
+  totpSecretEnc: text('totp_secret_enc'),
+  /** 两步验证是否已确认启用。未确认的 secret 只用于绑定流程，登录不挑战。 */
+  totpEnabled: boolean('totp_enabled').default(false).notNull(),
+  /** 恢复码 SHA-256 哈希数组（JSON 字符串）。明文只在生成时返回一次。 */
+  totpRecoveryCodes: text('totp_recovery_codes'),
 }, (t) => [
   check('users_blog_image_bytes_non_negative', sql`${t.blogImageBytes} >= 0`),
+]);
+
+/**
+ * 管理员操作审计日志。无外键——管理员注销后记录保留作留痕（全站约定）。
+ * 只记元信息与简短摘要，不落敏感全文（密钥、密码、正文）。
+ */
+export const adminAuditLogs = pgTable('admin_audit_logs', {
+  id: text('id').primaryKey(),
+  adminId: text('admin_id').notNull(),
+  adminEmail: text('admin_email').notNull(),   // 快照，便于后台直接阅读
+  action: text('action').notNull(),            // 点分命名，如 post.approve / order.refund
+  targetType: text('target_type'),             // post | comment | report | order | license | invite_code | announcement | feedback
+  targetId: text('target_id'),
+  detail: text('detail'),                      // JSON 摘要
+  ip: text('ip'),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  index('admin_audit_logs_created_idx').on(t.createdAt),
+  index('admin_audit_logs_admin_idx').on(t.adminId, t.createdAt),
 ]);
 
 /**
@@ -199,6 +224,25 @@ export const feedbacks = pgTable('feedbacks', {
   resolvedAt: text('resolved_at'),
   createdAt: text('created_at').notNull(),
 });
+
+/**
+ * 站主公告。前台铃铛（NotificationBell）读取，后台 /admin/announcements 管理。
+ * 双语字段可空，前端按当前语言取，缺失时回退到另一语言。
+ */
+export const announcements = pgTable('announcements', {
+  id: text('id').primaryKey(),                        // crypto.randomUUID()
+  titleZh: text('title_zh'),
+  titleEn: text('title_en'),
+  bodyZh: text('body_zh'),
+  bodyEn: text('body_en'),
+  published: boolean('published').default(false).notNull(),
+  publishedAt: text('published_at'),                  // ISO 时间；发布时写入
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (t) => [
+  // 公开接口：只取已发布，按发布时间倒序
+  index('announcements_published_idx').on(t.published, t.publishedAt),
+]);
 
 export const inviteCodes = pgTable('invite_codes', {
   id: text('id').primaryKey(),

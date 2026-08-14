@@ -56,6 +56,14 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
+  // 头像 URL 只能指向本人前缀下的 R2 对象（由 /api/avatar/upload 签发）。
+  // 若接受任意 https 地址，「设成他人头像 URL → 清空/替换」就能删掉别人的对象
+  if (isR2Configured() && parsed.data.avatar) {
+    if (!keyFromUrl(parsed.data.avatar, session.userId)) {
+      return NextResponse.json({ error: '头像格式不正确' }, { status: 400 });
+    }
+  }
+
   const updates: Record<string, string | null> = {};
 
   if (parsed.data.name !== undefined) {
@@ -81,7 +89,8 @@ export async function PATCH(req: NextRequest) {
       .where(eq(users.id, session.userId))
       .limit(1);
     if (row?.avatarUrl) {
-      const oldKey = keyFromUrl(row.avatarUrl);
+      // 只删本人前缀下的对象；历史遗留的外链/他人 URL 不动
+      const oldKey = keyFromUrl(row.avatarUrl, session.userId);
       if (oldKey) await deleteAvatar(oldKey);
     }
   }

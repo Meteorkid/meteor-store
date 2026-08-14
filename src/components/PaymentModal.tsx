@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import QRCode from 'qrcode';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
@@ -287,9 +288,12 @@ export default function PaymentModal({
           {/* 微信 Native 二维码 */}
           {qrDataUrl && (
             <div className="mb-6 flex flex-col items-center gap-3">
-              <img
+              <Image
                 src={qrDataUrl}
                 alt={t('wechatQrAlt')}
+                width={240}
+                height={240}
+                unoptimized
                 className="h-60 w-60 rounded-lg bg-white p-2"
               />
               <p className="text-center text-sm text-gray-300">{t('wechatScanHint')}</p>

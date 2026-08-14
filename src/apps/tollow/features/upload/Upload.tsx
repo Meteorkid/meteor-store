@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable */
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { ROUTES } from '../../routes'
 import { useAppStore } from '../../stores/appStore'
 import { usePerformanceMonitor } from '../../hooks/usePerformanceMonitor'

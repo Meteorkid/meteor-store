@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { searchHelpEntries, type HelpSearchEntry } from '@/data/help-search';
 
@@ -28,9 +28,12 @@ export default function HelpCenterSearch({
     ? searchHelpEntries(entries, query).slice(0, 8)
     : [];
 
-  useEffect(() => {
+  // 渲染期调整：查询变化时重置选中项（React Compiler：不在 effect 里同步 setState）
+  const [prevQuery, setPrevQuery] = useState(query);
+  if (query !== prevQuery) {
+    setPrevQuery(query);
     setActiveIndex(0);
-  }, [query]);
+  }
 
   const goTo = useCallback(
     (slug: string) => {

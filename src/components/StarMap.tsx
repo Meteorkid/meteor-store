@@ -37,7 +37,6 @@ export default function StarMap({ posts }: StarMapProps) {
     const sorted = [...posts].sort((a, b) => a.eventDate.localeCompare(b.eventDate));
     if (sorted.length === 0) return [];
     if (sorted.length === 1) {
-      const r = hashString(sorted[0].slug);
       return [{ key: sorted[0].slug, p: sorted[0], x: W / 2, y: H / 2, size: 4 }];
     }
     return sorted.map((p, i) => {

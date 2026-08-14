@@ -12,5 +12,15 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    // e2e/ 属于 Playwright（见 playwright.config.ts），vitest 默认规则
+    // 会收集 *.spec.ts 导致语法冲突；这里覆盖 exclude 时必须带上默认项
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}/**',
+      'e2e/**',
+    ],
   },
 });

@@ -74,7 +74,6 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
   const { html, headings } = renderHelpMarkdown({
     content: article.content,
     slug: article.slug,
-    locale: currentLocale,
   });
 
   const hasToc = headings.length > 0;

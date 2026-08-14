@@ -19,10 +19,6 @@ import type { Locale } from '@/i18n/routing';
 
 const GROUP_ORDER: SearchGroup[] = ['产品', '页面', '帮助', '博客', '彩蛋'];
 
-const GROUP_ICON: Record<SearchGroup, string> = {
-  '产品': '', '页面': '', '帮助': '', '博客': '', '彩蛋': '',
-};
-
 const RECENT_KEY = 'spotlight:recent';
 const HISTORY_KEY = 'spotlight:history';
 const MAX_RECENT = 5;
@@ -141,24 +137,30 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
   const quickMath = useMemo(() => tryQuickMath(displayQuery), [displayQuery]);
 
   // ── API 搜索 ──────────────────────────────────────────
-  useEffect(() => {
+  // 渲染期调整：查询清空时重置搜索结果（React Compiler：不在 effect 里同步 setState）
+  const [prevDisplayQuery, setPrevDisplayQuery] = useState(displayQuery);
+  if (displayQuery !== prevDisplayQuery) {
+    setPrevDisplayQuery(displayQuery);
     if (!displayQuery) {
       setResults([]);
       setHasFuzzy(false);
       setIsSearching(false);
       setVisibleLimit(INITIAL_LIMIT);
-      return;
     }
+  }
+
+  useEffect(() => {
+    if (!displayQuery) return;
 
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setIsSearching(true);
-    setVisibleLimit(INITIAL_LIMIT);
-
     const timer = setTimeout(async () => {
       try {
+        // setState 放进异步回调（React Compiler：不在 effect 里同步 setState）
+        setIsSearching(true);
+        setVisibleLimit(INITIAL_LIMIT);
         const url = `/api/spotlight/search?q=${encodeURIComponent(displayQuery)}&locale=${locale}`;
         const res = await fetch(url, { signal: controller.signal });
         if (!res.ok) { setResults([]); return; }

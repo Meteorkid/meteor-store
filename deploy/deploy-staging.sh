@@ -11,6 +11,9 @@ STAGING_PORT="${STAGING_PORT:-3001}"
 STAGING_PM2_NAME="meteor-store-staging"
 PROJECT_DIR="/var/www/meteor-store"
 STAGING_DIR="${PROJECT_DIR}/staging"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# 服务器 host key 固定在仓库内（deploy/known_hosts），拒绝陌生主机密钥
+SSH_OPTS=(-o "UserKnownHostsFile=$SCRIPT_DIR/known_hosts" -o StrictHostKeyChecking=yes)
 
 echo "==> 构建 staging 产物（本地）"
 cd "$(dirname "$0")/.."
@@ -21,10 +24,10 @@ tar -czf /tmp/meteor-store-staging-next.tar.gz -C . .next
 echo "    产物 $(du -h /tmp/meteor-store-staging-next.tar.gz | cut -f1)"
 
 echo "==> 上传到服务器"
-scp /tmp/meteor-store-staging-next.tar.gz "${DEPLOY_USER}@${DEPLOY_HOST}:/tmp/"
+scp "${SSH_OPTS[@]}" /tmp/meteor-store-staging-next.tar.gz "${DEPLOY_USER:-deploy}@${DEPLOY_HOST:-47.120.20.26}:/tmp/"
 
 echo "==> 服务器端部署"
-ssh "${DEPLOY_USER}@${DEPLOY_HOST}" bash << 'REMOTE'
+ssh "${SSH_OPTS[@]}" "${DEPLOY_USER:-deploy}@${DEPLOY_HOST:-47.120.20.26}" bash << 'REMOTE'
 set -euo pipefail
 
 STAGING_DIR="/var/www/meteor-store/staging"
@@ -35,8 +38,8 @@ STAGING_PM2_NAME="meteor-store-staging"
 mkdir -p "$STAGING_DIR"
 cd /var/www/meteor-store
 
-# 同步依赖（staging 和生产共享 node_modules）
-pnpm install --frozen-lockfile || true
+# 同步依赖（staging 和生产共享 node_modules）；失败即终止，不带旧依赖跑新产物
+pnpm install --frozen-lockfile
 
 cd "$STAGING_DIR"
 

@@ -29,6 +29,10 @@ jobs:
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
 
+      - name: 依赖安全审计
+        # high 及以上直接红；moderate 由 Dependabot 周期性跟进
+        run: pnpm audit --audit-level=high
+
       - name: 类型检查
         run: pnpm exec tsc --noEmit
 

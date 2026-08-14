@@ -24,12 +24,15 @@ interface PendingEmailVerification {
 interface AuthActionResult {
   error: string | null;
   verification?: PendingEmailVerification;
+  /** 密码已验证但需要 MFA 动态码/恢复码，ticket 5 分钟有效 */
+  mfa?: { ticket: string };
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<AuthActionResult>;
+  verifyMfa: (mfaTicket: string, code: string) => Promise<AuthActionResult>;
   register: (email: string, password: string, name?: string, captcha?: { token: string }) => Promise<AuthActionResult>;
   resendVerification: (resendTicket: string) => Promise<string | null>;
   logout: () => Promise<void>;
@@ -92,6 +95,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return { error: data.error || t('loginFailed') };
     }
+    // 密码验证通过但启用了 MFA：不设 user，交给表单切到验证码步骤
+    if (data.mfaRequired && typeof data.mfaTicket === 'string') {
+      return { error: null, mfa: { ticket: data.mfaTicket } };
+    }
+    setUser(data.user);
+    return { error: null };
+  };
+
+  const verifyMfa = async (mfaTicket: string, code: string): Promise<AuthActionResult> => {
+    const res = await fetch('/api/auth/mfa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mfaTicket, code, locale }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { error: data.error || t('loginFailed') };
     setUser(data.user);
     return { error: null };
   };
@@ -139,7 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext value={{ user, loading, login, register, resendVerification, logout, refresh }}>
+    <AuthContext value={{ user, loading, login, verifyMfa, register, resendVerification, logout, refresh }}>
       {children}
     </AuthContext>
   );

@@ -4,7 +4,6 @@ import TransitionLink from '@/components/TransitionLink';
 import { Link } from '@/i18n/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import PricingCard from '@/components/PricingCard';
 import ProductGallery from '@/components/ProductGallery';
 import ProductVisual from '@/components/ProductVisual';
 import InstallCommand from '@/components/InstallCommand';

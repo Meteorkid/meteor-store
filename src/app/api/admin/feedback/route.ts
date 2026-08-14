@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isAdminSession } from '@/lib/admin';
+import { logAdminAction } from '@/lib/admin-audit';
 import { listFeedback, resolveFeedback } from '@/lib/admin-feedback';
 import { getSession } from '@/lib/auth';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
@@ -44,5 +45,11 @@ export async function PATCH(req: NextRequest) {
   if (!updated) {
     return NextResponse.json({ error: '反馈已被其他管理员处理' }, { status: 409 });
   }
+  await logAdminAction(session, {
+    action: `feedback.${parsed.data.status === 'resolved' ? 'resolve' : 'dismiss'}`,
+    targetType: 'feedback',
+    targetId: parsed.data.id,
+    ip,
+  });
   return NextResponse.json({ success: true });
 }

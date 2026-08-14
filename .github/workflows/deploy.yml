@@ -49,6 +49,9 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
+          # 固定服务器 host key 指纹（ed25519），防止中间人。与 deploy/known_hosts 一致。
+          # 换服务器/重装 SSH 时需更新（ssh-keygen -lf 查新指纹）。
+          fingerprint: sha256 SHA256:u/GDF+oKy40D+MnU7E7rKABccdu9Xo7+/EcARH0ixzY
           source: /tmp/meteor-store-next.tar.gz
           target: /var/www/meteor-store
           strip_components: 1
@@ -60,19 +63,29 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
+          fingerprint: sha256 SHA256:u/GDF+oKy40D+MnU7E7rKABccdu9Xo7+/EcARH0ixzY
           script: |
             set -euo pipefail
             cd /var/www/meteor-store
             # 确认上传的产物已就位
             test -f meteor-store-next.tar.gz
-            # 同步源码与依赖（只安装，不构建）
-            git remote set-url origin https://ghfast.top/https://github.com/Meteorkid/meteor-store.git 2>/dev/null || true
+            # 直连 GitHub 官方源，不用第三方镜像（可投毒的供应链中间人）
+            git remote set-url origin https://github.com/Meteorkid/meteor-store.git 2>/dev/null || true
+            pull_succeeded=0
             for i in 1 2 3; do
-              if git pull --ff-only origin main; then break; fi
+              if git pull --ff-only origin main; then
+                pull_succeeded=1
+                break
+              fi
               echo "git pull 第 $i 次失败，重试中..."
               sleep 5
             done
-            pnpm install --frozen-lockfile || true
+            if [[ "$pull_succeeded" != "1" ]]; then
+              echo "ERROR: git pull 连续失败，终止部署" >&2
+              exit 1
+            fi
+            # 安装失败必须终止部署——带着旧 node_modules 跑新产物是未定义行为
+            pnpm install --frozen-lockfile
             pm2 stop meteor-store 2>/dev/null || true
             rm -rf .next.rollback
             if [[ -d .next ]]; then mv .next .next.rollback; fi

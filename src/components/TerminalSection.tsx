@@ -184,7 +184,7 @@ export default function TerminalSection() {
       if (cmdHistory.current.length === 0) return;
       if (historyIdx.current === cmdHistory.current.length) {
         // 保存当前输入以便恢复
-        (window as any).__termSavedInput = input;
+        (window as unknown as { __termSavedInput: string }).__termSavedInput = input;
       }
       historyIdx.current = Math.max(0, historyIdx.current - 1);
       setInput(cmdHistory.current[historyIdx.current]);
@@ -194,12 +194,12 @@ export default function TerminalSection() {
       e.preventDefault();
       if (historyIdx.current >= cmdHistory.current.length - 1) {
         historyIdx.current = cmdHistory.current.length;
-        setInput((window as any).__termSavedInput || '');
+        setInput((window as unknown as { __termSavedInput: string }).__termSavedInput || '');
         return;
       }
       historyIdx.current = Math.min(cmdHistory.current.length, historyIdx.current + 1);
       if (historyIdx.current === cmdHistory.current.length) {
-        setInput((window as any).__termSavedInput || '');
+        setInput((window as unknown as { __termSavedInput: string }).__termSavedInput || '');
       } else {
         setInput(cmdHistory.current[historyIdx.current]);
       }

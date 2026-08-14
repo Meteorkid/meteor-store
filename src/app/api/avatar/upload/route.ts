@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
     .where(eq(users.id, session.userId))
     .limit(1);
   if (row?.avatarUrl) {
-    const oldKey = keyFromUrl(row.avatarUrl);
+    // 只删本人前缀下的对象；历史遗留的外链/他人 URL 不动
+    const oldKey = keyFromUrl(row.avatarUrl, session.userId);
     if (oldKey) await deleteAvatar(oldKey);
   }
 

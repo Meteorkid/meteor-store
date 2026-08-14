@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
 import { createEmailVerificationResendTicket } from '@/lib/email-verification';
+import { createMfaChallengeTicket } from '@/lib/admin-mfa';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { assertMatchingOrigin } from '@/lib/csrf';
 import { eq } from 'drizzle-orm';
@@ -71,6 +72,18 @@ export async function POST(req: NextRequest) {
       },
       { status: 403 },
     );
+  }
+
+  // MFA：已启用 TOTP 的账户在密码验证通过后不直接签发 session，
+  // 而是返回 5 分钟有效的挑战 ticket，由 /api/auth/mfa 验证动态码后才能登录
+  if (user.totpEnabled) {
+    const mfaTicket = await createMfaChallengeTicket({
+      userId: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      tokenVersion: user.tokenVersion,
+    });
+    return NextResponse.json({ mfaRequired: true, mfaTicket });
   }
 
   await createSession({

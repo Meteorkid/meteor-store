@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { helpCategories, localizeHelpArticles, isHelpArticleVisible } from '@/data/help-articles';
+import { helpCategories, localizeHelpArticles } from '@/data/help-articles';
 import { buildHelpSearchEntries } from '@/data/help-search.server';
 import HelpCenterSearch from '@/components/help/HelpCenterSearch';
 import HelpCosmicBg from '@/components/help/HelpCosmicBg';

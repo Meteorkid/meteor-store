@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useReducedMotion } from '@/lib/motion';
@@ -209,7 +209,9 @@ function Scene() {
     { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter }
   ), [gl, size]);
 
-  const pData = useMemo(() => {
+  // 随机粒子数据用 useState 惰性初始化生成一次：渲染期间调用 Math.random
+  // 会被 React Compiler 判为不纯（React Compiler 规则），惰性初始化只跑一次且合规
+  const [pData] = useState(() => {
     const n = 350;
     const ang = new Float32Array(n), rad = new Float32Array(n), sz = new Float32Array(n), sp = new Float32Array(n);
     for (let i = 0; i < n; i++) {
@@ -219,7 +221,7 @@ function Scene() {
       sp[i] = 0.2 + Math.random() * 1.6;
     }
     return { ang, rad, sz, sp };
-  }, []);
+  });
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;

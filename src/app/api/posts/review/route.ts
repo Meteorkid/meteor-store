@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
-import { rateLimit } from '@/lib/rate-limit';
+import { logAdminAction } from '@/lib/admin-audit';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { reviewPost } from '@/lib/posts';
 import { revalidatePublishedPaths } from '@/lib/revalidate';
 
@@ -52,6 +53,14 @@ export async function POST(req: NextRequest) {
     // 条件更新没命中：要么 id 不存在，要么已经被处理过
     return NextResponse.json({ error: '这篇已经处理过了' }, { status: 409 });
   }
+
+  await logAdminAction(session, {
+    action: approve ? 'post.approve' : 'post.reject',
+    targetType: 'post',
+    targetId: postId,
+    detail: note ? { note } : undefined,
+    ip: getClientIp(req),
+  });
 
   if (approve) {
     // 跨区文章会出现在多个分区；统一失效全部公开路径，避免只刷新主分区。

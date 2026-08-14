@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable */
 import React, { useEffect } from 'react'
-import { HashRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router'
 import { AppRouter } from '../routes'
 import { useAppStore } from '../stores/appStore'
 import { useThemeStore } from '../stores/themeStore'

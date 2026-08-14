@@ -80,7 +80,7 @@ export async function deleteUserAccount(input: DeleteUserAccountInput): Promise<
     throw new Error('Account deletion lost ownership check');
   }
 
-  const avatarKey = input.avatarUrl ? keyFromUrl(input.avatarUrl) : null;
+  const avatarKey = input.avatarUrl ? keyFromUrl(input.avatarUrl, input.userId) : null;
   await Promise.all([
     avatarKey ? deleteAvatar(avatarKey) : Promise.resolve(),
     deleteUserBlogImages(input.userId),

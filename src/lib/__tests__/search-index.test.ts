@@ -9,6 +9,7 @@ import {
   levenshtein,
   getBreadcrumb,
   type BlogPostSearchData,
+  type SearchEntry,
 } from '../search-index';
 
 describe('buildIndex', () => {
@@ -226,24 +227,24 @@ describe('levenshtein', () => {
 
 describe('getBreadcrumb', () => {
   it('产品条目返回产品面包屑', () => {
-    const bc = getBreadcrumb({ group: '产品' } as any);
+    const bc = getBreadcrumb({ group: '产品' } as unknown as SearchEntry);
     expect(bc?.label).toBe('全部产品');
     expect(bc?.href).toBe('/products');
   });
 
   it('帮助条目返回帮助中心面包屑', () => {
-    const bc = getBreadcrumb({ group: '帮助' } as any);
+    const bc = getBreadcrumb({ group: '帮助' } as unknown as SearchEntry);
     expect(bc?.label).toBe('帮助中心');
     expect(bc?.href).toBe('/docs');
   });
 
   it('页面条目面包屑为空', () => {
-    const bc = getBreadcrumb({ group: '页面' } as any);
+    const bc = getBreadcrumb({ group: '页面' } as unknown as SearchEntry);
     expect(bc?.label).toBe('');
   });
 
   it('博客条目返回博客面包屑', () => {
-    const bc = getBreadcrumb({ group: '博客' } as any);
+    const bc = getBreadcrumb({ group: '博客' } as unknown as SearchEntry);
     expect(bc?.label).toBe('博客');
     expect(bc?.href).toBe('/blog');
   });

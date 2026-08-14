@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isAdminSession } from '@/lib/admin';
+import { logAdminAction } from '@/lib/admin-audit';
 import { listCommerceOperations, refundOrder, setLicenseStatus } from '@/lib/admin-commerce';
 import { getSession } from '@/lib/auth';
 import { fulfillOrder } from '@/lib/order-fulfillment';
@@ -57,6 +58,12 @@ export async function PATCH(req: NextRequest) {
     if (result.status === 'failed') {
       return NextResponse.json({ error: '交付仍然失败，请检查邮件配置和日志' }, { status: 502 });
     }
+    await logAdminAction(session, {
+      action: 'order.retry-delivery',
+      targetType: 'order',
+      targetId: parsed.data.orderId,
+      ip,
+    });
     return NextResponse.json({ success: true, status: result.status });
   }
 
@@ -77,6 +84,12 @@ export async function PATCH(req: NextRequest) {
     if (result === 'skipped') {
       return NextResponse.json({ error: '订单已不是已支付状态，无法退款' }, { status: 409 });
     }
+    await logAdminAction(session, {
+      action: 'order.refund',
+      targetType: 'order',
+      targetId: parsed.data.orderId,
+      ip,
+    });
     return NextResponse.json({ success: true });
   }
 
@@ -84,5 +97,12 @@ export async function PATCH(req: NextRequest) {
   if (!updated) {
     return NextResponse.json({ error: '授权状态未变化或记录不存在' }, { status: 409 });
   }
+  await logAdminAction(session, {
+    action: 'license.set-status',
+    targetType: 'license',
+    targetId: parsed.data.licenseId,
+    detail: { status: parsed.data.status },
+    ip,
+  });
   return NextResponse.json({ success: true });
 }

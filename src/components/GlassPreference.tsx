@@ -38,10 +38,17 @@ export default function GlassPreference() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = readAlpha();
-    setAlpha(saved);
-    applyAlpha(saved);
-    setMounted(true);
+    let cancelled = false;
+    // setState 放进异步回调（React Compiler：不在 effect 里同步 setState），
+    // 同时避免 SSR 时读取 localStorage 造成的首帧不一致
+    Promise.resolve().then(() => {
+      if (cancelled) return;
+      const saved = readAlpha();
+      setAlpha(saved);
+      applyAlpha(saved);
+      setMounted(true);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   const handleChange = useCallback((v: number) => {

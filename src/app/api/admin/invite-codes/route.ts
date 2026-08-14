@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
+import { logAdminAction } from '@/lib/admin-audit';
 import { createInviteCode, listInviteCodes, revokeInviteCode } from '@/lib/invite';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { products } from '@/data/products';
@@ -65,6 +66,14 @@ export async function POST(req: NextRequest) {
     createdBy: session.email,
   });
 
+  await logAdminAction(session, {
+    action: 'invite.create',
+    targetType: 'invite_code',
+    targetId: result.code,
+    detail: { productId, planId, maxUses, expiresAt },
+    ip,
+  });
+
   return NextResponse.json(result, { status: 201 });
 }
 
@@ -90,6 +99,13 @@ export async function PATCH(req: NextRequest) {
   if (!ok) {
     return NextResponse.json({ error: '操作失败，邀请码可能已被撤销' }, { status: 409 });
   }
+
+  await logAdminAction(session, {
+    action: 'invite.revoke',
+    targetType: 'invite_code',
+    targetId: id,
+    ip,
+  });
 
   return NextResponse.json({ success: true });
 }

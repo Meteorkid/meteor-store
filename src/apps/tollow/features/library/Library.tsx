@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable */
 import React, { useCallback, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import booksData from '../../data/books.json'
 import { usePerformanceMonitor } from '../../hooks/usePerformanceMonitor'
 import { ROUTES } from '../../routes'

@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable */
 import React, { Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router'
 import { useAppStore } from '../stores/appStore'
 import LoadingSpinner from '../shared/components/LoadingSpinner'
 import ErrorBoundary from '../shared/components/ErrorBoundary'

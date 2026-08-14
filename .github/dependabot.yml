@@ -1,0 +1,39 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Shanghai
+    open-pull-requests-limit: 5
+    # minor/patch 成组提 PR（含安全补丁，减少噪音）；
+    # major 单独开 PR 逐个评估，避免一次性大迁移
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    # Next.js 与 eslint-config-next 必须同步升，交给人工（release 脚本）处理
+    ignore:
+      - dependency-name: next
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: eslint-config-next
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Shanghai
+    groups:
+      all-actions:
+        update-types:
+          - minor
+          - patch

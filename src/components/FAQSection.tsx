@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { SHOW_PRICING } from '@/lib/constants';
 import { localizeFaqs } from '@/data/faqs';
 import type { Locale } from '@/i18n/routing';

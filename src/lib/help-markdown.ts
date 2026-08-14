@@ -9,7 +9,6 @@ import { visit } from 'unist-util-visit';
 import type { Root, Element, Text } from 'hast';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import type { Locale } from '@/i18n/routing';
 
 export interface HelpHeading {
   id: string;
@@ -91,7 +90,7 @@ export function extractHeadings(html: string): HelpHeading[] {
   return headings;
 }
 
-function rehypeHelpExternalLinks(locale: Locale) {
+function rehypeHelpExternalLinks() {
   return (tree: Root) => {
     visit(tree, 'element', (node: Element) => {
       if (node.tagName !== 'a') return;
@@ -126,14 +125,7 @@ function rehypeHelpImages(slug: string) {
       const filePath = join(process.cwd(), 'public', src.slice(1));
       if (!existsSync(filePath)) return;
 
-      try {
-        // Use synchronous probe to get dimensions without full decode
-        const { execSync } = require('child_process');
-        // Fall back to just adding lazy/decoding without dimensions for now
-        // Sharp dimensions will be added when processing actual images in Task 16
-      } catch {
-        // skip
-      }
+      // 尺寸信息由后续图片处理流程补充；此处只加 lazy/decoding
     });
   };
 }
@@ -141,7 +133,6 @@ function rehypeHelpImages(slug: string) {
 export interface RenderHelpMarkdownInput {
   content: string;
   slug: string;
-  locale: Locale;
 }
 
 export interface RenderHelpMarkdownOutput {
@@ -152,7 +143,7 @@ export interface RenderHelpMarkdownOutput {
 export function renderHelpMarkdown(
   input: RenderHelpMarkdownInput,
 ): RenderHelpMarkdownOutput {
-  const { content, slug, locale } = input;
+  const { content, slug } = input;
 
   const result = unified()
     .use(remarkParse)
@@ -166,7 +157,7 @@ export function renderHelpMarkdown(
     .use(rehypeSanitize, helpSchema)
     .use(rehypeHelpHeadings)
     .use(rehypeHelpImages, slug)
-    .use(rehypeHelpExternalLinks, locale)
+    .use(rehypeHelpExternalLinks)
     .use(rehypeStringify)
     .processSync(content);
 

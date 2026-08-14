@@ -4,7 +4,7 @@ import { compare } from 'bcryptjs';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
-import { getClientIp, rateLimit } from '@/lib/rate-limit';
+import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const EmailSchema = z.object({
@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '请先登录' }, { status: 401 });
   }
 
-  const ip = getClientIp(req);
   const { limited } = await rateLimit(`email-change:${session.userId}`, 3, 3600_000, { fallback: 'memory' });
   if (limited) {
     return NextResponse.json({ error: '操作太频繁了，请一小时后再试' }, { status: 429 });

@@ -42,6 +42,8 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
+          # 固定服务器 host key 指纹（ed25519），与 deploy/known_hosts 一致
+          fingerprint: sha256 SHA256:u/GDF+oKy40D+MnU7E7rKABccdu9Xo7+/EcARH0ixzY
           script: |
             set -euo pipefail
             STAGING_DIR="/var/www/meteor-store/staging"
@@ -50,7 +52,8 @@ jobs:
 
             mkdir -p "$STAGING_DIR"
             cd /var/www/meteor-store
-            pnpm install --frozen-lockfile || true
+            # 安装失败即终止，不带旧依赖跑新产物
+            pnpm install --frozen-lockfile
 
             cd "$STAGING_DIR"
             if [[ -d .next ]]; then mv .next .next.rollback; fi

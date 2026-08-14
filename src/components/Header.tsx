@@ -8,6 +8,7 @@ import { useAuth } from './AuthProvider';
 import UserMenu from './UserMenu';
 import LanguageSwitcher from './LanguageSwitcher';
 import BrandMark from './BrandMark';
+import NotificationBell from './NotificationBell';
 
 const navLinks = [
   { key: 'home', href: '/' },
@@ -128,6 +129,7 @@ export default function Header() {
             <kbd className="text-[10px] border border-white/15 rounded px-1 py-0.5 font-mono text-white/40">⌘K</kbd>
           </button>
           <div className="w-px h-5 bg-border mx-2" />
+          <NotificationBell />
           <LanguageSwitcher />
           <UserMenu />
         </nav>
@@ -143,6 +145,7 @@ export default function Header() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
           </svg>
         </button>
+        <NotificationBell />
         <LanguageSwitcher />
         <button
           onClick={() => setMobileOpen(!mobileOpen)}

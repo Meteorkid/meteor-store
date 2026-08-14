@@ -1,7 +1,7 @@
 // @ts-nocheck
 /* eslint-disable */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import booksData from '../../data/books.json'
 import { ROUTES } from '../../routes'
 import { bookProgressService } from '../../services/bookProgressService'

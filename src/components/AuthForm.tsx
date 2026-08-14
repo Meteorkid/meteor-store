@@ -14,6 +14,11 @@ interface PendingVerification {
   emailSent?: boolean;
 }
 
+/** MFA 挑战态：密码已验证，等用户输入动态码/恢复码 */
+interface PendingMfa {
+  ticket: string;
+}
+
 function maskEmail(email: string): string {
   const [local, domain] = email.split('@');
   if (!local || !domain) return email;
@@ -48,9 +53,11 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
   const [agreed, setAgreed] = useState(false);
   const [captcha, setCaptcha] = useState<{ token: string } | null>(null);
   const [pendingVerification, setPendingVerification] = useState<PendingVerification | null>(null);
+  const [pendingMfa, setPendingMfa] = useState<PendingMfa | null>(null);
+  const [mfaCode, setMfaCode] = useState('');
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
-  const { login, register, resendVerification, user } = useAuth();
+  const { login, register, resendVerification, verifyMfa, user } = useAuth();
   const router = useRouter();
 
   const handleCaptchaVerify = useCallback((data: { token: string }) => {
@@ -69,6 +76,25 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
     }
     setResent(true);
     setPendingVerification((current) => current ? { ...current, emailSent: true } : current);
+  };
+
+  const handleMfaSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!pendingMfa || loading) return;
+    setError('');
+    setLoading(true);
+    const result = await verifyMfa(pendingMfa.ticket, mfaCode.trim());
+    setLoading(false);
+    if (result.error) {
+      // 验证码错误或 ticket 过期：留在本页提示，用户可点「返回登录」重新走密码
+      setError(result.error);
+      setMfaCode('');
+      return;
+    }
+    setPendingMfa(null);
+    setMfaCode('');
+    setPassword('');
+    router.push('/');
   };
 
   if (user) {
@@ -136,6 +162,57 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
     );
   }
 
+  if (pendingMfa) {
+    return (
+      <div className="w-full max-w-sm">
+        <h1 className="mb-2 text-2xl font-bold">{t('mfaTitle')}</h1>
+        <p className="mb-8 text-sm text-gray-400">{t('mfaSubtitle')}</p>
+        {error && (
+          <p className="mb-4 rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400">{error}</p>
+        )}
+        <form onSubmit={handleMfaSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="auth-mfa-code" className="mb-1.5 block text-sm font-medium text-gray-300">
+              {t('mfaCodeLabel')}
+            </label>
+            <input
+              id="auth-mfa-code"
+              type="text"
+              inputMode="text"
+              autoComplete="one-time-code"
+              required
+              value={mfaCode}
+              onChange={(e) => setMfaCode(e.target.value)}
+              placeholder={t('mfaCodePlaceholder')}
+              autoFocus
+              className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center font-mono text-lg tracking-widest text-white placeholder-gray-600 outline-none transition-colors focus:border-violet-500/50"
+            />
+            <p className="mt-2 text-center text-xs text-gray-600">{t('mfaRecoveryHint')}</p>
+          </div>
+          <button
+            type="submit"
+            disabled={loading || mfaCode.trim().length < 6}
+            className="w-full rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
+          >
+            {loading ? t('processing') : t('mfaVerifyButton')}
+          </button>
+        </form>
+        <button
+          type="button"
+          onClick={() => {
+            setPendingMfa(null);
+            setMfaCode('');
+            setError('');
+            setPassword('');
+          }}
+          className="mt-4 w-full text-center text-sm text-gray-500 transition-colors hover:text-white"
+        >
+          {t('backToLogin')}
+        </button>
+      </div>
+    );
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
@@ -163,6 +240,10 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
       setPassword('');
       setConfirmPassword('');
       setCaptcha(null);
+    } else if (result.mfa) {
+      setPendingMfa({ ticket: result.mfa.ticket });
+      setPassword('');
+      setError('');
     } else if (result.error) {
       setError(result.error);
     } else {

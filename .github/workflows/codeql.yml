@@ -1,0 +1,36 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # 每周四上午 10:26（北京时间），避开整点高峰
+    - cron: '26 2 * * 4'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (javascript-typescript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # security-extended：在默认查询集上追加安全相关规则
+          queries: security-extended
+
+      # JS/TS 无需构建即可提取；数据库层用的是 Neon HTTP 驱动，构建也连不了库
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript

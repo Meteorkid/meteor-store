@@ -2,7 +2,7 @@
 /* eslint-disable */
 import React from 'react'
 import '../../styles/Header.css'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router'
 
 const Header: React.FC = () => {
   const { pathname } = useLocation()

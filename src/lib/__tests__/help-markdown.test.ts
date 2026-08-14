@@ -6,10 +6,9 @@ import {
 
 describe('renderHelpMarkdown', () => {
   it('为 h2/h3 生成 id 并提取目录', async () => {
-    const { html, headings } = await renderHelpMarkdown({
+    const { headings } = await renderHelpMarkdown({
       content: '## 注册账户\n\n内容\n\n### 下一步\n\n内容\n\n## 常见问题',
       slug: 'test',
-      locale: 'zh',
     });
 
     expect(headings).toHaveLength(3);
@@ -21,10 +20,9 @@ describe('renderHelpMarkdown', () => {
   });
 
   it('同名标题追加后缀', async () => {
-    const { html, headings } = await renderHelpMarkdown({
+    const { headings } = await renderHelpMarkdown({
       content: '## 注册\n\n## 注册',
       slug: 'test',
-      locale: 'zh',
     });
 
     expect(headings).toHaveLength(2);
@@ -33,30 +31,27 @@ describe('renderHelpMarkdown', () => {
   });
 
   it('行内格式不影响标题 id', async () => {
-    const { html, headings } = await renderHelpMarkdown({
+    const { headings } = await renderHelpMarkdown({
       content: '## 如何**注册**账户',
       slug: 'test',
-      locale: 'zh',
     });
 
     expect(headings[0].id).toBe('如何注册账户');
   });
 
   it('空标题回退为 section', async () => {
-    const { html, headings } = await renderHelpMarkdown({
+    const { headings } = await renderHelpMarkdown({
       content: '## ',
       slug: 'test',
-      locale: 'zh',
     });
 
     expect(headings).toHaveLength(0);
   });
 
   it('英文标题生成正确 id', async () => {
-    const { html, headings } = await renderHelpMarkdown({
+    const { headings } = await renderHelpMarkdown({
       content: '## Getting Started\n\n### Create an Account',
       slug: 'test',
-      locale: 'en',
     });
 
     expect(headings[0].id).toBe('Getting-Started');
@@ -67,7 +62,6 @@ describe('renderHelpMarkdown', () => {
     const { html } = await renderHelpMarkdown({
       content: '[Apple 支持](https://support.apple.com/zh-cn/102445)',
       slug: 'test',
-      locale: 'zh',
     });
 
     expect(html).toContain('href="https://support.apple.com/zh-cn/102445"');
@@ -79,7 +73,6 @@ describe('renderHelpMarkdown', () => {
     const { html } = await renderHelpMarkdown({
       content: '[帮助中心](/docs)',
       slug: 'test',
-      locale: 'zh',
     });
 
     expect(html).toContain('href="/docs"');
@@ -90,7 +83,6 @@ describe('renderHelpMarkdown', () => {
     const { html } = await renderHelpMarkdown({
       content: '<script>alert(1)</script>\n\n正常段落',
       slug: 'test',
-      locale: 'zh',
     });
 
     expect(html).not.toContain('<script');
@@ -101,7 +93,6 @@ describe('renderHelpMarkdown', () => {
     const { html } = await renderHelpMarkdown({
       content: '[点击](javascript:alert(1))',
       slug: 'test',
-      locale: 'zh',
     });
 
     expect(html).not.toContain('javascript');

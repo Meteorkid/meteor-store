@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { comments } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
+import { logAdminAction } from '@/lib/admin-audit';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 function forbidden() {
@@ -59,6 +60,14 @@ export async function PATCH(req: NextRequest) {
     .set({ status, reviewedAt: now })
     .where(eq(comments.id, commentId));
 
+  await logAdminAction(session, {
+    action: `comment.${action}`,
+    targetType: 'comment',
+    targetId: commentId,
+    detail: { status },
+    ip,
+  });
+
   return NextResponse.json({ success: true });
 }
 
@@ -80,6 +89,13 @@ export async function DELETE(req: NextRequest) {
   }
 
   await db.delete(comments).where(eq(comments.id, id));
+
+  await logAdminAction(session, {
+    action: 'comment.delete',
+    targetType: 'comment',
+    targetId: id,
+    ip,
+  });
 
   return NextResponse.json({ success: true });
 }

@@ -32,27 +32,33 @@ export default function HelpPanel() {
   const dragging = useRef(false);
   const startX = useRef(0);
   const startWidth = useRef(0);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // 加载文章内容
   useEffect(() => {
     if (!state.open || !state.slug) return;
-    setLoading(true);
-    setError(false);
+    let cancelled = false;
 
+    // setState 全部放进异步回调（React Compiler：不在 effect 里同步 setState）
     fetch(`/api/help-panel?slug=${encodeURIComponent(state.slug)}&locale=${locale}`)
       .then((res) => {
+        if (cancelled) return null;
+        setLoading(true);
+        setError(false);
         if (!res.ok) throw new Error('Failed to load');
         return res.json();
       })
       .then((data) => {
+        if (cancelled || data === null) return;
         setArticle(data);
         setLoading(false);
       })
       .catch(() => {
+        if (cancelled) return;
         setError(true);
         setLoading(false);
       });
+
+    return () => { cancelled = true; };
   }, [state.open, state.slug, locale]);
 
   // 拖拽调整宽度

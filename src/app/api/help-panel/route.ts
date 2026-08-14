@@ -20,7 +20,6 @@ export async function GET(req: NextRequest) {
     const { html, headings } = renderHelpMarkdown({
       content: article.content,
       slug: article.slug,
-      locale,
     });
 
     return NextResponse.json({

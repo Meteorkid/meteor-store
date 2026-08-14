@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
+import { logAdminAction } from '@/lib/admin-audit';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import {
   listReports,
@@ -84,6 +85,12 @@ export async function PATCH(req: NextRequest) {
       reportId: parsed.data.reportId,
       action: parsed.data.action,
       resolverId: session.userId,
+    });
+    await logAdminAction(session, {
+      action: `report.${parsed.data.action}`,
+      targetType: 'report',
+      targetId: parsed.data.reportId,
+      ip,
     });
     return NextResponse.json({ success: true });
   } catch (err) {

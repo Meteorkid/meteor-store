@@ -48,12 +48,25 @@ export default function PricingSection({
   const { user } = useAuth();
   const [currentPassPlan, setCurrentPassPlan] = useState<PassPlanId | null>(null);
 
+  // 渲染期调整：user 由有变无时重置 Pass 档位（React Compiler：不在 effect 里同步 setState）
+  const [prevUser, setPrevUser] = useState(user);
+  if (user !== prevUser) {
+    setPrevUser(user);
+    if (!user) setCurrentPassPlan(null);
+  }
+
   useEffect(() => {
-    if (!user) { setCurrentPassPlan(null); return; }
+    if (!user) return;
+    let cancelled = false;
     fetch('/api/pass/status')
       .then((r) => r.json())
-      .then((d) => setCurrentPassPlan(d.hasPass ? d.currentPlan : null))
-      .catch(() => setCurrentPassPlan(null));
+      .then((d) => {
+        if (!cancelled) setCurrentPassPlan(d.hasPass ? d.currentPlan : null);
+      })
+      .catch(() => {
+        if (!cancelled) setCurrentPassPlan(null);
+      });
+    return () => { cancelled = true; };
   }, [user]);
 
   return (

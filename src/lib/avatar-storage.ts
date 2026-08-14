@@ -80,15 +80,19 @@ export async function deleteAvatar(key: string): Promise<void> {
 /**
  * 从完整 URL 反解出 key，用于删除旧头像。
  * 只识别本 bucket 的 base URL，外链或 data URL 返回 null。
+ *
+ * @param ownerUserId 头像归属人。key 必须落在 avatars/{ownerUserId}/ 前缀下，
+ *   否则返回 null——profile 接口曾接受任意 https 头像地址，若不校验归属，
+ *   把头像设成别人的 URL 再清空/替换，就会删掉别人的头像对象
  */
-export function keyFromUrl(url: string, fallbackPrefix = 'avatars/'): string | null {
+export function keyFromUrl(url: string, ownerUserId: string): string | null {
   const cfg = readR2Config();
   if (!cfg) return null;
   const base = cfg.publicBase.endsWith('/') ? cfg.publicBase.slice(0, -1) : cfg.publicBase;
   if (!url.startsWith(`${base}/`)) return null;
-  // decodeURIComponent 反转上传时的编码
   const key = url.slice(base.length + 1);
-  // 安全兜底：只允许头像前缀，避免误删其他对象
-  if (!key.startsWith(fallbackPrefix)) return null;
+  // 与 uploadAvatar 的 key 构造保持同一编码方式
+  const ownerPrefix = `avatars/${encodeURIComponent(ownerUserId)}/`;
+  if (!key.startsWith(ownerPrefix)) return null;
   return key;
 }

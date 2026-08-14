@@ -9,7 +9,6 @@ import Footer from '@/components/Footer';
 import AccountForms from '@/components/AccountForms';
 import BlogApiTokenManager from '@/components/BlogApiTokenManager';
 import GlassPreference from '@/components/GlassPreference';
-import PassStatusCard from '@/components/PassStatusCard';
 import { db } from '@/lib/db';
 import { users, licenseKeys, posts, orders, postFavorites } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';

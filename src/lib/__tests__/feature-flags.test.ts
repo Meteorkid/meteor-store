@@ -31,7 +31,7 @@ describe('feature-flags', () => {
 
   it('未知 flag 返回 false', async () => {
     const { isFeatureEnabled } = await import('../feature-flags');
-    expect(isFeatureEnabled('nonexistent' as any)).toBe(false);
+    expect(isFeatureEnabled('nonexistent' as never)).toBe(false);
   });
 
   it('getAllFlags 返回所有 flag 状态', async () => {
