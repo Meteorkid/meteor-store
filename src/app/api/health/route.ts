@@ -25,8 +25,11 @@ export async function GET() {
   // 3. Redis 连通性
   try {
     const start = Date.now();
-    const { Redis } = await import('@upstash/redis');
-    const redis = Redis.fromEnv();
+    // 与全站一致：用 getRedis() 兼容 Vercel 注入的 UPSTASH_REDIS_KV_REST_API_* 变量名。
+    // 别用 Redis.fromEnv()——它只认 UPSTASH_REDIS_REST_URL，在服务器上会解析失败误报 503。
+    const { getRedis } = await import('@/lib/redis');
+    const redis = getRedis();
+    if (!redis) throw new Error('Redis not configured');
     await redis.ping();
     checks.redis = { status: 'ok', latency_ms: Date.now() - start };
   } catch (e) {
