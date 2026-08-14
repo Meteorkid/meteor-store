@@ -73,3 +73,6 @@ playwright-report/
 docs/技术文档-docx/
 docs/技术文档-md/
 .tmp-build/
+
+# 本地非代码素材（不入库）
+短视频脚本/
