@@ -23,6 +23,9 @@ const BANNER = [
   '',
 ];
 
+// 自动演示历史上限：循环演示不清屏、向下追加，超限裁掉最旧条目防止无限增长
+const MAX_DEMO_ENTRIES = 20;
+
 /**
  * 店主的终端：可交互彩蛋区 + 作者小序入口。
  * 特性：历史命令 ↑↓ · ASCII banner · neofetch · 打字动画 · Tab 补全
@@ -56,7 +59,9 @@ export default function TerminalSection() {
     }
   }
 
-  // 自动演示模式
+  // 自动演示模式：打字 help → 显示输出 → 循环。
+  // 循环时不重放旧内容而是向下追加（不清屏，避免内容突然清空跳动），
+  // 历史条目超过上限时裁掉最旧的，防止长时间停留后无限增长。
   useEffect(() => {
     if (interactive || reducedMotion) return;
     let cancelled = false;
@@ -71,11 +76,13 @@ export default function TerminalSection() {
         i++;
         timer = setTimeout(typeNext, 100 + Math.random() * 70);
       } else {
-        setHistory([{ input: demo, output: runCommand(demo).lines }]);
+        setHistory(h => {
+          const next = [...h, { input: demo, output: runCommand(demo).lines }];
+          return next.length > MAX_DEMO_ENTRIES ? next.slice(-MAX_DEMO_ENTRIES) : next;
+        });
         setDemoTyped('');
         timer = setTimeout(() => {
           if (cancelled) return;
-          setHistory([]);
           i = 0;
           typeNext();
         }, 6000);
