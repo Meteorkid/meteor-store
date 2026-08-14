@@ -1,6 +1,12 @@
 'use client';
 
 import { useState, useRef } from 'react';
+
+/** 本地时区的今天（YYYY-MM-DD），作为新建投稿事件时间的默认值 */
+function todayLocalDate(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 import { useRouter, Link } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { blogSections } from '@/data/blog-sections';
@@ -32,7 +38,7 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
     initialPost?.sections?.filter((s) => s !== initialPost.sectionId) ?? [],
   );
   const [tagInput, setTagInput] = useState(initialPost?.tags.join(', ') ?? '');
-  const [eventDate, setEventDate] = useState(initialPost?.eventDate ?? '');
+  const [eventDate, setEventDate] = useState(initialPost?.eventDate ?? todayLocalDate());
   const [preview, setPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
   const [error, setError] = useState('');
