@@ -65,7 +65,8 @@
     "email": "发送邮件",
     "copyrightTapReward": "再点也不会掉钱出来啦",
     "copyrightOperator": "© {year} Meteor Store · {operator}",
-    "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ 被你发现了"
+    "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ 被你发现了",
+    "onlineVisitors": "当前 {count} 人在线"
   },
   "HomePage": {
     "title": "Meteor Store — 开发者工具与 AI 应用",
@@ -1518,15 +1519,6 @@
     "unfavorite": "取消收藏",
     "loginToFavorite": "登录后即可收藏",
     "favorites": "{count} 次收藏"
-  },
-  "PostSignature": {
-    "signature": "—— 店主",
-    "starlog": {
-      "spring": "斗柄东指 · 春生有信",
-      "summer": "斗柄南指 · 长夏有光",
-      "autumn": "斗柄西指 · 秋收成章",
-      "winter": "斗柄北指 · 冬藏待新"
-    }
   },
   "BlogList": {
     "sectionsAria": "博客分区",

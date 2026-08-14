@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { OPERATOR } from '@/lib/constants';
 import { showToast } from './EasterEggs';
+import OnlineVisitors from './OnlineVisitors';
 
 /** Footer 版权行：hover 眨眼（CSS），连点 5 次有小惊喜 */
 export default function FooterCopyright() {
@@ -59,6 +60,7 @@ export default function FooterCopyright() {
           </a>
         )}
       </div>
+      <OnlineVisitors />
     </div>
   );
 }

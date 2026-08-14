@@ -65,7 +65,8 @@
     "email": "Send Email",
     "copyrightTapReward": "Keep tapping — no money's coming out",
     "copyrightOperator": "© {year} Meteor Store · {operator}",
-    "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ you found me"
+    "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ you found me",
+    "onlineVisitors": "{count} people online now"
   },
   "HomePage": {
     "title": "Meteor Store — Developer Tools & AI Apps",
@@ -1518,15 +1519,6 @@
     "unfavorite": "Unsave",
     "loginToFavorite": "Log in to save",
     "favorites": "{count} saves"
-  },
-  "PostSignature": {
-    "signature": "— Storekeeper",
-    "starlog": {
-      "spring": "The Dipper points east · spring stirs",
-      "summer": "The Dipper points south · summer glows",
-      "autumn": "The Dipper points west · autumn gathers",
-      "winter": "The Dipper points north · winter keeps"
-    }
   },
   "BlogList": {
     "sectionsAria": "Blog sections",
