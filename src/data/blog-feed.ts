@@ -17,7 +17,7 @@ import { type Locale } from '@/i18n/routing';
  */
 
 export interface FeedPost extends BlogPost {
-  /** 文章地址。文件文章是 /blog/{slug}，投稿是 /blog/p/{id} */
+  /** 文章地址。投稿是 /blog/p/{id}；文件文章已迁库（content/blog 为空），fromFile 分支是历史残留的死分支 */
   href: string;
   /** 投稿的作者名；站主自己的文章为 null */
   author: string | null;

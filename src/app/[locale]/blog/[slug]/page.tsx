@@ -12,7 +12,6 @@ import { markdownToHtml } from '@/lib/markdown';
 import BlogReadingProgress from '@/components/BlogReadingProgress';
 import CommentSection from '@/components/CommentSection';
 import PostStats from '@/components/PostStats';
-import PostSignature from '@/components/PostSignature';
 import AdminGithubEditLink from '@/components/AdminGithubEditLink';
 import { routing, type Locale } from '@/i18n/routing';
 import { safeJsonLd } from '@/lib/seo';
@@ -155,8 +154,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <span key={tag}>#{tag}</span>
             ))}
           </div>
-
-          <PostSignature date={post.date} />
 
           <PostStats targetId={post.slug} />
 

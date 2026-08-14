@@ -6,10 +6,11 @@ import { blogSections, type BlogSectionId } from './blog-sections';
 import { type Locale } from '@/i18n/routing';
 
 /**
- * 文章内容存在仓库里的 Markdown 文件（content/blog/*.md），构建时读取。
+ * 站主文件文章的历史读取层：content/blog/*.md。
  *
- * 选文件而不是数据库，是因为它带版本历史、能 diff、能离线写、不绑定任何厂商，
- * 将来真要迁到 CMS，Markdown 也是通用入口格式。代价是「发布 = 一次部署」。
+ * 站主文章已全部迁入数据库 posts 表（scripts/migrate-file-posts.mjs），
+ * content/blog/ 当前为空，本模块保留文件读取逻辑但不会产出文章；
+ * 历史原文备份在 content/blog-archive/，src/data/__tests__/blog.test.ts 仅校验备份文件。
  *
  * 这个模块只在服务端使用（用了 fs）。客户端组件只应 import 类型，
  * 或接收由服务端裁剪好的 BlogPostSummary。
