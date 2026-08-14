@@ -66,6 +66,7 @@ vi.mock('@/lib/db', () => ({ db: dbMock }));
 import {
   createPost,
   getPostByAuthor,
+  reviewPost,
   submitPostVersioned,
   updatePost,
   updatePostDraftVersioned,
@@ -149,6 +150,61 @@ describe('createPost', () => {
     expect(dbMock.insert).not.toHaveBeenCalled();
     expect(dbMock.delete).not.toHaveBeenCalled();
     expect(dbMock.update).not.toHaveBeenCalled();
+  });
+
+  it('管理员直发（published）没填事件时间时，默认与发布日期相同', async () => {
+    await createPost({
+      authorId: 'U1',
+      title: '直发文章',
+      excerpt: '这是一段满足最小长度要求的摘要',
+      content: '正文'.repeat(100),
+      sectionId: 'tech',
+      tags: [],
+      status: 'published',
+    });
+
+    const query = compiledQuery(dbState.executedQueries[0]);
+    // event_date 回填为发布日期，published_at 仍为完整 ISO 时间戳
+    expect(query.params).toContain('2026-08-10');
+    expect(query.params).toContain('2026-08-10T09:00:00.000Z');
+  });
+
+  it('草稿没填事件时间时不回填，事件时间保持为空', async () => {
+    await createPost({
+      authorId: 'U1',
+      title: '草稿文章',
+      excerpt: '这是一段满足最小长度要求的摘要',
+      content: '正文'.repeat(100),
+      sectionId: 'tech',
+      tags: [],
+      status: 'draft',
+    });
+
+    const query = compiledQuery(dbState.executedQueries[0]);
+    expect(query.params).not.toContain('2026-08-10');
+  });
+});
+
+describe('reviewPost', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    dbState.updateResult = { rowCount: 1 };
+    dbState.updateValues = [];
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-10T09:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('审核通过即发布：事件时间用 coalesce 回填为发布日期，覆盖历史空值', async () => {
+    const ok = await reviewPost({ postId: 'P1', reviewerId: 'U-admin', approve: true });
+    expect(ok).toBe(true);
+    const values = dbState.updateValues[0];
+    const raw = JSON.stringify(values.eventDate);
+    expect(raw).toContain('coalesce');
+    expect(raw).toContain('2026-08-10');
   });
 });
 

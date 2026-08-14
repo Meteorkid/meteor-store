@@ -213,7 +213,12 @@ export async function createPost(input: {
   const tags = normalizeTags(input.tags);
   const sections = normalizeSections(input.sectionId, input.sections);
   const publishedAt = input.status === 'published' ? now : null;
-  const eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
+  // 没填事件时间时默认与发布日期相同（仅发布时回填，草稿/待审保持空）
+  const eventDate = input.eventDate?.trim()
+    ? input.eventDate.trim()
+    : publishedAt
+      ? publishedAt.slice(0, 10)
+      : null;
 
   const locale = input.locale?.trim() || 'zh';
 
@@ -379,6 +384,10 @@ export async function reviewPost(input: {
       reviewerId: input.reviewerId,
       reviewedAt: now,
       publishedAt: input.approve ? now : null,
+      // 审核通过即发布：没填事件时间默认与发布日期相同（驳回时不动）
+      eventDate: input.approve
+        ? sql<string>`coalesce("event_date", ${now.slice(0, 10)})`
+        : undefined,
       updatedAt: now,
     })
     .where(and(eq(posts.id, input.postId), eq(posts.status, 'pending')));
@@ -503,9 +512,12 @@ export async function updatePost(input: {
     updates.publishedAt = null;
   }
 
-  // 管理员直发时设置发布时间
+  // 管理员直发时设置发布时间；没填事件时间默认与发布时间相同
   if (newStatus === 'published' && !wasPublished) {
     updates.publishedAt = now;
+    if (input.eventDate === undefined || !input.eventDate?.trim()) {
+      updates.eventDate = now.slice(0, 10);
+    }
   }
 
   // 管理员越权编辑不校验 authorId；两条路径都锁定预读状态与版本，防止旧保存
@@ -556,6 +568,9 @@ export async function updatePost(input: {
     }
     if (newStatus === 'published' && !wasPublished) {
       assignments.push(sql`"published_at" = ${now}`);
+      if (input.eventDate === undefined || !input.eventDate?.trim()) {
+        assignments.push(sql`"event_date" = ${now.slice(0, 10)}`);
+      }
     }
 
     const ownerCondition = input.asAdmin
