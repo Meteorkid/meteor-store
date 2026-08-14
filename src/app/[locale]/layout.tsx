@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
@@ -17,14 +17,18 @@ import { HelpPanelProvider } from "@/components/help/HelpPanelContext";
 import HelpPanel from "@/components/help/HelpPanel";
 import "../globals.css";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: "../../fonts/Geist-Latin.woff2",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  weight: "100 900",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "../../fonts/GeistMono-Latin.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "100 900",
+  display: "swap",
 });
 
 export function generateStaticParams() {

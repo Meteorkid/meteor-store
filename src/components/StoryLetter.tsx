@@ -3,11 +3,11 @@
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { Dancing_Script } from 'next/font/google';
+import localFont from 'next/font/local';
 
-const cursive = Dancing_Script({
-  subsets: ['latin'],
-  weight: ['700'],
+const cursive = localFont({
+  src: '../fonts/DancingScript-Latin.woff2',
+  weight: '700',
   display: 'swap',
   preload: true,
 });
