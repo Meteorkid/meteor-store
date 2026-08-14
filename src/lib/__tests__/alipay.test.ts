@@ -92,8 +92,8 @@ describe('alipay', () => {
         body: 'Test body',
       });
 
-      expect(url).toContain(encodeURIComponent('https://example.com/api/payment/alipay/notify'));
-      expect(url).toContain(encodeURIComponent('https://example.com/api/payment/alipay/return'));
+      expect(url).toContain(encodeURIComponent('https://www.example.com/api/payment/alipay/notify'));
+      expect(url).toContain(encodeURIComponent('https://www.example.com/api/payment/alipay/return'));
     });
 
     it('生产根域名会规范为 www，且同步回跳先经过验签路由', async () => {

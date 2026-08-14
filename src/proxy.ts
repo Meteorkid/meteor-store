@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { routing } from '@/i18n/routing';
+import { SITE_URL } from '@/lib/constants';
 
 /**
  * 每个请求生成一次性 nonce，注入到 CSP 的 script-src，替代 'unsafe-inline'。
@@ -58,6 +59,9 @@ function buildCsp(nonce: string, isTrial = false): string {
 
   // 头像走 R2 对象存储时，img-src 需要放行 R2 自定义域名（R2_PUBLIC_BASE）。
   // 未配置时不注入——避免把空字符串塞进 CSP 导致策略解析异常。
+  // 站点同时以 www / 非 www 两种形态访问，img-src 需一并放行
+  const nonWwwSite = SITE_URL.replace('https://www.', 'https://');
+
   const r2Base = process.env.R2_PUBLIC_BASE?.trim();
   const r2Origin = r2Base ? parseOrigin(r2Base) : '';
 
@@ -73,7 +77,7 @@ function buildCsp(nonce: string, isTrial = false): string {
     // 放行 Google Fonts 样式表（chakra-visualizer 的 Tutorial.css 用 @import 引入
     // Bebas Neue / Rajdhani / Noto Sans JP），否则自定义字体不加载（仅非致命警告）。
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    `img-src 'self' data: blob: https://www.imagentx.top https://imagentx.top${r2Origin ? ` ${r2Origin}` : ''}`,
+    `img-src 'self' data: blob: ${SITE_URL} ${nonWwwSite}${r2Origin ? ` ${r2Origin}` : ''}`,
     // 放行 Google Fonts 字体文件（font-src 原先只允许 'self'，gstatic 被拦）
     "font-src 'self' https://fonts.gstatic.com",
     // connect-src：数据库/邮件/支付/Sentry 之外，放行 MediaPipe 模型 CDN。

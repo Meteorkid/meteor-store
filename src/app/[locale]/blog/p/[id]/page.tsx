@@ -20,6 +20,7 @@ import PostStats from '@/components/PostStats';
 import PostReportButton from '@/components/PostReportButton';
 import { isAdminSession } from '@/lib/admin';
 import { safeJsonLd } from '@/lib/seo';
+import { SITE_URL } from '@/lib/constants';
 
 interface UserPostPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -90,10 +91,10 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
             datePublished: post.publishedAt,
             author: { '@type': 'Person', name: post.authorName || 'Anonymous' },
             articleSection: section?.label[locale as Locale],
-            url: `https://imagentx.top/${locale}/blog/p/${post.id}`,
+            url: `${SITE_URL}/${locale}/blog/p/${post.id}`,
             mainEntityOfPage: {
               '@type': 'WebPage',
-              '@id': `https://imagentx.top/${locale}/blog/p/${post.id}`,
+              '@id': `${SITE_URL}/${locale}/blog/p/${post.id}`,
             },
           }),
         }}

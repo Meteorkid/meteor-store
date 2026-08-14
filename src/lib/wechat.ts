@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { getSiteUrl } from './constants';
 
 const BASE_URL = 'https://api.mch.weixin.qq.com';
 
@@ -42,15 +43,16 @@ function getWechatConfig() {
     platformPublicKey: normalizePem(process.env.WECHAT_PLATFORM_PUBLIC_KEY || '', 'PUBLIC'),
     // 平台公钥模式下的公钥 ID（PUB_KEY_ID_xxx）。配置后校验响应头 Wechatpay-Serial 一致。
     platformPublicKeyId: process.env.WECHAT_PLATFORM_PUBLIC_KEY_ID || '',
-    notifyUrl: `${getSiteUrl()}/api/payment/wechat/notify`,
+    notifyUrl: `${getCanonicalSiteUrl()}/api/payment/wechat/notify`,
   };
 }
 
-function getSiteUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!raw) throw new Error('NEXT_PUBLIC_SITE_URL is not set');
-  const site = new URL(raw);
-  if (site.hostname === 'imagentx.top') site.hostname = 'www.imagentx.top';
+function getCanonicalSiteUrl(): string {
+  const site = new URL(getSiteUrl());
+  // 生产主域名由 Vercel 规范到 www。回调地址本身不能依赖 308 跳转，
+  // 否则微信支付收不到回调。
+  const canonicalHost = `www.${site.hostname.replace(/^www\./, '')}`;
+  if (site.hostname !== canonicalHost) site.hostname = canonicalHost;
   return site.origin;
 }
 

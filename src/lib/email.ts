@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { getSiteUrl, SENDER_EMAIL } from './constants';
 import { findPurchasable } from './products';
 
 let resendClient: Resend | null = null;
@@ -49,11 +50,11 @@ export function isEmailDeliveryConfigured(): boolean {
 }
 
 export async function sendEmailVerification(data: VerificationEmailData) {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://imagentx.top').replace(/\/+$/, '');
+  const siteUrl = getSiteUrl();
   const verificationUrl = escapeHtml(
     `${siteUrl}/${data.locale}/verify-email#token=${encodeURIComponent(data.token)}`,
   );
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
   const copy = data.locale === 'en'
     ? {
         subject: 'Verify your Meteor Store email',
@@ -91,11 +92,11 @@ export async function sendEmailVerification(data: VerificationEmailData) {
 }
 
 export async function sendPasswordReset(data: PasswordResetEmailData) {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://imagentx.top').replace(/\/+$/, '');
+  const siteUrl = getSiteUrl();
   const resetUrl = escapeHtml(
     `${siteUrl}/${data.locale}/reset-password#token=${encodeURIComponent(data.token)}`,
   );
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
   const copy = data.locale === 'en'
     ? {
         subject: 'Reset your Meteor Store password',
@@ -135,11 +136,11 @@ export async function sendPasswordReset(data: PasswordResetEmailData) {
 export async function sendNewsletterUnsubscribeConfirmation(
   data: NewsletterUnsubscribeEmailData,
 ) {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://imagentx.top').replace(/\/+$/, '');
+  const siteUrl = getSiteUrl();
   const unsubscribeUrl = escapeHtml(
     `${siteUrl}/${data.locale}/newsletter/unsubscribe#token=${encodeURIComponent(data.token)}`,
   );
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
   const copy = data.locale === 'en'
     ? {
         subject: 'Confirm newsletter unsubscribe - Meteor Store',
@@ -177,11 +178,11 @@ export async function sendNewsletterUnsubscribeConfirmation(
 }
 
 export async function sendStudentVerification(data: StudentVerificationEmailData) {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://imagentx.top').replace(/\/+$/, '');
+  const siteUrl = getSiteUrl();
   const verificationUrl = escapeHtml(
     `${siteUrl}/${data.locale}/student#token=${encodeURIComponent(data.token)}`,
   );
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
   const copy = data.locale === 'en'
     ? {
         subject: 'Verify your student status - Meteor Store',
@@ -224,7 +225,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
   const planName = escapeHtml(data.planName);
   const orderId = escapeHtml(data.orderId);
 
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
   const { error } = await getResend().emails.send({
     from: `Meteor Store <${fromEmail}>`,
     replyTo: getReplyToEmail(),
@@ -265,7 +266,7 @@ export async function sendAdminAlert(subject: string, details: Record<string, st
   const alertEmail = process.env.ALERT_EMAIL;
   if (!alertEmail) return;
 
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
   const rows = Object.entries(details)
     .map(([key, value]) => `<tr><td style="padding:4px 8px;color:#666;">${escapeHtml(key)}</td><td style="padding:4px 8px;">${escapeHtml(value)}</td></tr>`)
     .join('');
@@ -294,8 +295,8 @@ interface PassExpiryReminderEmailData {
  * 用 expiresAt 计算剩余天数，并给出续费入口（定价区）。
  */
 export async function sendPassExpiryReminder(data: PassExpiryReminderEmailData) {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://imagentx.top').replace(/\/+$/, '');
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@imagentx.top';
+  const siteUrl = getSiteUrl();
+  const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
 
   const daysLeft = Math.max(0, Math.ceil(
     (new Date(data.expiresAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000),

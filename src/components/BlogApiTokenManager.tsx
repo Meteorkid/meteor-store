@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { runCancellableTask } from '@/lib/cancellable-task';
 import { BLOG_API_SCOPES, type BlogApiScope, type TokenMetadata } from '@/lib/blog-api-contract';
+import { SITE_URL } from '@/lib/constants';
 
 const inputClass = 'w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-violet-400/70 focus:ring-2 focus:ring-violet-400/20';
 
@@ -186,7 +187,7 @@ export default function BlogApiTokenManager() {
               </div>
               <div>
                 <p className="font-semibold text-amber-100/90">{t('usageCurl')}</p>
-                <code className="mt-1.5 block break-all rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/80 select-all">{`curl -H "Authorization: Bearer ${oneTimeToken}" https://www.imagentx.top/api/v1/blog/sections`}</code>
+                <code className="mt-1.5 block break-all rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/80 select-all">{`curl -H "Authorization: Bearer ${oneTimeToken}" ${SITE_URL}/api/v1/blog/sections`}</code>
               </div>
               <p className="text-xs text-amber-100/50">
                 {t('usageGuideLink')}{' '}

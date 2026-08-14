@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { getSiteUrl } from './constants';
 
 /**
  * 将密钥规范化为 PEM 格式。
@@ -32,25 +33,23 @@ function getAlipayTimestamp(): string {
   return new Date(beijingMs).toISOString().slice(0, 19).replace('T', ' ');
 }
 
-function getSiteUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!raw) throw new Error('NEXT_PUBLIC_SITE_URL is not set');
-
-  const site = new URL(raw);
+function getCanonicalSiteUrl(): string {
+  const site = new URL(getSiteUrl());
   if (site.protocol !== 'https:' && site.protocol !== 'http:') {
     throw new Error('NEXT_PUBLIC_SITE_URL must use http or https');
   }
   // 生产主域名由 Vercel 规范到 www。回调地址本身不能依赖 308 跳转，
   // 否则支付宝收不到 route 返回的纯文本 success。
-  if (site.hostname === 'imagentx.top') {
-    site.hostname = 'www.imagentx.top';
+  const canonicalHost = `www.${site.hostname.replace(/^www\./, '')}`;
+  if (site.hostname !== canonicalHost) {
+    site.hostname = canonicalHost;
   }
   return site.origin;
 }
 
 // 惰性加载支付宝配置，避免模块加载时环境变量未注入导致静默失败
 function getAlipayConfig() {
-  const siteUrl = getSiteUrl();
+  const siteUrl = getCanonicalSiteUrl();
   return {
     appId: process.env.ALIPAY_APP_ID || '',
     privateKey: normalizeKey(process.env.ALIPAY_PRIVATE_KEY || '', 'PRIVATE'),

@@ -3,6 +3,18 @@
 /** 站点规范地址，用于 sitemap、RSS 等需要绝对 URL 的场景 */
 export const SITE_URL = 'https://www.imagentx.top';
 
+/**
+ * 站点规范地址（运行期）。
+ * 优先使用 NEXT_PUBLIC_SITE_URL（生产配 www、本地配 localhost），
+ * 缺失时兜底 SITE_URL，并统一去掉末尾斜杠——换域名后各处绝对 URL 自动跟随。
+ */
+export function getSiteUrl(): string {
+  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || SITE_URL;
+}
+
+/** 默认邮件发件人地址（可用 RESEND_FROM_EMAIL 覆盖） */
+export const SENDER_EMAIL = 'noreply@imagentx.top';
+
 /** 年付折扣率（月价 × 0.8 × 12 = 年价） */
 export const ANNUAL_DISCOUNT = 0.8;
 

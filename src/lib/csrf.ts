@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSiteUrl } from './constants';
 
 /**
  * 跨站请求伪造（CSRF）Origin 校验 —— 纵深防御。
@@ -13,8 +14,8 @@ import { NextRequest, NextResponse } from 'next/server';
  * - 有 `Origin` 头且命中允许列表 → 放行。
  * - 有 `Origin` 头但不匹配 → 403。
  *
- * 允许列表由 `NEXT_PUBLIC_SITE_URL` 推导（自动收录 www / 非 www 两种形态），
- * 并固定收录生产域名与本地开发地址，保证任意入口访问不被误拦。
+ * 允许列表由 `getSiteUrl()` 推导（自动收录 www / 非 www 两种形态），
+ * 环境变量缺失时兜底 SITE_URL，并固定收录本地开发地址，保证任意入口访问不被误拦。
  */
 
 const LOCALHOST_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
@@ -22,20 +23,17 @@ const LOCALHOST_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
 export function buildAllowedOrigins(): Set<string> {
   const set = new Set<string>();
 
-  const configured = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/+$/, '').toLowerCase();
-  if (configured.startsWith('http://') || configured.startsWith('https://')) {
-    set.add(configured);
+  // 从站点规范地址派生允许列表（getSiteUrl 缺失环境变量时兜底 SITE_URL）
+  const siteUrl = getSiteUrl().toLowerCase();
+  if (siteUrl.startsWith('http://') || siteUrl.startsWith('https://')) {
+    set.add(siteUrl);
     // 同时收录 www / 非 www 两种形态，避免从任一入口访问被误拦
-    if (configured.includes('://www.')) {
-      set.add(configured.replace('://www.', '://'));
+    if (siteUrl.includes('://www.')) {
+      set.add(siteUrl.replace('://www.', '://'));
     } else {
-      set.add(configured.replace('://', '://www.'));
+      set.add(siteUrl.replace('://', '://www.'));
     }
   }
-
-  // 固定兜底：生产域名（NEXT_PUBLIC_SITE_URL 缺失时也能用）
-  set.add('https://www.imagentx.top');
-  set.add('https://imagentx.top');
 
   LOCALHOST_ORIGINS.forEach((o) => set.add(o));
 

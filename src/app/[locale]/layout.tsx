@@ -15,6 +15,7 @@ import MeteorShower from "@/components/MeteorShower";
 import { AuthProvider } from "@/components/AuthProvider";
 import { HelpPanelProvider } from "@/components/help/HelpPanelContext";
 import HelpPanel from "@/components/help/HelpPanel";
+import { SITE_URL } from "@/lib/constants";
 import "../globals.css";
 
 const geistSans = localFont({
@@ -70,13 +71,13 @@ export async function generateMetadata({
     openGraph: {
       type: "website",
       locale: locale === "zh" ? "zh_CN" : "en_US",
-      url: "https://www.imagentx.top",
+      url: SITE_URL,
       siteName: "Meteor Store",
       title: t("title"),
       description: t("description"),
       images: [
         {
-          url: "https://www.imagentx.top/og-image.png",
+          url: `${SITE_URL}/og-image.png`,
           width: 1200,
           height: 630,
           alt: t("title"),
@@ -87,7 +88,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: t("title"),
       description: t("description"),
-      images: ["https://www.imagentx.top/og-image.png"],
+      images: [`${SITE_URL}/og-image.png`],
       site: "@Meteorkid",
     },
     robots: {
@@ -123,8 +124,8 @@ export default async function LocaleLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Meteor Store",
-    url: "https://www.imagentx.top",
-    logo: "https://www.imagentx.top/favicon.svg",
+    url: SITE_URL,
+    logo: `${SITE_URL}/favicon.svg`,
     description: t("description"),
     contactPoint: {
       "@type": "ContactPoint",

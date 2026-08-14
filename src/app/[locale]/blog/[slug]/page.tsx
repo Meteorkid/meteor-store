@@ -15,6 +15,7 @@ import PostStats from '@/components/PostStats';
 import AdminGithubEditLink from '@/components/AdminGithubEditLink';
 import { routing, type Locale } from '@/i18n/routing';
 import { safeJsonLd } from '@/lib/seo';
+import { SITE_URL } from '@/lib/constants';
 
 interface BlogPostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -85,10 +86,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             author: { '@type': 'Person', name: 'meteor' },
             articleSection: section?.label[locale as Locale],
             keywords: post.tags.join(', '),
-            url: `https://imagentx.top/${locale}/blog/${post.slug}`,
+            url: `${SITE_URL}/${locale}/blog/${post.slug}`,
             mainEntityOfPage: {
               '@type': 'WebPage',
-              '@id': `https://imagentx.top/${locale}/blog/${post.slug}`,
+              '@id': `${SITE_URL}/${locale}/blog/${post.slug}`,
             },
           }),
         }}

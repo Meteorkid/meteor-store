@@ -14,6 +14,7 @@ import {
   type QuickMathResult,
 } from '@/lib/search-index';
 import type { Locale } from '@/i18n/routing';
+import { SITE_URL } from '@/lib/constants';
 
 // ── 常量 ──────────────────────────────────────────────
 
@@ -583,7 +584,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
                   onClick={() => { close(); router.push('/feedback'); }}>反馈建议</button>
                 <span className="text-white/15">·</span>
                 <button className="text-xs text-white/30 hover:text-white/50 transition-colors underline underline-offset-2"
-                  onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(displayQuery + ' site:imagentx.top')}`, '_blank')}>
+                  onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(displayQuery + ' site:' + new URL(SITE_URL).hostname)}`, '_blank')}>
                   站内搜索</button>
               </div>
             </div>

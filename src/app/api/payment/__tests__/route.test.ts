@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 vi.mock('@/lib/constants', () => ({
   SHOW_PRICING: true,
   ANNUAL_DISCOUNT: 0.8,
+  getSiteUrl: () => 'https://www.imagentx.top',
 }));
 
 vi.mock('@/lib/rate-limit', () => ({
