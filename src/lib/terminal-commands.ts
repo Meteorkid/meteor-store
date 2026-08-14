@@ -144,6 +144,7 @@ export function runCommand(rawInput: string): CommandResult {
       return { lines: ['嘘——这个词不该被直接说出来的。不过既然你诚心诚意地问了…'], action: 'burst' };
 
     case 'clear':
+      return { lines: [], action: 'clear' };
 
     case 'easter':
     case '彩蛋':
@@ -175,8 +176,6 @@ export function runCommand(rawInput: string): CommandResult {
           '  vim · sudo rm · 42 · cat secret.txt · 白嫖 · 晚安 · emo',
         ],
       };
-
-      return { lines: [], action: 'clear' };
 
     default:
       return { lines: [`command not found: ${cmd}。不过 help 一下也许有惊喜？`] };

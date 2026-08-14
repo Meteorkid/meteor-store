@@ -5,7 +5,7 @@ describe('runCommand', () => {
   it('help 列出可用命令且含隐藏提示', () => {
     const { lines } = runCommand('help');
     expect(lines.some(l => l.includes('story'))).toBe(true);
-    expect(lines[lines.length - 1]).toContain('没写在这里的');
+    expect(lines[lines.length - 1]).toContain('easter');
   });
 
   it('story 返回导航动作', () => {
