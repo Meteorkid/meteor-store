@@ -9,24 +9,15 @@
 #   1. 代码提交并 push 到 main（脚本会校验本地 HEAD 与 origin/main 一致）
 #   2. 运行：  bash deploy/deploy-local.sh
 #
-# ── 一次性服务器初始化（从 root 切换到 deploy 用户，只需做一次）──────────
-# 以 root 登录服务器执行：
-#   useradd -m deploy && mkdir -p /var/www && chown -R deploy:deploy /var/www/meteor-store
-#   # sudoers：只放行部署必需的 root 操作（logrotate/nginx 配置同步）
-#   cat > /etc/sudoers.d/meteor-store-deploy <<'EOF'
-#   deploy ALL=(root) NOPASSWD: /usr/bin/cp, /usr/sbin/nginx
-#   EOF
-#   chmod 440 /etc/sudoers.d/meteor-store-deploy
-#   # PM2 从 root 名下迁到 deploy 名下：
-#   pm2 kill && su - deploy -c 'cd /var/www/meteor-store && \
-#     git remote set-url origin https://github.com/Meteorkid/meteor-store.git && \
-#     git pull --ff-only origin main && pm2 start meteor-store && pm2 save'
-#   # 给 deploy 用户配好 pnpm（corepack）与 SSH 公钥（~deploy/.ssh/authorized_keys）
+# 服务器用户：默认 root（PM2 与应用目录以 root 运行，无 deploy 用户）。
+# 若将来切换为独立部署用户，可用环境变量覆盖：DEPLOY_USER=deploy bash deploy/deploy-local.sh
 #
 # 流程：本地生产构建 → 打包 .next → scp 上传 → 服务器替换 .next 并重启 PM2
 set -euo pipefail
 
-SERVER="${DEPLOY_USER:-deploy}@47.120.20.26"
+# 服务器 SSH 用户默认 root：服务器上无 deploy 用户，PM2 与应用目录均以 root 运行。
+# 可用环境变量 DEPLOY_USER 覆盖。
+SERVER="${DEPLOY_USER:-root}@47.120.20.26"
 APP_DIR="/var/www/meteor-store"
 TAR="/tmp/meteor-store-next.tar.gz"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
