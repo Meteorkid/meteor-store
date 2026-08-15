@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, type FormEvent } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
 import SliderCaptcha from './SliderCaptcha';
@@ -39,8 +39,27 @@ function EyeIcon({ open }: { open: boolean }) {
   );
 }
 
-export default function AuthForm({ verified = false }: { verified?: boolean }) {
+export default function AuthForm({
+  verified = false,
+  wechatError = null,
+}: {
+  verified?: boolean;
+  wechatError?: string | null;
+}) {
   const t = useTranslations('LoginPage');
+  const locale = useLocale();
+  const wechatErrorKey =
+    wechatError === 'unavailable'
+      ? t('wechatUnavailable')
+      : wechatError === 'invalid'
+        ? t('wechatInvalid')
+        : wechatError === 'unverified'
+          ? t('wechatEmailUnverified')
+          : wechatError === 'error'
+            ? t('wechatError')
+            : wechatError
+              ? t('wechatError')
+              : null;
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -289,6 +308,12 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
         </p>
       )}
 
+      {wechatErrorKey && (
+        <p className="mb-5 rounded-lg bg-amber-500/10 px-4 py-2.5 text-sm text-amber-400" role="alert">
+          {wechatErrorKey}
+        </p>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {mode === 'register' && (
           <div>
@@ -431,6 +456,26 @@ export default function AuthForm({ verified = false }: { verified?: boolean }) {
           {mode === 'login' ? t('registerNow') : t('goLogin')}
         </button>
       </p>
+
+      {mode === 'login' && (
+        <div className="mt-6">
+          <div className="mb-4 flex items-center gap-3 text-xs text-gray-600">
+            <span className="h-px flex-1 bg-white/10" />
+            {t('wechatOr')}
+            <span className="h-px flex-1 bg-white/10" />
+          </div>
+          <a
+            href={`/api/auth/wechat?locale=${locale}`}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3 text-sm font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d="M9.5 3C5.36 3 2 5.86 2 9.39c0 2.02 1.06 3.82 2.72 5L4.2 16.9c-.14.5.43.9.87.58l2.93-1.75c.48.12.98.18 1.5.18.3 0 .6-.02.88-.05a5.5 5.5 0 0 1-.14-1.19c0-3.2 3.04-5.8 6.79-5.8.12 0 .23 0 .35.01C16.79 5.57 13.43 3 9.5 3zM7 7.36c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm5 0c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9z"/>
+              <path d="M22 13.67c0-3.07-2.97-5.57-6.63-5.57s-6.63 2.5-6.63 5.57 2.97 5.56 6.63 5.56c.6 0 1.18-.07 1.73-.2l2.6 1.55c.4.25.9-.07.78-.52l-.4-1.42A4.9 4.9 0 0 0 22 13.67zM12.96 12.1c-.42 0-.77-.34-.77-.76s.35-.76.77-.76.77.34.77.76-.35.76-.77.76zm4.85 0c-.42 0-.77-.34-.77-.76s.35-.76.77-.76.77.34.77.76-.34.76-.77.76z"/>
+            </svg>
+            {t('wechatLogin')}
+          </a>
+        </div>
+      )}
 
       {mode === 'login' && (
         <div className="mt-8 border-t border-white/[0.06] pt-6">

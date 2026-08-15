@@ -138,7 +138,13 @@
     "mfaCodeLabel": "Verification code",
     "mfaCodePlaceholder": "000000",
     "mfaRecoveryHint": "Lost your authenticator? Enter a recovery code (XXXX-XXXX) instead",
-    "mfaVerifyButton": "Verify and sign in"
+    "mfaVerifyButton": "Verify and sign in",
+    "wechatOr": "or continue with",
+    "wechatLogin": "Log in with WeChat",
+    "wechatUnavailable": "WeChat login is not configured yet. Please try again later or use email login.",
+    "wechatInvalid": "The WeChat login request is invalid or expired. Please scan again.",
+    "wechatError": "WeChat login failed. Please retry or use email login.",
+    "wechatEmailUnverified": "This WeChat account is linked to an account whose email is not verified yet. Please log in with email, verify it, then scan to log in."
   },
   "VerifyEmailPage": {
     "metaTitle": "Verify Email - Meteor Store",
@@ -260,7 +266,15 @@
     "emailChanged": "Email changed, please check your inbox for verification",
     "myProfile": "My Public Profile",
     "myProfileDesc": "Your shareable profile page",
-    "viewProfile": "View Public Profile"
+    "viewProfile": "View Public Profile",
+    "wechatTitle": "WeChat login",
+    "wechatDesc": "After linking WeChat, you can scan the QR code to log in without email and password.",
+    "wechatBound": "WeChat linked",
+    "wechatUnbind": "Unlink",
+    "wechatUnbinding": "Unlinking…",
+    "wechatUnbindFailed": "Failed to unlink WeChat. Please try again.",
+    "wechatBind": "Link WeChat",
+    "wechatLinkedSuccess": "WeChat linked successfully. You can now log in by scanning the QR code."
   },
   "BlogApiTokenManager": {
     "title": "Blog API tokens",
@@ -1877,5 +1891,33 @@
     "lifetimeDesc": "Yours forever",
     "expiresOn": "Expires on {date}",
     "manage": "Manage Pass"
+  },
+  "WechatBindPage": {
+    "title": "Link WeChat login",
+    "subtitle": "WeChat does not provide your email, so please link an email account. New accounts must verify the email first; after that, scanning logs you in.",
+    "bindExisting": "Link existing account",
+    "registerNew": "Create new account",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "nicknameLabel": "Nickname",
+    "nicknamePlaceholder": "Your nickname (optional)",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "mfaLabel": "2FA code (or recovery code)",
+    "mfaPlaceholder": "6-digit code",
+    "mfaRequired": "This account has 2FA enabled. Please enter a verification or recovery code.",
+    "bindButton": "Link and log in",
+    "registerButton": "Register and link",
+    "processing": "Processing…",
+    "registerHint": "After registering, we will send a verification email. Complete verification, then scan again to log in.",
+    "missingToken": "The linking token is missing or expired. Please scan the QR code again.",
+    "checkEmailTitle": "Verify your email",
+    "checkEmailSent": "A verification email has been sent. Please check your inbox and verify.",
+    "checkEmailSendFailed": "Failed to send the verification email. Please try again later.",
+    "verifyThenRescan": "After verifying your email, scan the QR code again to log in.",
+    "verificationResent": "Verification email re-sent",
+    "resend": "Resend verification email",
+    "resending": "Sending…",
+    "resendFailed": "Failed to resend. Please try again later."
   }
 }

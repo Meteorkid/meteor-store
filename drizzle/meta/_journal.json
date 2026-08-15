@@ -232,6 +232,13 @@
       "when": 1786728146659,
       "tag": "0032_add_admin_audit_logs_and_totp",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1786774782725,
+      "tag": "0033_add_wechat_oauth",
+      "breakpoints": true
     }
   ]
 }

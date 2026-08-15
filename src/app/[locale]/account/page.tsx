@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import AccountForms from '@/components/AccountForms';
 import BlogApiTokenManager from '@/components/BlogApiTokenManager';
 import GlassPreference from '@/components/GlassPreference';
+import WechatAccountBinding from '@/components/WechatAccountBinding';
 import { db } from '@/lib/db';
 import { users, licenseKeys, posts, orders, postFavorites } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
@@ -40,8 +41,15 @@ function profileCompleteness(user: { name: string | null; bio: string | null; av
   return { pct: Math.round((done / total) * 100), missing };
 }
 
-export default async function AccountPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function AccountPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ wechat?: string }>;
+}) {
   const { locale } = await params;
+  const { wechat } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'AccountPage' });
 
@@ -59,7 +67,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
 
   const [user] = await db
     .select({ id: users.id, email: users.email, name: users.name, avatarUrl: users.avatarUrl,
-      bio: users.bio, emailVerified: users.emailVerified, isStudent: users.isStudent, createdAt: users.createdAt })
+      bio: users.bio, emailVerified: users.emailVerified, isStudent: users.isStudent, createdAt: users.createdAt, wechatOpenid: users.wechatOpenid })
     .from(users).where(eq(users.id, session.userId)).limit(1);
   if (!user) redirect('/login');
 
@@ -109,6 +117,12 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
     <div className="min-h-screen bg-black text-white">
       <Header />
       <main className="container mx-auto px-4 py-10 md:py-14">
+        {wechat === 'linked' && (
+          <p className="mb-6 rounded-xl bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400" role="status">
+            {t('wechatLinkedSuccess')}
+          </p>
+        )}
+
         <div className="mx-auto max-w-2xl">
           <h1 className="sr-only">{t('srTitle')}</h1>
 
@@ -245,6 +259,8 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
           <AccountForms initialName={user.name ?? ''} initialBio={user.bio ?? ''} initialAvatar={user.avatarUrl ?? null} email={user.email} />
 
           <GlassPreference />
+
+          <WechatAccountBinding bound={!!user.wechatOpenid} />
 
           <section className="mt-8 rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
             <h2 className="t-title-3 mb-1.5 text-white/90">{t('dataRights')}</h2>

@@ -58,6 +58,10 @@ export const users = pgTable('users', {
   totpEnabled: boolean('totp_enabled').default(false).notNull(),
   /** 恢复码 SHA-256 哈希数组（JSON 字符串）。明文只在生成时返回一次。 */
   totpRecoveryCodes: text('totp_recovery_codes'),
+  /** 微信开放平台 openid（网站应用扫码登录绑定）。唯一：一个微信只能绑定一个账号。 */
+  wechatOpenid: text('wechat_openid').unique(),
+  /** 微信 unionid：同一开放平台账号下跨应用唯一，预留小程序/公众号打通。 */
+  wechatUnionid: text('wechat_unionid').unique(),
 }, (t) => [
   check('users_blog_image_bytes_non_negative', sql`${t.blogImageBytes} >= 0`),
 ]);

@@ -138,7 +138,13 @@
     "mfaCodeLabel": "动态验证码",
     "mfaCodePlaceholder": "000000",
     "mfaRecoveryHint": "丢失验证器？可输入一个恢复码（XXXX-XXXX）代替",
-    "mfaVerifyButton": "验证并登录"
+    "mfaVerifyButton": "验证并登录",
+    "wechatOr": "或使用",
+    "wechatLogin": "微信扫码登录",
+    "wechatUnavailable": "微信登录尚未配置，请稍后再试或使用邮箱登录。",
+    "wechatInvalid": "微信登录请求无效或已过期，请重新扫码。",
+    "wechatError": "微信登录失败，请重试或使用邮箱登录。",
+    "wechatEmailUnverified": "该微信已绑定账号，但邮箱尚未验证。请先用邮箱登录并完成验证，之后即可扫码登录。"
   },
   "VerifyEmailPage": {
     "metaTitle": "验证邮箱 - Meteor Store",
@@ -260,7 +266,15 @@
     "emailChanged": "邮箱已修改，请查收验证邮件",
     "myProfile": "我的公开主页",
     "myProfileDesc": "分享给其他人的个人页面",
-    "viewProfile": "查看公开主页"
+    "viewProfile": "查看公开主页",
+    "wechatTitle": "微信登录",
+    "wechatDesc": "绑定微信后，可以扫码一键登录，无需输入邮箱和密码。",
+    "wechatBound": "已绑定微信",
+    "wechatUnbind": "解除绑定",
+    "wechatUnbinding": "解绑中…",
+    "wechatUnbindFailed": "解除绑定失败，请重试。",
+    "wechatBind": "绑定微信",
+    "wechatLinkedSuccess": "微信绑定成功，之后可直接扫码登录。"
   },
   "BlogApiTokenManager": {
     "title": "博客 API 令牌",
@@ -1877,5 +1891,33 @@
     "lifetimeDesc": "永久有效，一次拥有终身享用",
     "expiresOn": "有效期至 {date}",
     "manage": "管理 Pass"
+  },
+  "WechatBindPage": {
+    "title": "绑定微信登录",
+    "subtitle": "微信没有提供邮箱信息，请绑定一个邮箱账户。新账户需要先验证邮箱，之后扫码即可一键登录。",
+    "bindExisting": "绑定已有账户",
+    "registerNew": "注册新账户",
+    "emailLabel": "邮箱",
+    "emailPlaceholder": "you@example.com",
+    "nicknameLabel": "昵称",
+    "nicknamePlaceholder": "你的昵称（选填）",
+    "passwordLabel": "密码",
+    "passwordPlaceholder": "••••••••",
+    "mfaLabel": "两步验证动态码（或恢复码）",
+    "mfaPlaceholder": "6 位动态码",
+    "mfaRequired": "该账户已开启两步验证，请输入动态码或恢复码。",
+    "bindButton": "绑定并登录",
+    "registerButton": "注册并绑定",
+    "processing": "处理中…",
+    "registerHint": "注册后我们会向该邮箱发送验证邮件，完成验证后重新扫码即可登录。",
+    "missingToken": "绑定凭证缺失或已过期，请重新扫码。",
+    "checkEmailTitle": "验证你的邮箱",
+    "checkEmailSent": "验证邮件已发送，请查收并完成验证。",
+    "checkEmailSendFailed": "验证邮件发送失败，请稍后重试。",
+    "verifyThenRescan": "完成邮箱验证后，重新用微信扫码即可登录。",
+    "verificationResent": "验证邮件已重新发送",
+    "resend": "重新发送验证邮件",
+    "resending": "发送中…",
+    "resendFailed": "重新发送失败，请稍后再试。"
   }
 }
