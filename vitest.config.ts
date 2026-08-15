@@ -19,7 +19,8 @@ export default defineConfig({
       '**/dist/**',
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}/**',
+      // 注意是配置**文件**（.config.*）不是同名目录，照抄 vitest 默认值，别改成 `/**`
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
       'e2e/**',
     ],
   },

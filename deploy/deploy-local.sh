@@ -78,6 +78,9 @@ fi
 # 安装失败必须终止部署——带着旧 node_modules 跑新产物是未定义行为
 pnpm install --frozen-lockfile
 # 安装/更新 logrotate 配置（公安备案：日志留存 ≥ 60 天）—— root 权限走 sudo
+# logrotate.conf 指向 /var/log/meteor-store/pm2-*.log，目录不存在的话 PM2 写不进去，
+# missingok 会让 logrotate 静默跳过，于是日志留存这项直接落空。
+sudo mkdir -p /var/log/meteor-store
 sudo cp deploy/logrotate.conf /etc/logrotate.d/imagentx.top
 # 同步 nginx 配置（含日志格式声明）—— root 权限走 sudo
 sudo cp deploy/nginx.conf /etc/nginx/conf.d/imagentx.top.conf

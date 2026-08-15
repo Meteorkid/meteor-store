@@ -30,8 +30,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: 依赖安全审计
-        # high 及以上直接红；moderate 由 Dependabot 周期性跟进
-        run: pnpm audit --audit-level=high
+        # 只审生产依赖，且不阻塞：新披露的公告与提交内容无关，让它挡住全部 CI 和部署
+        # 等于把发布节奏交给上游披露时间；devDependencies（vite/esbuild 等）根本不进产物。
+        # 结果在 Actions 日志里看，持续跟进由 Dependabot 负责。
+        continue-on-error: true
+        run: pnpm audit --prod --audit-level=high
 
       - name: 类型检查
         run: pnpm exec tsc --noEmit

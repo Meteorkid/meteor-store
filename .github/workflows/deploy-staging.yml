@@ -42,8 +42,10 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          # 固定服务器 host key 指纹（ed25519），与 deploy/known_hosts 一致
-          fingerprint: sha256 SHA256:u/GDF+oKy40D+MnU7E7rKABccdu9Xo7+/EcARH0ixzY
+          # 固定服务器 host key 指纹。值必须是纯 `SHA256:<base64>`（`ssh-keygen -lf` 行首的
+          # 位数不是前缀），且必须钉 ECDSA 那把——该 action 不设 HostKeyAlgorithms，
+          # Go 默认顺序里 ecdsa-sha2-nistp256 排在 ssh-ed25519 之前。详见 deploy.yml 的注释。
+          fingerprint: SHA256:UNei3ouOkoMTHvqe/6n0UmUGX4mjKrjc0nvGyg5h9qc
           script: |
             set -euo pipefail
             STAGING_DIR="/var/www/meteor-store/staging"

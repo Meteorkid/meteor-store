@@ -49,9 +49,16 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          # 固定服务器 host key 指纹（ed25519），防止中间人。与 deploy/known_hosts 一致。
-          # 换服务器/重装 SSH 时需更新（ssh-keygen -lf 查新指纹）。
-          fingerprint: sha256 SHA256:u/GDF+oKy40D+MnU7E7rKABccdu9Xo7+/EcARH0ixzY
+          # 固定服务器 host key 指纹，防止中间人。换服务器/重装 SSH 时用
+          # `ssh-keygen -lf deploy/known_hosts` 取新值（只取 ECDSA 那行的 SHA256:...）。
+          #
+          # 两个坑，别改回去：
+          # 1. 值必须是纯 `SHA256:<base64>`。easyssh-proxy 拿它和 ssh.FingerprintSHA256()
+          #    直接做字符串相等比较，`ssh-keygen -lf` 输出行首那个位数（256/3072）不是前缀。
+          # 2. 必须钉 ECDSA 而不是 ED25519。该 action 不设置 HostKeyAlgorithms，
+          #    Go 的 defaultHostKeyAlgos 里 ecdsa-sha2-nistp256 排在 ssh-ed25519 之前，
+          #    服务器两把 key 都有时协商出来的是 ECDSA，钉 ed25519 会 host key mismatch。
+          fingerprint: SHA256:UNei3ouOkoMTHvqe/6n0UmUGX4mjKrjc0nvGyg5h9qc
           source: /tmp/meteor-store-next.tar.gz
           target: /var/www/meteor-store
           strip_components: 1
@@ -63,7 +70,8 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          fingerprint: sha256 SHA256:u/GDF+oKy40D+MnU7E7rKABccdu9Xo7+/EcARH0ixzY
+          # 同上：纯 SHA256: 前缀 + ECDSA 那把，见上一步的注释
+          fingerprint: SHA256:UNei3ouOkoMTHvqe/6n0UmUGX4mjKrjc0nvGyg5h9qc
           script: |
             set -euo pipefail
             cd /var/www/meteor-store
