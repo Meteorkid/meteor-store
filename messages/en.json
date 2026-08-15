@@ -71,14 +71,14 @@
     "onlineVisitors": "{count} people online now"
   },
   "SupportPage": {
-    "title": "Support Me",
-    "description": "If these tools truly helped you, buy me a coffee.",
-    "eyebrow": "Buy Me a Coffee",
+    "title": "Buy Me a Coffee",
+    "description": "If any of these tools has helped you along the way, that's already the best reward. If you'd like, a coffee is always welcome — no pressure, and never expected.",
+    "eyebrow": "A Little Token of Thanks",
     "alipayTitle": "Alipay",
     "alipayHint": "Scan with Alipay",
     "wechatTitle": "WeChat",
     "wechatHint": "Scan with WeChat",
-    "disclaimer": "Tips are voluntary and come with no benefits or after-sales service."
+    "disclaimer": "This is entirely voluntary, comes with no extra benefits, and doesn't affect anything you can use on this site."
   },
   "HomePage": {
     "title": "Meteor Store — Developer Tools & AI Apps",

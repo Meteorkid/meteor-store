@@ -71,14 +71,14 @@
     "onlineVisitors": "当前 {count} 人在线"
   },
   "SupportPage": {
-    "title": "支持我",
-    "description": "如果这些工具真的帮到了你，请我喝杯咖啡吧。",
-    "eyebrow": "赞赏支持",
+    "title": "请我喝杯咖啡",
+    "description": "如果这里的工具曾帮到过你，那已经是最大的鼓励。若你愿意，欢迎请我喝杯咖啡——不必破费，心意到就好。",
+    "eyebrow": "一份小小的心意",
     "alipayTitle": "支付宝",
     "alipayHint": "打开支付宝扫一扫",
     "wechatTitle": "微信",
     "wechatHint": "微信扫一扫",
-    "disclaimer": "赞赏是自愿的，不附带任何权益或售后服务"
+    "disclaimer": "这份心意完全出于自愿，不附带任何权益，也不影响你使用站内任何功能。"
   },
   "HomePage": {
     "title": "Meteor Store — 开发者工具与 AI 应用",
