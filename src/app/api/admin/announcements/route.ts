@@ -27,6 +27,14 @@ function forbidden() {
   return NextResponse.json({ error: 'Not found' }, { status: 404 });
 }
 
+/**
+ * 至少一种语言的标题非空。四个内容字段都可空，误提交空表单会在铃铛里生成
+ * 一条只有日期的空条目，且只能回后台删。
+ */
+function hasTitle(data: { titleZh?: string | null; titleEn?: string | null }) {
+  return Boolean(data.titleZh || data.titleEn);
+}
+
 export async function GET() {
   const session = await getSession();
   if (!session || !isAdminSession(session)) return forbidden();
@@ -48,6 +56,9 @@ export async function POST(req: NextRequest) {
   const parsed = SaveSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: '参数无效' }, { status: 400 });
+  }
+  if (!hasTitle(parsed.data)) {
+    return NextResponse.json({ error: '至少填写一种语言的标题' }, { status: 400 });
   }
 
   const announcement = await createAnnouncement({
@@ -82,6 +93,14 @@ export async function PATCH(req: NextRequest) {
   const parsed = SaveSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success || !parsed.data.id) {
     return NextResponse.json({ error: '参数无效' }, { status: 400 });
+  }
+  // 只在两个标题都被显式给出时校验：局部 PATCH（只改 published）不该被拦下
+  if (
+    parsed.data.titleZh !== undefined &&
+    parsed.data.titleEn !== undefined &&
+    !hasTitle(parsed.data)
+  ) {
+    return NextResponse.json({ error: '至少填写一种语言的标题' }, { status: 400 });
   }
 
   const announcement = await updateAnnouncement(parsed.data.id, {
@@ -122,14 +141,16 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: '参数无效' }, { status: 400 });
   }
 
-  const ok = await deleteAnnouncement(id);
-  if (!ok) {
+  const removed = await deleteAnnouncement(id);
+  if (!removed) {
     return NextResponse.json({ error: '公告不存在' }, { status: 404 });
   }
   await logAdminAction(session, {
     action: 'announcement.delete',
     targetType: 'announcement',
     targetId: id,
+    // 留下标题快照：公告删掉后恢复不了，只记 id 的话审计日志也看不出删的是什么
+    detail: { titleZh: removed.titleZh, titleEn: removed.titleEn, published: removed.published },
     ip,
   });
   return NextResponse.json({ success: true });

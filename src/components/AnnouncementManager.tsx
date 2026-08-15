@@ -221,7 +221,7 @@ export default function AnnouncementManager() {
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-violet-400" />
           </div>
         ) : items.length === 0 ? (
-          <p className="py-8 text-center text-sm text-gray-500">{t('empty')}</p>
+          <p className="t-footnote py-8 text-center text-white/60">{t('empty')}</p>
         ) : (
           <div className="space-y-3">
             {items.map((a) => (
@@ -234,7 +234,7 @@ export default function AnnouncementManager() {
                     <p className="truncate text-sm font-medium text-white">
                       {a.titleZh || a.titleEn || t('untitled')}
                     </p>
-                    <p className="mt-0.5 text-xs text-gray-500">
+                    <p className="t-footnote mt-0.5 text-white/60">
                       {a.published ? (
                         <span className="text-emerald-400">{t('statusPublished')}</span>
                       ) : (

@@ -2,10 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const state = vi.hoisted(() => ({
   rows: [] as Array<Record<string, unknown>>,
-  existing: [] as Array<Record<string, unknown>>,
   inserted: [] as Array<Record<string, unknown>>,
   updated: [] as Array<Record<string, unknown>>,
   deleted: [] as Array<Record<string, unknown>>,
+  /** 最近一次 UPDATE ... SET 的字段，用来断言"哪些列真的被写了" */
+  setPayload: null as Record<string, unknown> | null,
 }));
 
 vi.mock('../db', () => {
@@ -14,7 +15,7 @@ vi.mock('../db', () => {
     db: {
       select: () => ({
         from: () => ({
-          where: () => ({ orderBy: () => ({ limit: limitFn }), limit: async () => state.existing }),
+          where: () => ({ orderBy: () => ({ limit: limitFn }), limit: limitFn }),
           orderBy: () => ({ limit: limitFn }),
           limit: limitFn,
         }),
@@ -26,9 +27,10 @@ vi.mock('../db', () => {
         },
       }),
       update: () => ({
-        set: () => ({
-          where: () => ({ returning: async () => state.updated }),
-        }),
+        set: (payload: Record<string, unknown>) => {
+          state.setPayload = payload;
+          return { where: () => ({ returning: async () => state.updated }) };
+        },
       }),
       delete: () => ({
         where: () => ({ returning: async () => state.deleted }),
@@ -37,12 +39,8 @@ vi.mock('../db', () => {
   };
 });
 
-import {
-  createAnnouncement,
-  deleteAnnouncement,
-  updateAnnouncement,
-  pickAnnouncementText,
-} from '../announcements';
+import { createAnnouncement, deleteAnnouncement, updateAnnouncement } from '../announcements';
+import { pickAnnouncementText } from '../announcement-text';
 
 describe('pickAnnouncementText', () => {
   it('zh 优先取中文，缺失时回退英文', () => {
@@ -87,25 +85,48 @@ describe('createAnnouncement', () => {
 
 describe('updateAnnouncement', () => {
   beforeEach(() => {
-    state.existing = [];
     state.updated = [];
+    state.setPayload = null;
   });
 
-  it('已发布公告重新发布时保留原发布时间', async () => {
-    const original = '2026-08-01T00:00:00.000Z';
-    state.existing = [{ id: 'A1', published: true, publishedAt: original }];
-    state.updated = [{ id: 'A1', published: true, publishedAt: original, updatedAt: 'x' }];
+  it('显式传 null 时清空字段，而不是回填旧值', async () => {
+    state.updated = [{ id: 'A1' }];
 
-    const result = await updateAnnouncement('A1', { published: true });
-    expect(result?.publishedAt).toBe(original);
+    await updateAnnouncement('A1', { titleEn: null, bodyEn: null });
+
+    // 用 `??` 合并会让这两个 null 被当成"没传"，于是清空标题永远不生效
+    expect(state.setPayload).toMatchObject({ titleEn: null, bodyEn: null });
   });
 
-  it('草稿首次发布时写入 publishedAt', async () => {
-    state.existing = [{ id: 'A2', published: false, publishedAt: null }];
+  it('未提供的字段不进 SET，保持原值', async () => {
+    state.updated = [{ id: 'A1' }];
+
+    await updateAnnouncement('A1', { titleZh: '只改中文' });
+
+    expect(state.setPayload).toHaveProperty('titleZh', '只改中文');
+    expect(state.setPayload).not.toHaveProperty('titleEn');
+    expect(state.setPayload).not.toHaveProperty('bodyZh');
+    expect(state.setPayload).not.toHaveProperty('published');
+  });
+
+  it('发布时用 SQL 表达式写 publishedAt，不做先查后写', async () => {
     state.updated = [{ id: 'A2', published: true, publishedAt: '2026-08-02T00:00:00.000Z' }];
 
     const result = await updateAnnouncement('A2', { published: true });
+
+    // coalesce(published_at, now) —— 首次发布才落时间，已发布的保持原值
+    expect(state.setPayload?.publishedAt).toBeTruthy();
+    expect(typeof state.setPayload?.publishedAt).not.toBe('string');
     expect(result?.publishedAt).toBeTruthy();
+  });
+
+  it('下架时不碰 publishedAt', async () => {
+    state.updated = [{ id: 'A3', published: false }];
+
+    await updateAnnouncement('A3', { published: false });
+
+    expect(state.setPayload).toHaveProperty('published', false);
+    expect(state.setPayload).not.toHaveProperty('publishedAt');
   });
 
   it('公告不存在时返回 null', async () => {
@@ -119,12 +140,12 @@ describe('deleteAnnouncement', () => {
     state.deleted = [];
   });
 
-  it('删除成功返回 true', async () => {
-    state.deleted = [{ id: 'A1' }];
-    await expect(deleteAnnouncement('A1')).resolves.toBe(true);
+  it('删除成功返回被删除的公告，供审计留标题快照', async () => {
+    state.deleted = [{ id: 'A1', titleZh: '标题' }];
+    await expect(deleteAnnouncement('A1')).resolves.toMatchObject({ id: 'A1', titleZh: '标题' });
   });
 
-  it('未命中返回 false', async () => {
-    await expect(deleteAnnouncement('missing')).resolves.toBe(false);
+  it('未命中返回 null', async () => {
+    await expect(deleteAnnouncement('missing')).resolves.toBeNull();
   });
 });

@@ -1,29 +1,85 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { pickAnnouncementText } from '@/lib/announcements';
-import type { Announcement } from '@/lib/announcements';
+import { pickAnnouncementText, type Announcement } from '@/lib/announcement-text';
 
-const STORAGE_KEY = 'ms_read_announcements';
+/**
+ * 上次打开铃铛的时间（ISO 字符串）。存一个分界点而不是已读 id 数组——
+ * 公告只增不删，数组会一直涨且每次挂载都要全量 JSON.parse，
+ * 而"有没有未读"只需要拿最新公告的时间和它比一下。
+ */
+const STORAGE_KEY = 'ms_announcements_read_at';
 
-function loadReadIds(): Set<string> {
-  if (typeof window === 'undefined') return new Set();
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return new Set();
-    return new Set(JSON.parse(raw) as string[]);
-  } catch {
-    return new Set();
-  }
+/**
+ * Header 在桌面导航和移动导航各挂一个铃铛，两个实例必须共用同一份数据：
+ * 各自持有状态的话，每次页面加载会打两次 /api/announcements，
+ * 而且在移动端点开标记已读后，桌面那份的红点还在，要刷新才同步。
+ */
+const store = {
+  items: null as Announcement[] | null,
+  /** null = 还没读过 localStorage（SSR 阶段没有 window） */
+  readAt: null as string | null,
+  pending: null as Promise<void> | null,
+  listeners: new Set<() => void>(),
+};
+
+function emit() {
+  store.listeners.forEach((cb) => cb());
 }
 
-function saveReadIds(ids: Set<string>) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
-  } catch {
-    // localStorage 不可用（隐私模式等）时静默降级：红点无法持久化，不影响展示
+function subscribe(cb: () => void) {
+  store.listeners.add(cb);
+  return () => {
+    store.listeners.delete(cb);
+  };
+}
+
+/** 无论挂载几个铃铛，公告只拉一次 */
+function ensureAnnouncements() {
+  store.pending ??= fetch('/api/announcements')
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('failed'))))
+    .then((data: { announcements?: Announcement[] }) => {
+      store.items = data.announcements ?? [];
+      emit();
+    })
+    .catch(() => {
+      store.items = [];
+      emit();
+    });
+}
+
+function getItems() {
+  return store.items;
+}
+
+function getReadAt() {
+  if (store.readAt === null) {
+    try {
+      store.readAt = window.localStorage.getItem(STORAGE_KEY) ?? '';
+    } catch {
+      // localStorage 不可用（隐私模式等）时静默降级：红点不持久化，不影响展示
+      store.readAt = '';
+    }
   }
+  return store.readAt;
+}
+
+const SERVER_ITEMS = null;
+const SERVER_READ_AT = '';
+
+function markAllRead() {
+  store.readAt = new Date().toISOString();
+  try {
+    window.localStorage.setItem(STORAGE_KEY, store.readAt);
+  } catch {
+    // 同上，静默降级
+  }
+  emit();
+}
+
+function announcedAt(a: Announcement) {
+  return a.publishedAt ?? a.createdAt;
 }
 
 function formatDate(value: string, locale: string): string {
@@ -39,24 +95,13 @@ function formatDate(value: string, locale: string): string {
 export default function NotificationBell() {
   const t = useTranslations('NotificationBell');
   const locale = useLocale();
-  const [items, setItems] = useState<Announcement[] | null>(null);
+  const items = useSyncExternalStore(subscribe, getItems, () => SERVER_ITEMS);
+  const readAt = useSyncExternalStore(subscribe, getReadAt, () => SERVER_READ_AT);
   const [open, setOpen] = useState(false);
-  const [readIds, setReadIds] = useState<Set<string>>(() => loadReadIds());
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    fetch('/api/announcements')
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('failed'))))
-      .then((data: { announcements?: Announcement[] }) => {
-        if (!cancelled) setItems(data.announcements ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setItems([]);
-      });
-    return () => {
-      cancelled = true;
-    };
+    ensureAnnouncements();
   }, []);
 
   useEffect(() => {
@@ -67,26 +112,19 @@ export default function NotificationBell() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const unread =
-    items !== null && items.some((a) => !readIds.has(a.id));
+  // ISO 时间戳按字典序比较即等于按时间比较；readAt 为空串时全部算未读
+  const unread = items !== null && items.some((a) => announcedAt(a) > readAt);
 
-  const openPanel = () => {
-    const next = setOpen(!open);
-    // 打开即视为已读
-    if (items && !open) {
-      const merged = new Set(readIds);
-      items.forEach((a) => merged.add(a.id));
-      setReadIds(merged);
-      saveReadIds(merged);
-    }
-    return next;
+  const togglePanel = () => {
+    if (!open && items) markAllRead();
+    setOpen(!open);
   };
 
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
-        onClick={openPanel}
+        onClick={togglePanel}
         aria-label={t('ariaLabel')}
         className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
       >
@@ -112,25 +150,25 @@ export default function NotificationBell() {
           </div>
           <div className="max-h-96 overflow-y-auto">
             {items === null ? (
-              <p className="px-4 py-6 text-center text-sm text-gray-500">{t('loading')}</p>
+              <p className="t-footnote px-4 py-6 text-center text-white/60">{t('loading')}</p>
             ) : items.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-gray-500">{t('empty')}</p>
+              <p className="t-footnote px-4 py-6 text-center text-white/60">{t('empty')}</p>
             ) : (
               <ul className="divide-y divide-white/[0.06]">
                 {items.map((a) => {
                   const title = pickAnnouncementText(a.titleZh, a.titleEn, locale);
                   const body = pickAnnouncementText(a.bodyZh, a.bodyEn, locale);
-                  const date = formatDate(a.publishedAt ?? a.createdAt, locale);
+                  const date = formatDate(announcedAt(a), locale);
                   return (
                     <li key={a.id} className="px-4 py-3">
                       {title && (
                         <p className="text-sm font-medium text-white">
                           {title}
-                          {date && <span className="ml-2 text-xs font-normal text-white/40">{date}</span>}
+                          {date && <span className="t-footnote ml-2 font-normal text-white/60">{date}</span>}
                         </p>
                       )}
                       {body && <p className="mt-1 text-sm leading-relaxed text-white/70 whitespace-pre-wrap">{body}</p>}
-                      {!title && date && <p className="text-xs text-white/40">{date}</p>}
+                      {!title && date && <p className="t-footnote text-white/60">{date}</p>}
                     </li>
                   );
                 })}

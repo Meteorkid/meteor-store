@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import AdminNav from '@/components/AdminNav';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
-import { listAdminAuditLogs } from '@/lib/admin-audit';
+import { AUDIT_LOG_PAGE_SIZE, listAdminAuditLogs } from '@/lib/admin-audit';
 
 export async function generateMetadata({
   params,
@@ -59,7 +59,7 @@ export default async function AdminAuditLogsPage({
   const session = await getSession();
   if (!session || !isAdminSession(session)) notFound();
 
-  const logs = await listAdminAuditLogs(200);
+  const logs = await listAdminAuditLogs(AUDIT_LOG_PAGE_SIZE);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -68,7 +68,9 @@ export default async function AdminAuditLogsPage({
         <div className="mx-auto max-w-5xl">
           <header className="mb-8">
             <h1 className="t-title-2">{t('title')}</h1>
-            <p className="t-footnote mt-2 text-white/50">{t('subtitle')}</p>
+            <p className="t-footnote mt-2 text-white/60">
+              {t('subtitle', { count: AUDIT_LOG_PAGE_SIZE })}
+            </p>
           </header>
 
           <AdminNav />
@@ -79,7 +81,7 @@ export default async function AdminAuditLogsPage({
             <div className="mt-8 overflow-x-auto rounded-2xl border border-white/[0.07] bg-white/[0.02]">
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-white/[0.07] text-white/50">
+                  <tr className="border-b border-white/[0.07] text-white/60">
                     <th className="t-footnote px-4 py-3">{t('colTime')}</th>
                     <th className="t-footnote px-4 py-3">{t('colAdmin')}</th>
                     <th className="t-footnote px-4 py-3">{t('colAction')}</th>
@@ -94,7 +96,7 @@ export default async function AdminAuditLogsPage({
                       key={log.id}
                       className="border-b border-white/[0.04] text-white/70 last:border-b-0"
                     >
-                      <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-white/50">
+                      <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-white/60">
                         {formatTime(log.createdAt, locale)}
                       </td>
                       <td className="px-4 py-3">{log.adminEmail}</td>
@@ -106,10 +108,10 @@ export default async function AdminAuditLogsPage({
                       <td className="px-4 py-3 font-mono text-xs">
                         {log.targetType ? `${log.targetType}:${log.targetId ?? ''}` : '—'}
                       </td>
-                      <td className="max-w-[240px] truncate px-4 py-3 font-mono text-xs text-white/50">
+                      <td className="max-w-[240px] truncate px-4 py-3 font-mono text-xs text-white/60">
                         {formatDetail(log.detail) || '—'}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-white/50">
+                      <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-white/60">
                         {log.ip ?? '—'}
                       </td>
                     </tr>

@@ -600,6 +600,33 @@ Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户�
   图片上传在 multipart 解析前限制请求体，并按实际解码格式校验，不信任客户端 MIME
 - 部署顺序是**先执行 `0028` 数据库迁移，再部署引用 PAT 表的应用代码**；应用启动不会自动迁移
 
+## 公告与管理员审计
+
+- 公告的唯一服务层是 [src/lib/announcements.ts](file:///Users/meteor/github/meteor-store/src/lib/announcements.ts)，
+  公开接口 `GET /api/announcements`，管理接口 `/api/admin/announcements`，UI 入口是 Header 的铃铛
+- **客户端组件只能从 `announcement-text.ts` 导入**（类型 + `pickAnnouncementText`）。
+  `announcements.ts` 顶部 `import { db }`，而 `db/index.ts` 模块级建 Proxy 有副作用、
+  package.json 没有 `sideEffects: false`，摇不掉——从那里导入哪怕一个纯函数，
+  都会把 drizzle-orm 和 @neondatabase/serverless 打进全站客户端 bundle（铃铛挂在 Header）
+- **`updateAnnouncement` 里 `undefined` = 不改、`null` = 清空**，不要改回 `??` 合并：
+  `??` 会把 null 当成"没传"再回填旧值，于是清空标题/正文永远不生效
+- 更新是**单条 UPDATE**，不做先查后写。`published_at` 由 `coalesce(published_at, now)` 保持首发时间；
+  拆成两步会让并发保存互相覆盖，最坏留下 `published=true` 而 `published_at` 为 null——
+  公开列表按 `isNotNull` 过滤，结果就是"发布了但看不见"
+- 铃铛的已读状态存**一个时间戳**（`ms_announcements_read_at`）不是已读 id 数组：
+  公告只增不删，数组会一直涨。Header 桌面/移动各挂一个铃铛实例，两者共用模块级 store，
+  否则会打两次接口且红点不同步
+- **管理员写操作要 `logAdminAction`**（[src/lib/admin-audit.ts](file:///Users/meteor/github/meteor-store/src/lib/admin-audit.ts)）。
+  删除类操作在 `detail` 里留内容快照——只记 id 的话，删完既恢复不了也看不出删的是什么
+- 审计日志展示条数由 `AUDIT_LOG_PAGE_SIZE` 一处定义，页面文案用 `{count}` 插值，
+  别把数字同时写死在服务层、页面和 `messages/*.json`
+- 部署顺序是**先执行 `0032` 迁移（`admin_audit_logs` 表 + `users` 的 `totp_*` 三列），
+  再部署应用**：`logAdminAction` 已经进了 7 个管理接口，表不在会让后台写操作报错
+- **`TOTP_ENC_KEY` 与 `JWT_SECRET` 必须分开**：JWT_SECRET 是泄露后要轮换的量，
+  用它派生 TOTP 加密密钥的话，一轮换所有已绑定用户的两步验证全部失效（只能靠恢复码找回）。
+  密文带版本前缀，`v2` 用 `TOTP_ENC_KEY`、`v1` 是历史的 JWT_SECRET 派生，解密两个都认。
+  **`TOTP_ENC_KEY` 一旦有人绑定过就不能再换**
+
 ## 安全约束
 
 ### 所有写接口必须限流

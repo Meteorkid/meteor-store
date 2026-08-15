@@ -1055,7 +1055,7 @@
     "metaTitle": "Audit Logs - Meteor Store",
     "metaNotFound": "Page Not Found - Meteor Store",
     "title": "Audit Logs",
-    "subtitle": "Records of critical admin operations, showing the latest 200 entries",
+    "subtitle": "Records of critical admin operations, showing the latest {count} entries",
     "empty": "No audit records yet",
     "colTime": "Time",
     "colAdmin": "Admin",

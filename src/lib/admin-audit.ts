@@ -55,8 +55,16 @@ export async function logAdminAction(
   }
 }
 
-/** 查询最近的审计日志（默认 100 条，只读、按时间倒序）。 */
-export async function listAdminAuditLogs(limit = 100): Promise<AdminAuditEntry[]> {
+/**
+ * 审计日志页一次展示的条数。页面文案里的数字也由它插值，
+ * 别把数字同时写死在这里、页面和 messages/*.json 三处——改一处漏两处就会说谎。
+ */
+export const AUDIT_LOG_PAGE_SIZE = 200;
+
+/** 查询最近的审计日志（只读、按时间倒序）。 */
+export async function listAdminAuditLogs(
+  limit = AUDIT_LOG_PAGE_SIZE,
+): Promise<AdminAuditEntry[]> {
   const rows = await db
     .select()
     .from(adminAuditLogs)

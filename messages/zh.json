@@ -1055,7 +1055,7 @@
     "metaTitle": "审计日志 - Meteor Store",
     "metaNotFound": "页面未找到 - Meteor Store",
     "title": "审计日志",
-    "subtitle": "记录管理员的关键操作，仅保留最近 200 条展示",
+    "subtitle": "记录管理员的关键操作，仅展示最近 {count} 条",
     "empty": "暂无审计记录",
     "colTime": "时间",
     "colAdmin": "操作人",
