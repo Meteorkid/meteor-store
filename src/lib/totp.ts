@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
  * RFC 6238 TOTP（管理端 MFA）+ 恢复码。
  *
  * 零新依赖：HMAC-SHA1 用 node:crypto，base32 手写（RFC 4648）。
- * TOTP secret 落库前用 AES-256-GCM 加密（密钥从 JWT_SECRET 派生），
+ * TOTP secret 落库前用 AES-256-GCM 加密（密钥优先从 TOTP_ENC_KEY 派生，见下方 encryptionKey），
  * 恢复码只存 SHA-256 哈希——数据库泄露拿不到可用凭据。
  */
 
@@ -125,22 +125,44 @@ export function hashRecoveryCode(code: string): string {
 
 // ---------- secret 落库加密 ----------
 
-function encryptionKey(): Buffer {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error('JWT_SECRET is not set');
-  return crypto.createHash('sha256').update(`${secret}:totp-encryption`).digest();
+type KeyVersion = 'v1' | 'v2';
+
+/**
+ * TOTP secret 的加密密钥。
+ *
+ * **v2（推荐）用独立的 `TOTP_ENC_KEY`**：`JWT_SECRET` 是会轮换的量——泄露后必须换，
+ * 而它一换，所有已绑定用户的 TOTP 密文就永久解不开，只能靠恢复码找回并重新绑定。
+ * 把两者解耦后，轮换会话密钥不再牵动 MFA。
+ *
+ * 未配置 `TOTP_ENC_KEY` 时退回 v1 的 `JWT_SECRET` 派生：历史密文就是这么加的，
+ * 必须保持可读。解密两个版本都认，加密只在 v2 可用时才用 v2。
+ */
+function encryptionKey(version: KeyVersion): Buffer {
+  const material =
+    version === 'v2' ? process.env.TOTP_ENC_KEY : process.env.JWT_SECRET;
+  if (!material) {
+    throw new Error(version === 'v2' ? 'TOTP_ENC_KEY is not set' : 'JWT_SECRET is not set');
+  }
+  return crypto.createHash('sha256').update(`${material}:totp-encryption`).digest();
 }
 
-/** AES-256-GCM 加密 TOTP secret，输出 v1:iv:tag:ciphertext（base64 段）。 */
+/** AES-256-GCM 加密 TOTP secret，输出 {版本}:iv:tag:ciphertext（base64 段）。 */
 export function encryptTotpSecret(secretBase32: string): string {
+  const version: KeyVersion = process.env.TOTP_ENC_KEY ? 'v2' : 'v1';
+  if (version === 'v1') {
+    console.warn(
+      'TOTP_ENC_KEY 未配置，TOTP secret 回退到 JWT_SECRET 派生密钥加密；' +
+        '轮换 JWT_SECRET 会让已绑定的两步验证全部失效（只能用恢复码找回）',
+    );
+  }
   const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv('aes-256-gcm', encryptionKey(), iv);
+  const cipher = crypto.createCipheriv('aes-256-gcm', encryptionKey(version), iv);
   const ciphertext = Buffer.concat([
     cipher.update(secretBase32, 'utf8'),
     cipher.final(),
   ]);
   const tag = cipher.getAuthTag();
-  return ['v1', iv.toString('base64'), tag.toString('base64'), ciphertext.toString('base64')].join(
+  return [version, iv.toString('base64'), tag.toString('base64'), ciphertext.toString('base64')].join(
     ':',
   );
 }
@@ -148,10 +170,10 @@ export function encryptTotpSecret(secretBase32: string): string {
 export function decryptTotpSecret(encrypted: string): string | null {
   try {
     const [version, ivB64, tagB64, dataB64] = encrypted.split(':');
-    if (version !== 'v1' || !ivB64 || !tagB64 || !dataB64) return null;
+    if ((version !== 'v1' && version !== 'v2') || !ivB64 || !tagB64 || !dataB64) return null;
     const decipher = crypto.createDecipheriv(
       'aes-256-gcm',
-      encryptionKey(),
+      encryptionKey(version),
       Buffer.from(ivB64, 'base64'),
     );
     decipher.setAuthTag(Buffer.from(tagB64, 'base64'));

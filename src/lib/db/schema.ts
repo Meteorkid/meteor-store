@@ -52,7 +52,7 @@ export const users = pgTable('users', {
   tokenVersion: integer('token_version').default(0).notNull(),
   /** 博客图片已预占或已上传的总字节数；由图片账本原子维护。 */
   blogImageBytes: bigint('blog_image_bytes', { mode: 'number' }).default(0).notNull(),
-  /** TOTP 两步验证密文（AES-256-GCM，密钥由 JWT_SECRET 派生，见 lib/totp.ts）。 */
+  /** TOTP 两步验证密文（AES-256-GCM，密钥优先由 TOTP_ENC_KEY 派生，见 lib/totp.ts）。 */
   totpSecretEnc: text('totp_secret_enc'),
   /** 两步验证是否已确认启用。未确认的 secret 只用于绑定流程，登录不挑战。 */
   totpEnabled: boolean('totp_enabled').default(false).notNull(),
