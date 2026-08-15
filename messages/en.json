@@ -60,6 +60,7 @@
     "blog": "Blog",
     "story": "A Letter from the Store Owner ☄",
     "rss": "RSS Feed",
+    "support": "Support Me ☕",
     "contact": "Contact Us",
     "feedback": "Feedback",
     "email": "Send Email",
@@ -67,6 +68,16 @@
     "copyrightOperator": "© {year} Meteor Store · {operator}",
     "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ you found me",
     "onlineVisitors": "{count} people online now"
+  },
+  "SupportPage": {
+    "title": "Support Me",
+    "description": "If these tools truly helped you, buy me a coffee.",
+    "eyebrow": "Buy Me a Coffee",
+    "alipayTitle": "Alipay",
+    "alipayHint": "Scan with Alipay",
+    "wechatTitle": "WeChat",
+    "wechatHint": "Scan with WeChat",
+    "disclaimer": "Tips are voluntary and come with no benefits or after-sales service."
   },
   "HomePage": {
     "title": "Meteor Store — Developer Tools & AI Apps",

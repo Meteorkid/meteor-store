@@ -60,6 +60,7 @@
     "blog": "博客",
     "story": "本店店主的一封信 ☄",
     "rss": "RSS 订阅",
+    "support": "支持我 ☕",
     "contact": "联系我们",
     "feedback": "反馈建议",
     "email": "发送邮件",
@@ -67,6 +68,16 @@
     "copyrightOperator": "© {year} Meteor Store · {operator}",
     "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ 被你发现了",
     "onlineVisitors": "当前 {count} 人在线"
+  },
+  "SupportPage": {
+    "title": "支持我",
+    "description": "如果这些工具真的帮到了你，请我喝杯咖啡吧。",
+    "eyebrow": "赞赏支持",
+    "alipayTitle": "支付宝",
+    "alipayHint": "打开支付宝扫一扫",
+    "wechatTitle": "微信",
+    "wechatHint": "微信扫一扫",
+    "disclaimer": "赞赏是自愿的，不附带任何权益或售后服务"
   },
   "HomePage": {
     "title": "Meteor Store — 开发者工具与 AI 应用",

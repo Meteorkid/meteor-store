@@ -12,6 +12,7 @@ const resourceLinks = [
   { key: 'docs', href: '/docs' },
   { key: 'blog', href: '/blog' },
   { key: 'story', href: '/story' },
+  { key: 'support', href: '/support' },
 ] as const;
 
 const companyLinks = [
