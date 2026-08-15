@@ -116,6 +116,15 @@ export default function Header() {
               </Link>
             );
           })}
+          {/* 支持我入口 */}
+          <Link
+            href="/support"
+            aria-label={t('support')}
+            title={t('support')}
+            className="flex items-center px-3 py-2 text-base rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
+          >
+            ☕️
+          </Link>
           {/* Spotlight 搜索入口 */}
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('spotlight:open'))}
@@ -196,6 +205,13 @@ export default function Header() {
               </Link>
             );
           })}
+          <Link
+            href="/support"
+            onClick={() => setMobileOpen(false)}
+            className="px-4 py-3 text-lg rounded-xl text-foreground hover:bg-white/5 transition-colors"
+          >
+            {t('support')}
+          </Link>
           <div className="h-px bg-border my-4" />
           {user ? (
             <div className="space-y-2">
