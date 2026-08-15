@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useCallback, useSyncExternalStore } from 'react';
 
 const STORAGE_KEY = 'glass-alpha';
 const DEFAULT = 1;
@@ -33,31 +33,48 @@ function applyAlpha(v: number) {
   document.documentElement.style.setProperty('--glass-alpha', String(v));
 }
 
+/**
+ * 透明度偏好存在 localStorage，是组件外部的状态——按全站约定用 useSyncExternalStore 读，
+ * 不在 effect 里 setState。（曾经包一层 `Promise.resolve().then()` 来绕开
+ * react-hooks/set-state-in-effect：规则看不见了，模式没变，代价是首帧闪一下默认值。）
+ */
+const listeners = new Set<() => void>();
+let cachedAlpha: number | null = null;
+
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  return () => {
+    listeners.delete(cb);
+  };
+}
+
+function getAlpha(): number {
+  cachedAlpha ??= readAlpha();
+  return cachedAlpha;
+}
+
+/** SSR 阶段没有 localStorage，先按默认值渲染，hydrate 后由 getAlpha 纠正 */
+function getServerAlpha(): number {
+  return DEFAULT;
+}
+
+function setAlpha(v: number) {
+  cachedAlpha = v;
+  writeAlpha(v);
+  applyAlpha(v);
+  listeners.forEach((cb) => cb());
+}
+
 export default function GlassPreference() {
-  const [alpha, setAlpha] = useState(DEFAULT);
-  const [mounted, setMounted] = useState(false);
+  const alpha = useSyncExternalStore(subscribe, getAlpha, getServerAlpha);
 
+  // 把已保存的偏好写进 CSS 变量。纯副作用，不 setState。
   useEffect(() => {
-    let cancelled = false;
-    // setState 放进异步回调（React Compiler：不在 effect 里同步 setState），
-    // 同时避免 SSR 时读取 localStorage 造成的首帧不一致
-    Promise.resolve().then(() => {
-      if (cancelled) return;
-      const saved = readAlpha();
-      setAlpha(saved);
-      applyAlpha(saved);
-      setMounted(true);
-    });
-    return () => { cancelled = true; };
+    applyAlpha(getAlpha());
   }, []);
 
-  const handleChange = useCallback((v: number) => {
-    setAlpha(v);
-    applyAlpha(v);
-    writeAlpha(v);
-  }, []);
+  const handleChange = useCallback((v: number) => setAlpha(v), []);
 
-  // 避免 SSR 闪烁：挂载前不渲染滑块
   const pct = ((alpha - MIN) / (MAX - MIN)) * 100;
 
   return (
@@ -87,33 +104,31 @@ export default function GlassPreference() {
         </div>
 
         {/* 滑块 */}
-        {mounted && (
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-white/30 w-7 text-right tabular-nums">{alpha.toFixed(2)}</span>
-            <input
-              type="range"
-              min={MIN}
-              max={MAX}
-              step={STEP}
-              value={alpha}
-              onChange={(e) => handleChange(parseFloat(e.target.value))}
-              className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, rgb(139 92 246 / 0.3) 0%, rgb(139 92 246 / 0.7) ${pct}%, rgb(255 255 255 / 0.08) ${pct}%, rgb(255 255 255 / 0.08) 100%)`,
-                accentColor: 'rgb(139 92 246)',
-              }}
-            />
-            <div className="flex gap-0.5">
-              {/* 透明图标 */}
-              <svg className="w-4 h-4 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                <circle cx="12" cy="12" r="10" strokeDasharray="4 2" />
-              </svg>
-              <svg className="w-4 h-4 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                <circle cx="12" cy="12" r="10" />
-              </svg>
-            </div>
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] text-white/30 w-7 text-right tabular-nums">{alpha.toFixed(2)}</span>
+          <input
+            type="range"
+            min={MIN}
+            max={MAX}
+            step={STEP}
+            value={alpha}
+            onChange={(e) => handleChange(parseFloat(e.target.value))}
+            className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, rgb(139 92 246 / 0.3) 0%, rgb(139 92 246 / 0.7) ${pct}%, rgb(255 255 255 / 0.08) ${pct}%, rgb(255 255 255 / 0.08) 100%)`,
+              accentColor: 'rgb(139 92 246)',
+            }}
+          />
+          <div className="flex gap-0.5">
+            {/* 透明图标 */}
+            <svg className="w-4 h-4 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="12" cy="12" r="10" strokeDasharray="4 2" />
+            </svg>
+            <svg className="w-4 h-4 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="12" cy="12" r="10" />
+            </svg>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

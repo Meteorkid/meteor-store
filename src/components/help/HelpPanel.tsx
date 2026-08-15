@@ -27,28 +27,27 @@ export default function HelpPanel() {
   const [article, setArticle] = useState<HelpArticleData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const startX = useRef(0);
   const startWidth = useRef(0);
 
-  // 加载文章内容
+  // 加载文章内容。effect 里只处理"请求回来之后"，进入加载态由下面的渲染期重置负责——
+  // 把 setLoading(true) 放进 .then 会让它在响应回来后才执行，紧接着就被 setLoading(false)
+  // 覆盖，骨架屏永远渲染不出来。
   useEffect(() => {
     if (!state.open || !state.slug) return;
     let cancelled = false;
 
-    // setState 全部放进异步回调（React Compiler：不在 effect 里同步 setState）
     fetch(`/api/help-panel?slug=${encodeURIComponent(state.slug)}&locale=${locale}`)
       .then((res) => {
-        if (cancelled) return null;
-        setLoading(true);
-        setError(false);
         if (!res.ok) throw new Error('Failed to load');
         return res.json();
       })
       .then((data) => {
-        if (cancelled || data === null) return;
+        if (cancelled) return;
         setArticle(data);
         setLoading(false);
       })
@@ -94,6 +93,17 @@ export default function HelpPanel() {
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [state.open, closePanel]);
+
+  // 渲染期重置派生状态：请求目标一变就立刻丢掉上一篇的正文和错误态。
+  // 渲染条件是 `article && !loading`，不清空的话在面板里点 B，整个请求期间
+  // 顶栏标题和正文显示的都是 A。
+  const requestKey = state.open && state.slug ? `${state.slug}:${locale}` : null;
+  if (requestKey !== loadedKey) {
+    setLoadedKey(requestKey);
+    setArticle(null);
+    setError(false);
+    setLoading(requestKey !== null);
+  }
 
   if (!state.open) return null;
 

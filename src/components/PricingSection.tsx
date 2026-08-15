@@ -49,10 +49,13 @@ export default function PricingSection({
   const [currentPassPlan, setCurrentPassPlan] = useState<PassPlanId | null>(null);
 
   // 渲染期调整：user 由有变无时重置 Pass 档位（React Compiler：不在 effect 里同步 setState）
-  const [prevUser, setPrevUser] = useState(user);
-  if (user !== prevUser) {
-    setPrevUser(user);
-    if (!user) setCurrentPassPlan(null);
+  // 比 id 不比对象引用：AuthProvider 只要把同一个用户 setUser 成一个新对象
+  // （refresh() / /api/auth/me 轮询），比引用就会每次渲染都 setState → Too many re-renders 白屏
+  const userId = user?.id ?? null;
+  const [prevUserId, setPrevUserId] = useState(userId);
+  if (userId !== prevUserId) {
+    setPrevUserId(userId);
+    if (!userId) setCurrentPassPlan(null);
   }
 
   useEffect(() => {

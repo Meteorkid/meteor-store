@@ -7,8 +7,6 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
 import type { Root, Element, Text } from 'hast';
-import { existsSync } from 'fs';
-import { join } from 'path';
 
 export interface HelpHeading {
   id: string;
@@ -121,11 +119,6 @@ function rehypeHelpImages(slug: string) {
       node.properties = node.properties ?? {};
       node.properties.loading = 'lazy';
       node.properties.decoding = 'async';
-
-      const filePath = join(process.cwd(), 'public', src.slice(1));
-      if (!existsSync(filePath)) return;
-
-      // 尺寸信息由后续图片处理流程补充；此处只加 lazy/decoding
     });
   };
 }

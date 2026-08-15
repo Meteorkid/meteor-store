@@ -142,11 +142,15 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
   const [prevDisplayQuery, setPrevDisplayQuery] = useState(displayQuery);
   if (displayQuery !== prevDisplayQuery) {
     setPrevDisplayQuery(displayQuery);
-    if (!displayQuery) {
+    // 查询一变就立刻归位，不能等到 debounce 回调：那段窗口里 results 还是上一次的，
+    // 播报会用新 query 说旧条数；上一次没结果时还会先闪一下"没有找到"再进入搜索中。
+    setVisibleLimit(INITIAL_LIMIT);
+    if (displayQuery) {
+      setIsSearching(true);
+    } else {
       setResults([]);
       setHasFuzzy(false);
       setIsSearching(false);
-      setVisibleLimit(INITIAL_LIMIT);
     }
   }
 
@@ -159,9 +163,6 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
 
     const timer = setTimeout(async () => {
       try {
-        // setState 放进异步回调（React Compiler：不在 effect 里同步 setState）
-        setIsSearching(true);
-        setVisibleLimit(INITIAL_LIMIT);
         const url = `/api/spotlight/search?q=${encodeURIComponent(displayQuery)}&locale=${locale}`;
         const res = await fetch(url, { signal: controller.signal });
         if (!res.ok) { setResults([]); return; }

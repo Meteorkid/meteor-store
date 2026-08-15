@@ -19,10 +19,12 @@ export default function UserMenu() {
   const [passStatus, setPassStatus] = useState<PassStatus | null>(null);
 
   // 渲染期调整：user 由有变无时重置 Pass 状态（React Compiler：不在 effect 里同步 setState）
-  const [prevUser, setPrevUser] = useState(user);
-  if (user !== prevUser) {
-    setPrevUser(user);
-    if (!user) setPassStatus(null);
+  // 比 id 不比对象引用：同一个用户被 setUser 成新对象时，比引用会每次渲染都 setState
+  const userId = user?.id ?? null;
+  const [prevUserId, setPrevUserId] = useState(userId);
+  if (userId !== prevUserId) {
+    setPrevUserId(userId);
+    if (!userId) setPassStatus(null);
   }
 
   useEffect(() => {
