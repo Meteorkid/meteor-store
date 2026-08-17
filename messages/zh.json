@@ -286,7 +286,8 @@
     "wechatUnbinding": "解绑中…",
     "wechatUnbindFailed": "解除绑定失败，请重试。",
     "wechatBind": "绑定微信",
-    "wechatLinkedSuccess": "微信绑定成功，之后可直接扫码登录。"
+    "wechatLinkedSuccess": "微信绑定成功，之后可直接扫码登录。",
+    "wechatBoundAs": "当前绑定账号："
   },
   "BlogApiTokenManager": {
     "title": "博客 API 令牌",
@@ -1600,7 +1601,9 @@
     "perYear": "/年",
     "emailRequired": "请输入邮箱地址",
     "paymentFailed": "支付创建失败: {error}",
-    "networkError": "网络错误，请重试"
+    "networkError": "网络错误，请重试",
+    "wechatInDevelopment": "微信支付开发中，暂未开放，请先使用支付宝",
+    "wechatComingSoon": "开发中"
   },
   "Comment": {
     "title": "评论",

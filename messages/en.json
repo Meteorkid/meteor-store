@@ -286,7 +286,8 @@
     "wechatUnbinding": "Unlinking…",
     "wechatUnbindFailed": "Failed to unlink WeChat. Please try again.",
     "wechatBind": "Link WeChat",
-    "wechatLinkedSuccess": "WeChat linked successfully. You can now log in by scanning the QR code."
+    "wechatLinkedSuccess": "WeChat linked successfully. You can now log in by scanning the QR code.",
+    "wechatBoundAs": "Bound account: "
   },
   "BlogApiTokenManager": {
     "title": "Blog API tokens",
@@ -1600,7 +1601,9 @@
     "perYear": "/yr",
     "emailRequired": "Please enter your email address",
     "paymentFailed": "Payment creation failed: {error}",
-    "networkError": "Network error, please retry"
+    "networkError": "Network error, please retry",
+    "wechatInDevelopment": "WeChat Pay is under development. Please use Alipay for now.",
+    "wechatComingSoon": "Coming soon"
   },
   "Comment": {
     "title": "Comments",

@@ -260,7 +260,7 @@ export default async function AccountPage({
 
           <GlassPreference />
 
-          <WechatAccountBinding bound={!!user.wechatOpenid} />
+          <WechatAccountBinding bound={!!user.wechatOpenid} email={user.email} />
 
           <section className="mt-8 rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
             <h2 className="t-title-3 mb-1.5 text-white/90">{t('dataRights')}</h2>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 
-export default function WechatAccountBinding({ bound }: { bound: boolean }) {
+export default function WechatAccountBinding({ bound, email }: { bound: boolean; email?: string }) {
   const t = useTranslations('AccountPage');
   const locale = useLocale();
   const router = useRouter();
@@ -35,6 +35,11 @@ export default function WechatAccountBinding({ bound }: { bound: boolean }) {
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden />
             {t('wechatBound')}
           </span>
+          {email && (
+            <span className="text-sm text-white/70">
+              {t('wechatBoundAs')} <span className="font-medium text-white/90">{email}</span>
+            </span>
+          )}
           <button
             type="button"
             onClick={handleUnbind}
