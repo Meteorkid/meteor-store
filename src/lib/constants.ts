@@ -51,7 +51,7 @@ export const OPERATOR = {
    */
   address: '',
   /** ICP 备案号，链接工信部 beian.miit.gov.cn */
-  icp: '粤ICP备2026089905号',
+  icp: '粤ICP备2026089905号-1',
   /** 公安联网备案号，ICP 备案通过后 30 日内办理 */
   police: '',
   /** 争议管辖法院所在地 */
