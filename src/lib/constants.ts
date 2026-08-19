@@ -52,8 +52,14 @@ export const OPERATOR = {
   address: '',
   /** ICP 备案号，链接工信部 beian.miit.gov.cn */
   icp: '粤ICP备2026089905号-1',
-  /** 公安联网备案号，ICP 备案通过后 30 日内办理 */
-  police: '',
+  /**
+   * 公安联网备案号，链接公安部 beian.mps.gov.cn 的查询页。
+   * 查询链接必须带 `code`（纯数字，不含「粤公网安备」前缀与「号」后缀），
+   * 只指向 beian.mps.gov.cn 首页会被判为未链接到本站备案记录。
+   */
+  police: '粤公网安备44011302005805号',
+  /** 公安备案查询码：拼进 beian.mps.gov.cn 查询链接，与 police 同批下发 */
+  policeCode: '44011302005805',
   /** 争议管辖法院所在地 */
   jurisdiction: '广州市番禺区',
 } as const;
