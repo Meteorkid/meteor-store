@@ -100,7 +100,12 @@ function parseOrigin(url: string): string {
 
 export const config = {
   // 只对 HTML 页面启用：静态资源、API、Next 内部资源都排除
+  //
+  // 带扩展名的路径一律排除，**`.html` 也在内**：App Router 的页面路由从不带扩展名，
+  // 所以带 .html 的请求必然是 public/ 下的静态文件——目前是搜索引擎站长平台的
+  // 归属验证文件（如 baidu_verify_codeva-*.html）。漏掉它的话 next-intl 会把
+  // /baidu_verify_xxx.html 重定向成 /zh/baidu_verify_xxx.html 然后 404，验证必然失败。
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|favicon.svg|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js|map|txt|xml)).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|favicon.svg|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js|map|txt|xml|html)).*)',
   ],
 };
