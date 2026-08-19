@@ -156,7 +156,9 @@
     "wechatUnavailable": "微信登录尚未配置，请稍后再试或使用邮箱登录。",
     "wechatInvalid": "微信登录请求无效或已过期，请重新扫码。",
     "wechatError": "微信登录失败，请重试或使用邮箱登录。",
-    "wechatEmailUnverified": "该微信已绑定账号，但邮箱尚未验证。请先用邮箱登录并完成验证，之后即可扫码登录。"
+    "wechatEmailUnverified": "该微信已绑定账号，但邮箱尚未验证。请先用邮箱登录并完成验证，之后即可扫码登录。",
+    "mfaRememberDevice": "记住此设备 30 天",
+    "mfaRememberDeviceHint": "此后在这台设备上登录只需密码。换设备或清除浏览器数据后仍会要求动态码。"
   },
   "VerifyEmailPage": {
     "metaTitle": "验证邮箱 - Meteor Store",

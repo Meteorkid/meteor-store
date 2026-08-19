@@ -42,9 +42,12 @@ function EyeIcon({ open }: { open: boolean }) {
 export default function AuthForm({
   verified = false,
   wechatError = null,
+  mfaChallenge = false,
 }: {
   verified?: boolean;
   wechatError?: string | null;
+  /** 微信扫码回调判定需要二次验证时重定向带 ?mfa=1；票在 httpOnly cookie 里 */
+  mfaChallenge?: boolean;
 }) {
   const t = useTranslations('LoginPage');
   const locale = useLocale();
@@ -72,8 +75,13 @@ export default function AuthForm({
   const [agreed, setAgreed] = useState(false);
   const [captcha, setCaptcha] = useState<{ token: string } | null>(null);
   const [pendingVerification, setPendingVerification] = useState<PendingVerification | null>(null);
-  const [pendingMfa, setPendingMfa] = useState<PendingMfa | null>(null);
+  // 初始态由服务端传入的 prop 决定，服务端与客户端首帧一致，不会 hydration 不匹配。
+  // ticket 为空串表示「票在 httpOnly cookie 里，由服务端自己取」。
+  const [pendingMfa, setPendingMfa] = useState<PendingMfa | null>(
+    mfaChallenge ? { ticket: '' } : null,
+  );
   const [mfaCode, setMfaCode] = useState('');
+  const [rememberDevice, setRememberDevice] = useState(false);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
   const { login, register, resendVerification, verifyMfa, user } = useAuth();
@@ -102,7 +110,7 @@ export default function AuthForm({
     if (!pendingMfa || loading) return;
     setError('');
     setLoading(true);
-    const result = await verifyMfa(pendingMfa.ticket, mfaCode.trim());
+    const result = await verifyMfa(pendingMfa.ticket, mfaCode.trim(), rememberDevice);
     setLoading(false);
     if (result.error) {
       // 验证码错误或 ticket 过期：留在本页提示，用户可点「返回登录」重新走密码
@@ -208,6 +216,20 @@ export default function AuthForm({
             />
             <p className="mt-2 text-center text-xs text-gray-600">{t('mfaRecoveryHint')}</p>
           </div>
+          <label className="flex cursor-pointer items-start gap-2.5 text-sm text-white/70">
+            <input
+              type="checkbox"
+              checked={rememberDevice}
+              onChange={(e) => setRememberDevice(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/20 bg-white/10 accent-violet-500"
+            />
+            <span>
+              {t('mfaRememberDevice')}
+              <span className="mt-0.5 block text-xs text-white/60">
+                {t('mfaRememberDeviceHint')}
+              </span>
+            </span>
+          </label>
           <button
             type="submit"
             disabled={loading || mfaCode.trim().length < 6}

@@ -3,7 +3,16 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
-import { readMfaChallengeTicket, verifyUserTotpOrRecoveryCode } from '@/lib/admin-mfa';
+import {
+  MFA_CHALLENGE_COOKIE,
+  readMfaChallengeTicket,
+  verifyUserTotpOrRecoveryCode,
+} from '@/lib/admin-mfa';
+import {
+  TRUSTED_DEVICE_COOKIE,
+  createTrustedDeviceToken,
+  trustedDeviceCookieOptions,
+} from '@/lib/trusted-device';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { assertMatchingOrigin } from '@/lib/csrf';
 
@@ -18,6 +27,8 @@ import { assertMatchingOrigin } from '@/lib/csrf';
  *   挑战窗口内改密或关闭 MFA 必须立即生效，不能凭 ticket 里的快照放行
  * - 恢复码验证成功即消耗（一次性）
  * - 限流 failClosed：这是登录链路的一部分，与 login 接口同一标准
+ * - ticket 优先取请求体（密码登录），缺省回落到 httpOnly cookie（微信扫码重定向链路）
+ * - rememberDevice 为真时签发 30 天设备令牌，此后本浏览器登录免动态码
  */
 export async function POST(req: NextRequest) {
   const forbidden = assertMatchingOrigin(req);
@@ -32,9 +43,13 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => null);
-  const ticket = typeof body?.mfaTicket === 'string' ? body.mfaTicket : '';
+  const ticket =
+    typeof body?.mfaTicket === 'string' && body.mfaTicket
+      ? body.mfaTicket
+      : (req.cookies.get(MFA_CHALLENGE_COOKIE)?.value ?? '');
   const code = typeof body?.code === 'string' ? body.code.trim() : '';
   const locale = body?.locale === 'en' ? 'en' : 'zh';
+  const rememberDevice = body?.rememberDevice === true;
 
   if (!ticket || !code) {
     return NextResponse.json({ error: '参数无效' }, { status: 400 });
@@ -83,10 +98,12 @@ export async function POST(req: NextRequest) {
       tokenVersion: user.tokenVersion,
       emailVerified: true,
     });
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       user: { id: user.id, email: user.email, name: user.name },
     });
+    res.cookies.delete(MFA_CHALLENGE_COOKIE);
+    return res;
   }
 
   const ok = await verifyUserTotpOrRecoveryCode(user.id, code);
@@ -105,8 +122,20 @@ export async function POST(req: NextRequest) {
     emailVerified: true,
   });
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     success: true,
     user: { id: user.id, email: user.email, name: user.name },
   });
+  res.cookies.delete(MFA_CHALLENGE_COOKIE);
+
+  // 只有真正过了第二因子才发设备令牌：上面「MFA 已被关闭」那条捷径不发，
+  // 否则关一次 MFA 就能给自己换一张 30 天免检票。
+  if (rememberDevice) {
+    res.cookies.set(
+      TRUSTED_DEVICE_COOKIE,
+      await createTrustedDeviceToken(user.id, user.tokenVersion),
+      trustedDeviceCookieOptions(),
+    );
+  }
+  return res;
 }

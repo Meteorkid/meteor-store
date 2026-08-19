@@ -32,7 +32,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<AuthActionResult>;
-  verifyMfa: (mfaTicket: string, code: string) => Promise<AuthActionResult>;
+  verifyMfa: (mfaTicket: string, code: string, rememberDevice?: boolean) => Promise<AuthActionResult>;
   register: (email: string, password: string, name?: string, captcha?: { token: string }) => Promise<AuthActionResult>;
   resendVerification: (resendTicket: string) => Promise<string | null>;
   logout: () => Promise<void>;
@@ -103,11 +103,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
-  const verifyMfa = async (mfaTicket: string, code: string): Promise<AuthActionResult> => {
+  const verifyMfa = async (
+    mfaTicket: string,
+    code: string,
+    rememberDevice = false,
+  ): Promise<AuthActionResult> => {
     const res = await fetch('/api/auth/mfa', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mfaTicket, code, locale }),
+      // mfaTicket 为空串时由服务端从 httpOnly cookie 取票（微信扫码重定向链路）
+      body: JSON.stringify({ mfaTicket, code, locale, rememberDevice }),
     });
     const data = await res.json();
     if (!res.ok) return { error: data.error || t('loginFailed') };

@@ -156,7 +156,9 @@
     "wechatUnavailable": "WeChat login is not configured yet. Please try again later or use email login.",
     "wechatInvalid": "The WeChat login request is invalid or expired. Please scan again.",
     "wechatError": "WeChat login failed. Please retry or use email login.",
-    "wechatEmailUnverified": "This WeChat account is linked to an account whose email is not verified yet. Please log in with email, verify it, then scan to log in."
+    "wechatEmailUnverified": "This WeChat account is linked to an account whose email is not verified yet. Please log in with email, verify it, then scan to log in.",
+    "mfaRememberDevice": "Remember this device for 30 days",
+    "mfaRememberDeviceHint": "You will only need your password on this device from now on. A new device or cleared browser data still requires a code."
   },
   "VerifyEmailPage": {
     "metaTitle": "Verify Email - Meteor Store",

@@ -22,6 +22,26 @@ const ISSUER = 'meteor-store';
 const CHALLENGE_AUDIENCE = 'mfa-challenge';
 const CHALLENGE_EXPIRY = 5 * 60;
 
+/**
+ * 挑战票的 cookie 传递通道。
+ *
+ * 密码登录走 JSON（前端拿到 ticket 再 POST 回来），但微信扫码是浏览器重定向，
+ * 没有 JSON 通道。把 ticket 放 URL（query 或 fragment）会让它进入历史记录、
+ * access log 或 Referer，所以改为 httpOnly cookie：页面只收到 `?mfa=1` 这个无害标记，
+ * 票本身 JS 读不到，/api/auth/mfa 直接从 cookie 取。
+ */
+export const MFA_CHALLENGE_COOKIE = 'ms_mfa_challenge';
+
+export function mfaChallengeCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    maxAge: CHALLENGE_EXPIRY,
+    path: '/',
+  };
+}
+
 interface MfaChallengePayload {
   userId: string;
   email: string;

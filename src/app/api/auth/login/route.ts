@@ -4,7 +4,12 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
 import { createEmailVerificationResendTicket } from '@/lib/email-verification';
-import { createMfaChallengeTicket } from '@/lib/admin-mfa';
+import {
+  MFA_CHALLENGE_COOKIE,
+  createMfaChallengeTicket,
+  mfaChallengeCookieOptions,
+} from '@/lib/admin-mfa';
+import { TRUSTED_DEVICE_COOKIE, isTrustedDeviceToken } from '@/lib/trusted-device';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { assertMatchingOrigin } from '@/lib/csrf';
 import { eq } from 'drizzle-orm';
@@ -75,15 +80,28 @@ export async function POST(req: NextRequest) {
   }
 
   // MFA：已启用 TOTP 的账户在密码验证通过后不直接签发 session，
-  // 而是返回 5 分钟有效的挑战 ticket，由 /api/auth/mfa 验证动态码后才能登录
-  if (user.totpEnabled) {
+  // 而是返回 5 分钟有效的挑战 ticket，由 /api/auth/mfa 验证动态码后才能登录。
+  //
+  // 例外是「记住此设备」：30 天内在本浏览器过过一次动态码就免挑战。
+  // 攻击者用的本来就是新设备/新浏览器，拿不到这枚 cookie，仍会被挡在动态码前。
+  if (
+    user.totpEnabled &&
+    !(await isTrustedDeviceToken(
+      req.cookies.get(TRUSTED_DEVICE_COOKIE)?.value,
+      user.id,
+      user.tokenVersion,
+    ))
+  ) {
     const mfaTicket = await createMfaChallengeTicket({
       userId: user.id,
       email: user.email,
       name: user.name ?? undefined,
       tokenVersion: user.tokenVersion,
     });
-    return NextResponse.json({ mfaRequired: true, mfaTicket });
+    // 同时写 cookie：微信扫码那条重定向链路没有 JSON 通道，只能从 cookie 取票
+    const res = NextResponse.json({ mfaRequired: true, mfaTicket });
+    res.cookies.set(MFA_CHALLENGE_COOKIE, mfaTicket, mfaChallengeCookieOptions());
+    return res;
   }
 
   await createSession({

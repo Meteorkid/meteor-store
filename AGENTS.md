@@ -627,6 +627,31 @@ Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户�
   密文带版本前缀，`v2` 用 `TOTP_ENC_KEY`、`v1` 是历史的 JWT_SECRET 派生，解密两个都认。
   **`TOTP_ENC_KEY` 一旦有人绑定过就不能再换**
 
+## 登录与两步验证
+
+登录有三条入口，**它们必须受同一道 MFA 门控**：邮箱密码、微信扫码、以及挑战验证接口本身。
+
+- **新增任何签发 session 的路径时，先检查 `totpEnabled`**。`createSession` 的调用点目前有 6 处，
+  漏一处就等于给开了两步验证的账号开一个后门。历史教训：`wechat/callback` 曾直接
+  `createSession`，而首次绑定的 `wechat/bind` 是检查的——两条路径不一致最容易漏，
+  结果是凡绑过微信的账号都能绕开两步验证。
+  `src/app/api/auth/wechat/callback/__tests__/route.test.ts` 把这条钉在 CI 上
+- **挑战票走 httpOnly cookie（`ms_mfa_challenge`），不进 URL**。密码登录有 JSON 通道可以直接
+  返回 ticket，但微信扫码是浏览器重定向，没有。放 query 会进 access log 与 Referer，
+  放 fragment 会进历史记录且要靠 JS 读取（还会引入 hydration 分支）。
+  现在页面只收到无害的 `?mfa=1`，`/api/auth/mfa` 自己从 cookie 取票
+- **「记住此设备」令牌（`ms_trusted_device`，30 天）绑定 `userId + tokenVersion`**，
+  见 [src/lib/trusted-device.ts](file:///Users/meteor/github/meteor-store/src/lib/trusted-device.ts)。
+  改密码递增 `tokenVersion`，于是**改密是唯一的批量撤销手段**——没有单独的设备管理页。
+  重新绑定 TOTP 不会作废已信任设备，需要清空时改一次密码
+- **设备令牌只在真正过了第二因子之后签发**。`/api/auth/mfa` 里有一条「挑战窗口内 MFA 被关闭
+  则直接放行」的捷径，那条**不发**令牌，否则关一次 MFA 就能给自己换一张 30 天免检票
+- 四种令牌（session / MFA 挑战 / 设备信任 / 邮箱验证）**各用各的派生密钥与 audience**，
+  互相不能冒充。`trusted-device.test.ts` 里有一条用 MFA 挑战票冒充设备令牌的用例
+- 恢复码 10 个、**一次性消费**（验证成功即从数组移除），目前没有重新生成的入口。
+  站内没有自助解锁路径：验证器和恢复码同时丢失时只能直接改库
+  （`update users set totp_enabled=false, totp_secret_enc=null, totp_recovery_codes=null`）
+
 ## 安全约束
 
 ### 所有写接口必须限流

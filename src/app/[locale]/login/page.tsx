@@ -23,17 +23,22 @@ export default async function LoginPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ verified?: string; wechat?: string }>;
+  searchParams: Promise<{ verified?: string; wechat?: string; mfa?: string }>;
 }) {
   const { locale } = await params;
-  const { verified, wechat } = await searchParams;
+  const { verified, wechat, mfa } = await searchParams;
   setRequestLocale(locale);
 
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
       <main className="container mx-auto flex items-center justify-center px-4 py-16 md:py-24">
-        <AuthForm verified={verified === '1'} wechatError={wechat ?? null} />
+        {/* mfa=1 由微信扫码回调重定向带上：挑战票在 httpOnly cookie 里，URL 只留无害标记 */}
+        <AuthForm
+          verified={verified === '1'}
+          wechatError={wechat ?? null}
+          mfaChallenge={mfa === '1'}
+        />
       </main>
       <Footer />
     </div>
