@@ -36,6 +36,33 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+/**
+ * 搜索引擎站长平台的归属验证 meta 标签。
+ *
+ * 三家都支持「HTML 标签」验证方式，比传验证文件省事：在各自后台拿到 content 值，
+ * 填进对应环境变量即可。**没配的那家不输出标签**——挂一个空 content 的
+ * 验证标签会让平台判定验证失败，比没有更糟。
+ *
+ * 值本身不是密钥（本来就要公开在页面源码里），但仍走环境变量而非硬编码，
+ * 免得换域名或重新验证时要改代码。
+ */
+function siteVerification(): Metadata["verification"] | undefined {
+  const google = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+  const bing = process.env.BING_SITE_VERIFICATION?.trim();
+  const baidu = process.env.BAIDU_SITE_VERIFICATION?.trim();
+
+  const other: Record<string, string> = {};
+  if (bing) other["msvalidate.01"] = bing;
+  if (baidu) other["baidu-site-verification"] = baidu;
+
+  if (!google && Object.keys(other).length === 0) return undefined;
+
+  return {
+    ...(google ? { google } : {}),
+    ...(Object.keys(other).length > 0 ? { other } : {}),
+  };
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -95,6 +122,7 @@ export async function generateMetadata({
       index: true,
       follow: true,
     },
+    verification: siteVerification(),
   };
 }
 

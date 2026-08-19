@@ -7,6 +7,7 @@
 | [development-workflow.md](development-workflow.md) | 完整开发流程（需求→设计→开发→测试→部署→运维→迭代） |
 | [feedback-triage.md](feedback-triage.md) | 用户反馈分级与流转指南 |
 | [monitoring.md](monitoring.md) | 监控告警配置与应急响应 |
+| [search-engine-indexing.md](search-engine-indexing.md) | 搜索引擎收录：站长平台验证与 sitemap 提交 |
 
 ## 模板
 
