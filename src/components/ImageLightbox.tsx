@@ -28,6 +28,9 @@ export default function ImageLightbox({ src, alt, onClose }: ImageLightboxProps)
     };
   }, [handleKeyDown]);
 
+  // 产品演示片已从 GIF 换成 MP4，灯箱要同时认图片和视频两种来源
+  const isVideo = /\.(mp4|webm)$/i.test(src);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
@@ -47,15 +50,28 @@ export default function ImageLightbox({ src, alt, onClose }: ImageLightboxProps)
         </svg>
       </button>
       <div className="relative max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
-        <Image
-          src={src}
-          alt={alt}
-          width={1920}
-          height={1200}
-          className="max-h-[90vh] w-auto rounded-xl object-contain"
-          quality={95}
-          priority
-        />
+        {isVideo ? (
+          <video
+            src={src}
+            aria-label={alt}
+            className="max-h-[90vh] w-auto rounded-xl object-contain"
+            controls
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        ) : (
+          <Image
+            src={src}
+            alt={alt}
+            width={1920}
+            height={1200}
+            className="max-h-[90vh] w-auto rounded-xl object-contain"
+            quality={95}
+            priority
+          />
+        )}
         <p className="mt-3 text-center text-sm text-white/50">{alt}</p>
       </div>
     </div>

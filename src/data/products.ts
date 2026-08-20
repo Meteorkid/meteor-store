@@ -209,7 +209,7 @@ export const products: Product[] = [
     platforms: ['Python', 'CLI', 'API'],
     media: {
       cover: '/products/omnicrawl/cover.webp',
-      demo: '/products/omnicrawl/demo.gif',
+      demo: '/products/omnicrawl/demo.mp4',
       screenshots: [
         { src: '/products/omnicrawl/screenshot-1.webp', alt: { zh: 'OmniCrawl 核心特性与对比表格', en: 'OmniCrawl core features and comparison table' } },
         { src: '/products/omnicrawl/screenshot-2.webp', alt: { zh: 'OmniCrawl 安装与快速开始', en: 'OmniCrawl installation and quick start' } },
@@ -287,7 +287,7 @@ export const products: Product[] = [
     platforms: ['Web', 'Mobile', 'API'],
     media: {
       cover: '/products/ex-memory/cover.webp',
-      demo: '/products/ex-memory/demo.gif',
+      demo: '/products/ex-memory/demo.mp4',
       screenshots: [
         { src: '/products/ex-memory/screenshot-1.webp', alt: { zh: 'Ex-Memory 记忆镜像对话界面', en: 'Ex-Memory memory-mirror chat interface' } },
         { src: '/products/ex-memory/screenshot-2.webp', alt: { zh: 'Ex-Memory 模型配置界面', en: 'Ex-Memory model configuration interface' } },
@@ -359,7 +359,7 @@ export const products: Product[] = [
     platforms: ['Web', '3D', 'Mobile'],
     media: {
       cover: '/products/skeleton-anatomy/cover.webp',
-      demo: '/products/skeleton-anatomy/demo.gif',
+      demo: '/products/skeleton-anatomy/demo.mp4',
       screenshots: [
         { src: '/products/skeleton-anatomy/screenshot-1.webp', alt: { zh: 'Skeleton Anatomy 三维骨骼总览', en: 'Skeleton Anatomy 3D skeleton overview' } },
         { src: '/products/skeleton-anatomy/screenshot-2.webp', alt: { zh: 'Skeleton Anatomy 骨骼详情界面', en: 'Skeleton Anatomy bone detail view' } },
@@ -437,7 +437,7 @@ export const products: Product[] = [
     platforms: ['AI Agent', 'Design', 'CLI'],
     media: {
       cover: '/products/ui-design-system/cover.webp',
-      demo: '/products/ui-design-system/demo.gif',
+      demo: '/products/ui-design-system/demo.mp4',
       screenshots: [
         { src: '/products/ui-design-system/screenshot-1.webp', alt: { zh: 'UI Design System 首页架构展示', en: 'UI Design System homepage architecture' } },
         { src: '/products/ui-design-system/screenshot-2.webp', alt: { zh: 'UI Design System 组件浏览', en: 'UI Design System component browser' } },
@@ -485,7 +485,7 @@ export const products: Product[] = [
     platforms: ['macOS', 'iTerm2', 'CLI'],
     media: {
       cover: '/products/statux/cover.webp',
-      demo: '/products/statux/demo.gif',
+      demo: '/products/statux/demo.mp4',
       screenshots: [
         { src: '/products/statux/screenshot-1.webp', alt: { zh: 'Statux --help 命令帮助', en: 'Statux --help command reference' } },
         { src: '/products/statux/screenshot-2.webp', alt: { zh: 'Statux TUI 配置界面', en: 'Statux TUI configuration interface' } },
@@ -542,7 +542,7 @@ export const products: Product[] = [
     platforms: ['macOS', 'Menu Bar', 'AI Agent'],
     media: {
       cover: '/products/xisland/cover.webp',
-      demo: '/products/xisland/demo.gif',
+      demo: '/products/xisland/demo.mp4',
       screenshots: [
         { src: '/products/xisland/screenshot-1.webp', alt: { zh: 'XIsland 展开面板 — 多代理实时状态', en: 'XIsland expanded panel — multi-agent real-time status' } },
         { src: '/products/xisland/screenshot-2.webp', alt: { zh: 'XIsland 提问面板 — 交互式决策', en: 'XIsland question panel — interactive decisions' } },
@@ -597,7 +597,7 @@ export const products: Product[] = [
     platforms: ['Web', 'Typing', 'Analytics'],
     media: {
       cover: '/products/tollow/cover.webp',
-      demo: '/products/tollow/demo.gif',
+      demo: '/products/tollow/demo.mp4',
       screenshots: [
         { src: '/products/tollow/screenshot-1.webp', alt: { zh: 'Tollow 精选书单 — 论语、道德经、唐诗三百首', en: 'Tollow curated bookshelf — Analects, Tao Te Ching, 300 Tang Poems' } },
         { src: '/products/tollow/screenshot-2.webp', alt: { zh: 'Tollow 打字练习 — 论语 WPM/准确率统计', en: 'Tollow typing practice — Analects WPM/accuracy stats' } },
@@ -651,7 +651,7 @@ export const products: Product[] = [
     platforms: ['macOS', 'Menu Bar', 'Utility'],
     media: {
       cover: '/products/xnook/cover.webp',
-      demo: '/products/xnook/demo.gif',
+      demo: '/products/xnook/demo.mp4',
       screenshots: [
         { src: '/products/xnook/screenshot-1.webp', alt: { zh: 'XNook 收起药丸 — 媒体播放状态', en: 'XNook collapsed pill — media playback status' } },
         { src: '/products/xnook/screenshot-2.webp', alt: { zh: 'XNook 展开面板 — 媒体播放+日历+文件托盘', en: 'XNook expanded panel — media + calendar + file tray' } },
@@ -707,7 +707,7 @@ export const products: Product[] = [
     platforms: ['Web', 'WebGL', 'Camera'],
     media: {
       cover: '/products/chakra-visualizer/cover.webp',
-      demo: '/products/chakra-visualizer/demo.gif',
+      demo: '/products/chakra-visualizer/demo.mp4',
       screenshots: [
         { src: '/products/chakra-visualizer/screenshot-1.webp', alt: { zh: 'Chakra Visualizer 忍术特效界面', en: 'Chakra Visualizer jutsu effects interface' } },
         { src: '/products/chakra-visualizer/screenshot-2.webp', alt: { zh: 'Chakra Visualizer 手势捕捉', en: 'Chakra Visualizer hand-seal capture' } },
@@ -751,7 +751,7 @@ export const products: Product[] = [
     platforms: ['Web', 'WebGL', 'Mobile'],
     media: {
       cover: '/products/webgl-fluid-sim/cover.webp',
-      demo: '/products/webgl-fluid-sim/demo.gif',
+      demo: '/products/webgl-fluid-sim/demo.mp4',
       screenshots: [
         { src: '/products/webgl-fluid-sim/screenshot-1.webp', alt: { zh: 'WebGL Fluid Sim 流体模拟效果', en: 'WebGL Fluid Sim fluid simulation effect' } },
       ],
@@ -793,7 +793,7 @@ export const products: Product[] = [
     platforms: ['macOS', 'Windows', 'Mobile'],
     media: {
       cover: '/products/claude-phone-control/cover.webp',
-      demo: '/products/claude-phone-control/demo.gif',
+      demo: '/products/claude-phone-control/demo.mp4',
       screenshots: [
         { src: '/products/claude-phone-control/screenshot-1.webp', alt: { zh: 'Claude Phone Control 终端启动界面', en: 'Claude Phone Control terminal launch screen' } },
       ],
@@ -835,7 +835,7 @@ export const products: Product[] = [
     platforms: ['Web', 'React', 'TypeScript'],
     media: {
       cover: '/products/cursor-source-analyzer/cover.webp',
-      demo: '/products/cursor-source-analyzer/demo.gif',
+      demo: '/products/cursor-source-analyzer/demo.mp4',
       screenshots: [
         { src: '/products/cursor-source-analyzer/screenshot-1.webp', alt: { zh: 'Cursor Source Analyzer 架构概览', en: 'Cursor Source Analyzer architecture overview' } },
       ],

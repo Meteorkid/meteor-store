@@ -43,7 +43,8 @@ interface Engine {
   nextGap: number;
   runner: {
     x: number; y: number; w: number; h: number; vy: number;
-    ducking: boolean; onGround: boolean; jumps: number; intro: number; holding: boolean;
+    ducking: boolean; onGround: boolean; jumps: number; intro: number;
+    gliding: boolean; glideLeft: number;
   };
   obstacles: Obstacle[];
   stars: { x: number; y: number }[];
@@ -274,7 +275,7 @@ describe('障碍间距必须容纳一次完整跳跃', () => {
 });
 
 describe('二段跳与可变跳跃高度', () => {
-  it('离地后还能再跳一次，但不能第三次', () => {
+  it('第一次跳、第二次二段跳、第三次是滑翔（不再是跳）', () => {
     const g = makeGame();
     g.jump();
     const first = g.runner.vy;
@@ -286,10 +287,16 @@ describe('二段跳与可变跳跃高度', () => {
     const second = g.runner.vy;
     expect(second).toBeLessThan(0);
 
+    // 第三次输入不给升力，只展开翅膀——沿用原作 maxJumps=3、第三次为滑翔的设计
     g.update(1);
     const beforeThird = g.runner.vy;
-    g.jump(); // 第三次，应该没反应
+    g.jump();
     expect(g.runner.vy).toBe(beforeThird);
+    expect(g.runner.gliding).toBe(true);
+
+    // 第四次就真的没反应了
+    g.jump();
+    expect(g.runner.jumps).toBe(3);
     g.destroy();
   });
 
@@ -348,14 +355,106 @@ describe('二段跳与可变跳跃高度', () => {
     g.destroy();
   });
 
-  it('障碍间距按单跳滞空算，不因二段跳而放大', () => {
+  it('滑翔显著减缓下落', () => {
+    // 对照：同样从跳跃顶点开始下落，滑翔的那次应该掉得慢得多
+    function fall(glide: boolean): number {
+      const g = makeGame();
+      g.jump();
+      // 推到接近顶点
+      for (let i = 0; i < 18; i++) g.update(1);
+      g.jump(); // 二段
+      for (let i = 0; i < 18; i++) g.update(1);
+      if (glide) g.jump(); // 第三次 = 滑翔
+      const y0 = g.runner.y;
+      for (let i = 0; i < 20; i++) g.update(1);
+      const dropped = g.runner.y - y0;
+      g.destroy();
+      return dropped;
+    }
+    const normal = fall(false);
+    const glided = fall(true);
+    expect(glided).toBeLessThan(normal * 0.6);
+  });
+
+  it('滑翔是有限资源，用完自动收翅', () => {
+    // 没有上限的话，游戏会从跑酷变成「一直飘着」，障碍全失去意义
+    const g = makeGame();
+    g.jump();
+    g.update(1);
+    g.jump();
+    g.update(1);
+    g.jump(); // 开始滑翔
+    expect(g.runner.gliding).toBe(true);
+    // GLIDE_FRAMES = 78
+    for (let i = 0; i < 90; i++) {
+      g.update(1);
+      if (g.runner.onGround) break;
+    }
+    expect(g.runner.gliding).toBe(false);
+    g.destroy();
+  });
+
+  it('松开按键立刻结束滑翔', () => {
+    const g = makeGame();
+    g.jump(); g.update(1);
+    g.jump(); g.update(1);
+    g.jump();
+    expect(g.runner.gliding).toBe(true);
+    g.releaseJump();
+    expect(g.runner.gliding).toBe(false);
+    g.destroy();
+  });
+
+  it('落地后滑翔额度重置', () => {
+    const g = makeGame();
+    g.jump(); g.update(1);
+    g.jump(); g.update(1);
+    g.jump();
+    for (let i = 0; i < 30; i++) g.update(1);
+    expect(g.runner.glideLeft).toBeLessThan(78);
+    // 落地
+    for (let i = 0; i < 200 && !g.runner.onGround; i++) g.update(1);
+    expect(g.runner.onGround).toBe(true);
+    expect(g.runner.glideLeft).toBe(78);
+    expect(g.runner.jumps).toBe(0);
+    g.destroy();
+  });
+
+  it('在地面上按第三次不会凭空开启滑翔', () => {
+    const g = makeGame();
+    g.runner.jumps = 2; // 伪造已用掉两次
+    g.jump();
+    expect(g.runner.gliding).toBe(false);
+    g.destroy();
+  });
+
+  it('二段跳可以打断滑翔，切回爬升', () => {
+    const g = makeGame();
+    g.jump(); g.update(1);
+    g.jump(); g.update(1);
+    g.jump();
+    expect(g.runner.gliding).toBe(true);
+    // 此时 jumps 已是 3，再跳无效；但从滑翔切回跳跃的路径要保证存在
+    // （jumps < 2 时二段跳会清掉 gliding）
+    const g2 = makeGame();
+    g2.jump();
+    g2.update(1);
+    g2.runner.gliding = true;   // 模拟处于滑翔
+    g2.jump();                  // 这是第二次输入 → 二段跳
+    expect(g2.runner.gliding).toBe(false);
+    expect(g2.runner.vy).toBeLessThan(0);
+    g2.destroy();
+    g.destroy();
+  });
+
+  it('障碍间距按单跳滞空算，不因二段跳或滑翔而放大', () => {
     // 这是有意的设计决定，不是疏漏。二段跳最坏能滞空 60+ 帧，按它反推的话
     // 障碍会稀疏到无聊。判据是「单跳能不能过」——能过就有解；
     // 二段跳是玩家主动用的额外能力，用砸了属于操作失误。
     expect(CODE).toMatch(/var AIR_FRAMES = \(2 \* Math\.abs\(JUMP_V\)\) \/ GRAVITY;/);
     // AIR_FRAMES 的定义里不能掺进二段跳的常量
     const line = CODE.match(/var AIR_FRAMES = .+;/)?.[0] ?? '';
-    expect(line).not.toMatch(/SECOND_JUMP_V|MAX_JUMPS/);
+    expect(line).not.toMatch(/SECOND_JUMP_V|MAX_JUMPS|GLIDE/);
   });
 });
 

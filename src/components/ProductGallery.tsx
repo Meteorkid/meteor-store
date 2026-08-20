@@ -5,10 +5,12 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { LocalizedProduct } from '@/data/products';
 import ImageLightbox from '@/components/ImageLightbox';
+import { useReducedMotion } from '@/lib/motion';
 
 export default function ProductGallery({ product }: { product: LocalizedProduct }) {
   const t = useTranslations('ProductDetailPage');
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const reducedMotion = useReducedMotion();
 
   if (!product.media?.screenshots.length && !product.media?.demo) return null;
 
@@ -33,20 +35,22 @@ export default function ProductGallery({ product }: { product: LocalizedProduct 
             aria-label={t('zoomAriaDemo', { name: product.name })}
           >
             <div className="relative aspect-[16/10] overflow-hidden rounded-[1.1rem] bg-zinc-950">
-              <Image
+              <video
                 src={product.media.demo}
-                alt={t('demoAlt', { name: product.name })}
-                fill
-                unoptimized
-                sizes="100vw"
-                className="object-contain transition-transform duration-500 group-hover:scale-[1.015]"
+                aria-label={t('demoAlt', { name: product.name })}
+                autoPlay={!reducedMotion}
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                className="absolute inset-0 h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.015]"
               />
               <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-violet-600/80 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
                 </span>
-                GIF
+                DEMO
               </div>
               <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20">
                 <span className="scale-0 rounded-full bg-white/20 p-3 backdrop-blur-md transition-transform group-hover:scale-100">

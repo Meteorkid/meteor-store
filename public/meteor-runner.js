@@ -44,7 +44,21 @@
   var SECOND_JUMP_V = -13.5;   // 二段跳比首跳弱，否则二连跳能飞过整屏，障碍全失去意义
   var JUMP_CUT = 0.45;         // 松开跳跃键时把上升速度砍掉的比例（可变跳跃高度）
   var DUCK_GRAVITY = 2.85;     // 空中按 ↓ 快速下坠，用来补救跳早了的失误
-  var MAX_JUMPS = 2;
+
+  /**
+   * 三段输入：跳 → 二段跳 → **滑翔**（沿用原作 maxJumps=3、第三次为滑翔的设计）。
+   *
+   * 滑翔只减缓下落，不提供升力，而且有帧数上限——**它是有限资源，不是飞行**。
+   * 没有上限的话这游戏会从跑酷变成「一直飘着」，障碍就全失去意义了。
+   *
+   * 障碍间距**仍然只按单跳滞空反推**，不把二段跳和滑翔算进去：
+   * 这两个都是玩家主动选择的能力，用砸了属于操作失误。判据是「单跳能不能过」
+   * ——能过就有解。按最坏滞空反推的话障碍会稀疏到无聊。
+   */
+  var MAX_JUMPS = 3;
+  var GLIDE_GRAVITY = 0.17;    // 滑翔时的重力，约正常的 1/5
+  var GLIDE_MAX_VY = 1.9;      // 滑翔时的下落速度上限，避免越滑越快
+  var GLIDE_FRAMES = 78;       // 一次离地最多能滑这么久，落地后重置
   var RESTART_LOCK_MS = 400;   // 死亡后多久才接受重开输入，防止连点直接重来
 
   /**
@@ -379,7 +393,9 @@
       vy: 0,
       ducking: false,
       onGround: true,
-      jumps: 0,                // 本次离地后已经跳了几次
+      jumps: 0,                // 本次离地后已经用掉几次跳跃输入（第 3 次是滑翔）
+      gliding: false,          // 是否正在滑翔
+      glideLeft: GLIDE_FRAMES, // 本次离地剩余的滑翔帧数
       blink: 0,                // 待机眨眼的剩余帧数
       intro: 0,                // 起跑入场：从屏幕外跑进来的剩余帧数
     };
@@ -659,12 +675,23 @@
     var r = this.runner;
     if (r.jumps >= MAX_JUMPS) return;
 
+    // 第三次输入不是跳，而是展开翅膀滑翔——沿用原作的设计。
+    // 它只减缓下落、不提供升力，所以在上升段按下没有意义，等下落时才生效
+    if (r.jumps === 2) {
+      if (r.onGround || r.glideLeft <= 0) return;
+      r.jumps++;
+      r.gliding = true;
+      r.ducking = false;
+      return;
+    }
+
     // 二段跳比首跳弱，且从当前速度重新起算——不这么做的话，在下落末段补一跳
     // 等于白送一次满跳，滞空能翻倍
     r.vy = r.jumps === 0 ? JUMP_V : SECOND_JUMP_V;
     r.jumps++;
     r.onGround = false;
-    r.ducking = false; // 起跳自动取消下蹲，否则蹲着跳会卡在矮判定盒
+    r.gliding = false;   // 二段跳打断滑翔，让玩家能从滑翔切回爬升
+    r.ducking = false;   // 起跳自动取消下蹲，否则蹲着跳会卡在矮判定盒
   };
 
   /**
@@ -676,6 +703,8 @@
    */
   MeteorRunner.prototype.releaseJump = function () {
     var r = this.runner;
+    // 滑翔要按住才持续，松开立刻恢复正常下落——这样玩家能精确控制飘多远
+    r.gliding = false;
     if (r.vy < 0) r.vy *= JUMP_CUT;
   };
 
@@ -774,9 +803,20 @@
       return;
     }
 
-    // 角色物理
-    var g = !r.onGround && r.ducking ? DUCK_GRAVITY : GRAVITY;
+    // 角色物理。三种重力：滑翔（最弱）→ 正常 → 空中下蹲（最强）
+    if (r.gliding) {
+      // 滑翔是有限资源，用完自动收翅
+      r.glideLeft -= dt;
+      if (r.glideLeft <= 0 || r.onGround) r.gliding = false;
+    }
+    var g = r.gliding && !r.onGround
+      ? GLIDE_GRAVITY
+      : !r.onGround && r.ducking
+        ? DUCK_GRAVITY
+        : GRAVITY;
     r.vy += g * dt;
+    // 滑翔时钳住下落速度，否则滑久了照样越掉越快，翅膀就形同虚设
+    if (r.gliding && r.vy > GLIDE_MAX_VY) r.vy = GLIDE_MAX_VY;
     r.y += r.vy * dt;
     r.h = r.ducking && r.onGround ? DUCK_H : STAND_H;
     // 条件里的 r.onGround 不能去掉：变矮之后 y 不动的话，角色只是把腿收了，
@@ -787,6 +827,8 @@
       r.vy = 0;
       r.onGround = true;
       r.jumps = 0;
+      r.gliding = false;
+      r.glideLeft = GLIDE_FRAMES;
     }
 
     // 待机眨眼
@@ -2040,6 +2082,57 @@
       c.fill();
     }
 
+    // ---- 滑翔翅膀：从肩部呈扇形展开的三片羽毛 ----
+    //
+    // 画成整片的「鳍」会又小又闷，看不出是翅膀。分成三片长度递减的羽毛、
+    // 从肩点扇形排开，才有展翅的形状；每片自带亮边，在暗背景上才立得住。
+    if (r.gliding && !r.onGround) {
+      var wingFade = Math.max(0.3, Math.min(1, r.glideLeft / GLIDE_FRAMES));
+      var flap = this.reducedMotion ? 0 : Math.sin(this.frame * 0.16) * 0.07; // 弧度，很轻的扇动
+      var featherTint = shade(f.suit, 55);
+      c.save();
+      c.globalAlpha = 0.9 * wingFade;
+      for (var wi = -1; wi <= 1; wi += 2) {
+        var shoulderX = cx + wi * 7;
+        var shoulderY = bodyCy - 7;
+        // 三片羽毛：由长到短，从斜后上方扫到接近水平
+        var feathers = [
+          { ang: -0.62, len: 30, w: 7.5 },
+          { ang: -0.28, len: 26, w: 6.5 },
+          { ang: 0.04, len: 20, w: 5.5 },
+        ];
+        for (var fi = 0; fi < feathers.length; fi++) {
+          var ft = feathers[fi];
+          c.save();
+          c.translate(shoulderX, shoulderY);
+          // 左翼镜像：角度取反，整体再翻转 x
+          c.scale(wi, 1);
+          c.rotate(ft.ang + flap * (fi + 1));
+          // 羽毛本体：一头尖的水滴
+          c.beginPath();
+          c.moveTo(0, 0);
+          c.quadraticCurveTo(ft.len * 0.55, -ft.w, ft.len, -ft.w * 0.25);
+          c.quadraticCurveTo(ft.len * 0.55, ft.w * 0.55, 0, ft.w * 0.5);
+          c.closePath();
+          var fg = c.createLinearGradient(0, 0, ft.len, 0);
+          fg.addColorStop(0, 'rgba(255,255,255,0.95)');
+          fg.addColorStop(0.55, 'rgba(255,255,255,0.7)');
+          fg.addColorStop(1, featherTint.replace('rgb(', 'rgba(').replace(')', ',0.45)'));
+          c.fillStyle = fg;
+          c.fill();
+          // 羽轴：一道细亮线，没有它三片会糊成一坨
+          c.strokeStyle = 'rgba(255,255,255,0.75)';
+          c.lineWidth = 0.9;
+          c.beginPath();
+          c.moveTo(1, ft.w * 0.1);
+          c.lineTo(ft.len * 0.92, -ft.w * 0.18);
+          c.stroke();
+          c.restore();
+        }
+      }
+      c.restore();
+    }
+
     // ---- 身体：蛋形，上窄下宽 ----
     c.fillStyle = f.suit;
     c.beginPath();
@@ -2321,8 +2414,8 @@
   // 兜底页脱离了 next-intl，只能自己判断语言。文案就这几条，够用。
   var TEXT = {
     zh: {
-      idle: '空格 / W 起跳 · ↓ / S 下蹲 · 空中可二段跳',
-      idleTouch: '点击开始 · 按住下方下蹲 · 空中可再点一次',
+      idle: '空格 / W 起跳 · 空中再按二段跳 · 第三次按住滑翔 · ↓ / S 下蹲',
+      idleTouch: '点击起跳 · 空中再点二段跳 · 第三次按住滑翔 · 按住下方下蹲',
       over: '撞上了。空格 / W 再来一次',
       overTouch: '撞上了。点击再来一次',
       score: '得分',
@@ -2369,11 +2462,11 @@
       headingOnline: '陪它跑一段',
       subOnline: '它正在慢慢好起来。收集宝石，看它一点点变回原来的样子。',
       retryOnline: '回首页',
-      canvasLabel: '治愈跑酷小游戏。按空格、W 或点击跳跃，空中可再跳一次，按向下方向键或 S 下蹲。收集宝石推进治愈形态，躲避陨石。',
+      canvasLabel: '治愈跑酷小游戏。按空格、W 或点击跳跃，空中可再跳一次，第三次按住可展开翅膀滑翔，按向下方向键或 S 下蹲。收集宝石推进治愈形态，躲避陨石。',
     },
     en: {
-      idle: 'Space / W to jump · ↓ / S to duck · double jump in mid-air',
-      idleTouch: 'Tap to start · hold lower half to duck · tap again mid-air',
+      idle: 'Space / W to jump · again for double jump · hold a third time to glide · ↓ / S to duck',
+      idleTouch: 'Tap to jump · again for double jump · hold a third time to glide · hold lower half to duck',
       over: 'Crashed. Space / W to retry',
       overTouch: 'Crashed. Tap to retry',
       score: 'Score',
@@ -2409,7 +2502,7 @@
       subOnline: "It's slowly getting better. Collect gems and watch it come back to itself.",
       retryOnline: 'Back home',
       canvasLabel:
-        'Healing runner mini-game. Press space, W or tap to jump, again in mid-air to double jump, arrow down or S to duck. Collect gems to advance the healing form, dodge the meteors.',
+        'Healing runner mini-game. Press space, W or tap to jump, again in mid-air to double jump, hold a third time to spread wings and glide, arrow down or S to duck. Collect gems to advance the healing form, dodge the meteors.',
     },
   };
 

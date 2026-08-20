@@ -1386,12 +1386,12 @@
     "gameIntro": "Since you're here — keep it company for a bit?"
   },
   "MeteorRunner": {
-    "canvasLabel": "Healing runner mini-game. Press space, W or tap to jump, again in mid-air to double jump, arrow down or S to duck. Collect gems to advance the healing form, dodge the meteors.",
-    "hint": "Space / W to jump · ↓ / S to duck · double jump in mid-air",
+    "canvasLabel": "Healing runner mini-game. Press space, W or tap to jump, again in mid-air to double jump, hold a third time to spread wings and glide, arrow down or S to duck. Collect gems to advance the healing form, dodge the meteors.",
+    "hint": "Space / W to jump · again for double jump · hold a third time to glide · ↓ / S to duck",
     "crashed": "Crashed. Space / W to retry",
     "score": "Score {score}",
     "best": "Best {best}",
-    "hintTouch": "Tap to start · hold lower half to duck · tap again mid-air",
+    "hintTouch": "Tap to jump · again for double jump · hold a third time to glide · hold lower half to duck",
     "crashedTouch": "Crashed. Tap to retry",
     "formHint": "Now: {name}",
     "formDepressed": "Downcast little alien",

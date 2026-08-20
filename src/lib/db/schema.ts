@@ -19,7 +19,13 @@ export const orders = pgTable('orders', {
   deliveryClaimedAt: text('delivery_claimed_at'),       // 原子交付认领时间；崩溃后允许超时重试
   accessToken: text('access_token').notNull(),  // 订单详情页访问凭证
   createdAt: text('created_at').notNull(),
-});
+}, (t) => [
+  // 授权判定的热查询：status='paid' AND (user_id=? OR email=?)。
+  // 两条 OR 分支各走一个索引（BitmapOr），status 作尾列让命中行直接可用。
+  // 这条在 /apps/[id]、/apps、/account、/orders 每次渲染都跑。
+  index('orders_user_status_idx').on(t.userId, t.status),
+  index('orders_email_status_idx').on(t.email, t.status),
+]);
 
 export const licenseKeys = pgTable('license_keys', {
   id: text('id').primaryKey(),
@@ -30,7 +36,11 @@ export const licenseKeys = pgTable('license_keys', {
   key: text('key').notNull().unique(),
   status: text('status').default('active').notNull(), // active | revoked
   createdAt: text('created_at').notNull(),
-});
+}, (t) => [
+  // /account 页按邮箱列出历史授权码并按时间倒序；尾列覆盖排序，免去 sort 步骤。
+  // order_id 与 key 已有 unique 约束，隐式索引够用，不再另建。
+  index('license_keys_email_created_idx').on(t.email, t.createdAt),
+]);
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
