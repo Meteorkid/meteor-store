@@ -42,7 +42,7 @@
     "i18next-http-backend": "^3.0.2",
     "jose": "^6.2.3",
     "mammoth": "^1.10.0",
-    "marked": "^16.2.1",
+    "marked": "^18.0.9",
     "next": "16.2.12",
     "next-intl": "^4.13.4",
     "pdf-parse": "^1.1.1",
