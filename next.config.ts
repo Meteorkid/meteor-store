@@ -61,6 +61,22 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=604800" },
         ],
       },
+      // Service Worker 与它的预缓存资源：**绝不能被长期缓存**。
+      //
+      // Next 默认给 public/ 下的文件发 `public, max-age=0`（已经够安全），
+      // 但生产是 nginx 反代，反代层给静态文件统一加长缓存是很常见的配置——
+      // 一旦 sw.js 被缓存住，用户就会卡在旧的 Service Worker 上，
+      // 连「发一版自注销脚本」这个唯一的补救手段都推不下去。
+      // 在应用层显式声明，比依赖上游默认值可靠。
+      //
+      // 这几个文件的路径是固定的（被 sw.js 和 offline.html 互相硬编码引用），
+      // 没法像 _next/static 那样靠内容 hash 做长缓存，只能每次重验证。
+      {
+        source: "/(sw.js|offline.html|meteor-runner.js|manifest.webmanifest)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
       {
         source: "/(.*)",
         headers: securityHeaders,

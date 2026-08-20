@@ -68,7 +68,9 @@
     "copyrightTapReward": "Keep tapping — no money's coming out",
     "copyrightOperator": "© {year} Meteor Store · {operator}",
     "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ you found me",
-    "onlineVisitors": "{count} people online now"
+    "onlineVisitors": "{count} people online now",
+    "playAway": "It's still running",
+    "playAwayLabel": "Open the mini-game"
   },
   "SupportPage": {
     "title": "Buy Me a Coffee",
@@ -1380,7 +1382,37 @@
     "description": "This page may have gone off to earn tuition. Apologies on its behalf.",
     "backHome": "Back Home",
     "seeProducts": "See Products (and help fund its tuition)",
-    "hint": "Staring at the kaleidoscope for 10 seconds helps forgive all 404s"
+    "hint": "Staring at the kaleidoscope for 10 seconds helps forgive all 404s",
+    "gameIntro": "Since you're here — keep it company for a bit?"
+  },
+  "MeteorRunner": {
+    "canvasLabel": "Healing runner mini-game. Press space, W or tap to jump, again in mid-air to double jump, arrow down or S to duck. Collect gems to advance the healing form, dodge the meteors.",
+    "hint": "Space / W to jump · ↓ / S to duck · double jump in mid-air",
+    "crashed": "Crashed. Space / W to retry",
+    "score": "Score {score}",
+    "best": "Best {best}",
+    "hintTouch": "Tap to start · hold lower half to duck · tap again mid-air",
+    "crashedTouch": "Crashed. Tap to retry",
+    "formHint": "Now: {name}",
+    "formDepressed": "Downcast little alien",
+    "formHealing": "Beginning to heal",
+    "formRecovering": "Recovering",
+    "formHealed": "Warm and healed",
+    "formRadiant": "Radiant",
+    "victoryLifeTitle": "Not afraid of falling",
+    "victoryLifeSub": "Ninety-nine falls, ninety-nine times back up. It seems to believe now that falling isn't such a big deal.",
+    "victoryDistanceTitle": "That is a long way",
+    "victoryDistanceSub": "No finish line, nobody timing it. It just kept running — and one day the road got wider on its own.",
+    "victoryGemsTitle": "Bright enough",
+    "victoryGemsSub": "{gems} lights, picked up one at a time. It glows on its own now. You can let go.",
+    "victoryGo": "Space / W to keep running · progress is kept",
+    "victoryGoTouch": "Tap to keep running · progress is kept",
+    "itemHeart": "Heart collected, +1 life",
+    "itemMagnet": "Magnet collected, gems are being pulled in",
+    "itemShield": "Shield collected, briefly invincible",
+    "itemX2": "Double score collected",
+    "livesLeft": "{lives} lives left",
+    "srStatus": "Lives {lives}, gems {gems}, healing {percent}%"
   },
   "ErrorPage": {
     "title": "Something Went Wrong",

@@ -1,0 +1,240 @@
+<!doctype html>
+<!--
+  lang 由 /meteor-runner.js 在加载时按 navigator.language 回写（见 data-mr-auto-lang）。
+  这里写死任一语言都会让另一半用户拿到错的 lang，影响读屏发音和字体断行。
+-->
+<html lang="zh-CN" data-mr-auto-lang>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#000000" />
+<meta name="robots" content="noindex" />
+<title data-mr-t="title">离线了 · Meteor Store</title>
+<link rel="icon" href="/favicon.svg" />
+<!--
+  Service Worker 的离线兜底页：断网时访问站内任意地址都会落到这里。
+
+  两条约束，改动前先读：
+  1. **零 inline script**。初始化逻辑在 /meteor-runner.js 里，靠 canvas 上的
+     data-meteor-runner-auto 属性自动接管。目前 proxy.ts 的 matcher 排除了 .html
+     所以本页没有 CSP 头，但不要因此就往里塞 <script>——哪天 .html 也纳入 CSP，
+     inline 脚本会静默失效，而这个页面只在断网时出现，最不容易被发现坏掉。
+  2. **样式必须内联在本文件里**，不能引 globals.css。那是 Next 构建产物，
+     文件名带 hash 且不在 SW 预缓存列表里，断网时必然 404。
+-->
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: #000;
+    color: #e9d5ff;
+    font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+    text-align: center;
+    /* 极暗的紫色光晕，给纯黑底一点纵深，和站内的材质语言保持一致 */
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(167,139,250,0.10), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(236,72,153,0.07), transparent 70%);
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(24px, 6vw, 30px);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .sub { margin: 0; font-size: 15px; line-height: 1.7; color: rgba(233,213,255,0.62); max-width: 34em; }
+  /* 通关覆盖层：盖在画布上，文字由引擎按语言填 */
+  .victory {
+    position: absolute;
+    inset: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 12px;
+    /* 只在文字这一块压暗，不盖住上方的角色演出 */
+    background: linear-gradient(
+      to bottom,
+      rgba(8, 3, 18, 0) 0%,
+      rgba(8, 3, 18, 0.55) 38%,
+      rgba(8, 3, 18, 0.82) 100%
+    );
+    justify-content: flex-end;
+    padding-bottom: 26px;
+    text-align: center;
+    pointer-events: none; /* 点击要能穿透到画布上，否则「按一下继续」会失效 */
+  }
+  .victory[hidden] { display: none; }
+  .victory h2 {
+    margin: 0;
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+  }
+  .victory p {
+    margin: 0;
+    max-width: 30em;
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .victory .go {
+    margin-top: 4px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.66);
+  }
+
+  .stage {
+    position: relative;
+    width: min(100%, 680px);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 16px;
+    padding: 12px;
+    background: rgba(24,16,44,0.55);
+    /* -webkit- 必须写在标准属性之前，否则 Lightning CSS 去重会删掉标准属性 */
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 32px rgba(0,0,0,0.45);
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 640 / 300;
+    touch-action: manipulation; /* 关掉双击缩放，否则连点跳跃会缩放页面 */
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  /* 画布是可聚焦的（键盘只在它获得焦点时才被接管），所以焦点必须看得见。
+     用 :focus-visible 而不是 :focus：鼠标点击时不该冒出一圈框。 */
+  canvas:focus-visible {
+    outline: 2px solid #c084fc;
+    outline-offset: 2px;
+  }
+  /* 分数一行、提示一行。挤在同一行的话，窄屏上三段文字会各自折行，
+     排版直接散掉——提示文案的长度还随语言和输入方式变化，更不可控。 */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 10px;
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    letter-spacing: 0.01em;
+    color: rgba(233,213,255,0.72);
+    min-height: 20px;
+  }
+  #mr-hint {
+    margin: 4px 0 0;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.5;
+    /* 全站约定：承载信息的文字对比度不低于 white/60。
+       这行写的是唯一的操作说明，不能因为「看起来更精致」就调淡 */
+    color: rgba(233,213,255,0.66);
+    min-height: 18px;
+  }
+  /* 每 100 分的里程碑：分数弹一下。引擎通过 onMilestone 加上这个 class */
+  .mr-pop {
+    animation: mr-pop .4s cubic-bezier(0.32,0.72,0,1);
+    color: #f5d0fe;
+  }
+  @keyframes mr-pop {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.28); }
+    100% { transform: scale(1); }
+  }
+  .retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.88);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .retry:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.28); }
+  }
+  .foot { font-size: 12px; color: rgba(233,213,255,0.30); margin: 0; }
+  /* 只给读屏软件：生命/宝石/道具都画在 canvas 里，辅助技术拿不到，
+     关键变化往这里写一句话 */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .retry { transition: none; }
+    /* 只关掉缩放，保留变色——里程碑仍要有反馈，只是不动 */
+    .mr-pop { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <h1 data-mr-t="heading">你离线了</h1>
+  <p class="sub" data-mr-t="sub">网络断了。等信号回来之前，陪它跑一段吧——它正在慢慢好起来。</p>
+
+  <div class="stage">
+    <canvas
+      data-meteor-runner-auto
+      width="640"
+      height="300"
+      role="application"
+      data-mr-t-aria="canvasLabel"
+      aria-label="治愈跑酷小游戏。按空格、W 或点击跳跃，空中可再跳一次，按向下方向键或 S 下蹲。收集宝石推进治愈形态，躲避陨石。"
+    ></canvas>
+    <div class="victory" id="mr-victory" hidden role="status">
+      <h2 data-mr-v-title></h2>
+      <p data-mr-v-sub></p>
+      <p class="go" data-mr-v-go></p>
+    </div>
+    <div class="hud">
+      <span id="mr-score" aria-live="polite">得分 0</span>
+      <span id="mr-best"></span>
+    </div>
+    <p id="mr-hint"></p>
+    <p class="sr-only" id="mr-sr" aria-live="polite"></p>
+  </div>
+
+  <!--
+    重试按钮用 <a href="/"> 而不是 location.reload()：
+    零 inline script 的前提下，普通链接就是最稳的重试——点它会发起一次真实导航，
+    网络恢复了就正常进站，没恢复则被 SW 再次兜回本页。
+  -->
+  <a class="retry" href="/">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 3v6h-6" />
+    </svg>
+    <span data-mr-t="retry">重新连接</span>
+  </a>
+
+  <p class="foot">Meteor Store</p>
+
+  <script src="/meteor-runner.js" defer></script>
+</body>
+</html>

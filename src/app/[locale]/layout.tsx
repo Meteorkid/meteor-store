@@ -8,6 +8,7 @@ import { getMessages, setRequestLocale, getTranslations } from "next-intl/server
 import { routing, type Locale } from "@/i18n/routing";
 import ScrollAnimateInit from "@/components/ScrollAnimateInit";
 import EasterEggs from "@/components/EasterEggs";
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import SpotlightSearch from "@/components/SpotlightSearch";
 import FilmGrain from "@/components/FilmGrain";
 import HeroCanvas from "@/components/HeroCanvas";
@@ -94,6 +95,9 @@ export async function generateMetadata({
     creator: "Meteor Store",
     icons: {
       icon: "/favicon.svg",
+      // iOS Safari 不读 manifest 里的 icons，「添加到主屏幕」只认 apple-touch-icon。
+      // 缺了它 iOS 会拿页面截图当图标，PWA 在 iPhone 上就是半残的
+      apple: "/icon-192.png",
     },
     openGraph: {
       type: "website",
@@ -200,6 +204,7 @@ export default async function LocaleLayout({
           </Suspense>
           <AuthProvider>
             <HelpPanelProvider>
+            <ServiceWorkerRegistrar />
             <EasterEggs />
             <SpotlightSearch />
             <FilmGrain />

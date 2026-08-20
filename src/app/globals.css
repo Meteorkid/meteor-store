@@ -269,6 +269,29 @@ html {
   100% { background-position: 300% 50%; }
 }
 
+/* 流星跑酷小游戏每 100 分的里程碑反馈：分数弹一下。
+   同一份动画在 /public/offline.html 里另有一份内联副本——那个页面断网时才出现，
+   引不到构建产物样式表，只能各写一份。改这里时记得同步。 */
+.mr-pop {
+  animation: mr-pop 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  color: #f5d0fe;
+}
+
+@keyframes mr-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
+
+/* 只关掉缩放，保留变色——里程碑仍要有反馈，只是不动。
+   按全站约定，减弱动效时 transition 和 transform 都要停，不能只停前者。 */
+@media (prefers-reduced-motion: reduce) {
+  .mr-pop {
+    animation: none;
+    transform: none;
+  }
+}
+
 /* 强制颜色模式（Windows 高对比度）下 background-clip: text 仍然生效，
    而 -webkit-text-fill-color 不在系统的强制覆写清单里，于是文字被裁成透明后整块消失。
    首页 hero 的两行主标题都在其中，所以三个类一起回落成实色。

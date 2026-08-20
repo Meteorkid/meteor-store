@@ -3,16 +3,17 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import KaleidoscopeCanvas from '@/components/KaleidoscopeCanvas';
+import MeteorRunnerGame from '@/components/MeteorRunnerGame';
 
 export default function NotFound() {
   const t = useTranslations('NotFoundPage');
 
   return (
-    <div className="relative min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 overflow-hidden">
+    <div className="relative min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 py-16 overflow-x-hidden">
       {/* 镜面万花筒背景 */}
       <KaleidoscopeCanvas />
 
-      <div className="relative text-center">
+      <div className="relative w-full max-w-[680px] text-center">
         {/* 北斗七星：斗柄指向下方的「回首页」，一颗暗淡的星为你指路 */}
         <svg
           viewBox="0 0 100 100"
@@ -60,6 +61,11 @@ export default function NotFound() {
             {t('seeProducts')}
           </Link>
         </div>
+        <div className="mt-12">
+          <p className="t-footnote text-white/45 mb-3">{t('gameIntro')}</p>
+          <MeteorRunnerGame />
+        </div>
+
         <p className="text-white/25 text-xs mt-10">
           {t('hint')}
         </p>

@@ -68,7 +68,9 @@
     "copyrightTapReward": "再点也不会掉钱出来啦",
     "copyrightOperator": "© {year} Meteor Store · {operator}",
     "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ 被你发现了",
-    "onlineVisitors": "当前 {count} 人在线"
+    "onlineVisitors": "当前 {count} 人在线",
+    "playAway": "它还在跑",
+    "playAwayLabel": "打开小游戏"
   },
   "SupportPage": {
     "title": "请我喝杯咖啡",
@@ -1380,7 +1382,37 @@
     "description": "这个页面可能去打工赚学费了，替它向你道个歉。",
     "backHome": "返回首页",
     "seeProducts": "看看产品（顺便帮它凑凑学费）",
-    "hint": "盯着万花筒看 10 秒，有助于原谅一切 404"
+    "hint": "盯着万花筒看 10 秒，有助于原谅一切 404",
+    "gameIntro": "既然来都来了，陪它跑一段？"
+  },
+  "MeteorRunner": {
+    "canvasLabel": "治愈跑酷小游戏。按空格、W 或点击跳跃，空中可再跳一次，按向下方向键或 S 下蹲。收集宝石推进治愈形态，躲避陨石。",
+    "hint": "空格 / W 起跳 · ↓ / S 下蹲 · 空中可二段跳",
+    "crashed": "撞上了。空格 / W 再来一次",
+    "score": "得分 {score}",
+    "best": "最高 {best}",
+    "hintTouch": "点击开始 · 按住下方下蹲 · 空中可再点一次",
+    "crashedTouch": "撞上了。点击再来一次",
+    "formHint": "形态变化：{name}",
+    "formDepressed": "抑郁小外星人",
+    "formHealing": "治愈中小外星人",
+    "formRecovering": "康复中小外星人",
+    "formHealed": "温暖治愈小外星人",
+    "formRadiant": "梦幻光芒小外星人",
+    "victoryLifeTitle": "它不怕摔了",
+    "victoryLifeSub": "99 次跌倒，99 次爬起来。它好像终于相信，摔一下不是什么了不得的事。",
+    "victoryDistanceTitle": "跑了很远了",
+    "victoryDistanceSub": "没有终点线，也没有人计时。它只是一直在跑，然后有一天，路自己变宽了。",
+    "victoryGemsTitle": "够亮了",
+    "victoryGemsSub": "{gems} 颗光，一颗一颗捡回来的。现在它自己会亮了——你可以放心了。",
+    "victoryGo": "空格 / W 继续跑 · 进度都还在",
+    "victoryGoTouch": "点击继续跑 · 进度都还在",
+    "itemHeart": "拿到爱心，生命 +1",
+    "itemMagnet": "拿到磁铁，开始吸附宝石",
+    "itemShield": "拿到护盾，短时间无敌",
+    "itemX2": "拿到双倍分数",
+    "livesLeft": "还剩 {lives} 条命",
+    "srStatus": "生命 {lives}，宝石 {gems}，治愈进度 {percent}%"
   },
   "ErrorPage": {
     "title": "页面出错了",

@@ -162,6 +162,27 @@ export default function Footer({ showSocial = false }: FooterProps) {
           </svg>
         </div>
 
+        {/*
+          一个不起眼的入口，通往断网兜底页里的小游戏。
+          文案不直说是游戏——页脚这一带（星轨、店灯）本来就是留给闲笔的地方，
+          说破了反而不像彩蛋；aria-label 补上真实用途，读屏用户不会被绕进去。
+
+          **必须用原生 <a> 而不是 next-intl 的 Link**：/offline.html 是 public/ 下的
+          静态文件，Link 会给它加上 locale 前缀变成 /zh/offline.html，那是个 404。
+        */}
+        <div className="mb-8 flex justify-center">
+          <a
+            href="/offline.html"
+            aria-label={t('playAwayLabel')}
+            className="t-footnote group inline-flex items-center gap-1.5 text-white/60 transition-colors hover:text-white/85"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden className="h-3 w-3 opacity-70 transition-opacity group-hover:opacity-100">
+              <path d="M8 1 L13 8 L8 15 L3 8 Z" fill="currentColor" />
+            </svg>
+            {t('playAway')}
+          </a>
+        </div>
+
         {/* Bottom bar */}
         <div className="border-t border-border mt-6 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
