@@ -67,7 +67,11 @@ export default function FooterCopyright() {
             className="inline-flex items-center gap-1.5 hover:text-white/80 transition-colors"
           >
             {/*
-              官方图标原始尺寸 36×40，不是正方形——按 0.9 的比例缩到 13×14，别写成等宽高。
+              官方图标原始尺寸 36×40（宽高比 0.9），**不是正方形**，别写成等宽高。
+              这里缩到 16×18：原来的 13×14 在这行 12px 小字里小到辨认不出警徽，
+              管局核验是要能看清图标的——把合规元素缩到看不见等于没放。
+              再大就会撑高整行，16×18 刚好压在行高边缘。
+
               eager 不是随手加的：这是管局要核验的合规元素，才 1.4KB，
               不值得为省这点流量赌懒加载一定会触发。
             */}
@@ -75,8 +79,8 @@ export default function FooterCopyright() {
               src="/beian-police.png"
               alt=""
               aria-hidden
-              width={13}
-              height={14}
+              width={16}
+              height={18}
               loading="eager"
               className="flex-shrink-0"
             />
