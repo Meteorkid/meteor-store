@@ -77,3 +77,6 @@ docs/技术文档-md/
 # 本地非代码素材（不入库）
 短视频脚本/
 热梗素材库/
+
+# 迁移账本对账脚本的备份（scripts/reconcile-migration-ledger.mjs --apply 生成）
+drizzle-ledger-backup-*.json
