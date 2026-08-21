@@ -17,6 +17,8 @@ const BlackHole = dynamic(() => import('./BlackHole'), {
 
 /**
  * 首页收尾区：黑洞本身就是入口，点它进产品页。
+ * **有意不加任何悬浮效果**（放大 / 提亮都试过又撤了）：它就该静静待在那儿。
+ * 桌面端的可点提示由 <a> 自带的指针形状承担，键盘用户由 focus-visible 焦点环承担。
  * 原先这里还有标题 + 描述 + 两个按钮 + 三条信任标签，已整块移除；
  * 组件也不再有 variant——历史上的 subtle 变体从未被任何页面使用。
  */
@@ -31,7 +33,7 @@ export default function CTASection() {
           // 黑洞画在 canvas 里，读屏软件拿不到任何内容，
           // 可访问名只能挂在链接上，否则这就是一个没有名字的链接
           aria-label={t('browseProducts')}
-          className="blackhole-link mx-auto w-full max-w-[500px] rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+          className="block mx-auto w-full max-w-[500px] rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
         >
           <BlackHole />
         </Link>
