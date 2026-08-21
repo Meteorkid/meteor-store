@@ -17,9 +17,11 @@
  * 否则补记等于把「真的没执行」永久藏起来。这条检查是硬性的，
  * 有任何一条对不上就拒绝 --apply。
  *
- * 用法：
- *   node scripts/reconcile-migration-ledger.mjs            # dry-run，只读
- *   node scripts/reconcile-migration-ledger.mjs --apply    # 写账本
+ * 用法（沿用 migrate-avatars-to-r2.mjs 的环境变量加载写法）：
+ *   set -a && . ./.env.production && set +a && node scripts/reconcile-migration-ledger.mjs
+ *   set -a && . ./.env.production && set +a && node scripts/reconcile-migration-ledger.mjs --apply
+ *
+ * 不加 --apply 就是 dry-run，只读不写。
  *
  * 只增删账本行，**不执行任何迁移 SQL、不改业务表**。
  */
