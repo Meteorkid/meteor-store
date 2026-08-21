@@ -28,13 +28,17 @@ export default function ProductVisual({
   const [playing, setPlaying] = useState(false);
 
   /**
-   * 进入视口就播，离开就暂停。
+   * 进入视口（含提前量）就播，离开就暂停。
    *
    * 早先是「悬浮才播」（GIF 时代就如此），代价是卡片在鼠标碰上去之前完全是静止的，
    * 而移动端压根没有悬浮——那里的演示片从来就没被看见过。
    *
-   * 仍然保留 preload="none"：真正触发下载的是 play()，所以只有滚到眼前的那几张
-   * 会去拉视频，不会一进列表页就把十几个文件全拽下来。
+   * rootMargin 给 250px 提前量：等卡片真正进入视口才开始缓冲的话，
+   * 会先看到封面、隔一会儿才突然动起来，滚动时一路都是这种跳变。
+   * 提前触发让淡入在卡片露头之前就开始。
+   *
+   * **播放仍然只给可见的那几张**：12 个视频同时解码是实打实的 CPU 与耗电开销，
+   * 而看不见的那些解了也没人看。缓冲归缓冲（preload="auto"），播放归播放。
    */
   useEffect(() => {
     const video = videoRef.current;
@@ -45,7 +49,7 @@ export default function ProductVisual({
         if (entry.isIntersecting) video.play().catch(() => {});
         else video.pause();
       },
-      { threshold: 0.35 },
+      { rootMargin: '250px 0px', threshold: 0 },
     );
     observer.observe(video);
     return () => observer.disconnect();
@@ -82,7 +86,13 @@ export default function ProductVisual({
               muted
               loop
               playsInline
-              preload="none"
+              /*
+                preload="auto"：12 个演示片合计只有 1.07MB（改造前那批 GIF 是 6.5MB，
+                而且当时靠 display:none 隐藏——Chrome 照样会下载）。为这点体积让
+                每张卡片滚到眼前就能立刻动起来是划算的；靠 play() 现拉的话，
+                滚动过程中会一路看到「封面→卡顿→突然开始」的跳变。
+              */
+              preload="auto"
               onPlaying={() => setPlaying(true)}
               onPause={() => setPlaying(false)}
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${playing ? 'opacity-100' : 'opacity-0'}`}

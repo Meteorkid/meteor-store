@@ -59,9 +59,15 @@ echo "==> 4. 服务器同步源码 + 替换 .next + 重启 PM2"
 ssh "${SSH_OPTS[@]}" "$SERVER" bash -s <<'REMOTE'
 set -euo pipefail
 cd /var/www/meteor-store
-# 直连 GitHub 官方源。不用第三方镜像（如 ghfast.top）：镜像可投毒，
+# 直连 GitHub 官方源，走 SSH。不用第三方镜像（如 ghfast.top）：镜像可投毒，
 # 服务器会执行仓库里的代码与安装脚本，等于把供应链交给陌生中间人。
-git remote set-url origin https://github.com/Meteorkid/meteor-store.git 2>/dev/null || true
+#
+# **必须是 SSH 不能是 HTTPS**：这台阿里云机器到 github.com:443 是不通的
+# （实测三次全部 12s 超时），而 SSH 通。两条部署路径都卡死在这一步过。
+# 服务器用 ~/.ssh/id_ed25519_meteor_store_deploy 这把 deploy key，
+# 并在 ~/.ssh/config 里把 github.com 指到 ssh.github.com:443（22 也通，443 更稳）。
+# 换服务器时记得一并迁移这把 key，或在仓库设置里重新添加 deploy key。
+git remote set-url origin git@github.com:Meteorkid/meteor-store.git 2>/dev/null || true
 pull_succeeded=0
 for i in 1 2 3; do
   if git pull --ff-only origin main; then

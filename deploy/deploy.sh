@@ -60,7 +60,7 @@ fi
 
 echo "==> git pull"
 # 直连 GitHub 官方源（不用第三方镜像——镜像可投毒，服务器会执行仓库代码）
-git remote set-url origin https://github.com/Meteorkid/meteor-store.git 2>/dev/null || true
+git remote set-url origin git@github.com:Meteorkid/meteor-store.git 2>/dev/null || true
 pull_succeeded=0
 for i in 1 2 3; do
   if git pull --ff-only origin main; then

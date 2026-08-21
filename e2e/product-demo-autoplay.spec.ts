@@ -53,19 +53,29 @@ test.describe('产品演示片自动播放', () => {
       .toBeGreaterThan(0.9);
   });
 
-  test('未滚到的卡片不预加载，避免一次拽下十几个视频', async ({ page }) => {
+  test('全部演示片预加载，滚到哪张都能立刻动起来', async ({ page }) => {
     await page.goto('/zh/products');
 
-    // preload="none" 时，没被 play() 过的视频 readyState 应为 0（HAVE_NOTHING）
-    const untouched = await page.evaluate(() => {
+    // 12 个演示片合计约 1.07MB，全量预加载换取滚动时不卡顿是划算的
+    // （改造前那批 GIF 是 6.5MB，还靠 display:none 隐藏，照样会下载）。
+    const all = await page.evaluate(() => {
       const vids = [...document.querySelectorAll<HTMLVideoElement>('video[src*="demo.mp4"]')];
       return {
         总数: vids.length,
-        preload全为none: vids.every((v) => v.getAttribute('preload') === 'none'),
+        preload全为auto: vids.every((v) => v.getAttribute('preload') === 'auto'),
       };
     });
 
-    expect(untouched.总数).toBeGreaterThan(0);
-    expect(untouched.preload全为none, '演示片必须 preload="none"，靠 play() 触发下载').toBe(true);
+    expect(all.总数).toBeGreaterThan(0);
+    expect(all.preload全为auto, '演示片应 preload="auto"，滚到眼前时已缓冲好').toBe(true);
+
+    // 页面底部、还没滚到的那张也应完成缓冲（readyState ≥ 2 = HAVE_CURRENT_DATA）
+    const last = page.locator('video[src*="demo.mp4"]:visible').last();
+    await expect
+      .poll(() => last.evaluate((v: HTMLVideoElement) => v.readyState), {
+        timeout: 20000,
+        message: '未滚到的演示片也应预加载好',
+      })
+      .toBeGreaterThanOrEqual(2);
   });
 });
