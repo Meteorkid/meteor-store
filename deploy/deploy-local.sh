@@ -83,8 +83,24 @@ pnpm install --frozen-lockfile
 sudo mkdir -p /var/log/meteor-store
 sudo cp deploy/logrotate.conf /etc/logrotate.d/imagentx.top
 # 同步 nginx 配置（含日志格式声明）—— root 权限走 sudo
-sudo cp deploy/nginx.conf /etc/nginx/conf.d/imagentx.top.conf
-sudo nginx -t && sudo nginx -s reload
+#
+# **先备份再覆盖**：nginx -t 只能校验「已经装好的整份配置」，没法预检一个游离文件
+# （conf.d 的 include 是 *.conf，改名放进去根本不会被读到）。所以必须先落到位再校验，
+# 那就得自己保证校验失败时能把旧配置放回去——否则线上配置已被覆盖，
+# 下一次 reload 或机器重启时 nginx 直接起不来。
+NGINX_CONF=/etc/nginx/conf.d/imagentx.top.conf
+sudo cp -f "$NGINX_CONF" "$NGINX_CONF.bak" 2>/dev/null || true
+sudo cp deploy/nginx.conf "$NGINX_CONF"
+if sudo nginx -t; then
+  sudo nginx -s reload
+else
+  echo "ERROR: 新的 nginx 配置校验失败，已回滚到上一版" >&2
+  if [[ -f "$NGINX_CONF.bak" ]]; then
+    sudo cp -f "$NGINX_CONF.bak" "$NGINX_CONF"
+    sudo nginx -t && sudo nginx -s reload
+  fi
+  exit 1
+fi
 # 停止 PM2 释放内存，备份旧产物，解压新产物
 pm2 stop meteor-store 2>/dev/null || true
 rm -rf .next.rollback
