@@ -7,9 +7,11 @@ import { SHOW_PRICING } from '@/lib/constants';
 
 const BlackHole = dynamic(() => import('./BlackHole'), {
   ssr: false,
+  // 占位必须撑满同样的正方形：黑洞容器没有 relative，
+  // 早先的 absolute inset-0 会脱出容器并让它塌成 0 高，加载完成时整段布局跳一下
   loading: () => (
-    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      <div className="h-64 w-64 animate-pulse rounded-full bg-white/[0.02]" />
+    <div className="pointer-events-none w-full aspect-square flex items-center justify-center">
+      <div className="h-2/5 w-2/5 animate-pulse rounded-full bg-white/[0.02]" />
     </div>
   ),
 });
