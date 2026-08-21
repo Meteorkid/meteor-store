@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef } from 'react';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { OPERATOR } from '@/lib/constants';
 import { showToast } from './EasterEggs';
@@ -74,8 +73,23 @@ export default function FooterCopyright() {
 
               eager 不是随手加的：这是管局要核验的合规元素，才 1.4KB，
               不值得为省这点流量赌懒加载一定会触发。
+
+              **这里必须用原生 img，不能用 next/image。** 两个原因：
+
+              1. 会裂图。next/image 按 width 生成 `w=16 1x, w=32 2x` 的 srcset，
+                 而 /_next/image 只接受 imageSizes/deviceSizes 里的宽度——Next 16 的
+                 默认 imageSizes 最小是 32，w=16 直接返回
+                 `400 "w" parameter (width) of 16 is not allowed`。
+                 于是 1x 屏拿到 400、显示成裂图，2x 屏取 w=32 反而正常，
+                 「有的机器看得见有的看不见」就是这么来的。
+              2. 优化是负收益。实测 /_next/image?w=32 回来的是 2051B 的 png，
+                 比原图 1403B 还大 46%，格式也没变。为一张 1.4KB 的图额外做一次
+                 服务端转换、占一次优化额度，纯亏。
+
+              合规元素必须无条件渲染，不该依赖图片优化端点这条会 400 的链路。
             */}
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/beian-police.png"
               alt=""
               aria-hidden
