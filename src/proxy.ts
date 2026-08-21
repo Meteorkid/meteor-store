@@ -110,7 +110,24 @@ export const config = {
   // 所以带 .html 的请求必然是 public/ 下的静态文件——目前是搜索引擎站长平台的
   // 归属验证文件（如 baidu_verify_codeva-*.html）。漏掉它的话 next-intl 会把
   // /baidu_verify_xxx.html 重定向成 /zh/baidu_verify_xxx.html 然后 404，验证必然失败。
+  //
+  // **这里是白名单，不是"凡带点就排除"**：动态段可能合法地含点，
+  // 一律排除会把它们踢出 next-intl 的语言处理。代价是每引入一种新静态格式都得补一次，
+  // 而漏掉的表现极其隐蔽——请求被重定向到 /zh/<原路径>，那里落到 catch-all 404，
+  // 于是**返回一个 200 的 HTML 页面**。浏览器拿 HTML 当视频/模型/JSON 解析，
+  // 只会得到一个语焉不详的解码错误，看不出根因是中间件。
+  // 历史教训：mp4（chakra 特效视频）、glb（骨骼模型）、json（tollow 的 i18n 文案）
+  // 三类资源就是这样在生产静默坏掉的。
+  // `src/lib/__tests__/proxy-matcher.test.ts` 会扫 public/ 下的实际扩展名来钉住这条，
+  // 新增格式忘了补名单时 CI 会红。
+  //
+  // **`js` 不能放进后缀名单，只能按文件名逐个列**：博客标签是用户可自定义的，
+  // `Three.js` 已经是现有文章的标签，`Node.js` / `Vue.js` 只是时间问题。
+  // 拿 `js` 后缀一刀切会让 /zh/blog/tag/Three.js 整条绕开中间件——页面照常渲染，
+  // 但**响应里一个 CSP 头都没有**，安静地少一层防护。public/ 下的脚本只有固定两个
+  // （sw.js 与 meteor-runner.js，都被互相硬编码引用），逐个列出来即可；
+  // 构建产物的 js 走 _next/static，上面已经排除。
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|favicon.svg|robots.txt|sitemap.xml|manifest.webmanifest|sw.js|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js|map|txt|xml|html)).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|favicon.svg|robots.txt|sitemap.xml|manifest.webmanifest|sw\\.js|meteor-runner\\.js|.*\\.(?:png|jpg|jpeg|gif|webp|avif|svg|ico|css|txt|xml|html|json|md|mp4|webm|mov|glb|gltf|bin|wasm|woff|woff2|ttf)).*)',
   ],
 };
