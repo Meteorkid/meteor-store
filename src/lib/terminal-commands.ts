@@ -161,6 +161,7 @@ export function runCommand(rawInput: string): CommandResult {
           '  连点 Logo 7 次  →  同 Konami 效果',
           '  双击页面空白处  →  从点击处放出小流星',
           '  静止鼠标 10 秒  →  许愿流星飞过，可点击许愿',
+          '  点击页尾的黑洞  →  被它吸进工具矩阵',
           '',
           '📱 页面互动：',
           '  切到其他标签页    →  标题栏会挽留你',

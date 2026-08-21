@@ -8,6 +8,13 @@ describe('runCommand', () => {
     expect(lines[lines.length - 1]).toContain('easter');
   });
 
+  // 黑洞是首页唯一没有文字说明的入口：它下面原本有标题和按钮，删掉之后
+  // 触屏上没有任何可发现性，这条彩蛋提示是它仅有的线索，别在整理文案时删掉
+  it('easter 指南里写明黑洞可点', () => {
+    const { lines } = runCommand('easter');
+    expect(lines.join('\n')).toContain('黑洞');
+  });
+
   it('story 返回导航动作', () => {
     const result = runCommand('story');
     expect(result.action).toBe('navigate-story');
