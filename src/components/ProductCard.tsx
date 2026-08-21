@@ -21,7 +21,7 @@ export default async function ProductCard({ product, priority = false }: Product
       {/* Background gradient */}
       <div className={`absolute inset-0 bg-gradient-to-br ${product.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
 
-      <ProductVisual product={product} demoOnHover priority={priority} transitionName={`product-visual-${product.id}`} />
+      <ProductVisual product={product} showDemo priority={priority} transitionName={`product-visual-${product.id}`} />
 
       <div className="relative px-3 pb-3 pt-5">
         {/* Title */}

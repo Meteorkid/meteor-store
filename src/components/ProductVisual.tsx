@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { LocalizedProduct } from '@/data/products';
 import { useReducedMotion } from '@/lib/motion';
@@ -9,7 +9,8 @@ import { useReducedMotion } from '@/lib/motion';
 interface ProductVisualProps {
   product: LocalizedProduct;
   priority?: boolean;
-  demoOnHover?: boolean;
+  /** 是否在卡片上播放演示片。进入视口即自动播放，不需要悬浮。 */
+  showDemo?: boolean;
   className?: string;
   transitionName?: string;
 }
@@ -17,35 +18,43 @@ interface ProductVisualProps {
 export default function ProductVisual({
   product,
   priority = false,
-  demoOnHover = false,
+  showDemo = false,
   className = '',
   transitionName,
 }: ProductVisualProps) {
   const t = useTranslations('ProductDetailPage');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const reducedMotion = useReducedMotion();
+  const [playing, setPlaying] = useState(false);
 
-  // preload="none" + 悬浮才播：演示片只在用户真的看它时才下载。
-  // 原来用 <Image unoptimized> 渲染 GIF，靠 CSS 隐藏——而 display:none 拦不住下载，
-  // 列表页一进来就把十几个演示文件全拉下来了。
-  const playDemo = useCallback(() => {
-    if (reducedMotion) return;
-    videoRef.current?.play().catch(() => {});
-  }, [reducedMotion]);
-
-  const stopDemo = useCallback(() => {
+  /**
+   * 进入视口就播，离开就暂停。
+   *
+   * 早先是「悬浮才播」（GIF 时代就如此），代价是卡片在鼠标碰上去之前完全是静止的，
+   * 而移动端压根没有悬浮——那里的演示片从来就没被看见过。
+   *
+   * 仍然保留 preload="none"：真正触发下载的是 play()，所以只有滚到眼前的那几张
+   * 会去拉视频，不会一进列表页就把十几个文件全拽下来。
+   */
+  useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
-    video.pause();
-    video.currentTime = 0;
-  }, []);
+    if (!video || reducedMotion) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, [reducedMotion]);
 
   return (
     <div
       className={`relative aspect-[16/10] overflow-hidden rounded-[1.4rem] border border-white/10 bg-zinc-950 shadow-2xl ${className}`}
       style={transitionName ? { viewTransitionName: transitionName } : undefined}
-      onMouseEnter={demoOnHover ? playDemo : undefined}
-      onMouseLeave={demoOnHover ? stopDemo : undefined}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${product.gradient} opacity-25`} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.18),transparent_36%),linear-gradient(to_bottom,transparent_55%,rgba(0,0,0,0.35))]" />
@@ -60,7 +69,12 @@ export default function ProductVisual({
             sizes="(min-width: 1024px) 50vw, 100vw"
             className="object-cover object-center"
           />
-          {demoOnHover && product.media.demo && (
+          {showDemo && product.media.demo && (
+            /*
+              盖在封面之上，真正开始播了才淡入（onPlaying）。
+              封面因此仍然是首屏可见的那一层——视频还在缓冲时不会先露出一块黑底，
+              prefers-reduced-motion 下不播，看到的就一直是封面。
+            */
             <video
               ref={videoRef}
               src={product.media.demo}
@@ -69,7 +83,9 @@ export default function ProductVisual({
               loop
               playsInline
               preload="none"
-              className="absolute inset-0 hidden h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-safe:md:block"
+              onPlaying={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${playing ? 'opacity-100' : 'opacity-0'}`}
             />
           )}
         </>

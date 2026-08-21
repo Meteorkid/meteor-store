@@ -116,3 +116,21 @@ echo "==> 验证"
 sleep 3
 curl -s -o /dev/null -w "%{http_code}" "https://www.imagentx.top/zh/apps/tollow/trial"
 echo "  <- trial 路由状态码"
+
+# 预热 next/image 缓存。
+#
+# 部署会整个换掉 .next，**图片优化缓存（.next/cache/images）也跟着没了**。
+# 缓存空的时候每张封面都要现做一次 sharp 转换，而这台机器只有 2G 内存、
+# 空闲常年在 200MB 上下——头几个访客会撞上超时或失败，看到的就是一张裂图。
+# 这里先把产品列表页的封面挨个拉一遍，把缓存填热再放用户进来。
+# 逐个串行、失败不阻断部署（|| true）：预热本身不成功也只是回到原来的状态。
+echo "==> 预热 next/image 缓存（部署清空了 .next/cache/images）"
+warmed=0
+for id in $(grep -oE "^    id: '[a-z0-9-]+'" src/data/products.ts | sed "s/.*'\(.*\)'/\1/"); do
+  for w in 375 768 1536; do
+    curl -s -o /dev/null --max-time 20 \
+      "https://www.imagentx.top/_next/image?url=%2Fproducts%2F${id}%2Fcover.webp&w=${w}&q=75" || true
+  done
+  warmed=$((warmed + 1))
+done
+echo "  已预热 $warmed 个产品封面 × 3 种宽度"

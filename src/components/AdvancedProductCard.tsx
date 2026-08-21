@@ -64,7 +64,7 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
 
         <div className="relative">
           {/* 产品截图：与产品页一致的视觉呈现 */}
-          <ProductVisual product={product} demoOnHover className="mb-4" transitionName={`product-visual-${product.id}`} />
+          <ProductVisual product={product} showDemo className="mb-4" transitionName={`product-visual-${product.id}`} />
 
           {/* Category badge */}
           <div
