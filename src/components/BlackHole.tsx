@@ -1,24 +1,31 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useReducedMotion } from '@/lib/motion';
 
 // ═══════════════════════════════════════
-// EHT 风格黑洞（透明画布，单次绘制）
+// 史瓦西黑洞：逐像素积分零测地线，光线是真的被弯的
 //
-// 整幅图在一个铺满画布的裁剪空间四边形里解析生成：视界阴影 + 光子环 +
-// 吸积盘 + 外冕。**不要再引入离屏 RenderTarget 做后处理**：历史实现把
-// 合成 pass 的片元写成 `vec4(rgb, 1.0)` 且材质没标 transparent，
-// 于是整块 500×500 画布变成不透明黑方块，在站点星空背景上切出一个硬边矩形；
-// 同时它把「包含合成面片自身的 scene」渲进 RenderTarget 再采样自己，
-// 构成逐帧反馈回路。两个问题都随后处理一起删掉。
+// 旧实现是一幅二维画：阴影、环、光晕全按屏幕半径 dist 算出来，所以它只会
+// **遮住**背后的东西，不会**弯曲**任何东西——看着像一个发光甜甜圈中间抠了个洞。
+// 现在每个像素发一条光线，按史瓦西度规下的零测地线方程积分：
 //
-// 透明合成靠 premultiplied alpha：片元输出 rgb 已乘过强度，
-// alpha 只由「会遮挡星空的实体」（视界阴影 + 光学厚的环体）贡献，
-// 外冕 alpha 留 0 走纯加法，星星能透出来。
-// 所有发光项必须在 dist = 1.0（画布边缘）之前归零，否则又会出现方框接缝。
+//   d²r⃗/dλ² = -3/2 · h² · r⃗ / |r⃗|⁵     （h = |r⃗ × v⃗| 是守恒角动量，单位取 rs = 1）
+//
+// 空间扭曲因此是积分出来的，不是画出来的：吸积盘背面的光被拗到黑洞上方与下方，
+// 形成横跨阴影的拱形；掠过光子球的光线绕行多圈、反复穿过盘面，自动聚成一圈
+// 极亮的光子环。两者都没有任何一行代码专门去画。
+//
+// 背景星空同样被弯，但用的是**着色器里自己生成的**星场（starField），按光线出射
+// 方向采样即可，零成本。页面那层真星空（GlobalParticles / MeteorShower 两个 fixed
+// 的 2D canvas）弯不了：要每帧把它们上传成纹理，还得跟着滚动、DPR 补偏移，
+// 代价高且把黑洞和那两个组件永久耦合。我们这层只在强透镜区出现，随后交回真星空。
+//
+// 透明合成仍走 premultiplied alpha：alpha 只由会遮挡星空的实体贡献
+// （落入视界的像素、光学厚的盘面），外冕留 0 走纯加法。
+// 所有输出必须在 scr = 1.0（画布边缘）之前归零，否则又会切出方框接缝。
 // ═══════════════════════════════════════
 
 const quadVertShader = /* glsl */ `
@@ -34,10 +41,15 @@ const holeFragShader = /* glsl */ `
   uniform float uTime;
   uniform float uAspect;
 
-  // 以画布半高为 1.0 的归一化空间
-  const float R = 0.50;               // 环半径
-  const float W = 0.034;              // 环厚度（与 R 同比例，改 R 要一起改）
-  const float SHADOW_R = R - W * 2.2; // 视界阴影半径
+  // 单位取史瓦西半径 rs = 1
+  const float CAM_R = 11.0;   // 相机到黑洞的距离
+  const float TILT  = 0.150;  // 相机抬高角（弧度）：几乎贴着赤道面看，拱形才明显
+  const float FOV   = 0.60;   // 越小黑洞越大
+  // 内缘取到 2.2：史瓦西的 ISCO 在 3rs，但高自旋 Kerr 可以低到 1.24rs。
+  // 放在 2.6 时盘的内缘投影离阴影太远，中间空出一大圈死黑，整体读起来像日食而不是吸积盘
+  const float D_IN  = 2.2;
+  const float D_OUT = 6.5;    // 外缘：再大投影就会超出画布，边缘留下硬切
+  const int   STEPS = 140;
 
   float hash(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -66,212 +78,225 @@ const holeFragShader = /* glsl */ `
     return v;
   }
 
+  // ── 程序化星场：用光线的**出射方向**采样 ──
+  // 方向已经被引力拗过了，所以直接照方向采出来的就是爱因斯坦环和被拉长的弧，
+  // 不需要额外写一行「画环」的代码。星星是我们自己生成的，不是页面那层真星空——
+  // 弯页面那层要把两个 fixed 的 2D canvas 每帧上传成纹理，还要跟着滚动补偏移，
+  // 代价和耦合都不值当（见本文件顶部说明）
+  float hash13(vec3 p) {
+    p = fract(p * 0.3183099 + vec3(0.71, 0.113, 0.419));
+    p *= 17.0;
+    return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+  }
+
+  // 单档星点：每个网格胞元里至多一颗，按到抖动后星心的距离定亮度
+  vec3 starCell(vec3 dir, float density, float thresh, float sharp) {
+    vec3 p = dir * density;
+    vec3 c = floor(p);
+    float h = hash13(c);
+    if (h < thresh) return vec3(0.0);
+    vec3 f = p - c - 0.5;
+    // 抖动压在半个胞元内，否则星点会被网格边界切掉
+    vec3 j = (vec3(hash13(c + 11.0), hash13(c + 23.0), hash13(c + 37.0)) - 0.5) * 0.7;
+    float d = length(f - j);
+    float inten = pow(max(0.0, 1.0 - d * 2.2), sharp);
+    // 少量星点偏站点紫，其余接近白，和页面自己的星空同一调子
+    vec3 col = mix(vec3(0.86, 0.89, 1.00), vec3(0.72, 0.55, 1.00),
+                   step(0.62, hash13(c + 53.0)));
+    return col * inten * (0.55 + 0.45 * hash13(c + 71.0));
+  }
+
+  vec3 starField(vec3 dir) {
+    return starCell(dir, 26.0, 0.855, 6.0)
+         + starCell(dir, 60.0, 0.900, 5.0) * 0.6;
+  }
+
+  // 史瓦西零测地线的加速度项
+  vec3 gravAcc(vec3 r, float h2) {
+    float r2 = dot(r, r);
+    return -1.5 * h2 * r / (r2 * r2 * sqrt(r2));
+  }
+
   void main() {
     vec2 p = (vUv - 0.5) * 2.0;
     p.x *= uAspect;
+    float scr = length(p);
 
-    float dist = length(p);
-    float angle = atan(p.y, p.x);
-    float dRing = dist - R;
+    // ── 相机 ──
+    vec3 camPos = vec3(0.0, sin(TILT), -cos(TILT)) * CAM_R;
+    vec3 fwd = normalize(-camPos);
+    vec3 rgt = normalize(cross(vec3(0.0, 1.0, 0.0), fwd));
+    vec3 upv = cross(fwd, rgt);
+    vec3 dir = normalize(fwd + (p.x * rgt + p.y * upv) * FOV);
 
-    // ── 多普勒非对称：最亮在右下 (≈ -45°) ──
-    float doppler = clamp(1.0 + 0.75 * sin(angle + 0.785), 0.12, 1.0);
+    vec3 pos = camPos;
+    vec3 vel = dir;
+    vec3 hv = cross(pos, vel);
+    float h2 = dot(hv, hv);   // 沿测地线守恒，只算一次
 
-    // ── 视界阴影：软边圆盘，遮住背后的星空 ──
-    float shadowA = smoothstep(SHADOW_R, SHADOW_R - 0.05, dist);
-    float outside = 1.0 - shadowA;
+    // 视界阴影用解析判据，不靠积分收敛：|v| = 1 时 h 就是冲击参数 b，
+    // 史瓦西度规下入射光子被俘获当且仅当 b < 3√3/2 · rs。
+    // 靠积分判的话，掠过光子球的光线要绕好几圈才分得出胜负，每圈需要约 200 步，
+    // 步数一定先耗尽——于是阴影边界由步数预算而不是物理决定，会是一圈多边形折线
+    float b = sqrt(h2);
+    bool captured = b < 2.5981 && dot(pos, vel) < 0.0;
 
-    vec3 emissive = vec3(0.0);
+    vec3 disk = vec3(0.0);
+    float trans = 1.0;   // 剩余透过率，前向合成用
+    bool escaped = false;
+    vec3 escDir = vec3(0.0);
 
-    // ── 贴环的暖晕：只紧贴环，宽度放大就会把环的颗粒感糊掉 ──
-    // 在分支外算，否则会在下面那个环带的边界上留一圈亮度断层
-    float warm = dRing >= 0.0 ? exp(-dRing / (W * 3.0)) : exp(dRing / (W * 1.4));
-    emissive += vec3(0.96, 0.56, 0.20) * warm * 0.16 * doppler * outside;
+    for (int i = 0; i < STEPS; i++) {
+      float r = length(pos);
+      if (r < 1.0) break;                                     // 落入视界，后面没有光了
+      // 光子球在 r = 1.5，越过 D_OUT 还在向外跑的光线不可能再被拗回来撞上盘
+      if (r > D_OUT + 0.5 && dot(pos, vel) > 0.0) { escaped = true; escDir = normalize(vel); break; }
 
-    // ── 外冕：站点品牌紫，把黑洞和背景缝在一起 ──
-    // 衰减按「到画布边缘的归一化距离」而不是指数：指数在环外掉得太快，
-    // 读起来是一圈脏边而不是一团光。这条曲线到 dist = 1.0 自然归零，边缘因此没有接缝
-    float fall = 1.0 - smoothstep(0.0, 1.0, clamp((dist - R) / (1.0 - R), 0.0, 1.0));
-    float corona = dRing >= 0.0 ? pow(fall, 2.0) : exp(dRing / 0.020);
-    // 门控让外冕等暖晕衰减完再起，向内则收得很急：
-    // 紫渗进金色环内侧、或两者在低亮度下叠加，都会混成脏棕灰
-    corona *= smoothstep(0.01, 0.16, dRing) * outside;
-    // 取靛蓝一端而不是品红：冷外冕 / 热吸积盘的冷暖对比更干净
-    vec3 coronaCol = mix(vec3(0.34, 0.24, 1.00), vec3(0.62, 0.32, 0.98),
-                         smoothstep(0.0, 1.2, doppler));
-    emissive += coronaCol * corona * (0.13 + 0.22 * doppler);
+      // 步长随半径自适应：近处要细，远处可以大步跨，省一半迭代
+      float dt = clamp(0.045 * r, 0.020, 0.35);
+      vec3 a = gravAcc(pos, h2);
+      vec3 np = pos + vel * dt + 0.5 * a * dt * dt;
+      vec3 nv = vel + a * dt;
 
-    float alpha = shadowA * 0.97;
+      // 穿过赤道面 → 命中吸积盘
+      if (pos.y * np.y < 0.0) {
+        float f = pos.y / (pos.y - np.y);
+        vec3 hit = mix(pos, np, f);
+        float hr = length(hit);
+        if (hr > D_IN && hr < D_OUT) {
+          float tRad = (hr - D_IN) / (D_OUT - D_IN);
 
-    // ── 环体：只在环附近算，避免整块画布跑 fbm ──
-    // 带宽 0.20 处环轮廓已衰减到 0，边界无断层
-    if (abs(dRing) < 0.20) {
-      float turb = fbm(vec3(p * 6.0, uTime * 0.025)) * 0.010;
-      float d = dist + turb - R;
+          // 内侧亮，外侧快速暗下去（外缘必须自然熄灭，不能靠裁剪）
+          float radial = pow(1.0 - tRad, 2.0);
+          radial += 0.6 * exp(-pow((hr - D_IN) / 0.6, 2.0));   // 内缘再加一道亮边
 
-      // 内缘陡、外缘柔
-      float profile = d < -W * 0.5
-        ? exp(-d * d / (W * W * 0.30))
-        : exp(-d * d / (W * W * 1.20));
+          // 开普勒较差自转：内圈转得快，盘面纹理跟着一起转
+          float sp = uTime * 1.7 / pow(hr, 1.5);
+          float ca = cos(sp), sa = sin(sp);
+          vec2 q = vec2(hit.x * ca - hit.z * sa, hit.x * sa + hit.z * ca);
 
-      // 方位角热点
-      float hotspots = 1.0
-        + 0.30 * sin(angle + 2.1)
-        + 0.20 * sin(angle * 2.0 + 0.5)
-        + 0.15 * sin(angle * 3.0 + 3.8)
-        + 0.08 * sin(angle * 5.0 + 1.2);
-      hotspots = clamp(hotspots, 0.45, 1.0);
+          float turb = fbm(vec3(q * 0.5, uTime * 0.03));
+          float fine = fbm(vec3(q * 1.9, uTime * 0.05));
+          float dens = radial * (0.5 + 0.8 * turb + 0.35 * fine);
 
-      float brightness = profile * doppler * hotspots;
+          // 多普勒 beaming：朝向我们转的一侧更亮，这是黑洞图左右不对称的来源
+          // 下限不能压得太狠：拗到黑洞上方的那段盘面正好处在背离观者的一侧，
+          // 压到 0.1 就成了一块「不透明但几乎不发光」的黑色穹顶
+          vec3 orbit = normalize(cross(vec3(0.0, 1.0, 0.0), hit));
+          float beta = dot(orbit, normalize(vel)) * (1.1 / sqrt(hr));
+          float dop = clamp(1.0 + 1.5 * beta, 0.24, 2.4);
 
-      float grain = fbm(vec3(p * 40.0, uTime * 0.04)) * 0.35;
-      float fine  = fbm(vec3(p * 95.0, uTime * 0.06)) * 0.18;
+          float bright = dens * dop;
 
-      vec3 brightCol = vec3(0.99, 0.82, 0.46);
-      vec3 midCol    = vec3(0.97, 0.58, 0.13);
-      vec3 darkCol   = vec3(0.66, 0.26, 0.04);
+          // 温度色：内热外冷
+          vec3 col = mix(vec3(1.00, 0.94, 0.80), vec3(0.99, 0.66, 0.20),
+                         smoothstep(0.0, 0.34, tRad));
+          col = mix(col, vec3(0.74, 0.27, 0.05), smoothstep(0.30, 1.0, tRad));
 
-      float t = clamp(brightness, 0.0, 1.0);
-      vec3 col;
-      if (t > 0.5) col = mix(midCol, brightCol, (t - 0.5) / 0.5);
-      else if (t > 0.12) col = mix(darkCol, midCol, (t - 0.12) / 0.38);
-      else col = darkCol * (0.4 + t / 0.3);
+          // 前向 alpha 合成：先命中的先遮挡，透过率随之衰减。
+          // 遮挡只取决于**密度**，不能带上多普勒——beaming 改变的是亮度不是厚度。
+          // 早先 alpha 走 max(bright) 而光走 exp(-hits) 衰减，两者脱钩：
+          // 背向观者那一侧的盘面「不透明但几乎不发光」，于是在星空上切出一个
+          // 硬边的黑色穹顶（正是之前那个多边形轮廓的来源）
+          float od = clamp(dens * 1.2, 0.0, 0.90);
+          disk += col * bright * 0.95 * trans;
+          trans *= 1.0 - od;
+        }
+      }
 
-      col *= 0.75 + grain * 0.5 + fine * 0.3;
-
-      emissive += col * brightness * 2.8;
-
-      // 环是光学厚的等离子体，会挡住背后的星空
-      alpha = max(alpha, clamp(brightness * 1.5, 0.0, 1.0));
+      pos = np;
+      vel = nv;
     }
+
+    // ── 被透镜弯过的背景星空 ──
+    // 权重取「这条光线到底被弯了多少」，而不是屏幕半径：
+    // bend = 0 表示光线基本没被弯，那里页面自己那层真星空就是对的，我们一颗都不加
+    // （否则就是在真星空上又铺一层，密度平白翻倍）；
+    // 越靠近光子环弯得越狠，星像被压缩成弧，权重也随之拉满 —— 爱因斯坦环就是这么出来的。
+    // 乘 trans 让盘面挡住它背后的星；步数耗尽而没逃逸的光线不给星光
+    if (escaped && !captured) {
+      float bend = 1.0 - dot(escDir, dir);              // 0（没弯）→ 2（掉头）
+      float lensWeight = smoothstep(0.02, 0.35, bend);
+      disk += starField(escDir) * lensWeight * trans * 2.3;
+    }
+
+    // 落入视界的像素本身就是全遮挡；盘面则按累计不透明度
+    float alpha = max(captured ? 1.0 : 0.0, 1.0 - trans);
+
+    // 色调映射：光子环附近一条光线会反复穿过盘面，不压一下会直接烧成纯白，
+    // 盘面的湍流纹理全部丢失
+    disk = disk / (1.0 + disk * 0.55);
+    vec3 emissive = disk;
+
+    // ── 外冕：站点品牌紫，把黑洞缝进页面背景 ──
+    // 纯加法（不进 alpha），星空从里面透出来
+    // 起点必须推到阴影边缘（scr = 2.598 / (FOV·CAM_R) ≈ 0.39）和光子环之外：贴着阴影起的话，
+    // 视界边上会箍一圈饱和的藏青，读起来是道硬边而不是光晕
+    float fall = 1.0 - smoothstep(0.0, 1.0, clamp((scr - 0.50) / 0.50, 0.0, 1.0));
+    float corona = pow(fall, 1.8) * smoothstep(0.50, 0.76, scr);
+    // 只在视界内扣掉外冕（那里必须纯黑）。不能按 alpha 扣：
+    // 盘面一挡就把外冕也挖掉，暗侧盘面会在紫色光晕上抠出一块硬边黑影
+    emissive += vec3(0.42, 0.28, 0.98) * corona * 0.16 * (captured ? 0.0 : 1.0);
+
+    // ── 边缘保险：保证 scr ≥ 1.0 时严格为 0 ──
+    // 起点压到 0.84 之后才收：盘外缘投影在 scr ≈ 0.99，收太早会把还看得见的盘面一起削掉
+    float guard = smoothstep(1.0, 0.84, scr);
+    emissive *= guard;
+    alpha *= guard;
 
     gl_FragColor = vec4(emissive, clamp(alpha, 0.0, 1.0));
   }
 `;
 
-// ── 轨道亮点粒子（同样在裁剪空间里定位，与主图共用一套坐标） ──
-const particlesVertShader = /* glsl */ `
-  attribute float aAngle;
-  attribute float aRadius;
-  attribute float aSize;
-  attribute float aSpeed;
-  varying float vAlpha;
-  varying float vAngle;
-  uniform float uTime;
-  uniform float uAspect;
-  uniform float uPixelRatio;
-  void main() {
-    float ang = aAngle + uTime * aSpeed * 0.22;
-    vec2 pos = vec2(cos(ang), sin(ang)) * aRadius;
-    pos.x /= uAspect;
-    gl_Position = vec4(pos, 0.0, 1.0);
-    gl_PointSize = aSize * 5.0 * uPixelRatio;
-    vAlpha = clamp(1.0 + 0.75 * sin(ang + 0.785), 0.12, 1.0);
-    vAngle = ang;
-  }
-`;
-
-const particlesFragShader = /* glsl */ `
-  varying float vAlpha;
-  varying float vAngle;
-  uniform float uTime;
-  void main() {
-    float d = length(gl_PointCoord - 0.5);
-    // 点精灵是方的：不裁成圆并在边界淡到 0，几百个加法叠加后会露出一格格方块
-    if (d > 0.5) discard;
-    float core = exp(-d * d * 46.0);
-    float glow = exp(-d * d * 11.0) * 0.12;
-    float i = (core + glow) * vAlpha * smoothstep(0.5, 0.30, d);
-    i *= max(0.0, 0.45 + 0.55 * sin(uTime * 1.5 + vAngle * 3.0));
-    vec3 col = mix(vec3(0.99, 0.78, 0.34), vec3(0.99, 0.92, 0.72), core);
-    // alpha 留 0 走纯加法，星空从亮点之间透出来
-    gl_FragColor = vec4(col * i * 0.55, 0.0);
-  }
-`;
-
 function Scene() {
-  const { gl, size } = useThree();
+  const { size } = useThree();
   const holeRef = useRef<THREE.Mesh>(null);
-  const particlesRef = useRef<THREE.Points>(null);
-
   const aspect = size.height > 0 ? size.width / size.height : 1;
 
-  // 随机粒子数据用 useState 惰性初始化生成一次：渲染期间调用 Math.random
-  // 会被 React Compiler 判为不纯（React Compiler 规则），惰性初始化只跑一次且合规
-  const [pData] = useState(() => {
-    const n = 180;
-    const ang = new Float32Array(n), rad = new Float32Array(n), sz = new Float32Array(n), sp = new Float32Array(n);
-    for (let i = 0; i < n; i++) {
-      ang[i] = Math.random() * Math.PI * 2;
-      rad[i] = 0.47 + Math.random() * 0.11;
-      sz[i] = 0.5 + Math.random() * 2.2;
-      sp[i] = 0.2 + Math.random() * 1.6;
-    }
-    // 顶点着色器完全用上面几条自定义属性定位，但 position 这条必须存在：
-    // three 用 attributes.position.count 推绘制数量，缺了它 drawCount 是 Infinity，
-    // WebGLRenderer 直接 return——不报错，只是一个粒子都不画（旧实现就是这样静默失效的）
-    return { ang, rad, sz, sp, pos: new Float32Array(n * 3) };
-  });
-
   useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    const dpr = gl.getPixelRatio();
-    if (holeRef.current) {
-      const u = (holeRef.current.material as THREE.ShaderMaterial).uniforms;
-      u.uTime.value = t;
-      u.uAspect.value = aspect;
-    }
-    if (particlesRef.current) {
-      const u = (particlesRef.current.material as THREE.ShaderMaterial).uniforms;
-      u.uTime.value = t;
-      u.uAspect.value = aspect;
-      u.uPixelRatio.value = dpr;
-    }
+    if (!holeRef.current) return;
+    const u = (holeRef.current.material as THREE.ShaderMaterial).uniforms;
+    u.uTime.value = state.clock.elapsedTime;
+    u.uAspect.value = aspect;
   });
 
   return (
-    <>
-      <mesh ref={holeRef}>
-        <planeGeometry args={[2, 2]} />
-        <shaderMaterial
-          vertexShader={quadVertShader}
-          fragmentShader={holeFragShader}
-          uniforms={{ uTime: { value: 0 }, uAspect: { value: 1 } }}
-          transparent
-          premultipliedAlpha
-          depthWrite={false}
-          depthTest={false}
-        />
-      </mesh>
-      <points ref={particlesRef} frustumCulled={false}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[pData.pos, 3]} />
-          <bufferAttribute attach="attributes-aAngle" args={[pData.ang, 1]} />
-          <bufferAttribute attach="attributes-aRadius" args={[pData.rad, 1]} />
-          <bufferAttribute attach="attributes-aSize" args={[pData.sz, 1]} />
-          <bufferAttribute attach="attributes-aSpeed" args={[pData.sp, 1]} />
-        </bufferGeometry>
-        <shaderMaterial
-          vertexShader={particlesVertShader}
-          fragmentShader={particlesFragShader}
-          uniforms={{ uTime: { value: 0 }, uAspect: { value: 1 }, uPixelRatio: { value: 1 } }}
-          transparent
-          premultipliedAlpha
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          depthTest={false}
-        />
-      </points>
-    </>
+    <mesh ref={holeRef}>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial
+        vertexShader={quadVertShader}
+        fragmentShader={holeFragShader}
+        uniforms={{ uTime: { value: 0 }, uAspect: { value: 1 } }}
+        transparent
+        premultipliedAlpha
+        depthWrite={false}
+        depthTest={false}
+      />
+    </mesh>
   );
 }
 
 export default function BlackHole() {
   const reducedMotion = useReducedMotion();
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
 
-  // 静态兜底同样不能出现方框：渐变必须写 closest-side。
+  // 逐像素积分测地线不便宜，而黑洞在首页最底部。不停帧的话，用户在页面任何位置
+  // 都在给它烧 GPU。离开视口就把帧循环停掉（frameloop="never"）
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { rootMargin: '200px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  // 静态兜底不能出现方框：渐变必须写 closest-side。
   // 默认的 farthest-corner 会把 100% 算到对角线上（正方形里是半宽的 1.41 倍），
-  // 于是渐变在容器边缘还没淡完就被裁掉，露出和旧 WebGL 版一样的硬边方块
+  // 于是渐变在容器边缘还没淡完就被裁掉，露出硬边方块
   if (reducedMotion) {
     return (
       <div className="w-full aspect-square relative">
@@ -280,8 +305,8 @@ export default function BlackHole() {
           style={{
             background: [
               'radial-gradient(circle closest-side at 50% 50%, rgba(120,70,250,0) 42%, rgba(120,70,250,0.22) 52%, rgba(150,70,235,0.12) 68%, rgba(150,70,235,0) 92%)',
-              // 右下更亮，对应动画版的多普勒非对称
-              'radial-gradient(circle closest-side at 62% 64%, rgba(240,150,40,0.16) 0%, rgba(240,150,40,0) 46%)',
+              // 左侧更亮，对应动画版朝向观者转的那一侧
+              'radial-gradient(circle closest-side at 34% 52%, rgba(240,150,40,0.16) 0%, rgba(240,150,40,0) 46%)',
             ].join(', '),
           }}
         />
@@ -292,10 +317,12 @@ export default function BlackHole() {
   }
 
   return (
-    <div className="w-full aspect-square">
+    <div ref={wrapRef} className="w-full aspect-square">
       <Canvas
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: 'high-performance' }}
+        // dpr 压到 1.5：每个像素要跑 72 步积分，2 倍 dpr 等于多算 78% 的量
+        dpr={[1, 1.5]}
+        frameloop={inView ? 'always' : 'never'}
+        gl={{ antialias: false, alpha: true, premultipliedAlpha: true, powerPreference: 'high-performance' }}
         style={{ width: '100%', height: '100%' }}
       >
         <Scene />
