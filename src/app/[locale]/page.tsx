@@ -81,7 +81,7 @@ export default async function Home({
       <TerminalSection />
 
       {/* CTA Section */}
-      <CTASection variant="bold" />
+      <CTASection />
 
       <Footer showSocial />
 

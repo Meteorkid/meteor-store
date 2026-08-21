@@ -1027,16 +1027,7 @@
     "scopeNote": "Meteor Pass is a personal-use license covering the individual tier of every app. Team seats, self-hosting and SLA are quoted separately."
   },
   "CTASection": {
-    "boldTitle": "Enter the Tool Matrix",
-    "subtleTitle": "Ready to Get Started?",
-    "boldDesc": "Browse our product matrix and find the right tool for you",
-    "subtleDescPricing": "Start free, upgrade as needed, no hidden fees",
-    "subtleDescNoPricing": "All products are open source and free, enjoy",
-    "browseProducts": "Browse All Products",
-    "githubOpenSource": "View help",
-    "badgeOpenSource": "Open Source",
-    "badgeLifetimeUpdates": "Continuously Maintained",
-    "badgeRefund": "7-Day Unused Refund"
+    "browseProducts": "Browse All Products"
   },
   "BackToTop": {
     "ariaLabel": "Back to top"

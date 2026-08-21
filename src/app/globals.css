@@ -1093,3 +1093,29 @@ html {
     box-shadow: 0 0 18px 6px rgba(196,181,253,0.7), 0 0 32px 12px rgba(139,92,246,0.35);
   }
 }
+
+/* 首页收尾的黑洞是进入产品页的入口。删掉了文字和按钮之后，
+   桌面端只剩指针形状可依赖，所以给一点悬浮反馈提示它可点。
+   悬浮效果按全站约定包在 (hover: hover) and (pointer: fine) 里 */
+.blackhole-link {
+  display: block;
+  transition: transform 420ms var(--ease-out-spring), filter 320ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .blackhole-link:hover {
+    transform: scale(1.035);
+    filter: brightness(1.12);
+  }
+}
+
+/* 安静模式下 transition 和 transform 要一起关：只关前者等于把缩放变成瞬移。
+   brightness 不是位移，保留作为悬浮反馈 */
+@media (prefers-reduced-motion: reduce) {
+  .blackhole-link {
+    transition: filter 320ms ease;
+  }
+  .blackhole-link:hover {
+    transform: none;
+  }
+}

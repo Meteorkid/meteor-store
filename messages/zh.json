@@ -1027,16 +1027,7 @@
     "scopeNote": "Pass 为个人使用授权，覆盖站内应用的个人档；团队席位、私有部署与 SLA 请单独联系。"
   },
   "CTASection": {
-    "boldTitle": "进入工具矩阵",
-    "subtleTitle": "准备好开始了吗？",
-    "boldDesc": "浏览我们的产品矩阵，找到适合你的工具",
-    "subtleDescPricing": "免费开始，按需升级，无隐藏费用",
-    "subtleDescNoPricing": "所有产品开源免费，欢迎使用",
-    "browseProducts": "浏览全部产品",
-    "githubOpenSource": "查看帮助",
-    "badgeOpenSource": "开源驱动",
-    "badgeLifetimeUpdates": "持续维护更新",
-    "badgeRefund": "7 天未使用退款"
+    "browseProducts": "浏览全部产品"
   },
   "BackToTop": {
     "ariaLabel": "返回顶部"
