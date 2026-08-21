@@ -78,4 +78,43 @@ test.describe('产品演示片自动播放', () => {
       })
       .toBeGreaterThanOrEqual(2);
   });
+
+  test('有演示片的卡片不再请求封面图，静态态就是视频第一帧', async ({ page }) => {
+    const coverRequests: string[] = [];
+    page.on('request', (r) => {
+      const u = r.url();
+      if (u.includes('/_next/image') && u.includes('cover.webp')) coverRequests.push(u);
+    });
+
+    await page.goto('/zh/products');
+    await page.waitForTimeout(6000);
+
+    // 封面走 /_next/image，而部署会清空 .next/cache/images——缓存冷时
+    // 每张都要在 2G 内存的机器上现做一次 sharp 转换，头几个访客会看到裂图。
+    // 卡片改用视频第一帧当静态态后，这条链路就不该再被碰到了。
+    expect(
+      coverRequests,
+      `产品卡片不应再请求封面优化图，实际请求了 ${coverRequests.length} 次`,
+    ).toEqual([]);
+
+    /*
+      **必须查全部，不能只查第一个。**
+      这条起初写成 .first()，结果放过了一个真 bug：preload="auto" 下视频常在
+      React 挂上监听之前就 loadeddata 完了，onLoadedData 收不到、ready 恒为 false，
+      于是视频在播（paused=false、currentTime 一直走）但 opacity 卡在 0，
+      整排卡片全是空的。只看第一个恰好躲过去了。
+    */
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() => {
+            const vids = [...document.querySelectorAll<HTMLVideoElement>('video[src*="demo.mp4"]')];
+            const 就绪 = vids.filter((v) => v.readyState >= 2);
+            const 可见 = 就绪.filter((v) => Number(getComputedStyle(v).opacity) > 0.9);
+            return 就绪.length > 0 && 可见.length === 就绪.length;
+          }),
+        { timeout: 15000, message: '每个已拿到第一帧的演示片都应淡入可见' },
+      )
+      .toBe(true);
+  });
 });
