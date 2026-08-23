@@ -2,6 +2,7 @@
 /* eslint-disable */
 import type { BookManifest, BookProgress, BookSection } from '../types/books'
 import { splitGraphemes } from '../utils/textSegmentation'
+import { TOLLOW_PROGRESS_SAVED_EVENT } from './accountSyncService'
 
 export const BOOK_PROGRESS_STORAGE_KEY = 'tollow-book-progress-v1'
 
@@ -153,7 +154,13 @@ export const bookProgressService: BookProgressService = {
 
     const progressByBook = readStoredProgress(storage)
     progressByBook[progress.bookId] = sanitizeProgress(progress)
-    return writeStoredProgress(storage, progressByBook)
+    const saved = writeStoredProgress(storage, progressByBook)
+    if (saved && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(TOLLOW_PROGRESS_SAVED_EVENT, {
+        detail: sanitizeProgress(progress),
+      }))
+    }
+    return saved
   },
 
   clearProgress(bookId) {

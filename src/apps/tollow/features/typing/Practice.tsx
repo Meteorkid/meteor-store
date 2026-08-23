@@ -8,6 +8,7 @@ import { useAppStore } from '../../stores/appStore'
 import { usePerformanceMonitor } from '../../hooks/usePerformanceMonitor'
 import { loadBookSection } from '../../services/bookTextLoader'
 import { bookProgressService } from '../../services/bookProgressService'
+import { ProgressService } from '../../services/progressService'
 import type { BookManifest, BookProgress } from '../../types/books'
 import type { BookPracticeContext, TextContent } from '../../types/types'
 import {
@@ -231,6 +232,18 @@ const Practice: React.FC = () => {
     setCurrentText,
   ])
 
+  const handleSessionComplete = useCallback((stats) => {
+    if (!currentText) return
+    void ProgressService.recordPracticeSession(
+      currentText.book?.bookId || '',
+      currentText.title,
+      stats,
+      []
+    ).catch(error => {
+      console.error('Tollow practice session save failed:', error)
+    })
+  }, [currentText])
+
   if (!currentText) {
     return (
       <div className='practice-error'>
@@ -292,6 +305,7 @@ const Practice: React.FC = () => {
         initialPosition={currentText.book?.offset || 0}
         onProgress={currentText.book ? handleProgress : undefined}
         onComplete={currentText.book ? handleSegmentComplete : undefined}
+        onSessionComplete={handleSessionComplete}
         onBack={handleBack}
       />
     </div>

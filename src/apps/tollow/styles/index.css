@@ -1,5 +1,7 @@
 /* eslint-disable */
 /* ===== 报刊风格设计系统（scoped 到 .tollow-root，避免污染全站） ===== */
+@import '../features/favorites/favorites.css';
+
 .tollow-root {
   /* 背景色系 */
   --color-bg0: #f6f1e6;

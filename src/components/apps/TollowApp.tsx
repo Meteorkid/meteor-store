@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import '@/apps/tollow/styles/index.css';
+import { startTollowAccountSync } from '@/apps/tollow/services/accountSyncService';
 
 /**
  * Tollow 打字练习应用包装组件。
@@ -39,6 +40,8 @@ export default function TollowApp() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => startTollowAccountSync(), []);
 
   return (
     <div className="tollow-root tollow-app h-screen w-full overflow-auto">

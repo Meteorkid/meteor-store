@@ -4,6 +4,9 @@ import {
   personalAccessTokens,
   postSections,
   posts,
+  tollowBookProgress,
+  tollowPracticeSessions,
+  tollowTextFavorites,
   users,
 } from '../db/schema';
 
@@ -65,6 +68,43 @@ const imageRows = [{
   uploadedAt: '2026-08-10T00:01:00.000Z',
 }];
 
+const tollowProgressRows = [{
+  bookId: 'lunyu',
+  sectionId: 'chapter-01',
+  segmentIndex: 1,
+  offset: 8,
+  updatedAt: '2026-08-23T00:00:00.000Z',
+}];
+const tollowSessionRows = [{
+  id: 'S1',
+  clientRecordId: 'local-S1',
+  bookId: 'lunyu',
+  bookTitle: '论语',
+  startedAt: '2026-08-23T00:00:00.000Z',
+  endedAt: '2026-08-23T00:01:00.000Z',
+  durationMs: 60_000,
+  wordsTyped: 100,
+  wpm: 100,
+  accuracy: 98,
+  errorCount: 2,
+  createdAt: '2026-08-23T00:01:00.000Z',
+}];
+const tollowFavoriteRows = [{
+  id: 'F1',
+  bookId: 'lunyu',
+  bookTitle: '论语',
+  sectionId: 'chapter-01',
+  sectionTitle: '學而第一',
+  segmentIndex: 0,
+  startOffset: 0,
+  endOffset: 4,
+  quote: '學而時習',
+  note: '常读常新',
+  tags: ['经典'],
+  createdAt: '2026-08-23T00:00:00.000Z',
+  updatedAt: '2026-08-23T00:00:00.000Z',
+}];
+
 vi.mock('../db', () => ({
   db: {
     select: () => ({
@@ -75,6 +115,9 @@ vi.mock('../db', () => ({
           if (table === personalAccessTokens) return tokenRows;
           if (table === posts) return postRows;
           if (table === postSections) return sectionRows;
+          if (table === tollowBookProgress) return tollowProgressRows;
+          if (table === tollowPracticeSessions) return tollowSessionRows;
+          if (table === tollowTextFavorites) return tollowFavoriteRows;
           return [];
         },
       }),
@@ -133,6 +176,12 @@ describe('用户数据导出', () => {
       items: imageRows,
     });
     expect(exported.account).not.toHaveProperty('blogImageBytes');
+    expect(exported.tollow).toEqual({
+      bookProgress: tollowProgressRows,
+      practiceSessions: tollowSessionRows,
+      textFavorites: tollowFavoriteRows,
+    });
+    expect(JSON.stringify(exported.tollow)).not.toContain('userId');
   });
 
   it('只有已验证的当前管理员导出 1 GiB 额度', async () => {

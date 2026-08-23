@@ -9,9 +9,9 @@ import ProductVisual from '@/components/ProductVisual';
 import InstallCommand from '@/components/InstallCommand';
 import DownloadSection from '@/components/DownloadSection';
 import ProductDemoEmbed from '@/components/ProductDemoEmbed';
-import ProductAppTrial from '@/components/ProductAppTrial';
 import PassOwnedBadge from '@/components/PassOwnedBadge';
 import ProductPricingCards from '@/components/ProductPricingCards';
+import { getAppTrialHref } from '@/data/app-manifest';
 import { products, localizeProduct } from '@/data/products';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 import { routing, type Locale } from '@/i18n/routing';
@@ -46,6 +46,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
 
   const product = localizeProduct(raw, locale as Locale);
   const isAnnual = annual === 'true';
+  const trialHref = getAppTrialHref(product.id);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -90,6 +91,17 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                   {t('onlineExperience')}
                 </Link>
               )}
+              {trialHref && (
+                <Link
+                  href={trialHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
+                >
+                  <span aria-hidden>✦</span>
+                  {t('onlineExperience')}
+                </Link>
+              )}
             </div>
           </div>
           <ProductVisual product={product} priority className="shadow-[0_35px_100px_rgba(76,29,149,0.28)]" transitionName={`product-visual-${product.id}`} />
@@ -102,8 +114,6 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         <ProductGallery product={product} />
 
         <ProductDemoEmbed product={product} />
-
-        <ProductAppTrial product={product} />
 
         <section className="mb-20">
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Highlights</p>

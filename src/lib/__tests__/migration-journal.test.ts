@@ -54,5 +54,8 @@ describe('Drizzle migration journal', () => {
 
     expect(tableNames).toContain('public.post_favorites');
     expect(tableNames).toContain('public.reports');
+    expect(tableNames).toContain('public.tollow_book_progress');
+    expect(tableNames).toContain('public.tollow_practice_sessions');
+    expect(tableNames).toContain('public.tollow_text_favorites');
   });
 });

@@ -11,6 +11,7 @@ import {
   ProgressInsight 
 } from '../types/progress'
 import { TypingStats } from '../types/types'
+import { TOLLOW_SESSION_SAVED_EVENT } from './accountSyncService'
 
 /**
  * 学习进度追踪服务
@@ -43,7 +44,7 @@ export class ProgressService {
       }
 
       // 保存会话记录
-      this.savePracticeSession(session)
+      this.savePracticeSession(session, fileId, fileName)
 
       // 更新学习进度
       await this.updateLearningProgress(fileId, fileName, session)
@@ -354,10 +355,24 @@ export class ProgressService {
   /**
    * 保存练习会话
    */
-  private static savePracticeSession(session: PracticeSession): void {
+  private static savePracticeSession(session: PracticeSession, fileId: string, fileName: string): void {
     const sessions = this.getPracticeSessions()
     sessions.push(session)
     localStorage.setItem(this.SESSIONS_KEY, JSON.stringify(sessions))
+    window.dispatchEvent(new CustomEvent(TOLLOW_SESSION_SAVED_EVENT, {
+      detail: {
+        clientRecordId: session.id,
+        bookId: fileId || null,
+        bookTitle: fileName || '本地练习',
+        startedAt: new Date(session.startTime).toISOString(),
+        endedAt: new Date(session.endTime).toISOString(),
+        durationMs: session.duration,
+        wordsTyped: session.wordsTyped,
+        wpm: session.wpm,
+        accuracy: session.accuracy,
+        errorCount: session.errors,
+      },
+    }))
   }
 
   /**

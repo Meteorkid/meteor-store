@@ -8,6 +8,8 @@ export interface BookPracticeContext {
   segmentIndex: number
   segmentCount: number
   offset: number
+  highlightStartOffset?: number
+  highlightEndOffset?: number
 }
 
 export interface TextContent {

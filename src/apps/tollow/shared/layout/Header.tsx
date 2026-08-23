@@ -3,9 +3,17 @@
 import React from 'react'
 import '../../styles/Header.css'
 import { Link, useLocation } from 'react-router'
+import FavoritesDrawer from '../../features/favorites/FavoritesDrawer'
+import {
+  TOLLOW_SYNC_STATUS_EVENT,
+  type TollowSyncStatus,
+} from '../../services/accountSyncService'
 
 const Header: React.FC = () => {
   const { pathname } = useLocation()
+  const [favoritesOpen, setFavoritesOpen] = React.useState(false)
+  const [syncStatus, setSyncStatus] = React.useState<TollowSyncStatus>('synced')
+  const favoritesButtonRef = React.useRef<HTMLButtonElement>(null)
   const nav = [
     { to: '/library', label: '书库' },
     { to: '/upload', label: '上传' },
@@ -22,6 +30,25 @@ const Header: React.FC = () => {
     weekday: 'long'
   })
 
+  React.useEffect(() => {
+    const onStatus = (event: Event) => {
+      setSyncStatus((event as CustomEvent<TollowSyncStatus>).detail)
+    }
+    window.addEventListener(TOLLOW_SYNC_STATUS_EVENT, onStatus)
+    return () => window.removeEventListener(TOLLOW_SYNC_STATUS_EVENT, onStatus)
+  }, [])
+
+  const closeFavorites = React.useCallback(() => {
+    setFavoritesOpen(false)
+    requestAnimationFrame(() => favoritesButtonRef.current?.focus())
+  }, [])
+
+  const syncLabel = syncStatus === 'pending'
+    ? '同步中'
+    : syncStatus === 'error'
+      ? '等待重试'
+      : '已同步'
+
   return (
     <header className="header">
       <div className="header-bar">
@@ -37,7 +64,19 @@ const Header: React.FC = () => {
             </Link>
           ))}
         </nav>
+        <div className="header-account-tools">
+          <span className="tollow-sync-status" data-status={syncStatus} aria-live="polite">{syncLabel}</span>
+          <button
+            ref={favoritesButtonRef}
+            type="button"
+            className="favorites-header-button"
+            onClick={() => setFavoritesOpen(true)}
+          >
+            我的收藏
+          </button>
+        </div>
       </div>
+      <FavoritesDrawer open={favoritesOpen} onClose={closeFavorites} />
     </header>
   )
 }

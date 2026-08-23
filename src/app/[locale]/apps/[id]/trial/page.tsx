@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
-import type { ReactNode } from 'react';
 import { appComponents } from '@/components/apps/registry';
+import { redirect } from '@/i18n/navigation';
+import { getSession } from '@/lib/auth';
 import { findProduct } from '@/lib/products';
 
 interface TrialPageProps {
@@ -9,21 +10,30 @@ interface TrialPageProps {
 }
 
 /**
- * 免门控试用路由：直接渲染应用本体，不做授权判定、不带全站 Header/Footer。
- * 供产品详情页的「免费试用」内嵌 iframe 使用，未购用户也能体验完整功能。
+ * 独立全屏体验路由：不带全站 Header/Footer，也不要求购买授权。
+ * 三个展示应用公开体验；Tollow 需要登录，以便把进度与收藏同步到账户。
  */
 export default async function TrialPage({ params }: TrialPageProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
   const product = findProduct(id);
-  if (!product) notFound();
+  const renderApp = appComponents[id];
+  if (!product || !renderApp) notFound();
 
-  const renderApp: ReactNode = appComponents[id] ? appComponents[id]() : notFound();
+  if (id === 'tollow') {
+    const session = await getSession();
+    if (!session) {
+      redirect({
+        href: { pathname: '/login', query: { next: '/apps/tollow/trial' } },
+        locale,
+      });
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <main className="container mx-auto px-4 py-8">{renderApp}</main>
-    </div>
+    <main className="h-dvh w-screen overflow-hidden bg-black text-white">
+      {renderApp()}
+    </main>
   );
 }

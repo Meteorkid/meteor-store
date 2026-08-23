@@ -16,6 +16,9 @@ import {
   posts,
   postTags,
   reports,
+  tollowBookProgress,
+  tollowPracticeSessions,
+  tollowTextFavorites,
   topicProposals,
   users,
 } from './db/schema';
@@ -37,6 +40,9 @@ export async function exportUserData(userId: string, email: string) {
     feedbackRows,
     tokenRows,
     imageRows,
+    tollowProgressRows,
+    tollowSessionRows,
+    tollowFavoriteRows,
   ] = await Promise.all([
     db.select({
       id: users.id,
@@ -149,6 +155,42 @@ export async function exportUserData(userId: string, email: string) {
       updatedAt: blogImages.updatedAt,
       uploadedAt: blogImages.uploadedAt,
     }).from(blogImages).where(eq(blogImages.userId, userId)),
+    db.select({
+      bookId: tollowBookProgress.bookId,
+      sectionId: tollowBookProgress.sectionId,
+      segmentIndex: tollowBookProgress.segmentIndex,
+      offset: tollowBookProgress.offset,
+      updatedAt: tollowBookProgress.updatedAt,
+    }).from(tollowBookProgress).where(eq(tollowBookProgress.userId, userId)),
+    db.select({
+      id: tollowPracticeSessions.id,
+      clientRecordId: tollowPracticeSessions.clientRecordId,
+      bookId: tollowPracticeSessions.bookId,
+      bookTitle: tollowPracticeSessions.bookTitle,
+      startedAt: tollowPracticeSessions.startedAt,
+      endedAt: tollowPracticeSessions.endedAt,
+      durationMs: tollowPracticeSessions.durationMs,
+      wordsTyped: tollowPracticeSessions.wordsTyped,
+      wpm: tollowPracticeSessions.wpm,
+      accuracy: tollowPracticeSessions.accuracy,
+      errorCount: tollowPracticeSessions.errorCount,
+      createdAt: tollowPracticeSessions.createdAt,
+    }).from(tollowPracticeSessions).where(eq(tollowPracticeSessions.userId, userId)),
+    db.select({
+      id: tollowTextFavorites.id,
+      bookId: tollowTextFavorites.bookId,
+      bookTitle: tollowTextFavorites.bookTitle,
+      sectionId: tollowTextFavorites.sectionId,
+      sectionTitle: tollowTextFavorites.sectionTitle,
+      segmentIndex: tollowTextFavorites.segmentIndex,
+      startOffset: tollowTextFavorites.startOffset,
+      endOffset: tollowTextFavorites.endOffset,
+      quote: tollowTextFavorites.quote,
+      note: tollowTextFavorites.note,
+      tags: tollowTextFavorites.tags,
+      createdAt: tollowTextFavorites.createdAt,
+      updatedAt: tollowTextFavorites.updatedAt,
+    }).from(tollowTextFavorites).where(eq(tollowTextFavorites.userId, userId)),
   ]);
 
   const postIds = postRows.map((post) => post.id);
@@ -207,6 +249,11 @@ export async function exportUserData(userId: string, email: string) {
       favorites: favoriteRows,
       likes: likeRows,
       reports: reportRows,
+    },
+    tollow: {
+      bookProgress: tollowProgressRows,
+      practiceSessions: tollowSessionRows,
+      textFavorites: tollowFavoriteRows,
     },
     security: {
       personalAccessTokens: tokenRows.map((token) => {

@@ -1,6 +1,5 @@
 'use client';
 
-import { GUI } from 'dat.gui';
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { loadMediaPipe } from '@/lib/apps/mediapipe';
 import './fluid-sim.css';
@@ -50,15 +49,15 @@ export default function WebGLFluidSim() {
     if (!webglSupported) return;
     let cancelled = false;
 
-    // 源应用把 dat.gui 作为 UMD 全局变量 dat 使用（new dat.GUI）。
-    // Next 里需要用模块导入，并在动态 import fluidSim 之前把它挂到全局，
-    // 否则 fluidSim 初始化时抛 `ReferenceError: dat is not defined`。
-    globalThis.dat = { GUI };
-
     // 先加载 MediaPipe UMD 脚本（window.Hands / window.Camera）。
     // fluidSim 在模块加载时用 `typeof Hands !== 'undefined'` 判定手势是否可用，
     // 必须在动态 import 之前完成加载，否则手势/摄像头默认关闭。
     (async () => {
+      // dat.gui 的 UMD 产物会在模块求值时读取 window，不能放在顶层静态 import；
+      // 必须和 fluidSim 一样只在浏览器 effect 内加载。
+      const { GUI } = await import('dat.gui');
+      globalThis.dat = { GUI };
+
       try {
         await loadMediaPipe();
       } catch (err) {

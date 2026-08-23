@@ -1,8 +1,10 @@
 // @ts-nocheck
 /* eslint-disable */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { TextContent } from '../../types/types'
+import { TextContent, TypingStats } from '../../types/types'
 import { splitGraphemes } from '../../utils/textSegmentation'
+import FavoriteComposer from '../favorites/FavoriteComposer'
+import type { TollowFavoriteCreateInput } from '@/lib/tollow-contract'
 import '../../styles/TypingPractice.css'
 
 interface TypingPracticeProps {
@@ -11,6 +13,7 @@ interface TypingPracticeProps {
   initialPosition?: number
   onProgress?: (position: number) => void
   onComplete?: () => void
+  onSessionComplete?: (stats: TypingStats) => void
 }
 
 function calculateCompletedPosition(
@@ -33,6 +36,7 @@ const TypingPractice: React.FC<TypingPracticeProps> = ({
   initialPosition = 0,
   onProgress,
   onComplete,
+  onSessionComplete,
 }) => {
   const graphemes = useMemo(() => splitGraphemes(textContent.content), [textContent.content])
   const safeInitialPosition = Number.isFinite(initialPosition)
@@ -50,6 +54,7 @@ const TypingPractice: React.FC<TypingPracticeProps> = ({
   const [wpm, setWpm] = useState(0)
   const [accuracy, setAccuracy] = useState(100)
   const [errors, setErrors] = useState(0)
+  const [favoriteDraft, setFavoriteDraft] = useState<TollowFavoriteCreateInput | null>(null)
   const [, setLayoutVersion] = useState(0)
 
   const textDisplayRef = useRef<HTMLDivElement>(null)
@@ -114,8 +119,29 @@ const TypingPractice: React.FC<TypingPracticeProps> = ({
     if (nextCompletedPosition < graphemes.length) {
       completionNotifiedRef.current = false
     }
+    if (
+      nextCompletedPosition >= graphemes.length
+      && graphemes.length > 0
+      && !completionNotifiedRef.current
+      && startTime > 0
+    ) {
+      const timeElapsed = Math.max(1, Date.now() - startTime)
+      const typedWords = nextTypedMap.size
+      const errorCount = Array.from(nextTypedMap.entries())
+        .filter(([index, character]) => character !== graphemes[index]).length
+      onSessionComplete?.({
+        wpm: Math.round(typedWords / (timeElapsed / 60_000)),
+        accuracy: typedWords > 0
+          ? Math.round(((typedWords - errorCount) / typedWords) * 100)
+          : 100,
+        totalWords: graphemes.length,
+        typedWords,
+        errors: errorCount,
+        timeElapsed,
+      })
+    }
     reportPosition(nextCompletedPosition)
-  }, [clampedInitialPosition, graphemes.length, reportPosition])
+  }, [clampedInitialPosition, graphemes, onSessionComplete, reportPosition, startTime])
 
   useEffect(() => {
     const nextInitialPosition = Math.min(
@@ -339,6 +365,43 @@ const TypingPractice: React.FC<TypingPracticeProps> = ({
     hiddenInputRef.current?.focus()
   }, [moveCursor])
 
+  const createFavoriteDraft = useCallback((startOffset: number, endOffset: number) => {
+    const start = Math.max(0, Math.min(startOffset, graphemes.length))
+    const end = Math.max(start, Math.min(endOffset, graphemes.length))
+    const quote = graphemes.slice(start, end).join('')
+    if (!quote) return
+    setFavoriteDraft({
+      bookId: textContent.book?.bookId || null,
+      bookTitle: textContent.title,
+      sectionId: textContent.book?.sectionId || null,
+      sectionTitle: textContent.book?.sectionTitle || null,
+      segmentIndex: textContent.book?.segmentIndex ?? null,
+      startOffset: start,
+      endOffset: end,
+      quote,
+      note: null,
+      tags: [],
+    })
+  }, [graphemes, textContent])
+
+  const handleTextSelection = useCallback(() => {
+    const selection = window.getSelection()
+    if (!selection || selection.isCollapsed || selection.rangeCount === 0) return
+    const range = selection.getRangeAt(0)
+    const elementForNode = (node: Node): HTMLElement | null =>
+      (node.nodeType === Node.ELEMENT_NODE ? node as HTMLElement : node.parentElement)
+        ?.closest<HTMLElement>('[data-index]') ?? null
+    const startElement = elementForNode(range.startContainer)
+    const endElement = elementForNode(range.endContainer)
+    if (!startElement || !endElement || !textDisplayRef.current?.contains(startElement) || !textDisplayRef.current.contains(endElement)) return
+
+    const first = Number(startElement.dataset.index)
+    const last = Number(endElement.dataset.index)
+    if (!Number.isInteger(first) || !Number.isInteger(last)) return
+    createFavoriteDraft(Math.min(first, last), Math.max(first, last) + 1)
+    selection.removeAllRanges()
+  }, [createFavoriteDraft])
+
   const typedCharacters = graphemes.flatMap((sourceCharacter, index) => {
     const isInitiallyCompleted = index < clampedInitialPosition
     const character = isInitiallyCompleted ? sourceCharacter : typedMap.get(index)
@@ -380,6 +443,13 @@ const TypingPractice: React.FC<TypingPracticeProps> = ({
           )}
         </div>
         <div className="practice-controls">
+          <button
+            className="btn favorite-selection-button"
+            type="button"
+            onClick={() => createFavoriteDraft(0, graphemes.length)}
+          >
+            ♡ 收藏当前段
+          </button>
           <button className="btn btn-secondary" onClick={onBack}>← 返回</button>
         </div>
       </div>
@@ -402,7 +472,7 @@ const TypingPractice: React.FC<TypingPracticeProps> = ({
           </ul>
         </div>
 
-        <div className="text-container" onClick={handleClick}>
+        <div className="text-container" onClick={handleClick} onMouseUp={handleTextSelection}>
           <div ref={textDisplayRef} className="text-display">
             <div className="background-layer">
               {graphemes.map((character, index) => (
@@ -411,11 +481,18 @@ const TypingPractice: React.FC<TypingPracticeProps> = ({
                   className="remaining-char"
                   data-index={index}
                   style={{
-                    visibility:
+                    color:
                       index < clampedInitialPosition || typedMap.has(index)
-                        ? 'hidden'
-                        : 'visible',
+                        ? 'transparent'
+                        : undefined,
                   }}
+                  data-favorite-highlight={
+                    textContent.book?.highlightStartOffset !== undefined
+                    && index >= textContent.book.highlightStartOffset
+                    && index < (textContent.book.highlightEndOffset ?? textContent.book.highlightStartOffset)
+                      ? 'true'
+                      : undefined
+                  }
                 >
                   {character}
                 </span>
@@ -445,6 +522,9 @@ const TypingPractice: React.FC<TypingPracticeProps> = ({
           />
         </div>
       </div>
+      {favoriteDraft && (
+        <FavoriteComposer draft={favoriteDraft} onClose={() => setFavoriteDraft(null)} />
+      )}
     </div>
   )
 }

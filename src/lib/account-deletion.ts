@@ -12,6 +12,9 @@ import {
   posts,
   postTags,
   reports,
+  tollowBookProgress,
+  tollowPracticeSessions,
+  tollowTextFavorites,
   topicProposals,
   users,
 } from './db/schema';
@@ -39,6 +42,9 @@ export async function deleteUserAccount(input: DeleteUserAccountInput): Promise<
     db.delete(comments).where(eq(comments.authorId, input.userId)),
     db.delete(posts).where(eq(posts.authorId, input.userId)),
     db.delete(inviteRedemptions).where(eq(inviteRedemptions.userId, input.userId)),
+    db.delete(tollowBookProgress).where(eq(tollowBookProgress.userId, input.userId)),
+    db.delete(tollowPracticeSessions).where(eq(tollowPracticeSessions.userId, input.userId)),
+    db.delete(tollowTextFavorites).where(eq(tollowTextFavorites.userId, input.userId)),
     db.delete(likes).where(
       postIds.length > 0
         ? or(eq(likes.userId, input.userId), inArray(likes.targetId, postIds))

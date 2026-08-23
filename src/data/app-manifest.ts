@@ -13,3 +13,13 @@ export const appIds = [
 export type AppId = (typeof appIds)[number];
 
 export const webAppCount = appIds.length;
+
+const appIdSet: ReadonlySet<string> = new Set(appIds);
+
+export function isAppId(value: string): value is AppId {
+  return appIdSet.has(value);
+}
+
+export function getAppTrialHref(id: string): string | null {
+  return isAppId(id) ? `/apps/${id}/trial` : null;
+}

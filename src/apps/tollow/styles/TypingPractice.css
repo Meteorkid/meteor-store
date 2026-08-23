@@ -181,6 +181,12 @@
   margin-right: 0.05em;
 }
 
+.text-display .remaining-char[data-favorite-highlight='true'] {
+  background: #ead56b;
+  color: var(--color-ink0);
+  opacity: 1;
+}
+
 /* 覆盖字符默认样式，具体颜色由correct/error类控制 */
 .text-display .typed-char {
   cursor: pointer;

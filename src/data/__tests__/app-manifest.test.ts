@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { appIds, webAppCount } from '../app-manifest';
+import { appIds, getAppTrialHref, isAppId, webAppCount } from '../app-manifest';
 import { products } from '../products';
 
 describe('站内应用清单', () => {
@@ -20,5 +20,15 @@ describe('站内应用清单', () => {
       const product = products.find((item) => item.id === id);
       expect(product?.appUrl).toBe(`/apps/${id}`);
     }
+  });
+
+  it('只为已注册应用生成独立全屏体验地址', () => {
+    for (const id of appIds) {
+      expect(isAppId(id)).toBe(true);
+      expect(getAppTrialHref(id)).toBe(`/apps/${id}/trial`);
+    }
+
+    expect(isAppId('ex-memory')).toBe(false);
+    expect(isAppId('unknown-product')).toBe(false);
   });
 });

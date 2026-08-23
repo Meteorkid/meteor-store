@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { normalizeLoginReturn } from '../login-return';
 
 describe('normalizeLoginReturn', () => {
-  it('只允许返回 Ex-Memory 体验页', () => {
+  it('只允许返回需要登录的体验页', () => {
     expect(normalizeLoginReturn('/apps/ex-memory')).toBe('/apps/ex-memory');
+    expect(normalizeLoginReturn('/apps/tollow/trial')).toBe('/apps/tollow/trial');
     expect(normalizeLoginReturn('https://evil.example')).toBe('/');
     expect(normalizeLoginReturn('//evil.example')).toBe('/');
     expect(normalizeLoginReturn('/products/ex-memory')).toBe('/');

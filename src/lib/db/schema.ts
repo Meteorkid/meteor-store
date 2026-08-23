@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { pgTable, text, integer, bigint, boolean, primaryKey, index, uniqueIndex, check } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, bigint, boolean, numeric, primaryKey, index, uniqueIndex, check } from 'drizzle-orm/pg-core';
 
 export const orders = pgTable('orders', {
   id: text('id').primaryKey(),                        // crypto.randomUUID()
@@ -344,6 +344,63 @@ export const postFavorites = pgTable('post_favorites', {
   primaryKey({ columns: [t.targetId, t.userId] }),
   index('post_favorites_target_idx').on(t.targetId),
   index('post_favorites_user_idx').on(t.userId),
+]);
+
+/** Tollow 每本书只保留一个最新阅读位置；updatedAt 用于本地与远端冲突合并。 */
+export const tollowBookProgress = pgTable('tollow_book_progress', {
+  userId: text('user_id').notNull(),
+  bookId: text('book_id').notNull(),
+  sectionId: text('section_id').notNull(),
+  segmentIndex: integer('segment_index').notNull(),
+  offset: integer('offset').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.userId, t.bookId] }),
+  check('tollow_book_progress_position_non_negative', sql`${t.segmentIndex} >= 0 and ${t.offset} >= 0`),
+]);
+
+/** Tollow 练习历史；客户端记录 ID 与用户组合成幂等键。 */
+export const tollowPracticeSessions = pgTable('tollow_practice_sessions', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  clientRecordId: text('client_record_id').notNull(),
+  bookId: text('book_id'),
+  bookTitle: text('book_title').notNull(),
+  startedAt: text('started_at').notNull(),
+  endedAt: text('ended_at').notNull(),
+  durationMs: integer('duration_ms').notNull(),
+  wordsTyped: integer('words_typed').notNull(),
+  wpm: numeric('wpm', { precision: 8, scale: 2, mode: 'number' }).notNull(),
+  accuracy: numeric('accuracy', { precision: 5, scale: 2, mode: 'number' }).notNull(),
+  errorCount: integer('error_count').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  uniqueIndex('tollow_sessions_user_client_uniq').on(t.userId, t.clientRecordId),
+  index('tollow_sessions_user_started_idx').on(t.userId, t.startedAt),
+  check('tollow_sessions_metrics_non_negative', sql`${t.durationMs} >= 0 and ${t.wordsTyped} >= 0 and ${t.wpm} >= 0 and ${t.errorCount} >= 0`),
+  check('tollow_sessions_accuracy_range', sql`${t.accuracy} between 0 and 100`),
+]);
+
+/** Tollow 私人文本收藏；原文和来源使用快照，书籍变更后仍可查看。 */
+export const tollowTextFavorites = pgTable('tollow_text_favorites', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  bookId: text('book_id'),
+  bookTitle: text('book_title').notNull(),
+  sectionId: text('section_id'),
+  sectionTitle: text('section_title'),
+  segmentIndex: integer('segment_index'),
+  startOffset: integer('start_offset').notNull(),
+  endOffset: integer('end_offset').notNull(),
+  quote: text('quote').notNull(),
+  note: text('note'),
+  tags: text('tags').array().default(sql`ARRAY[]::text[]`).notNull(),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (t) => [
+  index('tollow_favorites_user_updated_idx').on(t.userId, t.updatedAt),
+  index('tollow_favorites_user_book_idx').on(t.userId, t.bookId),
+  check('tollow_favorites_offsets_valid', sql`${t.startOffset} >= 0 and ${t.endOffset} >= ${t.startOffset}`),
 ]);
 
 /**
