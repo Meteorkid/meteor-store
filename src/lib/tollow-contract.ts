@@ -37,6 +37,7 @@ const tagsSchema = z.array(z.string().trim().min(1).max(30))
   .transform((tags) => [...new Set(tags)]);
 
 export const tollowFavoriteCreateSchema = z.object({
+  clientRecordId: identifierSchema,
   bookId: optionalIdentifierSchema,
   bookTitle: titleSchema,
   sectionId: optionalIdentifierSchema,

@@ -1,9 +1,14 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import '@/apps/tollow/styles/index.css';
-import { startTollowAccountSync } from '@/apps/tollow/services/accountSyncService';
+import {
+  configureTollowAccountStorage,
+  releaseTollowAccountStorage,
+  startTollowAccountSync,
+} from '@/apps/tollow/services/accountSyncService';
+import { startTollowFavoriteSync } from '@/apps/tollow/services/favoriteService';
 
 /**
  * Tollow 打字练习应用包装组件。
@@ -24,7 +29,9 @@ const TollowAppInner = dynamic(() => import('@/apps/tollow/core/App'), {
   ),
 });
 
-export default function TollowApp() {
+export default function TollowApp({ userId }: { userId: string }) {
+  const [storageReady, setStorageReady] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -41,11 +48,30 @@ export default function TollowApp() {
     };
   }, []);
 
-  useEffect(() => startTollowAccountSync(), []);
+  useEffect(() => {
+    let cancelled = false;
+    configureTollowAccountStorage(userId);
+    const sync = startTollowAccountSync(userId);
+    const stopFavoriteSync = startTollowFavoriteSync();
+    void sync.ready.finally(() => {
+      if (!cancelled) setStorageReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+      stopFavoriteSync();
+      sync.stop();
+      releaseTollowAccountStorage(userId);
+    };
+  }, [userId]);
 
   return (
     <div className="tollow-root tollow-app h-screen w-full overflow-auto">
-      <TollowAppInner />
+      {storageReady ? <TollowAppInner /> : (
+        <div className="flex h-full w-full items-center justify-center text-sm text-white/60">
+          正在准备账号数据…
+        </div>
+      )}
     </div>
   );
 }

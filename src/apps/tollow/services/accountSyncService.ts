@@ -3,14 +3,45 @@ import type {
   TollowPracticeSessionInput,
 } from '@/lib/tollow-contract';
 
-export const TOLLOW_IMPORT_MARKER_KEY = 'tollow-account-import-v1';
-export const TOLLOW_SYNC_QUEUE_KEY = 'tollow-account-sync-queue-v1';
+export const TOLLOW_IMPORT_MARKER_KEY = 'import-marker';
+export const TOLLOW_SYNC_QUEUE_KEY = 'sync-queue';
+export const TOLLOW_BOOK_PROGRESS_KEY = 'book-progress';
+export const TOLLOW_LEARNING_PROGRESS_KEY = 'learning-progress';
+export const TOLLOW_PRACTICE_SESSIONS_KEY = 'practice-sessions';
+export const TOLLOW_FAVORITES_CACHE_KEY = 'favorites-cache';
+export const TOLLOW_LEGACY_MIGRATION_OWNER_KEY = 'tollow:legacy-migration-owner:v2';
 export const TOLLOW_PROGRESS_SAVED_EVENT = 'tollow:progress-saved';
 export const TOLLOW_SESSION_SAVED_EVENT = 'tollow:session-saved';
 export const TOLLOW_SYNC_STATUS_EVENT = 'tollow:sync-status';
-const BOOK_PROGRESS_STORAGE_KEY = 'tollow-book-progress-v1';
-const LEARNING_PROGRESS_STORAGE_KEY = 'tollow_learning_progress';
-const PRACTICE_SESSIONS_STORAGE_KEY = 'tollow_practice_sessions';
+const LEGACY_BOOK_PROGRESS_STORAGE_KEY = 'tollow-book-progress-v1';
+const LEGACY_LEARNING_PROGRESS_STORAGE_KEY = 'tollow_learning_progress';
+const LEGACY_PRACTICE_SESSIONS_STORAGE_KEY = 'tollow_practice_sessions';
+
+const legacyStorageKeys = [
+  [TOLLOW_BOOK_PROGRESS_KEY, LEGACY_BOOK_PROGRESS_STORAGE_KEY],
+  [TOLLOW_LEARNING_PROGRESS_KEY, LEGACY_LEARNING_PROGRESS_STORAGE_KEY],
+  [TOLLOW_PRACTICE_SESSIONS_KEY, LEGACY_PRACTICE_SESSIONS_STORAGE_KEY],
+] as const;
+
+let activeTollowUserId: string | null = null;
+
+export function getTollowAccountStorageKey(userId: string, name: string): string {
+  return `tollow:${encodeURIComponent(userId)}:${name}:v2`;
+}
+
+export function configureTollowAccountStorage(userId: string): void {
+  activeTollowUserId = userId;
+}
+
+export function releaseTollowAccountStorage(userId: string): void {
+  if (activeTollowUserId === userId) activeTollowUserId = null;
+}
+
+export function getActiveTollowStorageKey(name: string): string | null {
+  return activeTollowUserId
+    ? getTollowAccountStorageKey(activeTollowUserId, name)
+    : null;
+}
 
 export type TollowSyncStatus = 'synced' | 'pending' | 'error';
 
@@ -23,10 +54,23 @@ interface StorageLike {
 type Fetcher = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
 type QueueItem =
-  | { id: string; type: 'progress'; payload: TollowBookProgress }
-  | { id: string; type: 'session'; payload: TollowPracticeSessionInput };
+  | {
+      id: string;
+      operationId: string;
+      version: string;
+      type: 'progress';
+      payload: TollowBookProgress;
+    }
+  | {
+      id: string;
+      operationId: string;
+      version: string;
+      type: 'session';
+      payload: TollowPracticeSessionInput;
+    };
 
 interface TollowAccountSyncOptions {
+  userId: string;
   storage: StorageLike;
   fetcher?: Fetcher;
   onStatusChange?: (status: TollowSyncStatus) => void;
@@ -55,14 +99,39 @@ function isProgress(value: unknown): value is TollowBookProgress {
     && Number.isFinite(Date.parse(value.updatedAt));
 }
 
-function isQueueItem(value: unknown): value is QueueItem {
-  if (!isRecord(value) || typeof value.id !== 'string') return false;
-  if (value.type === 'progress') return isProgress(value.payload);
-  if (value.type !== 'session' || !isRecord(value.payload)) return false;
-  return typeof value.payload.clientRecordId === 'string'
+function parseQueueItem(value: unknown): QueueItem | null {
+  if (!isRecord(value) || typeof value.id !== 'string') return null;
+  const operationId = typeof value.operationId === 'string'
+    ? value.operationId
+    : `legacy:${value.id}`;
+  if (value.type === 'progress' && isProgress(value.payload)) {
+    return {
+      id: value.id,
+      operationId,
+      version: typeof value.version === 'string' ? value.version : value.payload.updatedAt,
+      type: 'progress',
+      payload: value.payload,
+    };
+  }
+  if (value.type !== 'session' || !isRecord(value.payload)) return null;
+  const valid = typeof value.payload.clientRecordId === 'string'
     && typeof value.payload.bookTitle === 'string'
     && typeof value.payload.startedAt === 'string'
     && typeof value.payload.endedAt === 'string';
+  if (!valid) return null;
+  return {
+    id: value.id,
+    operationId,
+    version: typeof value.version === 'string'
+      ? value.version
+      : value.payload.clientRecordId as string,
+    type: 'session',
+    payload: value.payload as TollowPracticeSessionInput,
+  };
+}
+
+function createOperationId(): string {
+  return crypto.randomUUID();
 }
 
 function toIso(value: unknown): string | null {
@@ -74,6 +143,29 @@ function toSession(
   raw: unknown,
   source?: { bookId?: string; bookTitle?: string },
 ): TollowPracticeSessionInput | null {
+  if (isRecord(raw) && typeof raw.clientRecordId === 'string') {
+    const startedAt = toIso(raw.startedAt);
+    const endedAt = toIso(raw.endedAt);
+    const durationMs = Number(raw.durationMs);
+    const wordsTyped = Number(raw.wordsTyped);
+    const wpm = Number(raw.wpm);
+    const accuracy = Number(raw.accuracy);
+    const errorCount = Number(raw.errorCount);
+    if (!startedAt || !endedAt) return null;
+    if (![durationMs, wordsTyped, wpm, accuracy, errorCount].every(Number.isFinite)) return null;
+    return {
+      clientRecordId: raw.clientRecordId,
+      bookId: typeof raw.bookId === 'string' ? raw.bookId : null,
+      bookTitle: typeof raw.bookTitle === 'string' ? raw.bookTitle : '本地练习',
+      startedAt,
+      endedAt,
+      durationMs: Math.max(0, Math.round(durationMs)),
+      wordsTyped: Math.max(0, Math.round(wordsTyped)),
+      wpm: Math.max(0, wpm),
+      accuracy: Math.min(100, Math.max(0, accuracy)),
+      errorCount: Math.max(0, Math.round(errorCount)),
+    };
+  }
   if (!isRecord(raw) || typeof raw.id !== 'string') return null;
   const startedAt = toIso(raw.startTime);
   const endedAt = toIso(raw.endTime);
@@ -100,17 +192,24 @@ function toSession(
   };
 }
 
-function readProgressMap(storage: StorageLike): Record<string, TollowBookProgress> {
-  const raw = parseJson(storage.getItem(BOOK_PROGRESS_STORAGE_KEY));
+function readProgressMap(
+  storage: StorageLike,
+  storageKey: string,
+): Record<string, TollowBookProgress> {
+  const raw = parseJson(storage.getItem(storageKey));
   if (!isRecord(raw)) return {};
   return Object.fromEntries(
     Object.entries(raw).filter((entry): entry is [string, TollowBookProgress] => isProgress(entry[1])),
   );
 }
 
-function readLocalSessions(storage: StorageLike): TollowPracticeSessionInput[] {
+function readLocalSessions(
+  storage: StorageLike,
+  learningProgressKey: string,
+  practiceSessionsKey: string,
+): TollowPracticeSessionInput[] {
   const sessions = new Map<string, TollowPracticeSessionInput>();
-  const learning = parseJson(storage.getItem(LEARNING_PROGRESS_STORAGE_KEY));
+  const learning = parseJson(storage.getItem(learningProgressKey));
   if (Array.isArray(learning)) {
     for (const item of learning) {
       if (!isRecord(item) || !Array.isArray(item.practiceSessions)) continue;
@@ -125,7 +224,7 @@ function readLocalSessions(storage: StorageLike): TollowPracticeSessionInput[] {
     }
   }
 
-  const direct = parseJson(storage.getItem(PRACTICE_SESSIONS_STORAGE_KEY));
+  const direct = parseJson(storage.getItem(practiceSessionsKey));
   if (Array.isArray(direct)) {
     for (const raw of direct) {
       const session = toSession(raw);
@@ -153,6 +252,7 @@ export function mergeProgressMaps(
 }
 
 export class TollowAccountSync {
+  private readonly userId: string;
   private readonly storage: StorageLike;
   private readonly fetcher: Fetcher;
   private readonly onStatusChange?: (status: TollowSyncStatus) => void;
@@ -160,6 +260,7 @@ export class TollowAccountSync {
   private flushing: Promise<void> | null = null;
 
   constructor(options: TollowAccountSyncOptions) {
+    this.userId = options.userId;
     this.storage = options.storage;
     this.fetcher = options.fetcher ?? fetch;
     this.onStatusChange = options.onStatusChange;
@@ -176,18 +277,43 @@ export class TollowAccountSync {
   }
 
   private readQueue(): QueueItem[] {
-    const raw = parseJson(this.storage.getItem(TOLLOW_SYNC_QUEUE_KEY));
-    return Array.isArray(raw) ? raw.filter(isQueueItem) : [];
+    const raw = parseJson(this.storage.getItem(this.key(TOLLOW_SYNC_QUEUE_KEY)));
+    if (!Array.isArray(raw)) return [];
+    return raw.map(parseQueueItem).filter((item): item is QueueItem => item !== null);
   }
 
   private writeQueue(queue: QueueItem[]) {
-    this.storage.setItem(TOLLOW_SYNC_QUEUE_KEY, JSON.stringify(queue));
+    this.storage.setItem(this.key(TOLLOW_SYNC_QUEUE_KEY), JSON.stringify(queue));
     this.setStatus(queue.length > 0 ? 'pending' : 'synced');
+  }
+
+  private key(name: string): string {
+    return getTollowAccountStorageKey(this.userId, name);
+  }
+
+  private migrateLegacyStorage(): void {
+    const owner = this.storage.getItem(TOLLOW_LEGACY_MIGRATION_OWNER_KEY);
+    if (owner && owner !== this.userId) return;
+
+    for (const [name, legacyKey] of legacyStorageKeys) {
+      const scopedKey = this.key(name);
+      if (this.storage.getItem(scopedKey) === null) {
+        const legacyValue = this.storage.getItem(legacyKey);
+        if (legacyValue !== null) this.storage.setItem(scopedKey, legacyValue);
+      }
+    }
+    if (!owner) this.storage.setItem(TOLLOW_LEGACY_MIGRATION_OWNER_KEY, this.userId);
   }
 
   enqueueProgress(progress: TollowBookProgress) {
     const queue = this.readQueue().filter((item) => item.id !== `progress:${progress.bookId}`);
-    queue.push({ id: `progress:${progress.bookId}`, type: 'progress', payload: progress });
+    queue.push({
+      id: `progress:${progress.bookId}`,
+      operationId: createOperationId(),
+      version: progress.updatedAt,
+      type: 'progress',
+      payload: progress,
+    });
     this.writeQueue(queue);
   }
 
@@ -195,7 +321,13 @@ export class TollowAccountSync {
     const id = `session:${session.clientRecordId}`;
     const queue = this.readQueue();
     if (!queue.some((item) => item.id === id)) {
-      queue.push({ id, type: 'session', payload: session });
+      queue.push({
+        id,
+        operationId: createOperationId(),
+        version: session.clientRecordId,
+        type: 'session',
+        payload: session,
+      });
       this.writeQueue(queue);
     }
   }
@@ -227,21 +359,34 @@ export class TollowAccountSync {
           },
         );
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const current = this.readQueue().filter((queued) => queued.id !== item.id);
+        const current = this.readQueue().filter((queued) => (
+          queued.id !== item.id
+          || queued.operationId !== item.operationId
+          || queued.version !== item.version
+        ));
         this.writeQueue(current);
       } catch {
         this.setStatus('error');
         return;
       }
     }
-    this.setStatus('synced');
+    this.setStatus(this.readQueue().length > 0 ? 'pending' : 'synced');
   }
 
   async importLocalData(): Promise<void> {
-    if (this.storage.getItem(TOLLOW_IMPORT_MARKER_KEY)) return;
+    if (this.storage.getItem(this.key(TOLLOW_IMPORT_MARKER_KEY))) return;
 
-    const progress = Object.values(readProgressMap(this.storage));
-    const sessions = readLocalSessions(this.storage);
+    this.migrateLegacyStorage();
+
+    const progress = Object.values(readProgressMap(
+      this.storage,
+      this.key(TOLLOW_BOOK_PROGRESS_KEY),
+    ));
+    const sessions = readLocalSessions(
+      this.storage,
+      this.key(TOLLOW_LEARNING_PROGRESS_KEY),
+      this.key(TOLLOW_PRACTICE_SESSIONS_KEY),
+    );
     const records = [
       ...progress.map((payload) => ({ type: 'progress' as const, payload })),
       ...sessions.map((payload) => ({ type: 'session' as const, payload })),
@@ -260,7 +405,7 @@ export class TollowAccountSync {
       if (!response.ok) throw new Error('Tollow 本地数据导入失败');
     }
 
-    this.storage.setItem(TOLLOW_IMPORT_MARKER_KEY, new Date().toISOString());
+    this.storage.setItem(this.key(TOLLOW_IMPORT_MARKER_KEY), new Date().toISOString());
   }
 
   async mergeRemoteProgress(): Promise<void> {
@@ -268,9 +413,9 @@ export class TollowAccountSync {
     if (!response.ok) throw new Error('Tollow 远端进度读取失败');
     const body = await response.json() as { items?: unknown[] };
     const remote = (body.items ?? []).filter(isProgress);
-    const local = readProgressMap(this.storage);
+    const local = readProgressMap(this.storage, this.key(TOLLOW_BOOK_PROGRESS_KEY));
     const merged = mergeProgressMaps(local, remote);
-    this.storage.setItem(BOOK_PROGRESS_STORAGE_KEY, JSON.stringify(merged));
+    this.storage.setItem(this.key(TOLLOW_BOOK_PROGRESS_KEY), JSON.stringify(merged));
 
     const remoteByBook = Object.fromEntries(remote.map((item) => [item.bookId, item]));
     for (const progress of Object.values(local)) {
@@ -281,10 +426,54 @@ export class TollowAccountSync {
     }
   }
 
+  async mergeRemoteSessions(): Promise<void> {
+    const practiceSessionsKey = this.key(TOLLOW_PRACTICE_SESSIONS_KEY);
+    const learningProgressKey = this.key(TOLLOW_LEARNING_PROGRESS_KEY);
+    const localSessions = readLocalSessions(
+      this.storage,
+      learningProgressKey,
+      practiceSessionsKey,
+    );
+    const remoteSessions = new Map<string, TollowPracticeSessionInput>();
+    let page = 1;
+    let received = 0;
+    let total = Number.POSITIVE_INFINITY;
+
+    while (received < total && page <= 10_000) {
+      const response = await this.fetcher(`/api/tollow/sessions?page=${page}&limit=100`);
+      if (!response.ok) throw new Error('Tollow 远端练习记录读取失败');
+      const body = await response.json() as { items?: unknown[]; total?: unknown };
+      const items = Array.isArray(body.items) ? body.items : [];
+      total = Number.isInteger(body.total) && Number(body.total) >= 0
+        ? Number(body.total)
+        : received + items.length;
+      if (items.length === 0) break;
+      received += items.length;
+      for (const raw of items) {
+        const session = toSession(raw);
+        if (session) remoteSessions.set(session.clientRecordId, session);
+      }
+      page += 1;
+    }
+
+    const direct = parseJson(this.storage.getItem(practiceSessionsKey));
+    const mergedDirect = Array.isArray(direct) ? [...direct] : [];
+    const localIds = new Set(localSessions.map((session) => session.clientRecordId));
+    for (const session of remoteSessions.values()) {
+      if (!localIds.has(session.clientRecordId)) mergedDirect.push(session);
+    }
+    this.storage.setItem(practiceSessionsKey, JSON.stringify(mergedDirect));
+
+    for (const session of localSessions) {
+      if (!remoteSessions.has(session.clientRecordId)) this.enqueueSession(session);
+    }
+  }
+
   async initialize(): Promise<void> {
     try {
       await this.importLocalData();
       await this.mergeRemoteProgress();
+      await this.mergeRemoteSessions();
       await this.flush();
     } catch {
       this.setStatus('error');
@@ -300,11 +489,17 @@ function getBrowserStorage(): StorageLike | null {
   }
 }
 
-export function startTollowAccountSync(): () => void {
+export interface TollowAccountSyncHandle {
+  ready: Promise<void>;
+  stop(): void;
+}
+
+export function startTollowAccountSync(userId: string): TollowAccountSyncHandle {
   const storage = getBrowserStorage();
-  if (!storage) return () => undefined;
+  if (!storage) return { ready: Promise.resolve(), stop: () => undefined };
 
   const sync = new TollowAccountSync({
+    userId,
     storage,
     onStatusChange(status) {
       window.dispatchEvent(new CustomEvent(TOLLOW_SYNC_STATUS_EVENT, { detail: status }));
@@ -327,11 +522,14 @@ export function startTollowAccountSync(): () => void {
   window.addEventListener(TOLLOW_PROGRESS_SAVED_EVENT, onProgress);
   window.addEventListener(TOLLOW_SESSION_SAVED_EVENT, onSession);
   window.addEventListener('online', onOnline);
-  void sync.initialize();
+  const ready = sync.initialize();
 
-  return () => {
-    window.removeEventListener(TOLLOW_PROGRESS_SAVED_EVENT, onProgress);
-    window.removeEventListener(TOLLOW_SESSION_SAVED_EVENT, onSession);
-    window.removeEventListener('online', onOnline);
+  return {
+    ready,
+    stop() {
+      window.removeEventListener(TOLLOW_PROGRESS_SAVED_EVENT, onProgress);
+      window.removeEventListener(TOLLOW_SESSION_SAVED_EVENT, onSession);
+      window.removeEventListener('online', onOnline);
+    },
   };
 }

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   redirect: vi.fn(),
+  tollowContexts: [] as Array<Record<string, unknown> | undefined>,
   notFound: vi.fn(() => {
     throw new Error('NOT_FOUND');
   }),
@@ -26,7 +27,10 @@ vi.mock('@/components/apps/registry', async () => {
       'webgl-fluid-sim': () => createElement('div', { 'data-app': 'webgl-fluid-sim' }),
       'skeleton-anatomy': () => createElement('div', { 'data-app': 'skeleton-anatomy' }),
       'chakra-visualizer': () => createElement('div', { 'data-app': 'chakra-visualizer' }),
-      tollow: () => createElement('div', { 'data-app': 'tollow' }),
+      tollow: (context?: Record<string, unknown>) => {
+        mocks.tollowContexts.push(context);
+        return createElement('div', { 'data-app': 'tollow', 'data-user-id': context?.userId });
+      },
     },
   };
 });
@@ -36,6 +40,7 @@ import TrialPage from '../page';
 describe('独立全屏应用体验页', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.tollowContexts.length = 0;
     mocks.getSession.mockResolvedValue(null);
   });
 
@@ -71,6 +76,8 @@ describe('独立全屏应用体验页', () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain('data-app="tollow"');
+    expect(html).toContain('data-user-id="user-1"');
+    expect(mocks.tollowContexts).toEqual([{ userId: 'user-1' }]);
     expect(html).toContain('h-dvh');
     expect(mocks.redirect).not.toHaveBeenCalled();
   });

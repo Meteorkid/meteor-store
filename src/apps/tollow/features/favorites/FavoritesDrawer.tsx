@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import booksJson from '../../data/books.json'
 import { loadBookSection } from '../../services/bookTextLoader'
+import { resolveFavoriteSource } from '../../services/favoriteSourceResolver'
 import {
   tollowFavoriteService,
   TOLLOW_FAVORITES_CHANGED_EVENT,
@@ -46,6 +47,7 @@ export default function FavoritesDrawer({ open, onClose }: FavoritesDrawerProps)
   const [editTags, setEditTags] = useState('')
   const [knownBooks, setKnownBooks] = useState<Record<string, string>>({})
   const [knownTags, setKnownTags] = useState<string[]>([])
+  const [invalidSourceIds, setInvalidSourceIds] = useState<Set<string>>(() => new Set())
 
   const load = useCallback(async () => {
     if (!open) return
@@ -62,14 +64,8 @@ export default function FavoritesDrawer({ open, onClose }: FavoritesDrawerProps)
       })
       setItems(result.items)
       setTotal(result.total)
-      setKnownBooks(current => {
-        const next = { ...current }
-        for (const item of result.items) {
-          if (item.bookId) next[item.bookId] = item.bookTitle
-        }
-        return next
-      })
-      setKnownTags(current => [...new Set([...current, ...result.items.flatMap(item => item.tags)])].sort())
+      setKnownBooks(Object.fromEntries(result.facets.books.map(book => [book.id, book.title])))
+      setKnownTags(result.facets.tags)
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : '收藏加载失败')
     } finally {
@@ -151,6 +147,17 @@ export default function FavoritesDrawer({ open, onClose }: FavoritesDrawerProps)
       const segments = splitPracticeSegments(content, book.locale)
       const segment = segments[favorite.segmentIndex]
       if (segment === undefined) throw new Error('收藏来源已经变化，无法定位原文')
+      const resolution = resolveFavoriteSource(
+        segment,
+        favorite.quote,
+        favorite.startOffset,
+        favorite.endOffset,
+        book.locale,
+      )
+      if (resolution.status === 'invalid') {
+        setInvalidSourceIds(current => new Set(current).add(favorite.id))
+        throw new Error('收藏来源已经变化，无法唯一定位原文')
+      }
       setCurrentText({
         title: book.title,
         content: segment,
@@ -163,9 +170,9 @@ export default function FavoritesDrawer({ open, onClose }: FavoritesDrawerProps)
           sectionTitle: section.title,
           segmentIndex: favorite.segmentIndex,
           segmentCount: segments.length,
-          offset: favorite.startOffset,
-          highlightStartOffset: favorite.startOffset,
-          highlightEndOffset: favorite.endOffset,
+          offset: resolution.startOffset,
+          highlightStartOffset: resolution.startOffset,
+          highlightEndOffset: resolution.endOffset,
         },
       })
       navigate('/practice')
@@ -229,12 +236,14 @@ export default function FavoritesDrawer({ open, onClose }: FavoritesDrawerProps)
           {loading && items.length === 0 ? <p className="favorites-empty">正在加载收藏…</p> : null}
           {!loading && items.length === 0 ? <p className="favorites-empty">还没有符合条件的收藏。</p> : null}
           {items.map(favorite => {
-            const jumpable = canJumpToSource(favorite)
+            const jumpable = canJumpToSource(favorite) && !invalidSourceIds.has(favorite.id)
             const editing = editingId === favorite.id
             return (
               <article key={favorite.id} className="favorite-card">
                 <blockquote>{favorite.quote}</blockquote>
                 <p className="favorite-source">《{favorite.bookTitle}》{favorite.sectionTitle ? ` · ${favorite.sectionTitle}` : ''}</p>
+                {favorite.syncState === 'pending' && <p className="favorite-source-missing">等待同步</p>}
+                {favorite.syncState === 'error' && <p className="favorite-source-missing">同步失败，请稍后重新编辑</p>}
                 {editing ? (
                   <div className="favorite-editor">
                     <textarea value={editNote} onChange={event => setEditNote(event.target.value)} maxLength={2000} rows={3} aria-label="编辑收藏笔记" />

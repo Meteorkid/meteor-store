@@ -21,8 +21,8 @@ export default async function TrialPage({ params }: TrialPageProps) {
   const renderApp = appComponents[id];
   if (!product || !renderApp) notFound();
 
+  const session = id === 'tollow' ? await getSession() : null;
   if (id === 'tollow') {
-    const session = await getSession();
     if (!session) {
       redirect({
         href: { pathname: '/login', query: { next: '/apps/tollow/trial' } },
@@ -33,7 +33,7 @@ export default async function TrialPage({ params }: TrialPageProps) {
 
   return (
     <main className="h-dvh w-screen overflow-hidden bg-black text-white">
-      {renderApp()}
+      {renderApp({ userId: session?.userId })}
     </main>
   );
 }

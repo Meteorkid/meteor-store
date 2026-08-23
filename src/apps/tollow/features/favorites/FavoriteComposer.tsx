@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { TollowFavoriteCreateInput } from '@/lib/tollow-contract'
 import {
   tollowFavoriteService,
   TOLLOW_FAVORITES_CHANGED_EVENT,
+  type TollowFavoriteDraft,
 } from '../../services/favoriteService'
 
 interface FavoriteComposerProps {
-  draft: TollowFavoriteCreateInput
+  draft: TollowFavoriteDraft
   onClose: () => void
 }
 

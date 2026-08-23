@@ -178,6 +178,7 @@ export async function exportUserData(userId: string, email: string) {
     }).from(tollowPracticeSessions).where(eq(tollowPracticeSessions.userId, userId)),
     db.select({
       id: tollowTextFavorites.id,
+      clientRecordId: tollowTextFavorites.clientRecordId,
       bookId: tollowTextFavorites.bookId,
       bookTitle: tollowTextFavorites.bookTitle,
       sectionId: tollowTextFavorites.sectionId,

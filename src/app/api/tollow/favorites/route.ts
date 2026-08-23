@@ -35,6 +35,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  const favorite = await createTollowFavorite(session.userId, parsed.data);
-  return NextResponse.json({ favorite }, { status: 201 });
+  const result = await createTollowFavorite(session.userId, parsed.data);
+  return NextResponse.json(result, { status: result.created ? 201 : 200 });
 }

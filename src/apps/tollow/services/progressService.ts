@@ -11,15 +11,24 @@ import {
   ProgressInsight 
 } from '../types/progress'
 import { TypingStats } from '../types/types'
-import { TOLLOW_SESSION_SAVED_EVENT } from './accountSyncService'
+import {
+  TOLLOW_LEARNING_PROGRESS_KEY,
+  TOLLOW_PRACTICE_SESSIONS_KEY,
+  TOLLOW_SESSION_SAVED_EVENT,
+  getActiveTollowStorageKey,
+} from './accountSyncService'
 
 /**
  * 学习进度追踪服务
  */
 export class ProgressService {
-  private static readonly PROGRESS_KEY = 'tollow_learning_progress'
-  private static readonly GOALS_KEY = 'tollow_progress_goals'
-  private static readonly SESSIONS_KEY = 'tollow_practice_sessions'
+  private static readonly PROGRESS_KEY = TOLLOW_LEARNING_PROGRESS_KEY
+  private static readonly GOALS_KEY = 'progress-goals'
+  private static readonly SESSIONS_KEY = TOLLOW_PRACTICE_SESSIONS_KEY
+
+  private static storageKey(name: string): string | null {
+    return getActiveTollowStorageKey(name)
+  }
 
   /**
    * 记录练习会话
@@ -105,7 +114,9 @@ export class ProgressService {
    */
   static getAllLearningProgress(): LearningProgress[] {
     try {
-      const data = localStorage.getItem(this.PROGRESS_KEY)
+      const storageKey = this.storageKey(this.PROGRESS_KEY)
+      if (!storageKey) return []
+      const data = localStorage.getItem(storageKey)
       return data ? JSON.parse(data) : []
     } catch {
       return []
@@ -149,7 +160,9 @@ export class ProgressService {
       allProgress.push(progress)
     }
     
-    localStorage.setItem(this.PROGRESS_KEY, JSON.stringify(allProgress))
+    const storageKey = this.storageKey(this.PROGRESS_KEY)
+    if (!storageKey) return
+    localStorage.setItem(storageKey, JSON.stringify(allProgress))
   }
 
   /**
@@ -329,7 +342,9 @@ export class ProgressService {
    */
   static getProgressGoals(): ProgressGoal[] {
     try {
-      const data = localStorage.getItem(this.GOALS_KEY)
+      const storageKey = this.storageKey(this.GOALS_KEY)
+      if (!storageKey) return []
+      const data = localStorage.getItem(storageKey)
       return data ? JSON.parse(data) : []
     } catch {
       return []
@@ -349,7 +364,9 @@ export class ProgressService {
       goals.push(goal)
     }
     
-    localStorage.setItem(this.GOALS_KEY, JSON.stringify(goals))
+    const storageKey = this.storageKey(this.GOALS_KEY)
+    if (!storageKey) return
+    localStorage.setItem(storageKey, JSON.stringify(goals))
   }
 
   /**
@@ -358,7 +375,9 @@ export class ProgressService {
   private static savePracticeSession(session: PracticeSession, fileId: string, fileName: string): void {
     const sessions = this.getPracticeSessions()
     sessions.push(session)
-    localStorage.setItem(this.SESSIONS_KEY, JSON.stringify(sessions))
+    const storageKey = this.storageKey(this.SESSIONS_KEY)
+    if (!storageKey) return
+    localStorage.setItem(storageKey, JSON.stringify(sessions))
     window.dispatchEvent(new CustomEvent(TOLLOW_SESSION_SAVED_EVENT, {
       detail: {
         clientRecordId: session.id,
@@ -380,7 +399,9 @@ export class ProgressService {
    */
   private static getPracticeSessions(): PracticeSession[] {
     try {
-      const data = localStorage.getItem(this.SESSIONS_KEY)
+      const storageKey = this.storageKey(this.SESSIONS_KEY)
+      if (!storageKey) return []
+      const data = localStorage.getItem(storageKey)
       return data ? JSON.parse(data) : []
     } catch {
       return []

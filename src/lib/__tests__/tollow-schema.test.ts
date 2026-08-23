@@ -38,6 +38,8 @@ describe('Tollow 数据表', () => {
     expect(config.name).toBe('tollow_text_favorites');
     expect(indexNames).toContain('tollow_favorites_user_updated_idx');
     expect(indexNames).toContain('tollow_favorites_user_book_idx');
+    expect(indexNames).toContain('tollow_favorites_user_client_uniq');
+    expect(tollowTextFavorites.clientRecordId.notNull).toBe(true);
     expect(tollowTextFavorites.tags.dataType).toBe('array');
   });
 });

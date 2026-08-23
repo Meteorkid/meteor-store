@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ilike, or, sql, type SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, isNotNull, or, sql, type SQL } from 'drizzle-orm';
 import { db } from './db';
 import {
   tollowBookProgress,
@@ -141,8 +141,22 @@ export async function createTollowFavorite(
       createdAt: now,
       updatedAt: now,
     })
+    .onConflictDoNothing({
+      target: [tollowTextFavorites.userId, tollowTextFavorites.clientRecordId],
+    })
     .returning();
-  return created;
+  if (created) return { favorite: created, created: true };
+
+  const [existing] = await db
+    .select()
+    .from(tollowTextFavorites)
+    .where(and(
+      eq(tollowTextFavorites.userId, userId),
+      eq(tollowTextFavorites.clientRecordId, input.clientRecordId),
+    ))
+    .limit(1);
+  if (!existing) throw new Error('Tollow favorite idempotency lookup failed');
+  return { favorite: existing, created: false };
 }
 
 export async function listTollowFavorites(
@@ -174,7 +188,7 @@ export async function listTollowFavorites(
       : [desc(tollowTextFavorites.updatedAt)];
   const offset = (query.page - 1) * query.limit;
 
-  const [items, countRows] = await Promise.all([
+  const [items, countRows, bookRows, tagRows] = await Promise.all([
     db.select()
       .from(tollowTextFavorites)
       .where(where)
@@ -184,9 +198,34 @@ export async function listTollowFavorites(
     db.select({ count: sql<number>`count(*)::int` })
       .from(tollowTextFavorites)
       .where(where),
+    db.selectDistinct({
+      id: tollowTextFavorites.bookId,
+      title: tollowTextFavorites.bookTitle,
+    })
+      .from(tollowTextFavorites)
+      .where(and(
+        eq(tollowTextFavorites.userId, userId),
+        isNotNull(tollowTextFavorites.bookId),
+      ))
+      .orderBy(asc(tollowTextFavorites.bookTitle)),
+    db.selectDistinct({
+      tag: sql<string>`unnest(${tollowTextFavorites.tags})`,
+    })
+      .from(tollowTextFavorites)
+      .where(eq(tollowTextFavorites.userId, userId))
+      .orderBy(sql`1`),
   ]);
 
-  return { items, total: countRows[0]?.count ?? 0, page: query.page, limit: query.limit };
+  const books = bookRows.flatMap((row) => row.id
+    ? [{ id: row.id, title: row.title }]
+    : []);
+  return {
+    items,
+    total: countRows[0]?.count ?? 0,
+    page: query.page,
+    limit: query.limit,
+    facets: { books, tags: tagRows.map((row) => row.tag) },
+  };
 }
 
 export async function updateTollowFavorite(

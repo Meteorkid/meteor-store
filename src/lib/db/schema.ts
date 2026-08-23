@@ -385,6 +385,7 @@ export const tollowPracticeSessions = pgTable('tollow_practice_sessions', {
 export const tollowTextFavorites = pgTable('tollow_text_favorites', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull(),
+  clientRecordId: text('client_record_id').notNull(),
   bookId: text('book_id'),
   bookTitle: text('book_title').notNull(),
   sectionId: text('section_id'),
@@ -398,6 +399,7 @@ export const tollowTextFavorites = pgTable('tollow_text_favorites', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 }, (t) => [
+  uniqueIndex('tollow_favorites_user_client_uniq').on(t.userId, t.clientRecordId),
   index('tollow_favorites_user_updated_idx').on(t.userId, t.updatedAt),
   index('tollow_favorites_user_book_idx').on(t.userId, t.bookId),
   check('tollow_favorites_offsets_valid', sql`${t.startOffset} >= 0 and ${t.endOffset} >= ${t.startOffset}`),

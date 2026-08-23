@@ -5,7 +5,11 @@ import ChakraVisualizerApp from './ChakraVisualizerApp';
 import TollowApp from './TollowApp';
 import type { AppId } from '@/data/app-manifest';
 
-type AppRenderer = () => ReactNode;
+export interface AppRenderContext {
+  userId?: string;
+}
+
+type AppRenderer = (context?: AppRenderContext) => ReactNode;
 
 /**
  * 已接入的站内应用注册表：productId → 应用组件。
@@ -23,7 +27,7 @@ const registeredAppComponents = {
   'webgl-fluid-sim': () => <WebGLFluidSim />,
   'skeleton-anatomy': () => <SkeletonAnatomyApp />,
   'chakra-visualizer': () => <ChakraVisualizerApp />,
-  'tollow': () => <TollowApp />,
+  'tollow': (context) => context?.userId ? <TollowApp userId={context.userId} /> : null,
 } satisfies Record<AppId, AppRenderer>;
 
 export const appComponents: Readonly<Record<string, AppRenderer>> = registeredAppComponents;

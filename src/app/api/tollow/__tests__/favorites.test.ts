@@ -25,7 +25,7 @@ vi.mock('@/lib/tollow', () => {
     },
     createTollowFavorite: async (userId: string, input: Record<string, unknown>) => {
       state.createCalls.push({ userId, input });
-      return { id: 'F1', ...input };
+      return { favorite: { id: 'F1', ...input }, created: true };
     },
     updateTollowFavorite: async (userId: string, id: string, input: Record<string, unknown>) => {
       state.updateCalls.push({ userId, id, input });
@@ -43,6 +43,7 @@ import { GET, POST } from '../favorites/route';
 import { DELETE, PATCH } from '../favorites/[id]/route';
 
 const validFavorite = {
+  clientRecordId: 'favorite-client-1',
   bookId: 'the-little-prince',
   bookTitle: '小王子',
   sectionId: 'chapter-one',

@@ -53,6 +53,7 @@ describe('Tollow API 合约', () => {
 
   it('收藏限制原文、笔记和标签并去除重复标签', () => {
     const valid = {
+      clientRecordId: 'favorite-1',
       bookId: 'the-little-prince',
       bookTitle: '小王子',
       sectionId: 'chapter-one',
@@ -66,6 +67,7 @@ describe('Tollow API 合约', () => {
     };
 
     expect(tollowFavoriteCreateSchema.parse(valid).tags).toEqual(['哲思', '成长']);
+    expect(tollowFavoriteCreateSchema.safeParse({ ...valid, clientRecordId: undefined }).success).toBe(false);
     expect(tollowFavoriteCreateSchema.safeParse({ ...valid, quote: 'x'.repeat(10_001) }).success).toBe(false);
     expect(tollowFavoriteCreateSchema.safeParse({ ...valid, note: 'x'.repeat(2_001) }).success).toBe(false);
     expect(tollowFavoriteCreateSchema.safeParse({ ...valid, tags: Array.from({ length: 11 }, (_, i) => `t${i}`) }).success).toBe(false);

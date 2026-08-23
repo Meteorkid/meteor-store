@@ -49,7 +49,7 @@ export default async function AppPage({ params }: AppPageProps) {
 
         {hasAccess ? (
           renderApp ? (
-            renderApp()
+            renderApp({ userId: session?.userId })
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
               <div className="mb-4 text-4xl">🚧</div>
