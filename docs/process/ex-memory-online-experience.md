@@ -3,7 +3,8 @@
 ## 架构
 
 - 商城入口：`/{locale}/products/ex-memory` → `/{locale}/apps/ex-memory`
-- 体验页面保留 Meteor Store 页头页尾，登录后才渲染同源 iframe。
+- 体验页面不渲染 Meteor Store 页头页尾和全局视觉特效；未登录先跳转登录，
+  登录成功后返回专用全屏页并渲染同源 iframe。
 - iframe 访问 `/ex-memory-runtime/`，Nginx 通过 `auth_request` 调用
   `/api/internal/ex-memory-auth` 校验 Meteor Store session。
 - Nginx 覆盖外部身份头，将不可变的 Meteor Store user ID 转发给仅监听
