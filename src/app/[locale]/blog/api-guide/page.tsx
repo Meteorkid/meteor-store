@@ -4,6 +4,7 @@ import { join } from 'path';
 import { setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BlogApiGuideCopyButton from '@/components/BlogApiGuideCopyButton';
 import { markdownToHtml } from '@/lib/markdown';
 
 
@@ -51,16 +52,19 @@ export default async function ApiGuidePage({
                   : 'Manage blog posts via personal access tokens in Codex, Claude Code, and other tools.'}
               </p>
             </div>
-            <a
-              href="/api/guide"
-              download
-              className="glass inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M2.5 10.5v2a1 1 0 001 1h9a1 1 0 001-1v-2M8 2.5v8M5 7.5l3 3 3-3" />
-              </svg>
-              {locale === 'zh' ? '下载 Markdown' : 'Download .md'}
-            </a>
+            <div className="flex flex-wrap items-center gap-3">
+              <BlogApiGuideCopyButton locale={locale === 'zh' ? 'zh' : 'en'} />
+              <a
+                href="/api/guide"
+                download
+                className="glass inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
+              >
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M2.5 10.5v2a1 1 0 001 1h9a1 1 0 001-1v-2M8 2.5v8M5 7.5l3 3 3-3" />
+                </svg>
+                {locale === 'zh' ? '下载 Markdown' : 'Download .md'}
+              </a>
+            </div>
           </header>
 
           <article
