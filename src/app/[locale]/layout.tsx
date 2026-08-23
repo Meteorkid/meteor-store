@@ -7,15 +7,10 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale, getTranslations } from "next-intl/server";
 import { routing, type Locale } from "@/i18n/routing";
 import ScrollAnimateInit from "@/components/ScrollAnimateInit";
-import EasterEggs from "@/components/EasterEggs";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
-import SpotlightSearch from "@/components/SpotlightSearch";
-import FilmGrain from "@/components/FilmGrain";
-import HeroCanvas from "@/components/HeroCanvas";
-import MeteorShower from "@/components/MeteorShower";
+import ExperienceAwareChrome from "@/components/ExperienceAwareChrome";
 import { AuthProvider } from "@/components/AuthProvider";
 import { HelpPanelProvider } from "@/components/help/HelpPanelContext";
-import HelpPanel from "@/components/help/HelpPanel";
 import { SITE_URL } from "@/lib/constants";
 import "../globals.css";
 
@@ -205,13 +200,7 @@ export default async function LocaleLayout({
           <AuthProvider>
             <HelpPanelProvider>
             <ServiceWorkerRegistrar />
-            <EasterEggs />
-            <SpotlightSearch />
-            <FilmGrain />
-            <HeroCanvas />
-            <MeteorShower />
-            {children}
-            <HelpPanel />
+            <ExperienceAwareChrome>{children}</ExperienceAwareChrome>
             </HelpPanelProvider>
           </AuthProvider>
         </NextIntlClientProvider>

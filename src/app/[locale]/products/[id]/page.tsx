@@ -85,6 +85,8 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
               {product.experienceUrl && (
                 <Link
                   href={product.experienceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
                 >
                   <span aria-hidden>✦</span>

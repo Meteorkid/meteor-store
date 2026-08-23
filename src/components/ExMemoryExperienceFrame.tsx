@@ -23,6 +23,7 @@ export default function ExMemoryExperienceFrame({
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== frameRef.current?.contentWindow) return;
       if (event.data?.type === 'ex-memory:ready') {
+        window.clearTimeout(timeout);
         setReady(true);
         setTimedOut(false);
       } else if (event.data?.type === 'ex-memory:session-expired') {
@@ -37,7 +38,7 @@ export default function ExMemoryExperienceFrame({
   }, [attempt]);
 
   return (
-    <div className="relative min-h-[680px] overflow-hidden rounded-3xl border border-white/10 bg-[#09090b] shadow-[0_35px_120px_rgba(76,29,149,0.24)]">
+    <div className="relative h-dvh w-screen overflow-hidden bg-[#09090b]">
       {!ready && !timedOut && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#09090b] text-sm text-white/60" role="status">
           <span className="mr-3 h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-violet-400" aria-hidden />
@@ -65,7 +66,7 @@ export default function ExMemoryExperienceFrame({
         ref={frameRef}
         src="/ex-memory-runtime/"
         title={title}
-        className="h-[min(78vh,900px)] min-h-[680px] w-full border-0 bg-[#09090b]"
+        className="h-dvh w-screen border-0 bg-[#09090b]"
         allow="clipboard-write"
         sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-modals"
       />
