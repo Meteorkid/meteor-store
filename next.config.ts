@@ -91,6 +91,17 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
         ],
       },
+      // Ex-Memory 在线页通过同源 iframe 连接用户 Mac 上的微信导出助手。
+      // Chrome 142+ 会为 loopback 请求征求本地网络访问权限；只在该页面显式委派。
+      {
+        source: "/:locale/apps/ex-memory",
+        headers: [
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), local-network-access=(self)",
+          },
+        ],
+      },
     ];
   },
 

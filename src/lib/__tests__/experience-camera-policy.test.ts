@@ -17,4 +17,13 @@ describe('在线体验摄像头权限策略', () => {
     expect(start).toBeGreaterThan(-1);
     expect(trialHeaders).toContain('camera=(self), microphone=(), geolocation=()');
   });
+
+  it('只在 Ex-Memory 体验路由允许同源本地网络访问', () => {
+    const start = nextConfig.indexOf('source: "/:locale/apps/ex-memory"');
+    const end = nextConfig.indexOf('},\n      },', start);
+    const experienceHeaders = nextConfig.slice(start, end);
+
+    expect(start).toBeGreaterThan(-1);
+    expect(experienceHeaders).toContain('local-network-access=(self)');
+  });
 });

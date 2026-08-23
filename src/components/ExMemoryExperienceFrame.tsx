@@ -67,8 +67,8 @@ export default function ExMemoryExperienceFrame({
         src="/ex-memory-runtime/"
         title={title}
         className="h-dvh w-screen border-0 bg-[#09090b]"
-        allow="clipboard-write"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-modals"
+        allow="clipboard-write; local-network-access"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-modals allow-top-navigation-to-custom-protocols"
       />
     </div>
   );

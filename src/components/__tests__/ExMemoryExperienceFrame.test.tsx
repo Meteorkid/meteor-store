@@ -21,6 +21,20 @@ describe('ExMemoryExperienceFrame', () => {
     expect(html).not.toContain('min-h-[680px]');
   });
 
+  it('向同源 Ex-Memory iframe 委派本机助手访问权限', () => {
+    const html = renderToStaticMarkup(
+      <ExMemoryExperienceFrame
+        loadingLabel="loading"
+        title="Ex-Memory"
+        unavailableLabel="unavailable"
+        retryLabel="retry"
+      />,
+    );
+
+    expect(html).toContain('allow="clipboard-write; local-network-access"');
+    expect(html).toContain('allow-top-navigation-to-custom-protocols');
+  });
+
   it('收到运行时就绪消息后取消超时计时器', () => {
     const source = readFileSync(
       resolve(process.cwd(), 'src/components/ExMemoryExperienceFrame.tsx'),
