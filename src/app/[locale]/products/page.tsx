@@ -5,6 +5,7 @@ import ProductCard from '@/components/ProductCard';
 import CategoryFilter from '@/components/CategoryFilter';
 import PassOwnedBadge from '@/components/PassOwnedBadge';
 import { products, localizeProduct } from '@/data/products';
+import { selectProductsInDisplayOrder } from '@/data/product-order';
 import type { Locale } from '@/i18n/routing';
 
 interface Props {
@@ -17,7 +18,9 @@ export default async function ProductsPage({ searchParams, params }: Props) {
   const t = await getTranslations({ locale, namespace: 'ProductsPage' });
   const { category: selectedCategory = 'all' } = await searchParams;
 
-  const allProducts = products.map((p) => localizeProduct(p, locale as Locale));
+  const allProducts = selectProductsInDisplayOrder(
+    products.map((product) => localizeProduct(product, locale as Locale)),
+  );
   const filteredProducts = selectedCategory === 'all'
     ? allProducts
     : allProducts.filter((p) => p.category === selectedCategory);

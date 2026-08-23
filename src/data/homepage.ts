@@ -1,11 +1,6 @@
-export const homeFeaturedProductIds = [
-  'xisland',
-  'xnook',
-  'chakra-visualizer',
-  'skeleton-anatomy',
-  'tollow',
-  'ex-memory',
-] as const;
+import { productDisplayOrderIds } from './product-order';
+
+export const homeFeaturedProductIds = productDisplayOrderIds.slice(0, 6);
 
 export function selectHomeFeaturedProducts<T extends { id: string }>(
   allProducts: readonly T[],

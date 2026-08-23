@@ -12,16 +12,16 @@ describe('首页精选产品', () => {
     const featuredProducts = selectHomeFeaturedProducts(products);
 
     expect(featuredProducts.map((product) => product.id)).toEqual([
+      'ex-memory',
       'xisland',
       'xnook',
-      'chakra-visualizer',
-      'skeleton-anatomy',
+      'statux',
       'tollow',
-      'ex-memory',
+      'skeleton-anatomy',
     ]);
   });
 
   it('配置引用不存在的产品时直接报错', () => {
-    expect(() => selectHomeFeaturedProducts([])).toThrow('未找到首页精选产品：xisland');
+    expect(() => selectHomeFeaturedProducts([])).toThrow('未找到首页精选产品：ex-memory');
   });
 });
