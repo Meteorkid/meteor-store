@@ -29,10 +29,12 @@ export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code');
   const state = req.nextUrl.searchParams.get('state');
 
-  const locale = state ? await consumeWechatState(state) : null;
-  if (!code || !locale) {
+  const oauthState = state ? await consumeWechatState(state) : null;
+  if (!code || !oauthState) {
     return redirectTo('/zh/login?wechat=invalid');
   }
+  const { locale, next } = oauthState;
+  const nextParam = next === '/' ? '' : `&next=${encodeURIComponent(next)}`;
 
   const { data, error } = await exchangeWechatCode(code);
   if (!data) {
@@ -82,7 +84,7 @@ export async function GET(req: NextRequest) {
         name: existing.name ?? undefined,
         tokenVersion: existing.tokenVersion,
       });
-      const res = redirectTo(`/${locale}/login?mfa=1`);
+      const res = redirectTo(`/${locale}/login?mfa=1${nextParam}`);
       res.cookies.set(MFA_CHALLENGE_COOKIE, ticket, mfaChallengeCookieOptions());
       return res;
     }
@@ -94,7 +96,7 @@ export async function GET(req: NextRequest) {
       emailVerified: true,
       tokenVersion: existing.tokenVersion,
     });
-    return redirectTo(`/${locale}/account?wechat=linked`);
+    return redirectTo(next === '/' ? `/${locale}/account?wechat=linked` : `/${locale}${next}`);
   }
 
   const info = await fetchWechatUserInfo(data.accessToken, data.openid);

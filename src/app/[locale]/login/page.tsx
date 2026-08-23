@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AuthForm from '@/components/AuthForm';
+import { normalizeLoginReturn } from '@/lib/login-return';
 
 export async function generateMetadata({
   params,
@@ -23,10 +24,10 @@ export default async function LoginPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ verified?: string; wechat?: string; mfa?: string }>;
+  searchParams: Promise<{ verified?: string; wechat?: string; mfa?: string; next?: string }>;
 }) {
   const { locale } = await params;
-  const { verified, wechat, mfa } = await searchParams;
+  const { verified, wechat, mfa, next } = await searchParams;
   setRequestLocale(locale);
 
   return (
@@ -38,6 +39,7 @@ export default async function LoginPage({
           verified={verified === '1'}
           wechatError={wechat ?? null}
           mfaChallenge={mfa === '1'}
+          next={normalizeLoginReturn(next)}
         />
       </main>
       <Footer />

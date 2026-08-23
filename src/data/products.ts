@@ -49,6 +49,8 @@ export interface Product {
   /** 开源许可证。'mit' 才算是真开源，会进 /open-source 页面；其余产品（源码可用-非商业等）不展示为开源 */
   license?: 'mit';
   demo?: string;
+  /** 独立的站内在线体验页；与产品官网 demo、付费站内应用 appUrl 分开。 */
+  experienceUrl?: string;
   /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用，
      产品页会渲染「免费试用」内嵌区块，购买入口对应 /apps/{id} 付费门控 */
   appUrl?: string;
@@ -109,6 +111,7 @@ export interface LocalizedProduct {
   /** 开源许可证。'mit' 才算是真开源，会进 /open-source 页面；其余产品（源码可用-非商业等）不展示为开源 */
   license?: 'mit';
   demo?: string;
+  experienceUrl?: string;
   /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用 */
   appUrl?: string;
   /** 产品状态。'coming_soon' 表示暂不出售：卡片与详情页显示「即将上架」，不渲染定价/购买入口 */
@@ -219,6 +222,7 @@ export const products: Product[] = [
   {
     id: 'ex-memory',
     status: 'coming_soon',
+    experienceUrl: '/apps/ex-memory',
     name: { zh: 'Ex-Memory', en: 'Ex-Memory' },
     tagline: { zh: '前任记忆智能体', en: 'Ex-Partner Memory Agent' },
     description: {
@@ -882,6 +886,7 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
     github: product.github,
     license: product.license,
     demo: product.demo,
+    experienceUrl: product.experienceUrl,
     appUrl: product.appUrl,
     status: product.status,
     quickstart: product.quickstart

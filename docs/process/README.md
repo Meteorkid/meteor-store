@@ -8,6 +8,7 @@
 | [feedback-triage.md](feedback-triage.md) | 用户反馈分级与流转指南 |
 | [monitoring.md](monitoring.md) | 监控告警配置与应急响应 |
 | [search-engine-indexing.md](search-engine-indexing.md) | 搜索引擎收录：站长平台验证与 sitemap 提交 |
+| [ex-memory-online-experience.md](ex-memory-online-experience.md) | Ex-Memory 在线体验的 SSO、Nginx 与回滚流程 |
 
 ## 模板
 

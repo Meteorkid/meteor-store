@@ -21,8 +21,9 @@ vi.mock('@/lib/wechat-oauth', () => ({
   fetchWechatUserInfo: vi.fn().mockResolvedValue({ nickname: '流星' }),
 }));
 
+const consumeWechatState = vi.fn().mockResolvedValue({ locale: 'zh', next: '/' });
 vi.mock('@/lib/wechat-bind', () => ({
-  consumeWechatState: vi.fn().mockResolvedValue('zh'),
+  consumeWechatState: (...a: unknown[]) => consumeWechatState(...a),
   createWechatBindToken: vi.fn().mockResolvedValue('BINDTOKEN'),
 }));
 
@@ -66,6 +67,7 @@ describe('微信扫码回调的 MFA 门控', () => {
   beforeEach(() => {
     process.env.JWT_SECRET = 'jwt-secret-for-tests-0123456789ab';
     createSession.mockClear();
+    consumeWechatState.mockResolvedValue({ locale: 'zh', next: '/' });
   });
 
   it('开了两步验证且非受信任设备：不签发 session，改走 MFA 挑战', async () => {
@@ -108,5 +110,14 @@ describe('微信扫码回调的 MFA 门控', () => {
 
     expect(createSession).toHaveBeenCalledTimes(1);
     expect(res.headers.get('location')).toContain('/zh/account?wechat=linked');
+  });
+
+  it('从 Ex-Memory 发起扫码登录时，登录成功回到体验页', async () => {
+    consumeWechatState.mockResolvedValue({ locale: 'zh', next: '/apps/ex-memory' });
+    mockUser({ ...BASE, totpEnabled: false });
+
+    const res = await GET(request());
+
+    expect(res.headers.get('location')).toBe('https://www.imagentx.top/zh/apps/ex-memory');
   });
 });

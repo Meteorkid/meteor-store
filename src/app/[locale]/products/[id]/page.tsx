@@ -81,6 +81,15 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                   {t('liveDemo')}
                 </a>
               )}
+              {product.experienceUrl && (
+                <Link
+                  href={product.experienceUrl}
+                  className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
+                >
+                  <span aria-hidden>✦</span>
+                  {t('onlineExperience')}
+                </Link>
+              )}
             </div>
           </div>
           <ProductVisual product={product} priority className="shadow-[0_35px_100px_rgba(76,29,149,0.28)]" transitionName={`product-visual-${product.id}`} />

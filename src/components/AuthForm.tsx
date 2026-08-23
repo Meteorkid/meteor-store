@@ -43,11 +43,14 @@ export default function AuthForm({
   verified = false,
   wechatError = null,
   mfaChallenge = false,
+  next = '/',
 }: {
   verified?: boolean;
   wechatError?: string | null;
   /** 微信扫码回调判定需要二次验证时重定向带 ?mfa=1；票在 httpOnly cookie 里 */
   mfaChallenge?: boolean;
+  /** 服务端白名单校验后的站内回跳地址。 */
+  next?: string;
 }) {
   const t = useTranslations('LoginPage');
   const locale = useLocale();
@@ -121,7 +124,7 @@ export default function AuthForm({
     setPendingMfa(null);
     setMfaCode('');
     setPassword('');
-    router.push('/');
+    router.push(next);
   };
 
   if (user) {
@@ -131,7 +134,7 @@ export default function AuthForm({
         <p className="mb-2 text-lg font-semibold">{t('loggedInAs', { name: user.name || user.email })}</p>
         <p className="mb-6 text-sm text-gray-400">{t('loggedInHint')}</p>
         <Link
-          href="/"
+          href={next}
           className="inline-block rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
         >
           {t('backHome')}
@@ -288,7 +291,7 @@ export default function AuthForm({
     } else if (result.error) {
       setError(result.error);
     } else {
-      router.push('/');
+      router.push(next);
     }
   };
 
@@ -487,7 +490,7 @@ export default function AuthForm({
             <span className="h-px flex-1 bg-white/10" />
           </div>
           <a
-            href={`/api/auth/wechat?locale=${locale}`}
+            href={`/api/auth/wechat?locale=${locale}${next === '/' ? '' : `&next=${encodeURIComponent(next)}`}`}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3 text-sm font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>

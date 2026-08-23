@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSiteUrl } from '@/lib/constants';
 import { buildWechatAuthorizeUrl, isWechatOAuthConfigured } from '@/lib/wechat-oauth';
 import { createWechatState } from '@/lib/wechat-bind';
+import { normalizeLoginReturn } from '@/lib/login-return';
 
 /**
  * 微信扫码登录入口：签发防 CSRF state 后 302 到微信授权页。
@@ -9,12 +10,14 @@ import { createWechatState } from '@/lib/wechat-bind';
  */
 export async function GET(req: NextRequest) {
   const locale = req.nextUrl.searchParams.get('locale') === 'en' ? 'en' : 'zh';
+  const next = normalizeLoginReturn(req.nextUrl.searchParams.get('next'));
+  const nextParam = next === '/' ? '' : `&next=${encodeURIComponent(next)}`;
 
   if (!isWechatOAuthConfigured()) {
-    return NextResponse.redirect(new URL(`/${locale}/login?wechat=unavailable`, getSiteUrl()));
+    return NextResponse.redirect(new URL(`/${locale}/login?wechat=unavailable${nextParam}`, getSiteUrl()));
   }
 
-  const state = await createWechatState(locale);
+  const state = await createWechatState(locale, next);
   const redirectUri = `${getSiteUrl()}/api/auth/wechat/callback`;
   return NextResponse.redirect(buildWechatAuthorizeUrl(state, redirectUri));
 }

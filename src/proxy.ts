@@ -85,6 +85,8 @@ function buildCsp(nonce: string, isTrial = false): string {
     // cdn.jsdelivr.net 拉取 @mediapipe/hands 的 .wasm / .tflite 模型，
     // 该 fetch 由 connect-src 管控——不放行则模型加载失败、摄像头无法启动。
     `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com https://cdn.jsdelivr.net ${sentryIngest}`,
+    // 在线体验与现有 trial 均为同源 iframe；显式声明，避免未来扩大 default-src 时连带放宽。
+    "frame-src 'self'",
     // trial 路由允许同源 iframe 内嵌；其余页面禁止被嵌入（防点击劫持）
     `frame-ancestors ${isTrial ? "'self'" : "'none'"}`,
     "upgrade-insecure-requests",

@@ -824,6 +824,7 @@
     "backToProducts": "Back to products",
     "githubSource": "GitHub source",
     "liveDemo": "Live demo",
+    "onlineExperience": "Try online",
     "features": "Features",
     "pricing": "Pricing",
     "comingSoon": "Coming Soon",
@@ -867,6 +868,21 @@
     "downloadChecking": "Checking…",
     "downloadLoginHint": "Sign in to download",
     "downloadLockedHint": "Unlock to download"
+  },
+  "ExMemoryExperiencePage": {
+    "title": "Try Ex-Memory Online",
+    "description": "Experience Ex-Memory in your browser without installing the desktop app.",
+    "eyebrow": "ONLINE EXPERIENCE · BETA",
+    "subtitle": "Enter your private experience space with your Meteor Store account.",
+    "backToProduct": "Back to product",
+    "loginTitle": "Sign in to start",
+    "loginDescription": "Ex-Memory shares your Meteor Store sign-in, so no separate account is needed.",
+    "loginButton": "Sign in to Meteor Store",
+    "privacyHint": "Experience data stays separate from store profile data; only an immutable user ID is used.",
+    "loading": "Starting Ex-Memory…",
+    "frameTitle": "Ex-Memory online experience app",
+    "unavailable": "The experience service is not responding. Please try again.",
+    "retry": "Reload"
   },
   "HeroSection": {
     "badge": "Full-Platform Tool Matrix · Continuously Iterating",

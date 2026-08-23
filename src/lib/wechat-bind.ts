@@ -6,6 +6,7 @@
 // 只在绑定页消费；它只携带 openid 资料，单独持有它绑定不了任何账号。
 
 import { SignJWT, jwtVerify } from 'jose';
+import { normalizeLoginReturn } from '@/lib/login-return';
 
 const STATE_AUDIENCE = 'wechat-oauth-state';
 const STATE_EXPIRY = 10 * 60;
@@ -18,8 +19,16 @@ function getSecret(purpose: string): Uint8Array {
   return new TextEncoder().encode(`${secret}:${purpose}`);
 }
 
-export async function createWechatState(locale: 'zh' | 'en'): Promise<string> {
-  return new SignJWT({ typ: STATE_AUDIENCE, locale })
+export interface WechatOAuthState {
+  locale: 'zh' | 'en';
+  next: string;
+}
+
+export async function createWechatState(
+  locale: 'zh' | 'en',
+  next?: string | null,
+): Promise<string> {
+  return new SignJWT({ typ: STATE_AUDIENCE, locale, next: normalizeLoginReturn(next) })
     .setProtectedHeader({ alg: 'HS256' })
     .setAudience(STATE_AUDIENCE)
     .setIssuedAt()
@@ -27,7 +36,7 @@ export async function createWechatState(locale: 'zh' | 'en'): Promise<string> {
     .sign(getSecret('wechat-oauth-state'));
 }
 
-export async function consumeWechatState(state: string): Promise<'zh' | 'en' | null> {
+export async function consumeWechatState(state: string): Promise<WechatOAuthState | null> {
   try {
     const { payload } = await jwtVerify(state, getSecret('wechat-oauth-state'), {
       audience: STATE_AUDIENCE,
@@ -35,7 +44,10 @@ export async function consumeWechatState(state: string): Promise<'zh' | 'en' | n
     if (payload.typ !== STATE_AUDIENCE || (payload.locale !== 'zh' && payload.locale !== 'en')) {
       return null;
     }
-    return payload.locale;
+    return {
+      locale: payload.locale,
+      next: normalizeLoginReturn(typeof payload.next === 'string' ? payload.next : null),
+    };
   } catch {
     return null;
   }

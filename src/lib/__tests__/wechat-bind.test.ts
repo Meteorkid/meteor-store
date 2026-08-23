@@ -11,11 +11,16 @@ describe('wechat-bind 无状态凭证', () => {
     process.env.JWT_SECRET = 'test-secret-wechat-bind';
   });
 
-  it('state 签发后可以原样消费，并携带 locale', async () => {
+  it('state 签发后可以原样消费，并携带 locale 与白名单回跳地址', async () => {
     for (const locale of ['zh', 'en'] as const) {
-      const state = await createWechatState(locale);
-      expect(await consumeWechatState(state)).toBe(locale);
+      const state = await createWechatState(locale, '/apps/ex-memory');
+      expect(await consumeWechatState(state)).toEqual({ locale, next: '/apps/ex-memory' });
     }
+  });
+
+  it('state 会把非法回跳地址归一化为首页', async () => {
+    const state = await createWechatState('zh', 'https://evil.example');
+    expect(await consumeWechatState(state)).toEqual({ locale: 'zh', next: '/' });
   });
 
   it('篡改或损坏的 state 消费失败', async () => {
