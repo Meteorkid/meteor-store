@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { TextContent, TypingStats } from '../../types/types'
 import { splitGraphemes } from '../../utils/textSegmentation'
+import { normalizePracticeInputCharacter } from '../../utils/typingInput'
 import FavoriteComposer from '../favorites/FavoriteComposer'
 import type { TollowFavoriteCreateInput } from '@/lib/tollow-contract'
 import '../../styles/TypingPractice.css'
@@ -227,7 +228,10 @@ const TypingPractice: React.FC<TypingPracticeProps> = ({
     for (const rawCharacter of splitGraphemes(text)) {
       if (position >= graphemes.length) break
       const sourceCharacter = graphemes[position]
-      const character = rawCharacter === '\r' ? '' : rawCharacter
+      const character = normalizePracticeInputCharacter(
+        rawCharacter === '\r' ? '' : rawCharacter,
+        sourceCharacter
+      )
       if (!character) continue
       if ([' ', '\n', '\t'].includes(character) && sourceCharacter !== character) continue
 
