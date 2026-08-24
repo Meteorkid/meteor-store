@@ -1,6 +1,6 @@
 {
-  "id": "ea25e2e0-60c0-499a-9ae1-8ba021f46a07",
-  "prevId": "459875a1-8b28-4b46-b8ce-478ca00e24f6",
+  "id": "459875a1-8b28-4b46-b8ce-478ca00e24f6",
+  "prevId": "ccd4ed09-e378-47ae-ad5e-9c23663ff6b4",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -880,12 +880,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "plan_id": {
-          "name": "plan_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "email": {
           "name": "email",

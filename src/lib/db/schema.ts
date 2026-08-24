@@ -452,3 +452,124 @@ export const reports = pgTable('reports', {
   index('reports_target_idx').on(t.targetType, t.targetId),
   index('reports_reporter_idx').on(t.reporterId),
 ]);
+
+/**
+ * Pathfinder 可信目录的来源配置。
+ *
+ * 来源只允许由仓库配置或管理员创建；公开请求不能传入任意 URL。
+ * 不加外键，保持项目现有的弱耦合数据约定。
+ */
+export const pathfinderSources = pgTable('pathfinder_sources', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  adapter: text('adapter').notNull(), // manual | github | rss | atom
+  siteUrl: text('site_url').notNull(),
+  sourceType: text('source_type').notNull(), // manual | api | rss | atom | html
+  trustLevel: text('trust_level').notNull(), // official | verified
+  enabled: boolean('enabled').default(false).notNull(),
+  autoPublish: boolean('auto_publish').default(false).notNull(),
+  syncIntervalMinutes: integer('sync_interval_minutes').default(1440).notNull(),
+  etag: text('etag'),
+  lastModified: text('last_modified'),
+  cursor: text('cursor'),
+  lastSuccessAt: text('last_success_at'),
+  lastError: text('last_error'),
+  consecutiveFailures: integer('consecutive_failures').default(0).notNull(),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (t) => [
+  uniqueIndex('pathfinder_sources_site_url_uniq').on(t.siteUrl),
+  index('pathfinder_sources_enabled_idx').on(t.enabled, t.updatedAt),
+  check('pathfinder_sources_adapter_valid', sql`${t.adapter} in ('manual', 'github', 'rss', 'atom')`),
+  check('pathfinder_sources_type_valid', sql`${t.sourceType} in ('manual', 'api', 'rss', 'atom', 'html')`),
+  check('pathfinder_sources_trust_valid', sql`${t.trustLevel} in ('official', 'verified')`),
+  check('pathfinder_sources_sync_interval_positive', sql`${t.syncIntervalMinutes} > 0`),
+  check('pathfinder_sources_failures_non_negative', sql`${t.consecutiveFailures} >= 0`),
+]);
+
+/**
+ * Pathfinder 规范化目录条目。正文仍留在原站，只保存事实字段、原创短摘要与来源链接。
+ * 状态机：pending → published / rejected，已发布条目可转 archived / stale / expired。
+ */
+export const pathfinderItems = pgTable('pathfinder_items', {
+  id: text('id').primaryKey(),
+  sourceId: text('source_id').notNull(),
+  externalId: text('external_id').notNull(),
+  canonicalUrl: text('canonical_url').notNull(),
+  urlHash: text('url_hash').notNull(),
+  itemType: text('item_type').notNull(), // open-source | competition | internship | ai-update
+  titleZh: text('title_zh').notNull(),
+  titleEn: text('title_en').notNull(),
+  summaryZh: text('summary_zh').notNull(),
+  summaryEn: text('summary_en').notNull(),
+  /** 旧 organization 列保留为中文/默认值；英文名独立保存，避免英文页回退成中文。 */
+  organization: text('organization').notNull(),
+  organizationEn: text('organization_en').notNull(),
+  direction: text('direction').notNull(), // ai | frontend | backend | data
+  /** JSON 字符串；direction 仍是主方向和旧读取端兼容字段。 */
+  directions: text('directions').default('[]').notNull(),
+  difficulty: text('difficulty').notNull(), // beginner | intermediate | advanced | all
+  estimatedMinutes: integer('estimated_minutes'),
+  costCny: integer('cost_cny'),
+  costAmount: numeric('cost_amount', { precision: 14, scale: 2, mode: 'number' }),
+  costCurrency: text('cost_currency'),
+  costLabelZh: text('cost_label_zh'),
+  costLabelEn: text('cost_label_en'),
+  device: text('device').notNull(), // phone | computer | either
+  network: text('network').notNull(), // low | normal | high
+  region: text('region'),
+  regionZh: text('region_zh'),
+  regionEn: text('region_en'),
+  remoteStatus: text('remote_status').notNull(), // remote | onsite | hybrid | unspecified
+  eligibilityZh: text('eligibility_zh').notNull(),
+  eligibilityEn: text('eligibility_en').notNull(),
+  deadlineText: text('deadline_text'),
+  deadlineTextZh: text('deadline_text_zh'),
+  deadlineTextEn: text('deadline_text_en'),
+  /** 官方只给日期时保存 YYYY-MM-DD，不根据部署时区伪造截止时刻。 */
+  deadlineDate: text('deadline_date'),
+  deadlineAt: text('deadline_at'),
+  publishedAt: text('published_at'),
+  discoveredAt: text('discovered_at').notNull(),
+  verifiedAt: text('verified_at').notNull(),
+  status: text('status').default('pending').notNull(),
+  learningEligible: boolean('learning_eligible').default(false).notNull(),
+  /** 自动推断的资格条件必须经人工核验，路径生成器据此采取保守策略。 */
+  requiresManualEligibilityCheck: boolean('requires_manual_eligibility_check').default(false).notNull(),
+  reviewerId: text('reviewer_id'),
+  reviewedAt: text('reviewed_at'),
+  contentHash: text('content_hash').notNull(),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (t) => [
+  uniqueIndex('pathfinder_items_source_external_uniq').on(t.sourceId, t.externalId),
+  uniqueIndex('pathfinder_items_url_hash_uniq').on(t.urlHash),
+  index('pathfinder_items_source_idx').on(t.sourceId),
+  index('pathfinder_items_status_type_idx').on(t.status, t.itemType),
+  index('pathfinder_items_status_direction_idx').on(t.status, t.direction),
+  index('pathfinder_items_status_deadline_idx').on(t.status, t.deadlineAt),
+  index('pathfinder_items_status_learning_idx').on(t.status, t.learningEligible),
+  check('pathfinder_items_type_valid', sql`${t.itemType} in ('open-source', 'competition', 'internship', 'ai-update')`),
+  check('pathfinder_items_direction_valid', sql`${t.direction} in ('ai', 'frontend', 'backend', 'data')`),
+  check('pathfinder_items_difficulty_valid', sql`${t.difficulty} in ('beginner', 'intermediate', 'advanced', 'all')`),
+  check('pathfinder_items_device_valid', sql`${t.device} in ('phone', 'computer', 'either')`),
+  check('pathfinder_items_network_valid', sql`${t.network} in ('low', 'normal', 'high')`),
+  check('pathfinder_items_remote_valid', sql`${t.remoteStatus} in ('remote', 'onsite', 'hybrid', 'unspecified')`),
+  check('pathfinder_items_status_valid', sql`${t.status} in ('pending', 'published', 'rejected', 'archived', 'stale', 'expired')`),
+  check('pathfinder_items_minutes_positive', sql`${t.estimatedMinutes} is null or ${t.estimatedMinutes} > 0`),
+  check('pathfinder_items_cost_non_negative', sql`${t.costCny} is null or ${t.costCny} >= 0`),
+  check('pathfinder_items_cost_amount_non_negative', sql`${t.costAmount} is null or ${t.costAmount} >= 0`),
+  check('pathfinder_items_cost_currency_valid', sql`${t.costCurrency} is null or ${t.costCurrency} ~ '^[A-Z]{3}$'`),
+  check('pathfinder_items_deadline_date_valid', sql`${t.deadlineDate} is null or ${t.deadlineDate} ~ '^\\d{4}-\\d{2}-\\d{2}$'`),
+]);
+
+/** Pathfinder 条目标签；拆表后可直接按维度与标签索引筛选。 */
+export const pathfinderItemTags = pgTable('pathfinder_item_tags', {
+  itemId: text('item_id').notNull(),
+  dimension: text('dimension').notNull(), // topic | skill | career | format
+  tag: text('tag').notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.itemId, t.dimension, t.tag] }),
+  index('pathfinder_item_tags_dimension_tag_idx').on(t.dimension, t.tag, t.itemId),
+  check('pathfinder_item_tags_dimension_valid', sql`${t.dimension} in ('topic', 'skill', 'career', 'format')`),
+]);

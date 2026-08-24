@@ -1,6 +1,6 @@
 {
-  "id": "ea25e2e0-60c0-499a-9ae1-8ba021f46a07",
-  "prevId": "459875a1-8b28-4b46-b8ce-478ca00e24f6",
+  "id": "1974f0f7-1caf-44f0-bc29-eace9c12d917",
+  "prevId": "ea25e2e0-60c0-499a-9ae1-8ba021f46a07",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1305,11 +1305,24 @@
           "primaryKey": false,
           "notNull": true
         },
+        "organization_en": {
+          "name": "organization_en",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "direction": {
           "name": "direction",
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "directions": {
+          "name": "directions",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'"
         },
         "difficulty": {
           "name": "difficulty",
@@ -1329,6 +1342,30 @@
           "primaryKey": false,
           "notNull": false
         },
+        "cost_amount": {
+          "name": "cost_amount",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cost_currency": {
+          "name": "cost_currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cost_label_zh": {
+          "name": "cost_label_zh",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cost_label_en": {
+          "name": "cost_label_en",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "device": {
           "name": "device",
           "type": "text",
@@ -1343,6 +1380,18 @@
         },
         "region": {
           "name": "region",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "region_zh": {
+          "name": "region_zh",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "region_en": {
+          "name": "region_en",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -1367,6 +1416,24 @@
         },
         "deadline_text": {
           "name": "deadline_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deadline_text_zh": {
+          "name": "deadline_text_zh",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deadline_text_en": {
+          "name": "deadline_text_en",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deadline_date": {
+          "name": "deadline_date",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -1404,6 +1471,13 @@
         },
         "learning_eligible": {
           "name": "learning_eligible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "requires_manual_eligibility_check": {
+          "name": "requires_manual_eligibility_check",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -1617,6 +1691,18 @@
         "pathfinder_items_cost_non_negative": {
           "name": "pathfinder_items_cost_non_negative",
           "value": "\"pathfinder_items\".\"cost_cny\" is null or \"pathfinder_items\".\"cost_cny\" >= 0"
+        },
+        "pathfinder_items_cost_amount_non_negative": {
+          "name": "pathfinder_items_cost_amount_non_negative",
+          "value": "\"pathfinder_items\".\"cost_amount\" is null or \"pathfinder_items\".\"cost_amount\" >= 0"
+        },
+        "pathfinder_items_cost_currency_valid": {
+          "name": "pathfinder_items_cost_currency_valid",
+          "value": "\"pathfinder_items\".\"cost_currency\" is null or \"pathfinder_items\".\"cost_currency\" ~ '^[A-Z]{3}$'"
+        },
+        "pathfinder_items_deadline_date_valid": {
+          "name": "pathfinder_items_deadline_date_valid",
+          "value": "\"pathfinder_items\".\"deadline_date\" is null or \"pathfinder_items\".\"deadline_date\" ~ '^\\d{4}-\\d{2}-\\d{2}$'"
         }
       },
       "isRLSEnabled": false
