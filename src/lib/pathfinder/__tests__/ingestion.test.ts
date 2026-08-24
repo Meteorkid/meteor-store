@@ -2,8 +2,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fetchPathfinderSource, PATHFINDER_MAX_RESPONSE_BYTES } from '../ingestion/fetch-source';
 import { cleanExternalText, isAllowedHost, normalizeIngestionUrl } from '../ingestion/normalize';
 import { parseGithubSearch, parseGreenhouseJobs, parseRss } from '../ingestion/parse';
-import { PATHFINDER_SYNC_SOURCES, PATHFINDER_SYNC_SOURCE_MAP } from '../ingestion/sources';
-import { STATIC_PATHFINDER_ITEMS } from '@/data/pathfinder/catalog-seeds';
+import {
+  buildCuratedIssueQuery,
+  GITHUB_QUERY_LIMIT,
+  curatedRepositoriesByDirection,
+  PATHFINDER_SYNC_SOURCES,
+  PATHFINDER_SYNC_SOURCE_MAP,
+  stableBucket,
+} from '../ingestion/sources';
 import {
   buildPathfinderMembershipCursor,
   changedPathfinderStatus,
@@ -124,7 +130,7 @@ describe('Pathfinder ingestion', () => {
   });
 
   it('已策展来源的 issue 用来源方向，且不需要人工核对资格', () => {
-    const source = PATHFINDER_SYNC_SOURCE_MAP.get('curated-issues-data')!;
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('curated-issues-data-1')!;
     const items = parseGithubSearch(source, JSON.stringify({
       items: [{
         id: 99,
@@ -148,10 +154,7 @@ describe('Pathfinder ingestion', () => {
 
   it('已策展 issue 来源只能查询目录里已有的仓库', () => {
     const seededRepos = new Set(
-      STATIC_PATHFINDER_ITEMS
-        .map((item) => item.canonicalUrl.match(/^https:\/\/github\.com\/([^/]+\/[^/]+)$/)?.[1])
-        .filter((repo): repo is string => Boolean(repo))
-        .map((repo) => repo.toLowerCase()),
+      [...curatedRepositoriesByDirection().values()].flat().map((repo) => repo.toLowerCase()),
     );
     const curated = PATHFINDER_SYNC_SOURCES.filter((source) => source.curated);
     expect(curated.length).toBeGreaterThan(0);
@@ -164,10 +167,60 @@ describe('Pathfinder ingestion', () => {
         // 自动发布的前提是仓库已经在目录里审过；查询里出现没审过的仓库就等于绕过了审核
         expect(seededRepos, `${source.id} 查询了未策展的仓库 ${repo}`).toContain(repo);
       }
-      // GitHub 搜索的 q 有 256 字符上限，超了整条来源会静默返回 422
-      expect(query.length).toBeLessThanOrEqual(256);
       expect(source.autoPublish).toBe(true);
     }
+  });
+
+  it('每条生成的查询都不超过 GitHub 搜索的 256 字符上限', () => {
+    // 超限时 GitHub 返回 422，而且是静默的：整条来源无声停产，后台只看到抓取 0 条。
+    // 所以宁可在 CI 上红——此时把 CURATED_ISSUE_BUCKETS 调大一次即可。
+    for (const source of PATHFINDER_SYNC_SOURCES.filter((item) => item.curated)) {
+      const query = new URL(source.fetchUrl).searchParams.get('q') ?? '';
+      expect(query.length, `${source.id} 的查询已达 ${query.length} 字符`)
+        .toBeLessThanOrEqual(GITHUB_QUERY_LIMIT);
+    }
+  });
+
+  it('目录里每个已策展仓库都恰好被一条来源覆盖', () => {
+    // 「加仓库到 catalog-seeds.ts，issue 自动跟上」靠的就是这条：
+    // 漏掉的仓库不会有任何提示，多覆盖一次则会浪费一次抓取配额
+    const covered = PATHFINDER_SYNC_SOURCES
+      .filter((source) => source.curated)
+      .flatMap((source) => {
+        const query = new URL(source.fetchUrl).searchParams.get('q') ?? '';
+        return [...query.matchAll(/repo:([^\s]+)/g)].map((match) => match[1]);
+      });
+    const seeded = [...curatedRepositoriesByDirection().values()].flat();
+
+    expect([...covered].sort()).toEqual([...seeded].sort());
+  });
+
+  it('新增仓库不会挪动已有仓库的来源归属', () => {
+    // 分桶按仓库名哈希取模，桶数固定。改成按当前数量动态算桶数的话，
+    // 每加一个仓库都会重排，已入库的 issue 会与新来源对不上号并慢慢变 stale。
+    const before = ['django/django', 'nodejs/node', 'pallets/flask']
+      .map((repo) => stableBucket(repo, 2));
+    const after = ['django/django', 'nodejs/node', 'pallets/flask']
+      .map((repo) => stableBucket(repo, 2));
+
+    expect(after).toEqual(before);
+    // 哈希只取决于仓库名本身，与清单里有多少个仓库、顺序如何无关
+    expect(stableBucket('django/django', 2)).toBe(stableBucket('django/django', 2));
+  });
+
+  it('查询串按固定格式拼装，只收当前开放且无人认领的 issue', () => {
+    const query = buildCuratedIssueQuery(['a/b', 'c/d']);
+    expect(query).toContain('is:open');
+    expect(query).toContain('no:assignee');
+    expect(query).toContain('archived:false');
+    expect(query).toContain('label:"good first issue"');
+    expect(query).toContain('repo:a/b repo:c/d');
+  });
+
+  it('泛 GitHub 搜索来源已停用', () => {
+    // 每小时约 30 条几乎不重复的 issue、全部滞留 pending、且被禁止进入学习路径；
+    // 职责已由按种子仓库生成的策展来源接管
+    expect(PATHFINDER_SYNC_SOURCE_MAP.get('github-good-first-issues')?.enabled).toBe(false);
   });
 
   it('职位板只取面向学生的岗位，并保留地点与发布时间', () => {

@@ -1,4 +1,97 @@
+import { STATIC_PATHFINDER_ITEMS } from '@/data/pathfinder/catalog-seeds';
+import type { PathfinderDirection } from '../catalog-types';
 import type { PathfinderSyncSource } from './types';
+
+/**
+ * GitHub 搜索接口的 `q` 上限。超过会直接返回 422，而且是静默的——
+ * 整条来源无声地不再产出，后台只看到「抓取 0 条」。
+ */
+export const GITHUB_QUERY_LIMIT = 256;
+
+/**
+ * 每个方向固定切成几条来源。
+ *
+ * 固定值是关键：分桶按仓库名哈希取模，桶数不变时**新增仓库不会挪动已有仓库**，
+ * 来源归属因此稳定。若改成「按当前数量动态算桶数」，每加一个仓库都会重排，
+ * 已入库的 issue 会与新来源对不上号（同步会按 URL 判为「已由别的来源收录」
+ * 而跳过），核验时间不再刷新，30 天后悄悄变成 stale。
+ *
+ * 当前每个方向 4–9 个仓库，分 2 桶后每条查询约 130–160 字符，
+ * 可以增长到每方向约 16 个仓库。超出时由测试在 CI 上报错，
+ * 届时把这个值调大一次（会重排一次，同步能安全处理）。
+ */
+const CURATED_ISSUE_BUCKETS = 2;
+
+/** 稳定的字符串哈希（FNV-1a）。只用于分桶，不涉及安全。导出以便测试钉住「新增仓库不挪动已有仓库」。 */
+export function stableBucket(value: string, buckets: number): number {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash % buckets;
+}
+
+/** 从目录种子里取出已策展的 GitHub 仓库，按方向分组。 */
+export function curatedRepositoriesByDirection(): Map<PathfinderDirection, string[]> {
+  const byDirection = new Map<PathfinderDirection, string[]>();
+  for (const item of STATIC_PATHFINDER_ITEMS) {
+    if (item.itemType !== 'open-source') continue;
+    const repo = item.canonicalUrl.match(/^https:\/\/github\.com\/([^/]+\/[^/]+)$/)?.[1];
+    if (!repo) continue;
+    const bucket = byDirection.get(item.direction) ?? [];
+    if (!bucket.includes(repo)) bucket.push(repo);
+    byDirection.set(item.direction, bucket);
+  }
+  for (const repos of byDirection.values()) repos.sort();
+  return byDirection;
+}
+
+export function buildCuratedIssueQuery(repos: readonly string[]): string {
+  return `is:issue is:open no:assignee archived:false label:"good first issue" ${
+    repos.map((repo) => `repo:${repo}`).join(' ')
+  }`;
+}
+
+/**
+ * 按目录里已策展的仓库生成 Good First Issue 来源。
+ *
+ * 「加仓库到 catalog-seeds.ts，issue 自动跟上」就是靠这个函数——仓库清单只有
+ * 一处数据源，不需要再手写第二份查询。自动发布的前提也由此在结构上成立：
+ * 查询里能出现的仓库，必然是目录里已经审过的那些。
+ */
+export function buildCuratedIssueSources(): PathfinderSyncSource[] {
+  const sources: PathfinderSyncSource[] = [];
+
+  for (const [direction, repos] of [...curatedRepositoriesByDirection()].sort()) {
+    const buckets: string[][] = Array.from({ length: CURATED_ISSUE_BUCKETS }, () => []);
+    for (const repo of repos) buckets[stableBucket(repo, CURATED_ISSUE_BUCKETS)].push(repo);
+
+    buckets.forEach((bucketRepos, index) => {
+      if (bucketRepos.length === 0) return;
+      const query = buildCuratedIssueQuery(bucketRepos);
+      sources.push({
+        id: `curated-issues-${direction}-${index + 1}`,
+        name: `Curated ${direction} repos · Good First Issues ${index + 1}`,
+        adapterId: 'github',
+        fetchUrl: `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=20`,
+        siteUrl: 'https://github.com/topics/good-first-issue',
+        allowedFetchHosts: ['api.github.com'],
+        allowedItemHosts: ['github.com'],
+        itemType: 'open-source',
+        direction,
+        trustLevel: 'verified',
+        enabled: true,
+        autoPublish: true,
+        organization: 'GitHub',
+        learningEligible: true,
+        curated: true,
+      });
+    });
+  }
+
+  return sources;
+}
 
 /**
  * 自动同步只允许访问这份代码内白名单。数据库只保存同步状态，不能覆盖 fetchUrl，
@@ -96,87 +189,25 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     itemType: 'open-source',
     direction: 'ai',
     trustLevel: 'verified',
-    enabled: true,
+    /*
+     * 已停用。
+     *
+     * 这条来源扫的是全 GitHub（`sort=updated`），每小时带回约 30 条几乎不重复的
+     * issue——实测一天累积 178 条，全部停留在 pending，从未有人审过一条。
+     * 抽样看仓库构成：赏金农场（Stellar/Soroban 系）和训练营作业仓库占多数，
+     * 一个正经大项目都没有；方向也基本是坏的（149/178 落到 inferDirection 的
+     * 默认值 backend）。而且 `canPublishPathfinderItemForLearning` 明确禁止
+     * 这个来源进入学习路径，就算人工审过收益也很小。
+     *
+     * 它的职责已由下面按种子仓库生成的策展来源完全接管：范围限定在目录里
+     * 审过的仓库，方向由仓库条目背书，可以直接发布，也能进学习路径。
+     * 保留定义而不是删除，是为了让数据库里既有的 178 条 pending 仍能被后台
+     * 识别归属；`enabled = 数据库值 AND 代码值`，这里置 false 后无法被重新打开。
+     */
+    enabled: false,
     autoPublish: false,
     organization: 'GitHub',
     learningEligible: true,
-  },
-  /*
-   * 已策展仓库的 Good First Issue。
-   *
-   * 目录里的开源条目是整个仓库（「Django」「PyTorch」），学生看完仍然不知道
-   * 第一步做什么；这四条来源把粒度下沉到具体、当前开放、且无人认领的任务。
-   * 仓库范围写死在查询里而不是放数据库：搜索结果直接自动发布，能自动发布的前提
-   * 就是仓库本身已经在目录里审过。GitHub 搜索的 q 有 256 字符上限，
-   * 所以按方向拆成四条而不是一条大查询。
-   */
-  {
-    id: 'curated-issues-ai',
-    name: 'Curated AI Repos · Good First Issues',
-    adapterId: 'github',
-    fetchUrl: 'https://api.github.com/search/issues?q=is%3Aissue%20is%3Aopen%20no%3Aassignee%20archived%3Afalse%20label%3A%22good%20first%20issue%22%20repo%3Apytorch/pytorch%20repo%3Ahuggingface/transformers%20repo%3Alangchain-ai/langchain%20repo%3Ascikit-learn/scikit-learn&sort=updated&order=desc&per_page=20',
-    siteUrl: 'https://github.com/topics/good-first-issue',
-    allowedFetchHosts: ['api.github.com'],
-    allowedItemHosts: ['github.com'],
-    itemType: 'open-source',
-    direction: 'ai',
-    trustLevel: 'verified',
-    enabled: true,
-    autoPublish: true,
-    organization: 'GitHub',
-    learningEligible: true,
-    curated: true,
-  },
-  {
-    id: 'curated-issues-frontend',
-    name: 'Curated Frontend Repos · Good First Issues',
-    adapterId: 'github',
-    fetchUrl: 'https://api.github.com/search/issues?q=is%3Aissue%20is%3Aopen%20no%3Aassignee%20archived%3Afalse%20label%3A%22good%20first%20issue%22%20repo%3Avercel/next.js%20repo%3Avuejs/core%20repo%3Asveltejs/svelte%20repo%3Avitejs/vite&sort=updated&order=desc&per_page=20',
-    siteUrl: 'https://github.com/topics/good-first-issue',
-    allowedFetchHosts: ['api.github.com'],
-    allowedItemHosts: ['github.com'],
-    itemType: 'open-source',
-    direction: 'frontend',
-    trustLevel: 'verified',
-    enabled: true,
-    autoPublish: true,
-    organization: 'GitHub',
-    learningEligible: true,
-    curated: true,
-  },
-  {
-    id: 'curated-issues-backend',
-    name: 'Curated Backend Repos · Good First Issues',
-    adapterId: 'github',
-    fetchUrl: 'https://api.github.com/search/issues?q=is%3Aissue%20is%3Aopen%20no%3Aassignee%20archived%3Afalse%20label%3A%22good%20first%20issue%22%20repo%3Adjango/django%20repo%3Afastapi/fastapi%20repo%3Anestjs/nest%20repo%3Adenoland/deno%20repo%3Apallets/flask%20repo%3Anodejs/node%20repo%3Aspring-projects/spring-boot&sort=updated&order=desc&per_page=20',
-    siteUrl: 'https://github.com/topics/good-first-issue',
-    allowedFetchHosts: ['api.github.com'],
-    allowedItemHosts: ['github.com'],
-    itemType: 'open-source',
-    direction: 'backend',
-    trustLevel: 'verified',
-    enabled: true,
-    autoPublish: true,
-    organization: 'GitHub',
-    learningEligible: true,
-    curated: true,
-  },
-  {
-    id: 'curated-issues-data',
-    name: 'Curated Data Repos · Good First Issues',
-    adapterId: 'github',
-    fetchUrl: 'https://api.github.com/search/issues?q=is%3Aissue%20is%3Aopen%20no%3Aassignee%20archived%3Afalse%20label%3A%22good%20first%20issue%22%20repo%3Apandas-dev/pandas%20repo%3Aapache/spark%20repo%3Aapache/airflow%20repo%3Adbt-labs/dbt-core&sort=updated&order=desc&per_page=20',
-    siteUrl: 'https://github.com/topics/good-first-issue',
-    allowedFetchHosts: ['api.github.com'],
-    allowedItemHosts: ['github.com'],
-    itemType: 'open-source',
-    direction: 'data',
-    trustLevel: 'verified',
-    enabled: true,
-    autoPublish: true,
-    organization: 'GitHub',
-    learningEligible: true,
-    curated: true,
   },
   /*
    * 雇主官方职位板上的学生岗位。
@@ -218,7 +249,8 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     organization: 'Scale AI',
     learningEligible: false,
   },
-] as const;
+  ...buildCuratedIssueSources(),
+];
 
 export const PATHFINDER_SYNC_SOURCE_MAP = new Map(
   PATHFINDER_SYNC_SOURCES.map((source) => [source.id, source]),

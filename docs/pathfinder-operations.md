@@ -66,7 +66,14 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
 
 - OpenAI、Google DeepMind、Google AI 和 GitHub AI 官方 RSS 可自动发布为 AI 动态，但永远不能进入学习路径。
 - Hugging Face Blog 含社区内容，默认人工审核。
-- GitHub Good First Issues 默认人工审核；审核时需要核对仓库活跃度、贡献指南和 Issue 是否仍开放。
+- **泛 GitHub 搜索来源（`github-good-first-issues`）已停用**：它扫全站、每小时带回约 30 条
+  几乎不重复的 issue，实测一天累积 178 条全部滞留 pending 且从未被审核；仓库构成以赏金农场
+  和训练营作业仓库为主，方向推断有 149/178 落到默认值。职责已由下一条接管。
+- **策展仓库的 Good First Issue 自动发布**：来源由 `catalog-seeds.ts` 里已审过的 GitHub 仓库
+  自动生成（见 `buildCuratedIssueSources`），按方向分桶，每桶一条来源。
+  **要扩大覆盖就往 `catalog-seeds.ts` 加仓库条目，issue 会自动跟上**，不需要手写查询。
+  桶数固定，新增仓库不会挪动已有仓库的来源归属；某个桶的查询超过 GitHub 的 256 字符上限时
+  CI 会报错，届时把 `CURATED_ISSUE_BUCKETS` 调大一次即可。
 - 竞赛和实习首版使用人工核验的官方入口，不运行通用网页爬虫。
 - 6 条具体时效机会已核验到 2026-08-24。只有 Mitacs 与 OIST 公布了时区并保存绝对时间；其余条目只保存官方日期，筛选和排程可使用日期，但界面不会伪造时刻。
 - 外币费用保留原币种与官方金额。系统不使用临时汇率推算人民币；用户未明确接受外币支出时，任何已知非零外币费用的机会都不会进入路径。
