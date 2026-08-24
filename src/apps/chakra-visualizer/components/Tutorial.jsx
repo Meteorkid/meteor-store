@@ -720,6 +720,9 @@ const Tutorial = ({ onStart, cameraRequestState = 'idle' }) => {
                 'device-busy': lang === 'zh'
                   ? '摄像头正被其他应用占用，请关闭其他视频应用后重试。'
                   : 'The camera is being used by another app. Close it there and retry.',
+                timeout: lang === 'zh'
+                  ? '摄像头授权等待超时。请在地址栏允许摄像头后重试。'
+                  : 'Camera permission timed out. Allow it in the address bar, then retry.',
                 unsupported: lang === 'zh'
                   ? '当前浏览器不支持摄像头访问，请更换最新版浏览器。'
                   : 'This browser does not support camera access. Try a current browser.',

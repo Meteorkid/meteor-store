@@ -26,6 +26,7 @@ SOFTWARE.
 /* eslint-disable */
 
 import { getMediaPipeHandsAssetUrl } from '../mediapipe';
+import { acquireCameraStream } from '../camera-access';
 
 'use strict';
 
@@ -70,6 +71,9 @@ const i18n = {
         controls: 'Fluid controls',
         closeControls: 'Close controls',
         cameraRequesting: 'Requesting camera access…',
+        cameraTimeout: 'Camera permission timed out. Allow it in the address bar, then retry.',
+        gestureLoading: 'Loading the gesture model…',
+        gestureFailed: 'Gesture control could not start. Retry or refresh the page.',
         cameraReady: 'Camera ready',
         cameraDenied: 'Camera unavailable. Check browser permission and retry.',
         retryCamera: 'Retry camera',
@@ -112,6 +116,9 @@ const i18n = {
         controls: '流体控制',
         closeControls: '关闭控制面板',
         cameraRequesting: '正在请求摄像头权限…',
+        cameraTimeout: '摄像头授权等待超时，请在地址栏允许摄像头后重试。',
+        gestureLoading: '正在加载手势模型…',
+        gestureFailed: '手势控制启动失败，请重试或刷新页面。',
         cameraReady: '摄像头已就绪',
         cameraDenied: '无法使用摄像头，请检查浏览器权限后重试。',
         retryCamera: '重试摄像头',
@@ -250,14 +257,14 @@ function setCameraStatus(messageKey, tone = '') {
     if (!cameraStatusText || !cameraRetryButton) return;
     cameraStatusText.textContent = t(messageKey);
     cameraStatusText.parentElement.dataset.tone = tone;
-    cameraRetryButton.hidden = messageKey !== 'cameraDenied';
+    cameraRetryButton.hidden = !['cameraDenied', 'cameraTimeout', 'gestureFailed'].includes(messageKey);
 }
 
 // ============================================
 // 摄像头 + 手势 + 背景 统一管理
 // ============================================
 
-let mediaPipeReady = typeof Hands !== 'undefined' && typeof Camera !== 'undefined';
+let mediaPipeReady = typeof Hands !== 'undefined';
 
 // --- 状态 ---
 let gestureEnabled = false;   // 手势追踪开关
@@ -281,36 +288,17 @@ window.addEventListener('resize', resizeCameraBg);
 
 // --- MediaPipe 实例 ---
 let handsInstance = null;
-let cameraInstance = null;
+let cameraStream = null;
+let cameraFrameId = null;
+let cameraProcessing = false;
+let lastGestureFrameTime = 0;
+const GESTURE_FRAME_INTERVAL = 1000 / 15;
 
 // ============================================
 // 背景模式
 // ============================================
-// 主动在用户手势内请求摄像头权限。Chrome 要求 getUserMedia 必须发生在「临时用户
-// 激活」窗口内；切换背景/手势后 startCamera 前还要 await initHands()（首次会下载
-// 手势模型），真正的 getUserMedia 往往落在激活过期之后，权限弹窗不会出现。所以
-// 在用户点击的瞬间先预请求一次，授权会持久保留，之后的 startCamera() 才能成功。
-async function prewarmCamera() {
-    if (typeof navigator === 'undefined' || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setCameraStatus('cameraDenied', 'error');
-        return false;
-    }
-    setCameraStatus('cameraRequesting', 'working');
-    try {
-        const stream = await navigator.mediaDevices
-        .getUserMedia({ video: { width: 256, height: 192 } })
-        stream.getTracks().forEach((track) => track.stop());
-        setCameraStatus('cameraReady', 'success');
-        return true;
-    } catch {
-        setCameraStatus('cameraDenied', 'error');
-        return false;
-    }
-}
-
 async function setBgMode(mode) {
     bgMode = mode;
-    if (mode === 'camera') await prewarmCamera();
 
     // 重置所有背景状态
     cameraBg.style.display = 'none';
@@ -328,7 +316,14 @@ async function setBgMode(mode) {
     }
 
     // 背景变化后重新评估摄像头需求
-    await syncCamera();
+    const cameraReady = await syncCamera();
+    if (mode === 'camera' && !cameraReady) {
+        bgMode = 'black';
+        cameraBg.style.display = 'none';
+        fogOverlay.style.display = 'none';
+        config.TRANSPARENT = false;
+        document.body.style.backgroundColor = '#000';
+    }
 }
 
 // ============================================
@@ -339,45 +334,125 @@ function isCameraNeeded() {
 }
 
 async function syncCamera() {
-    if (isCameraNeeded() && !cameraInstance) {
-        await startCamera();
-    } else if (!isCameraNeeded() && cameraInstance) {
+    if (isCameraNeeded() && !cameraStream) {
+        const started = await startCamera();
+        if (!started) return false;
+    } else if (!isCameraNeeded() && cameraStream) {
         stopCamera();
     }
+    if (gestureEnabled && !handsInstance) {
+        setCameraStatus('gestureLoading', 'working');
+        try {
+            await initHands();
+        } catch (error) {
+            console.error('MediaPipe Hands initialization failed:', error);
+            setCameraStatus('gestureFailed', 'error');
+            return false;
+        }
+    }
+    return true;
 }
 
 async function startCamera() {
-    if (cameraInstance) return;
-    if (!mediaPipeReady) {
+    if (cameraStream) return true;
+    if (!gestureVideo || !navigator.mediaDevices?.getUserMedia) {
         setCameraStatus('cameraDenied', 'error');
-        return;
+        return false;
     }
+    setCameraStatus('cameraRequesting', 'working');
+    const access = await acquireCameraStream(
+        () => navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: 256, height: 192 },
+            audio: false
+        }),
+        { timeoutMs: 12_000 }
+    );
+    if (!access.ok) {
+        setCameraStatus(access.reason === 'timeout' ? 'cameraTimeout' : 'cameraDenied', 'error');
+        return false;
+    }
+
+    cameraStream = access.stream;
+    gestureVideo.srcObject = cameraStream;
     try {
-        await initHands();
-        cameraInstance = new Camera(gestureVideo, {
-            onFrame: async () => {
-                try {
-                    await handsInstance.send({ image: gestureVideo });
-                } catch (e) { /* 静默跳过单帧错误 */ }
-            },
-            width: 256,
-            height: 192
-        });
-        await cameraInstance.start();
-        setCameraStatus('cameraReady', 'success');
-    } catch {
-        cameraInstance = null;
+        await withTimeout(gestureVideo.play(), 5_000, 'Camera video start timed out');
+    } catch (error) {
+        console.error('Camera video start failed:', error);
+        stopCamera();
         setCameraStatus('cameraDenied', 'error');
+        return false;
     }
+    scheduleCameraFrame();
+    setCameraStatus('cameraReady', 'success');
+    return true;
 }
 
 function stopCamera() {
-    if (!cameraInstance) return;
-    cameraInstance.stop();
-    cameraInstance = null;
+    if (cameraFrameId !== null) cancelAnimationFrame(cameraFrameId);
+    cameraFrameId = null;
+    cameraProcessing = false;
+    if (cameraStream) cameraStream.getTracks().forEach((track) => track.stop());
+    cameraStream = null;
+    if (gestureVideo) {
+        gestureVideo.pause();
+        gestureVideo.srcObject = null;
+    }
     // 清空背景画面
     if (cameraBgCtx) {
         cameraBgCtx.clearRect(0, 0, cameraBg.width, cameraBg.height);
+    }
+}
+
+function drawCameraFrame() {
+    if (bgMode !== 'camera' || !cameraBgCtx || gestureVideo.readyState < 2) return;
+    cameraBgCtx.save();
+    cameraBgCtx.clearRect(0, 0, cameraBg.width, cameraBg.height);
+    cameraBgCtx.translate(cameraBg.width, 0);
+    cameraBgCtx.scale(-1, 1);
+    cameraBgCtx.drawImage(gestureVideo, 0, 0, cameraBg.width, cameraBg.height);
+    cameraBgCtx.restore();
+}
+
+function scheduleCameraFrame() {
+    if (!cameraStream) return;
+    cameraFrameId = requestAnimationFrame(processCameraFrame);
+}
+
+async function processCameraFrame(timestamp) {
+    cameraFrameId = null;
+    if (!cameraStream) return;
+    drawCameraFrame();
+    if (
+        gestureEnabled &&
+        handsInstance &&
+        gestureVideo.readyState >= 2 &&
+        !cameraProcessing &&
+        timestamp - lastGestureFrameTime >= GESTURE_FRAME_INTERVAL
+    ) {
+        cameraProcessing = true;
+        lastGestureFrameTime = timestamp;
+        try {
+            await handsInstance.send({ image: gestureVideo });
+        } catch (error) {
+            console.error('MediaPipe gesture frame failed:', error);
+        } finally {
+            cameraProcessing = false;
+        }
+    }
+    scheduleCameraFrame();
+}
+
+async function withTimeout(promise, timeoutMs, message) {
+    let timeoutHandle;
+    try {
+        return await Promise.race([
+            promise,
+            new Promise((_, reject) => {
+                timeoutHandle = setTimeout(() => reject(new Error(message)), timeoutMs);
+            })
+        ]);
+    } finally {
+        if (timeoutHandle) clearTimeout(timeoutHandle);
     }
 }
 
@@ -387,22 +462,26 @@ function stopCamera() {
 async function initHands() {
     if (handsInstance) return;
     if (!mediaPipeReady) {
-        alert(currentLang === 'zh'
-            ? '手势库加载失败，请检查网络后刷新页面'
-            : 'Gesture library failed to load. Check network and refresh.');
-        return;
+        throw new Error('MediaPipe Hands is unavailable');
     }
 
-    handsInstance = new Hands({
+    const nextHands = new Hands({
         locateFile: getMediaPipeHandsAssetUrl
     });
-    handsInstance.setOptions({
+    nextHands.setOptions({
         maxNumHands: 1,
         modelComplexity: 0,          // 0=精简模型，最快
         minDetectionConfidence: 0.6, // 适中阈值，减少误检
         minTrackingConfidence: 0.5   // 追踪稳定
     });
-    handsInstance.onResults(onHandResults);
+    nextHands.onResults(onHandResults);
+    try {
+        await withTimeout(nextHands.initialize(), 20_000, 'Gesture model initialization timed out');
+        handsInstance = nextHands;
+    } catch (error) {
+        void nextHands.close().catch(() => {});
+        throw error;
+    }
 }
 
 // ============================================
@@ -468,17 +547,7 @@ let lastSplashTime = 0;
 const SPLASH_COOLDOWN = 800; // 溅射冷却 ms
 
 function onHandResults(results) {
-    // 1. 背景：摄像头画面 → 全屏模糊背景
-    if (bgMode === 'camera' && cameraBgCtx) {
-        cameraBgCtx.save();
-        cameraBgCtx.clearRect(0, 0, cameraBg.width, cameraBg.height);
-        cameraBgCtx.translate(cameraBg.width, 0);
-        cameraBgCtx.scale(-1, 1);
-        cameraBgCtx.drawImage(results.image, 0, 0, cameraBg.width, cameraBg.height);
-        cameraBgCtx.restore();
-    }
-
-    // 2. 手势追踪
+    // 手势追踪；摄像头背景由独立帧循环绘制，避免与模型推理帧率绑定。
     if (!gestureEnabled) return;
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
@@ -572,31 +641,35 @@ async function toggleGesture() {
     if (gestureToggling) return; // 防止快速连按
     gestureToggling = true;
 
-    gestureEnabled = !gestureEnabled;
-
-    if (gestureEnabled) {
-        const cameraReady = await prewarmCamera();
-        if (!cameraReady) {
-            gestureEnabled = false;
-            updateGestureBtnUI();
-            gestureToggling = false;
-            return;
+    const enabling = !gestureEnabled;
+    gestureEnabled = enabling;
+    try {
+        if (enabling) {
+            fingerStates = [];
+            const cameraReady = await syncCamera();
+            if (!cameraReady) {
+                gestureEnabled = false;
+                if (bgMode !== 'camera') stopCamera();
+                return;
+            }
+            setCameraStatus('cameraReady', 'success');
+        } else {
+            // 抬起所有指针
+            for (const fs of fingerStates) {
+                if (fs.pointer.down) updatePointerUpData(fs.pointer);
+            }
+            fingerStates = [];
+            await syncCamera();
         }
-        await initHands();
-        if (!handsInstance) { gestureEnabled = false; gestureToggling = false; return; }
-        fingerStates = [];
-        await syncCamera();
-    } else {
-        // 抬起所有指针
-        for (const fs of fingerStates) {
-            if (fs.pointer.down) updatePointerUpData(fs.pointer);
-        }
-        fingerStates = [];
-        await syncCamera();
+    } catch (error) {
+        console.error('Gesture toggle failed:', error);
+        gestureEnabled = false;
+        if (bgMode !== 'camera') stopCamera();
+        setCameraStatus('gestureFailed', 'error');
+    } finally {
+        updateGestureBtnUI();
+        gestureToggling = false;
     }
-
-    updateGestureBtnUI();
-    gestureToggling = false;
 }
 
 // Simulation section
@@ -816,8 +889,11 @@ function startGUI () {
     cameraRetryButton.textContent = t('retryCamera');
     cameraRetryButton.hidden = true;
     cameraRetryButton.addEventListener('click', async () => {
-        const granted = await prewarmCamera();
-        if (granted) await syncCamera();
+        if (!gestureEnabled) {
+            await toggleGesture();
+        } else {
+            await syncCamera();
+        }
     });
     cameraStatus.append(cameraStatusText, cameraRetryButton);
     commonFolder.__ul.appendChild(cameraStatus);
@@ -2272,6 +2348,11 @@ function hashCode (s) {
  * note: 模块级 window 事件监听无法在此移除，但页面级应用单次挂载，可接受。
  */
 export function destroyFluidSim () {
+    stopCamera();
+    if (handsInstance) {
+        void handsInstance.close().catch(() => {});
+        handsInstance = null;
+    }
     if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;

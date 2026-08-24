@@ -20,6 +20,10 @@ describe('在线体验统一质量底线', () => {
       "advancedFolder.domElement.parentElement.classList.add('fluid-advanced-section')",
     );
     expect(source).not.toMatch(/(?:common|advanced)Folder\.__li/);
+    expect(source).toContain('await acquireCameraStream(');
+    expect(source).not.toContain('new Camera(');
+    expect(source).toContain('GESTURE_FRAME_INTERVAL');
+    expect(source).toMatch(/async function toggleGesture\(\)[\s\S]*?finally \{/);
     expect(css).toMatch(/\.fluid-controls-toggle \{[\s\S]*?min-height:\s*44px/);
     expect(css).toMatch(/@media \(max-width: 720px\)[\s\S]*?inset:\s*auto 0 0/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)/);
