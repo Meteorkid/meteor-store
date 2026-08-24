@@ -32,7 +32,13 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
    不要只检查 HTTP 200；响应中应明确包含 `openai-news` 的同步结果，并核对抓取、插入、更新、跳过和错误计数。
 
 9. 在 `/zh/admin/pathfinder` 核对来源状态和待审条目，再启用完整定时任务。
-10. 服务器 crontab 建议每小时调用一次；接口内部串行处理来源、使用条件请求，并限制每个来源最多 30 条。全部来源失败返回 503，部分失败返回 200 并写结构化告警。
+10. 服务器 crontab 每小时调用一次受版本控制的包装脚本；密钥只由 Node 从权限为 `600` 的环境文件读取，不出现在 crontab 或进程参数中：
+
+    ```cron
+    27 * * * * /usr/bin/flock -n /run/lock/meteor-pathfinder-sync.lock /usr/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/pathfinder-sync-cron.mjs 2>&1 | /usr/bin/logger -t meteor-pathfinder-sync
+    ```
+
+    包装脚本同时检查 HTTP 状态与响应中的 `success`，并只记录来源和数量摘要。接口内部串行处理来源、使用条件请求，并限制每个来源最多 30 条；全部来源失败返回 503，部分失败返回 200 但包装脚本仍以非零状态结束。
 
 ## 默认发布策略
 
