@@ -1,0 +1,399 @@
+.tollow-analytics-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 24px 72px;
+  color: var(--color-ink0);
+}
+
+.tollow-analytics-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 3px double var(--color-ink0);
+}
+
+.tollow-analytics-kicker {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .18em;
+}
+
+.tollow-analytics-hero h1,
+.tollow-pro-upgrade h1 {
+  margin-top: 8px;
+  font-family: var(--font-serif);
+  font-size: clamp(36px, 6vw, 66px);
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.tollow-analytics-hero p:not(.tollow-analytics-kicker) {
+  margin-top: 12px;
+  color: var(--color-ink1);
+}
+
+.tollow-analytics-actions,
+.tollow-range-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tollow-action-button,
+.tollow-range-tabs button,
+.tollow-primary-action {
+  border: 1px solid var(--color-ink0);
+  border-radius: 2px;
+  background: var(--color-bg1);
+  color: var(--color-ink0);
+  padding: 10px 15px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tollow-action-button.primary,
+.tollow-primary-action {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-bg1);
+}
+
+.tollow-range-tabs {
+  margin: 24px 0;
+}
+
+.tollow-range-tabs button[aria-pressed="true"] {
+  background: var(--color-ink0);
+  color: var(--color-bg1);
+}
+
+.tollow-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--color-ink0);
+  border-left: 1px solid var(--color-ink0);
+}
+
+.tollow-summary-grid article {
+  min-height: 116px;
+  padding: 20px;
+  border-right: 1px solid var(--color-ink0);
+  border-bottom: 1px solid var(--color-ink0);
+  background: color-mix(in srgb, var(--color-bg1) 78%, transparent);
+}
+
+.tollow-summary-grid span,
+.tollow-section-heading span,
+.tollow-chart-heading span {
+  color: var(--color-ink2);
+  font-size: 12px;
+}
+
+.tollow-summary-grid strong {
+  display: block;
+  margin-top: 13px;
+  font-family: var(--font-serif);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tollow-chart-grid-layout,
+.tollow-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.tollow-chart-card,
+.tollow-volume-card,
+.tollow-detail-card {
+  padding: 20px;
+  border: 1px solid var(--color-line);
+  background: var(--color-bg1);
+}
+
+.tollow-chart-heading,
+.tollow-section-heading,
+.tollow-book-breakdown > div > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tollow-chart-heading h2,
+.tollow-section-heading h2,
+.tollow-analytics-empty h2 {
+  font-family: var(--font-serif);
+  font-size: 21px;
+}
+
+.tollow-chart-heading strong {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 18px;
+}
+
+.tollow-chart-card svg {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  overflow: visible;
+}
+
+.tollow-chart-grid {
+  stroke: var(--color-linesoft);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+
+.tollow-chart-axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-ink2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.tollow-volume-card {
+  margin-top: 16px;
+}
+
+.tollow-volume-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 180px;
+  margin: 18px 0 8px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.tollow-volume-column {
+  display: flex;
+  align-items: flex-end;
+  flex: 1;
+  min-width: 2px;
+  height: 100%;
+}
+
+.tollow-volume-column > div {
+  width: 100%;
+  background: var(--color-accentdim);
+}
+
+.tollow-book-breakdown {
+  margin-top: 10px;
+}
+
+.tollow-book-breakdown > div {
+  padding: 13px 0;
+  border-top: 1px solid var(--color-linesoft);
+}
+
+.tollow-book-breakdown p {
+  margin-top: 4px;
+  color: var(--color-ink2);
+  font-size: 12px;
+}
+
+.tollow-session-table-wrap {
+  margin-top: 10px;
+  overflow-x: auto;
+}
+
+.tollow-session-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tollow-session-table-wrap th,
+.tollow-session-table-wrap td {
+  padding: 10px 8px;
+  border-top: 1px solid var(--color-linesoft);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tollow-session-table-wrap th {
+  color: var(--color-ink2);
+  font-weight: 500;
+}
+
+.tollow-analytics-state,
+.tollow-analytics-empty {
+  margin-top: 24px;
+  padding: 42px;
+  border: 1px dashed var(--color-line);
+  background: var(--color-bg1);
+  text-align: center;
+}
+
+.tollow-analytics-state.error {
+  color: var(--color-accent);
+}
+
+.tollow-analytics-state button,
+.tollow-analytics-empty a,
+.tollow-secondary-link {
+  display: inline-block;
+  margin-top: 14px;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.tollow-print-title {
+  display: none;
+}
+
+.tollow-pro-upgrade {
+  max-width: 820px;
+  margin: 56px auto;
+  padding: 48px;
+  border: 1px solid var(--color-ink0);
+  background: var(--color-bg1);
+  text-align: center;
+  box-shadow: 12px 12px 0 var(--color-bg2);
+}
+
+.tollow-pro-upgrade > p:not(.tollow-analytics-kicker) {
+  max-width: 620px;
+  margin: 20px auto 0;
+  color: var(--color-ink1);
+}
+
+.tollow-pro-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 28px 0;
+  border: 1px solid var(--color-line);
+  background: var(--color-line);
+}
+
+.tollow-pro-feature-grid span {
+  padding: 16px;
+  background: var(--color-bg0);
+  font-size: 13px;
+}
+
+.tollow-primary-action {
+  display: inline-flex;
+}
+
+.tollow-secondary-link {
+  margin-left: 18px;
+}
+
+@media (max-width: 760px) {
+  .tollow-analytics-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tollow-analytics-actions {
+    width: 100%;
+  }
+
+  .tollow-action-button {
+    flex: 1;
+    text-align: center;
+  }
+
+  .tollow-summary-grid,
+  .tollow-chart-grid-layout,
+  .tollow-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tollow-pro-upgrade {
+    margin: 24px 16px;
+    padding: 32px 20px;
+  }
+
+  .tollow-pro-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .tollow-analytics-page {
+    padding: 28px 14px 56px;
+  }
+
+  .tollow-summary-grid,
+  .tollow-chart-grid-layout,
+  .tollow-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tollow-range-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media print {
+  body {
+    background: white !important;
+  }
+
+  .tollow-root,
+  .tollow-analytics-page,
+  .tollow-report-sheet {
+    background: white !important;
+    color: #111 !important;
+  }
+
+  .tollow-root .header,
+  .tollow-print-hidden,
+  .tollow-analytics-hero {
+    display: none !important;
+  }
+
+  .tollow-analytics-page {
+    max-width: none;
+    padding: 0;
+  }
+
+  .tollow-print-title {
+    display: block;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #111;
+    padding-bottom: 14px;
+  }
+
+  .tollow-print-title h1 {
+    font-family: Georgia, serif;
+    font-size: 28px;
+  }
+
+  .tollow-print-title p {
+    margin-top: 6px;
+    color: #555;
+    font-size: 11px;
+  }
+
+  .tollow-summary-grid,
+  .tollow-chart-grid-layout,
+  .tollow-detail-grid {
+    break-inside: avoid;
+  }
+
+  .tollow-chart-card,
+  .tollow-volume-card,
+  .tollow-detail-card,
+  .tollow-summary-grid article {
+    background: white !important;
+  }
+}

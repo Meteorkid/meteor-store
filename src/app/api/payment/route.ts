@@ -33,6 +33,7 @@ async function generateOrderId(maxRetries = 3): Promise<string> {
 // Zod 校验 schema
 const PaymentSchema = z.object({
   productName: z.string().min(1).max(100).regex(/^[a-zA-Z0-9-]+$/, 'productName must be a slug'),
+  planId: z.string().min(1).max(100).regex(/^[a-zA-Z0-9-]+$/).optional(),
   planName: z.string().min(1).max(100),
   paymentMethod: z.literal('alipay').or(z.literal('wechat')),
   email: z.string().email().max(254),
@@ -70,23 +71,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { productName, planName, email, isMobile, isAnnual, paymentMethod } = parsed.data;
+    const { productName, planId, planName, email, isMobile, isAnnual, paymentMethod } = parsed.data;
 
     // 售卖对象有两种：单个产品，或全站会员 Meteor Pass。
     // Pass 的三档本身就是计费周期（月付/年付/买断），价格是直接定的，
     // 因此**不套用** ANNUAL_DISCOUNT——客户端传来的 isAnnual 在这条分支里忽略。
     let priceCNY: number;
     let billingPeriod: string;
+    let resolvedPlanId: string;
     let resolvedPlanName: string;
     let subjectName: string;
 
     if (productName === PASS_PRODUCT_ID) {
-      const plan = findPassPlan(planName);
+      const plan = findPassPlan(planId ?? planName);
       if (!plan) {
         return NextResponse.json({ error: '方案不存在' }, { status: 400 });
       }
       priceCNY = plan.price;
       billingPeriod = plan.id;
+      resolvedPlanId = plan.id;
       resolvedPlanName = plan.name.zh;
       subjectName = PASS_NAME.zh;
     } else {
@@ -107,9 +110,11 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const tier = product.pricing.find(
-        (t) => t.name.zh.toLowerCase() === planName.toLowerCase()
-      );
+      const tier = product.pricing.find((candidate) => (
+        planId
+          ? candidate.id === planId
+          : candidate.name.zh.toLowerCase() === planName.toLowerCase()
+      ));
       if (!tier) {
         return NextResponse.json(
           { error: '方案不存在' },
@@ -125,7 +130,14 @@ export async function POST(request: NextRequest) {
       priceCNY = validAnnual
         ? Math.floor(tier.price * ANNUAL_DISCOUNT * 12)
         : tier.price;
-      billingPeriod = validAnnual ? 'annual' : 'monthly';
+      billingPeriod = validAnnual
+        ? 'annual'
+        : tier.period === '买断'
+          ? 'lifetime'
+          : tier.period === '年'
+            ? 'annual'
+            : 'monthly';
+      resolvedPlanId = tier.id;
       resolvedPlanName = tier.name.zh;
       subjectName = product.name.zh;
     }
@@ -160,6 +172,7 @@ export async function POST(request: NextRequest) {
       id: orderId,
       productId: productName,
       planName: resolvedPlanName,
+      planId: resolvedPlanId,
       email,
       userId: session?.userId ?? null,
       amountCny: priceCNY,

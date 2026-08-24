@@ -34,6 +34,7 @@ describe('getUserEntitlements', () => {
   const baseRow = {
     productId: 'ex-memory',
     planName: 'Premium',
+    planId: null,
     billingPeriod: 'monthly',
     paidAt: '2026-08-01T00:00:00.000Z',
     deliveryStatus: 'emailed',
@@ -75,6 +76,25 @@ describe('getUserEntitlements', () => {
     const result = await getUserEntitlements('u1', 'a@b.com');
 
     expect(result.map((r) => r.productId).sort()).toEqual(['ex-memory', 'tollow']);
+  });
+
+  it('历史 Tollow Pro 没有 planId 时仍升级为永久 Pro', async () => {
+    selectQueue.push([{ ...baseRow, productId: 'tollow', planName: 'Pro', planId: null }]);
+
+    const result = await getUserEntitlements('u1', 'a@b.com');
+
+    expect(result[0]).toMatchObject({ productId: 'tollow', planId: 'pro', expiresAt: null });
+  });
+
+  it('后来的 Free 授权不会把已有 Pro 降级', async () => {
+    selectQueue.push([
+      { ...baseRow, productId: 'tollow', planName: 'Pro', planId: 'pro', paidAt: '2026-07-01T00:00:00.000Z' },
+      { ...baseRow, productId: 'tollow', planName: 'Free', planId: 'free', paidAt: '2026-08-01T00:00:00.000Z' },
+    ]);
+
+    const result = await getUserEntitlements('u1', 'a@b.com');
+
+    expect(result[0]).toMatchObject({ productId: 'tollow', planId: 'pro', planName: 'Pro' });
   });
 
   it('无订单时返回空数组', async () => {
@@ -176,6 +196,18 @@ describe('getUserEntitlements', () => {
       expect(exMemory?.viaPass).toBe(false);
       // 其余产品仍由 Pass 覆盖
       expect(result).toHaveLength(products.length);
+    });
+
+    it('Tollow Free 不会遮住 Pass 提供的 Pro', async () => {
+      selectQueue.push([
+        { ...baseRow, productId: 'tollow', planName: 'Free', planId: 'free' },
+        passOrder('annual', new Date().toISOString()),
+      ]);
+
+      const result = await getUserEntitlements('u1', 'a@b.com');
+      const tollow = result.find((item) => item.productId === 'tollow');
+
+      expect(tollow).toMatchObject({ planId: 'pro', viaPass: true, planName: 'Meteor Pass' });
     });
 
     it('未知档位不再兑换成永久会员，按最短档兜底', async () => {

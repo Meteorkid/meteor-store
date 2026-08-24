@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
     id: crypto.randomUUID(),
     productId,
     planName: freeTier.name.zh,
+    planId: freeTier.id,
     email: session.email,
     userId: session.userId,
     amountCny: 0,

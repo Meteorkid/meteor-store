@@ -127,6 +127,25 @@ export async function listTollowPracticeSessions(
   return { items, total: countRows[0]?.count ?? 0, page: query.page, limit: query.limit };
 }
 
+/** 高级统计与导出共用的完整练习记录；聚合只在服务端进行，不把原始历史发给浏览器。 */
+export async function listAllTollowPracticeSessions(userId: string) {
+  return db.select({
+    id: tollowPracticeSessions.id,
+    bookId: tollowPracticeSessions.bookId,
+    bookTitle: tollowPracticeSessions.bookTitle,
+    startedAt: tollowPracticeSessions.startedAt,
+    endedAt: tollowPracticeSessions.endedAt,
+    durationMs: tollowPracticeSessions.durationMs,
+    wordsTyped: tollowPracticeSessions.wordsTyped,
+    wpm: tollowPracticeSessions.wpm,
+    accuracy: tollowPracticeSessions.accuracy,
+    errorCount: tollowPracticeSessions.errorCount,
+  })
+    .from(tollowPracticeSessions)
+    .where(eq(tollowPracticeSessions.userId, userId))
+    .orderBy(desc(tollowPracticeSessions.startedAt));
+}
+
 export async function createTollowFavorite(
   userId: string,
   input: TollowFavoriteCreateInput,

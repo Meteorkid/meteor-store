@@ -194,6 +194,32 @@ describe('创建支付订单', () => {
     expect(inserted[0]).toMatchObject({ paymentMethod: 'wechat' });
   });
 
+  it('Tollow Pro 按稳定 planId 下单并写成 ¥29 永久买断', async () => {
+    const { POST } = await import('../route');
+    const request = new Request('https://www.imagentx.top/api/payment', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        productName: 'tollow',
+        planId: 'pro',
+        planName: '客户端可变文案',
+        paymentMethod: 'alipay',
+        email: 'buyer@example.com',
+      }),
+    }) as unknown as NextRequest;
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(200);
+    expect(inserted[0]).toMatchObject({
+      productId: 'tollow',
+      planId: 'pro',
+      planName: 'Pro',
+      amountCny: 29,
+      billingPeriod: 'lifetime',
+    });
+  });
+
   it('微信 H5 下单（手机）返回 h5Url', async () => {
     createWechat.mockResolvedValue({ h5Url: 'https://wx.tenpay.com/cgi-bin/mmpayweb-bin/h5' });
     const { POST } = await import('../route');

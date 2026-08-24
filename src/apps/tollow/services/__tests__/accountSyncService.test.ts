@@ -118,6 +118,24 @@ describe('TollowAccountSync', () => {
     expect(sync.getStatus()).toBe('synced');
   });
 
+  it('Pro 权限失效后保留队列并停止继续请求', async () => {
+    const fetcher = vi.fn(async () => Response.json(
+      { error: '需要 Tollow Pro', code: 'TOLLOW_PRO_REQUIRED' },
+      { status: 403 },
+    ));
+    const sync = createSync('user-one', fetcher);
+    sync.enqueueProgress(newer);
+
+    await sync.flush();
+    await sync.flush();
+
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(JSON.parse(storage.getItem(
+      getTollowAccountStorageKey('user-one', TOLLOW_SYNC_QUEUE_KEY),
+    ) ?? '[]')).toHaveLength(1);
+    expect(sync.getStatus()).toBe('error');
+  });
+
   it('旧进度请求返回时不会删除飞行期间产生的新版本', async () => {
     let resolveRequest: ((response: Response) => void) | undefined;
     const fetcher = vi.fn(() => new Promise<Response>((resolve) => {

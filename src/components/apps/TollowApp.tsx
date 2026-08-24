@@ -8,7 +8,12 @@ import {
   releaseTollowAccountStorage,
   startTollowAccountSync,
 } from '@/apps/tollow/services/accountSyncService';
-import { startTollowFavoriteSync } from '@/apps/tollow/services/favoriteService';
+import {
+  configureTollowFavoriteCloudSync,
+  startTollowFavoriteSync,
+} from '@/apps/tollow/services/favoriteService';
+import type { TollowAccessLevel } from '@/lib/tollow-plans';
+import { TollowAccessProvider } from '@/apps/tollow/core/access';
 
 /**
  * Tollow 打字练习应用包装组件。
@@ -29,8 +34,16 @@ const TollowAppInner = dynamic(() => import('@/apps/tollow/core/App'), {
   ),
 });
 
-export default function TollowApp({ userId }: { userId: string }) {
-  const [storageReady, setStorageReady] = useState(false);
+export default function TollowApp({
+  userId,
+  accessLevel,
+}: {
+  userId: string;
+  accessLevel: TollowAccessLevel;
+}) {
+  const storageKey = `${userId}:${accessLevel}`;
+  const [readyStorageKey, setReadyStorageKey] = useState<string | null>(null);
+  const storageReady = readyStorageKey === storageKey;
 
   useEffect(() => {
     let cancelled = false;
@@ -51,23 +64,36 @@ export default function TollowApp({ userId }: { userId: string }) {
   useEffect(() => {
     let cancelled = false;
     configureTollowAccountStorage(userId);
-    const sync = startTollowAccountSync(userId);
-    const stopFavoriteSync = startTollowFavoriteSync();
-    void sync.ready.finally(() => {
-      if (!cancelled) setStorageReady(true);
-    });
+    const cloudEnabled = accessLevel === 'pro';
+    configureTollowFavoriteCloudSync(cloudEnabled);
+    const sync = cloudEnabled ? startTollowAccountSync(userId) : null;
+    const stopFavoriteSync = cloudEnabled ? startTollowFavoriteSync() : null;
+    if (sync) {
+      void sync.ready.finally(() => {
+        if (!cancelled) setReadyStorageKey(storageKey);
+      });
+    } else {
+      queueMicrotask(() => {
+        if (!cancelled) setReadyStorageKey(storageKey);
+      });
+    }
 
     return () => {
       cancelled = true;
-      stopFavoriteSync();
-      sync.stop();
+      stopFavoriteSync?.();
+      sync?.stop();
+      configureTollowFavoriteCloudSync(false);
       releaseTollowAccountStorage(userId);
     };
-  }, [userId]);
+  }, [accessLevel, storageKey, userId]);
 
   return (
     <div className="tollow-root tollow-app h-screen w-full overflow-auto">
-      {storageReady ? <TollowAppInner /> : (
+      {storageReady ? (
+        <TollowAccessProvider level={accessLevel}>
+          <TollowAppInner />
+        </TollowAccessProvider>
+      ) : (
         <div className="flex h-full w-full items-center justify-center text-sm text-white/60">
           正在准备账号数据…
         </div>

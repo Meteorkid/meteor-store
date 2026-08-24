@@ -12,6 +12,7 @@ interface PaymentModalProps {
   onClose: () => void;
   productId: string;
   productName: string;
+  planId?: string;
   planName: string;
   price: number;
   /** 方案原价（未打折），用于年付总额计算，避免前端取整口径与后端不一致 */
@@ -27,6 +28,7 @@ export default function PaymentModal({
   onClose,
   productId,
   productName,
+  planId,
   planName,
   price,
   basePrice,
@@ -141,6 +143,7 @@ export default function PaymentModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           productName: productId,
+          planId,
           planName,
           paymentMethod,
           email,

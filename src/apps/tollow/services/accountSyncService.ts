@@ -258,6 +258,7 @@ export class TollowAccountSync {
   private readonly onStatusChange?: (status: TollowSyncStatus) => void;
   private status: TollowSyncStatus = 'synced';
   private flushing: Promise<void> | null = null;
+  private authorizationDenied = false;
 
   constructor(options: TollowAccountSyncOptions) {
     this.userId = options.userId;
@@ -274,6 +275,13 @@ export class TollowAccountSync {
     if (this.status === status) return;
     this.status = status;
     this.onStatusChange?.(status);
+  }
+
+  private assertResponseAllowed(response: Response, message: string): void {
+    if (response.status === 401 || response.status === 403) {
+      this.authorizationDenied = true;
+    }
+    if (!response.ok) throw new Error(message);
   }
 
   private readQueue(): QueueItem[] {
@@ -333,6 +341,10 @@ export class TollowAccountSync {
   }
 
   async flush(): Promise<void> {
+    if (this.authorizationDenied) {
+      this.setStatus('error');
+      return;
+    }
     if (this.flushing) return this.flushing;
     this.flushing = this.flushQueue().finally(() => {
       this.flushing = null;
@@ -358,7 +370,7 @@ export class TollowAccountSync {
             body: JSON.stringify(item.payload),
           },
         );
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        this.assertResponseAllowed(response, `HTTP ${response.status}`);
         const current = this.readQueue().filter((queued) => (
           queued.id !== item.id
           || queued.operationId !== item.operationId
@@ -402,7 +414,7 @@ export class TollowAccountSync {
           sessions: batch.filter((item) => item.type === 'session').map((item) => item.payload),
         }),
       });
-      if (!response.ok) throw new Error('Tollow 本地数据导入失败');
+      this.assertResponseAllowed(response, 'Tollow 本地数据导入失败');
     }
 
     this.storage.setItem(this.key(TOLLOW_IMPORT_MARKER_KEY), new Date().toISOString());
@@ -410,7 +422,7 @@ export class TollowAccountSync {
 
   async mergeRemoteProgress(): Promise<void> {
     const response = await this.fetcher('/api/tollow/progress');
-    if (!response.ok) throw new Error('Tollow 远端进度读取失败');
+    this.assertResponseAllowed(response, 'Tollow 远端进度读取失败');
     const body = await response.json() as { items?: unknown[] };
     const remote = (body.items ?? []).filter(isProgress);
     const local = readProgressMap(this.storage, this.key(TOLLOW_BOOK_PROGRESS_KEY));
@@ -441,7 +453,7 @@ export class TollowAccountSync {
 
     while (received < total && page <= 10_000) {
       const response = await this.fetcher(`/api/tollow/sessions?page=${page}&limit=100`);
-      if (!response.ok) throw new Error('Tollow 远端练习记录读取失败');
+      this.assertResponseAllowed(response, 'Tollow 远端练习记录读取失败');
       const body = await response.json() as { items?: unknown[]; total?: unknown };
       const items = Array.isArray(body.items) ? body.items : [];
       total = Number.isInteger(body.total) && Number(body.total) >= 0

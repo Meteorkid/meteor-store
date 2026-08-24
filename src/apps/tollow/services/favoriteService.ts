@@ -149,11 +149,16 @@ function sortFavorites(items: TollowFavorite[], sort: TollowFavoritesQuery['sort
 
 export class TollowFavoriteService {
   private flushing: Promise<void> | null = null;
+  private cloudEnabled = true;
 
   constructor(
     private readonly fetcher: Fetcher = fetch,
     private readonly options: FavoriteServiceOptions = {},
   ) {}
+
+  setCloudEnabled(enabled: boolean): void {
+    this.cloudEnabled = enabled;
+  }
 
   private getContext(): StoreContext | null {
     let storage = this.options.storage;
@@ -218,6 +223,7 @@ export class TollowFavoriteService {
   async list(query: TollowFavoritesQuery): Promise<TollowFavoriteList> {
     const context = this.getContext();
     if (!context) return this.request(this.listUrl(query));
+    if (!this.cloudEnabled) return this.listFromCache(context, query);
 
     try {
       const remote = await this.request<TollowFavoriteList>(this.listUrl(query));
@@ -247,7 +253,7 @@ export class TollowFavoriteService {
       id: `local:${payload.clientRecordId}`,
       createdAt: now,
       updatedAt: now,
-      syncState: 'pending',
+      syncState: this.cloudEnabled ? 'pending' : undefined,
     };
     this.writeCache(context, [...this.readCache(context), favorite]);
     this.writeOutbox(context, [...this.readOutbox(context), {
@@ -280,7 +286,12 @@ export class TollowFavoriteService {
     const current = cache.find((favorite) => favorite.id === id);
     if (!current) throw new Error('收藏不在本地缓存中，请重新打开收藏列表');
     const now = new Date().toISOString();
-    const favorite = { ...current, ...input, updatedAt: now, syncState: 'pending' as const };
+    const favorite: TollowFavorite = {
+      ...current,
+      ...input,
+      updatedAt: now,
+      syncState: this.cloudEnabled ? 'pending' : undefined,
+    };
     this.writeCache(context, cache.map((item) => item.id === id ? favorite : item));
 
     const outbox = this.readOutbox(context);
@@ -348,6 +359,7 @@ export class TollowFavoriteService {
   }
 
   async flush(): Promise<void> {
+    if (!this.cloudEnabled) return;
     if (this.flushing) return this.flushing;
     const context = this.getContext();
     if (!context) return;
@@ -367,7 +379,7 @@ export class TollowFavoriteService {
         dispatch(TOLLOW_FAVORITES_CHANGED_EVENT);
       } catch (error) {
         if (error instanceof FavoriteRequestError && error.status >= 400 && error.status < 500
-          && error.status !== 401 && error.status !== 429) {
+          && error.status !== 401 && error.status !== 403 && error.status !== 429) {
           this.markPermanentFailure(context, operation);
           dispatch(TOLLOW_FAVORITES_CHANGED_EVENT);
           continue;
@@ -545,6 +557,10 @@ export class TollowFavoriteService {
 
 export const tollowFavoriteService = new TollowFavoriteService();
 
+export function configureTollowFavoriteCloudSync(enabled: boolean): void {
+  tollowFavoriteService.setCloudEnabled(enabled);
+}
+
 export function startTollowFavoriteSync(): () => void {
   let stopped = false;
   let retryCount = 0;
@@ -556,8 +572,12 @@ export function startTollowFavoriteSync(): () => void {
     retryTimer = null;
     void tollowFavoriteService.flush().then(() => {
       retryCount = 0;
-    }).catch(() => {
+    }).catch((error) => {
       if (stopped) return;
+      if (error instanceof FavoriteRequestError && (error.status === 401 || error.status === 403)) {
+        stopped = true;
+        return;
+      }
       const delay = Math.min(30_000, 1_000 * (2 ** retryCount));
       retryCount += 1;
       retryTimer = setTimeout(attempt, delay);

@@ -62,6 +62,7 @@ export async function exportUserData(userId: string, email: string) {
       id: orders.id,
       productId: orders.productId,
       planName: orders.planName,
+      planId: orders.planId,
       amountCny: orders.amountCny,
       paymentMethod: orders.paymentMethod,
       status: orders.status,

@@ -11,6 +11,11 @@ import {
 } from '@/data/pass';
 import { findProduct } from './products';
 import { isAdminEmail } from './admin';
+import {
+  TOLLOW_PRODUCT_ID,
+  getTollowPlanRank,
+  normalizeTollowPlanId,
+} from './tollow-plans';
 
 /**
  * 付费门控 / 「我的产品」共用：查询某用户已获得访问权的产品列表。
@@ -30,8 +35,8 @@ import { isAdminEmail } from './admin';
  * 其中 Meteor Pass（PASS_PRODUCT_ID）是全站会员：一条有效的 Pass 授权展开成
  * 全部产品的访问权，且**按档位计算有效期**（月付 1 个月、年付 12 个月、买断永久）。
  * 多条 Pass 授权会**按时间顺序叠加**，续费从「现有到期时间」起算而不是从付款时间起算，
- * 否则提前一周续费就白白吞掉那一周。单品授权优先于 Pass——自己买断的产品
- * 不该显示成「靠会员在用」。
+ * 否则提前一周续费就白白吞掉那一周。完整单品授权优先于 Pass——自己买断的产品
+ * 不该显示成「靠会员在用」；Tollow Free 是例外，Pass 必须把它提升到 Pro。
  *
  * 注意：单品订单没有到期概念（历史行为，付了就一直可用），只有 Pass 会过期。
  */
@@ -39,6 +44,8 @@ export type Entitlement = {
   productId: string;
   productName: string;
   planName: string;
+  /** 单品目录中的稳定套餐 id；历史订单或无分档产品可为空。 */
+  planId: string | null;
   billingPeriod: string;
   paidAt: string | null;
   /** 授权到期时间；null 表示不过期（单品购买、买断 Pass、管理员） */
@@ -63,6 +70,7 @@ export type EntitlementSummary = {
 type Grant = {
   productId: string;
   planName: string;
+  planId: string | null;
   billingPeriod: string;
   grantedAt: string | null;
   /** 仅当 productId 是 Pass 时有意义：用于算有效期的档位键 */
@@ -137,6 +145,7 @@ export async function getUserEntitlementSummary(
         productId: p.id,
         productName: p.name.zh,
         planName: '管理员',
+        planId: p.id === TOLLOW_PRODUCT_ID ? 'pro' : null,
         billingPeriod: 'lifetime',
         paidAt: null,
         expiresAt: null,
@@ -152,6 +161,7 @@ export async function getUserEntitlementSummary(
       .select({
         productId: orders.productId,
         planName: orders.planName,
+        planId: orders.planId,
         billingPeriod: orders.billingPeriod,
         paidAt: orders.paidAt,
         deliveryStatus: orders.deliveryStatus,
@@ -192,6 +202,7 @@ export async function getUserEntitlementSummary(
       .map((row) => ({
         productId: row.productId,
         planName: row.planName,
+        planId: row.planId,
         billingPeriod: row.billingPeriod,
         grantedAt: row.paidAt,
         // Pass 订单把档位存在 billing_period 里（monthly | annual | lifetime）
@@ -200,6 +211,7 @@ export async function getUserEntitlementSummary(
     ...inviteRows.map((row) => ({
       productId: row.productId,
       planName: row.planName,
+      planId: row.planId,
       // 邀请码不产生计费；Pass 则沿用档位，好让「年付」等信息照常展示
       billingPeriod: row.productId === PASS_PRODUCT_ID ? row.planId : 'invite',
       grantedAt: row.redeemedAt,
@@ -217,7 +229,19 @@ export async function getUserEntitlementSummary(
       continue;
     }
     const existing = owned.get(grant.productId);
-    if (existing && (existing.paidAt ?? '') >= (grant.grantedAt ?? '')) continue;
+    const planId = grant.productId === TOLLOW_PRODUCT_ID
+      ? normalizeTollowPlanId(grant.planId, grant.planName)
+      : grant.planId;
+    if (existing) {
+      if (grant.productId === TOLLOW_PRODUCT_ID) {
+        const existingRank = getTollowPlanRank(normalizeTollowPlanId(existing.planId, existing.planName));
+        const incomingRank = getTollowPlanRank(normalizeTollowPlanId(planId, grant.planName));
+        if (existingRank > incomingRank) continue;
+        if (existingRank === incomingRank && (existing.paidAt ?? '') >= (grant.grantedAt ?? '')) continue;
+      } else if ((existing.paidAt ?? '') >= (grant.grantedAt ?? '')) {
+        continue;
+      }
+    }
 
     // 产品可能已下架/改名，此时保留原始 id 展示，不要整条丢掉
     const product = findProduct(grant.productId);
@@ -225,6 +249,7 @@ export async function getUserEntitlementSummary(
       productId: grant.productId,
       productName: product?.name.zh ?? grant.productId,
       planName: grant.planName,
+      planId,
       billingPeriod: grant.billingPeriod,
       paidAt: grant.grantedAt,
       expiresAt: null,
@@ -233,7 +258,7 @@ export async function getUserEntitlementSummary(
     });
   }
 
-  // Pass：叠加成一段连续有效期，展开成尚未被单品授权覆盖的全部产品
+  // Pass：展开成尚未被完整单品授权覆盖的全部产品；Tollow Free 要提升为 Pro
   const pass = accumulatePass(passGrants);
   const passActive =
     pass !== null &&
@@ -242,11 +267,17 @@ export async function getUserEntitlementSummary(
 
   if (pass && passActive) {
     for (const product of products) {
-      if (owned.has(product.id)) continue;
+      const existing = owned.get(product.id);
+      if (existing) {
+        const shouldUpgradeTollow = product.id === TOLLOW_PRODUCT_ID
+          && getTollowPlanRank(normalizeTollowPlanId(existing.planId, existing.planName)) < getTollowPlanRank('pro');
+        if (!shouldUpgradeTollow) continue;
+      }
       owned.set(product.id, {
         productId: product.id,
         productName: product.name.zh,
         planName: PASS_NAME.zh,
+        planId: product.id === TOLLOW_PRODUCT_ID ? 'pro' : null,
         billingPeriod: pass.billingPeriod,
         paidAt: pass.grantedAt,
         expiresAt: pass.expiresAt,

@@ -158,6 +158,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
               <>
             <ProductPricingCards
               plans={product.pricing.map((plan) => ({
+                id: plan.id,
                 name: plan.name,
                 price: isAnnual && plan.period === '月' ? Math.floor(plan.price * ANNUAL_DISCOUNT) : plan.price,
                 basePrice: plan.price,

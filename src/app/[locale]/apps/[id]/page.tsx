@@ -7,6 +7,8 @@ import { appComponents } from '@/components/apps/registry';
 import { findProduct } from '@/lib/products';
 import { getSession } from '@/lib/auth';
 import { getUserEntitlements } from '@/lib/entitlements';
+import { getTollowAccess } from '@/lib/tollow-access';
+import { TOLLOW_PRODUCT_ID } from '@/lib/tollow-plans';
 
 interface AppPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -33,10 +35,15 @@ export default async function AppPage({ params }: AppPageProps) {
   if (!product) notFound();
 
   const session = await getSession();
-  const entitlements = session
+  const tollowAccess = session && id === TOLLOW_PRODUCT_ID
+    ? await getTollowAccess(session.userId, session.email)
+    : null;
+  const entitlements = session && id !== TOLLOW_PRODUCT_ID
     ? await getUserEntitlements(session.userId, session.email)
     : [];
-  const hasAccess = entitlements.some((e) => e.productId === id);
+  const hasAccess = tollowAccess
+    ? tollowAccess.level !== 'none'
+    : entitlements.some((e) => e.productId === id);
 
   const renderApp = appComponents[id];
 
@@ -49,7 +56,10 @@ export default async function AppPage({ params }: AppPageProps) {
 
         {hasAccess ? (
           renderApp ? (
-            renderApp({ userId: session?.userId })
+            renderApp({
+              userId: session?.userId,
+              tollowAccessLevel: tollowAccess?.level,
+            })
           ) : (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
               <div className="mb-4 text-4xl">🚧</div>

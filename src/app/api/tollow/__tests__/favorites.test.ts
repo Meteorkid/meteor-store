@@ -10,7 +10,11 @@ const state = vi.hoisted(() => ({
   notFound: false,
 }));
 
-vi.mock('@/lib/auth', () => ({ getSession: async () => state.session }));
+vi.mock('@/lib/tollow-access', () => ({
+  requireTollowPro: async () => state.session
+    ? { ok: true, session: state.session, access: { level: 'pro', source: 'order' } }
+    : { ok: false, response: new Response(null, { status: 401 }) },
+}));
 vi.mock('@/lib/rate-limit', () => ({
   getClientIp: () => '203.0.113.8',
   rateLimit: async () => ({ limited: false }),

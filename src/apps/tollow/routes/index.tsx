@@ -14,7 +14,7 @@ const Practice = React.lazy(() => import('../features/typing/Practice'))
 const Profile = React.lazy(() => import('../features/profile/Profile'))
 const Settings = React.lazy(() => import('../features/settings/Settings'))
 const NotFound = React.lazy(() => import('../shared/components/NotFound'))
-const EnhancedAnalyticsDashboard = React.lazy(() => import('../shared/components/EnhancedAnalyticsDashboard'))
+const TollowAnalyticsDashboard = React.lazy(() => import('../shared/components/TollowAnalyticsDashboard'))
 
 // 路由守卫组件
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -48,7 +48,7 @@ export const AppRouter: React.FC = () => {
           <Route path="/library/:bookId" element={<BookDetails />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/practice" element={<Practice />} />
-          <Route path="/analytics" element={<EnhancedAnalyticsDashboard />} />
+          <Route path="/analytics" element={<TollowAnalyticsDashboard />} />
           
           {/* 需要认证的路由 */}
           <Route

@@ -8,9 +8,11 @@ import {
   TOLLOW_SYNC_STATUS_EVENT,
   type TollowSyncStatus,
 } from '../../services/accountSyncService'
+import { useTollowAccessLevel } from '../../core/access'
 
 const Header: React.FC = () => {
   const { pathname } = useLocation()
+  const accessLevel = useTollowAccessLevel()
   const [favoritesOpen, setFavoritesOpen] = React.useState(false)
   const [syncStatus, setSyncStatus] = React.useState<TollowSyncStatus>('synced')
   const favoritesButtonRef = React.useRef<HTMLButtonElement>(null)
@@ -43,11 +45,13 @@ const Header: React.FC = () => {
     requestAnimationFrame(() => favoritesButtonRef.current?.focus())
   }, [])
 
-  const syncLabel = syncStatus === 'pending'
-    ? '同步中'
-    : syncStatus === 'error'
-      ? '等待重试'
-      : '已同步'
+  const syncLabel = accessLevel !== 'pro'
+    ? '本地保存'
+    : syncStatus === 'pending'
+      ? '同步中'
+      : syncStatus === 'error'
+        ? '等待重试'
+        : '已同步'
 
   return (
     <header className="header">

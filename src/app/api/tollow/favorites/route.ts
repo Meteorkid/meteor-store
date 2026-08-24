@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 import { createTollowFavorite, listTollowFavorites } from '@/lib/tollow';
 import { tollowFavoriteCreateSchema, tollowFavoritesQuerySchema } from '@/lib/tollow-contract';
+import { requireTollowPro } from '@/lib/tollow-access';
 
 export async function GET(req: NextRequest) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: '请先登录' }, { status: 401 });
+  const auth = await requireTollowPro();
+  if (!auth.ok) return auth.response;
 
   const parsed = tollowFavoritesQuerySchema.safeParse(
     Object.fromEntries(req.nextUrl.searchParams.entries()),
@@ -15,15 +15,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  return NextResponse.json(await listTollowFavorites(session.userId, parsed.data));
+  return NextResponse.json(await listTollowFavorites(auth.session.userId, parsed.data));
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: '请先登录' }, { status: 401 });
+  const auth = await requireTollowPro();
+  if (!auth.ok) return auth.response;
 
   const { limited } = await rateLimit(
-    `tollow-favorite:${session.userId}:${getClientIp(req)}`,
+    `tollow-favorite:${auth.session.userId}:${getClientIp(req)}`,
     30,
     60_000,
     { fallback: 'memory' },
@@ -35,6 +35,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  const result = await createTollowFavorite(session.userId, parsed.data);
+  const result = await createTollowFavorite(auth.session.userId, parsed.data);
   return NextResponse.json(result, { status: result.created ? 201 : 200 });
 }

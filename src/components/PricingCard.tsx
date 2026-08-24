@@ -22,6 +22,7 @@ interface PricingCardProps {
   isPopular?: boolean;
   productId?: string;
   productName?: string;
+  planId?: string;
   href?: string;
   isAnnual?: boolean;
   /** 用户当前持有的 Pass 档位，用于智能 CTA 文案 */
@@ -39,6 +40,7 @@ export default function PricingCard({
   isPopular,
   productId,
   productName,
+  planId,
   href,
   isAnnual,
   currentPassPlan,
@@ -146,7 +148,11 @@ export default function PricingCard({
                 ) : null}
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-bold text-white">¥{price}</span>
-                  {period && <span className="text-sm text-white/40">/{period}</span>}
+                  {period && (
+                    <span className="text-sm text-white/40">
+                      {period === '买断' || period === 'lifetime' ? ` · ${period}` : `/${period}`}
+                    </span>
+                  )}
                 </div>
                 {originalPrice ? (
                   <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">
@@ -242,6 +248,7 @@ export default function PricingCard({
         onClose={() => setShowPaymentModal(false)}
         productId={productId || ''}
         productName={productName || ''}
+        planId={planId}
         planName={name}
         price={price}
         basePrice={basePrice ?? price}

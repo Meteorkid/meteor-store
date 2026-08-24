@@ -4,9 +4,11 @@ import SkeletonAnatomyApp from './SkeletonAnatomyApp';
 import ChakraVisualizerApp from './ChakraVisualizerApp';
 import TollowApp from './TollowApp';
 import type { AppId } from '@/data/app-manifest';
+import type { TollowAccessLevel } from '@/lib/tollow-plans';
 
 export interface AppRenderContext {
   userId?: string;
+  tollowAccessLevel?: TollowAccessLevel;
 }
 
 type AppRenderer = (context?: AppRenderContext) => ReactNode;
@@ -27,7 +29,9 @@ const registeredAppComponents = {
   'webgl-fluid-sim': () => <WebGLFluidSim />,
   'skeleton-anatomy': () => <SkeletonAnatomyApp />,
   'chakra-visualizer': () => <ChakraVisualizerApp />,
-  'tollow': (context) => context?.userId ? <TollowApp userId={context.userId} /> : null,
+  'tollow': (context) => context?.userId && context.tollowAccessLevel
+    ? <TollowApp userId={context.userId} accessLevel={context.tollowAccessLevel} />
+    : null,
 } satisfies Record<AppId, AppRenderer>;
 
 export const appComponents: Readonly<Record<string, AppRenderer>> = registeredAppComponents;

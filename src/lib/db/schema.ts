@@ -5,6 +5,8 @@ export const orders = pgTable('orders', {
   id: text('id').primaryKey(),                        // crypto.randomUUID()
   productId: text('product_id').notNull(),             // 'omnicrawl'
   planName: text('plan_name').notNull(),               // 'Starter'
+  /** 产品目录里的稳定套餐 id；历史订单可为空，读取端按 planName 兼容。 */
+  planId: text('plan_id'),
   email: text('email').notNull(),
   /** 下单时的登录用户 id。可为空（游客直接填邮箱下单）。有值时用于付费门控 / 授权查询。 */
   userId: text('user_id'),

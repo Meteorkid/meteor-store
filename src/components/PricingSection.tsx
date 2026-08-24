@@ -118,6 +118,7 @@ export default function PricingSection({
                   isPopular={plan.popular}
                   productId={PASS_PRODUCT_ID}
                   productName={PASS_NAME[locale]}
+                  planId={plan.id}
                   currentPassPlan={currentPassPlan}
                 />
               </div>

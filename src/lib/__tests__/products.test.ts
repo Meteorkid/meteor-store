@@ -17,6 +17,16 @@ describe('findProduct', () => {
   it('returns undefined for empty string', () => {
     expect(findProduct('')).toBeUndefined();
   });
+
+  it('Tollow 使用稳定的 Free 与 Pro ¥29 买断档位', () => {
+    const tollow = findProduct('tollow');
+
+    expect(tollow?.pricing.map((plan) => ({ id: plan.id, price: plan.price, period: plan.period })))
+      .toEqual([
+        { id: 'free', price: 0, period: undefined },
+        { id: 'pro', price: 29, period: '买断' },
+      ]);
+  });
 });
 
 describe('产品公开下载源', () => {

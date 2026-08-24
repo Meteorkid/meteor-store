@@ -7,6 +7,7 @@ import type { PassPlanId } from "@/data/pass";
 
 interface ProductPricingCardsProps {
   plans: Array<{
+    id: string;
     name: string;
     price: number;
     basePrice?: number;
@@ -61,6 +62,7 @@ export default function ProductPricingCards({ plans, productId, productName, isA
           isPopular={plan.isPopular ?? index === 1}
           productId={productId}
           productName={productName}
+          planId={plan.id}
           isAnnual={isAnnual}
           currentPassPlan={currentPassPlan}
         />

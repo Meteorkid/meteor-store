@@ -91,6 +91,7 @@ describe('免费入库', () => {
     expect(inserted).toHaveLength(1);
     expect(inserted[0]).toMatchObject({
       productId: 'webgl-fluid-sim',
+      planId: 'free',
       userId: 'u1',
       amountCny: 0,
       status: 'paid',

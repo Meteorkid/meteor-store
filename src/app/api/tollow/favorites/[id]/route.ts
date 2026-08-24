@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getSession } from '@/lib/auth';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 import {
   deleteTollowFavorite,
@@ -8,6 +7,7 @@ import {
   updateTollowFavorite,
 } from '@/lib/tollow';
 import { tollowFavoritePatchSchema } from '@/lib/tollow-contract';
+import { requireTollowPro } from '@/lib/tollow-access';
 
 const idSchema = z.string().min(1).max(128);
 type RouteContext = { params: Promise<{ id: string }> };
@@ -16,13 +16,11 @@ async function authorizeWrite(req: NextRequest): Promise<
   | { ok: true; userId: string }
   | { ok: false; response: NextResponse }
 > {
-  const session = await getSession();
-  if (!session) {
-    return { ok: false, response: NextResponse.json({ error: '请先登录' }, { status: 401 }) };
-  }
+  const auth = await requireTollowPro();
+  if (!auth.ok) return auth;
 
   const { limited } = await rateLimit(
-    `tollow-favorite:${session.userId}:${getClientIp(req)}`,
+    `tollow-favorite:${auth.session.userId}:${getClientIp(req)}`,
     30,
     60_000,
     { fallback: 'memory' },
@@ -30,7 +28,7 @@ async function authorizeWrite(req: NextRequest): Promise<
   if (limited) {
     return { ok: false, response: NextResponse.json({ error: '收藏操作太频繁，请稍后再试' }, { status: 429 }) };
   }
-  return { ok: true, userId: session.userId };
+  return { ok: true, userId: auth.session.userId };
 }
 
 export async function PATCH(req: NextRequest, { params }: RouteContext) {

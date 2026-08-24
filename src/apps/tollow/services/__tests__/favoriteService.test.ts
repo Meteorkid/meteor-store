@@ -31,6 +31,64 @@ const defaultQuery = {
 };
 
 describe('TollowFavoriteService', () => {
+  it('Free 本地模式不发请求，升级 Pro 后冲刷保留的 outbox', async () => {
+    const storage = new MemoryStorage();
+    const fetcher = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const payload = JSON.parse(String(init?.body));
+      return Response.json({
+        favorite: {
+          ...payload,
+          id: 'server-favorite-1',
+          createdAt: '2026-08-24T00:00:00.000Z',
+          updatedAt: '2026-08-24T00:00:00.000Z',
+        },
+      });
+    });
+    const service = new TollowFavoriteService(fetcher, { storage, userId: 'user-one' });
+    service.setCloudEnabled(false);
+
+    const created = await service.create(favoriteDraft);
+    const localList = await service.list(defaultQuery);
+    await service.flush();
+
+    expect(created.syncState).toBeUndefined();
+    expect(localList.items).toHaveLength(1);
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(JSON.parse(storage.getItem(
+      getTollowAccountStorageKey('user-one', TOLLOW_FAVORITES_OUTBOX_KEY),
+    ) ?? '[]')).toMatchObject([{ type: 'create' }]);
+
+    service.setCloudEnabled(true);
+    await service.flush();
+
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(JSON.parse(storage.getItem(
+      getTollowAccountStorageKey('user-one', TOLLOW_FAVORITES_OUTBOX_KEY),
+    ) ?? '[]')).toEqual([]);
+  });
+
+  it('Pro 权限失效时不丢弃尚未同步的本地收藏', async () => {
+    const storage = new MemoryStorage();
+    const fetcher = vi.fn(async () => Response.json(
+      { error: '需要 Tollow Pro', code: 'TOLLOW_PRO_REQUIRED' },
+      { status: 403 },
+    ));
+    const service = new TollowFavoriteService(fetcher, { storage, userId: 'user-one' });
+    service.setCloudEnabled(false);
+    await service.create(favoriteDraft);
+    service.setCloudEnabled(true);
+
+    await expect(service.flush()).rejects.toThrow('需要 Tollow Pro');
+
+    expect(JSON.parse(storage.getItem(
+      getTollowAccountStorageKey('user-one', TOLLOW_FAVORITES_OUTBOX_KEY),
+    ) ?? '[]')).toHaveLength(1);
+    expect(JSON.parse(storage.getItem(
+      getTollowAccountStorageKey('user-one', TOLLOW_FAVORITES_CACHE_KEY),
+    ) ?? '[]')).toHaveLength(1);
+  });
+
+
   it('列表请求只发送白名单筛选参数', async () => {
     const facets = {
       books: [{ id: 'lunyu', title: '论语' }, { id: 'mengzi', title: '孟子' }],
