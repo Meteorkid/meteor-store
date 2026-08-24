@@ -20,12 +20,12 @@
 /* 响应式设计 */
 @media (max-width: 768px) {
   .app-main {
-    padding: var(--spacing-md) var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-md) calc(72px + env(safe-area-inset-bottom));
   }
 }
 
 @media (max-width: 480px) {
   .app-main {
-    padding: var(--spacing-sm) var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-sm) calc(72px + env(safe-area-inset-bottom));
   }
 }

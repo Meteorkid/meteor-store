@@ -501,10 +501,11 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   padding: 7px 14px;
+  min-height: 44px;
   border-radius: 100px;
   cursor: pointer;
   backdrop-filter: blur(8px);
-  transition: all 0.25s ease;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 .control-btn:hover {
   background: rgba(198,40,40,0.25);
@@ -524,7 +525,7 @@
   position: relative;
   z-index: 10;
   text-align: center;
-  padding: 6rem 2rem 3rem;
+  padding: 5rem 2rem 2.5rem;
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease, transform 0.8s ease;
@@ -589,16 +590,23 @@
 
 .hero-subtitle {
   font-size: clamp(1rem, 2vw, 1.15rem);
-  color: #64748b;
+  color: #a8b4c7;
   line-height: 1.7;
   max-width: 520px;
-  margin: 0 auto 2.5rem;
+  margin: 0 auto 1.5rem;
   font-weight: 500;
 }
 .hero-subtitle em {
   color: #c62828;
   font-style: normal;
   font-weight: 700;
+}
+
+.hero-action {
+  margin: 0 auto 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hero-stats {
@@ -628,7 +636,7 @@
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.15em;
-  color: #475569;
+  color: #94a3b8;
   text-transform: uppercase;
   margin-top: 2px;
 }
@@ -678,13 +686,32 @@
 }
 .seal-guide.visible { opacity: 1; }
 .seal-guide-title {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   color: #c62828;
   text-transform: uppercase;
-  margin-bottom: 1rem;
+  margin: -0.5rem 0;
   text-align: center;
+  cursor: pointer;
+  list-style: none;
+}
+.seal-guide-title::-webkit-details-marker { display: none; }
+.seal-guide-title::after {
+  content: '＋';
+  margin-left: 0.6rem;
+  color: #94a3b8;
+  transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.seal-guide[open] .seal-guide-title {
+  margin-bottom: 0.75rem;
+}
+.seal-guide[open] .seal-guide-title::after {
+  transform: rotate(45deg);
 }
 .seal-grid {
   display: flex;
@@ -722,7 +749,7 @@
 .seal-name {
   font-size: 0.6rem;
   font-weight: 600;
-  color: #64748b;
+  color: #94a3b8;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -845,7 +872,7 @@
 .card-kanji {
   font-family: 'Noto Sans JP', sans-serif;
   font-size: 0.8rem;
-  color: #475569;
+  color: #94a3b8;
   letter-spacing: 0.1em;
   margin-bottom: 2px;
 }
@@ -886,7 +913,7 @@
 .card-hand {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #475569;
+  color: #94a3b8;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -919,10 +946,11 @@
   border: 1px solid rgba(198,40,40,0.4);
   border-radius: 14px;
   padding: 1.25rem 2.5rem;
+  min-height: 56px;
   cursor: pointer;
   color: #e2e8f0;
   font-family: 'Rajdhani', sans-serif;
-  transition: all 0.3s ease;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), border-color 180ms ease, box-shadow 180ms ease;
   position: relative;
   overflow: hidden;
 }
@@ -965,7 +993,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #a8b4c7;
   text-transform: uppercase;
   margin-top: 3px;
 }
@@ -975,7 +1003,7 @@
   font-size: 0.8rem;
   font-weight: 500;
   letter-spacing: 0.05em;
-  color: #334155;
+  color: #94a3b8;
 }
 
 /* ─── Modal ────────────────────────────────────────────────── */
@@ -1216,8 +1244,17 @@
 
 /* ─── Responsive ───────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .hero { padding: 4rem 1.25rem 2rem; }
-  .hero-title-en { font-size: clamp(3rem, 15vw, 5rem); }
+  .control-group { top: 10px; right: 10px; }
+  .control-btn { padding-inline: 12px; }
+  .hero { padding: 4.25rem 1.25rem 1.5rem; }
+  .hero-badge { margin-bottom: 0.85rem; }
+  .hero-title { margin-bottom: 0.8rem; }
+  .hero-title-en { font-size: clamp(3rem, 14vw, 4.5rem); }
+  .hero-subtitle { font-size: 0.95rem; line-height: 1.55; margin-bottom: 1.15rem; }
+  .hero-action { margin-bottom: 1.25rem; }
+  .launch-btn { width: min(100%, 330px); justify-content: center; padding: 1rem 1.3rem; }
+  .launch-main { font-size: 1.25rem; }
+  .cta-hint { max-width: 300px; margin-top: 0.65rem; }
   .jutsu-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 0 1rem; }
   .card-body { padding: 0.5rem 0.9rem 0.25rem; }
   .card-name { font-size: 1.3rem; }
@@ -1230,11 +1267,72 @@
   .modal-steps { padding: 1.5rem; }
   .modal-tip { margin: 0 1.5rem; margin-top: 1rem; }
   .modal-launch-btn { width: calc(100% - 3rem); margin: 1.25rem 1.5rem 2rem; }
-  .hero-stats { flex-direction: column; gap: 0; }
-  .stat-divider { width: 80px; height: 1px; }
+  .hero-stats { display: inline-flex; flex-direction: row; }
+  .stat { padding: 0.65rem 1.2rem; }
+  .stat-num { font-size: 1.4rem; }
+  .stat-divider { width: 1px; height: 34px; }
+  .stat-performance { display: none; }
+  .seal-guide { margin-inline: 1rem; padding: 0.75rem 1rem; }
+  .section-label { margin-bottom: 1rem; }
+  .character-img.naruto-right,
+  .character-img.naruto-center,
+  .character-img.naruto-float,
+  .character-img.naruto-left,
+  .skill-chidori,
+  .skill-fire,
+  .skill-chibaku,
+  .chakra-swirl.swirl-2,
+  .chakra-swirl.swirl-3 { display: none; }
+  .skill-effects { opacity: 0.4; }
+  .naruto-characters { opacity: 0.24; }
+  .sharingan-bg { opacity: 0.2; }
   .sharingan-bg { width: 500px; height: 500px; }
 }
 
 @media (max-width: 400px) {
   .jutsu-grid { grid-template-columns: 1fr; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .control-btn:hover,
+  .launch-btn:hover,
+  .jutsu-card:hover,
+  .seal-item:hover {
+    will-change: transform;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-root,
+  .tutorial-root *,
+  .tutorial-root *::before,
+  .tutorial-root *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .hero,
+  .jutsu-card,
+  .modal,
+  .naruto-deco,
+  .naruto-elements,
+  .chakra-swirl,
+  .leaf-corner,
+  .gesture-svg {
+    transform: none !important;
+  }
+
+  .sharingan-bg {
+    transform: translate(-50%, -50%) !important;
+  }
+
+  .character-img.naruto-right {
+    transform: scaleX(-1) !important;
+  }
+
+  .character-img.naruto-center {
+    transform: translateX(-50%) !important;
+  }
 }

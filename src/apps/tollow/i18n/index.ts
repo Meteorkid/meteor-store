@@ -162,6 +162,13 @@ export const isLanguageSupported = (language: string): language is SupportedLang
 
 // 获取用户首选语言
 export const getUserPreferredLanguage = (): SupportedLanguage => {
+  // 站内全屏体验继承商城路由语言，避免从 /zh 进入后被旧的本地偏好切回英文。
+  const hostLanguage = document.documentElement.lang
+  const hostMatch = Object.keys(SUPPORTED_LANGUAGES).find((code) =>
+    code.toLowerCase().startsWith(hostLanguage.toLowerCase().split('-')[0]),
+  )
+  if (hostMatch) return hostMatch as SupportedLanguage
+
   // 从本地存储获取
   const stored = localStorage.getItem('tollow_language')
   if (stored && isLanguageSupported(stored)) {

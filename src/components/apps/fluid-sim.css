@@ -1,4 +1,4 @@
-/* WebGL Fluid Sim — 嵌入容器内的样式（相对容器定位，非全屏 fixed） */
+/* WebGL Fluid Sim — 独立全屏体验 */
 
 .fluid-sim-root {
   position: relative;
@@ -6,9 +6,41 @@
   height: 100%;
   overflow: hidden;
   background: #000;
-  border-radius: 16px;
+  border-radius: 0;
   user-select: none;
+  --fluid-panel: rgba(9, 10, 18, 0.88);
+  --fluid-panel-strong: rgba(12, 13, 23, 0.96);
+  --fluid-border: rgba(255, 255, 255, 0.12);
+  --fluid-muted: rgba(255, 255, 255, 0.66);
+  --fluid-accent: #8b7cff;
+  --fluid-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
+
+.fluid-sim-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  color: rgba(255, 255, 255, 0.76);
+  background: radial-gradient(circle at center, rgba(124, 108, 255, 0.16), transparent 28%), #05050a;
+  letter-spacing: 0.06em;
+}
+
+.fluid-sim-loading span {
+  width: 42px;
+  height: 42px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-top-color: #8d7cff;
+  border-radius: 50%;
+  animation: fluid-loading-spin 0.8s linear infinite;
+}
+
+.fluid-sim-loading strong { font-size: 0.8rem; font-weight: 500; }
+
+@keyframes fluid-loading-spin { to { transform: rotate(360deg); } }
 
 .fluid-sim-root canvas#fluidCanvas {
   position: absolute;
@@ -49,9 +81,291 @@
   height: 1px;
 }
 
-/* dat.gui 面板保持浮层（默认 fixed 右上角），提高层级避免被容器遮挡 */
-.dg.ac {
-  z-index: 50 !important;
+/* 控制面板入口 */
+.fluid-controls-toggle,
+.fluid-controls-close,
+.fluid-controls-backdrop,
+.fluid-camera-status button {
+  appearance: none;
+  border: 0;
+  font: inherit;
+}
+
+.fluid-controls-toggle {
+  position: absolute;
+  z-index: 55;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--fluid-border);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(10, 11, 20, 0.68);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  transition: transform 140ms var(--fluid-ease-out), background-color 180ms ease, border-color 180ms ease;
+}
+
+.fluid-controls-toggle > span:first-child {
+  font-size: 20px;
+  line-height: 1;
+  transform: rotate(90deg);
+}
+
+.fluid-controls-toggle:active,
+.fluid-controls-close:active,
+.fluid-camera-status button:active {
+  transform: scale(0.97);
+}
+
+.fluid-controls-toggle:focus-visible,
+.fluid-controls-close:focus-visible,
+.fluid-camera-status button:focus-visible {
+  outline: 2px solid #c6beff;
+  outline-offset: 3px;
+}
+
+.fluid-controls-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 48;
+  display: block;
+  background: rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  cursor: default;
+  transition: opacity 180ms ease;
+}
+
+.fluid-controls-open .fluid-controls-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 将 dat.GUI 变成产品自己的分层控制面板 */
+.fluid-sim-root .dg.ac.fluid-controls-shell {
+  position: absolute !important;
+  z-index: 52 !important;
+  top: max(68px, calc(env(safe-area-inset-top) + 56px)) !important;
+  right: max(16px, env(safe-area-inset-right)) !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: min(340px, calc(100% - 32px)) !important;
+  height: auto !important;
+  pointer-events: none;
+}
+
+.fluid-sim-root .dg.main.fluid-control-panel {
+  float: none !important;
+  width: 100% !important;
+  max-height: calc(100svh - 92px);
+  overflow-y: auto;
+  color: #fff !important;
+  background: var(--fluid-panel) !important;
+  border: 1px solid var(--fluid-border);
+  border-radius: 20px;
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.42), inset 0 1px rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
+  backdrop-filter: blur(24px) saturate(145%);
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+  transform-origin: top right;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 220ms var(--fluid-ease-out);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 124, 255, 0.44) transparent;
+}
+
+.fluid-controls-open .dg.main.fluid-control-panel {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.fluid-control-header {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  min-height: 52px;
+  padding: 0 12px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--fluid-border);
+  background: var(--fluid-panel-strong);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.fluid-control-header strong {
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+.fluid-controls-close {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.78);
+  background: transparent;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 140ms var(--fluid-ease-out), background-color 180ms ease, color 180ms ease;
+}
+
+.fluid-sim-root .dg .close-button {
+  display: none !important;
+}
+
+.fluid-sim-root .dg ul,
+.fluid-sim-root .dg li,
+.fluid-sim-root .dg .main,
+.fluid-sim-root .dg .cr,
+.fluid-sim-root .dg .folder {
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+.fluid-sim-root .dg ul {
+  width: 100%;
+}
+
+.fluid-sim-root .dg li {
+  min-height: 38px !important;
+  height: auto !important;
+  border-bottom-color: rgba(255, 255, 255, 0.065) !important;
+  font: 500 13px/1.45 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+.fluid-sim-root .dg .cr {
+  padding: 4px 10px !important;
+}
+
+.fluid-sim-root .dg .property-name {
+  width: 48% !important;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 30px !important;
+}
+
+.fluid-sim-root .dg .c {
+  width: 52% !important;
+  min-height: 30px;
+}
+
+.fluid-sim-root .dg .c input[type="text"],
+.fluid-sim-root .dg .c select {
+  height: 30px !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 7px !important;
+}
+
+.fluid-sim-root .dg .c .slider {
+  height: 6px !important;
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-radius: 999px;
+}
+
+.fluid-sim-root .dg .c .slider-fg {
+  background: linear-gradient(90deg, #6f5cff, #ad7cff) !important;
+  border-radius: inherit;
+}
+
+.fluid-sim-root .dg .cr.boolean .property-name,
+.fluid-sim-root .dg .cr.function .property-name {
+  width: 100% !important;
+}
+
+.fluid-sim-root .dg .cr.function {
+  cursor: pointer;
+}
+
+.fluid-sim-root .dg .cr.function .property-name {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.fluid-sim-root .dg li.title {
+  min-height: 42px !important;
+  padding: 11px 14px 9px 28px !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  border-left: 0 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.01em;
+}
+
+.fluid-sim-root .dg li.title::before {
+  top: 17px !important;
+  left: 13px !important;
+}
+
+.fluid-sim-root .dg .fluid-common-section > .title {
+  color: #d7d2ff !important;
+}
+
+.fluid-sim-root .dg .fluid-advanced-section > .title {
+  color: var(--fluid-muted) !important;
+}
+
+.fluid-camera-status {
+  min-height: 0 !important;
+  padding: 0 12px 10px;
+  display: none;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--fluid-muted);
+  font: 500 12px/1.45 ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.fluid-camera-status[data-tone] {
+  display: flex;
+}
+
+.fluid-camera-status[data-tone="success"] {
+  color: #7ee2a8;
+}
+
+.fluid-camera-status[data-tone="error"] {
+  color: #ffb4bd;
+}
+
+.fluid-camera-status span {
+  flex: 1;
+  padding-top: 7px;
+}
+
+.fluid-camera-status button {
+  min-height: 32px;
+  flex-shrink: 0;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 180, 189, 0.3);
+  border-radius: 8px;
+  color: #ffd4d9;
+  background: rgba(255, 118, 136, 0.12);
+  cursor: pointer;
+  transition: transform 140ms var(--fluid-ease-out), background-color 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fluid-controls-toggle:hover,
+  .fluid-controls-close:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
 }
 
 /* WebGL 不可用时的降级提示（复用 .fluid-sim-root 的容器外观） */
@@ -79,4 +393,76 @@
   margin: 0;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 720px) {
+  .fluid-controls-toggle {
+    top: max(12px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+    width: 44px;
+    padding: 0;
+  }
+
+  .fluid-controls-toggle > span:last-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .fluid-sim-root .dg.ac.fluid-controls-shell {
+    inset: auto 0 0 !important;
+    width: 100% !important;
+  }
+
+  .fluid-sim-root .dg.main.fluid-control-panel {
+    max-height: min(72svh, 620px);
+    padding-bottom: env(safe-area-inset-bottom);
+    border-width: 1px 0 0;
+    border-radius: 24px 24px 0 0;
+    transform: translateY(100%);
+    transform-origin: bottom center;
+    transition: opacity 180ms ease, transform 260ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .fluid-controls-open .dg.main.fluid-control-panel {
+    transform: translateY(0);
+  }
+
+  .fluid-control-header {
+    min-height: 58px;
+    padding-left: 18px;
+  }
+
+  .fluid-sim-root .dg li {
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+
+  .fluid-sim-root .dg .cr {
+    padding-block: 7px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fluid-controls-toggle,
+  .fluid-controls-close,
+  .fluid-controls-backdrop,
+  .fluid-sim-root .dg.main.fluid-control-panel,
+  .fluid-camera-status button {
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .fluid-controls-toggle,
+  .fluid-sim-root .dg.main.fluid-control-panel,
+  .fluid-control-header {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: #10111d !important;
+  }
 }

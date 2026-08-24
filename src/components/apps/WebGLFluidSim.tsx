@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { loadMediaPipe } from '@/lib/apps/mediapipe';
 import './fluid-sim.css';
 
@@ -34,6 +34,7 @@ const noopSubscribe = () => () => {};
 
 export default function WebGLFluidSim() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [simulationReady, setSimulationReady] = useState(false);
   // 用 useSyncExternalStore 读取「是否支持 WebGL」这一外部能力快照：
   // 服务端(SSR/水合首帧)返回 false，客户端取真实探测结果，水合后自动对齐。
   const webglSupported = useSyncExternalStore(
@@ -69,6 +70,8 @@ export default function WebGLFluidSim() {
         .then((mod) => {
           if (cancelled) {
             mod.destroyFluidSim();
+          } else {
+            setSimulationReady(true);
           }
         })
         .catch((err) => {
@@ -103,6 +106,12 @@ export default function WebGLFluidSim() {
 
   return (
     <div ref={containerRef} className="fluid-sim-root">
+      {!simulationReady && (
+        <div className="fluid-sim-loading" role="status" aria-live="polite">
+          <span aria-hidden="true" />
+          <strong>正在初始化流体场…</strong>
+        </div>
+      )}
       <canvas id="fluidCanvas" />
       {/* 以下为手势/摄像头背景的可选 DOM，fluidSim 会按需读取，缺失时自动降级 */}
       <video id="gestureVideo" style={{ display: 'none' }} playsInline muted />

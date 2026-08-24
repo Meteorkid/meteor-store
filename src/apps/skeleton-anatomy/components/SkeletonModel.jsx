@@ -1,6 +1,6 @@
 // @ts-nocheck
 /* eslint-disable */
-import { useMemo, useRef, useCallback, useEffect } from 'react'
+import { useMemo, useRef, useCallback, useEffect, useSyncExternalStore } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
@@ -821,6 +821,25 @@ function CoreDot({ position, size, color = '#1a1a1a' }) {
   )
 }
 
+/**
+ * 读取 `prefers-reduced-motion`。Canvas 里的循环脉冲是纯装饰，
+ * 用 useSyncExternalStore 订阅媒体查询，用户在系统里改设置也能立即生效。
+ */
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    (onChange) => {
+      if (typeof window === 'undefined' || !window.matchMedia) return () => {}
+      const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+      query.addEventListener('change', onChange)
+      return () => query.removeEventListener('change', onChange)
+    },
+    () => typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false,
+    () => false,
+  )
+}
+
 // ======== 选中/悬停发光指示器 ========
 function SelectionIndicators() {
   const selectedBone = useStore((s) => s.selectedBone)
@@ -836,7 +855,7 @@ function SelectionIndicators() {
     const pos = bonePositions[hoveredBone]
     if (pos) {
       const s = Array.isArray(pos.s) ? Math.max(...pos.s) : pos.s
-      const indicatorSize = Math.max(0.025, s * 0.55)
+      const indicatorSize = Math.max(0.02, s * 0.4)
       indicators.push(
         <group key={`hover-${hoveredBone}`}>
           <HoverIndicator
@@ -855,7 +874,9 @@ function SelectionIndicators() {
     const pos = bonePositions[selectedBone]
     if (pos) {
       const s = Array.isArray(pos.s) ? Math.max(...pos.s) : pos.s
-      const indicatorSize = Math.max(0.03, s * 0.6)
+      // 光晕表达的是「定位在这里」，不是装饰爆发：半径明显小于骨骼本身，
+      // 让人一眼看出指向哪一块，而不是被一团橙光糊住
+      const indicatorSize = Math.max(0.022, s * 0.42)
       indicators.push(
         <group key={`sel-${selectedBone}`}>
           <SelectedIndicator
@@ -880,7 +901,7 @@ function HoverIndicator({ position, size, theme }) {
       <meshBasicMaterial
         color={theme === 'dark' ? '#ffaa66' : '#ff7733'}
         transparent
-        opacity={0.35}
+        opacity={0.25}
         depthWrite={false}
       />
     </mesh>
@@ -890,12 +911,19 @@ function HoverIndicator({ position, size, theme }) {
 // 选中发光球（脉冲动画）
 function SelectedIndicator({ position, size, geometry }) {
   const ref = useRef()
+  // 循环脉冲属于装饰性动画，减少动态效果时停在稳定尺寸，
+  // 但保留颜色与透明度，选中反馈本身不能消失
+  const reduceMotion = usePrefersReducedMotion()
+
   useFrame((_, delta) => {
-    if (ref.current) {
-      ref.current.userData.phase = (ref.current.userData.phase || 0) + delta * 2.5
-      const pulse = 1 + Math.sin(ref.current.userData.phase) * 0.15
-      ref.current.scale.setScalar(size * pulse)
+    if (!ref.current) return
+    if (reduceMotion) {
+      ref.current.scale.setScalar(size)
+      return
     }
+    ref.current.userData.phase = (ref.current.userData.phase || 0) + delta * 2.5
+    const pulse = 1 + Math.sin(ref.current.userData.phase) * 0.06
+    ref.current.scale.setScalar(size * pulse)
   })
 
   return (
@@ -904,11 +932,11 @@ function SelectedIndicator({ position, size, geometry }) {
       <meshStandardMaterial
         color="#ff4d1a"
         emissive="#ff6b35"
-        emissiveIntensity={0.8}
+        emissiveIntensity={0.4}
         roughness={0.3}
         metalness={0.1}
         transparent
-        opacity={0.55}
+        opacity={0.38}
         depthWrite={false}
       />
     </mesh>

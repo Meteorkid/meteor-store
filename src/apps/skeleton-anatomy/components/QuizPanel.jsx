@@ -69,8 +69,8 @@ export default function QuizPanel() {
             </span>
           )}
         </div>
-        <button className="quiz-close" onClick={resetQuizScore} title="重置分数">↺</button>
-        <button className="quiz-close" onClick={stopQuiz}>✕</button>
+        <button type="button" className="quiz-close" onClick={resetQuizScore} aria-label="重置测验分数">↺</button>
+        <button type="button" className="quiz-close" onClick={stopQuiz} aria-label="退出骨骼测验">✕</button>
       </div>
 
       {bone && (
@@ -79,8 +79,10 @@ export default function QuizPanel() {
             <p>请说出这块骨骼的名称：</p>
             <div className="quiz-hint-area">
               <button
+                type="button"
                 className="quiz-hint-btn"
                 onClick={() => setShowHint(!showHint)}
+                aria-expanded={showHint}
               >
                 {showHint ? '隐藏提示' : '显示提示'}
               </button>
@@ -105,7 +107,7 @@ export default function QuizPanel() {
               autoFocus
             />
             {!quizResult && (
-              <button className="quiz-submit" onClick={handleSubmit}>
+              <button type="button" className="quiz-submit" onClick={handleSubmit}>
                 提交
               </button>
             )}
@@ -118,7 +120,7 @@ export default function QuizPanel() {
               ) : (
                 <p>错误。答案是：<strong>{bone.nameZh}</strong> ({bone.nameEn})</p>
               )}
-              <button className="quiz-next" onClick={handleNext}>
+              <button type="button" className="quiz-next" onClick={handleNext}>
                 下一题 →
               </button>
             </div>

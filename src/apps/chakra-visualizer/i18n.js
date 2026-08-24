@@ -4,7 +4,7 @@ export const en = {
   // Hero
   badge: "NARUTO INTERACTIVE EXPERIENCE",
   subtitle1: "Cast real-time jutsu effects with your hands — ",
-  subtitleEm: "8 jutsu",
+  subtitleEm: "21 jutsu",
   subtitle2: ", dual-hand simultaneous casting",
   subtitle3: "Point your camera — your chakra awaits awakening",
 
@@ -23,7 +23,7 @@ export const en = {
   // CTA
   activateWebcam: "Activate Webcam",
   allJutsu: "All jutsu available simultaneously",
-  clickHint: "Click any jutsu above to learn the gesture first",
+  clickHint: "Start now, or explore the gesture guide and jutsu below",
 
   // Modal
   howToPerform: "HOW TO PERFORM",
@@ -282,7 +282,7 @@ export const zh = {
   // Hero
   badge: "火影忍者互动体验",
   subtitle1: "用双手施展实时忍术特效 — ",
-  subtitleEm: "8种忍术",
+  subtitleEm: "21种忍术",
   subtitle2: "，双手同时释放",
   subtitle3: "对准摄像头，你的查克拉在等待觉醒",
 
@@ -301,7 +301,7 @@ export const zh = {
   // CTA
   activateWebcam: "开启摄像头",
   allJutsu: "所有忍术可同时使用",
-  clickHint: "点击上方忍术卡片查看手势教程",
+  clickHint: "立即开始，或先查看下方手势指南与忍术",
 
   // Modal
   howToPerform: "如何施展",

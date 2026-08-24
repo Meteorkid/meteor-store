@@ -633,8 +633,12 @@ const Tutorial = ({ onStart }) => {
 
       {/* 控制按钮组 */}
       <div className="control-group">
-        <button className="control-btn" onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}>
-          {lang === 'en' ? '中文' : 'EN'}
+        <button
+          className="control-btn"
+          onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+          aria-label={lang === 'en' ? 'Switch language to Chinese' : '切换语言为英文'}
+        >
+          <span aria-hidden="true">🌐</span> {lang === 'en' ? 'English' : '中文'}
         </button>
         <button
           className={`control-btn mode-btn ${mode === 'master' ? 'active' : ''}`}
@@ -661,16 +665,27 @@ const Tutorial = ({ onStart }) => {
           </a>
         </h1>
         <p className="hero-subtitle">
-          {t('subtitle1')}<em>{t('subtitleEm')}</em>{t('subtitle2')}<br />
+          {t('subtitle1')}<em>{JUTSU_IDS.length} {t('statJutsu')}</em>{t('subtitle2')}<br />
           {t('subtitle3')}
         </p>
 
+        <div className="hero-action">
+          <button className="launch-btn" onClick={() => onStart()}>
+            <span className="launch-icon">⦿</span>
+            <span className="launch-text">
+              <span className="launch-main">{t('activateWebcam')}</span>
+              <span className="launch-sub">{t('allJutsu')}</span>
+            </span>
+          </button>
+          <p className="cta-hint">{t('clickHint')}</p>
+        </div>
+
         <div className="hero-stats">
-          <div className="stat"><span className="stat-num">8</span><span className="stat-label">{t('statJutsu')}</span></div>
+          <div className="stat"><span className="stat-num">{JUTSU_IDS.length}</span><span className="stat-label">{t('statJutsu')}</span></div>
           <div className="stat-divider"/>
-          <div className="stat"><span className="stat-num">2</span><span className="stat-label">{t('statAnime')}</span></div>
-          <div className="stat-divider"/>
-          <div className="stat"><span className="stat-num">60fps</span><span className="stat-label">{t('statFps')}</span></div>
+          <div className="stat"><span className="stat-num">{new Set(Object.values(JUTSU_ANIME)).size}</span><span className="stat-label">{t('statAnime')}</span></div>
+          <div className="stat-divider stat-performance"/>
+          <div className="stat stat-performance"><span className="stat-num">60fps</span><span className="stat-label">{t('statFps')}</span></div>
         </div>
       </header>
 
@@ -682,8 +697,8 @@ const Tutorial = ({ onStart }) => {
       </div>
 
       {/* 结印手势指南 */}
-      <div className={`seal-guide ${cardsVisible ? 'visible' : ''}`}>
-        <div className="seal-guide-title">{lang === 'zh' ? '🖐️ 结印手势指南' : '🖐️ Seal Gesture Guide'}</div>
+      <details className={`seal-guide ${cardsVisible ? 'visible' : ''}`}>
+        <summary className="seal-guide-title">{lang === 'zh' ? '🖐️ 查看结印手势指南' : '🖐️ View seal gesture guide'}</summary>
         <div className="seal-grid">
           {[
             { seal: '子', emoji: '👊', gesture: lang === 'zh' ? '握拳' : 'Fist', key: 'fist' },
@@ -702,7 +717,7 @@ const Tutorial = ({ onStart }) => {
             </div>
           ))}
         </div>
-      </div>
+      </details>
 
       {/* 按角色分组显示技能 */}
       {CHARACTERS.map((char) => {
@@ -744,20 +759,6 @@ const Tutorial = ({ onStart }) => {
           </div>
         );
       })}
-
-      {/* CTA */}
-      <div className={`cta-section ${cardsVisible ? 'visible' : ''}`}>
-        <button className="launch-btn" onClick={() => onStart()}>
-          <span className="launch-icon">⦿</span>
-          <span className="launch-text">
-            <span className="launch-main">{t('activateWebcam')}</span>
-            <span className="launch-sub">{t('allJutsu')}</span>
-          </span>
-        </button>
-        <p className="cta-hint">
-          {t('clickHint')}
-        </p>
-      </div>
 
       {/* Modal */}
       {selectedJutsu && (() => {

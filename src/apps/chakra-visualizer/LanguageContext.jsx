@@ -9,7 +9,11 @@ const translations = { en, zh };
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {
-    try { return localStorage.getItem('chakra-lang') || 'en'; } catch { return 'en'; }
+    try {
+      return document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+    } catch {
+      return 'en';
+    }
   });
 
   const handleSetLang = (newLang) => {

@@ -27,12 +27,17 @@ import { TollowAccessProvider } from '@/apps/tollow/core/access';
  */
 const TollowAppInner = dynamic(() => import('@/apps/tollow/core/App'), {
   ssr: false,
-  loading: () => (
-    <div className="flex h-full w-full items-center justify-center text-sm text-white/60">
-      正在加载 Tollow…
-    </div>
-  ),
+  loading: () => <TollowLoading label="正在加载 Tollow…" />,
 });
+
+function TollowLoading({ label }: { label: string }) {
+  return (
+    <div className="tollow-boot" role="status" aria-live="polite">
+      <span className="tollow-boot-mark" aria-hidden="true">T</span>
+      <span className="tollow-boot-label">{label}</span>
+    </div>
+  );
+}
 
 export default function TollowApp({
   userId,
@@ -94,9 +99,7 @@ export default function TollowApp({
           <TollowAppInner />
         </TollowAccessProvider>
       ) : (
-        <div className="flex h-full w-full items-center justify-center text-sm text-white/60">
-          正在准备账号数据…
-        </div>
+        <TollowLoading label="正在准备账号数据…" />
       )}
     </div>
   );

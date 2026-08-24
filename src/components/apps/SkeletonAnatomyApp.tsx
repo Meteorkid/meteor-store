@@ -12,7 +12,15 @@ import '@/apps/skeleton-anatomy/index.css';
  */
 const SkeletonAnatomyRoot = dynamic(
   () => import('@/apps/skeleton-anatomy/App'),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="skeleton-app-loading" role="status" aria-live="polite">
+        <span aria-hidden="true">🦴</span>
+        <strong>正在装配 3D 骨骼…</strong>
+      </div>
+    ),
+  },
 );
 
 export default function SkeletonAnatomyApp() {

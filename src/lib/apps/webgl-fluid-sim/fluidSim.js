@@ -63,6 +63,14 @@ const i18n = {
         bgWhite: 'white',
         bgCamera: 'camera',
         waterMode: 'water mode',
+        common: 'Essentials',
+        advanced: 'Advanced settings',
+        controls: 'Fluid controls',
+        closeControls: 'Close controls',
+        cameraRequesting: 'Requesting camera access…',
+        cameraReady: 'Camera ready',
+        cameraDenied: 'Camera unavailable. Check browser permission and retry.',
+        retryCamera: 'Retry camera',
     },
     zh: {
         quality: '画质',
@@ -97,10 +105,19 @@ const i18n = {
         bgWhite: '白色',
         bgCamera: '摄像头',
         waterMode: '水纹模式',
+        common: '常用设置',
+        advanced: '高级设置',
+        controls: '流体控制',
+        closeControls: '关闭控制面板',
+        cameraRequesting: '正在请求摄像头权限…',
+        cameraReady: '摄像头已就绪',
+        cameraDenied: '无法使用摄像头，请检查浏览器权限后重试。',
+        retryCamera: '重试摄像头',
     }
 };
 
-let currentLang = localStorage.getItem('fluidLang') || 'en';
+const inheritedLang = document.documentElement.lang.toLowerCase();
+let currentLang = inheritedLang.startsWith('zh') ? 'zh' : 'en';
 function t(key) { return i18n[currentLang][key] || key; }
 
 function updatePageTexts() {
@@ -115,11 +132,103 @@ function switchLang() {
 }
 
 let gui = null;
+let controlsRoot = null;
+let controlsToggle = null;
+let controlsBackdrop = null;
+let controlsClose = null;
+let cameraStatusText = null;
+let cameraRetryButton = null;
 /** 动画循环句柄，用于组件卸载时销毁 */
 let rafId = null;
 function rebuildGUI() {
+    destroyControlPanelChrome();
     if (gui) { gui.destroy(); gui = null; }
     startGUI();
+}
+
+function setControlPanelOpen(open, { restoreFocus = false } = {}) {
+    if (!controlsRoot || !controlsToggle || !gui) return;
+    controlsRoot.classList.toggle('fluid-controls-open', open);
+    controlsToggle.setAttribute('aria-expanded', String(open));
+    gui.domElement.setAttribute('aria-hidden', String(!open));
+    gui.domElement.inert = !open;
+    if (open) {
+        controlsClose?.focus();
+    } else if (restoreFocus) {
+        controlsToggle.focus();
+    }
+}
+
+function handleControlPanelKeydown(event) {
+    if (event.key === 'Escape' && controlsRoot?.classList.contains('fluid-controls-open')) {
+        setControlPanelOpen(false, { restoreFocus: true });
+    }
+}
+
+function setupControlPanelChrome() {
+    const root = canvas.closest('.fluid-sim-root');
+    const autoPlace = gui?.domElement?.parentElement;
+    if (!root || !autoPlace) return;
+
+    controlsRoot = root;
+    gui.domElement.id = 'fluid-control-panel';
+    gui.domElement.classList.add('fluid-control-panel');
+    autoPlace.classList.add('fluid-controls-shell');
+    root.appendChild(autoPlace);
+
+    const header = document.createElement('div');
+    header.className = 'fluid-control-header';
+    const title = document.createElement('strong');
+    title.textContent = t('controls');
+    controlsClose = document.createElement('button');
+    controlsClose.type = 'button';
+    controlsClose.className = 'fluid-controls-close';
+    controlsClose.setAttribute('aria-label', t('closeControls'));
+    controlsClose.textContent = '×';
+    controlsClose.addEventListener('click', () => setControlPanelOpen(false, { restoreFocus: true }));
+    header.append(title, controlsClose);
+    gui.domElement.insertBefore(header, gui.domElement.firstChild);
+
+    controlsToggle = document.createElement('button');
+    controlsToggle.type = 'button';
+    controlsToggle.className = 'fluid-controls-toggle';
+    controlsToggle.setAttribute('aria-controls', gui.domElement.id);
+    controlsToggle.setAttribute('aria-expanded', 'false');
+    controlsToggle.setAttribute('aria-label', t('controls'));
+    controlsToggle.innerHTML = '<span aria-hidden="true">≡</span><span>' + t('controls') + '</span>';
+    controlsToggle.addEventListener('click', () => {
+        const open = !root.classList.contains('fluid-controls-open');
+        setControlPanelOpen(open);
+    });
+
+    controlsBackdrop = document.createElement('button');
+    controlsBackdrop.type = 'button';
+    controlsBackdrop.className = 'fluid-controls-backdrop';
+    controlsBackdrop.setAttribute('aria-label', t('closeControls'));
+    controlsBackdrop.addEventListener('click', () => setControlPanelOpen(false, { restoreFocus: true }));
+    root.append(controlsBackdrop, controlsToggle);
+    window.addEventListener('keydown', handleControlPanelKeydown);
+    setControlPanelOpen(false);
+}
+
+function destroyControlPanelChrome() {
+    window.removeEventListener('keydown', handleControlPanelKeydown);
+    controlsToggle?.remove();
+    controlsBackdrop?.remove();
+    controlsRoot?.classList.remove('fluid-controls-open');
+    controlsRoot = null;
+    controlsToggle = null;
+    controlsBackdrop = null;
+    controlsClose = null;
+    cameraStatusText = null;
+    cameraRetryButton = null;
+}
+
+function setCameraStatus(messageKey, tone = '') {
+    if (!cameraStatusText || !cameraRetryButton) return;
+    cameraStatusText.textContent = t(messageKey);
+    cameraStatusText.parentElement.dataset.tone = tone;
+    cameraRetryButton.hidden = messageKey !== 'cameraDenied';
 }
 
 // ============================================
@@ -159,17 +268,27 @@ let cameraInstance = null;
 // 激活」窗口内；切换背景/手势后 startCamera 前还要 await initHands()（首次会下载
 // 手势模型），真正的 getUserMedia 往往落在激活过期之后，权限弹窗不会出现。所以
 // 在用户点击的瞬间先预请求一次，授权会持久保留，之后的 startCamera() 才能成功。
-function prewarmCamera() {
-    if (typeof navigator === 'undefined' || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
-    navigator.mediaDevices
+async function prewarmCamera() {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setCameraStatus('cameraDenied', 'error');
+        return false;
+    }
+    setCameraStatus('cameraRequesting', 'working');
+    try {
+        const stream = await navigator.mediaDevices
         .getUserMedia({ video: { width: 256, height: 192 } })
-        .then((stream) => stream.getTracks().forEach((t) => t.stop()))
-        .catch(() => { /* 用户拒绝或失败：后续 startCamera 静默降级 */ });
+        stream.getTracks().forEach((track) => track.stop());
+        setCameraStatus('cameraReady', 'success');
+        return true;
+    } catch {
+        setCameraStatus('cameraDenied', 'error');
+        return false;
+    }
 }
 
-function setBgMode(mode) {
+async function setBgMode(mode) {
     bgMode = mode;
-    if (mode === 'camera') prewarmCamera();
+    if (mode === 'camera') await prewarmCamera();
 
     // 重置所有背景状态
     cameraBg.style.display = 'none';
@@ -187,7 +306,7 @@ function setBgMode(mode) {
     }
 
     // 背景变化后重新评估摄像头需求
-    syncCamera();
+    await syncCamera();
 }
 
 // ============================================
@@ -207,19 +326,27 @@ async function syncCamera() {
 
 async function startCamera() {
     if (cameraInstance) return;
-    if (!mediaPipeReady) return;
-    await initHands();
-
-    cameraInstance = new Camera(gestureVideo, {
-        onFrame: async () => {
-            try {
-                await handsInstance.send({ image: gestureVideo });
-            } catch (e) { /* 静默跳过单帧错误 */ }
-        },
-        width: 256,
-        height: 192
-    });
-    await cameraInstance.start();
+    if (!mediaPipeReady) {
+        setCameraStatus('cameraDenied', 'error');
+        return;
+    }
+    try {
+        await initHands();
+        cameraInstance = new Camera(gestureVideo, {
+            onFrame: async () => {
+                try {
+                    await handsInstance.send({ image: gestureVideo });
+                } catch (e) { /* 静默跳过单帧错误 */ }
+            },
+            width: 256,
+            height: 192
+        });
+        await cameraInstance.start();
+        setCameraStatus('cameraReady', 'success');
+    } catch {
+        cameraInstance = null;
+        setCameraStatus('cameraDenied', 'error');
+    }
 }
 
 function stopCamera() {
@@ -426,7 +553,13 @@ async function toggleGesture() {
     gestureEnabled = !gestureEnabled;
 
     if (gestureEnabled) {
-        prewarmCamera();
+        const cameraReady = await prewarmCamera();
+        if (!cameraReady) {
+            gestureEnabled = false;
+            updateGestureBtnUI();
+            gestureToggling = false;
+            return;
+        }
         await initHands();
         if (!handsInstance) { gestureEnabled = false; gestureToggling = false; return; }
         fingerStates = [];
@@ -604,17 +737,17 @@ function supportRenderTextureFormat (gl, internalFormat, format, type) {
 }
 
 function startGUI () {
-    gui = new dat.GUI({ width: 300 });
-
-    // 语言切换按钮
-    let langBtn = gui.add({ fun: switchLang }, 'fun').name(t('langBtn'));
-    langBtn.__li.className = 'cr function bigFont';
-    langBtn.__li.style.borderLeft = '3px solid #FFD700';
+    gui = new dat.GUI({ width: 320 });
+    const commonFolder = gui.addFolder(t('common'));
+    const advancedFolder = gui.addFolder(t('advanced'));
+    commonFolder.__li.classList.add('fluid-common-section');
+    advancedFolder.__li.classList.add('fluid-advanced-section');
+    commonFolder.open();
 
     // 背景模式（从当前 bgMode 同步初始值，避免切语言后下拉失步）
     const bgModeMap = { black: 'bgBlack', white: 'bgWhite', camera: 'bgCamera' };
     let bgConfig = { mode: t(bgModeMap[bgMode] || 'bgBlack') };
-    gui.add(bgConfig, 'mode', [t('bgBlack'), t('bgWhite'), t('bgCamera')])
+    commonFolder.add(bgConfig, 'mode', [t('bgBlack'), t('bgWhite'), t('bgCamera')])
         .name(t('bgMode'))
         .onChange(v => {
             const map = { [t('bgBlack')]: 'black', [t('bgWhite')]: 'white', [t('bgCamera')]: 'camera' };
@@ -622,7 +755,7 @@ function startGUI () {
         });
 
     // 水纹模式：只改变水纹颜色为极淡近透明色，不改变背景
-    gui.add(config, 'WATER_MODE').name(t('waterMode')).onChange(v => {
+    commonFolder.add(config, 'WATER_MODE').name(t('waterMode')).onChange(v => {
         if (v) {
             config._savedColorful = config.COLORFUL;
             config.COLORFUL = false;
@@ -637,8 +770,7 @@ function startGUI () {
 
     // 手势控制
     try {
-        let gestureFolder = gui.addFolder(t('gestureControl'));
-        gestureBtnRef = gestureFolder.add({ fun: function() { toggleGesture(); } }, 'fun');
+        gestureBtnRef = commonFolder.add({ fun: function() { toggleGesture(); } }, 'fun');
         gestureBtnRef.name(t('enableGesture'));
         gestureBtnRef.__li.querySelector('.property-name').style.color = gestureEnabled
             ? '#34C759'
@@ -647,45 +779,61 @@ function startGUI () {
             ? '3px solid #34C759'
             : '3px solid rgba(255,255,255,0.15)';
         if (!mediaPipeReady) {
-            gestureFolder.__ul.style.opacity = '0.5';
+            gestureBtnRef.__li.style.opacity = '0.55';
         }
     } catch (e2) {
         console.error('Gesture GUI error:', e2);
     }
 
+    const cameraStatus = document.createElement('li');
+    cameraStatus.className = 'fluid-camera-status';
+    cameraStatusText = document.createElement('span');
+    cameraStatusText.textContent = '';
+    cameraRetryButton = document.createElement('button');
+    cameraRetryButton.type = 'button';
+    cameraRetryButton.textContent = t('retryCamera');
+    cameraRetryButton.hidden = true;
+    cameraRetryButton.addEventListener('click', async () => {
+        const granted = await prewarmCamera();
+        if (granted) await syncCamera();
+    });
+    cameraStatus.append(cameraStatusText, cameraRetryButton);
+    commonFolder.__ul.appendChild(cameraStatus);
+
     try {
-        gui.add(config, 'DYE_RESOLUTION', { [t('high')]: 1024, [t('medium')]: 512, [t('low')]: 256, [t('veryLow')]: 128 }).name(t('quality')).onFinishChange(initFramebuffers);
+        commonFolder.add(config, 'DYE_RESOLUTION', { [t('high')]: 1024, [t('medium')]: 512, [t('low')]: 256, [t('veryLow')]: 128 }).name(t('quality')).onFinishChange(initFramebuffers);
     } catch (e3) {
         console.error('Quality GUI error:', e3);
     }
-    gui.add(config, 'SIM_RESOLUTION', { '32': 32, '64': 64, '128': 128, '256': 256 }).name(t('simResolution')).onFinishChange(initFramebuffers);
-    gui.add(config, 'DENSITY_DISSIPATION', 0, 4.0).name(t('densityDiffusion'));
-    gui.add(config, 'VELOCITY_DISSIPATION', 0, 4.0).name(t('velocityDiffusion'));
-    gui.add(config, 'PRESSURE', 0.0, 1.0).name(t('pressure'));
-    gui.add(config, 'CURL', 0, 50).name(t('vorticity')).step(1);
-    gui.add(config, 'SPLAT_RADIUS', 0.01, 1.0).name(t('splatRadius'));
-    gui.add(config, 'SHADING').name(t('shading')).onFinishChange(updateKeywords);
-    gui.add(config, 'COLORFUL').name(t('colorful'));
-    gui.add(config, 'PAUSED').name(t('paused')).listen();
+    commonFolder.add(config, 'PAUSED').name(t('paused')).listen();
 
-    gui.add({ fun: () => {
+    advancedFolder.add(config, 'SIM_RESOLUTION', { '32': 32, '64': 64, '128': 128, '256': 256 }).name(t('simResolution')).onFinishChange(initFramebuffers);
+    advancedFolder.add(config, 'DENSITY_DISSIPATION', 0, 4.0).name(t('densityDiffusion'));
+    advancedFolder.add(config, 'VELOCITY_DISSIPATION', 0, 4.0).name(t('velocityDiffusion'));
+    advancedFolder.add(config, 'PRESSURE', 0.0, 1.0).name(t('pressure'));
+    advancedFolder.add(config, 'CURL', 0, 50).name(t('vorticity')).step(1);
+    advancedFolder.add(config, 'SPLAT_RADIUS', 0.01, 1.0).name(t('splatRadius'));
+    advancedFolder.add(config, 'SHADING').name(t('shading')).onFinishChange(updateKeywords);
+    advancedFolder.add(config, 'COLORFUL').name(t('colorful'));
+
+    advancedFolder.add({ fun: () => {
         splatStack.push(parseInt(Math.random() * 20) + 5);
     } }, 'fun').name(t('randomSplats'));
 
-    let bloomFolder = gui.addFolder(t('bloom'));
+    let bloomFolder = advancedFolder.addFolder(t('bloom'));
     bloomFolder.add(config, 'BLOOM').name(t('enabled')).onFinishChange(updateKeywords);
     bloomFolder.add(config, 'BLOOM_INTENSITY', 0.1, 2.0).name(t('intensity'));
     bloomFolder.add(config, 'BLOOM_THRESHOLD', 0.0, 1.0).name(t('threshold'));
 
-    let sunraysFolder = gui.addFolder(t('sunrays'));
+    let sunraysFolder = advancedFolder.addFolder(t('sunrays'));
     sunraysFolder.add(config, 'SUNRAYS').name(t('enabled')).onFinishChange(updateKeywords);
     sunraysFolder.add(config, 'SUNRAYS_WEIGHT', 0.3, 1.0).name(t('weight'));
 
-    let captureFolder = gui.addFolder(t('capture'));
+    let captureFolder = advancedFolder.addFolder(t('capture'));
     captureFolder.addColor(config, 'BACK_COLOR').name(t('bgColor'));
     captureFolder.add({ fun: captureScreenshot }, 'fun').name(t('screenshot'));
 
-    let github = gui.add({ fun : () => {
+    let github = advancedFolder.add({ fun : () => {
         window.open('https://github.com/Meteorkid/webgl-fluid-sim');
     } }, 'fun').name('Github');
     github.__li.className = 'cr function bigFont';
@@ -698,14 +846,13 @@ function startGUI () {
     let shortcutText = currentLang === 'zh'
         ? '⌨ H:面板 G:手势 P:暂停 空格:溅射'
         : '⌨ H:Panel G:Gesture P:Pause Space:Splat';
-    let shortcuts = gui.add({ fun: () => {} }, 'fun').name(shortcutText);
+    let shortcuts = advancedFolder.add({ fun: () => {} }, 'fun').name(shortcutText);
     shortcuts.__li.className = 'cr function bigFont';
     shortcuts.__li.style.borderLeft = '3px solid rgba(255,255,255,0.08)';
     shortcuts.__li.style.cursor = 'default';
     shortcuts.__li.style.opacity = '0.6';
 
-    if (isMobile())
-        gui.close();
+    setupControlPanelChrome();
 }
 
 function isMobile () {
@@ -1959,9 +2106,8 @@ window.addEventListener('keydown', e => {
         splatStack.push(parseInt(Math.random() * 20) + 5);
     }
     // H - 显示/隐藏控制面板
-    if (e.code === 'KeyH' && gui) {
-        gui.__ul.parentElement.style.display =
-            gui.__ul.parentElement.style.display === 'none' ? '' : 'none';
+    if (e.code === 'KeyH' && gui && controlsRoot) {
+        setControlPanelOpen(!controlsRoot.classList.contains('fluid-controls-open'));
     }
     // G - 开关手势控制
     if (e.code === 'KeyG')
@@ -2108,6 +2254,7 @@ export function destroyFluidSim () {
         rafId = null;
     }
     if (gui) {
+        destroyControlPanelChrome();
         try { gui.destroy(); } catch (e) { /* ignore */ }
         gui = null;
     }

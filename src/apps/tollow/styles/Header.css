@@ -53,7 +53,7 @@
   border-radius: 2px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .nav-link:hover {
@@ -75,6 +75,10 @@
   letter-spacing: 0.02em;
 }
 
+.mobile-nav {
+  display: none;
+}
+
 /* 响应式 */
 @media (max-width: 768px) {
   .header-bar {
@@ -90,16 +94,56 @@
   }
 
   .nav {
-    gap: 2px;
-  }
-
-  .nav-link {
-    font-size: 0.75rem;
-    padding: 4px 8px;
-  }
-
-  .nav-link:nth-child(3),
-  .nav-link:nth-child(4) {
     display: none;
+  }
+
+  .favorites-header-button {
+    display: none;
+  }
+
+  .mobile-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 80;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 6px max(8px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    border-top: 1px solid var(--color-line);
+    background: color-mix(in srgb, var(--color-bg1) 96%, transparent);
+    box-shadow: 0 -10px 30px rgba(70, 62, 49, 0.12);
+  }
+
+  .mobile-nav-item {
+    min-width: 0;
+    min-height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: 0;
+    border-radius: 2px;
+    color: var(--color-ink2);
+    background: transparent;
+    font: 600 0.65rem/1.15 var(--font-sans);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .mobile-nav-item.active {
+    color: var(--color-accent);
+    background: var(--color-accentsoft);
+  }
+
+  .mobile-nav-item:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+
+  .mobile-nav-icon {
+    font-size: 1rem;
+    line-height: 1;
   }
 }

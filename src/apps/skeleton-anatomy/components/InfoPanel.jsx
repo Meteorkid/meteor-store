@@ -1,21 +1,50 @@
 // @ts-nocheck
 /* eslint-disable */
+import { useEffect, useRef } from 'react'
 import useStore from '../store/useStore'
 import { getBoneById, boneCategories } from '../data/boneData'
 
 export default function InfoPanel() {
   const selectedBone = useStore((s) => s.selectedBone)
   const infoPanelOpen = useStore((s) => s.infoPanelOpen)
+  const closePanels = useStore((s) => s.closePanels)
+  const closeButtonRef = useRef(null)
   const bone = selectedBone ? getBoneById(selectedBone) : null
   const category = bone
     ? boneCategories.find((c) => c.id === bone.category)
     : null
 
+  // 移动端抽屉打开后焦点进入面板；桌面端关闭按钮是 display:none，focus 自然无效
+  useEffect(() => {
+    if (infoPanelOpen) closeButtonRef.current?.focus()
+  }, [infoPanelOpen])
+
+  // 未选中骨骼时在桌面端折叠整列，把宽度还给 3D 画布；
+  // 移动端仍是底部抽屉，展开时照常显示操作提示。
+  const className = [
+    'info-panel',
+    bone ? '' : 'collapsed',
+    infoPanelOpen ? 'open' : '',
+  ].filter(Boolean).join(' ')
+
+  const closeButton = (
+    <button
+      ref={closeButtonRef}
+      type="button"
+      className="drawer-close"
+      onClick={closePanels}
+      aria-label="关闭骨骼详情"
+    >
+      <span aria-hidden="true">✕</span>
+    </button>
+  )
+
   if (!bone) {
     return (
-      <div className={`info-panel ${infoPanelOpen ? 'open' : ''}`}>
+      <div id="skeleton-info-panel" className={className} aria-label="骨骼详情">
+        {closeButton}
         <div className="info-placeholder">
-          <div className="info-icon">🦴</div>
+          <div className="info-icon" aria-hidden="true">🦴</div>
           <h3>点击任意骨骼查看详情</h3>
           <p>鼠标左键旋转 · 滚轮缩放 · 右键平移</p>
         </div>
@@ -24,7 +53,8 @@ export default function InfoPanel() {
   }
 
   return (
-    <div className={`info-panel ${infoPanelOpen ? 'open' : ''}`}>
+    <div id="skeleton-info-panel" className={className} aria-label="骨骼详情">
+      {closeButton}
       <div className="info-header">
         <span className="info-category-badge">
           {category?.name || bone.category}

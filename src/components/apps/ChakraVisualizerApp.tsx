@@ -14,7 +14,15 @@ import '@/apps/chakra-visualizer/style.css';
  */
 const ChakraVisualizerRoot = dynamic(
   () => import('@/apps/chakra-visualizer/App'),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="chakra-app-loading" role="status" aria-live="polite">
+        <span aria-hidden="true">火</span>
+        <strong>正在聚集查克拉…</strong>
+      </div>
+    ),
+  },
 );
 
 export default function ChakraVisualizerApp() {

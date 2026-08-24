@@ -6,6 +6,32 @@
   background: black;
 }
 
+.chakra-app-loading {
+  min-height: 100svh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  color: #f5dfd0;
+  background: radial-gradient(circle at 50% 45%, rgba(196, 40, 30, 0.2), transparent 34%), #070706;
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.08em;
+}
+
+.chakra-app-loading span {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(230, 64, 50, 0.45);
+  border-radius: 50%;
+  color: #ef4b3f;
+  font-size: 1.6rem;
+  box-shadow: 0 0 32px rgba(230, 64, 50, 0.2);
+}
+
+.chakra-app-loading strong { font-size: 0.82rem; font-weight: 500; }
+
 /* Only the webcam feed gets mirrored + fullscreen */
 .camera-view #webcam {
   position: absolute;

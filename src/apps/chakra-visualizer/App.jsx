@@ -5,25 +5,34 @@ import Tutorial from './components/Tutorial';
 import Camera from './components/Camera';
 import './App.css';
 
+function prewarmCamera() {
+  if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+    return Promise.resolve(false);
+  }
+  return navigator.mediaDevices
+    .getUserMedia({ video: { width: 1280, height: 720 } })
+    .then((stream) => {
+      stream.getTracks().forEach((track) => track.stop());
+      return true;
+    })
+    .catch(() => false);
+}
+
 function App() {
   const [showCamera, setShowCamera] = useState(false);
   const [initialJutsu, setInitialJutsu] = useState(null);
+  const [cameraAttempt, setCameraAttempt] = useState(0);
 
-  const handleStart = (jutsuId = null) => {
+  const handleStart = async (jutsuId = null) => {
     // 主动在用户点击手势内请求摄像头权限。Chrome 要求 getUserMedia 必须发生在
     // 「临时用户激活」窗口内；点击开始后还要下载 ~5MB 手势模型，等模型加载完
     // Camera 组件再 start() 时激活早已过期，权限弹窗不会弹出（表现为「无法获取
     // 摄像头权限、没有主动拉取权限」）。这里先在点击瞬间预请求一次，授权会持久
     // 保留，之后的 start() 才能成功。
-    if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
-      navigator.mediaDevices
-        .getUserMedia({ video: { width: 1280, height: 720 } })
-        .then((stream) => stream.getTracks().forEach((t) => t.stop()))
-        .catch(() => {
-          // 用户拒绝或获取失败：交由 Camera 组件统一展示错误提示
-        });
-    }
+    // 等首次权限请求结束后再挂载 Camera，避免两个 getUserMedia 同时抢占摄像头。
+    await prewarmCamera();
     setInitialJutsu(jutsuId);
+    setCameraAttempt((attempt) => attempt + 1);
     setShowCamera(true);
   };
 
@@ -33,7 +42,15 @@ function App() {
         <Tutorial onStart={handleStart} />
       ) : (
         <div className="camera-view">
-          <Camera initialJutsu={initialJutsu} onBack={() => { setInitialJutsu(null); setShowCamera(false); }} />
+          <Camera
+            key={cameraAttempt}
+            initialJutsu={initialJutsu}
+            onRetry={async () => {
+              await prewarmCamera();
+              setCameraAttempt((attempt) => attempt + 1);
+            }}
+            onBack={() => { setInitialJutsu(null); setShowCamera(false); }}
+          />
         </div>
       )}
     </>

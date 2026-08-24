@@ -47,6 +47,20 @@
   --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
+.skeleton-app-loading {
+  min-height: 100svh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  background: radial-gradient(circle at 50% 46%, var(--accent-glow), transparent 30%), var(--bg-primary);
+  letter-spacing: 0.06em;
+}
+
+.skeleton-app-loading span { font-size: 2.4rem; }
+.skeleton-app-loading strong { color: var(--text-primary); font-size: 0.82rem; font-weight: 500; }
+
 /* ========== 全局重置（scoped） ========== */
 .skeleton-anatomy-root * {
   margin: 0;
@@ -149,15 +163,20 @@
 
 .search-clear {
   position: absolute;
-  right: 20px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   background: none;
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
   font-size: 14px;
-  padding: 4px;
+  padding: 0;
 }
 
 .search-clear:hover {
@@ -230,11 +249,26 @@
 .bone-list-item {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: calc(100% - 8px);
+  min-height: 44px;
+  justify-content: center;
   padding: 8px 12px;
   margin: 1px 4px;
+  border: none;
+  border-left: 3px solid transparent;
   border-radius: 6px;
+  background: none;
+  font-family: inherit;
+  text-align: left;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.bone-list-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .bone-list-item:hover {
@@ -243,7 +277,7 @@
 
 .bone-list-item.selected {
   background: var(--surface-active);
-  border-left: 3px solid var(--accent);
+  border-left-color: var(--accent);
 }
 
 .bone-list-name-zh {
@@ -279,6 +313,13 @@
   overflow-y: auto;
   flex-shrink: 0;
   transition: background 0.3s;
+}
+
+/* 未选择骨骼时折叠整列，把宽度交还给 3D 画布 */
+.info-panel.collapsed {
+  width: 0;
+  border-left: none;
+  overflow: hidden;
 }
 
 .info-panel::-webkit-scrollbar {
@@ -466,12 +507,17 @@
 }
 
 .quiz-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
   font-size: 16px;
-  padding: 4px;
+  padding: 0;
   line-height: 1;
 }
 
@@ -597,6 +643,14 @@
 /* ========== 移动端侧边栏/信息面板遮罩 ========== */
 .mobile-overlay {
   display: none;
+  padding: 0;
+  border: none;
+  appearance: none;
+}
+
+/* 抽屉内的显式关闭按钮：桌面端两栏常驻，不需要关闭入口 */
+.drawer-close {
+  display: none;
 }
 
 /* ========== 移动端切换按钮 ========== */
@@ -633,19 +687,49 @@
     display: none;
   }
 
-  /* 移动端切换按钮 */
+  /* 移动端切换按钮：触控区不小于 44px */
   .mobile-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--surface-hover);
     color: var(--text-primary);
     cursor: pointer;
     font-size: 18px;
+  }
+
+  /* 抽屉内的显式关闭按钮 */
+  .drawer-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .drawer-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* 分类筛选在触屏上放大到可点击尺寸 */
+  .category-btn {
+    min-height: 44px;
+    padding: 8px 12px;
   }
 
   /* 侧边栏变为抽屉 */
@@ -684,6 +768,22 @@
     transform: translateY(0);
   }
 
+  /* 折叠只是桌面端的布局手段；移动端抽屉展开时仍要占满宽度显示提示 */
+  .info-panel.collapsed {
+    width: 100%;
+    overflow-y: auto;
+  }
+
+  /* 关闭按钮浮在抽屉右上角，内容整体下移让出位置 */
+  .sidebar-search {
+    padding-top: 60px;
+  }
+
+  .info-header,
+  .info-placeholder {
+    padding-top: 60px;
+  }
+
   /* 遮罩层 */
   .mobile-overlay {
     display: block;
@@ -718,5 +818,37 @@
   .quiz-toggle-btn {
     font-size: 12px;
     padding: 5px 10px;
+  }
+}
+
+/* ========== 减少动态效果 ========== */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-anatomy-root *,
+  .skeleton-anatomy-root *::before,
+  .skeleton-anatomy-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * 抽屉只在移动端断点用 transform 位移。只关 transition 等于把滑入变成瞬移，
+ * 所以这里连位移一起去掉，改用 display 直接切换——但必须限制在同一个断点内，
+ * 否则桌面端常驻的两栏会被整列隐藏。
+ */
+@media (prefers-reduced-motion: reduce) and (max-width: 768px) {
+  .sidebar,
+  .info-panel {
+    transform: none;
+    display: none;
+  }
+
+  .sidebar.open {
+    display: flex;
+  }
+
+  .info-panel.open {
+    display: block;
   }
 }

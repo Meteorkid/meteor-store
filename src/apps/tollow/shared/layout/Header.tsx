@@ -15,12 +15,13 @@ const Header: React.FC = () => {
   const accessLevel = useTollowAccessLevel()
   const [favoritesOpen, setFavoritesOpen] = React.useState(false)
   const [syncStatus, setSyncStatus] = React.useState<TollowSyncStatus>('synced')
-  const favoritesButtonRef = React.useRef<HTMLButtonElement>(null)
+  const favoritesTriggerRef = React.useRef<HTMLButtonElement | null>(null)
+  const isZh = typeof document === 'undefined' || document.documentElement.lang.startsWith('zh')
   const nav = [
-    { to: '/library', label: '书库' },
-    { to: '/upload', label: '上传' },
-    { to: '/practice', label: '练习' },
-    { to: '/analytics', label: '分析' },
+    { to: '/library', label: isZh ? '书库' : 'Library', icon: '▤' },
+    { to: '/upload', label: isZh ? '上传' : 'Upload', icon: '↑' },
+    { to: '/practice', label: isZh ? '练习' : 'Practice', icon: '⌨' },
+    { to: '/analytics', label: isZh ? '分析' : 'Insights', icon: '◫' },
   ]
 
   // 报刊风日期格式
@@ -42,7 +43,12 @@ const Header: React.FC = () => {
 
   const closeFavorites = React.useCallback(() => {
     setFavoritesOpen(false)
-    requestAnimationFrame(() => favoritesButtonRef.current?.focus())
+    requestAnimationFrame(() => favoritesTriggerRef.current?.focus())
+  }, [])
+
+  const openFavorites = React.useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+    favoritesTriggerRef.current = event.currentTarget
+    setFavoritesOpen(true)
   }, [])
 
   const syncLabel = accessLevel !== 'pro'
@@ -63,7 +69,12 @@ const Header: React.FC = () => {
         <span className="header-date">{dateStr}</span>
         <nav className="nav">
           {nav.map(item => (
-            <Link key={item.to} to={item.to} className={`nav-link ${pathname === item.to ? 'active' : ''}`}>
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`nav-link ${pathname === item.to ? 'active' : ''}`}
+              aria-current={pathname === item.to ? 'page' : undefined}
+            >
               {item.label}
             </Link>
           ))}
@@ -71,15 +82,31 @@ const Header: React.FC = () => {
         <div className="header-account-tools">
           <span className="tollow-sync-status" data-status={syncStatus} aria-live="polite">{syncLabel}</span>
           <button
-            ref={favoritesButtonRef}
             type="button"
             className="favorites-header-button"
-            onClick={() => setFavoritesOpen(true)}
+            onClick={openFavorites}
           >
             我的收藏
           </button>
         </div>
       </div>
+      <nav className="mobile-nav" aria-label={isZh ? '主要导航' : 'Primary navigation'}>
+        {nav.map(item => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className={`mobile-nav-item ${pathname === item.to ? 'active' : ''}`}
+            aria-current={pathname === item.to ? 'page' : undefined}
+          >
+            <span className="mobile-nav-icon" aria-hidden="true">{item.icon}</span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
+        <button type="button" className="mobile-nav-item" onClick={openFavorites}>
+          <span className="mobile-nav-icon" aria-hidden="true">♡</span>
+          <span>{isZh ? '收藏' : 'Saved'}</span>
+        </button>
+      </nav>
       <FavoritesDrawer open={favoritesOpen} onClose={closeFavorites} />
     </header>
   )

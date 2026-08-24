@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { appComponents } from '@/components/apps/registry';
@@ -7,6 +8,18 @@ import { findProduct } from '@/lib/products';
 
 interface TrialPageProps {
   params: Promise<{ locale: string; id: string }>;
+}
+
+export async function generateMetadata({ params }: TrialPageProps): Promise<Metadata> {
+  const { locale, id } = await params;
+  const product = findProduct(id);
+  if (!product) return {};
+
+  const name = locale === 'zh' ? product.name.zh : product.name.en;
+  return {
+    title: locale === 'zh' ? `${name} · 在线体验` : `${name} · Live Demo`,
+    description: locale === 'zh' ? product.tagline.zh : product.tagline.en,
+  };
 }
 
 /**
@@ -33,7 +46,10 @@ export default async function TrialPage({ params }: TrialPageProps) {
 
   return (
     <main className="h-dvh w-screen overflow-hidden bg-black text-white">
-      {renderApp({ userId: session?.userId })}
+      {renderApp({
+        userId: session?.userId,
+        tollowAccessLevel: id === 'tollow' ? 'free' : undefined,
+      })}
     </main>
   );
 }

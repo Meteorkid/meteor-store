@@ -16,7 +16,7 @@ import { createParticleSystem } from "../modules/particles";
 import { drawJutsuEffect } from "../utils/jutsu-renderer";
 import CharacterSilhouette from "./CharacterSilhouette";
 
-export default function CameraComponent({ onBack, initialJutsu }) {
+export default function CameraComponent({ onBack, onRetry, initialJutsu }) {
   const { config, onSealSuccess, onSealInterrupted, onUltRelease, score, combo, perfectCount } = useGame();
   const { lang } = useLanguage();
   const isZh = lang === 'zh';
@@ -844,15 +844,26 @@ export default function CameraComponent({ onBack, initialJutsu }) {
           <div style={{ fontSize: '1.1rem', color: '#ccc', maxWidth: '500px', textAlign: 'center', lineHeight: 1.6 }}>
             {cameraError}
           </div>
-          <button
-            onClick={onBack}
-            style={{
-              marginTop: '2rem', padding: '0.8rem 2rem', background: '#ff5252', color: '#fff',
-              border: 'none', borderRadius: '8px', fontSize: '1.1rem', cursor: 'pointer'
-            }}
-          >
-            {isZh ? '← 返回' : '← Back'}
-          </button>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.75rem', marginTop: '2rem' }}>
+            <button
+              onClick={onRetry}
+              style={{
+                minHeight: '44px', padding: '0.8rem 1.5rem', background: '#c62828', color: '#fff',
+                border: '1px solid #ff5252', borderRadius: '10px', fontSize: '1rem', cursor: 'pointer'
+              }}
+            >
+              {isZh ? '重新请求摄像头' : 'Retry camera'}
+            </button>
+            <button
+              onClick={onBack}
+              style={{
+                minHeight: '44px', padding: '0.8rem 1.5rem', background: 'rgba(255,255,255,0.08)', color: '#fff',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', fontSize: '1rem', cursor: 'pointer'
+              }}
+            >
+              {isZh ? '← 返回教学' : '← Back to tutorial'}
+            </button>
+          </div>
         </div>
       )}
       <video id="webcam" ref={videoRef} autoPlay playsInline></video>
