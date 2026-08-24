@@ -18,6 +18,7 @@ export default function AdminNav() {
     { href: '/admin/feedback', label: t('feedback') },
     { href: '/admin/commerce', label: t('commerce') },
     { href: '/admin/announcements', label: t('announcements') },
+    { href: '/admin/pathfinder', label: 'Pathfinder' },
     { href: '/admin/invite-codes', label: t('inviteCodes') },
     { href: '/admin/audit-logs', label: t('auditLogs') },
     { href: '/admin/mfa', label: t('mfa') },

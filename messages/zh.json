@@ -1308,76 +1308,6 @@
     "totalCount": "共 {total} 个标签",
     "noMatch": "没有匹配的标签"
   },
-  "PathfinderPage": {
-    "metaTitle": "Meteor Pathfinder · 现实可达学习引擎",
-    "metaDescription": "面向资源不足学生的现实可达学习引擎。基于时间、预算、设备和网络条件，生成可执行且可验证的行动路径。",
-    "badgeMain": "主赛道 · 学习工作",
-    "badgeExtra": "附加赛题 · 社会公益",
-    "badgeFree": "永久免费",
-    "heroTitle": "Meteor Pathfinder · 现实可达学习引擎",
-    "heroSubtitle": "不必拥有更好的条件，先找到你现在",
-    "heroSubtitleHighlight": "走得通",
-    "heroSubtitleSuffix": "的一步。",
-    "heroDescription": "面向县域家庭的首代大学生：只有手机、时间零碎、缺少导师或付费资源时，仍能根据现实条件得到一条可执行、可替代的学习与实习准备路径。",
-    "painsTitle": "他们面对的三道坎",
-    "pain1Title": "缺少稳定的指导",
-    "pain1Desc": "没有可以长期请教的老师或前辈，规划只能靠自己摸索，常常走弯路。",
-    "pain2Title": "信息分散不知从何开始",
-    "pain2Desc": "网上资料很多，却不知哪些适合自己、按什么顺序学，反而迟迟无法开始。",
-    "pain3Title": "设备、流量、时间都有限",
-    "pain3Desc": "只有一部手机、流量吃紧、课余时间零碎，被大部分课程无声地挡在门外。",
-    "pledgesTitle": "公益承诺",
-    "pledge1Title": "核心功能永久免费",
-    "pledge1Desc": "路径生成、行动计划、资源推荐对所有学生完全免费，永不收费。",
-    "pledge2Title": "不收集敏感信息",
-    "pledge2Desc": "不要求填写真实姓名、学校、手机号、住址。只需一个目标就能开始。",
-    "pledge3Title": "不推荐付费产品",
-    "pledge3Desc": "结果中不会出现购买、会员、课程售卖等引导，路径不为变现服务。",
-    "pledge4Title": "低流量优先",
-    "pledge4Desc": "资源排序优先考虑免费、公开、低流量可访问的内容，照顾网络受限的同学。",
-    "privacyTitle": "隐私说明",
-    "privacyContent": "本站不要求姓名、学校、手机号、住址，且不长期保存输入。你的 API Key、Base URL 与模型名称仅保存在当前浏览器会话；生成时，它们会与目标和学习条件一次性发送至你选择的 AI 模型服务商处理。请勿填写身份信息、联系方式、住址或其他敏感个人信息。生成的路径建议不作升学、就业、医疗或心理诊断承诺。",
-    "ctaTitle": "资源不该决定一个学生能走多远",
-    "ctaButton": "按我的现实条件开始"
-  },
-  "PathfinderSettingsPage": {
-    "metaTitle": "模型配置 · Meteor Pathfinder",
-    "metaDescription": "为 Meteor Pathfinder 配置你自己的兼容模型服务。",
-    "backLink": "← 返回星途导航",
-    "eyebrow": "你的密钥，你的选择",
-    "title": "模型配置",
-    "description": "Pathfinder 不提供或托管模型密钥。请使用你自己的兼容模型服务，在生成时获得可控的调用权与费用归属。",
-    "configInvalid": "配置格式不正确",
-    "formTitle": "配置你的模型",
-    "formDescription": "仅支持白名单内的 OpenAI Chat Completions 兼容接口。API Key 只保存在当前浏览器会话，关闭标签页后失效；本站应用代码不会将它写入数据库、日志或 Vercel 环境变量。",
-    "apiKeyPlaceholder": "粘贴你自己的 API Key",
-    "providerLabel": "模型服务商",
-    "providerHint": "将使用 {baseUrl}，系统会在其后调用 /chat/completions。",
-    "providerDocs": "查看 {name} 的模型目录",
-    "modelLabel": "模型名称",
-    "modelPlaceholder": "按所选服务商的模型目录填写模型 ID",
-    "warning": "请只使用你有权使用的模型服务。点击“保存并使用”后，密钥仅在你提交生成请求时通过 HTTPS 发往本站服务端，并立刻转发给你选择的模型服务商；请勿在不可信设备上保存配置。",
-    "saved": "配置已保存到当前浏览器会话。",
-    "clear": "清除本次配置",
-    "save": "保存并使用"
-  },
-  "PathfinderClient": {
-    "errorNoConfig": "请先完成模型配置，再生成你的路径。",
-    "errorRequest": "请求失败（{status}）",
-    "errorNetwork": "网络异常，请检查网络后重试",
-    "sectionTitle": "先看一条走得通的路径",
-    "noApiKey": "无需 API Key",
-    "presetBadge": "典型场景演示",
-    "presetTag": "静态预置 · 非实时 AI 生成",
-    "usingConfig": "正在使用你的模型配置",
-    "generateOwn": "也可以按自己的现实条件生成",
-    "usingConfigDetail": "已选模型：{model}。密钥仅保存在当前浏览器会话。",
-    "configHint": "典型场景无需配置；如需生成自己的路径，请填写你的 API Key、Base URL 和模型名称。",
-    "editConfig": "修改配置",
-    "setupConfig": "去配置",
-    "clear": "清除",
-    "loading": "正在基于你的条件生成路径..."
-  },
   "PlaygroundPage": {
     "metaTitle": "Playground - Meteor Store",
     "metaDescription": "在浏览器里试玩 Meteor Store 产品，不用安装，不用付费。",
@@ -1437,117 +1367,6 @@
     "change": "更换头像",
     "remove": "移除",
     "uploadAria": "上传头像"
-  },
-  "PathfinderEnums": {
-    "stage": {
-      "middle-school": "初中",
-      "high-school": "高中",
-      "college": "大学",
-      "career-start": "职业起步"
-    },
-    "device": {
-      "phone-only": "仅手机",
-      "phone-and-pc": "手机和电脑",
-      "pc": "电脑"
-    },
-    "network": {
-      "limited-data": "流量有限",
-      "normal": "普通网络",
-      "stable": "稳定网络"
-    },
-    "constraint": {
-      "fragmented-time": "时间碎片化",
-      "weak-foundation": "基础薄弱",
-      "no-mentor": "缺少指导",
-      "limited-budget": "预算有限"
-    }
-  },
-  "PathfinderForm": {
-    "goalRequired": "请描述你的目标",
-    "goalTooLong": "目标描述不超过 280 字",
-    "constraintRequired": "至少选择一个现实限制",
-    "submitFailed": "提交失败",
-    "goalLabel": "你的学习或成长目标",
-    "goalPlaceholder": "例如：用手机完成 Python 入门，并在 4 周内做出一个小作品",
-    "stageLabel": "当前阶段",
-    "deviceLabel": "可用设备",
-    "weeklyHoursLabel": "每周可投入时间：{hours} 小时",
-    "dailyMinutesLabel": "每天可投入时间：{minutes} 分钟",
-    "budgetLabel": "每月学习预算",
-    "zeroBudget": "零预算",
-    "budgetAmount": "{amount} 元",
-    "networkLabel": "网络条件",
-    "mentorLabel": "是否有可求助的人",
-    "mentorYes": "有，可以偶尔请教",
-    "mentorNo": "暂时没有",
-    "constraintsLabel": "现实限制（可多选）",
-    "loading": "正在生成路径...",
-    "submit": "按我的现实条件生成",
-    "formAriaLabel": "学习路径生成表单"
-  },
-  "PathfinderPlan": {
-    "presetBadge": "典型场景演示",
-    "presetTag": "静态预置 · 非实时 AI 生成",
-    "fallbackTag": "基础路径模式 · 确定性结果",
-    "aiTag": "AI 生成路径",
-    "summaryTitle": "路径说明",
-    "todayTitle": "今天就能开始",
-    "todayStepHint": "第一步约 {minutes} 分钟 · {evidence}",
-    "weekPlanTitle": "7 天行动计划",
-    "minutes": "{minutes} 分钟",
-    "free": "免费",
-    "cost": "{cost} 元",
-    "resourcesTitle": "免费资源建议",
-    "lowBandwidth": "低流量",
-    "resourceKind": "{kind} · 打开新窗口 →",
-    "mySummaryTitle": "我的本周行动摘要",
-    "copied": "已复制",
-    "copy": "复制",
-    "copyAriaLabel": "复制行动摘要",
-    "regenerate": "调整条件后重新生成",
-    "sectionAriaLabel": "生成的学习路径",
-    "shareHeader": "📋 我的学习路径摘要",
-    "shareSummaryLabel": "【路径说明】",
-    "shareTodayLabel": "【今天就能开始】",
-    "shareWeekPlanLabel": "【7 天计划】",
-    "shareEncouragementLabel": "【鼓励】",
-    "shareFooter": "—— 由 Meteor Pathfinder 星途导航生成"
-  },
-  "RealitySimulation": {
-    "badge": "Reality Contract · 可解释裁决",
-    "title": "现实变化推演",
-    "description": "条件突然变差时，不重新生成一份理想计划，只保住仍然走得通的一步。",
-    "staticRule": "静态规则 · 不调用模型",
-    "timeEventLabel": "本周只剩 {minutes} 分钟",
-    "adjustTimeLabel": "调整本周剩余时间",
-    "minutes": "{minutes} 分钟",
-    "keptCount": "保留 {count} 项",
-    "keptLabel": "仍可完成",
-    "deferredLabel": "先暂缓",
-    "free": "免费",
-    "cost": "{cost} 元",
-    "evidenceTitle": "留下这一刻的行动证据",
-    "actionAvailable": "此刻还能做的一步：{action}",
-    "actionUnavailable": "先承认这次无法保留原任务，也是在保护下一次行动。",
-    "evidencePlaceholder": "例如：已在备忘录写下两个岗位关键词",
-    "evidenceAriaLabel": "行动证据",
-    "evidenceHint": "仅保留在本次浏览中，不上传、不保存；刷新页面即清除。",
-    "completedButton": "我完成了这一步",
-    "deferButton": "今天先暂缓",
-    "copyButtonCopied": "已复制记录",
-    "copyButton": "复制本次记录",
-    "completedStatus": "已完成",
-    "deferredStatus": "暂缓",
-    "completedHint": "已记录完成状态。保住一个小行动，就保住了继续向前的可能。",
-    "deferredHint": "已记录暂缓状态。等条件恢复时，从这一步继续，不必从头来过。",
-    "recordHeader": "Meteor Pathfinder 行动记录",
-    "recordReality": "现实变化：{label}",
-    "recordAction": "行动：{action}",
-    "recordStatus": "状态：{status}",
-    "recordEvidence": "证据：{evidence}",
-    "recordEvidenceEmpty": "证据：未填写",
-    "sectionAriaLabel": "现实变化推演",
-    "decisionsAriaLabel": "任务裁决结果"
   },
   "SpotlightSearch": {
     "dialogAriaLabel": "全站搜索",
@@ -1975,5 +1794,375 @@
     "resend": "重新发送验证邮件",
     "resending": "发送中…",
     "resendFailed": "重新发送失败，请稍后再试。"
+  },
+  "PathfinderHub": {
+    "navigation": {
+      "ariaLabel": "Pathfinder 导航",
+      "discover": "发现",
+      "opportunities": "机会库",
+      "directions": "方向",
+      "plan": "我的路径"
+    },
+    "discover": {
+      "metaTitle": "Meteor Pathfinder · 可信学习与机会导航",
+      "metaDescription": "聚合可信的开源项目、竞赛、实习与 AI 动态，并按大学生的现实条件生成可执行学习路径。",
+      "eyebrow": "可信信息聚合 · 面向大学生",
+      "title": "把分散的信息，变成下一步行动",
+      "description": "这里汇总可追溯来源的开源项目、竞赛、实习和 AI 动态。先看清机会，再依据你的基础、设备、时间与预算，生成一条真正走得通的学习路径。",
+      "browse": "浏览全部机会",
+      "buildPlan": "制定我的路径",
+      "searchLabel": "搜索机会与学习资源",
+      "searchPlaceholder": "搜索方向、技能、组织或关键词",
+      "search": "搜索",
+      "searchHint": "支持中英文标题、技能标签与组织名称",
+      "statsAria": "Pathfinder 目录统计",
+      "stats": {
+        "total": "已收录条目",
+        "learning": "可纳入学习路径",
+        "official": "官方来源",
+        "directions": "学习方向"
+      },
+      "directionsEyebrow": "从方向开始",
+      "directionsTitle": "大学生常见的四条技术路径",
+      "directions": {
+        "ai": {
+          "title": "人工智能",
+          "description": "从 Python 与数据基础，到模型应用、评测和可展示项目。"
+        },
+        "frontend": {
+          "title": "前端开发",
+          "description": "从 Web 基础到现代框架、工程化与真实产品交付。"
+        },
+        "backend": {
+          "title": "后端开发",
+          "description": "从编程与数据库基础，到 API、系统设计和稳定服务。"
+        },
+        "data": {
+          "title": "数据科学",
+          "description": "从数据处理与统计，到分析表达、建模与业务洞察。"
+        }
+      },
+      "viewDirection": "查看技能地图",
+      "featuredEyebrow": "精选起点",
+      "featuredTitle": "适合开始行动的条目",
+      "viewAll": "查看全部",
+      "latestEyebrow": "最近核验",
+      "latestTitle": "当前竞赛与实习机会",
+      "openSourceEyebrow": "参与真实协作",
+      "openSourceTitle": "值得上手的开源项目",
+      "updatesEyebrow": "AI 动态",
+      "updatesTitle": "值得大学生关注的变化",
+      "updatesDescription": "只收录能帮助理解方向、选择工具或调整学习重点的更新，不追逐无行动价值的热点。",
+      "deadlinesEyebrow": "时间敏感",
+      "deadlinesTitle": "近期截止",
+      "viewDeadlines": "查看 30 天内机会",
+      "planEyebrow": "从收藏到行动",
+      "planTitle": "不知道先做什么？",
+      "planDescription": "告诉我们你的目标与现实条件，系统会用已核验目录生成 4–8 周的确定性路径。"
+    },
+    "catalog": {
+      "types": {
+        "open-source": "开源项目",
+        "competition": "竞赛",
+        "internship": "实习",
+        "ai-update": "AI 动态"
+      },
+      "directions": {
+        "ai": "人工智能",
+        "frontend": "前端",
+        "backend": "后端",
+        "data": "数据"
+      },
+      "difficulties": {
+        "beginner": "入门",
+        "intermediate": "进阶",
+        "advanced": "高级",
+        "all": "不限基础"
+      },
+      "deadline": "截止 {date}",
+      "time": "约 {hours} 小时",
+      "free": "免费",
+      "costUnknown": "费用待确认",
+      "cost": "¥{cost}",
+      "remote": {
+        "remote": "远程",
+        "onsite": "线下",
+        "hybrid": "混合",
+        "unspecified": "形式未注明"
+      },
+      "trust": {
+        "official": "官方来源",
+        "verified": "已交叉核验"
+      },
+      "verified": "核验于 {date}",
+      "addToPlan": "加入路径",
+      "manualEligibility": "资格需人工核对"
+    },
+    "filters": {
+      "searchLabel": "关键词",
+      "searchPlaceholder": "标题、技能或组织",
+      "search": "搜索",
+      "all": "全部",
+      "typeLabel": "条目类型",
+      "directionLabel": "方向",
+      "difficultyLabel": "难度",
+      "remoteLabel": "参与形式",
+      "deadlineLabel": "截止时间",
+      "deadline30": "未来 30 天",
+      "deadline90": "未来 90 天",
+      "clear": "清除筛选",
+      "activeCount": "已启用 {count} 项筛选",
+      "allVisible": "当前显示全部条目",
+      "open": "筛选",
+      "eyebrow": "缩小范围",
+      "title": "筛选机会",
+      "close": "关闭筛选",
+      "showResults": "查看结果",
+      "types": {
+        "open-source": "开源项目",
+        "competition": "竞赛",
+        "internship": "实习",
+        "ai-update": "AI 动态"
+      },
+      "directions": {
+        "ai": "人工智能",
+        "frontend": "前端",
+        "backend": "后端",
+        "data": "数据"
+      },
+      "difficulties": {
+        "beginner": "入门",
+        "intermediate": "进阶",
+        "advanced": "高级",
+        "all": "不限基础"
+      },
+      "remote": {
+        "remote": "远程",
+        "onsite": "线下",
+        "hybrid": "混合",
+        "unspecified": "未注明"
+      }
+    },
+    "opportunities": {
+      "metaTitle": "机会库 · Meteor Pathfinder",
+      "metaDescription": "筛选可追溯的开源项目、竞赛、实习与 AI 动态。",
+      "eyebrow": "可搜索 · 可筛选 · 可追溯",
+      "title": "机会与学习资源库",
+      "description": "每条信息都保留来源、核验时间和适用条件。用方向、难度、参与形式与截止时间，找到现在真正能做的事。",
+      "resultEyebrow": "筛选结果",
+      "resultCount": "找到 {count} 条",
+      "traceable": "所有条目均可回到原始来源",
+      "emptyTitle": "没有匹配的条目",
+      "emptyDescription": "尝试减少筛选条件，或换一个更宽泛的关键词。",
+      "clearFilters": "查看全部机会"
+    },
+    "directionPage": {
+      "metaTitle": "{direction}学习方向 · Meteor Pathfinder",
+      "directionNav": "切换学习方向",
+      "eyebrow": "学习方向",
+      "mapEyebrow": "技能地图",
+      "mapTitle": "从基础到真实交付",
+      "recommendedEyebrow": "把技能用起来",
+      "recommendedTitle": "推荐学习与实践条目",
+      "viewAll": "查看本方向全部机会",
+      "fitLabel": "适合谁",
+      "outcomeLabel": "可以走向哪里",
+      "planTitle": "生成这条方向的个人路径",
+      "planDescription": "结合你的年级、基础、时间和设备，把技能地图拆成 4–8 周行动。",
+      "buildPlan": "制定学习路径"
+    },
+    "itemPage": {
+      "breadcrumb": "条目详情",
+      "discover": "Pathfinder 发现",
+      "types": {
+        "open-source": "开源项目",
+        "competition": "竞赛",
+        "internship": "实习",
+        "ai-update": "AI 动态"
+      },
+      "directions": {
+        "ai": "人工智能",
+        "frontend": "前端",
+        "backend": "后端",
+        "data": "数据"
+      },
+      "difficulties": {
+        "beginner": "入门",
+        "intermediate": "进阶",
+        "advanced": "高级",
+        "all": "不限基础"
+      },
+      "fitEyebrow": "适用条件",
+      "fitTitle": "开始前先确认",
+      "manualEligibilityNotice": "这项机会还要求合资格学校、毕业日期或其他画像未收集的条件。Pathfinder 不会替你推定符合资格，请先打开官网逐项核对。",
+      "skillsEyebrow": "你会练到什么",
+      "skillsTitle": "相关技能",
+      "skillsUnknown": "来源暂未列出明确技能，可先阅读原始说明再判断。",
+      "sourceEyebrow": "来源与核验",
+      "sourceTitle": "这条信息从哪里来",
+      "sourceName": "来源",
+      "publishedAt": "发布于",
+      "discoveredAt": "收录于",
+      "verifiedAt": "最近核验",
+      "unknown": "未注明",
+      "trust": {
+        "official": "官方一手来源",
+        "verified": "可信来源，已核验"
+      },
+      "openOriginal": "打开原始页面",
+      "visitSource": "访问来源站点",
+      "factsTitle": "关键信息",
+      "time": "预计投入",
+      "minutes": "{minutes} 分钟",
+      "costLabel": "费用",
+      "free": "免费",
+      "cost": "¥{cost}",
+      "device": "所需设备",
+      "devices": {
+        "phone": "手机可完成",
+        "computer": "需要电脑",
+        "either": "手机或电脑"
+      },
+      "network": "网络要求",
+      "networks": {
+        "low": "低流量可用",
+        "normal": "普通网络",
+        "high": "需要稳定高速网络"
+      },
+      "remoteLabel": "参与形式",
+      "remote": {
+        "remote": "远程",
+        "onsite": "线下",
+        "hybrid": "混合",
+        "unspecified": "未注明"
+      },
+      "region": "地区",
+      "deadlineLabel": "截止时间",
+      "expired": "已截止",
+      "planEyebrow": "下一步",
+      "planTitle": "把它加入个人路径",
+      "planDescription": "系统会依据你的现实条件，判断它适合放在哪一周，并给出替代方案。",
+      "addToPlan": "用此条目制定路径",
+      "contextOnlyTitle": "此条目仅作方向参考",
+      "contextOnlyDescription": "它能帮助理解行业变化，但不会直接作为学习任务加入路径。",
+      "manualOnlyTitle": "先人工核对完整资格",
+      "manualOnlyDescription": "系统无法从当前画像确认全部硬条件，因此不会把这项机会自动排入路径。核对官网后，仍可把它作为个人申请目标。",
+      "relatedEyebrow": "继续探索",
+      "relatedTitle": "同方向条目"
+    },
+    "planPage": {
+      "metaTitle": "我的学习路径 · Meteor Pathfinder",
+      "metaDescription": "根据大学生的目标、基础、时间、设备与预算，生成基于可信目录的 4–8 周行动路径。",
+      "eyebrow": "确定性路径 · 不依赖模型密钥",
+      "title": "把目标拆成每周能完成的行动",
+      "description": "填写你的现实条件。系统只使用已核验且适合学习的条目，为你安排准备、练习、真实行动、交付与复盘。"
+    },
+    "planForm": {
+      "ariaLabel": "个人学习路径表单",
+      "preferredTitle": "已选择一个起点",
+      "preferredDescription": "生成时会优先评估这个条目，不合适时会给出替代方案。",
+      "goalLabel": "你想在这段时间完成什么？",
+      "goalPlaceholder": "例如：六周内完成一个能放进简历的 AI 应用，并学会解释关键技术选择",
+      "goalRequired": "请描述你的目标",
+      "goalTooLong": "目标描述不超过 280 字",
+      "goalTypeLabel": "目标类型",
+      "goalTypes": {
+        "explore": "探索方向",
+        "foundation": "补齐基础",
+        "project": "完成项目",
+        "competition": "准备竞赛",
+        "internship": "准备实习",
+        "research": "接触科研"
+      },
+      "directionLabel": "学习方向",
+      "directions": {
+        "ai": "人工智能",
+        "frontend": "前端开发",
+        "backend": "后端开发",
+        "data": "数据科学"
+      },
+      "stageLabel": "当前年级",
+      "stages": {
+        "freshman": "大一",
+        "sophomore": "大二",
+        "junior": "大三",
+        "senior": "大四",
+        "postgraduate": "研究生"
+      },
+      "foundationLabel": "当前基础",
+      "foundations": {
+        "none": "几乎没有基础",
+        "beginner": "了解少量概念",
+        "intermediate": "能独立完成小练习",
+        "advanced": "有项目或研究经验"
+      },
+      "deviceLabel": "可用设备",
+      "devices": {
+        "phone-only": "只有手机",
+        "phone-and-pc": "手机和电脑",
+        "pc": "电脑为主"
+      },
+      "networkLabel": "网络条件",
+      "networks": {
+        "limited-data": "流量有限",
+        "normal": "普通网络",
+        "stable": "稳定高速网络"
+      },
+      "weeklyHoursLabel": "每周时间",
+      "durationWeeksLabel": "路径长度",
+      "budgetLabel": "总预算",
+      "hoursUnit": "小时",
+      "weeksUnit": "周",
+      "currencyUnit": "元",
+      "foreignFeeLabel": "我可以承担外币费用",
+      "foreignFeeDescription": "勾选后才会把已核实的外币收费机会纳入路径；系统不使用临时汇率猜测人民币金额。",
+      "constraintsLabel": "现实限制（可多选）",
+      "constraints": {
+        "fragmented-time": "时间比较碎片化",
+        "weak-foundation": "基础比较薄弱",
+        "no-mentor": "暂时没有导师",
+        "limited-budget": "预算有限"
+      },
+      "submitting": "正在制定路径…",
+      "submit": "生成我的 4–8 周路径",
+      "privacy": "输入仅用于本次生成；路径与完成状态保存在当前浏览器。"
+    },
+    "planClient": {
+      "requestError": "请求失败（{status}）",
+      "networkError": "网络异常，请稍后重试",
+      "howEyebrow": "生成逻辑",
+      "howTitle": "它会怎样安排",
+      "steps": {
+        "1": "先排除设备、预算、网络或截止时间不匹配的条目。",
+        "2": "再按目标、方向和基础，把任务放进准备、练习与真实行动阶段。",
+        "3": "每一步都附带完成证据和现实条件变差时的替代方案。"
+      },
+      "trustTitle": "结果可解释，也可追溯",
+      "trustDescription": "路径不调用外部 AI 模型。推荐只来自 Pathfinder 已核验目录，你可以随时打开条目查看原始来源。",
+      "loading": "正在匹配可用条目并安排每周任务…",
+      "stalePlan": "这份已保存路径包含已过期、下架或不再适用的条目。你可以保留现有记录，但建议清空后按当前目录重新生成。"
+    },
+    "planResult": {
+      "safetyEyebrow": "先照顾当下",
+      "safetyTitle": "这次不生成学习计划",
+      "deterministic": "基于规则生成",
+      "duration": "{weeks} 周路径",
+      "progress": "已完成 {completed} / {total} 项",
+      "warnings": "生成时需要注意",
+      "phases": {
+        "prepare": "准备",
+        "practice": "练习",
+        "real-action": "真实行动",
+        "deliver": "交付",
+        "review": "复盘"
+      },
+      "minutes": "{minutes} 分钟",
+      "deadline": "截止 {date}",
+      "evidence": "完成证据",
+      "alternative": "条件受限时",
+      "viewItem": "查看条目与来源",
+      "savedLocally": "完成状态只保存在当前浏览器。",
+      "reset": "重新制定路径"
+    }
   }
 }

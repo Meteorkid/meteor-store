@@ -1,136 +1,247 @@
-/**
- * Meteor Pathfinder 输入与输出 Schema
- *
- * 使用 Zod 同时校验客户端表单提交与服务端接收的数据。
- */
-
 import { z } from 'zod';
-import { getTrustedModelProvider } from './model-providers';
 
-/**
- * 当前学习阶段
- * 标识符为英文 key，显示文本见 labels.ts 与 messages/*.json 的 PathfinderEnums。
- */
-export const STAGE_VALUES = [
-  'middle-school',
-  'high-school',
-  'college',
-  'career-start',
+import { PATHFINDER_DIRECTIONS } from './catalog-types';
+
+/** 大学生所在学习阶段。 */
+export const PATHFINDER_STAGE_VALUES = [
+  'freshman',
+  'sophomore',
+  'junior',
+  'senior',
+  'postgraduate',
 ] as const;
-/** 可用设备 */
-export const DEVICE_VALUES = ['phone-only', 'phone-and-pc', 'pc'] as const;
-/** 网络条件 */
-export const NETWORK_VALUES = ['limited-data', 'normal', 'stable'] as const;
-/** 现实限制（可多选） */
-export const CONSTRAINT_VALUES = [
+
+/** 本次路径希望解决的问题。 */
+export const PATHFINDER_GOAL_TYPE_VALUES = [
+  'explore',
+  'foundation',
+  'project',
+  'competition',
+  'internship',
+  'research',
+] as const;
+
+/** 当前基础，用于控制条目难度的递进。 */
+export const PATHFINDER_FOUNDATION_VALUES = [
+  'none',
+  'beginner',
+  'intermediate',
+  'advanced',
+] as const;
+
+/** 用户实际可使用的设备。 */
+export const PATHFINDER_PROFILE_DEVICE_VALUES = [
+  'phone-only',
+  'phone-and-pc',
+  'pc',
+] as const;
+
+/** 用户可承受的网络条件。 */
+export const PATHFINDER_PROFILE_NETWORK_VALUES = [
+  'limited-data',
+  'normal',
+  'stable',
+] as const;
+
+/** 会改变路径安排方式的现实限制。 */
+export const PATHFINDER_CONSTRAINT_VALUES = [
   'fragmented-time',
   'weak-foundation',
   'no-mentor',
   'limited-budget',
 ] as const;
 
-/** 用户输入表单 Schema */
-export const PathfinderInputSchema = z.object({
-  /** 学习或成长目标，最多 280 字 */
-  goal: z.string().trim().min(2, '请描述你的目标，至少 2 个字').max(280, '目标描述不超过 280 字'),
-  stage: z.enum(STAGE_VALUES),
-  device: z.enum(DEVICE_VALUES),
-  /** 每周可投入小时数，1–20 */
-  weeklyHours: z.number().int().min(1, '每周至少 1 小时').max(20, '每周不超过 20 小时'),
-  /** 每天可投入分钟数，10–120 */
-  dailyMinutes: z.number().int().min(10, '每天至少 10 分钟').max(120, '每天不超过 120 分钟'),
-  /** 每月可用于学习的预算（元） */
-  budget: z.number().int().min(0, '预算不能小于 0').max(500, '每月预算不超过 500 元'),
-  /** 是否有可求助的老师、前辈或同学 */
-  hasMentor: z.boolean(),
-  network: z.enum(NETWORK_VALUES),
-  /** 现实限制，可多选但不能为空 */
+export const PATHFINDER_PHASE_VALUES = [
+  'prepare',
+  'practice',
+  'real-action',
+  'deliver',
+  'review',
+] as const;
+
+export const PathfinderProfileSchema = z.object({
+  goal: z
+    .string()
+    .trim()
+    .min(2, '请描述你的目标，至少 2 个字')
+    .max(280, '目标描述不超过 280 字'),
+  goalType: z.enum(PATHFINDER_GOAL_TYPE_VALUES),
+  direction: z.enum(PATHFINDER_DIRECTIONS),
+  stage: z.enum(PATHFINDER_STAGE_VALUES),
+  foundation: z.enum(PATHFINDER_FOUNDATION_VALUES),
+  weeklyHours: z
+    .number()
+    .int('每周时间必须是整数小时')
+    .min(1, '每周至少投入 1 小时')
+    .max(30, '每周最多按 30 小时规划'),
+  durationWeeks: z
+    .number()
+    .int('路径周数必须是整数')
+    .min(4, '路径至少持续 4 周')
+    .max(8, '路径最多持续 8 周')
+    .default(6),
+  device: z.enum(PATHFINDER_PROFILE_DEVICE_VALUES),
+  budgetCny: z
+    .number()
+    .int('预算必须是整数元')
+    .min(0, '预算不能小于 0')
+    .max(100_000, '预算数值过大'),
+  acceptForeignCurrencyCosts: z.boolean().default(false),
+  network: z.enum(PATHFINDER_PROFILE_NETWORK_VALUES),
   constraints: z
-    .array(z.enum(CONSTRAINT_VALUES))
-    .min(1, '至少选择一个现实限制'),
+    .array(z.enum(PATHFINDER_CONSTRAINT_VALUES))
+    .max(PATHFINDER_CONSTRAINT_VALUES.length)
+    .default([]),
 });
 
-export type PathfinderInput = z.infer<typeof PathfinderInputSchema>;
+export type PathfinderProfile = z.infer<typeof PathfinderProfileSchema>;
 
-/**
- * 用户自带的模型配置。
- * 仅保存在浏览器当前会话，并在单次生成请求中转发；不得持久化或记录日志。
- * Base URL 必须命中服务端白名单，防止将应用变成任意网络请求代理。
- */
-export const PathfinderModelConfigSchema = z.object({
-  apiKey: z.string().trim().min(1, '请填写 API Key').max(512, 'API Key 格式不正确'),
-  baseUrl: z
-    .string()
-    .trim()
-    .url('请填写有效的 API Base URL')
-    .max(500, 'API Base URL 过长')
-    .refine((value) => getTrustedModelProvider(value) !== null, '请选择支持的模型服务商'),
-  model: z
-    .string()
-    .trim()
-    .min(1, '请填写模型名称')
-    .max(128, '模型名称过长')
-    .regex(/^[A-Za-z0-9._:/-]+$/, '模型名称仅支持字母、数字和 . _ : / -'),
+/** 新旧两个 POST 路由共享的请求契约。 */
+export const PathfinderPlanRequestSchema = z.object({
+  profile: PathfinderProfileSchema,
+  preferredItemId: z.string().trim().min(1).max(160).optional(),
+  locale: z.enum(['zh', 'en']).default('zh'),
 });
 
-export type PathfinderModelConfig = z.infer<typeof PathfinderModelConfigSchema>;
+export type PathfinderPlanRequest = z.infer<typeof PathfinderPlanRequestSchema>;
 
-/** 生成接口的完整请求体；模型配置对危机引导路径可选。 */
-export const PathfinderGenerateRequestSchema = z.object({
-  input: PathfinderInputSchema,
-  modelConfig: PathfinderModelConfigSchema.optional(),
+export const PathfinderPlanTaskSchema = z.object({
+  id: z.string().min(1).max(240),
+  action: z.string().min(1).max(500),
+  estimatedMinutes: z.number().int().min(5).max(1_800),
+  /** 必须引用目录中已发布且可学习的条目。 */
+  itemId: z.string().min(1).max(160),
+  evidence: z.string().min(1).max(300),
+  alternative: z.string().min(1).max(500),
+  deadlineAt: z.string().datetime({ offset: true }).optional(),
+  deadlineDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
-export type PathfinderGenerateRequest = z.infer<typeof PathfinderGenerateRequestSchema>;
+export type PathfinderPlanTask = z.infer<typeof PathfinderPlanTaskSchema>;
 
-/** 路径中单条任务的可验证现实条件 */
-export const PathfinderTaskSchema = z.object({
-  day: z.number().int().min(1).max(7),
-  title: z.string().min(1).max(80),
-  /** 预计耗时（分钟） */
-  minutes: z.number().int().min(5).max(240),
-  /** 货币成本（元），0 表示免费 */
-  cost: z.number().min(0).max(10_000),
-  /** 完成这项任务所需的主要设备 */
-  device: z.enum(['手机', '电脑']),
-  /** 完成这项任务所需的网络条件 */
-  network: z.enum(['低流量', '普通', '稳定']),
-  /** 用户可以留下的最低成本行动证据 */
-  evidence: z.enum(['截图', '笔记', '完成记录']),
+export const PathfinderPlanWeekSchema = z.object({
+  week: z.number().int().min(1).max(8),
+  phase: z.enum(PATHFINDER_PHASE_VALUES),
+  title: z.string().min(1).max(160),
+  objective: z.string().min(1).max(500),
+  estimatedMinutes: z.number().int().min(5).max(1_800),
+  tasks: z.array(PathfinderPlanTaskSchema).min(1).max(4),
 });
 
-export type PathfinderTask = z.infer<typeof PathfinderTaskSchema>;
+export type PathfinderPlanWeek = z.infer<typeof PathfinderPlanWeekSchema>;
 
-/** 模型期望输出的结构（用于解析与校验） */
 export const PathfinderPlanSchema = z.object({
-  /** 整体路径说明 */
-  summary: z.string().min(1).max(500),
-  /** 今天就能开始的 3 个小任务 */
-  todaySteps: z.array(z.string().min(1).max(200)).min(3).max(3),
-  /** 7 天行动计划 */
-  weekPlan: z
-    .array(PathfinderTaskSchema)
-    .min(1)
-    .max(7),
-  /** 资源 id 列表（必须命中本地资源库） */
-  resourceIds: z.array(z.string()).max(8),
-  /** 鼓励语 */
-  encouragement: z.string().min(1).max(200),
+  version: z.literal(2),
+  title: z.string().min(1).max(160),
+  summary: z.string().min(1).max(800),
+  durationWeeks: z.number().int().min(4).max(8),
+  generatedAt: z.string().datetime({ offset: true }),
+  warnings: z.array(z.string().min(1).max(500)).max(20),
+  weeks: z.array(PathfinderPlanWeekSchema).min(4).max(8),
+}).superRefine((plan, context) => {
+  if (plan.weeks.length !== plan.durationWeeks) {
+    context.addIssue({
+      code: 'custom',
+      path: ['weeks'],
+      message: '周计划数量必须与路径周数一致',
+    });
+  }
+
+  for (const week of plan.weeks) {
+    const taskMinutes = week.tasks.reduce(
+      (total, task) => total + task.estimatedMinutes,
+      0,
+    );
+    if (taskMinutes !== week.estimatedMinutes) {
+      context.addIssue({
+        code: 'custom',
+        path: ['weeks', week.week - 1, 'estimatedMinutes'],
+        message: '每周预计时间必须等于任务时间之和',
+      });
+    }
+  }
 });
 
 export type PathfinderPlan = z.infer<typeof PathfinderPlanSchema>;
 
+export const PathfinderSafetyResponseSchema = z.object({
+  kind: z.literal('safety'),
+  source: z.literal('safety'),
+  message: z.string().min(1),
+  actions: z.array(z.string().min(1)).min(1),
+});
+
+export type PathfinderSafetyResponse = z.infer<typeof PathfinderSafetyResponseSchema>;
+
+export const PathfinderPlanResponseSchema = z.object({
+  kind: z.literal('plan'),
+  source: z.literal('deterministic'),
+  plan: PathfinderPlanSchema,
+});
+
+export const PathfinderApiResponseSchema = z.discriminatedUnion('kind', [
+  PathfinderPlanResponseSchema,
+  PathfinderSafetyResponseSchema,
+]);
+
+export type PathfinderPlanResponse = z.infer<typeof PathfinderPlanResponseSchema>;
+export type PathfinderApiResponse = z.infer<typeof PathfinderApiResponseSchema>;
+
 /**
- * 危机或医疗相关关键词检测
- * 命中时模型应只建议联系可信任成年人或专业服务，不进行诊断
+ * 危机与医疗关键词只用于阻止系统继续做学习或职业规划，不用于诊断。
+ * 保留中英文词是为了让两个 locale 的自由文本目标都能被本地拦截。
  */
 export const CRISIS_KEYWORDS = [
-  '自杀', '想死', '活不下去', '伤害自己', '自残',
-  '抑郁', '焦虑症', '精神病', '吃药', '想哭',
-  '霸凌', '被欺负', '被打', '受虐待',
+  '自杀',
+  '想死',
+  '活不下去',
+  '伤害自己',
+  '自残',
+  '抑郁',
+  '抑郁症',
+  '焦虑症',
+  '精神病',
+  '吃药',
+  '想哭',
+  '受虐待',
+  '霸凌',
+  '被霸凌',
+  '被欺负',
+  '被打',
+  'suicide',
+  'kill myself',
+  'self-harm',
+  'hurt myself',
+  'abused',
 ] as const;
 
-/** 判断输入目标是否疑似危机或医疗问题 */
 export function looksLikeCrisis(goal: string): boolean {
-  return CRISIS_KEYWORDS.some((kw) => goal.includes(kw));
+  const normalizedGoal = goal.toLowerCase();
+  return CRISIS_KEYWORDS.some((keyword) => normalizedGoal.includes(keyword));
+}
+
+export function buildSafetyResponse(locale: 'zh' | 'en' = 'zh'): PathfinderSafetyResponse {
+  if (locale === 'en') {
+    return {
+      kind: 'safety',
+      source: 'safety',
+      message: 'Your safety matters more than a study plan. Please contact someone you trust or a qualified professional now.',
+      actions: [
+        'If you may hurt yourself or someone else soon, call 110 or 120, or go to the nearest emergency department.',
+        'Contact China’s 12356 mental health assistance hotline and follow the local operator’s guidance.',
+        'Tell a trusted friend, family member, teacher, or counsellor what is happening and ask them to stay with you.',
+      ],
+    };
+  }
+
+  return {
+    kind: 'safety',
+    source: 'safety',
+    message: '你的安全比学习路径更重要。此时不适合继续做学习或职业规划，请尽快联系可信任的人或专业支持。',
+    actions: [
+      '如果你可能马上伤害自己或他人，请拨打 110 或 120，或前往最近的急诊。',
+      '可以拨打全国统一心理援助热线 12356，并按所在地接线人员的指引求助。',
+      '把目前的情况告诉可信任的家人、朋友、老师或辅导员，请对方陪在你身边。',
+    ],
+  };
 }

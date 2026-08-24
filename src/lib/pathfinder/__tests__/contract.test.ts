@@ -1,72 +1,89 @@
 import { describe, expect, it } from 'vitest';
-import { repair, validate, type RealityConstraints } from '../contract';
-import type { PathfinderTask } from '../schema';
+import { STATIC_PATHFINDER_ITEMS } from '@/data/pathfinder/catalog-seeds';
 
-const constraints: RealityConstraints = {
-  dailyMinutes: 20,
-  budget: 0,
-  device: 'phone-only',
-  network: 'limited-data',
-  hasMentor: false,
-};
+import { catalogItemViolations, isCatalogItemFeasible } from '../contract';
+import { catalogItemFixture, profileFixture } from './fixtures';
 
-function task(overrides: Partial<PathfinderTask> = {}): PathfinderTask {
-  return {
-    day: 1,
-    title: '完成一项学习任务',
-    minutes: 15,
-    cost: 0,
-    device: '手机',
-    network: '普通',
-    evidence: '笔记',
-    ...overrides,
-  };
-}
+const now = new Date('2026-08-24T00:00:00.000Z');
 
-describe('Reality Contract validate', () => {
-  it('每日 20 分钟时，60 分钟任务违规', () => {
-    expect(validate([task({ minutes: 60 })], constraints)).toContainEqual(
-      expect.objectContaining({ rule: 'time' }),
-    );
+describe('Pathfinder 现实约束', () => {
+  it('剔除未发布、不可学习与 AI 动态', () => {
+    expect(catalogItemViolations(catalogItemFixture({ status: 'pending' }), profileFixture, now))
+      .toContainEqual(expect.objectContaining({ rule: 'publication' }));
+    expect(catalogItemViolations(catalogItemFixture({ learningEligible: false }), profileFixture, now))
+      .toContainEqual(expect.objectContaining({ rule: 'learning-eligibility' }));
+    expect(catalogItemViolations(catalogItemFixture({ itemType: 'ai-update' }), profileFixture, now))
+      .toContainEqual(expect.objectContaining({ rule: 'content-type' }));
   });
 
-  it('预算 0 时，付费任务违规', () => {
-    expect(validate([task({ cost: 30 })], constraints)).toContainEqual(
-      expect.objectContaining({ rule: 'cost' }),
-    );
+  it('剔除过期、设备、网络与预算不符条目', () => {
+    const item = catalogItemFixture({
+      deadlineAt: '2026-08-23T00:00:00.000Z',
+      device: 'computer',
+      network: 'high',
+      costCny: 30,
+    });
+    const profile = {
+      ...profileFixture,
+      device: 'phone-only' as const,
+      network: 'limited-data' as const,
+      budgetCny: 0,
+    };
+    const rules = catalogItemViolations(item, profile, now).map(({ rule }) => rule);
+
+    expect(rules).toEqual(expect.arrayContaining(['deadline', 'device', 'network', 'budget']));
   });
 
-  it('仅手机时，电脑专属任务违规', () => {
-    expect(validate([task({ device: '电脑' })], constraints)).toContainEqual(
-      expect.objectContaining({ rule: 'device' }),
-    );
+  it('只按明确阶段标签判断资格，不把未知费用猜成超预算', () => {
+    const item = catalogItemFixture({
+      costCny: null,
+      tags: { topic: [], skill: [], career: ['postgraduate'], format: [] },
+    });
+    const violations = catalogItemViolations(item, profileFixture, now);
+
+    expect(violations).toContainEqual(expect.objectContaining({ rule: 'stage' }));
+    expect(violations).not.toContainEqual(expect.objectContaining({ rule: 'budget' }));
   });
 
-  it('弱网时，稳定网络任务违规', () => {
-    expect(validate([task({ network: '稳定' })], constraints)).toContainEqual(
-      expect.objectContaining({ rule: 'network' }),
-    );
-  });
-});
+  it('已知非零外币费用需要用户显式接受，不能用任意人民币预算静默放行', () => {
+    const item = catalogItemFixture({
+      costCny: null,
+      cost: { amount: 5000, currency: 'JPY', label: null },
+    });
+    const unaccepted = { ...profileFixture, budgetCny: 1 };
 
-describe('Reality Contract repair', () => {
-  it('时间违规可压缩到 dailyMinutes', () => {
-    const tasks = [task({ minutes: 60 })];
-    const { repaired } = repair(tasks, constraints, validate(tasks, constraints));
-    expect(repaired[0].minutes).toBeLessThanOrEqual(20);
-  });
-
-  it('成本违规不可压缩时删除任务', () => {
-    const tasks = [task({ cost: 30 })];
-    const { repaired, removed } = repair(tasks, constraints, validate(tasks, constraints));
-    expect(repaired).toHaveLength(0);
-    expect(removed).toHaveLength(1);
+    expect(catalogItemViolations(item, unaccepted, now))
+      .toContainEqual(expect.objectContaining({ rule: 'budget' }));
+    expect(catalogItemViolations(item, { ...unaccepted, acceptForeignCurrencyCosts: true }, now))
+      .not.toContainEqual(expect.objectContaining({ rule: 'budget' }));
   });
 
-  it('设备违规直接删除，不尝试降级', () => {
-    const tasks = [task({ device: '电脑' })];
-    const { repaired, removed } = repair(tasks, constraints, validate(tasks, constraints));
-    expect(repaired).toHaveLength(0);
-    expect(removed).toHaveLength(1);
+  it('满足现实条件的条目可进入排序', () => {
+    expect(isCatalogItemFeasible(catalogItemFixture(), profileFixture, now)).toBe(true);
+  });
+
+  it('具体科研实习使用受控阶段标签，低年级不会收到不符合资格的投递任务', () => {
+    const byId = new Map(STATIC_PATHFINDER_ITEMS.map((item) => [item.id, item]));
+    const cases = [
+      { id: 'static-mitacs-gri-2027', direction: 'data' as const, allowed: ['junior', 'senior'] as const },
+      { id: 'static-oist-spring-2027', direction: 'ai' as const, allowed: ['junior', 'senior', 'postgraduate'] as const },
+      { id: 'static-max-planck-cs-internship-2027', direction: 'backend' as const, allowed: ['junior', 'senior', 'postgraduate'] as const },
+    ];
+
+    for (const current of cases) {
+      const item = byId.get(current.id)!;
+      const freshman = {
+        ...profileFixture,
+        direction: current.direction,
+        stage: 'freshman' as const,
+        budgetCny: 1_000,
+      };
+      expect(catalogItemViolations(item, freshman, now))
+        .toContainEqual(expect.objectContaining({ rule: 'stage' }));
+      for (const allowedStage of current.allowed) {
+        expect(catalogItemViolations(item, { ...freshman, stage: allowedStage }, now))
+          .not.toContainEqual(expect.objectContaining({ rule: 'stage' }));
+      }
+    }
   });
 });

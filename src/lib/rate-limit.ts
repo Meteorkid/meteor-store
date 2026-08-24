@@ -2,6 +2,7 @@
 // 使用 @upstash/ratelimit + @upstash/redis，支持分布式限流
 
 import { Ratelimit } from '@upstash/ratelimit';
+import { isIP } from 'node:net';
 import { getRedis } from './redis';
 
 // 按 (limit, windowMs) 组合缓存 Ratelimit 实例，
@@ -111,9 +112,15 @@ function memoryRateLimit(
  * 判断是否为内网/私有 IP
  */
 function isPrivateIp(ip: string): boolean {
-  if (ip === '127.0.0.1' || ip === '::1' || ip === 'unknown') return true;
+  const normalized = ip.toLowerCase();
+  if (normalized === '127.0.0.1' || normalized === '::1' || normalized === '::' || normalized === 'unknown') return true;
+  if (normalized.startsWith('fc') || normalized.startsWith('fd') || /^fe[89ab]/.test(normalized)) return true;
+  if (normalized.startsWith('::ffff:')) {
+    return isPrivateIp(normalized.slice('::ffff:'.length));
+  }
   if (ip.startsWith('10.')) return true;
   if (ip.startsWith('192.168.')) return true;
+  if (ip.startsWith('169.254.')) return true;
   // 172.16.0.0/12
   if (ip.startsWith('172.')) {
     const second = parseInt(ip.split('.')[1], 10);
@@ -126,13 +133,7 @@ function isPrivateIp(ip: string): boolean {
  * 验证 IP 格式是否合法
  */
 function isValidIp(ip: string): boolean {
-  // IPv4 格式校验
-  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
-  if (!ipv4Regex.test(ip)) return false;
-  return ip.split('.').every(part => {
-    const num = parseInt(part, 10);
-    return num >= 0 && num <= 255;
-  });
+  return isIP(ip) !== 0;
 }
 
 /**

@@ -1308,76 +1308,6 @@
     "totalCount": "{total} tags in total",
     "noMatch": "No matching tags"
   },
-  "PathfinderPage": {
-    "metaTitle": "Meteor Pathfinder · Reachable Learning Engine",
-    "metaDescription": "A reachable learning engine for students with limited resources. Generates executable, verifiable action paths based on time, budget, device, and network conditions.",
-    "badgeMain": "Main Track · Learning & Work",
-    "badgeExtra": "Bonus Challenge · Social Good",
-    "badgeFree": "Free Forever",
-    "heroTitle": "Meteor Pathfinder · Reachable Learning Engine",
-    "heroSubtitle": "You don't need better conditions — just find a step you can",
-    "heroSubtitleHighlight": "actually take",
-    "heroSubtitleSuffix": ".",
-    "heroDescription": "For first-generation college students from county-level families: even with only a phone, fragmented time, and no mentors or paid resources, you can still get an executable, replaceable learning and internship prep path based on your real conditions.",
-    "painsTitle": "Three Hurdles They Face",
-    "pain1Title": "Lack of Stable Guidance",
-    "pain1Desc": "No teacher or mentor to consult long-term. Planning is left to your own trial and error, often taking detours.",
-    "pain2Title": "Scattered Information, Hard to Start",
-    "pain2Desc": "There's a lot online, but you don't know what suits you or in what order to learn — so you keep putting it off.",
-    "pain3Title": "Limited Device, Data, and Time",
-    "pain3Desc": "Only a phone, tight data, fragmented free time — silently shut out by most courses.",
-    "pledgesTitle": "Public Good Pledge",
-    "pledge1Title": "Core Features Free Forever",
-    "pledge1Desc": "Path generation, action plans, and resource recommendations are completely free for all students, forever.",
-    "pledge2Title": "No Sensitive Data Collected",
-    "pledge2Desc": "No real name, school, phone, or address required. Just one goal is enough to start.",
-    "pledge3Title": "No Paid Product Recommendations",
-    "pledge3Desc": "No purchases, memberships, or course sales in the results. Paths don't serve monetization.",
-    "pledge4Title": "Low-Data Priority",
-    "pledge4Desc": "Resource ranking prioritizes free, public, low-data content — considerate of students with limited connectivity.",
-    "privacyTitle": "Privacy Notice",
-    "privacyContent": "This site doesn't ask for your name, school, phone, or address, and doesn't store input long-term. Your API Key, Base URL, and model name are stored only in the current browser session; during generation, they're sent once with your goal and conditions to the AI model service you choose. Do not enter identity info, contact details, address, or other sensitive personal info. Generated path suggestions are not commitments regarding education, employment, medical, or psychological diagnosis.",
-    "ctaTitle": "Resources Shouldn't Decide How Far a Student Can Go",
-    "ctaButton": "Start With My Real Conditions"
-  },
-  "PathfinderSettingsPage": {
-    "metaTitle": "Model Configuration · Meteor Pathfinder",
-    "metaDescription": "Configure your own compatible model service for Meteor Pathfinder.",
-    "backLink": "← Back to Pathfinder",
-    "eyebrow": "Your Keys, Your Choice",
-    "title": "Model Configuration",
-    "description": "Pathfinder doesn't provide or host model keys. Please use your own compatible model service to retain control over calls and cost attribution during generation.",
-    "configInvalid": "Invalid configuration format",
-    "formTitle": "Configure Your Model",
-    "formDescription": "Only OpenAI Chat Completions compatible endpoints from the whitelist are supported. The API Key is stored only in the current browser session and is invalidated when the tab is closed; this site's application code never writes it to the database, logs, or Vercel environment variables.",
-    "apiKeyPlaceholder": "Paste your own API Key",
-    "providerLabel": "Model provider",
-    "providerHint": "Will use {baseUrl}, then call /chat/completions on it.",
-    "providerDocs": "View {name}'s model catalog",
-    "modelLabel": "Model name",
-    "modelPlaceholder": "Enter the model ID from the selected provider's catalog",
-    "warning": "Please only use model services you're authorized to use. After clicking \"Save and use\", the key is sent over HTTPS to this site's server only when you submit a generation request, and immediately forwarded to your chosen model provider; do not save the configuration on untrusted devices.",
-    "saved": "Configuration saved to the current browser session.",
-    "clear": "Clear this configuration",
-    "save": "Save and use"
-  },
-  "PathfinderClient": {
-    "errorNoConfig": "Please complete model configuration before generating your path.",
-    "errorRequest": "Request failed ({status})",
-    "errorNetwork": "Network error, please check your connection and retry",
-    "sectionTitle": "See a Reachable Path First",
-    "noApiKey": "No API Key Needed",
-    "presetBadge": "Demo Scenario",
-    "presetTag": "Static Preset · Not Real-time AI",
-    "usingConfig": "Using Your Model Configuration",
-    "generateOwn": "Or Generate From Your Own Conditions",
-    "usingConfigDetail": "Selected model: {model}. Key is stored only in this browser session.",
-    "configHint": "Demo scenarios need no config. To generate your own path, fill in your API Key, Base URL, and model name.",
-    "editConfig": "Edit Configuration",
-    "setupConfig": "Set Up",
-    "clear": "Clear",
-    "loading": "Generating path based on your conditions..."
-  },
   "PlaygroundPage": {
     "metaTitle": "Playground - Meteor Store",
     "metaDescription": "Try Meteor Store products in your browser. No install, no pay.",
@@ -1437,117 +1367,6 @@
     "change": "Change avatar",
     "remove": "Remove",
     "uploadAria": "Upload avatar"
-  },
-  "PathfinderEnums": {
-    "stage": {
-      "middle-school": "Middle school",
-      "high-school": "High school",
-      "college": "College",
-      "career-start": "Career start"
-    },
-    "device": {
-      "phone-only": "Phone only",
-      "phone-and-pc": "Phone and PC",
-      "pc": "PC"
-    },
-    "network": {
-      "limited-data": "Limited data",
-      "normal": "Normal network",
-      "stable": "Stable network"
-    },
-    "constraint": {
-      "fragmented-time": "Fragmented time",
-      "weak-foundation": "Weak foundation",
-      "no-mentor": "No mentor",
-      "limited-budget": "Limited budget"
-    }
-  },
-  "PathfinderForm": {
-    "goalRequired": "Please describe your goal",
-    "goalTooLong": "Goal description must be 280 characters or fewer",
-    "constraintRequired": "Select at least one real-world constraint",
-    "submitFailed": "Submission failed",
-    "goalLabel": "Your learning or growth goal",
-    "goalPlaceholder": "e.g. Complete a Python intro on a phone and ship a small project in 4 weeks",
-    "stageLabel": "Current stage",
-    "deviceLabel": "Available devices",
-    "weeklyHoursLabel": "Weekly time available: {hours} hours",
-    "dailyMinutesLabel": "Daily time available: {minutes} minutes",
-    "budgetLabel": "Monthly learning budget",
-    "zeroBudget": "Zero budget",
-    "budgetAmount": "{amount} CNY",
-    "networkLabel": "Network condition",
-    "mentorLabel": "Anyone you can ask for help",
-    "mentorYes": "Yes, can ask occasionally",
-    "mentorNo": "Not for now",
-    "constraintsLabel": "Real-world constraints (multi-select)",
-    "loading": "Generating path...",
-    "submit": "Generate based on my real conditions",
-    "formAriaLabel": "Learning path generation form"
-  },
-  "PathfinderPlan": {
-    "presetBadge": "Demo Scenario",
-    "presetTag": "Static Preset · Not Real-time AI",
-    "fallbackTag": "Basic Path Mode · Deterministic Result",
-    "aiTag": "AI-Generated Path",
-    "summaryTitle": "Path Description",
-    "todayTitle": "Start Today",
-    "todayStepHint": "First step ~{minutes} min · {evidence}",
-    "weekPlanTitle": "7-Day Action Plan",
-    "minutes": "{minutes} min",
-    "free": "Free",
-    "cost": "{cost} CNY",
-    "resourcesTitle": "Free Resource Suggestions",
-    "lowBandwidth": "Low bandwidth",
-    "resourceKind": "{kind} · opens in new tab →",
-    "mySummaryTitle": "My Weekly Action Summary",
-    "copied": "Copied",
-    "copy": "Copy",
-    "copyAriaLabel": "Copy action summary",
-    "regenerate": "Regenerate with adjusted conditions",
-    "sectionAriaLabel": "Generated learning path",
-    "shareHeader": "📋 My Learning Path Summary",
-    "shareSummaryLabel": "[Path Description]",
-    "shareTodayLabel": "[Start Today]",
-    "shareWeekPlanLabel": "[7-Day Plan]",
-    "shareEncouragementLabel": "[Encouragement]",
-    "shareFooter": "—— Generated by Meteor Pathfinder"
-  },
-  "RealitySimulation": {
-    "badge": "Reality Contract · Explainable Verdict",
-    "title": "Reality Change Simulation",
-    "description": "When conditions suddenly worsen, we don't regenerate an ideal plan — we just keep the one step that's still viable.",
-    "staticRule": "Static rules · No model calls",
-    "timeEventLabel": "Only {minutes} min left this week",
-    "adjustTimeLabel": "Adjust remaining time this week",
-    "minutes": "{minutes} min",
-    "keptCount": "{count} kept",
-    "keptLabel": "Still doable",
-    "deferredLabel": "Deferred for now",
-    "free": "Free",
-    "cost": "{cost} CNY",
-    "evidenceTitle": "Leave evidence of this moment's action",
-    "actionAvailable": "One step still doable right now: {action}",
-    "actionUnavailable": "Acknowledging that the original task can't be kept this time also protects the next action.",
-    "evidencePlaceholder": "e.g. Wrote down two role keywords in the notes app",
-    "evidenceAriaLabel": "Action evidence",
-    "evidenceHint": "Kept only in this browsing session — not uploaded, not saved; cleared on refresh.",
-    "completedButton": "I completed this step",
-    "deferButton": "Defer for today",
-    "copyButtonCopied": "Record copied",
-    "copyButton": "Copy this record",
-    "completedStatus": "Completed",
-    "deferredStatus": "Deferred",
-    "completedHint": "Completion recorded. Saving one small action keeps the possibility of moving forward.",
-    "deferredHint": "Deferral recorded. When conditions recover, continue from this step — no need to start over.",
-    "recordHeader": "Meteor Pathfinder Action Record",
-    "recordReality": "Reality change: {label}",
-    "recordAction": "Action: {action}",
-    "recordStatus": "Status: {status}",
-    "recordEvidence": "Evidence: {evidence}",
-    "recordEvidenceEmpty": "Evidence: not filled",
-    "sectionAriaLabel": "Reality change simulation",
-    "decisionsAriaLabel": "Task verdict results"
   },
   "SpotlightSearch": {
     "dialogAriaLabel": "Site-wide search",
@@ -1975,5 +1794,375 @@
     "resend": "Resend verification email",
     "resending": "Sending…",
     "resendFailed": "Failed to resend. Please try again later."
+  },
+  "PathfinderHub": {
+    "navigation": {
+      "ariaLabel": "Pathfinder navigation",
+      "discover": "Discover",
+      "opportunities": "Opportunities",
+      "directions": "Directions",
+      "plan": "My path"
+    },
+    "discover": {
+      "metaTitle": "Meteor Pathfinder · Trusted learning and opportunity guide",
+      "metaDescription": "Explore trusted open-source projects, competitions, internships, and AI updates, then build a realistic learning path for university students.",
+      "eyebrow": "Trusted aggregation · Built for university students",
+      "title": "Turn scattered information into your next action",
+      "description": "Explore open-source projects, competitions, internships, and AI updates with traceable sources. Then turn them into a path that fits your foundation, devices, time, and budget.",
+      "browse": "Browse all opportunities",
+      "buildPlan": "Build my path",
+      "searchLabel": "Search opportunities and learning resources",
+      "searchPlaceholder": "Search directions, skills, or organizations",
+      "search": "Search",
+      "searchHint": "Searches titles, skill tags, and organization names",
+      "statsAria": "Pathfinder catalog statistics",
+      "stats": {
+        "total": "Catalog items",
+        "learning": "Eligible for paths",
+        "official": "Official sources",
+        "directions": "Learning directions"
+      },
+      "directionsEyebrow": "Start with a direction",
+      "directionsTitle": "Four common technical paths for university students",
+      "directions": {
+        "ai": {
+          "title": "Artificial intelligence",
+          "description": "From Python and data basics to model applications, evaluation, and portfolio projects."
+        },
+        "frontend": {
+          "title": "Frontend development",
+          "description": "From web fundamentals to modern frameworks, engineering, and shipping real products."
+        },
+        "backend": {
+          "title": "Backend development",
+          "description": "From programming and databases to APIs, system design, and reliable services."
+        },
+        "data": {
+          "title": "Data science",
+          "description": "From data handling and statistics to analysis, modeling, and business insight."
+        }
+      },
+      "viewDirection": "View skill map",
+      "featuredEyebrow": "Good starting points",
+      "featuredTitle": "Items that help you begin",
+      "viewAll": "View all",
+      "latestEyebrow": "Recently verified",
+      "latestTitle": "Current competitions and internships",
+      "openSourceEyebrow": "Join real collaboration",
+      "openSourceTitle": "Open-source projects worth exploring",
+      "updatesEyebrow": "AI updates",
+      "updatesTitle": "Changes worth a student's attention",
+      "updatesDescription": "We include updates that clarify a direction, tool choice, or learning priority—not hype without an actionable takeaway.",
+      "deadlinesEyebrow": "Time-sensitive",
+      "deadlinesTitle": "Upcoming deadlines",
+      "viewDeadlines": "View opportunities due in 30 days",
+      "planEyebrow": "From discovery to action",
+      "planTitle": "Not sure what to do first?",
+      "planDescription": "Share your goal and constraints. Pathfinder will use verified catalog items to build a deterministic 4–8 week path."
+    },
+    "catalog": {
+      "types": {
+        "open-source": "Open source",
+        "competition": "Competition",
+        "internship": "Internship",
+        "ai-update": "AI update"
+      },
+      "directions": {
+        "ai": "AI",
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "data": "Data"
+      },
+      "difficulties": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "all": "Any level"
+      },
+      "deadline": "Due {date}",
+      "time": "About {hours} hr",
+      "free": "Free",
+      "costUnknown": "Cost to verify",
+      "cost": "¥{cost}",
+      "remote": {
+        "remote": "Remote",
+        "onsite": "On-site",
+        "hybrid": "Hybrid",
+        "unspecified": "Format not specified"
+      },
+      "trust": {
+        "official": "Official source",
+        "verified": "Cross-checked"
+      },
+      "verified": "Verified {date}",
+      "addToPlan": "Add to path",
+      "manualEligibility": "Manual eligibility check"
+    },
+    "filters": {
+      "searchLabel": "Keyword",
+      "searchPlaceholder": "Title, skill, or organization",
+      "search": "Search",
+      "all": "All",
+      "typeLabel": "Item type",
+      "directionLabel": "Direction",
+      "difficultyLabel": "Difficulty",
+      "remoteLabel": "Participation format",
+      "deadlineLabel": "Deadline",
+      "deadline30": "Next 30 days",
+      "deadline90": "Next 90 days",
+      "clear": "Clear filters",
+      "activeCount": "{count} filters active",
+      "allVisible": "Showing all items",
+      "open": "Filters",
+      "eyebrow": "Narrow the catalog",
+      "title": "Filter opportunities",
+      "close": "Close filters",
+      "showResults": "View results",
+      "types": {
+        "open-source": "Open source",
+        "competition": "Competition",
+        "internship": "Internship",
+        "ai-update": "AI update"
+      },
+      "directions": {
+        "ai": "AI",
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "data": "Data"
+      },
+      "difficulties": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "all": "Any level"
+      },
+      "remote": {
+        "remote": "Remote",
+        "onsite": "On-site",
+        "hybrid": "Hybrid",
+        "unspecified": "Not specified"
+      }
+    },
+    "opportunities": {
+      "metaTitle": "Opportunity catalog · Meteor Pathfinder",
+      "metaDescription": "Filter traceable open-source projects, competitions, internships, and AI updates.",
+      "eyebrow": "Searchable · Filterable · Traceable",
+      "title": "Opportunities and learning resources",
+      "description": "Every item keeps its source, verification time, and eligibility notes. Filter by direction, difficulty, format, and deadline to find something you can act on now.",
+      "resultEyebrow": "Filtered results",
+      "resultCount": "{count} items found",
+      "traceable": "Every item links back to its original source",
+      "emptyTitle": "No matching items",
+      "emptyDescription": "Try removing a filter or using a broader keyword.",
+      "clearFilters": "View all opportunities"
+    },
+    "directionPage": {
+      "metaTitle": "{direction} learning direction · Meteor Pathfinder",
+      "directionNav": "Switch learning direction",
+      "eyebrow": "Learning direction",
+      "mapEyebrow": "Skill map",
+      "mapTitle": "From foundations to real delivery",
+      "recommendedEyebrow": "Put the skills to work",
+      "recommendedTitle": "Recommended learning and practice items",
+      "viewAll": "View all in this direction",
+      "fitLabel": "Who it suits",
+      "outcomeLabel": "Where it can lead",
+      "planTitle": "Build a personal path for this direction",
+      "planDescription": "Turn the skill map into 4–8 weeks of action based on your year, foundation, time, and devices.",
+      "buildPlan": "Build learning path"
+    },
+    "itemPage": {
+      "breadcrumb": "Item details",
+      "discover": "Pathfinder Discover",
+      "types": {
+        "open-source": "Open source",
+        "competition": "Competition",
+        "internship": "Internship",
+        "ai-update": "AI update"
+      },
+      "directions": {
+        "ai": "AI",
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "data": "Data"
+      },
+      "difficulties": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "all": "Any level"
+      },
+      "fitEyebrow": "Eligibility",
+      "fitTitle": "Check before you begin",
+      "manualEligibilityNotice": "This opportunity also depends on an eligible institution, graduation date, or another condition the profile does not collect. Pathfinder will not assume you qualify; verify every requirement on the official page first.",
+      "skillsEyebrow": "What you will practice",
+      "skillsTitle": "Related skills",
+      "skillsUnknown": "The source does not list specific skills yet. Read the original page before deciding.",
+      "sourceEyebrow": "Source and verification",
+      "sourceTitle": "Where this information comes from",
+      "sourceName": "Source",
+      "publishedAt": "Published",
+      "discoveredAt": "Added",
+      "verifiedAt": "Last verified",
+      "unknown": "Not specified",
+      "trust": {
+        "official": "Official primary source",
+        "verified": "Trusted source, verified"
+      },
+      "openOriginal": "Open original page",
+      "visitSource": "Visit source website",
+      "factsTitle": "Key facts",
+      "time": "Estimated effort",
+      "minutes": "{minutes} min",
+      "costLabel": "Cost",
+      "free": "Free",
+      "cost": "¥{cost}",
+      "device": "Required device",
+      "devices": {
+        "phone": "Phone-friendly",
+        "computer": "Computer required",
+        "either": "Phone or computer"
+      },
+      "network": "Network requirement",
+      "networks": {
+        "low": "Works with limited data",
+        "normal": "Normal connection",
+        "high": "Stable high-speed connection"
+      },
+      "remoteLabel": "Participation format",
+      "remote": {
+        "remote": "Remote",
+        "onsite": "On-site",
+        "hybrid": "Hybrid",
+        "unspecified": "Not specified"
+      },
+      "region": "Region",
+      "deadlineLabel": "Deadline",
+      "expired": "Closed",
+      "planEyebrow": "Next step",
+      "planTitle": "Add it to your personal path",
+      "planDescription": "Pathfinder will place it in a suitable week based on your constraints and provide an alternative when needed.",
+      "addToPlan": "Build a path with this item",
+      "contextOnlyTitle": "This item is for context only",
+      "contextOnlyDescription": "It can clarify industry changes, but will not be inserted as a learning task.",
+      "manualOnlyTitle": "Verify the full eligibility manually",
+      "manualOnlyDescription": "The current profile cannot establish every hard requirement, so this opportunity will not be scheduled automatically. After checking the official rules, you can still treat it as a personal application target.",
+      "relatedEyebrow": "Keep exploring",
+      "relatedTitle": "Items in the same direction"
+    },
+    "planPage": {
+      "metaTitle": "My learning path · Meteor Pathfinder",
+      "metaDescription": "Build a 4–8 week action path from a university student's goal, foundation, time, devices, and budget.",
+      "eyebrow": "Deterministic path · No model key required",
+      "title": "Turn a goal into actions you can finish each week",
+      "description": "Share your real constraints. Pathfinder uses only verified, learning-eligible items and arranges preparation, practice, real action, delivery, and review."
+    },
+    "planForm": {
+      "ariaLabel": "Personal learning path form",
+      "preferredTitle": "You selected a starting item",
+      "preferredDescription": "Pathfinder will evaluate this item first and offer an alternative if it does not fit.",
+      "goalLabel": "What do you want to finish in this period?",
+      "goalPlaceholder": "For example: build a resume-ready AI app in six weeks and explain the key technical decisions",
+      "goalRequired": "Describe your goal",
+      "goalTooLong": "Keep the goal under 280 characters",
+      "goalTypeLabel": "Goal type",
+      "goalTypes": {
+        "explore": "Explore a direction",
+        "foundation": "Build foundations",
+        "project": "Complete a project",
+        "competition": "Prepare for a competition",
+        "internship": "Prepare for an internship",
+        "research": "Explore research"
+      },
+      "directionLabel": "Learning direction",
+      "directions": {
+        "ai": "Artificial intelligence",
+        "frontend": "Frontend development",
+        "backend": "Backend development",
+        "data": "Data science"
+      },
+      "stageLabel": "Current year",
+      "stages": {
+        "freshman": "Freshman",
+        "sophomore": "Sophomore",
+        "junior": "Junior",
+        "senior": "Senior",
+        "postgraduate": "Postgraduate"
+      },
+      "foundationLabel": "Current foundation",
+      "foundations": {
+        "none": "Almost no foundation",
+        "beginner": "Know a few concepts",
+        "intermediate": "Can finish small exercises alone",
+        "advanced": "Have project or research experience"
+      },
+      "deviceLabel": "Available devices",
+      "devices": {
+        "phone-only": "Phone only",
+        "phone-and-pc": "Phone and computer",
+        "pc": "Mostly computer"
+      },
+      "networkLabel": "Network condition",
+      "networks": {
+        "limited-data": "Limited data",
+        "normal": "Normal connection",
+        "stable": "Stable high-speed connection"
+      },
+      "weeklyHoursLabel": "Weekly time",
+      "durationWeeksLabel": "Path length",
+      "budgetLabel": "Total budget",
+      "hoursUnit": "hours",
+      "weeksUnit": "weeks",
+      "currencyUnit": "CNY",
+      "foreignFeeLabel": "I can pay fees in other currencies",
+      "foreignFeeDescription": "Only then will verified foreign-currency fees be considered. Pathfinder does not guess a CNY conversion from a temporary exchange rate.",
+      "constraintsLabel": "Real constraints (select any)",
+      "constraints": {
+        "fragmented-time": "My time is fragmented",
+        "weak-foundation": "My foundation is weak",
+        "no-mentor": "I do not have a mentor",
+        "limited-budget": "My budget is limited"
+      },
+      "submitting": "Building your path…",
+      "submit": "Generate my 4–8 week path",
+      "privacy": "Your input is used for this generation only; the path and progress stay in this browser."
+    },
+    "planClient": {
+      "requestError": "Request failed ({status})",
+      "networkError": "Network error. Please try again later.",
+      "howEyebrow": "How it works",
+      "howTitle": "How the path is arranged",
+      "steps": {
+        "1": "First, remove items that conflict with your devices, budget, network, or deadlines.",
+        "2": "Then place tasks into preparation, practice, and real-action phases based on your goal and foundation.",
+        "3": "Every task includes evidence of completion and a fallback for tighter constraints."
+      },
+      "trustTitle": "Explainable and traceable",
+      "trustDescription": "The path does not call an external AI model. Recommendations come only from Pathfinder's verified catalog, with original sources available on every item.",
+      "loading": "Matching eligible items and arranging weekly tasks…",
+      "stalePlan": "This saved path includes an expired, withdrawn, or no-longer-eligible item. You can keep the record, but regenerating from the current catalog is recommended."
+    },
+    "planResult": {
+      "safetyEyebrow": "Take care of the present first",
+      "safetyTitle": "No learning plan will be generated this time",
+      "deterministic": "Rule-based result",
+      "duration": "{weeks}-week path",
+      "progress": "{completed} of {total} tasks complete",
+      "warnings": "Things to keep in mind",
+      "phases": {
+        "prepare": "Prepare",
+        "practice": "Practice",
+        "real-action": "Real action",
+        "deliver": "Deliver",
+        "review": "Review"
+      },
+      "minutes": "{minutes} min",
+      "deadline": "Due {date}",
+      "evidence": "Evidence of completion",
+      "alternative": "When constraints tighten",
+      "viewItem": "View item and source",
+      "savedLocally": "Progress is saved only in this browser.",
+      "reset": "Build a new path"
+    }
   }
 }

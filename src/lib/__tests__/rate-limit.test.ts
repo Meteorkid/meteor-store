@@ -149,4 +149,28 @@ describe('getClientIp', () => {
 
     expect(getClientIp(request)).toBe('203.0.113.1');
   });
+
+  it('keeps public IPv6 clients in separate rate-limit buckets', async () => {
+    process.env.VERCEL = '1';
+    const { getClientIp } = await importRateLimit();
+    const first = new Request('https://example.com', {
+      headers: { 'x-forwarded-for': '2001:db8:1::10, fd00::1' },
+    });
+    const second = new Request('https://example.com', {
+      headers: { 'x-forwarded-for': '2001:db8:2::20, fe80::1' },
+    });
+
+    expect(getClientIp(first)).toBe('2001:db8:1::10');
+    expect(getClientIp(second)).toBe('2001:db8:2::20');
+  });
+
+  it('rejects private IPv6 values supplied by the trusted proxy', async () => {
+    process.env.TRUST_NGINX_PROXY = '1';
+    const { getClientIp } = await importRateLimit();
+    const request = new Request('https://example.com', {
+      headers: { 'x-real-ip': 'fd12:3456::1' },
+    });
+
+    expect(getClientIp(request)).toBe('unknown');
+  });
 });

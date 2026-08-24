@@ -1,182 +1,208 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import PathfinderForm, { PathfinderFormValue } from '@/components/pathfinder/PathfinderForm';
+import PathfinderForm, {
+  type PathfinderFormValue,
+  type PathfinderProfile,
+} from '@/components/pathfinder/PathfinderForm';
 import PathfinderPlanView from '@/components/pathfinder/PathfinderPlan';
-import type { PathfinderPlan } from '@/lib/pathfinder/schema';
-import type { PathfinderResource } from '@/data/pathfinder-resources';
-import { PRESET_CASES, type PresetCase } from '@/data/pathfinder/preset-cases';
-import { toRealityConstraints, type RealityConstraints } from '@/lib/pathfinder/contract';
 import {
-  clearPathfinderModelConfig,
-  usePathfinderModelConfig,
-} from '@/lib/pathfinder/client-config';
+  PATHFINDER_PLAN_STORAGE_KEY,
+  pathfinderScrollBehavior,
+  parseStoredPathfinderPlan,
+  type PathfinderApiResponse,
+  type StoredPathfinderPlan,
+  withToggledTask,
+} from '@/lib/pathfinder/plan-view';
 
-interface ApiOk {
-  plan: PathfinderPlan;
-  resources: PathfinderResource[];
-  source: 'model' | 'fallback' | 'preset';
-}
-
-export default function PathfinderClient({ initialGoal }: { initialGoal?: string }) {
-  const t = useTranslations('PathfinderClient');
-  const modelConfig = usePathfinderModelConfig();
+export default function PathfinderClient({
+  preferredItemId,
+  preferredItemTitle,
+  initialDirection,
+  initialGoalType,
+  locale,
+}: {
+  preferredItemId?: string;
+  preferredItemTitle?: string;
+  initialDirection?: PathfinderProfile['direction'];
+  initialGoalType?: PathfinderProfile['goalType'];
+  locale: 'zh' | 'en';
+}) {
+  const t = useTranslations('PathfinderHub.planClient');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<ApiOk | null>(null);
-  const [realityConstraints, setRealityConstraints] = useState<RealityConstraints | null>(null);
+  const [response, setResponse] = useState<PathfinderApiResponse | null>(null);
+  const [completedTaskIds, setCompletedTaskIds] = useState<string[]>([]);
+  const [planValidation, setPlanValidation] = useState<{
+    generatedAt: string;
+    stale: boolean;
+  } | null>(null);
 
-  const handleSubmit = async (value: PathfinderFormValue) => {
-    if (!modelConfig) {
-      setError(t('errorNoConfig'));
+  useEffect(() => {
+    let raw: string | null = null;
+    try {
+      raw = window.localStorage.getItem(PATHFINDER_PLAN_STORAGE_KEY);
+    } catch {
       return;
     }
+    const stored = parseStoredPathfinderPlan(raw);
+    if (!stored) return;
+    const hydrationTimer = window.setTimeout(() => {
+      setResponse(stored.response);
+      setCompletedTaskIds(stored.completedTaskIds);
+    }, 0);
+    return () => window.clearTimeout(hydrationTimer);
+  }, []);
 
+  useEffect(() => {
+    if (response?.kind !== 'plan') return;
+    const generatedAt = response.plan.generatedAt;
+    const itemIds = [...new Set(response.plan.weeks.flatMap((week) => (
+      week.tasks.map((task) => task.itemId)
+    )))];
+    const controller = new AbortController();
+    const params = new URLSearchParams({
+      ids: itemIds.join(','),
+      learning: 'true',
+      limit: String(Math.max(1, itemIds.length)),
+    });
+    fetch(`/api/pathfinder/items?${params}`, { cache: 'no-store', signal: controller.signal })
+      .then(async (result) => result.ok ? result.json() : null)
+      .then((payload) => {
+        if (!payload || !Array.isArray(payload.items)) return;
+        const currentIds = new Set(payload.items.map((item: { id?: unknown }) => item.id));
+        setPlanValidation({
+          generatedAt,
+          stale: itemIds.some((id) => !currentIds.has(id)),
+        });
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [response]);
+
+  const persist = (nextResponse: PathfinderApiResponse, nextCompleted: string[]) => {
+    const stored: StoredPathfinderPlan = {
+      version: 2,
+      savedAt: new Date().toISOString(),
+      response: nextResponse,
+      completedTaskIds: nextCompleted,
+    };
+    try {
+      window.localStorage.setItem(PATHFINDER_PLAN_STORAGE_KEY, JSON.stringify(stored));
+    } catch {
+      // 隐私模式或存储配额不足时仍可在当前页面使用路径。
+    }
+  };
+
+  const submit = async (value: PathfinderFormValue) => {
     setLoading(true);
     setError(null);
+    setResponse(null);
+    setCompletedTaskIds([]);
+    setPlanValidation(null);
     try {
-      const res = await fetch('/api/pathfinder', {
+      const result = await fetch('/api/pathfinder/plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: value, modelConfig }),
+        body: JSON.stringify({ ...value, locale }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data?.error || t('errorRequest', { status: res.status }));
+      const data = await result.json();
+      if (!result.ok) {
+        setError(data?.error?.message ?? data?.error ?? t('requestError', { status: result.status }));
         return;
       }
-      setResult(data as ApiOk);
-      setRealityConstraints(toRealityConstraints(value));
-      // 滚动到结果区
-      setTimeout(() => {
-        document.getElementById('pathfinder-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const nextResponse = data as PathfinderApiResponse;
+      setResponse(nextResponse);
+      setCompletedTaskIds([]);
+      persist(nextResponse, []);
+      window.setTimeout(() => {
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.getElementById('pathfinder-result')?.scrollIntoView({
+          behavior: pathfinderScrollBehavior(reducedMotion),
+          block: 'start',
+        });
       }, 80);
     } catch {
-      setError(t('errorNetwork'));
+      setError(t('networkError'));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRegenerate = () => {
-    setResult(null);
-    document.getElementById('pathfinder-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const toggleTask = (taskId: string) => {
+    if (!response) return;
+    setCompletedTaskIds((current) => {
+      const next = withToggledTask(current, taskId);
+      persist(response, next);
+      return next;
+    });
   };
 
-  const handlePreset = (preset: PresetCase) => {
+  const reset = () => {
+    try {
+      window.localStorage.removeItem(PATHFINDER_PLAN_STORAGE_KEY);
+    } catch {
+      // 当前页面状态仍可正常清空。
+    }
+    setResponse(null);
+    setCompletedTaskIds([]);
+    setPlanValidation(null);
     setError(null);
-    setResult(preset.result);
-    setRealityConstraints(toRealityConstraints(preset.input));
-    setTimeout(() => {
-      document.getElementById('today')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: pathfinderScrollBehavior(reducedMotion) });
   };
 
   return (
-    <>
-      <section
-        id="conditions"
-        aria-label={t('sectionTitle')}
-        className="max-w-2xl mx-auto px-4 sm:px-6"
-      >
-        <div className="mb-5">
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <h2 className="text-xl font-semibold text-foreground">{t('sectionTitle')}</h2>
-            <span className="text-xs px-2 py-1 rounded-md bg-yellow-500/15 text-yellow-300 border border-yellow-500/30">
-              {t('noApiKey')}
-            </span>
+    <div>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <PathfinderForm
+          preferredItemId={preferredItemId}
+          preferredItemTitle={preferredItemTitle}
+          initialDirection={initialDirection}
+          initialGoalType={initialGoalType}
+          loading={loading}
+          onSubmit={submit}
+        />
+        <aside className="space-y-5">
+          <div className="glass rounded-2xl p-5">
+            <p className="t-eyebrow text-violet-300">{t('howEyebrow')}</p>
+            <h2 className="mt-2 t-title-4 text-white">{t('howTitle')}</h2>
+            <ol className="mt-4 space-y-4">
+              {[1, 2, 3].map((step) => (
+                <li key={step} className="flex gap-3 text-sm leading-6 text-white/60">
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/10 text-[11px] text-white/80">{step}</span>
+                  {t(`steps.${step}`)}
+                </li>
+              ))}
+            </ol>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {PRESET_CASES.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                onClick={() => handlePreset(preset)}
-                className="text-left rounded-2xl border border-white/10 bg-black/15 p-4 transition hover:border-purple-5/50 hover:bg-purple-6/10 focus:outline-none focus:ring-2 focus:ring-purple-5"
-              >
-                <span className="inline-flex rounded-md bg-yellow-500/15 px-2 py-1 text-[10px] text-yellow-300 border border-yellow-500/30">
-                  {t('presetBadge')}
-                </span>
-                <span className="mt-3 block font-medium text-foreground">{preset.title}</span>
-                <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{preset.scenario}</span>
-                <span className="mt-3 inline-flex rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-muted-foreground">
-                  {t('presetTag')}
-                </span>
-              </button>
-            ))}
+          <div className="rounded-2xl border border-white/10 p-5">
+            <p className="text-sm font-semibold text-white">{t('trustTitle')}</p>
+            <p className="mt-2 text-sm leading-6 text-white/60">{t('trustDescription')}</p>
           </div>
-        </div>
+        </aside>
+      </div>
 
-        <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/15 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-foreground">
-              {modelConfig ? t('usingConfig') : t('generateOwn')}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {modelConfig
-                ? t('usingConfigDetail', { model: modelConfig.model })
-                : t('configHint')}
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/pathfinder/settings" className="text-sm font-medium text-purple-200 transition hover:text-purple-100">
-              {modelConfig ? t('editConfig') : t('setupConfig')}
-            </Link>
-            {modelConfig && (
-              <button
-                type="button"
-                onClick={clearPathfinderModelConfig}
-                className="text-xs text-muted-foreground transition hover:text-foreground"
-              >
-                {t('clear')}
-              </button>
-            )}
-          </div>
-        </div>
-        <div id="pathfinder-form">
-          <PathfinderForm
-            initialGoal={initialGoal}
-            onSubmit={handleSubmit}
-            loading={loading}
-          />
-        </div>
-        {loading && (
-          <p
-            role="status"
-            aria-live="polite"
-            className="text-center text-sm text-muted-foreground mt-4"
-          >
-            {t('loading')}
-          </p>
-        )}
-        {error && !loading && (
-          <p
-            role="alert"
-            className="mt-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 text-center"
-          >
-            {error}
-          </p>
-        )}
-      </section>
-
-      {result && realityConstraints && (
-        <section
-          id="pathfinder-result"
-          aria-label={t('sectionTitle')}
-          className="max-w-2xl mx-auto px-4 sm:px-6 mt-8"
-        >
-          <PathfinderPlanView
-            key={`${result.source}-${result.plan.summary}`}
-            plan={result.plan}
-            resources={result.resources}
-            source={result.source}
-            realityConstraints={realityConstraints}
-            onRegenerate={handleRegenerate}
-          />
-        </section>
+      {loading && <p role="status" className="mt-5 text-center text-sm text-white/60">{t('loading')}</p>}
+      {error && !loading && (
+        <p role="alert" className="mt-5 rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-center text-sm text-red-200">
+          {error}
+        </p>
       )}
-    </>
+
+      {response && (
+        <div className="mt-14 sm:mt-20">
+          {response.kind === 'plan'
+            && planValidation?.generatedAt === response.plan.generatedAt
+            && planValidation.stale && (
+            <p role="alert" className="mb-5 rounded-2xl border border-amber-400/20 bg-amber-500/[0.08] px-4 py-3 text-sm leading-6 text-amber-100">
+              {t('stalePlan')}
+            </p>
+          )}
+          <PathfinderPlanView response={response} completedTaskIds={completedTaskIds} onToggleTask={toggleTask} onReset={reset} />
+        </div>
+      )}
+    </div>
   );
 }

@@ -1,256 +1,194 @@
 'use client';
 
-import { useState, useId } from 'react';
+import { useId, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import {
-  STAGE_VALUES,
-  DEVICE_VALUES,
-  NETWORK_VALUES,
-  CONSTRAINT_VALUES,
-  type PathfinderInput,
-} from '@/lib/pathfinder/schema';
 
-export type PathfinderFormValue = PathfinderInput;
+export const GOAL_TYPES = ['explore', 'foundation', 'project', 'competition', 'internship', 'research'] as const;
+export const DIRECTIONS = ['ai', 'frontend', 'backend', 'data'] as const;
+export const STAGES = ['freshman', 'sophomore', 'junior', 'senior', 'postgraduate'] as const;
+export const FOUNDATIONS = ['none', 'beginner', 'intermediate', 'advanced'] as const;
+export const DEVICES = ['phone-only', 'phone-and-pc', 'pc'] as const;
+export const NETWORKS = ['limited-data', 'normal', 'stable'] as const;
+export const CONSTRAINTS = ['fragmented-time', 'weak-foundation', 'no-mentor', 'limited-budget'] as const;
+
+export interface PathfinderProfile {
+  goal: string;
+  goalType: (typeof GOAL_TYPES)[number];
+  direction: (typeof DIRECTIONS)[number];
+  stage: (typeof STAGES)[number];
+  foundation: (typeof FOUNDATIONS)[number];
+  weeklyHours: number;
+  durationWeeks: number;
+  device: (typeof DEVICES)[number];
+  budgetCny: number;
+  acceptForeignCurrencyCosts: boolean;
+  network: (typeof NETWORKS)[number];
+  constraints: (typeof CONSTRAINTS)[number][];
+}
+
+export interface PathfinderFormValue {
+  profile: PathfinderProfile;
+  preferredItemId?: string;
+}
 
 interface Props {
-  initialGoal?: string;
-  onSubmit: (value: PathfinderFormValue) => Promise<void> | void;
+  preferredItemId?: string;
+  preferredItemTitle?: string;
+  initialDirection?: PathfinderProfile['direction'];
+  initialGoalType?: PathfinderProfile['goalType'];
   loading?: boolean;
-  disabled?: boolean;
+  onSubmit: (value: PathfinderFormValue) => Promise<void> | void;
 }
 
 export default function PathfinderForm({
-  initialGoal = '',
-  onSubmit,
+  preferredItemId,
+  preferredItemTitle,
+  initialDirection = 'ai',
+  initialGoalType = 'project',
   loading = false,
-  disabled = false,
+  onSubmit,
 }: Props) {
-  const t = useTranslations('PathfinderForm');
-  const tEnum = useTranslations('PathfinderEnums');
-  const [goal, setGoal] = useState(initialGoal);
-  const [stage, setStage] = useState<(typeof STAGE_VALUES)[number]>('high-school');
-  const [device, setDevice] = useState<(typeof DEVICE_VALUES)[number]>('phone-only');
-  const [weeklyHours, setWeeklyHours] = useState(7);
-  const [dailyMinutes, setDailyMinutes] = useState(30);
-  const [budget, setBudget] = useState(0);
-  const [hasMentor, setHasMentor] = useState(false);
-  const [network, setNetwork] = useState<(typeof NETWORK_VALUES)[number]>('normal');
-  const [constraints, setConstraints] = useState<(typeof CONSTRAINT_VALUES)[number][]>([
-    'fragmented-time',
-  ]);
+  const t = useTranslations('PathfinderHub.planForm');
+  const id = useId();
+  const [goal, setGoal] = useState('');
+  const [goalType, setGoalType] = useState<PathfinderProfile['goalType']>(initialGoalType);
+  const [direction, setDirection] = useState<PathfinderProfile['direction']>(initialDirection);
+  const [stage, setStage] = useState<PathfinderProfile['stage']>('freshman');
+  const [foundation, setFoundation] = useState<PathfinderProfile['foundation']>('beginner');
+  const [weeklyHours, setWeeklyHours] = useState(6);
+  const [durationWeeks, setDurationWeeks] = useState(6);
+  const [device, setDevice] = useState<PathfinderProfile['device']>('phone-and-pc');
+  const [budgetCny, setBudgetCny] = useState(0);
+  const [acceptForeignCurrencyCosts, setAcceptForeignCurrencyCosts] = useState(false);
+  const [network, setNetwork] = useState<PathfinderProfile['network']>('normal');
+  const [constraints, setConstraints] = useState<PathfinderProfile['constraints']>(['fragmented-time']);
   const [error, setError] = useState<string | null>(null);
-  const idPrefix = useId();
 
-  // enum 标识符 → 本地化显示文本
-  const stageOptions = STAGE_VALUES.map((v) => ({ value: v, label: tEnum(`stage.${v}`) }));
-  const deviceOptions = DEVICE_VALUES.map((v) => ({ value: v, label: tEnum(`device.${v}`) }));
-  const networkOptions = NETWORK_VALUES.map((v) => ({ value: v, label: tEnum(`network.${v}`) }));
-  const constraintOptions = CONSTRAINT_VALUES.map((v) => ({
-    value: v,
-    label: tEnum(`constraint.${v}`),
-  }));
-
-  const toggleConstraint = (c: (typeof CONSTRAINT_VALUES)[number]) => {
-    setConstraints((prev) =>
-      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c],
+  const toggleConstraint = (constraint: PathfinderProfile['constraints'][number]) => {
+    setConstraints((current) =>
+      current.includes(constraint)
+        ? current.filter((item) => item !== constraint)
+        : [...current, constraint],
     );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError(null);
-    if (!goal.trim()) {
+    const normalizedGoal = goal.trim();
+    if (!normalizedGoal) {
       setError(t('goalRequired'));
       return;
     }
-    if (goal.length > 280) {
+    if (normalizedGoal.length > 280) {
       setError(t('goalTooLong'));
       return;
     }
-    if (constraints.length === 0) {
-      setError(t('constraintRequired'));
-      return;
-    }
-    try {
-      await onSubmit({
-        goal: goal.trim(),
+
+    await onSubmit({
+      profile: {
+        goal: normalizedGoal,
+        goalType,
+        direction,
         stage,
-        device,
+        foundation,
         weeklyHours,
-        dailyMinutes,
-        budget,
-        hasMentor,
+        durationWeeks,
+        device,
+        budgetCny,
+        acceptForeignCurrencyCosts,
         network,
         constraints,
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('submitFailed'));
-    }
+      },
+      preferredItemId,
+    });
   };
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="glass-card rounded-3xl p-6 sm:p-8 space-y-5"
-      aria-label={t('formAriaLabel')}
+      onSubmit={submit}
+      aria-label={t('ariaLabel')}
       aria-busy={loading}
+      className="glass-card space-y-6 rounded-3xl p-5 sm:p-8"
     >
+      {preferredItemId && (
+        <div className="flex items-start justify-between gap-4 rounded-2xl border border-violet-400/20 bg-violet-500/10 px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold text-white">{t('preferredTitle')}</p>
+            <p className="mt-1 t-footnote text-white/60">{t('preferredDescription')}</p>
+          </div>
+          <span className="max-w-[45%] truncate rounded-full border border-violet-300/20 px-2 py-1 text-[11px] text-violet-200">
+            {preferredItemTitle ?? preferredItemId}
+          </span>
+        </div>
+      )}
+
       <div>
-        <label
-          htmlFor={`${idPrefix}-goal`}
-          className="block text-sm font-medium mb-2 text-foreground"
-        >
+        <label htmlFor={`${id}-goal`} className="mb-2 block text-sm font-semibold text-white">
           {t('goalLabel')}
-          <span className="text-destructive ml-1" aria-hidden="true">*</span>
         </label>
         <textarea
-          id={`${idPrefix}-goal`}
+          id={`${id}-goal`}
           value={goal}
-          onChange={(e) => setGoal(e.target.value)}
-          placeholder={t('goalPlaceholder')}
+          onChange={(event) => setGoal(event.target.value)}
+          rows={4}
           maxLength={280}
-          rows={3}
           required
-          aria-required="true"
-          aria-describedby={`${idPrefix}-goal-count`}
-          className="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 focus:border-purple-5 focus:ring-2 focus:ring-purple-5/30 outline-none transition resize-none text-foreground placeholder:text-muted-foreground"
+          placeholder={t('goalPlaceholder')}
+          className="w-full resize-none rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-white outline-none transition-colors placeholder:text-white/60 focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/20"
         />
-        <div
-          id={`${idPrefix}-goal-count`}
-          className="text-xs text-muted-foreground mt-1 text-right"
-          aria-live="polite"
-        >
-          {goal.length}/280
-        </div>
+        <p className="mt-1 text-right t-footnote text-white/60">{goal.length}/280</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field label={t('stageLabel')} id={`${idPrefix}-stage`}>
-          <Select value={stage} onChange={(v) => setStage(v as typeof stage)} id={`${idPrefix}-stage`} options={stageOptions} />
-        </Field>
-        <Field label={t('deviceLabel')} id={`${idPrefix}-device`}>
-          <Select value={device} onChange={(v) => setDevice(v as typeof device)} id={`${idPrefix}-device`} options={deviceOptions} />
-        </Field>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <SelectField id={`${id}-goal-type`} label={t('goalTypeLabel')} value={goalType} onChange={(value) => setGoalType(value as PathfinderProfile['goalType'])} options={GOAL_TYPES.map((value) => ({ value, label: t(`goalTypes.${value}`) }))} />
+        <SelectField id={`${id}-direction`} label={t('directionLabel')} value={direction} onChange={(value) => setDirection(value as PathfinderProfile['direction'])} options={DIRECTIONS.map((value) => ({ value, label: t(`directions.${value}`) }))} />
+        <SelectField id={`${id}-stage`} label={t('stageLabel')} value={stage} onChange={(value) => setStage(value as PathfinderProfile['stage'])} options={STAGES.map((value) => ({ value, label: t(`stages.${value}`) }))} />
+        <SelectField id={`${id}-foundation`} label={t('foundationLabel')} value={foundation} onChange={(value) => setFoundation(value as PathfinderProfile['foundation'])} options={FOUNDATIONS.map((value) => ({ value, label: t(`foundations.${value}`) }))} />
+        <SelectField id={`${id}-device`} label={t('deviceLabel')} value={device} onChange={(value) => setDevice(value as PathfinderProfile['device'])} options={DEVICES.map((value) => ({ value, label: t(`devices.${value}`) }))} />
+        <SelectField id={`${id}-network`} label={t('networkLabel')} value={network} onChange={(value) => setNetwork(value as PathfinderProfile['network'])} options={NETWORKS.map((value) => ({ value, label: t(`networks.${value}`) }))} />
       </div>
 
-      <Field label={t('weeklyHoursLabel', { hours: weeklyHours })} id={`${idPrefix}-hours`}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <NumberField id={`${id}-weekly`} label={t('weeklyHoursLabel')} value={weeklyHours} min={1} max={30} suffix={t('hoursUnit')} onChange={setWeeklyHours} />
+        <NumberField id={`${id}-duration`} label={t('durationWeeksLabel')} value={durationWeeks} min={4} max={8} suffix={t('weeksUnit')} onChange={setDurationWeeks} />
+        <NumberField id={`${id}-budget`} label={t('budgetLabel')} value={budgetCny} min={0} max={10000} step={10} suffix={t('currencyUnit')} onChange={setBudgetCny} />
+      </div>
+
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white/70">
         <input
-          id={`${idPrefix}-hours`}
-          type="range"
-          min={1}
-          max={20}
-          step={1}
-          value={weeklyHours}
-          onChange={(e) => setWeeklyHours(Number(e.target.value))}
-          className="w-full accent-purple-5"
-          aria-valuemin={1}
-          aria-valuemax={20}
-          aria-valuenow={weeklyHours}
+          type="checkbox"
+          checked={acceptForeignCurrencyCosts}
+          onChange={(event) => setAcceptForeignCurrencyCosts(event.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-violet-500"
         />
-      </Field>
-
-      <Field label={t('dailyMinutesLabel', { minutes: dailyMinutes })} id={`${idPrefix}-daily-minutes`}>
-        <input
-          id={`${idPrefix}-daily-minutes`}
-          type="range"
-          min={10}
-          max={120}
-          step={5}
-          value={dailyMinutes}
-          onChange={(e) => setDailyMinutes(Number(e.target.value))}
-          className="w-full accent-purple-5"
-          aria-valuemin={10}
-          aria-valuemax={120}
-          aria-valuenow={dailyMinutes}
-        />
-      </Field>
+        <span>
+          <span className="block font-semibold text-white">{t('foreignFeeLabel')}</span>
+          <span className="mt-1 block t-footnote text-white/60">{t('foreignFeeDescription')}</span>
+        </span>
+      </label>
 
       <fieldset>
-        <legend className="block text-sm font-medium mb-3 text-foreground">{t('budgetLabel')}</legend>
-        <div className="grid grid-cols-4 gap-2">
-          {[0, 50, 100, 200].map((amount) => {
-            const checked = budget === amount;
+        <legend className="mb-3 text-sm font-semibold text-white">{t('constraintsLabel')}</legend>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {CONSTRAINTS.map((constraint) => {
+            const checked = constraints.includes(constraint);
             return (
               <label
-                key={amount}
-                className={`cursor-pointer text-sm px-2 py-2 rounded-xl border text-center transition select-none ${
+                key={constraint}
+                className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
                   checked
-                    ? 'bg-purple-6/30 border-purple-5 text-foreground'
-                    : 'bg-black/10 border-white/10 text-muted-foreground hover:border-white/30'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name={`${idPrefix}-budget`}
-                  value={amount}
-                  checked={checked}
-                  onChange={() => setBudget(amount)}
-                  className="sr-only"
-                />
-                {amount === 0 ? t('zeroBudget') : t('budgetAmount', { amount })}
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
-
-      <Field label={t('networkLabel')} id={`${idPrefix}-network`}>
-        <Select value={network} onChange={(v) => setNetwork(v as typeof network)} id={`${idPrefix}-network`} options={networkOptions} />
-      </Field>
-
-      <fieldset>
-        <legend className="block text-sm font-medium mb-3 text-foreground">{t('mentorLabel')}</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {[false, true].map((value) => {
-            const checked = hasMentor === value;
-            return (
-              <label
-                key={String(value)}
-                className={`cursor-pointer text-sm px-3 py-2 rounded-xl border text-center transition select-none ${
-                  checked
-                    ? 'bg-purple-6/30 border-purple-5 text-foreground'
-                    : 'bg-black/10 border-white/10 text-muted-foreground hover:border-white/30'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name={`${idPrefix}-mentor`}
-                  checked={checked}
-                  onChange={() => setHasMentor(value)}
-                  className="sr-only"
-                />
-                {value ? t('mentorYes') : t('mentorNo')}
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend className="block text-sm font-medium mb-3 text-foreground">
-          {t('constraintsLabel')}
-          <span className="text-destructive ml-1" aria-hidden="true">*</span>
-        </legend>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {constraintOptions.map(({ value: c, label }) => {
-            const checked = constraints.includes(c);
-            return (
-              <label
-                key={c}
-                className={`cursor-pointer text-sm px-3 py-2 rounded-xl border text-center transition select-none ${
-                  checked
-                    ? 'bg-purple-6/30 border-purple-5 text-foreground'
-                    : 'bg-black/10 border-white/10 text-muted-foreground hover:border-white/30'
+                    ? 'border-violet-400/40 bg-violet-500/15 text-white'
+                    : 'border-white/10 bg-black/20 text-white/60 hover:border-white/20 hover:text-white/80'
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={checked}
-                  onChange={() => toggleConstraint(c)}
-                  className="sr-only"
-                  aria-label={label}
+                  onChange={() => toggleConstraint(constraint)}
+                  className="h-4 w-4 accent-violet-500"
                 />
-                {label}
+                {t(`constraints.${constraint}`)}
               </label>
             );
           })}
@@ -258,59 +196,88 @@ export default function PathfinderForm({
       </fieldset>
 
       {error && (
-        <p
-          role="alert"
-          className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"
-        >
+        <p role="alert" className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           {error}
         </p>
       )}
 
       <button
         type="submit"
-        disabled={loading || disabled}
-        className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-purple-6 to-violet-6 text-white font-semibold text-base shadow-lg shadow-purple-6/30 hover:shadow-purple-6/50 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-purple-5 focus:ring-offset-2 focus:ring-offset-background"
+        disabled={loading}
+        className="w-full rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-950/40 transition-colors hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {loading ? t('loading') : t('submit')}
+        {loading ? t('submitting') : t('submit')}
       </button>
+      <p className="text-center t-footnote text-white/60">{t('privacy')}</p>
     </form>
   );
 }
 
-function Field({ label, id, children }: { label: string; id: string; children: React.ReactNode }) {
+function SelectField({
+  id,
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+}) {
   return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium mb-2 text-foreground">
-        {label}
-      </label>
-      {children}
-    </div>
+    <label htmlFor={id} className="block">
+      <span className="mb-2 block text-sm font-semibold text-white">{label}</span>
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-xl border border-white/10 bg-black/45 px-3 py-2.5 text-sm text-white outline-none focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/20"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    </label>
   );
 }
 
-function Select({
-  value,
-  onChange,
+function NumberField({
   id,
-  options,
+  label,
+  value,
+  min,
+  max,
+  step = 1,
+  suffix,
+  onChange,
 }: {
-  value: string;
-  onChange: (v: string) => void;
   id: string;
-  options: ReadonlyArray<{ value: string; label: string }>;
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  suffix: string;
+  onChange: (value: number) => void;
 }) {
   return (
-    <select
-      id={id}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 focus:border-purple-5 focus:ring-2 focus:ring-purple-5/30 outline-none transition text-foreground"
-    >
-      {options.map((o) => (
-        <option key={o.value} value={o.value} className="bg-gray-9 text-foreground">
-          {o.label}
-        </option>
-      ))}
-    </select>
+    <label htmlFor={id} className="block">
+      <span className="mb-2 block text-sm font-semibold text-white">{label}</span>
+      <span className="flex items-center rounded-xl border border-white/10 bg-black/45 focus-within:border-violet-400/60 focus-within:ring-2 focus-within:ring-violet-500/20">
+        <input
+          id={id}
+          type="number"
+          value={value}
+          min={min}
+          max={max}
+          step={step}
+          onChange={(event) => onChange(Number(event.target.value))}
+          className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-white outline-none"
+        />
+        <span className="pr-3 t-footnote text-white/60">{suffix}</span>
+      </span>
+    </label>
   );
 }

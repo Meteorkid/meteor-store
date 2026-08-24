@@ -4,6 +4,7 @@ import { blogSections } from '@/data/blog-sections';
 import { getFeedPosts, getFeedTags } from '@/data/blog-feed';
 import { helpArticles } from '@/data/help-articles';
 import { SHOW_PRICING, SITE_URL } from '@/lib/constants';
+import { listCatalogItems } from '@/lib/pathfinder/catalog';
 
 const BASE_URL = SITE_URL;
 const LOCALES = ['zh', 'en'] as const;
@@ -27,7 +28,11 @@ export function getHelpSitemapEntries(): MetadataRoute.Sitemap {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
-  const [feedPosts, feedTags] = await Promise.all([getFeedPosts('zh'), getFeedTags('zh')]);
+  const [feedPosts, feedTags, pathfinderItems] = await Promise.all([
+    getFeedPosts('zh'),
+    getFeedTags('zh'),
+    listCatalogItems(),
+  ]);
 
   const staticPages = [
     { url: BASE_URL, lastModified: now, changeFrequency: 'weekly' as const, priority: 1 },
@@ -40,6 +45,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/story`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.5 },
     { url: `${BASE_URL}/support`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.4 },
     { url: `${BASE_URL}/docs`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.5 },
+    { url: `${BASE_URL}/pathfinder`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.8 },
+    { url: `${BASE_URL}/pathfinder/opportunities`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.7 },
+    { url: `${BASE_URL}/pathfinder/plan`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.6 },
+    ...['ai', 'frontend', 'backend', 'data'].map((direction) => ({
+      url: `${BASE_URL}/pathfinder/directions/${direction}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    })),
     { url: `${BASE_URL}/contact`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.4 },
     { url: `${BASE_URL}/feedback`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.3 },
     { url: `${BASE_URL}/privacy`, lastModified: now, changeFrequency: 'yearly' as const, priority: 0.2 },
@@ -96,6 +110,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const helpPages = getHelpSitemapEntries();
+
+  const pathfinderItemPages = pathfinderItems.flatMap((item) =>
+    LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/pathfinder/items/${item.id}`,
+      lastModified: item.verifiedAt,
+      changeFrequency: 'weekly' as const,
+      priority: item.learningEligible ? 0.6 : 0.5,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh/pathfinder/items/${item.id}`,
+          en: `${BASE_URL}/en/pathfinder/items/${item.id}`,
+        },
+      },
+    })),
+  );
 
   // 博客分区页面双语版本
   const blogSectionPages = blogSections.flatMap((section) =>
@@ -161,6 +190,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedStaticPages,
     ...productPages,
     ...helpPages,
+    ...pathfinderItemPages,
     ...blogSectionPages,
     ...blogPostPages,
     ...tagPages,
