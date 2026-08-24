@@ -250,7 +250,31 @@ describe('TollowAccountSync', () => {
       bookId: 'book-two',
       bookTitle: '远端书籍',
     });
-    expect(fetcher).toHaveBeenCalledWith('/api/tollow/sessions?page=1&limit=100');
-    expect(fetcher).toHaveBeenCalledWith('/api/tollow/sessions?page=2&limit=100');
+    expect(fetcher).toHaveBeenCalledWith(
+      '/api/tollow/sessions?page=1&limit=100',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+    expect(fetcher).toHaveBeenCalledWith(
+      '/api/tollow/sessions?page=2&limit=100',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+  });
+
+  it('远端请求无响应时按超时结束初始化并进入可重试状态', async () => {
+    vi.useFakeTimers();
+    const fetcher = vi.fn(() => new Promise<Response>(() => undefined));
+    const sync = new TollowAccountSync({
+      userId: 'user-one',
+      storage,
+      fetcher,
+      requestTimeoutMs: 50,
+    });
+
+    const initializing = sync.initialize();
+    await vi.advanceTimersByTimeAsync(51);
+    await initializing;
+
+    expect(sync.getStatus()).toBe('error');
+    vi.useRealTimers();
   });
 });

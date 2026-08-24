@@ -47,6 +47,7 @@ export default async function TrialPage({ params }: TrialPageProps) {
   return (
     <main className="h-dvh w-screen overflow-hidden bg-black text-white">
       {renderApp({
+        locale,
         userId: session?.userId,
         tollowAccessLevel: id === 'tollow' ? 'free' : undefined,
       })}

@@ -32,6 +32,7 @@ export default function FavoritesDrawer({ open, onClose }: FavoritesDrawerProps)
   const navigate = useNavigate()
   const setCurrentText = useAppStore(state => state.setCurrentText)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const drawerRef = useRef<HTMLElement>(null)
   const [items, setItems] = useState<TollowFavorite[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -81,7 +82,24 @@ export default function FavoritesDrawer({ open, onClose }: FavoritesDrawerProps)
     if (!open) return
     closeButtonRef.current?.focus()
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (event.key !== 'Tab' || !drawerRef.current) return
+      const focusable = [...drawerRef.current.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      )]
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
     const onChanged = () => void load()
     window.addEventListener('keydown', onKeyDown)
@@ -187,6 +205,7 @@ export default function FavoritesDrawer({ open, onClose }: FavoritesDrawerProps)
   return (
     <div className="favorites-drawer-backdrop" role="presentation" onMouseDown={onClose}>
       <aside
+        ref={drawerRef}
         className="favorites-drawer"
         role="dialog"
         aria-modal="true"

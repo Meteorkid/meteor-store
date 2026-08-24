@@ -7,6 +7,7 @@ import type { AppId } from '@/data/app-manifest';
 import type { TollowAccessLevel } from '@/lib/tollow-plans';
 
 export interface AppRenderContext {
+  locale?: string;
   userId?: string;
   tollowAccessLevel?: TollowAccessLevel;
 }
@@ -26,11 +27,11 @@ type AppRenderer = (context?: AppRenderContext) => ReactNode;
  * 它成为服务端模块，而它包装的各个 App 组件自身仍是客户端组件，不受影响。
  */
 const registeredAppComponents = {
-  'webgl-fluid-sim': () => <WebGLFluidSim />,
-  'skeleton-anatomy': () => <SkeletonAnatomyApp />,
+  'webgl-fluid-sim': (context) => <WebGLFluidSim locale={context?.locale} />,
+  'skeleton-anatomy': (context) => <SkeletonAnatomyApp locale={context?.locale} />,
   'chakra-visualizer': () => <ChakraVisualizerApp />,
   'tollow': (context) => context?.userId && context.tollowAccessLevel
-    ? <TollowApp userId={context.userId} accessLevel={context.tollowAccessLevel} />
+    ? <TollowApp locale={context.locale} userId={context.userId} accessLevel={context.tollowAccessLevel} />
     : null,
 } satisfies Record<AppId, AppRenderer>;
 

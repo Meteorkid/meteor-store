@@ -4,7 +4,8 @@ import { useState } from 'react'
 import useStore from '../store/useStore'
 import { getRandomBoneId, getBoneById, boneCategories } from '../data/boneData'
 
-export default function QuizPanel() {
+export default function QuizPanel({ locale = 'zh' }) {
+  const isZh = locale !== 'en'
   const quizMode = useStore((s) => s.quizMode)
   const quizBone = useStore((s) => s.quizBone)
   const quizResult = useStore((s) => s.quizResult)
@@ -60,7 +61,7 @@ export default function QuizPanel() {
   return (
     <div className="quiz-panel">
       <div className="quiz-header">
-        <h3>骨骼测验</h3>
+        <h3>{isZh ? '骨骼测验' : 'Bone quiz'}</h3>
         <div className="quiz-score">
           {quizScore.correct} / {quizScore.total}
           {quizScore.total > 0 && (
@@ -69,14 +70,14 @@ export default function QuizPanel() {
             </span>
           )}
         </div>
-        <button type="button" className="quiz-close" onClick={resetQuizScore} aria-label="重置测验分数">↺</button>
-        <button type="button" className="quiz-close" onClick={stopQuiz} aria-label="退出骨骼测验">✕</button>
+        <button type="button" className="quiz-close" onClick={resetQuizScore} aria-label={isZh ? '重置测验分数' : 'Reset quiz score'}>↺</button>
+        <button type="button" className="quiz-close" onClick={stopQuiz} aria-label={isZh ? '退出骨骼测验' : 'Exit bone quiz'}>✕</button>
       </div>
 
       {bone && (
         <>
           <div className="quiz-question">
-            <p>请说出这块骨骼的名称：</p>
+            <p>{isZh ? '请说出这块骨骼的名称：' : 'Name the highlighted bone:'}</p>
             <div className="quiz-hint-area">
               <button
                 type="button"
@@ -84,13 +85,13 @@ export default function QuizPanel() {
                 onClick={() => setShowHint(!showHint)}
                 aria-expanded={showHint}
               >
-                {showHint ? '隐藏提示' : '显示提示'}
+                {showHint ? (isZh ? '隐藏提示' : 'Hide hint') : (isZh ? '显示提示' : 'Show hint')}
               </button>
               {showHint && (
                 <div className="quiz-hint">
-                  <p>分类：{category?.name}</p>
-                  <p>编号：{bone.id}</p>
-                  <p>描述：{bone.descriptionZh.slice(0, 30)}...</p>
+                  <p>{isZh ? '分类' : 'Category'}：{isZh ? category?.name : category?.nameEn}</p>
+                  <p>{isZh ? '编号' : 'ID'}：{bone.id}</p>
+                  <p>{isZh ? '描述' : 'Description'}：{(isZh ? bone.descriptionZh : bone.descriptionEn).slice(0, 60)}...</p>
                 </div>
               )}
             </div>
@@ -99,7 +100,7 @@ export default function QuizPanel() {
           <div className="quiz-input-area">
             <input
               type="text"
-              placeholder="输入骨骼名称（中文或英文）"
+              placeholder={isZh ? '输入骨骼名称（中文或英文）' : 'Enter the bone name'}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -108,7 +109,7 @@ export default function QuizPanel() {
             />
             {!quizResult && (
               <button type="button" className="quiz-submit" onClick={handleSubmit}>
-                提交
+                {isZh ? '提交' : 'Submit'}
               </button>
             )}
           </div>
@@ -116,12 +117,12 @@ export default function QuizPanel() {
           {quizResult && (
             <div className={`quiz-result ${quizResult}`}>
               {quizResult === 'correct' ? (
-                <p>正确！</p>
+                <p>{isZh ? '正确！' : 'Correct!'}</p>
               ) : (
-                <p>错误。答案是：<strong>{bone.nameZh}</strong> ({bone.nameEn})</p>
+                <p>{isZh ? '错误。答案是：' : 'Incorrect. The answer is: '}<strong>{isZh ? bone.nameZh : bone.nameEn}</strong> ({isZh ? bone.nameEn : bone.nameZh})</p>
               )}
               <button type="button" className="quiz-next" onClick={handleNext}>
-                下一题 →
+                {isZh ? '下一题 →' : 'Next →'}
               </button>
             </div>
           )}

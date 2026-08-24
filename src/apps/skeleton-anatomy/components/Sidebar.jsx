@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef } from 'react'
 import useStore from '../store/useStore'
 import { bones, boneCategories, getBonesByCategory } from '../data/boneData'
 
-export default function Sidebar() {
+export default function Sidebar({ locale = 'zh' }) {
+  const isZh = locale !== 'en'
   const searchQuery = useStore((s) => s.searchQuery)
   const activeCategory = useStore((s) => s.activeCategory)
   const selectedBone = useStore((s) => s.selectedBone)
@@ -40,14 +41,16 @@ export default function Sidebar() {
     <div
       id="skeleton-sidebar"
       className={`sidebar ${sidebarOpen ? 'open' : ''}`}
-      aria-label="骨骼列表"
+      aria-label={isZh ? '骨骼列表' : 'Bone list'}
+      role={sidebarOpen ? 'dialog' : undefined}
+      aria-modal={sidebarOpen || undefined}
     >
       <button
         ref={closeButtonRef}
         type="button"
         className="drawer-close"
         onClick={closePanels}
-        aria-label="关闭骨骼列表"
+        aria-label={isZh ? '关闭骨骼列表' : 'Close bone list'}
       >
         <span aria-hidden="true">✕</span>
       </button>
@@ -56,8 +59,8 @@ export default function Sidebar() {
       <div className="sidebar-search">
         <input
           type="search"
-          aria-label="搜索骨骼名称"
-          placeholder="搜索骨骼名称..."
+          aria-label={isZh ? '搜索骨骼名称' : 'Search bones'}
+          placeholder={isZh ? '搜索骨骼名称...' : 'Search bones…'}
           value={searchQuery}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -66,7 +69,7 @@ export default function Sidebar() {
             type="button"
             className="search-clear"
             onClick={() => setSearch('')}
-            aria-label="清空搜索"
+            aria-label={isZh ? '清空搜索' : 'Clear search'}
           >
             <span aria-hidden="true">✕</span>
           </button>
@@ -81,7 +84,7 @@ export default function Sidebar() {
           onClick={() => setCategory('all')}
           aria-pressed={activeCategory === 'all'}
         >
-          全部 ({bones.length})
+          {isZh ? '全部' : 'All'} ({bones.length})
         </button>
         {boneCategories.map((cat) => (
           <button
@@ -91,7 +94,7 @@ export default function Sidebar() {
             onClick={() => setCategory(cat.id)}
             aria-pressed={activeCategory === cat.id}
           >
-            {cat.name} ({cat.count})
+          {isZh ? cat.name : cat.nameEn} ({cat.count})
           </button>
         ))}
       </div>
@@ -99,7 +102,7 @@ export default function Sidebar() {
       {/* 骨骼列表：语义按钮而非 div，键盘可达且能播报选中状态 */}
       <div className="sidebar-bone-list">
         <div className="bone-list-header">
-          {filteredBones.length} 块骨骼
+          {isZh ? `${filteredBones.length} 块骨骼` : `${filteredBones.length} bones`}
         </div>
         {filteredBones.map((bone) => (
           <button
@@ -109,12 +112,12 @@ export default function Sidebar() {
             onClick={() => { selectBone(bone.id); closePanels() }}
             aria-pressed={selectedBone === bone.id}
           >
-            <span className="bone-list-name-zh">{bone.nameZh}</span>
-            <span className="bone-list-name-en">{bone.nameEn}</span>
+            <span className="bone-list-name-zh">{isZh ? bone.nameZh : bone.nameEn}</span>
+            <span className="bone-list-name-en">{isZh ? bone.nameEn : bone.nameZh}</span>
           </button>
         ))}
         {filteredBones.length === 0 && (
-          <div className="bone-list-empty">未找到匹配的骨骼</div>
+          <div className="bone-list-empty">{isZh ? '未找到匹配的骨骼' : 'No matching bones'}</div>
         )}
       </div>
     </div>

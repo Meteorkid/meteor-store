@@ -34,7 +34,8 @@ describe('在线体验统一质量底线', () => {
       tutorial.indexOf('className="hero-stats"'),
     );
     expect(tutorial).toContain('{JUTSU_IDS.length}');
-    expect(app).toContain('await prewarmCamera()');
+    expect(app).toContain('await requestCameraAccess()');
+    expect(tutorial).toContain('camera-permission-error');
     expect(css).toMatch(/\.character-img\.naruto-left,[\s\S]*?display:\s*none/);
   });
 
@@ -44,6 +45,7 @@ describe('在线体验统一质量底线', () => {
     const css = read('src/apps/tollow/styles/Header.css');
 
     expect(wrapper).toContain('className="tollow-boot"');
+    expect(wrapper).not.toContain('sync.ready.finally');
     expect(header).toContain('className="mobile-nav"');
     expect(header).toContain("to: '/practice'");
     expect(header).toContain("to: '/analytics'");

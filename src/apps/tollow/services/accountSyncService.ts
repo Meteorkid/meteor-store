@@ -73,7 +73,22 @@ interface TollowAccountSyncOptions {
   userId: string;
   storage: StorageLike;
   fetcher?: Fetcher;
+  requestTimeoutMs?: number;
   onStatusChange?: (status: TollowSyncStatus) => void;
+}
+
+function withRequestTimeout(fetcher: Fetcher, timeoutMs: number): Fetcher {
+  return (input, init) => new Promise<Response>((resolve, reject) => {
+    const controller = new AbortController();
+    const timeout = globalThis.setTimeout(() => {
+      controller.abort();
+      reject(new Error('Tollow sync request timed out'));
+    }, timeoutMs);
+
+    fetcher(input, { ...init, signal: controller.signal }).then(resolve, reject).finally(() => {
+      globalThis.clearTimeout(timeout);
+    });
+  });
 }
 
 function parseJson(value: string | null): unknown {
@@ -263,7 +278,7 @@ export class TollowAccountSync {
   constructor(options: TollowAccountSyncOptions) {
     this.userId = options.userId;
     this.storage = options.storage;
-    this.fetcher = options.fetcher ?? fetch;
+    this.fetcher = withRequestTimeout(options.fetcher ?? fetch, options.requestTimeoutMs ?? 10_000);
     this.onStatusChange = options.onStatusChange;
   }
 

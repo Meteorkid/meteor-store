@@ -4,7 +4,8 @@ import { useEffect, useRef } from 'react'
 import useStore from '../store/useStore'
 import { getBoneById, boneCategories } from '../data/boneData'
 
-export default function InfoPanel() {
+export default function InfoPanel({ locale = 'zh' }) {
+  const isZh = locale !== 'en'
   const selectedBone = useStore((s) => s.selectedBone)
   const infoPanelOpen = useStore((s) => s.infoPanelOpen)
   const closePanels = useStore((s) => s.closePanels)
@@ -33,7 +34,7 @@ export default function InfoPanel() {
       type="button"
       className="drawer-close"
       onClick={closePanels}
-      aria-label="关闭骨骼详情"
+      aria-label={isZh ? '关闭骨骼详情' : 'Close bone details'}
     >
       <span aria-hidden="true">✕</span>
     </button>
@@ -41,46 +42,46 @@ export default function InfoPanel() {
 
   if (!bone) {
     return (
-      <div id="skeleton-info-panel" className={className} aria-label="骨骼详情">
+      <div id="skeleton-info-panel" className={className} aria-label={isZh ? '骨骼详情' : 'Bone details'} role={infoPanelOpen ? 'dialog' : undefined} aria-modal={infoPanelOpen || undefined}>
         {closeButton}
         <div className="info-placeholder">
           <div className="info-icon" aria-hidden="true">🦴</div>
-          <h3>点击任意骨骼查看详情</h3>
-          <p>鼠标左键旋转 · 滚轮缩放 · 右键平移</p>
+          <h3>{isZh ? '点击任意骨骼查看详情' : 'Select a bone to view details'}</h3>
+          <p>{isZh ? '鼠标左键旋转 · 滚轮缩放 · 右键平移' : 'Drag to rotate · Scroll to zoom · Right-drag to pan'}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div id="skeleton-info-panel" className={className} aria-label="骨骼详情">
+    <div id="skeleton-info-panel" className={className} aria-label={isZh ? '骨骼详情' : 'Bone details'} role={infoPanelOpen ? 'dialog' : undefined} aria-modal={infoPanelOpen || undefined}>
       {closeButton}
       <div className="info-header">
         <span className="info-category-badge">
-          {category?.name || bone.category}
+          {(isZh ? category?.name : category?.nameEn) || bone.category}
         </span>
       </div>
 
-      <h2 className="info-bone-name-zh">{bone.nameZh}</h2>
-      <p className="info-bone-name-en">{bone.nameEn}</p>
+      <h2 className="info-bone-name-zh">{isZh ? bone.nameZh : bone.nameEn}</h2>
+      <p className="info-bone-name-en">{isZh ? bone.nameEn : bone.nameZh}</p>
 
       <div className="info-section">
-        <h4>位置与功能</h4>
-        <p>{bone.descriptionZh}</p>
+        <h4>{isZh ? '位置与功能' : 'Location and function'}</h4>
+        <p>{isZh ? bone.descriptionZh : bone.descriptionEn}</p>
       </div>
 
       <div className="info-section">
-        <h4>Description</h4>
-        <p className="info-desc-en">{bone.descriptionEn}</p>
+        <h4>{isZh ? 'Description' : '中文说明'}</h4>
+        <p className="info-desc-en">{isZh ? bone.descriptionEn : bone.descriptionZh}</p>
       </div>
 
       <div className="info-section">
-        <h4>所属分类</h4>
-        <p>{category?.name} ({category?.nameEn}) · 共 {category?.count} 块</p>
+        <h4>{isZh ? '所属分类' : 'Category'}</h4>
+        <p>{isZh ? category?.name : category?.nameEn} · {category?.count} {isZh ? '块' : 'bones'}</p>
       </div>
 
       <div className="info-section">
-        <h4>编号</h4>
+        <h4>{isZh ? '编号' : 'ID'}</h4>
         <p className="info-id">{bone.id}</p>
       </div>
     </div>

@@ -10,18 +10,22 @@
  *   - `import { Hands } from "@mediapipe/hands"` 会因无具名导出而构建失败。
  * 因此只能像官方 demo 一样用 `<script>` 标签加载，脚本执行后把全局挂到 window。
  *
- * 本项目 CSP 用 `script-src 'self' 'nonce-…' 'strict-dynamic'`，动态 `<script>`
- * 由受信任的 bundle 创建，strict-dynamic 会放行其加载与执行，无需额外域名白名单。
- * 模型文件（.wasm / .binarypb / .tflite）由 MediaPipe 内部 fetch，走 connect-src
- * （已在 proxy.ts 放行 cdn.jsdelivr.net）；WASM 编译走 `'wasm-unsafe-eval'`。
+ * 运行时文件全部放在 public/vendor/mediapipe 下并同源加载，避免在线体验依赖
+ * jsDelivr 的可用性。WASM 编译仍需要 CSP 的 `'wasm-unsafe-eval'`。
  * MediaPipe Hands 0.4 在主线程运行、不创建 Worker，故无需 worker-src。
  */
 
-const SCRIPTS = [
-  'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js',
-  'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js',
-  'https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js',
-];
+const MEDIAPIPE_HANDS_BASE = '/vendor/mediapipe/hands';
+
+export const MEDIAPIPE_RUNTIME_SCRIPTS = [
+  `${MEDIAPIPE_HANDS_BASE}/hands.js`,
+  '/vendor/mediapipe/camera_utils/camera_utils.js',
+  '/vendor/mediapipe/drawing_utils/drawing_utils.js',
+] as const;
+
+export function getMediaPipeHandsAssetUrl(file: string): string {
+  return `${MEDIAPIPE_HANDS_BASE}/${file}`;
+}
 
 declare global {
   // 这些全局由 UMD 脚本设置，无类型声明，这里统一标 any。
@@ -55,7 +59,7 @@ function loadScript(src: string): Promise<void> {
 export function loadMediaPipe(): Promise<void> {
   if (typeof window === 'undefined') return Promise.resolve();
   if (!loadPromise) {
-    loadPromise = Promise.all(SCRIPTS.map(loadScript)).then(() => {
+    loadPromise = Promise.all(MEDIAPIPE_RUNTIME_SCRIPTS.map(loadScript)).then(() => {
       if (!window.Hands || !window.Camera) {
         throw new Error('MediaPipe globals not available after load');
       }

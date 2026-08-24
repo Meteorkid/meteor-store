@@ -80,11 +80,8 @@ function buildCsp(nonce: string, isTrial = false): string {
     `img-src 'self' data: blob: ${SITE_URL} ${nonWwwSite}${r2Origin ? ` ${r2Origin}` : ''}`,
     // 放行 Google Fonts 字体文件（font-src 原先只允许 'self'，gstatic 被拦）
     "font-src 'self' https://fonts.gstatic.com",
-    // connect-src：数据库/邮件/支付/Sentry 之外，放行 MediaPipe 模型 CDN。
-    // 站内应用（chakra 手势识别、webgl-fluid-sim 手势）在运行时从
-    // cdn.jsdelivr.net 拉取 @mediapipe/hands 的 .wasm / .tflite 模型，
-    // 该 fetch 由 connect-src 管控——不放行则模型加载失败、摄像头无法启动。
-    `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com https://cdn.jsdelivr.net ${sentryIngest}`,
+    // MediaPipe 运行时与模型已改为同源加载，不需要放行第三方 CDN。
+    `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com ${sentryIngest}`,
     // 在线体验与现有 trial 均为同源 iframe；显式声明，避免未来扩大 default-src 时连带放宽。
     "frame-src 'self'",
     // trial 路由允许同源 iframe 内嵌；其余页面禁止被嵌入（防点击劫持）
@@ -123,13 +120,13 @@ export const config = {
   // `src/lib/__tests__/proxy-matcher.test.ts` 会扫 public/ 下的实际扩展名来钉住这条，
   // 新增格式忘了补名单时 CI 会红。
   //
-  // **`js` 不能放进后缀名单，只能按文件名逐个列**：博客标签是用户可自定义的，
+  // **`js` 不能放进后缀名单，只能按已知目录或文件名排除**：博客标签是用户可自定义的，
   // `Three.js` 已经是现有文章的标签，`Node.js` / `Vue.js` 只是时间问题。
   // 拿 `js` 后缀一刀切会让 /zh/blog/tag/Three.js 整条绕开中间件——页面照常渲染，
-  // 但**响应里一个 CSP 头都没有**，安静地少一层防护。public/ 下的脚本只有固定两个
-  // （sw.js 与 meteor-runner.js，都被互相硬编码引用），逐个列出来即可；
-  // 构建产物的 js 走 _next/static，上面已经排除。
+  // 但**响应里一个 CSP 头都没有**，安静地少一层防护。MediaPipe 的脚本和模型集中在
+  // vendor/mediapipe/，按目录排除；其余固定脚本逐个列出。构建产物的 js 走
+  // _next/static，上面已经排除。
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|favicon.svg|robots.txt|sitemap.xml|manifest.webmanifest|sw\\.js|meteor-runner\\.js|.*\\.(?:png|jpg|jpeg|gif|webp|avif|svg|ico|css|txt|xml|html|json|md|mp4|webm|mov|glb|gltf|bin|wasm|woff|woff2|ttf)).*)',
+    '/((?!api|vendor/mediapipe(?:/|$)|_next/static|_next/image|favicon.ico|favicon.svg|robots.txt|sitemap.xml|manifest.webmanifest|sw\\.js|meteor-runner\\.js|.*\\.(?:png|jpg|jpeg|gif|webp|avif|svg|ico|css|txt|xml|html|json|md|mp4|webm|mov|glb|gltf|bin|wasm|woff|woff2|ttf)).*)',
   ],
 };

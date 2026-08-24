@@ -32,7 +32,7 @@ function detectWebGL(): boolean {
 // useSyncExternalStore 需要一个 subscribe 函数；这里是无订阅的一次性能力探测，用 no-op
 const noopSubscribe = () => () => {};
 
-export default function WebGLFluidSim() {
+export default function WebGLFluidSim({ locale = 'zh' }: { locale?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [simulationReady, setSimulationReady] = useState(false);
   // 用 useSyncExternalStore 读取「是否支持 WebGL」这一外部能力快照：
@@ -109,7 +109,7 @@ export default function WebGLFluidSim() {
       {!simulationReady && (
         <div className="fluid-sim-loading" role="status" aria-live="polite">
           <span aria-hidden="true" />
-          <strong>正在初始化流体场…</strong>
+          <strong>{locale === 'en' ? 'Initializing the fluid field…' : '正在初始化流体场…'}</strong>
         </div>
       )}
       <canvas id="fluidCanvas" />

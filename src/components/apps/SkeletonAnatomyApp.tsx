@@ -14,19 +14,25 @@ const SkeletonAnatomyRoot = dynamic(
   () => import('@/apps/skeleton-anatomy/App'),
   {
     ssr: false,
-    loading: () => (
-      <div className="skeleton-app-loading" role="status" aria-live="polite">
-        <span aria-hidden="true">🦴</span>
-        <strong>正在装配 3D 骨骼…</strong>
-      </div>
-    ),
+    loading: () => <SkeletonLoading />,
   },
 );
 
-export default function SkeletonAnatomyApp() {
+function SkeletonLoading() {
+  const isEnglish = typeof document !== 'undefined'
+    && document.documentElement.lang.toLowerCase().startsWith('en');
+  return (
+    <div className="skeleton-app-loading" role="status" aria-live="polite">
+      <span aria-hidden="true">🦴</span>
+      <strong>{isEnglish ? 'Assembling the 3D skeleton…' : '正在装配 3D 骨骼…'}</strong>
+    </div>
+  );
+}
+
+export default function SkeletonAnatomyApp({ locale = 'zh' }: { locale?: string }) {
   return (
     <div className="skeleton-anatomy-root min-h-screen w-full bg-black">
-      <SkeletonAnatomyRoot />
+      <SkeletonAnatomyRoot locale={locale} />
     </div>
   );
 }

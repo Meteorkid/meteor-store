@@ -57,6 +57,7 @@ export default async function AppPage({ params }: AppPageProps) {
         {hasAccess ? (
           renderApp ? (
             renderApp({
+              locale,
               userId: session?.userId,
               tollowAccessLevel: tollowAccess?.level,
             })

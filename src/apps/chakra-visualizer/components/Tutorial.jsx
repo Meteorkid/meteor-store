@@ -155,7 +155,7 @@ const JutsuPreview = ({ jutsuId }) => {
         loop
         autoPlay
         playsInline
-        preload="auto"
+        preload="metadata"
       />
     );
   }
@@ -539,12 +539,34 @@ const ChakraParticles = () => {
 
 
 
-const Tutorial = ({ onStart }) => {
+const Tutorial = ({ onStart, cameraRequestState = 'idle' }) => {
   const { lang, setLang, t } = useLanguage();
   const { mode, setMode } = useGame();
   const [selectedJutsu, setSelectedJutsu] = useState(null);
   const [heroVisible, setHeroVisible] = useState(false);
   const [cardsVisible, setCardsVisible] = useState(false);
+  const modalRef = useRef(null);
+
+  const handleModalKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setSelectedJutsu(null);
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    if (!modalRef.current) return;
+    const focusable = [...modalRef.current.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+      .filter((element) => !element.disabled);
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
 
   // 动态生成 jutsuData
   const jutsuData = JUTSU_IDS.map(id => ({
@@ -670,13 +692,43 @@ const Tutorial = ({ onStart }) => {
         </p>
 
         <div className="hero-action">
-          <button className="launch-btn" onClick={() => onStart()}>
+          <button
+            className="launch-btn"
+            onClick={() => onStart()}
+            disabled={cameraRequestState === 'requesting'}
+            aria-busy={cameraRequestState === 'requesting'}
+          >
             <span className="launch-icon">⦿</span>
             <span className="launch-text">
-              <span className="launch-main">{t('activateWebcam')}</span>
+              <span className="launch-main">
+                {cameraRequestState === 'requesting'
+                  ? (lang === 'zh' ? '等待摄像头授权…' : 'Waiting for camera permission…')
+                  : t('activateWebcam')}
+              </span>
               <span className="launch-sub">{t('allJutsu')}</span>
             </span>
           </button>
+          {!['idle', 'requesting'].includes(cameraRequestState) && (
+            <p className="camera-permission-error" role="alert">
+              {{
+                'permission-denied': lang === 'zh'
+                  ? '摄像头权限已被拒绝。请在浏览器地址栏的网站设置中允许摄像头，然后重试。'
+                  : 'Camera access was denied. Allow camera access in this site’s browser settings, then retry.',
+                'not-found': lang === 'zh'
+                  ? '没有检测到可用摄像头，请连接摄像头后重试。'
+                  : 'No camera was detected. Connect a camera and retry.',
+                'device-busy': lang === 'zh'
+                  ? '摄像头正被其他应用占用，请关闭其他视频应用后重试。'
+                  : 'The camera is being used by another app. Close it there and retry.',
+                unsupported: lang === 'zh'
+                  ? '当前浏览器不支持摄像头访问，请更换最新版浏览器。'
+                  : 'This browser does not support camera access. Try a current browser.',
+                unknown: lang === 'zh'
+                  ? '无法启动摄像头，请检查浏览器权限后重试。'
+                  : 'The camera could not start. Check browser permissions and retry.',
+              }[cameraRequestState]}
+            </p>
+          )}
           <p className="cta-hint">{t('clickHint')}</p>
         </div>
 
@@ -685,7 +737,7 @@ const Tutorial = ({ onStart }) => {
           <div className="stat-divider"/>
           <div className="stat"><span className="stat-num">{new Set(Object.values(JUTSU_ANIME)).size}</span><span className="stat-label">{t('statAnime')}</span></div>
           <div className="stat-divider stat-performance"/>
-          <div className="stat stat-performance"><span className="stat-num">60fps</span><span className="stat-label">{t('statFps')}</span></div>
+          <div className="stat stat-performance"><span className="stat-num">LIVE</span><span className="stat-label">{t('statFps')}</span></div>
         </div>
       </header>
 
@@ -765,13 +817,23 @@ const Tutorial = ({ onStart }) => {
         const sj = jutsuData.find(j => j.id === selectedJutsu);
         if(!sj) return null;
         return (
-        <div className="modal-backdrop" onClick={() => setSelectedJutsu(null)}>
+        <div className="modal-backdrop" role="presentation" onClick={() => setSelectedJutsu(null)}>
           <div
+            ref={modalRef}
             className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="chakra-jutsu-dialog-title"
             style={{ '--c': sj.color, '--glow': sj.glow }}
             onClick={e => e.stopPropagation()}
+            onKeyDown={handleModalKeyDown}
           >
-            <button className="modal-close" onClick={() => setSelectedJutsu(null)}>✕</button>
+            <button
+              className="modal-close"
+              onClick={() => setSelectedJutsu(null)}
+              aria-label={lang === 'zh' ? '关闭忍术详情' : 'Close jutsu details'}
+              autoFocus
+            >✕</button>
 
             <div className="modal-top">
               <div className="modal-illustration">
@@ -780,7 +842,7 @@ const Tutorial = ({ onStart }) => {
               <div className="modal-info">
                 <div className="modal-anime">{sj.anime}</div>
                 <div className="modal-kanji">{sj.kanji}</div>
-                <h2 className="modal-name">{sj.name}</h2>
+                <h2 id="chakra-jutsu-dialog-title" className="modal-name">{sj.name}</h2>
                 <p className="modal-desc">{sj.description}</p>
                 <div className="modal-tags">
                   <span className="modal-tag">{sj.gesture}</span>

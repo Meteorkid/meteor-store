@@ -25,6 +25,8 @@ SOFTWARE.
 // @ts-nocheck
 /* eslint-disable */
 
+import { getMediaPipeHandsAssetUrl } from '../mediapipe';
+
 'use strict';
 
 // i18n - 中英双语翻译
@@ -224,6 +226,26 @@ function destroyControlPanelChrome() {
     cameraRetryButton = null;
 }
 
+function improveControlAccessibility() {
+    gui.domElement.querySelectorAll('li.cr').forEach((row) => {
+        const label = row.querySelector('.property-name')?.textContent?.trim();
+        if (!label) return;
+        row.querySelectorAll('input, select, button, .button').forEach((control) => {
+            if (!control.getAttribute('aria-label')) control.setAttribute('aria-label', label);
+            if (control.matches('.button') && control.tagName !== 'BUTTON') {
+                control.setAttribute('role', 'button');
+                control.tabIndex = 0;
+                control.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        control.click();
+                    }
+                });
+            }
+        });
+    });
+}
+
 function setCameraStatus(messageKey, tone = '') {
     if (!cameraStatusText || !cameraRetryButton) return;
     cameraStatusText.textContent = t(messageKey);
@@ -372,7 +394,7 @@ async function initHands() {
     }
 
     handsInstance = new Hands({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        locateFile: getMediaPipeHandsAssetUrl
     });
     handsInstance.setOptions({
         maxNumHands: 1,
@@ -852,6 +874,7 @@ function startGUI () {
     shortcuts.__li.style.cursor = 'default';
     shortcuts.__li.style.opacity = '0.6';
 
+    improveControlAccessibility();
     setupControlPanelChrome();
 }
 

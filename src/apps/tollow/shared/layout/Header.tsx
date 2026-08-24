@@ -26,7 +26,7 @@ const Header: React.FC = () => {
 
   // 报刊风日期格式
   const today = new Date()
-  const dateStr = today.toLocaleDateString('zh-CN', {
+  const dateStr = today.toLocaleDateString(isZh ? 'zh-CN' : 'en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -52,12 +52,12 @@ const Header: React.FC = () => {
   }, [])
 
   const syncLabel = accessLevel !== 'pro'
-    ? '本地保存'
+    ? (isZh ? '本地保存' : 'Saved locally')
     : syncStatus === 'pending'
-      ? '同步中'
+      ? (isZh ? '同步中' : 'Syncing')
       : syncStatus === 'error'
-        ? '等待重试'
-        : '已同步'
+        ? (isZh ? '等待重试' : 'Retry pending')
+        : (isZh ? '已同步' : 'Synced')
 
   return (
     <header className="header">
@@ -86,7 +86,7 @@ const Header: React.FC = () => {
             className="favorites-header-button"
             onClick={openFavorites}
           >
-            我的收藏
+            {isZh ? '我的收藏' : 'Saved text'}
           </button>
         </div>
       </div>

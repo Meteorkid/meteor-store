@@ -6,7 +6,7 @@ import { useLanguage } from "../LanguageContext";
 // @mediapipe/* 包标记 sideEffects:[]，裸副作用导入会被 webpack tree-shake 掉，
 // 且主文件是 UMD IIFE（无 ESM 导出），因此必须用 <script> 标签加载，
 // 脚本执行后把 Hands/Camera/HAND_CONNECTIONS/drawConnectors/drawLandmarks 挂到 globalThis。
-import { loadMediaPipe } from "@/lib/apps/mediapipe";
+import { getMediaPipeHandsAssetUrl, loadMediaPipe } from "@/lib/apps/mediapipe";
 
 // 模块导入
 import { createGestureDetector, SEAL_NAMES, getGestureName } from "../modules/gesture";
@@ -737,7 +737,7 @@ export default function CameraComponent({ onBack, onRetry, initialJutsu }) {
 
         console.log('[Chakra] Initializing MediaPipe Hands...');
         const hands = new globalThis.Hands({
-          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+          locateFile: getMediaPipeHandsAssetUrl
         });
         handsRef.current = hands;
 
@@ -826,7 +826,7 @@ export default function CameraComponent({ onBack, onRetry, initialJutsu }) {
             {isZh ? '正在加载手部识别模型...' : 'Loading hand recognition model...'}
           </div>
           <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '0.5rem' }}>
-            {isZh ? '首次加载需下载 ~5MB 模型，请耐心等待' : 'First load downloads ~5MB model, please wait'}
+            {isZh ? '首次加载需下载手势模型，请耐心等待' : 'The first load downloads the gesture model, please wait'}
           </div>
         </div>
       )}
@@ -908,6 +908,7 @@ export default function CameraComponent({ onBack, onRetry, initialJutsu }) {
         src="/apps/chakra-visualizer/assets/naruto.mp4"
         muted
         loop
+        preload="none"
         style={{ display: "none" }}
       />
 
@@ -918,6 +919,7 @@ export default function CameraComponent({ onBack, onRetry, initialJutsu }) {
         src="/apps/chakra-visualizer/assets/chidori.mp4"
         muted
         loop
+        preload="none"
         style={{ display: "none" }}
       />
 
@@ -928,6 +930,7 @@ export default function CameraComponent({ onBack, onRetry, initialJutsu }) {
         src="/apps/chakra-visualizer/assets/fireball.mp4"
         muted
         loop
+        preload="none"
         style={{ display: "none" }}
       />
       <button className="back-btn" onClick={onBack}>

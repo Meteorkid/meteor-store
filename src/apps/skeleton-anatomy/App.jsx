@@ -9,7 +9,8 @@ import useStore from './store/useStore'
 import { getRandomBoneId } from './data/boneData'
 import './App.css'
 
-export default function App() {
+export default function App({ locale = 'zh' }) {
+  const isZh = locale !== 'en'
   const quizMode = useStore((s) => s.quizMode)
   const startQuiz = useStore((s) => s.startQuiz)
   const theme = useStore((s) => s.theme)
@@ -33,7 +34,25 @@ export default function App() {
   useEffect(() => {
     if (!sidebarOpen && !infoPanelOpen) return
     const onKeyDown = (e) => {
-      if (e.key === 'Escape') closePanels()
+      if (e.key === 'Escape') {
+        closePanels()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const panel = document.getElementById(sidebarOpen ? 'skeleton-sidebar' : 'skeleton-info-panel')
+      const focusable = panel
+        ? [...panel.querySelectorAll('button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex="-1"])')]
+        : []
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -59,13 +78,13 @@ export default function App() {
           type="button"
           className="mobile-toggle"
           onClick={toggleSidebar}
-          aria-label={sidebarOpen ? '关闭骨骼列表' : '打开骨骼列表'}
+          aria-label={sidebarOpen ? (isZh ? '关闭骨骼列表' : 'Close bone list') : (isZh ? '打开骨骼列表' : 'Open bone list')}
           aria-expanded={sidebarOpen}
           aria-controls="skeleton-sidebar"
         >
           <span aria-hidden="true">{sidebarOpen ? '✕' : '☰'}</span>
         </button>
-        <h1>人体骨骼 3D 图谱</h1>
+        <h1>{isZh ? '人体骨骼 3D 图谱' : 'Human Skeleton 3D Atlas'}</h1>
         <span className="app-subtitle">Human Skeleton 3D Atlas · 206 Bones</span>
         <div className="header-actions">
           <button
@@ -73,13 +92,13 @@ export default function App() {
             className={`quiz-toggle-btn ${quizMode ? 'active' : ''}`}
             onClick={quizMode ? undefined : handleStartQuiz}
           >
-            {quizMode ? '测验中...' : '开始测验'}
+            {quizMode ? (isZh ? '测验中...' : 'Quiz in progress…') : (isZh ? '开始测验' : 'Start quiz')}
           </button>
           <button
             type="button"
             className="theme-toggle"
             onClick={toggleTheme}
-            aria-label={theme === 'dark' ? '切换到浅色主题' : '切换到深色主题'}
+            aria-label={theme === 'dark' ? (isZh ? '切换到浅色主题' : 'Switch to light theme') : (isZh ? '切换到深色主题' : 'Switch to dark theme')}
           >
             <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
           </button>
@@ -88,7 +107,7 @@ export default function App() {
             type="button"
             className="mobile-toggle"
             onClick={toggleInfoPanel}
-            aria-label={infoPanelOpen ? '关闭骨骼详情' : '打开骨骼详情'}
+            aria-label={infoPanelOpen ? (isZh ? '关闭骨骼详情' : 'Close bone details') : (isZh ? '打开骨骼详情' : 'Open bone details')}
             aria-expanded={infoPanelOpen}
             aria-controls="skeleton-info-panel"
           >
@@ -97,18 +116,18 @@ export default function App() {
         </div>
       </header>
       <div className="app-body">
-        <Sidebar />
+        <Sidebar locale={locale} />
         <div className="canvas-container">
           <Canvas3D />
-          {quizMode && <QuizPanel />}
+          {quizMode && <QuizPanel locale={locale} />}
         </div>
-        <InfoPanel />
+        <InfoPanel locale={locale} />
       </div>
       <button
         type="button"
         className={`mobile-overlay ${(sidebarOpen || infoPanelOpen) ? 'visible' : ''}`}
         onClick={closePanels}
-        aria-label="关闭面板"
+        aria-label={isZh ? '关闭面板' : 'Close panel'}
         tabIndex={(sidebarOpen || infoPanelOpen) ? 0 : -1}
       />
     </div>

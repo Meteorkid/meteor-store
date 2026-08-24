@@ -27,8 +27,14 @@ import { TollowAccessProvider } from '@/apps/tollow/core/access';
  */
 const TollowAppInner = dynamic(() => import('@/apps/tollow/core/App'), {
   ssr: false,
-  loading: () => <TollowLoading label="正在加载 Tollow…" />,
+  loading: () => <TollowDynamicLoading />,
 });
+
+function TollowDynamicLoading() {
+  const isEnglish = typeof document !== 'undefined'
+    && document.documentElement.lang.toLowerCase().startsWith('en');
+  return <TollowLoading label={isEnglish ? 'Loading Tollow…' : '正在加载 Tollow…'} />;
+}
 
 function TollowLoading({ label }: { label: string }) {
   return (
@@ -40,9 +46,11 @@ function TollowLoading({ label }: { label: string }) {
 }
 
 export default function TollowApp({
+  locale = 'zh',
   userId,
   accessLevel,
 }: {
+  locale?: string;
   userId: string;
   accessLevel: TollowAccessLevel;
 }) {
@@ -73,15 +81,11 @@ export default function TollowApp({
     configureTollowFavoriteCloudSync(cloudEnabled);
     const sync = cloudEnabled ? startTollowAccountSync(userId) : null;
     const stopFavoriteSync = cloudEnabled ? startTollowFavoriteSync() : null;
-    if (sync) {
-      void sync.ready.finally(() => {
-        if (!cancelled) setReadyStorageKey(storageKey);
-      });
-    } else {
-      queueMicrotask(() => {
-        if (!cancelled) setReadyStorageKey(storageKey);
-      });
-    }
+    // 账号命名空间配置是同步完成的；远端合并放在后台，不能阻塞应用首屏。
+    void sync?.ready;
+    queueMicrotask(() => {
+      if (!cancelled) setReadyStorageKey(storageKey);
+    });
 
     return () => {
       cancelled = true;
@@ -99,7 +103,7 @@ export default function TollowApp({
           <TollowAppInner />
         </TollowAccessProvider>
       ) : (
-        <TollowLoading label="正在准备账号数据…" />
+        <TollowLoading label={locale === 'en' ? 'Preparing account data…' : '正在准备账号数据…'} />
       )}
     </div>
   );

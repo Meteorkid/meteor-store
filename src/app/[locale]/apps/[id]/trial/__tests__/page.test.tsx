@@ -78,7 +78,7 @@ describe('独立全屏应用体验页', () => {
     expect(html).toContain('data-app="tollow"');
     expect(html).toContain('data-user-id="user-1"');
     expect(mocks.tollowContexts).toEqual([
-      { userId: 'user-1', tollowAccessLevel: 'free' },
+      { locale: 'en', userId: 'user-1', tollowAccessLevel: 'free' },
     ]);
     expect(html).toContain('h-dvh');
     expect(mocks.redirect).not.toHaveBeenCalled();
