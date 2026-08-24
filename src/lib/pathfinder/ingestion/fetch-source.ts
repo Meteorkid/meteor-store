@@ -4,15 +4,30 @@ import { isAllowedHost } from './normalize';
 
 export const PATHFINDER_MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 const MAX_REDIRECTS = 3;
-const SOURCE_TIMEOUT_MS = 8_000;
+const SOURCE_ATTEMPTS = 2;
+const SOURCE_ATTEMPT_TIMEOUT_MS = 6_000;
 
 export async function fetchPathfinderSource(
   source: PathfinderSyncSource,
   conditional: { etag?: string | null; lastModified?: string | null } = {},
 ): Promise<PathfinderFetchResult> {
+  for (let attempt = 0; attempt < SOURCE_ATTEMPTS; attempt += 1) {
+    try {
+      return await fetchPathfinderSourceOnce(source, conditional);
+    } catch (error) {
+      if (attempt === SOURCE_ATTEMPTS - 1 || !isRetryableSourceError(error)) throw error;
+    }
+  }
+  throw new Error(`pathfinder source retry exhausted: ${source.id}`);
+}
+
+async function fetchPathfinderSourceOnce(
+  source: PathfinderSyncSource,
+  conditional: { etag?: string | null; lastModified?: string | null },
+): Promise<PathfinderFetchResult> {
   let currentUrl = source.fetchUrl;
-  // 整个来源共用一个超时预算，重定向不能把单来源耗时成倍放大。
-  const signal = AbortSignal.timeout(SOURCE_TIMEOUT_MS);
+  // 每次尝试的全部重定向共用预算；网络失败只重试一次，避免单个坏节点拖垮整批同步。
+  const signal = AbortSignal.timeout(SOURCE_ATTEMPT_TIMEOUT_MS);
   const headers: Record<string, string> = {
     Accept: source.adapterId === 'rss'
       ? 'application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9'
@@ -72,6 +87,11 @@ export async function fetchPathfinderSource(
   }
 
   throw new Error(`pathfinder source redirect limit exceeded: ${source.id}`);
+}
+
+function isRetryableSourceError(error: unknown): boolean {
+  return error instanceof TypeError
+    || (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError'));
 }
 
 async function readLimitedBody(response: Response, sourceId: string): Promise<Uint8Array> {

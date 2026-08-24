@@ -147,6 +147,19 @@ describe('Pathfinder ingestion', () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
+  it('外部网络连接失败时只重试一次', async () => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockRejectedValueOnce(new TypeError('fetch failed'))
+      .mockResolvedValueOnce(new Response('<rss />', { status: 200 })));
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('openai-news')!;
+
+    await expect(fetchPathfinderSource(source)).resolves.toMatchObject({
+      body: '<rss />',
+      notModified: false,
+    });
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
   it('流式响应超过上限时在完整读入内存前中止', async () => {
     const oversized = new Uint8Array(PATHFINDER_MAX_RESPONSE_BYTES + 1);
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(new ReadableStream({
