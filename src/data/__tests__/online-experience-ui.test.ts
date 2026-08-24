@@ -13,6 +13,13 @@ describe('在线体验统一质量底线', () => {
     expect(source).toContain('setControlPanelOpen(false)');
     expect(source).toContain("gui.addFolder(t('common'))");
     expect(source).toContain("gui.addFolder(t('advanced'))");
+    expect(source).toContain(
+      "commonFolder.domElement.parentElement.classList.add('fluid-common-section')",
+    );
+    expect(source).toContain(
+      "advancedFolder.domElement.parentElement.classList.add('fluid-advanced-section')",
+    );
+    expect(source).not.toMatch(/(?:common|advanced)Folder\.__li/);
     expect(css).toMatch(/\.fluid-controls-toggle \{[\s\S]*?min-height:\s*44px/);
     expect(css).toMatch(/@media \(max-width: 720px\)[\s\S]*?inset:\s*auto 0 0/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)/);

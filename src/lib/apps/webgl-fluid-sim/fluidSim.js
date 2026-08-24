@@ -740,8 +740,8 @@ function startGUI () {
     gui = new dat.GUI({ width: 320 });
     const commonFolder = gui.addFolder(t('common'));
     const advancedFolder = gui.addFolder(t('advanced'));
-    commonFolder.__li.classList.add('fluid-common-section');
-    advancedFolder.__li.classList.add('fluid-advanced-section');
+    commonFolder.domElement.parentElement.classList.add('fluid-common-section');
+    advancedFolder.domElement.parentElement.classList.add('fluid-advanced-section');
     commonFolder.open();
 
     // 背景模式（从当前 bgMode 同步初始值，避免切语言后下拉失步）
