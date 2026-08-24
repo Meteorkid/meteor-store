@@ -16,6 +16,8 @@ module.exports = {
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
+        // 阿里云实例当前没有可用的公网 IPv6；优先 IPv4，避免外部 Feed 在 IPv6 连接上耗尽超时。
+        NODE_OPTIONS: '--dns-result-order=ipv4first',
         PORT: 3000,
         HOSTNAME: '127.0.0.1',
         TRUST_NGINX_PROXY: '1',
