@@ -33,6 +33,13 @@ describe('Pathfinder ingestion', () => {
     expect(cleanExternalText('bad &#99999999;', 100)).toBe('bad &#99999999;');
   });
 
+  it('清理 XML 实体编码的外部 HTML', () => {
+    expect(cleanExternalText(
+      '&lt;img src=&quot;https://storage.googleapis.com/example.webp&quot;&gt;Study with Search',
+      100,
+    )).toBe('Study with Search');
+  });
+
   it('解析 RSS 与 Atom 条目并拒绝非白名单链接', () => {
     const source = PATHFINDER_SYNC_SOURCE_MAP.get('openai-news')!;
     const xml = `

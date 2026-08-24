@@ -41,10 +41,10 @@ export function isAllowedHost(raw: string, allowedHosts: readonly string[]): boo
 
 export function cleanExternalText(raw: string, maxLength: number): string {
   const withoutCdata = raw.replace(/^\s*<!\[CDATA\[|\]\]>\s*$/g, '');
-  const withoutTags = withoutCdata.replace(/<[^>]*>/g, ' ');
-  const decoded = decodeXmlEntities(withoutTags).replace(/\s+/g, ' ').trim();
-  if (decoded.length <= maxLength) return decoded;
-  return `${decoded.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
+  const decoded = decodeXmlEntities(withoutCdata);
+  const cleaned = decoded.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (cleaned.length <= maxLength) return cleaned;
+  return `${cleaned.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
 }
 
 export function toIsoDate(raw: string | null | undefined): string | null {
