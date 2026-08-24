@@ -27,6 +27,69 @@ export interface FeedOptions {
   locale: Locale;
 }
 
+export interface GenericFeedItem {
+  title: string;
+  /** 站内绝对路径，或完整外链地址 */
+  link: string;
+  description: string;
+  category?: string;
+  /** ISO 时间或 YYYY-MM-DD */
+  pubDate: string;
+}
+
+export interface GenericFeedOptions {
+  title: string;
+  description: string;
+  /** 该 feed 对应的页面路径 */
+  path: string;
+}
+
+/**
+ * 通用 RSS 输出。
+ *
+ * 与博客 feed 共用同一套转义和信道结构，但不绑定博客的分区与 `FeedPostSummary`——
+ * Pathfinder 的条目没有分区、日期是完整时间戳、链接可能指向站外原文。
+ */
+export function buildGenericRssFeed(
+  items: GenericFeedItem[],
+  options: GenericFeedOptions,
+): string {
+  const selfUrl = `${SITE_URL}${options.path}/feed.xml`;
+  const entries = items
+    .map((item) => {
+      const url = item.link.startsWith('http') ? item.link : `${SITE_URL}${item.link}`;
+      const published = new Date(
+        /^\d{4}-\d{2}-\d{2}$/.test(item.pubDate) ? `${item.pubDate}T00:00:00Z` : item.pubDate,
+      );
+      return `    <item>
+      <title>${escapeXml(item.title)}</title>
+      <link>${escapeXml(url)}</link>
+      <guid isPermaLink="true">${escapeXml(url)}</guid>
+      <description>${escapeXml(item.description)}</description>${
+        item.category ? `\n      <category>${escapeXml(item.category)}</category>` : ''
+      }${
+        Number.isNaN(published.getTime())
+          ? ''
+          : `\n      <pubDate>${published.toUTCString()}</pubDate>`
+      }
+    </item>`;
+    })
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${escapeXml(options.title)}</title>
+    <link>${escapeXml(`${SITE_URL}${options.path}`)}</link>
+    <description>${escapeXml(options.description)}</description>
+    <language>zh-CN</language>
+    <atom:link href="${escapeXml(selfUrl)}" rel="self" type="application/rss+xml" />
+${entries}
+  </channel>
+</rss>
+`;
+}
+
 export function buildRssFeed(posts: FeedPostSummary[], options: FeedOptions): string {
   const sorted = [...posts].sort((a, b) => b.date.localeCompare(a.date));
   const selfUrl = `${SITE_URL}${options.path}/feed.xml`;

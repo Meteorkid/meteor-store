@@ -8,12 +8,17 @@ const NAV_ITEMS = [
   { key: 'opportunities', href: '/pathfinder/opportunities' },
   { key: 'directions', href: '/pathfinder/directions/ai' },
   { key: 'plan', href: '/pathfinder/plan' },
+  { key: 'topics', href: '/pathfinder/topics' },
+  { key: 'weekly', href: '/pathfinder/weekly' },
+  { key: 'saved', href: '/pathfinder/saved' },
 ] as const;
 
 function isActive(pathname: string, href: string, exact = false) {
   if (exact) return pathname === href;
   if (href === '/pathfinder/opportunities' && pathname.startsWith('/pathfinder/items/')) return true;
   if (href.includes('/directions/')) return pathname.startsWith('/pathfinder/directions/');
+  // 机构页与主题页是同一个「按维度浏览」入口，两边都要点亮
+  if (href === '/pathfinder/topics') return pathname.startsWith('/pathfinder/topics') || pathname.startsWith('/pathfinder/organizations');
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

@@ -101,6 +101,123 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     organization: 'GitHub',
     learningEligible: true,
   },
+  /*
+   * 已策展仓库的 Good First Issue。
+   *
+   * 目录里的开源条目是整个仓库（「Django」「PyTorch」），学生看完仍然不知道
+   * 第一步做什么；这四条来源把粒度下沉到具体、当前开放、且无人认领的任务。
+   * 仓库范围写死在查询里而不是放数据库：搜索结果直接自动发布，能自动发布的前提
+   * 就是仓库本身已经在目录里审过。GitHub 搜索的 q 有 256 字符上限，
+   * 所以按方向拆成四条而不是一条大查询。
+   */
+  {
+    id: 'curated-issues-ai',
+    name: 'Curated AI Repos · Good First Issues',
+    adapterId: 'github',
+    fetchUrl: 'https://api.github.com/search/issues?q=is%3Aissue%20is%3Aopen%20no%3Aassignee%20archived%3Afalse%20label%3A%22good%20first%20issue%22%20repo%3Apytorch/pytorch%20repo%3Ahuggingface/transformers%20repo%3Alangchain-ai/langchain%20repo%3Ascikit-learn/scikit-learn&sort=updated&order=desc&per_page=20',
+    siteUrl: 'https://github.com/topics/good-first-issue',
+    allowedFetchHosts: ['api.github.com'],
+    allowedItemHosts: ['github.com'],
+    itemType: 'open-source',
+    direction: 'ai',
+    trustLevel: 'verified',
+    enabled: true,
+    autoPublish: true,
+    organization: 'GitHub',
+    learningEligible: true,
+    curated: true,
+  },
+  {
+    id: 'curated-issues-frontend',
+    name: 'Curated Frontend Repos · Good First Issues',
+    adapterId: 'github',
+    fetchUrl: 'https://api.github.com/search/issues?q=is%3Aissue%20is%3Aopen%20no%3Aassignee%20archived%3Afalse%20label%3A%22good%20first%20issue%22%20repo%3Avercel/next.js%20repo%3Avuejs/core%20repo%3Asveltejs/svelte%20repo%3Avitejs/vite&sort=updated&order=desc&per_page=20',
+    siteUrl: 'https://github.com/topics/good-first-issue',
+    allowedFetchHosts: ['api.github.com'],
+    allowedItemHosts: ['github.com'],
+    itemType: 'open-source',
+    direction: 'frontend',
+    trustLevel: 'verified',
+    enabled: true,
+    autoPublish: true,
+    organization: 'GitHub',
+    learningEligible: true,
+    curated: true,
+  },
+  {
+    id: 'curated-issues-backend',
+    name: 'Curated Backend Repos · Good First Issues',
+    adapterId: 'github',
+    fetchUrl: 'https://api.github.com/search/issues?q=is%3Aissue%20is%3Aopen%20no%3Aassignee%20archived%3Afalse%20label%3A%22good%20first%20issue%22%20repo%3Adjango/django%20repo%3Afastapi/fastapi%20repo%3Anestjs/nest%20repo%3Adenoland/deno%20repo%3Apallets/flask%20repo%3Anodejs/node%20repo%3Aspring-projects/spring-boot&sort=updated&order=desc&per_page=20',
+    siteUrl: 'https://github.com/topics/good-first-issue',
+    allowedFetchHosts: ['api.github.com'],
+    allowedItemHosts: ['github.com'],
+    itemType: 'open-source',
+    direction: 'backend',
+    trustLevel: 'verified',
+    enabled: true,
+    autoPublish: true,
+    organization: 'GitHub',
+    learningEligible: true,
+    curated: true,
+  },
+  {
+    id: 'curated-issues-data',
+    name: 'Curated Data Repos · Good First Issues',
+    adapterId: 'github',
+    fetchUrl: 'https://api.github.com/search/issues?q=is%3Aissue%20is%3Aopen%20no%3Aassignee%20archived%3Afalse%20label%3A%22good%20first%20issue%22%20repo%3Apandas-dev/pandas%20repo%3Aapache/spark%20repo%3Aapache/airflow%20repo%3Adbt-labs/dbt-core&sort=updated&order=desc&per_page=20',
+    siteUrl: 'https://github.com/topics/good-first-issue',
+    allowedFetchHosts: ['api.github.com'],
+    allowedItemHosts: ['github.com'],
+    itemType: 'open-source',
+    direction: 'data',
+    trustLevel: 'verified',
+    enabled: true,
+    autoPublish: true,
+    organization: 'GitHub',
+    learningEligible: true,
+    curated: true,
+  },
+  /*
+   * 雇主官方职位板上的学生岗位。
+   *
+   * 目录里的实习条目原本全是「XX 集团招聘入口」，学生点进去还要在几百个岗位里
+   * 自己翻；这两条来源把粒度下沉到具体岗位。只取岗位名、地点和发布时间——
+   * Greenhouse 的 `content=true` 会带回上千条岗位正文，直接超过响应体上限。
+   * 工作许可、年级、地点都是画像判断不了的硬条件，所以解析层一律标记为需人工核对。
+   */
+  {
+    id: 'databricks-student-jobs',
+    name: 'Databricks Careers',
+    adapterId: 'greenhouse',
+    fetchUrl: 'https://boards-api.greenhouse.io/v1/boards/databricks/jobs',
+    siteUrl: 'https://www.databricks.com/company/careers/open-positions',
+    allowedFetchHosts: ['boards-api.greenhouse.io'],
+    allowedItemHosts: ['databricks.com', 'job-boards.greenhouse.io'],
+    itemType: 'internship',
+    direction: 'data',
+    trustLevel: 'official',
+    enabled: true,
+    autoPublish: true,
+    organization: 'Databricks',
+    learningEligible: false,
+  },
+  {
+    id: 'scale-ai-student-jobs',
+    name: 'Scale AI Careers',
+    adapterId: 'greenhouse',
+    fetchUrl: 'https://boards-api.greenhouse.io/v1/boards/scaleai/jobs',
+    siteUrl: 'https://scale.com/careers',
+    allowedFetchHosts: ['boards-api.greenhouse.io'],
+    allowedItemHosts: ['scale.com', 'job-boards.greenhouse.io'],
+    itemType: 'internship',
+    direction: 'ai',
+    trustLevel: 'official',
+    enabled: true,
+    autoPublish: true,
+    organization: 'Scale AI',
+    learningEligible: false,
+  },
 ] as const;
 
 export const PATHFINDER_SYNC_SOURCE_MAP = new Map(

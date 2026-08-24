@@ -281,6 +281,13 @@
       "when": 1787515337822,
       "tag": "0039_pathfinder_catalog_contract",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1787589199532,
+      "tag": "0040_silent_mother_askani",
+      "breakpoints": true
     }
   ]
 }

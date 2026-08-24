@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import {
+  catalogActionScore,
   catalogStats,
+  diversifyBySource,
   filterCatalogItems,
   getDeadlineState,
+  isActionableTask,
+  localizedTextState,
+  paginateCatalog,
   parseCatalogFilters,
   selectPathfinderHomeFeed,
   sortByDeadline,
+  sortCatalogItems,
 } from '../catalog-view';
 import { catalogItemFixture } from './fixtures';
 
@@ -29,7 +35,19 @@ describe('Pathfinder catalog view helpers', () => {
       difficulty: 'beginner',
       remoteStatus: 'remote',
       deadline: undefined,
+      taskOnly: false,
+      sort: 'default',
+      page: 1,
+      compact: false,
     });
+  });
+
+  it('解析排序、分页与紧凑视图参数，非法值退回默认', () => {
+    expect(parseCatalogFilters({ sort: 'action', page: '3', view: 'compact' }))
+      .toMatchObject({ sort: 'action', page: 3, compact: true });
+    expect(parseCatalogFilters({ sort: 'popularity', page: '0', view: 'grid' }))
+      .toMatchObject({ sort: 'default', page: 1, compact: false });
+    expect(parseCatalogFilters({ page: '-4' })).toMatchObject({ page: 1 });
   });
 
   it('同时应用关键词、方向、参与形式与截止时间筛选', () => {
@@ -181,5 +199,189 @@ describe('Pathfinder catalog view helpers', () => {
     expect(feed.opportunities.map((item) => item.id)).not.toContain('competition-expired');
     expect(feed.openSource).toHaveLength(4);
     expect(feed.updates.map((item) => item.id)).toEqual(['ai-update']);
+  });
+});
+
+describe('浏览排序', () => {
+  const sourceItem = (id: string, overrides = {}) => catalogItemFixture({ id, ...overrides });
+
+  it('最近新增按发现时间倒序', () => {
+    const items = [
+      sourceItem('old', { discoveredAt: '2026-08-01T00:00:00.000Z' }),
+      sourceItem('new', { discoveredAt: '2026-08-23T00:00:00.000Z' }),
+      sourceItem('mid', { discoveredAt: '2026-08-10T00:00:00.000Z' }),
+    ];
+    expect(sortCatalogItems(items, 'recent', NOW).map((item) => item.id))
+      .toEqual(['new', 'mid', 'old']);
+  });
+
+  it('按截止时间排序时，无截止日的长期入口排在最后而不是被丢掉', () => {
+    const items = [
+      sourceItem('no-deadline'),
+      sourceItem('far', { deadlineDate: '2026-12-01' }),
+      sourceItem('near', { deadlineDate: '2026-08-28' }),
+    ];
+    const sorted = sortCatalogItems(items, 'deadline', NOW);
+    expect(sorted.map((item) => item.id)).toEqual(['near', 'far', 'no-deadline']);
+    expect(sorted).toHaveLength(items.length);
+  });
+
+  it('适合新手把入门难度排在前面，同难度下优先能进路径的条目', () => {
+    const items = [
+      sourceItem('advanced', { difficulty: 'advanced' }),
+      sourceItem('beginner-manual', { difficulty: 'beginner', learningEligible: false }),
+      sourceItem('beginner-ready', { difficulty: 'beginner', learningEligible: true }),
+      sourceItem('intermediate', { difficulty: 'intermediate' }),
+    ];
+    expect(sortCatalogItems(items, 'beginner', NOW).map((item) => item.id))
+      .toEqual(['beginner-ready', 'beginner-manual', 'intermediate', 'advanced']);
+  });
+
+  it('最值得行动把已过期的条目压到最后', () => {
+    const expired = sourceItem('expired', { deadlineDate: '2026-01-01' });
+    const open = sourceItem('open', { deadlineDate: '2026-09-10' });
+    expect(sortCatalogItems([expired, open], 'action', NOW)[0]!.id).toBe('open');
+    expect(catalogActionScore(expired, NOW)).toBeLessThan(catalogActionScore(open, NOW));
+  });
+
+  it('资格需人工核对的条目排在同等条件的可直接行动条目之后', () => {
+    const ready = sourceItem('ready', { deadlineDate: '2026-09-10' });
+    const manual = sourceItem('manual', {
+      deadlineDate: '2026-09-10',
+      requiresManualEligibilityCheck: true,
+    });
+    expect(sortCatalogItems([manual, ready], 'action', NOW).map((item) => item.id))
+      .toEqual(['ready', 'manual']);
+  });
+
+  it('同分条目按 id 稳定排序，保证分页不漏条不重复', () => {
+    const items = [sourceItem('b'), sourceItem('a'), sourceItem('c')];
+    const first = sortCatalogItems(items, 'action', NOW).map((item) => item.id);
+    const second = sortCatalogItems([...items].reverse(), 'action', NOW).map((item) => item.id);
+    expect(first).toEqual(second);
+  });
+});
+
+describe('来源多样性', () => {
+  const fromSource = (id: string, sourceId: string) => catalogItemFixture({ id, sourceId });
+
+  it('同一区块内限制单一来源的席位', () => {
+    const items = [
+      fromSource('a1', 'source-a'),
+      fromSource('a2', 'source-a'),
+      fromSource('a3', 'source-a'),
+      fromSource('b1', 'source-b'),
+    ];
+    expect(diversifyBySource(items, 2, 4).map((item) => item.id))
+      .toEqual(['a1', 'a2', 'b1', 'a3']);
+  });
+
+  it('可以改按仓库限席位，挡住同源同仓库的连发', () => {
+    const issue = (id: string, repo: string) => catalogItemFixture({
+      id,
+      sourceId: 'curated-issues-data',
+      organization: { zh: repo, en: repo },
+    });
+    const items = [
+      issue('a1', 'apache/airflow'),
+      issue('a2', 'apache/airflow'),
+      issue('a3', 'apache/airflow'),
+      issue('p1', 'pandas-dev/pandas'),
+    ];
+    const byRepo = diversifyBySource(items, 2, 3, (item) => item.organization.en);
+    expect(byRepo.map((item) => item.id)).toEqual(['a1', 'a2', 'p1']);
+  });
+
+  it('来源不够时回填被跳过的条目，不让区块空着', () => {
+    const items = ['a1', 'a2', 'a3', 'a4'].map((id) => fromSource(id, 'source-a'));
+    expect(diversifyBySource(items, 2, 4)).toHaveLength(4);
+  });
+});
+
+describe('分页', () => {
+  const items = Array.from({ length: 30 }, (_, index) => index);
+
+  it('按页切片并给出总页数', () => {
+    expect(paginateCatalog(items, 1, 24)).toMatchObject({ page: 1, pageCount: 2, total: 30 });
+    expect(paginateCatalog(items, 2, 24).items).toHaveLength(6);
+  });
+
+  it('越界页码钳回最后一页，不返回空白页', () => {
+    expect(paginateCatalog(items, 99, 24)).toMatchObject({ page: 2 });
+    expect(paginateCatalog(items, 99, 24).items).not.toHaveLength(0);
+  });
+
+  it('空结果仍然是第 1 页共 1 页', () => {
+    expect(paginateCatalog([], 1, 24)).toMatchObject({ page: 1, pageCount: 1, total: 0 });
+  });
+});
+
+describe('本地化回退标记', () => {
+  it('中文档位实际是英文原文时标记为回退', () => {
+    expect(localizedTextState({ zh: 'Gemini 3 launches', en: 'Gemini 3 launches' }, 'zh'))
+      .toEqual({ text: 'Gemini 3 launches', fallback: true });
+  });
+
+  it('中文原文不标记', () => {
+    expect(localizedTextState({ zh: '发布新模型', en: 'New model' }, 'zh').fallback).toBe(false);
+  });
+
+  it('英文界面永远不标记回退', () => {
+    expect(localizedTextState({ zh: '发布新模型', en: 'New model' }, 'en'))
+      .toEqual({ text: 'New model', fallback: false });
+  });
+});
+
+describe('可直接上手的任务', () => {
+  const issue = catalogItemFixture({
+    id: 'issue',
+    itemType: 'open-source',
+    canonicalUrl: 'https://github.com/django/django/issues/12345',
+  });
+  const repo = catalogItemFixture({
+    id: 'repo',
+    itemType: 'open-source',
+    canonicalUrl: 'https://github.com/django/django',
+  });
+
+  it('具体 issue 是任务，整仓库入口不是', () => {
+    expect(isActionableTask(issue)).toBe(true);
+    expect(isActionableTask(repo)).toBe(false);
+  });
+
+  it('不把 issue 列表页或其它类型误判成任务', () => {
+    expect(isActionableTask(catalogItemFixture({
+      itemType: 'open-source',
+      canonicalUrl: 'https://github.com/django/django/issues',
+    }))).toBe(false);
+    expect(isActionableTask(catalogItemFixture({
+      itemType: 'competition',
+      canonicalUrl: 'https://example.com/issues/12',
+    }))).toBe(false);
+  });
+
+  it('实习区分具体岗位和招聘门户', () => {
+    const posting = catalogItemFixture({
+      itemType: 'internship',
+      canonicalUrl: 'https://databricks.com/company/careers/open-positions/job?gh_jid=1',
+      tags: { topic: ['internship'], skill: [], career: [], format: [] },
+    });
+    const portal = catalogItemFixture({
+      itemType: 'internship',
+      canonicalUrl: 'https://talent.alibaba.com/',
+      tags: { topic: ['technology-jobs'], skill: [], career: [], format: ['job-board'] },
+    });
+
+    expect(isActionableTask(posting)).toBe(true);
+    expect(isActionableTask(portal)).toBe(false);
+  });
+
+  it('筛选开关只保留任务', () => {
+    const filtered = filterCatalogItems([issue, repo], { q: '', taskOnly: true }, NOW);
+    expect(filtered.map((item) => item.id)).toEqual(['issue']);
+  });
+
+  it('不开开关时两种粒度都保留', () => {
+    expect(filterCatalogItems([issue, repo], { q: '' }, NOW)).toHaveLength(2);
   });
 });

@@ -40,6 +40,28 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
 
     包装脚本同时检查 HTTP 状态与响应中的 `success`，并只记录来源和数量摘要。接口内部串行处理来源、使用条件请求，并限制每个来源最多 30 条；全部来源失败返回 503，部分失败返回 200 但包装脚本仍以非零状态结束。
 
+11. 截止提醒按天调用一次，同样走受版本控制的包装脚本。**必须在部署带有
+    `/api/cron/pathfinder-deadlines` 的应用之后再加**，否则每天只会打出 404：
+
+    ```cron
+    17 9 * * * /usr/bin/flock -n /run/lock/meteor-pathfinder-deadlines.lock /usr/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/pathfinder-deadlines-cron.mjs 2>&1 | /usr/bin/logger -t meteor-pathfinder-deadlines
+    ```
+
+    与同步任务共用 `PATHFINDER_CRON_SECRET`：两者是同一台调度器上的 Pathfinder
+    维护任务，再拆一个密钥只会多一个要轮换的东西。选每天上午发是因为提醒的是
+    「还剩几天」这类需要当天安排时间的事，深夜送达等于让人第二天在一堆通知里翻。
+
+    幂等由 `pathfinder_deadline_reminders` 的 `(user_id, item_id, deadline)`
+    唯一索引保证，同一个截止时间只发一次；官方改期后 deadline 变化才会再发一次。
+    接口先占位再发信，发信失败会撤回占位交给下一轮重试——所以摘要里的 `skipped`
+    同时包含「已提醒过」和「失败待重试」，持续偏高说明发信通道有问题。
+
+    首次配置后可先手动跑一次确认连通：
+
+    ```bash
+    /usr/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/pathfinder-deadlines-cron.mjs
+    ```
+
 ## 默认发布策略
 
 - OpenAI、Google DeepMind、Google AI 和 GitHub AI 官方 RSS 可自动发布为 AI 动态，但永远不能进入学习路径。

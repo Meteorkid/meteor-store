@@ -1801,7 +1801,10 @@
       "discover": "发现",
       "opportunities": "机会库",
       "directions": "方向",
-      "plan": "我的路径"
+      "plan": "我的路径",
+      "saved": "我的收藏",
+      "topics": "主题与机构",
+      "weekly": "本周"
     },
     "discover": {
       "metaTitle": "Meteor Pathfinder · 可信学习与机会导航",
@@ -1896,7 +1899,11 @@
       },
       "verified": "核验于 {date}",
       "addToPlan": "加入路径",
-      "manualEligibility": "资格需人工核对"
+      "manualEligibility": "资格需人工核对",
+      "published": "发布于 {date}",
+      "noSummary": "官方来源未提供摘要，点开可查看原文。",
+      "originalLanguage": "标题与摘要为来源原文（英文），暂无官方中文版本。",
+      "actionableTask": "可直接上手"
     },
     "filters": {
       "searchLabel": "关键词",
@@ -1941,7 +1948,9 @@
         "onsite": "线下",
         "hybrid": "混合",
         "unspecified": "未注明"
-      }
+      },
+      "taskLabel": "只看可直接上手的任务",
+      "taskHint": "排除整仓库入口，只保留当前开放、无人认领的具体 issue"
     },
     "opportunities": {
       "metaTitle": "机会库 · Meteor Pathfinder",
@@ -2048,7 +2057,12 @@
       "manualOnlyTitle": "先人工核对完整资格",
       "manualOnlyDescription": "系统无法从当前画像确认全部硬条件，因此不会把这项机会自动排入路径。核对官网后，仍可把它作为个人申请目标。",
       "relatedEyebrow": "继续探索",
-      "relatedTitle": "同方向条目"
+      "relatedTitle": "同方向条目",
+      "noSummary": "官方来源未提供摘要，请打开原文查看。",
+      "originalLanguage": "标题与摘要为来源原文（英文），暂无官方中文版本。",
+      "storylineEyebrow": "同一条线索",
+      "storylineTitle": "这件事的其它条目（{count}）",
+      "storylineDescription": "标题中的产品名或版本号高度重合，多半是同一条线索的前后发布。判定基于公开标题，不代表官方把它们归为同一件事。"
     },
     "planPage": {
       "metaTitle": "我的学习路径 · Meteor Pathfinder",
@@ -2163,6 +2177,77 @@
       "viewItem": "查看条目与来源",
       "savedLocally": "完成状态只保存在当前浏览器。",
       "reset": "重新制定路径"
+    },
+    "sort": {
+      "label": "排序",
+      "default": "默认",
+      "recent": "最近新增",
+      "deadline": "最近截止",
+      "beginner": "适合新手",
+      "action": "最值得行动",
+      "viewLabel": "视图",
+      "viewFull": "完整",
+      "viewCompact": "紧凑",
+      "pageStatus": "第 {page} / {pageCount} 页 · 共 {total} 条",
+      "previousPage": "上一页",
+      "nextPage": "下一页"
+    },
+    "saves": {
+      "metaTitle": "我的收藏 · Meteor Pathfinder",
+      "metaDescription": "你收藏的竞赛、实习、开源任务与 AI 动态，截止前会收到提醒。",
+      "eyebrow": "回来继续",
+      "title": "我的收藏",
+      "description": "收藏是给未来的自己留的线索。带截止时间的条目会在到期前三天发一封提醒邮件，可以逐条关闭。",
+      "emptyTitle": "还没有收藏任何条目",
+      "emptyDescription": "在机会库里看到值得回来的条目，点「收藏」就会出现在这里。",
+      "browse": "去机会库看看",
+      "activeTitle": "进行中（{count}）",
+      "expiredTitle": "已结束（{count}）",
+      "save": "收藏",
+      "saved": "已收藏",
+      "remindMe": "截止前提醒我",
+      "loginRequired": "请先登录",
+      "failed": "操作失败，请重试"
+    },
+    "directory": {
+      "breadcrumb": "面包屑导航",
+      "discover": "发现",
+      "eyebrow": {
+        "organization": "按机构浏览",
+        "topic": "按主题浏览"
+      },
+      "index": {
+        "organization": "机构",
+        "topic": "主题"
+      },
+      "indexDescription": {
+        "organization": "按发布机构查看它们的竞赛、实习、开源项目与动态；关注后会出现在你的周报里。",
+        "topic": "按主题查看相关条目。主题从条目自带的标签汇总而来，只出现一次的标签不单独成页。"
+      },
+      "count": "共 {count} 条",
+      "empty": "暂时还没有足够条目形成入口。"
+    },
+    "follows": {
+      "follow": "关注",
+      "following": "已关注",
+      "loginRequired": "请先登录",
+      "failed": "操作失败，请重试"
+    },
+    "weekly": {
+      "metaTitle": "本周 · Meteor Pathfinder",
+      "metaDescription": "这周新收录了什么、这周有什么要截止。",
+      "eyebrow": "每周回顾",
+      "title": "这周值得知道的事",
+      "description": "只回答两件事：这周多了什么、这周有什么要截止。不做热点排行——热度不是这里的判据。",
+      "range": "统计区间：{since} — {until}",
+      "closingTitle": "本周截止（{count}）",
+      "closingDescription": "还来得及行动的条目，按截止时间从近到远。",
+      "highlightsTitle": "先看这几条",
+      "highlightsDescription": "从本周新增里挑的，优先能直接进入学习路径、资格不需要额外核对的条目。",
+      "addedTitle": "本周新增（{count}）",
+      "emptyTitle": "这周没有新变化",
+      "emptyDescription": "同步任务没有带回新条目，也没有临近截止的机会。下周再来看看。",
+      "browse": "去机会库看看"
     }
   }
 }

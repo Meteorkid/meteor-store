@@ -10,7 +10,7 @@ import {
   PATHFINDER_REMOTE_STATUSES,
 } from '@/lib/pathfinder/catalog-types';
 
-const FILTER_KEYS = ['q', 'type', 'direction', 'difficulty', 'remote', 'deadline'] as const;
+const FILTER_KEYS = ['q', 'type', 'direction', 'difficulty', 'remote', 'deadline', 'task'] as const;
 
 export default function PathfinderFilters({ hasDeadlines }: { hasDeadlines: boolean }) {
   const t = useTranslations('PathfinderHub.filters');
@@ -130,6 +130,24 @@ export default function PathfinderFilters({ hasDeadlines }: { hasDeadlines: bool
           <option value="90d">{t('deadline90')}</option>
         </FilterSelect>
       )}
+
+      {/*
+        目录里的开源条目有两种粒度：整仓库和具体 issue。想「今天就动手」的人
+        需要一个直接筛掉仓库入口的开关，否则要在列表里逐条辨认。
+      */}
+      <label className="flex items-start gap-3">
+        <input
+          id={`${idPrefix}-task`}
+          type="checkbox"
+          checked={searchParams.get('task') === '1'}
+          onChange={(event) => replaceParam('task', event.target.checked ? '1' : '')}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-violet-500"
+        />
+        <span>
+          <span className="block text-sm font-semibold text-white">{t('taskLabel')}</span>
+          <span className="mt-1 block t-footnote text-white/60">{t('taskHint')}</span>
+        </span>
+      </label>
 
       <button type="button" onClick={clear} className="w-full rounded-xl border border-white/10 px-3 py-2 text-sm text-white/60 hover:border-white/20 hover:text-white/80">
         {t('clear')}

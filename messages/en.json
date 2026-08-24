@@ -1801,7 +1801,10 @@
       "discover": "Discover",
       "opportunities": "Opportunities",
       "directions": "Directions",
-      "plan": "My path"
+      "plan": "My path",
+      "saved": "Saved",
+      "topics": "Topics",
+      "weekly": "This week"
     },
     "discover": {
       "metaTitle": "Meteor Pathfinder · Trusted learning and opportunity guide",
@@ -1896,7 +1899,11 @@
       },
       "verified": "Verified {date}",
       "addToPlan": "Add to path",
-      "manualEligibility": "Manual eligibility check"
+      "manualEligibility": "Manual eligibility check",
+      "published": "Published {date}",
+      "noSummary": "The official source provides no summary. Open the item to read the original.",
+      "originalLanguage": "Title and summary are the source original; no official translation exists yet.",
+      "actionableTask": "Ready to start"
     },
     "filters": {
       "searchLabel": "Keyword",
@@ -1941,7 +1948,9 @@
         "onsite": "On-site",
         "hybrid": "Hybrid",
         "unspecified": "Not specified"
-      }
+      },
+      "taskLabel": "Only ready-to-start tasks",
+      "taskHint": "Hide whole-repository entries and keep open, unassigned issues"
     },
     "opportunities": {
       "metaTitle": "Opportunity catalog · Meteor Pathfinder",
@@ -2048,7 +2057,12 @@
       "manualOnlyTitle": "Verify the full eligibility manually",
       "manualOnlyDescription": "The current profile cannot establish every hard requirement, so this opportunity will not be scheduled automatically. After checking the official rules, you can still treat it as a personal application target.",
       "relatedEyebrow": "Keep exploring",
-      "relatedTitle": "Items in the same direction"
+      "relatedTitle": "Items in the same direction",
+      "noSummary": "The official source provides no summary. Open the original to read it.",
+      "originalLanguage": "Title and summary are the source original; no official translation exists yet.",
+      "storylineEyebrow": "Same storyline",
+      "storylineTitle": "Other items on this storyline ({count})",
+      "storylineDescription": "These share product names or version numbers in their titles, so they are likely the same storyline. The grouping is derived from public titles, not stated by the sources."
     },
     "planPage": {
       "metaTitle": "My learning path · Meteor Pathfinder",
@@ -2163,6 +2177,77 @@
       "viewItem": "View item and source",
       "savedLocally": "Progress is saved only in this browser.",
       "reset": "Build a new path"
+    },
+    "sort": {
+      "label": "Sort",
+      "default": "Default",
+      "recent": "Recently added",
+      "deadline": "Closing soonest",
+      "beginner": "Beginner friendly",
+      "action": "Most actionable",
+      "viewLabel": "View",
+      "viewFull": "Full",
+      "viewCompact": "Compact",
+      "pageStatus": "Page {page} of {pageCount} · {total} items",
+      "previousPage": "Previous",
+      "nextPage": "Next"
+    },
+    "saves": {
+      "metaTitle": "Saved · Meteor Pathfinder",
+      "metaDescription": "Competitions, internships, open-source tasks, and AI updates you saved, with deadline reminders.",
+      "eyebrow": "Pick up where you left off",
+      "title": "Saved",
+      "description": "Saving leaves a thread for your future self. Items with a deadline trigger one reminder email three days before, and each can be turned off.",
+      "emptyTitle": "Nothing saved yet",
+      "emptyDescription": "Save anything worth coming back to and it will show up here.",
+      "browse": "Browse opportunities",
+      "activeTitle": "Open ({count})",
+      "expiredTitle": "Closed ({count})",
+      "save": "Save",
+      "saved": "Saved",
+      "remindMe": "Remind me before the deadline",
+      "loginRequired": "Please sign in first",
+      "failed": "Something went wrong, try again"
+    },
+    "directory": {
+      "breadcrumb": "Breadcrumb",
+      "discover": "Discover",
+      "eyebrow": {
+        "organization": "Browse by organization",
+        "topic": "Browse by topic"
+      },
+      "index": {
+        "organization": "Organizations",
+        "topic": "Topics"
+      },
+      "indexDescription": {
+        "organization": "See the competitions, internships, repositories, and updates each organization publishes. Follow one and it shows up in your weekly digest.",
+        "topic": "Browse items by topic. Topics come from the tags on the items themselves; a tag that appears only once does not get its own page."
+      },
+      "count": "{count} items",
+      "empty": "Not enough items yet to form entries."
+    },
+    "follows": {
+      "follow": "Follow",
+      "following": "Following",
+      "loginRequired": "Please sign in first",
+      "failed": "Something went wrong, try again"
+    },
+    "weekly": {
+      "metaTitle": "This week · Meteor Pathfinder",
+      "metaDescription": "What was added this week and what closes this week.",
+      "eyebrow": "Weekly review",
+      "title": "What is worth knowing this week",
+      "description": "Two questions only: what was added, and what closes soon. No trending chart — popularity is not the measure here.",
+      "range": "Covering {since} — {until}",
+      "closingTitle": "Closing this week ({count})",
+      "closingDescription": "Still open, sorted by how soon they close.",
+      "highlightsTitle": "Start with these",
+      "highlightsDescription": "Picked from this week\\u2019s additions, favouring items you can act on without extra eligibility checks.",
+      "addedTitle": "Added this week ({count})",
+      "emptyTitle": "Nothing new this week",
+      "emptyDescription": "The sync brought back no new items and nothing is closing soon. Check again next week.",
+      "browse": "Browse opportunities"
     }
   }
 }

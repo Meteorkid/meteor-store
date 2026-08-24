@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fetchPathfinderSource, PATHFINDER_MAX_RESPONSE_BYTES } from '../ingestion/fetch-source';
 import { cleanExternalText, isAllowedHost, normalizeIngestionUrl } from '../ingestion/normalize';
-import { parseGithubSearch, parseRss } from '../ingestion/parse';
-import { PATHFINDER_SYNC_SOURCE_MAP } from '../ingestion/sources';
+import { parseGithubSearch, parseGreenhouseJobs, parseRss } from '../ingestion/parse';
+import { PATHFINDER_SYNC_SOURCES, PATHFINDER_SYNC_SOURCE_MAP } from '../ingestion/sources';
+import { STATIC_PATHFINDER_ITEMS } from '@/data/pathfinder/catalog-seeds';
 import {
   buildPathfinderMembershipCursor,
   changedPathfinderStatus,
@@ -120,6 +121,113 @@ describe('Pathfinder ingestion', () => {
       publishedAt: '2026-08-01T00:00:00.000Z',
     });
     expect(items[0].contentHash).toHaveLength(64);
+  });
+
+  it('已策展来源的 issue 用来源方向，且不需要人工核对资格', () => {
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('curated-issues-data')!;
+    const items = parseGithubSearch(source, JSON.stringify({
+      items: [{
+        id: 99,
+        html_url: 'https://github.com/pandas-dev/pandas/issues/501',
+        repository_url: 'https://api.github.com/repos/pandas-dev/pandas',
+        // 标题里全是 React 词汇，用来证明方向来自来源而不是文本推断
+        title: 'Improve React-style docs example',
+        body: 'Update the docstring.',
+        created_at: '2026-08-01T00:00:00Z',
+        labels: [{ name: 'good first issue' }, { name: 'Docs' }],
+      }],
+    }));
+
+    expect(items[0]).toMatchObject({
+      direction: 'data',
+      directions: ['data'],
+      learningEligible: true,
+      requiresManualEligibilityCheck: false,
+    });
+  });
+
+  it('已策展 issue 来源只能查询目录里已有的仓库', () => {
+    const seededRepos = new Set(
+      STATIC_PATHFINDER_ITEMS
+        .map((item) => item.canonicalUrl.match(/^https:\/\/github\.com\/([^/]+\/[^/]+)$/)?.[1])
+        .filter((repo): repo is string => Boolean(repo))
+        .map((repo) => repo.toLowerCase()),
+    );
+    const curated = PATHFINDER_SYNC_SOURCES.filter((source) => source.curated);
+    expect(curated.length).toBeGreaterThan(0);
+
+    for (const source of curated) {
+      const query = new URL(source.fetchUrl).searchParams.get('q') ?? '';
+      const repos = [...query.matchAll(/repo:([^\s]+)/g)].map((match) => match[1].toLowerCase());
+      expect(repos.length).toBeGreaterThan(0);
+      for (const repo of repos) {
+        // 自动发布的前提是仓库已经在目录里审过；查询里出现没审过的仓库就等于绕过了审核
+        expect(seededRepos, `${source.id} 查询了未策展的仓库 ${repo}`).toContain(repo);
+      }
+      // GitHub 搜索的 q 有 256 字符上限，超了整条来源会静默返回 422
+      expect(query.length).toBeLessThanOrEqual(256);
+      expect(source.autoPublish).toBe(true);
+    }
+  });
+
+  it('职位板只取面向学生的岗位，并保留地点与发布时间', () => {
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('databricks-student-jobs')!;
+    const items = parseGreenhouseJobs(source, JSON.stringify({
+      jobs: [
+        {
+          id: 1,
+          title: 'Software Engineering Intern (2027 Start)',
+          absolute_url: 'https://databricks.com/company/careers/open-positions/job?gh_jid=1',
+          location: { name: 'San Francisco, California' },
+          company_name: 'Databricks',
+          first_published: '2026-08-20T23:40:25-04:00',
+          application_deadline: null,
+        },
+        {
+          id: 2,
+          // 「International」含 intern 子串：早先用 includes 判断时它被当成实习岗放了进来
+          title: 'Manager, International Statutory Accounting',
+          absolute_url: 'https://databricks.com/company/careers/open-positions/job?gh_jid=2',
+          location: { name: 'London, United Kingdom' },
+        },
+      ],
+    }));
+
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      externalId: '1',
+      organization: 'Databricks',
+      regionZh: 'San Francisco, California',
+      remoteStatus: 'onsite',
+      // 工作许可与年级要求画像判断不了，必须本人核对
+      requiresManualEligibilityCheck: true,
+      learningEligible: false,
+      publishedAt: '2026-08-21T03:40:25.000Z',
+    });
+    expect(items[0].summaryZh).toContain('San Francisco');
+  });
+
+  it('职位板拒绝非白名单域名的岗位链接，远程岗位标记为远程', () => {
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('databricks-student-jobs')!;
+    const items = parseGreenhouseJobs(source, JSON.stringify({
+      jobs: [
+        {
+          id: 3,
+          title: 'Data Engineering Intern',
+          absolute_url: 'https://evil.example.com/job/3',
+          location: { name: 'Remote - United States' },
+        },
+        {
+          id: 4,
+          title: 'Research Intern',
+          absolute_url: 'https://job-boards.greenhouse.io/databricks/jobs/4',
+          location: { name: 'Remote - Canada' },
+        },
+      ],
+    }));
+
+    expect(items.map((item) => item.externalId)).toEqual(['4']);
+    expect(items[0].remoteStatus).toBe('remote');
   });
 
   it('英文采集内容变化时只更新旧 fallback，不覆盖人工中文', () => {

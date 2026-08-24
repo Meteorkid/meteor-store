@@ -323,3 +323,47 @@ export async function sendPassExpiryReminder(data: PassExpiryReminderEmailData) 
 
   if (error) throw new Error(`Email send failed: ${error.message}`);
 }
+
+export interface PathfinderDeadlineReminderEmailData {
+  email: string;
+  title: string;
+  organization: string;
+  daysLeft: number;
+  /** 站内条目详情地址，站点域名由 getSiteUrl 补全 */
+  itemUrl: string;
+}
+
+/**
+ * Pathfinder 收藏条目的截止提醒。
+ *
+ * 与 Pass 到期提醒不同，这封信不推销任何东西——它只是把用户自己收藏过的
+ * 一件事在到点前提出来，所以正文只说清「哪条、还剩几天、去哪看」。
+ */
+export async function sendPathfinderDeadlineReminder(data: PathfinderDeadlineReminderEmailData) {
+  const siteUrl = getSiteUrl();
+  const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
+  const itemUrl = escapeHtml(`${siteUrl}/zh${data.itemUrl}`);
+  const savedUrl = escapeHtml(`${siteUrl}/zh/pathfinder/saved`);
+  const daysLeft = Math.max(0, Math.trunc(data.daysLeft));
+  const countdown = daysLeft === 0 ? '今天截止' : `还剩 ${daysLeft} 天`;
+
+  const { error } = await getResend().emails.send({
+    from: `Meteor Store <${fromEmail}>`,
+    replyTo: getReplyToEmail(),
+    to: data.email,
+    subject: `${countdown}：${data.title}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">⏳ 你收藏的机会${countdown}</h1>
+        <p style="font-size: 16px;"><strong>${escapeHtml(data.title)}</strong></p>
+        <p style="color: #666;">${escapeHtml(data.organization)}</p>
+        <p style="margin: 28px 0;">
+          <a href="${itemUrl}" style="display: inline-block; padding: 12px 20px; border-radius: 8px; background: #7c3aed; color: #fff; text-decoration: none; font-weight: 600;">查看详情</a>
+        </p>
+        <p style="color: #666; font-size: 13px;">截止时间以官方页面为准。不想再收到这条提醒，可以在<a href="${savedUrl}">收藏列表</a>里单独关闭它。</p>
+      </div>
+    `,
+  });
+
+  if (error) throw new Error(`Email send failed: ${error.message}`);
+}

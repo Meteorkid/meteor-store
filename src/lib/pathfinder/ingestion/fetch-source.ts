@@ -31,7 +31,9 @@ async function fetchPathfinderSourceOnce(
   const headers: Record<string, string> = {
     Accept: source.adapterId === 'rss'
       ? 'application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9'
-      : 'application/vnd.github+json',
+      : source.adapterId === 'greenhouse'
+        ? 'application/json'
+        : 'application/vnd.github+json',
     'User-Agent': `Meteor-Pathfinder/1.0 (+${SITE_URL}/pathfinder)`,
   };
   if (conditional.etag) headers['If-None-Match'] = conditional.etag;

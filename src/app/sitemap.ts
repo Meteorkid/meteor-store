@@ -48,6 +48,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/pathfinder`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.8 },
     { url: `${BASE_URL}/pathfinder/opportunities`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.7 },
     { url: `${BASE_URL}/pathfinder/plan`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${BASE_URL}/pathfinder/topics`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.5 },
+    { url: `${BASE_URL}/pathfinder/organizations`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.5 },
+    { url: `${BASE_URL}/pathfinder/weekly`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.6 },
+    // /pathfinder/saved 是因人而异的私有页面，不进 sitemap
     ...['ai', 'frontend', 'backend', 'data'].map((direction) => ({
       url: `${BASE_URL}/pathfinder/directions/${direction}`,
       lastModified: now,

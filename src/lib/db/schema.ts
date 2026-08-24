@@ -563,6 +563,61 @@ export const pathfinderItems = pgTable('pathfinder_items', {
   check('pathfinder_items_deadline_date_valid', sql`${t.deadlineDate} is null or ${t.deadlineDate} ~ '^\\d{4}-\\d{2}-\\d{2}$'`),
 ]);
 
+/**
+ * Pathfinder 收藏。
+ *
+ * 与博客收藏（post_favorites）同构：复合主键天然防重复收藏，全站不加外键，
+ * 条目下架后收藏记录保留、列表里自然筛不到。`remindDeadline` 让用户对单条
+ * 关掉截止提醒而不必取消收藏——收藏是「我以后要看」，提醒是「到点叫我」，
+ * 把两件事绑死会逼人用取消收藏来关掉通知。
+ */
+export const pathfinderSaves = pgTable('pathfinder_saves', {
+  itemId: text('item_id').notNull(),
+  userId: text('user_id').notNull(),
+  createdAt: text('created_at').notNull(),
+  remindDeadline: boolean('remind_deadline').default(true).notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.itemId, t.userId] }),
+  index('pathfinder_saves_user_idx').on(t.userId),
+  index('pathfinder_saves_item_idx').on(t.itemId),
+]);
+
+/**
+ * Pathfinder 关注：机构或主题。
+ *
+ * `kind` 只有 organization / topic 两种，`value` 存归一化（小写、去空格）后的值，
+ * 展示用的原始写法由条目自己带。归一化放在写入前而不是查询时，
+ * 否则「OpenAI」和「openai」会变成两条关注。
+ */
+export const pathfinderFollows = pgTable('pathfinder_follows', {
+  userId: text('user_id').notNull(),
+  kind: text('kind').notNull(), // organization | topic
+  value: text('value').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  primaryKey({ columns: [t.userId, t.kind, t.value] }),
+  index('pathfinder_follows_kind_value_idx').on(t.kind, t.value),
+  check('pathfinder_follows_kind_valid', sql`${t.kind} in ('organization', 'topic')`),
+]);
+
+/**
+ * 截止提醒的发送记录，用于幂等。
+ *
+ * 与 pass_reminders 同样的思路：按 (user_id, item_id, deadline) 唯一去重，
+ * 同一个截止时间只提醒一次；官方改期后 deadline 变化，才允许对新日期再发一次。
+ */
+export const pathfinderDeadlineReminders = pgTable('pathfinder_deadline_reminders', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  itemId: text('item_id').notNull(),
+  /** 提醒时条目的截止时间（ISO 或 YYYY-MM-DD），改期后可再提醒一次 */
+  deadline: text('deadline').notNull(),
+  sentAt: text('sent_at').notNull(),
+}, (t) => [
+  uniqueIndex('pathfinder_deadline_reminders_unique_idx').on(t.userId, t.itemId, t.deadline),
+  index('pathfinder_deadline_reminders_user_idx').on(t.userId),
+]);
+
 /** Pathfinder 条目标签；拆表后可直接按维度与标签索引筛选。 */
 export const pathfinderItemTags = pgTable('pathfinder_item_tags', {
   itemId: text('item_id').notNull(),
