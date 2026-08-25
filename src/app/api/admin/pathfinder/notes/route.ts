@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
   switch (action) {
     case 'generate': {
       if (!isEditorialEnabled()) {
-        return NextResponse.json({ error: '未配置 ANTHROPIC_API_KEY，解读功能未启用' }, { status: 503 });
+        return NextResponse.json({ error: '未配置 DEEPSEEK_API_KEY，解读功能未启用' }, { status: 503 });
       }
       const item = await getCatalogItem(itemId);
       if (!item) return NextResponse.json({ error: '条目不存在' }, { status: 404 });

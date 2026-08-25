@@ -93,15 +93,15 @@ export default function PathfinderNotesManager({
       <h2 className="t-title-3">{zh ? 'AI 动态解读' : 'Editorial notes'}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
         {zh
-          ? '由 Claude 依据条目自身的来源材料起草，必须逐条人工确认后才会出现在详情页。生成会产生 API 费用。'
-          : 'Drafted by Claude from each item’s own source material. Nothing reaches the public page until a human approves it. Generation incurs API cost.'}
+          ? '由 DeepSeek 依据条目自身的来源材料起草，必须逐条人工确认后才会出现在详情页。生成会产生 API 费用。'
+          : 'Drafted by DeepSeek from each item’s own source material. Nothing reaches the public page until a human approves it. Generation incurs API cost.'}
       </p>
 
       {!enabled && (
         <p className="mt-4 rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
           {zh
-            ? '服务器未配置 ANTHROPIC_API_KEY，生成功能不可用；已有解读仍可审核与发布。'
-            : 'ANTHROPIC_API_KEY is not configured; generation is unavailable. Existing notes can still be reviewed.'}
+            ? '服务器未配置 DEEPSEEK_API_KEY，生成功能不可用；已有解读仍可审核与发布。'
+            : 'DEEPSEEK_API_KEY is not configured; generation is unavailable. Existing notes can still be reviewed.'}
         </p>
       )}
       {error && (

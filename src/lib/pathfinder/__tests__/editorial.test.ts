@@ -8,6 +8,7 @@ import {
   generateEditorialNote,
   isEditorialEnabled,
   normalizeEditorialNote,
+  parseEditorialResponse,
 } from '../editorial';
 import { catalogItemFixture } from './fixtures';
 
@@ -94,6 +95,46 @@ describe('只为 AI 动态生成', () => {
   });
 });
 
+describe('DeepSeek 的 JSON 模式约束', () => {
+  const valid = JSON.stringify({
+    whatHappened: '某公司发布了新模型。',
+    whyItMatters: '对做项目的学生有影响。',
+    skills: ['PyTorch'],
+    suggestedAction: '本周读一遍官方文档。',
+  });
+
+  it('提示词里必须出现 json 字样并给出格式示例', () => {
+    // DeepSeek 的 json_object 模式硬性要求提示词含 "json" 且给出示例，
+    // 缺了会退化成普通文本输出——这是官方文档明确写的前提条件
+    const source = readFileSync(path.join(__dirname, '..', 'editorial.ts'), 'utf-8');
+    const systemPrompt = source.slice(source.indexOf('const SYSTEM_PROMPT'), source.indexOf('组装用户消息'));
+    expect(systemPrompt).toMatch(/JSON|json/);
+    expect(systemPrompt).toContain('"whatHappened"');
+    expect(systemPrompt).toContain('"suggestedAction"');
+  });
+
+  it('正常返回被解析并收紧', () => {
+    expect(parseEditorialResponse(valid).skills).toEqual(['PyTorch']);
+  });
+
+  it('空内容当作可重试失败，而不是抛看不懂的语法错误', () => {
+    // 官方明确提示 JSON 模式偶尔会返回空内容
+    expect(() => parseEditorialResponse('')).toThrow(/空内容/);
+    expect(() => parseEditorialResponse(null)).toThrow(/空内容/);
+    expect(() => parseEditorialResponse('   ')).toThrow(/空内容/);
+  });
+
+  it('非法 JSON 有明确报错', () => {
+    expect(() => parseEditorialResponse('这不是 JSON')).toThrow(/合法 JSON/);
+  });
+
+  it('字段缺失被 zod 挡下，不会以 undefined 写进数据库', () => {
+    // json_object 只保证是合法 JSON，不保证符合我们的结构，所以必须再过一次 zod
+    expect(() => parseEditorialResponse(JSON.stringify({ whatHappened: '只有一个字段' })))
+      .toThrow(/结构不完整/);
+  });
+});
+
 describe('输出收紧', () => {
   it('过长段落被截断，技能标签去重并限制在 5 个内', () => {
     const note = normalizeEditorialNote({
@@ -120,20 +161,20 @@ describe('输出收紧', () => {
 });
 
 describe('未配置密钥时的行为', () => {
-  it('isEditorialEnabled 反映 ANTHROPIC_API_KEY 是否存在', () => {
-    const original = process.env.ANTHROPIC_API_KEY;
+  it('isEditorialEnabled 反映 DEEPSEEK_API_KEY 是否存在', () => {
+    const original = process.env.DEEPSEEK_API_KEY;
     try {
-      delete process.env.ANTHROPIC_API_KEY;
+      delete process.env.DEEPSEEK_API_KEY;
       expect(isEditorialEnabled()).toBe(false);
-      process.env.ANTHROPIC_API_KEY = 'sk-test';
+      process.env.DEEPSEEK_API_KEY = 'sk-test';
       expect(isEditorialEnabled()).toBe(true);
     } finally {
-      if (original === undefined) delete process.env.ANTHROPIC_API_KEY;
-      else process.env.ANTHROPIC_API_KEY = original;
+      if (original === undefined) delete process.env.DEEPSEEK_API_KEY;
+      else process.env.DEEPSEEK_API_KEY = original;
     }
   });
 
   it('模型 id 固定写进记录，便于日后判断哪批解读该重做', () => {
-    expect(EDITORIAL_MODEL).toBe('claude-opus-5');
+    expect(EDITORIAL_MODEL).toBe('deepseek-v4-flash');
   });
 });

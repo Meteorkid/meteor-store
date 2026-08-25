@@ -1,5 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { z } from 'zod';
 import type { PathfinderCatalogItem } from './catalog-types';
 
@@ -20,10 +18,25 @@ import type { PathfinderCatalogItem } from './catalog-types';
  * **改了下面任何一段提示词就要改这个值**。否则库里会混着两代提示词产出的解读，
  * 而无法分辨哪些该重做——生成时间只能告诉你什么时候跑的，说明不了用的哪一版。
  */
-export const EDITORIAL_PROMPT_VERSION = 'v1-2026-08';
+export const EDITORIAL_PROMPT_VERSION = 'v2-deepseek-2026-08';
 
-/** 生成用的模型。写进每条记录，便于日后判断哪批解读需要重做。 */
-export const EDITORIAL_MODEL = 'claude-opus-5';
+/**
+ * 生成用的模型。写进每条记录，便于日后判断哪批解读需要重做。
+ *
+ * 选 DeepSeek 是因为生产服务器在阿里云（中国大陆），实测 api.anthropic.com
+ * 对该出口 IP 返回 `forbidden: Request not allowed`——无效 key 都走不到鉴权，
+ * 是按来源拒绝，不是密钥问题。国内接口直连、延迟更低、成本低一到两个数量级。
+ *
+ * flash 而非 pro：材料只有标题加一段摘要，要求也写死成四个字段，
+ * 属于按给定材料改写，不是需要推理的任务。
+ */
+export const EDITORIAL_MODEL = 'deepseek-v4-flash';
+
+/** OpenAI 兼容接口。 */
+const DEEPSEEK_ENDPOINT = 'https://api.deepseek.com/chat/completions';
+
+/** 单次生成的输出上限。官方提示要设得足够大，否则 JSON 会被从中间截断。 */
+const MAX_OUTPUT_TOKENS = 2000;
 
 export const editorialNoteSchema = z.object({
   whatHappened: z.string().describe('这条动态实际宣布或发生了什么，两到三句，只陈述来源里有的事实'),
@@ -48,7 +61,16 @@ const SYSTEM_PROMPT = `你在为「Meteor Pathfinder」写面向中国大学生�
    不是行业分析师，也不是完全的新手。
 5. 全部用简体中文。技术名词、产品名保留英文原文。
 
-输出的每个字段都会经过人工审核后才发布，所以宁可保守、宁可短，也不要编。`;
+输出的每个字段都会经过人工审核后才发布，所以宁可保守、宁可短，也不要编。
+
+只输出一个 JSON 对象，不要包裹代码块，不要写任何额外说明。格式示例：
+
+{
+  "whatHappened": "两到三句，这条动态实际宣布或发生了什么",
+  "whyItMatters": "两到三句，为什么值得中国大学生关注",
+  "skills": ["受影响的技能或工具", "2 到 5 个"],
+  "suggestedAction": "一到两句，本周就能开始做的一件具体的事"
+}`;
 
 /**
  * 组装用户消息。
@@ -71,19 +93,39 @@ export function buildEditorialPrompt(item: PathfinderCatalogItem): string {
   ].filter(Boolean).join('\n');
 }
 
-let cachedClient: Anthropic | null = null;
-
-function getClient(): Anthropic {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY 未配置，无法生成解读');
-  }
-  cachedClient ??= new Anthropic();
-  return cachedClient;
-}
-
 /** 未配置 API key 时，后台应显示「未启用」而不是报错按钮。 */
 export function isEditorialEnabled(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return Boolean(process.env.DEEPSEEK_API_KEY);
+}
+
+/**
+ * 从 `json_object` 模式的返回里取出解读。
+ *
+ * DeepSeek 只保证输出是合法 JSON，**不保证符合我们的字段结构**（它没有
+ * json_schema 那样的强约束），所以解析完必须再过一次 zod。少了这一步，
+ * 模型少写一个字段就会以 undefined 的形式一路写进数据库。
+ *
+ * 另外官方明确提示 JSON 模式偶尔会返回空内容，这里当作可重试的失败抛出，
+ * 而不是让 JSON.parse 抛一个看不懂的语法错误。
+ */
+export function parseEditorialResponse(content: string | null | undefined): EditorialNote {
+  const text = content?.trim();
+  if (!text) {
+    throw new Error('模型返回空内容（DeepSeek JSON 模式的已知问题），请重试');
+  }
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(text);
+  } catch {
+    throw new Error('模型返回的不是合法 JSON');
+  }
+
+  const parsed = editorialNoteSchema.safeParse(payload);
+  if (!parsed.success) {
+    throw new Error(`模型返回的结构不完整：${parsed.error.issues[0].path.join('.')}`);
+  }
+  return normalizeEditorialNote(parsed.data);
 }
 
 /**
@@ -99,23 +141,40 @@ export async function generateEditorialNote(
     throw new Error(`只为 AI 动态生成解读，收到 ${item.itemType}`);
   }
 
-  const response = await getClient().messages.parse({
-    model: EDITORIAL_MODEL,
-    max_tokens: 4000,
-    system: SYSTEM_PROMPT,
-    // 材料短、要求明确，不需要深度推理；低 effort 足够且便宜
-    output_config: {
-      effort: 'low',
-      format: zodOutputFormat(editorialNoteSchema),
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) throw new Error('DEEPSEEK_API_KEY 未配置，无法生成解读');
+
+  const response = await fetch(DEEPSEEK_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
     },
-    messages: [{ role: 'user', content: buildEditorialPrompt(item) }],
+    // 单条生成通常几秒；超时兜底避免后台按钮一直转
+    signal: AbortSignal.timeout(60_000),
+    body: JSON.stringify({
+      model: EDITORIAL_MODEL,
+      max_tokens: MAX_OUTPUT_TOKENS,
+      response_format: { type: 'json_object' },
+      // 思考模式默认开启，且思考 token 按输出计费。这个任务是按给定材料改写、
+      // 字段也写死了，推理带不来质量，只带来成本，所以显式关掉。
+      thinking: { type: 'disabled' },
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: buildEditorialPrompt(item) },
+      ],
+    }),
   });
 
-  const parsed = response.parsed_output;
-  if (!parsed) {
-    throw new Error('模型未返回可解析的解读结构');
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error(`DeepSeek 返回 ${response.status}：${detail.slice(0, 200)}`);
   }
-  return normalizeEditorialNote(parsed);
+
+  const payload = await response.json() as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  return parseEditorialResponse(payload.choices?.[0]?.message?.content);
 }
 
 /**

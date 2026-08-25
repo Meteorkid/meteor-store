@@ -62,27 +62,40 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
     /usr/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/pathfinder-deadlines-cron.mjs
     ```
 
-## AI 动态解读（Claude 起草 + 人工确认）
+## AI 动态解读（DeepSeek 起草 + 人工确认）
 
-详情页的「这条动态对你意味着什么」由 Claude 依据条目自身的来源材料起草，
+详情页的「这条动态对你意味着什么」由 DeepSeek 依据条目自身的来源材料起草，
 **必须逐条人工确认后才会公开**。审核台在 `/zh/admin/pathfinder` 页面底部。
 
-- 需要在 `.env.production` 配置 `ANTHROPIC_API_KEY`；未配置时后台显示「未启用」，
+**为什么不是 Claude**：生产服务器在阿里云（深圳出口，AS37963），实测
+`api.anthropic.com` 对该 IP 返回 `forbidden: Request not allowed`——
+用无效 key 请求也拿不到 `authentication_error`，说明请求在鉴权前就被按来源拒绝。
+同一个无效 key 从境内开发机请求则正常返回 `authentication_error`。
+换 DeepSeek 后服务器直连、延迟更低、成本低一到两个数量级。
+
+- 需要在 `.env.production` 配置 `DEEPSEEK_API_KEY`；未配置时后台显示「未启用」，
   已确认的解读仍正常展示，不会报错
-- 模型固定 `claude-opus-5`，effort 取 `low`（材料短、要求明确，不需要深度推理），
-  用结构化输出约束四个字段。模型 id 与提示词版本写进每条记录——
-  **改了提示词就要改 `EDITORIAL_PROMPT_VERSION`**，否则无法分辨哪些解读该重做
+- 模型 `deepseek-v4-flash`（不是 pro）：材料只有标题加一段摘要、字段也写死成四个，
+  属于按给定材料改写，不是需要推理的任务
+- **思考模式显式关掉**（`thinking: {type: 'disabled'}`）。DeepSeek 默认开启思考，
+  且思考 token 按输出计费；这个任务开思考只增加成本，不提升质量
+- **DeepSeek 只有 `json_object`，没有 `json_schema`**，所以有两条硬性前提：
+  提示词里必须出现「json」字样并给出格式示例（官方文档要求，缺了会退化成普通文本），
+  且返回值解析后**必须再过一次 zod**——它只保证是合法 JSON，不保证符合我们的结构
+- 官方明确提示 JSON 模式偶尔返回空内容，代码把它当作可重试失败抛出，
+  报错文案会提示重试，而不是抛一个看不懂的 JSON 语法错误
 - 流程只有一条：生成初稿 → 人读一遍（可改）→ 确认发布。界面上**不提供
   「生成并发布」的合并动作**：两步并一步，人工确认就会退化成走过场
 - 重新生成不会覆盖已确认的解读；要重做得先「退回草稿」
 - 生成、编辑、确认、退回、删除全部写入管理员审计日志
-- 成本参考：单条约 500 输入 + 400 输出 token，按 Opus 5 费率约 ¥0.09；
-  全量补 90 条约 ¥8。生成接口限流 10 次/分钟/管理员，其余动作 60 次/分钟
+- 成本参考（deepseek-v4-flash，关闭思考，按高峰价）：单条约 700 输入 + 450 输出 token，
+  约 $0.0009 ≈ ¥0.007；全量补 90 条约 ¥0.6。生成接口限流 10 次/分钟/管理员
 - 只为 `ai-update` 生成：竞赛、实习、开源任务的卡片已有资格、费用、截止时间
   这些结构化事实，学生看得懂该做什么
 
 提示词里有三条硬规则，改动前请先读 `src/lib/pathfinder/editorial.ts` 的说明：
 只用给定材料里的事实、不预测不评级、建议必须是本周能开始的具体一件事。
+**改提示词就要改 `EDITORIAL_PROMPT_VERSION`**，否则无法分辨哪些解读该重做。
 详情页会如实标注「由 AI 起草、经人工确认后发布」，这句不能去掉。
 
 ## 默认发布策略
