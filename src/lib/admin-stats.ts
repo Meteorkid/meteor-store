@@ -61,11 +61,20 @@ export async function getAdminStats(): Promise<AdminStats> {
       })
       .from(feedbacks),
     db
+      /*
+       * 注意 ${PASS_PRODUCT_ID} 外面不能套引号。
+       *
+       * drizzle 会把插值变成绑定参数；套上引号后生成的 SQL 里是字符串字面量
+       * '$1'，于是语句实际零参数却仍传了 4 个，Postgres 直接报
+       * 「bind message supplies 4 parameters, but prepared statement requires 0」，
+       * 整个后台首页 500。上面几行的 'published'、'pending' 是写死的字面量，
+       * 没有插值，所以带引号是对的——两者容易看混。
+       */
       .select({
-        total: sql<number>`count(*) filter (where ${orders.productId} = '${PASS_PRODUCT_ID}' and ${orders.status} = 'paid')`,
-        monthly: sql<number>`count(*) filter (where ${orders.productId} = '${PASS_PRODUCT_ID}' and ${orders.status} = 'paid' and ${orders.billingPeriod} = 'monthly')`,
-        annual: sql<number>`count(*) filter (where ${orders.productId} = '${PASS_PRODUCT_ID}' and ${orders.status} = 'paid' and ${orders.billingPeriod} = 'annual')`,
-        lifetime: sql<number>`count(*) filter (where ${orders.productId} = '${PASS_PRODUCT_ID}' and ${orders.status} = 'paid' and ${orders.billingPeriod} = 'lifetime')`,
+        total: sql<number>`count(*) filter (where ${orders.productId} = ${PASS_PRODUCT_ID} and ${orders.status} = 'paid')`,
+        monthly: sql<number>`count(*) filter (where ${orders.productId} = ${PASS_PRODUCT_ID} and ${orders.status} = 'paid' and ${orders.billingPeriod} = 'monthly')`,
+        annual: sql<number>`count(*) filter (where ${orders.productId} = ${PASS_PRODUCT_ID} and ${orders.status} = 'paid' and ${orders.billingPeriod} = 'annual')`,
+        lifetime: sql<number>`count(*) filter (where ${orders.productId} = ${PASS_PRODUCT_ID} and ${orders.status} = 'paid' and ${orders.billingPeriod} = 'lifetime')`,
       })
       .from(orders),
     db
