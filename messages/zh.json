@@ -2062,7 +2062,15 @@
       "originalLanguage": "标题与摘要为来源原文（英文），暂无官方中文版本。",
       "storylineEyebrow": "同一条线索",
       "storylineTitle": "这件事的其它条目（{count}）",
-      "storylineDescription": "标题中的产品名或版本号高度重合，多半是同一条线索的前后发布。判定基于公开标题，不代表官方把它们归为同一件事。"
+      "storylineDescription": "标题中的产品名或版本号高度重合，多半是同一条线索的前后发布。判定基于公开标题，不代表官方把它们归为同一件事。",
+      "noteEyebrow": "编辑解读",
+      "noteTitle": "这条动态对你意味着什么",
+      "noteProvenance": "本段由 AI 依据上方来源材料起草，已经人工确认后发布。事实以官方原文为准。",
+      "noteProvenanceEdited": "本段由 AI 起草、经人工修改并确认后发布。事实以官方原文为准。",
+      "noteWhatHappened": "发生了什么",
+      "noteWhyItMatters": "为什么值得关注",
+      "noteSkills": "影响哪些技能",
+      "noteSuggestedAction": "建议做什么"
     },
     "planPage": {
       "metaTitle": "我的学习路径 · Meteor Pathfinder",

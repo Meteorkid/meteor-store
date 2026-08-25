@@ -5,8 +5,11 @@ import AdminNav from '@/components/AdminNav';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import PathfinderAdminManager from '@/components/PathfinderAdminManager';
+import PathfinderNotesManager from '@/components/PathfinderNotesManager';
 import { isAdminSession } from '@/lib/admin';
 import { getSession } from '@/lib/auth';
+import { listCatalogItems } from '@/lib/pathfinder/catalog';
+import { sortCatalogItems } from '@/lib/pathfinder/catalog-view';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +29,17 @@ export default async function AdminPathfinderPage({ params }: { params: Promise<
   if (!session || !isAdminSession(session)) notFound();
   const zh = locale === 'zh';
 
+  // 待生成的候选按最近新增排序：解读的价值随时间衰减，旧动态先不排队
+  const candidates = sortCatalogItems(
+    (await listCatalogItems({ type: 'ai-update' })).filter((item) => item.status === 'published'),
+    'recent',
+  ).slice(0, 40).map((item) => ({
+    id: item.id,
+    title: item.title.zh || item.title.en,
+    organization: item.organization.zh || item.organization.en,
+    publishedAt: item.publishedAt,
+  }));
+
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
@@ -40,6 +54,7 @@ export default async function AdminPathfinderPage({ params }: { params: Promise<
           </header>
           <AdminNav />
           <div className="mt-8"><PathfinderAdminManager /></div>
+          <PathfinderNotesManager zh={zh} candidates={candidates} />
         </div>
       </main>
       <Footer />

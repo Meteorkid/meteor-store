@@ -618,6 +618,42 @@ export const pathfinderDeadlineReminders = pgTable('pathfinder_deadline_reminder
   index('pathfinder_deadline_reminders_user_idx').on(t.userId),
 ]);
 
+/**
+ * AI 动态的编辑型解读。
+ *
+ * 由 Claude 生成初稿，**必须经人工确认才会公开**（status 从 draft 变成 approved）。
+ * 这是整张表最重要的约束：Pathfinder 唯一的差异化资产是「可追溯、不夸大」，
+ * 自动发布模型产出等于把它交出去。渲染层只读 approved。
+ *
+ * 每条只对应一个条目（itemId 主键）：解读是对这条内容的说明，不是可以有多版的评论。
+ * 重新生成会覆盖草稿，但**不会覆盖已确认的解读**——那是人看过并署名的东西。
+ */
+export const pathfinderItemNotes = pgTable('pathfinder_item_notes', {
+  itemId: text('item_id').primaryKey(),
+  /** draft = 模型初稿，未公开；approved = 人工确认，可公开 */
+  status: text('status').notNull().default('draft'),
+  /** 发生了什么 */
+  whatHappened: text('what_happened').notNull(),
+  /** 为什么值得大学生关注 */
+  whyItMatters: text('why_it_matters').notNull(),
+  /** 影响哪些技能，JSON 字符串数组 */
+  skills: text('skills').notNull().default('[]'),
+  /** 建议做什么 */
+  suggestedAction: text('suggested_action').notNull(),
+  /** 生成用的模型 id，便于日后判断哪批解读该重做 */
+  model: text('model').notNull(),
+  /** 提示词版本；改了提示词而不改这个值，就无法分辨解读出自哪一版 */
+  promptVersion: text('prompt_version').notNull(),
+  generatedAt: text('generated_at').notNull(),
+  /** 人工是否改过正文——全站展示时据此区分「已确认」与「已编辑」 */
+  editedByHuman: boolean('edited_by_human').notNull().default(false),
+  reviewerId: text('reviewer_id'),
+  reviewedAt: text('reviewed_at'),
+}, (t) => [
+  index('pathfinder_item_notes_status_idx').on(t.status),
+  check('pathfinder_item_notes_status_valid', sql`${t.status} in ('draft', 'approved')`),
+]);
+
 /** Pathfinder 条目标签；拆表后可直接按维度与标签索引筛选。 */
 export const pathfinderItemTags = pgTable('pathfinder_item_tags', {
   itemId: text('item_id').notNull(),

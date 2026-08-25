@@ -7,6 +7,7 @@ import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { getSession } from '@/lib/auth';
 import { getCatalogItem, listCatalogItems } from '@/lib/pathfinder/catalog';
+import { getApprovedEditorialNote } from '@/lib/pathfinder/editorial-store';
 import { findRelatedItems } from '@/lib/pathfinder/related';
 import { listPathfinderSaves } from '@/lib/pathfinder/saves';
 import { CATALOG_FACT_KEYS } from '@/lib/pathfinder/catalog-fields';
@@ -54,6 +55,10 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
   // 一条 AI 动态标着「免费 · 形式未注明 · 需要电脑」既没有信息量，
   // 又会让人误以为这是可以报名的机会。
   const facts = CATALOG_FACT_KEYS[item.itemType].map((key) => allFacts[key]);
+  // 只取已人工确认的解读；草稿永远不进渲染层
+  const editorialNote = item.itemType === 'ai-update'
+    ? await getApprovedEditorialNote(item.id)
+    : null;
   const session = await getSession();
   const saved = session
     ? (await listPathfinderSaves(session.userId)).some((save) => save.itemId === item.id)
@@ -113,6 +118,47 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
                 </p>
               )}
             </section>
+
+            {editorialNote && (
+              <section>
+                <p className="t-eyebrow text-violet-300">{t('noteEyebrow')}</p>
+                <h2 className="mt-2 t-title-2 text-white">{t('noteTitle')}</h2>
+                {/*
+                  来源标注不可省：这段文字由模型起草、由人确认，读者有权知道它
+                  和上面那段官方摘要不是一回事。
+                */}
+                <p className="mt-3 t-footnote text-white/60">
+                  {editorialNote.editedByHuman ? t('noteProvenanceEdited') : t('noteProvenance')}
+                </p>
+
+                <div className="mt-5 space-y-5">
+                  <div>
+                    <h3 className="t-title-4 text-white">{t('noteWhatHappened')}</h3>
+                    <p className="mt-2 t-body text-white/70">{editorialNote.whatHappened}</p>
+                  </div>
+                  <div>
+                    <h3 className="t-title-4 text-white">{t('noteWhyItMatters')}</h3>
+                    <p className="mt-2 t-body text-white/70">{editorialNote.whyItMatters}</p>
+                  </div>
+                  {editorialNote.skills.length > 0 && (
+                    <div>
+                      <h3 className="t-title-4 text-white">{t('noteSkills')}</h3>
+                      <ul className="mt-3 flex flex-wrap gap-2">
+                        {editorialNote.skills.map((skill) => (
+                          <li key={skill} className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 text-sm text-white/70">
+                            {skill}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="t-title-4 text-white">{t('noteSuggestedAction')}</h3>
+                    <p className="mt-2 t-body text-white/70">{editorialNote.suggestedAction}</p>
+                  </div>
+                </div>
+              </section>
+            )}
 
             <section>
               <p className="t-eyebrow text-violet-300">{t('skillsEyebrow')}</p>

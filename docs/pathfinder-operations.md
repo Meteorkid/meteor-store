@@ -62,6 +62,29 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
     /usr/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/pathfinder-deadlines-cron.mjs
     ```
 
+## AI 动态解读（Claude 起草 + 人工确认）
+
+详情页的「这条动态对你意味着什么」由 Claude 依据条目自身的来源材料起草，
+**必须逐条人工确认后才会公开**。审核台在 `/zh/admin/pathfinder` 页面底部。
+
+- 需要在 `.env.production` 配置 `ANTHROPIC_API_KEY`；未配置时后台显示「未启用」，
+  已确认的解读仍正常展示，不会报错
+- 模型固定 `claude-opus-5`，effort 取 `low`（材料短、要求明确，不需要深度推理），
+  用结构化输出约束四个字段。模型 id 与提示词版本写进每条记录——
+  **改了提示词就要改 `EDITORIAL_PROMPT_VERSION`**，否则无法分辨哪些解读该重做
+- 流程只有一条：生成初稿 → 人读一遍（可改）→ 确认发布。界面上**不提供
+  「生成并发布」的合并动作**：两步并一步，人工确认就会退化成走过场
+- 重新生成不会覆盖已确认的解读；要重做得先「退回草稿」
+- 生成、编辑、确认、退回、删除全部写入管理员审计日志
+- 成本参考：单条约 500 输入 + 400 输出 token，按 Opus 5 费率约 ¥0.09；
+  全量补 90 条约 ¥8。生成接口限流 10 次/分钟/管理员，其余动作 60 次/分钟
+- 只为 `ai-update` 生成：竞赛、实习、开源任务的卡片已有资格、费用、截止时间
+  这些结构化事实，学生看得懂该做什么
+
+提示词里有三条硬规则，改动前请先读 `src/lib/pathfinder/editorial.ts` 的说明：
+只用给定材料里的事实、不预测不评级、建议必须是本周能开始的具体一件事。
+详情页会如实标注「由 AI 起草、经人工确认后发布」，这句不能去掉。
+
 ## 默认发布策略
 
 - OpenAI、Google DeepMind、Google AI 和 GitHub AI 官方 RSS 可自动发布为 AI 动态，但永远不能进入学习路径。

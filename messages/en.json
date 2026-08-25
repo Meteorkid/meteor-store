@@ -2062,7 +2062,15 @@
       "originalLanguage": "Title and summary are the source original; no official translation exists yet.",
       "storylineEyebrow": "Same storyline",
       "storylineTitle": "Other items on this storyline ({count})",
-      "storylineDescription": "These share product names or version numbers in their titles, so they are likely the same storyline. The grouping is derived from public titles, not stated by the sources."
+      "storylineDescription": "These share product names or version numbers in their titles, so they are likely the same storyline. The grouping is derived from public titles, not stated by the sources.",
+      "noteEyebrow": "Editorial note",
+      "noteTitle": "What this means for you",
+      "noteProvenance": "Drafted by AI from the source above and published after human review. The official original remains authoritative.",
+      "noteProvenanceEdited": "Drafted by AI, edited by a human, and published after review. The official original remains authoritative.",
+      "noteWhatHappened": "What happened",
+      "noteWhyItMatters": "Why it matters",
+      "noteSkills": "Skills affected",
+      "noteSuggestedAction": "What to do"
     },
     "planPage": {
       "metaTitle": "My learning path · Meteor Pathfinder",
