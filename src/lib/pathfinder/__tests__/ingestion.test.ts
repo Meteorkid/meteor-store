@@ -314,6 +314,23 @@ describe('Pathfinder ingestion', () => {
     }
   });
 
+  it('来源的 id 与 siteUrl 都不重复', () => {
+    /*
+     * `pathfinder_sources` 对 site_url 建了唯一索引。八条策展来源最初共用
+     * 同一个 siteUrl，ensureSourceRows 整批插入撞唯一键，同步再次 500。
+     * 这是同一类事故的第二次：代码里的来源定义与数据库约束之间没有交叉校验。
+     */
+    const ids = PATHFINDER_SYNC_SOURCES.map((source) => source.id);
+    expect(new Set(ids).size, `重复的来源 id: ${ids.filter((id, i) => ids.indexOf(id) !== i)}`)
+      .toBe(ids.length);
+
+    const siteUrls = PATHFINDER_SYNC_SOURCES.map((source) => source.siteUrl);
+    expect(
+      new Set(siteUrls).size,
+      `重复的 siteUrl: ${siteUrls.filter((url, i) => siteUrls.indexOf(url) !== i)}`,
+    ).toBe(siteUrls.length);
+  });
+
   it('英文采集内容变化时只更新旧 fallback，不覆盖人工中文', () => {
     expect(updateLocalizedZh('Old summary', 'Old summary', null, 'New summary'))
       .toBe('New summary');

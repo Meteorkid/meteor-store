@@ -75,7 +75,9 @@ export function buildCuratedIssueSources(): PathfinderSyncSource[] {
         name: `Curated ${direction} repos · Good First Issues ${index + 1}`,
         adapterId: 'github',
         fetchUrl: `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=20`,
-        siteUrl: 'https://github.com/topics/good-first-issue',
+        // siteUrl 在数据库里有唯一索引，每条来源必须不同；这里指向同一批 issue 的
+        // GitHub 搜索页，既天然唯一，点开也确实是这条来源的内容
+        siteUrl: `https://github.com/search?q=${encodeURIComponent(query)}&type=issues`,
         allowedFetchHosts: ['api.github.com'],
         allowedItemHosts: ['github.com'],
         itemType: 'open-source',
