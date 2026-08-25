@@ -72,7 +72,15 @@ export function buildCuratedIssueSources(): PathfinderSyncSource[] {
       const query = buildCuratedIssueQuery(bucketRepos);
       sources.push({
         id: `curated-issues-${direction}-${index + 1}`,
-        name: `Curated ${direction} repos · Good First Issues ${index + 1}`,
+        /*
+         * 展示名不带分桶编号。
+         *
+         * 卡片上渲染的是「已交叉核验 · {来源名}」，编号是我们内部为了绕开
+         * GitHub 查询长度上限而切的桶，对读者没有意义——「Good First Issues 2」
+         * 只会让人疑惑还有没有第 1 组。同一方向的两条来源共用同一个展示名，
+         * 数据库唯一索引落在 id 与 siteUrl 上，名字重复不影响。
+         */
+        name: `GitHub Good First Issues · ${direction}`,
         adapterId: 'github',
         fetchUrl: `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=20`,
         // siteUrl 在数据库里有唯一索引，每条来源必须不同；这里指向同一批 issue 的

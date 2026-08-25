@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fetchPathfinderSource, PATHFINDER_MAX_RESPONSE_BYTES } from '../ingestion/fetch-source';
-import { cleanExternalText, isAllowedHost, normalizeIngestionUrl } from '../ingestion/normalize';
+import { cleanExternalText, isAllowedHost, markdownToSummary, normalizeIngestionUrl } from '../ingestion/normalize';
 import { parseGithubSearch, parseGreenhouseJobs, parseRss } from '../ingestion/parse';
 import {
   buildCuratedIssueQuery,
@@ -329,6 +329,72 @@ describe('Pathfinder ingestion', () => {
       new Set(siteUrls).size,
       `重复的 siteUrl: ${siteUrls.filter((url, i) => siteUrls.indexOf(url) !== i)}`,
     ).toBe(siteUrls.length);
+  });
+
+  it('issue 正文按 Markdown 清洗，模板骨架与代码块不进摘要', () => {
+    // 线上真实出现过的摘要：「### Version v23.6.0 ### Platform ```text Linux…」
+    const body = [
+      '### Version',
+      'v23.6.0',
+      '### Platform',
+      '```text',
+      'Linux SMP Debian 5.10.103-1 x86_64',
+      '```',
+      '### Subsystem',
+      '_No response_',
+      '### What steps will reproduce the bug?',
+      'Calling exec with a very long argument list crashes the process instead of throwing.',
+    ].join('\n');
+
+    const summary = markdownToSummary(body, 320);
+    expect(summary).not.toContain('###');
+    expect(summary).not.toContain('```');
+    expect(summary).not.toContain('Linux SMP');
+    expect(summary).not.toContain('No response');
+    expect(summary).toContain('Calling exec with a very long argument list');
+  });
+
+  it('正文只剩模板骨架时返回空摘要，交给「未提供摘要」的如实文案', () => {
+    const body = '### Version\nv1\n### Subsystem\n_No response_';
+    expect(markdownToSummary(body, 320)).toBe('');
+  });
+
+  it('Markdown 链接与行内代码保留文字、去掉标记', () => {
+    const body = 'See [the contributing guide](https://example.com/x) and run `npm test` before opening a PR.';
+    const summary = markdownToSummary(body, 320);
+    expect(summary).toBe('See the contributing guide and run npm test before opening a PR.');
+  });
+
+  it('崩溃与堆栈类 issue 不进目录，普通 bug 修复仍然保留', () => {
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('curated-issues-backend-1')!;
+    const items = parseGithubSearch(source, JSON.stringify({
+      items: [
+        {
+          id: 1,
+          title: 'FATAL ERROR: v8::ToLocalChecked Empty MaybeLocal',
+          html_url: 'https://github.com/nodejs/node/issues/1',
+          repository_url: 'https://api.github.com/repos/nodejs/node',
+          body: 'core dump attached',
+        },
+        {
+          id: 2,
+          title: 'Fix typo in the streams documentation',
+          html_url: 'https://github.com/nodejs/node/issues/2',
+          repository_url: 'https://api.github.com/repos/nodejs/node',
+          body: 'The docs say "recieve" instead of "receive" in three places.',
+        },
+      ],
+    }));
+
+    // 崩溃报告标题对学生没有任何指引，正文往往是一段 core dump
+    expect(items.map((item) => item.externalId)).toEqual(['2']);
+  });
+
+  it('来源展示名不暴露内部分桶编号', () => {
+    for (const source of PATHFINDER_SYNC_SOURCES.filter((item) => item.curated)) {
+      // 编号是为绕开查询长度上限切的桶，读者看到「Good First Issues 2」只会疑惑
+      expect(source.name).not.toMatch(/\s\d+$/);
+    }
   });
 
   it('英文采集内容变化时只更新旧 fallback，不覆盖人工中文', () => {

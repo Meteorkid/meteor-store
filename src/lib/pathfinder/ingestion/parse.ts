@@ -2,6 +2,7 @@ import type { IngestedPathfinderItem, PathfinderSyncSource } from './types';
 import {
   cleanExternalText,
   contentHash,
+  markdownToSummary,
   isAllowedHost,
   normalizeIngestionUrl,
   toIsoDate,
@@ -83,6 +84,17 @@ export function parseRss(
   });
 }
 
+/**
+ * 崩溃 / 堆栈类 issue 的标题特征。
+ *
+ * 这类 issue 有时也被打上 good first issue（修复范围确实很小），但标题形如
+ * 「FATAL ERROR: v8::ToLocalChecked Empty MaybeLocal」，对学生没有任何指引：
+ * 看不出要做什么，正文往往是一段 core dump。命中即跳过。
+ *
+ * 规则刻意收窄到崩溃签名，不排除普通 bug 修复——那些恰恰是合适的入门任务。
+ */
+const CRASH_TITLE_PATTERN = /\b(fatal error|segmentation fault|sigsegv|sigabrt|core dumped|stack overflow at|panic:|assertion failed)\b/i;
+
 export function parseGithubSearch(
   source: PathfinderSyncSource,
   json: string,
@@ -101,11 +113,13 @@ export function parseGithubSearch(
     const url = normalizeIngestionUrl(rawUrl);
     const title = cleanExternalText(typeof raw.title === 'string' ? raw.title : '', 180);
     if (!title || !url || !isAllowedHost(url, source.allowedItemHosts)) return [];
+    if (CRASH_TITLE_PATTERN.test(title)) return [];
     const repository = repositoryName(raw.repository_url);
     const labels = Array.isArray(raw.labels)
       ? raw.labels.flatMap((label) => isRecord(label) && typeof label.name === 'string' ? [label.name] : [])
       : [];
-    const summary = cleanExternalText(typeof raw.body === 'string' ? raw.body : '', 320);
+    // issue 正文是 Markdown，不能按 HTML 清洗
+    const summary = markdownToSummary(typeof raw.body === 'string' ? raw.body : '', 320);
     const externalId = typeof raw.id === 'number' || typeof raw.id === 'string'
       ? String(raw.id)
       : url;
