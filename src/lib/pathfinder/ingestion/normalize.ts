@@ -71,6 +71,9 @@ export function markdownToSummary(raw: string, maxLength: number): string {
     // issue 模板的骨架：小标题本身和「未填写」占位都不承载信息
     if (/^#{1,6}\s/.test(trimmed)) return false;
     if (/^_?no response_?$/i.test(trimmed)) return false;
+    // issue 模板的勾选清单（「- [x] 我已搜索过既有 issue」）是提交者的自查项，
+    // 不是内容；14 条真实摘要曾整段由它构成
+    if (/^[-*+]\s*\[[ xX]\]/.test(trimmed)) return false;
     if (/^[-*_]{3,}$/.test(trimmed)) return false;
     if (/^\|.*\|$/.test(trimmed)) return false;
     return true;

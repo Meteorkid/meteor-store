@@ -354,6 +354,20 @@ describe('Pathfinder ingestion', () => {
     expect(summary).toContain('Calling exec with a very long argument list');
   });
 
+  it('勾选清单是提交者自查项，不当作摘要', () => {
+    const body = [
+      '- [X] I have written a descriptive issue title',
+      '- [x] I have searched existing issues to ensure it has not been reported',
+      '- [ ] I have read the contributing guide',
+      'Plugins should be grouped by category so newcomers can find the right one.',
+    ].join('\n');
+
+    const summary = markdownToSummary(body, 320);
+    expect(summary).not.toContain('[X]');
+    expect(summary).not.toContain('descriptive issue title');
+    expect(summary).toBe('Plugins should be grouped by category so newcomers can find the right one.');
+  });
+
   it('正文只剩模板骨架时返回空摘要，交给「未提供摘要」的如实文案', () => {
     const body = '### Version\nv1\n### Subsystem\n_No response_';
     expect(markdownToSummary(body, 320)).toBe('');
