@@ -945,6 +945,10 @@ Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户�
   博客列表页（不 await、不抛异常——推送失败不该把一次成功的发布变成 500）。
   批量推 sitemap 用 `scripts/submit-urls.mjs`，**默认 dry-run**：百度推送配额按天算，
   手滑跑两遍就把当天额度花在重复地址上了。`INDEXNOW_KEY` / `BAIDU_PUSH_TOKEN` 没配就整体空转
+- **IndexNow 的 `SiteVerificationNotCompleted` 不是密钥配错了**，别去改 `INDEXNOW_KEY`：
+  它没法给一个 Bing 从没收录过的域名做自举。2026-08 首次接入时排查过——密钥文件对 bingbot
+  返回 200 + `text/plain`、内容与环境变量逐字节一致、robots.txt 也没挡，等 10 分钟重试依然 403。
+  得先在 Bing Webmaster Tools 里把站点登记验证掉，之后原样重跑就通
 
 ## 验证与 CI
 

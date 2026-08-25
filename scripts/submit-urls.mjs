@@ -84,7 +84,17 @@ async function pushIndexNow(urls) {
     const body = await res.text();
     console.log(`· IndexNow：${batch.length} 条 → HTTP ${res.status} ${body.slice(0, 200)}`);
     if (res.status === 403) {
-      console.error('  403 通常是密钥校验失败：确认 ' + `${SITE_URL}/indexnow-key.txt` + ' 能读到、且内容与 INDEXNOW_KEY 完全一致');
+      // 403 有两种，别混为一谈：
+      if (body.includes('SiteVerificationNotCompleted')) {
+        console.error('  **不是密钥配置错误**，别去改 INDEXNOW_KEY。');
+        console.error('  IndexNow 没法给一个 Bing 从没收录过的域名做自举：它要先「认识」这个站，');
+        console.error('  才谈得上核对密钥文件。2026-08 首次接入时实测过——密钥文件对 bingbot 返回');
+        console.error('  200 + text/plain + 内容完全一致、robots.txt 也没挡，等 10 分钟重试依然是这个错。');
+        console.error('  解法是先去 https://www.bing.com/webmasters 添加并验证站点（可从 Search Console');
+        console.error('  一键导入），登记好之后本脚本原样重跑即可。');
+      } else {
+        console.error(`  密钥校验失败：确认 ${SITE_URL}/indexnow-key.txt 能读到、且内容与 INDEXNOW_KEY 完全一致`);
+      }
     }
   }
 }
