@@ -462,7 +462,7 @@ export const reports = pgTable('reports', {
 export const pathfinderSources = pgTable('pathfinder_sources', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
-  adapter: text('adapter').notNull(), // manual | github | rss | atom
+  adapter: text('adapter').notNull(), // manual | github | rss | atom | greenhouse
   siteUrl: text('site_url').notNull(),
   sourceType: text('source_type').notNull(), // manual | api | rss | atom | html
   trustLevel: text('trust_level').notNull(), // official | verified
@@ -480,7 +480,7 @@ export const pathfinderSources = pgTable('pathfinder_sources', {
 }, (t) => [
   uniqueIndex('pathfinder_sources_site_url_uniq').on(t.siteUrl),
   index('pathfinder_sources_enabled_idx').on(t.enabled, t.updatedAt),
-  check('pathfinder_sources_adapter_valid', sql`${t.adapter} in ('manual', 'github', 'rss', 'atom')`),
+  check('pathfinder_sources_adapter_valid', sql`${t.adapter} in ('manual', 'github', 'rss', 'atom', 'greenhouse')`),
   check('pathfinder_sources_type_valid', sql`${t.sourceType} in ('manual', 'api', 'rss', 'atom', 'html')`),
   check('pathfinder_sources_trust_valid', sql`${t.trustLevel} in ('official', 'verified')`),
   check('pathfinder_sources_sync_interval_positive', sql`${t.syncIntervalMinutes} > 0`),

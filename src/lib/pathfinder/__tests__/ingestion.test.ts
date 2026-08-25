@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fetchPathfinderSource, PATHFINDER_MAX_RESPONSE_BYTES } from '../ingestion/fetch-source';
 import { cleanExternalText, isAllowedHost, normalizeIngestionUrl } from '../ingestion/normalize';
@@ -281,6 +283,35 @@ describe('Pathfinder ingestion', () => {
 
     expect(items.map((item) => item.externalId)).toEqual(['4']);
     expect(items[0].remoteStatus).toBe('remote');
+  });
+
+  it('每个来源的 adapter 都在数据库约束允许的取值内', () => {
+    /*
+     * 这条测试是补上一次真实事故的。给职位板加 `greenhouse` adapter 时，
+     * 只改了 TypeScript 联合类型，没同步 pathfinder_sources 的 CHECK 约束；
+     * 上线后 ensureSourceRows 整批插入违反约束，同步接口直接 500、
+     * sourceCount 为 0——**整条摄取管线静默停摆**。
+     *
+     * 类型检查、单元测试和生产构建都不连数据库，所以三道关卡一道都没拦住。
+     * 这里从 schema 源码里读出约束允许的取值，与实际使用的 adapter 做交叉核对，
+     * 不需要数据库也能钉住这个契约。
+     */
+    const schemaSource = readFileSync(
+      path.join(__dirname, '..', '..', 'db', 'schema.ts'),
+      'utf-8',
+    );
+    const clause = schemaSource.match(
+      /pathfinder_sources_adapter_valid[^`]*`\$\{t\.adapter\} in \(([^)]*)\)`/,
+    )?.[1];
+    expect(clause, '未能从 schema.ts 解析出 adapter 约束').toBeTruthy();
+    const allowed = new Set(
+      [...clause!.matchAll(/'([^']+)'/g)].map((match) => match[1]),
+    );
+
+    for (const source of PATHFINDER_SYNC_SOURCES) {
+      expect(allowed, `来源 ${source.id} 的 adapter「${source.adapterId}」不在数据库约束内`)
+        .toContain(source.adapterId);
+    }
   });
 
   it('英文采集内容变化时只更新旧 fallback，不覆盖人工中文', () => {

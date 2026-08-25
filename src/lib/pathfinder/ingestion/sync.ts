@@ -64,7 +64,8 @@ async function ensureSourceRows(): Promise<void> {
     name: source.name,
     adapter: source.adapterId,
     siteUrl: source.siteUrl,
-    sourceType: source.adapterId === 'github' ? 'api' : 'rss',
+    // 按抓取协议归类，不是「是不是 github」：greenhouse 也是 JSON API
+    sourceType: source.adapterId === 'rss' ? 'rss' : 'api',
     trustLevel: source.trustLevel,
     enabled: source.enabled,
     autoPublish: source.autoPublish,

@@ -29,7 +29,7 @@ export type PathfinderRemoteStatus = (typeof PATHFINDER_REMOTE_STATUSES)[number]
 export type PathfinderItemStatus = (typeof PATHFINDER_ITEM_STATUSES)[number];
 export type PathfinderTagDimension = (typeof PATHFINDER_TAG_DIMENSIONS)[number];
 export type PathfinderCatalogOrigin = 'static' | 'database';
-export type PathfinderSourceAdapter = 'manual' | 'github' | 'rss' | 'atom';
+export type PathfinderSourceAdapter = 'manual' | 'github' | 'rss' | 'atom' | 'greenhouse';
 export type PathfinderSourceType = 'manual' | 'api' | 'rss' | 'atom' | 'html';
 export type PathfinderTrustLevel = 'official' | 'verified';
 

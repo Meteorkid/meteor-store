@@ -1,0 +1,2 @@
+ALTER TABLE "pathfinder_sources" DROP CONSTRAINT "pathfinder_sources_adapter_valid";--> statement-breakpoint
+ALTER TABLE "pathfinder_sources" ADD CONSTRAINT "pathfinder_sources_adapter_valid" CHECK ("pathfinder_sources"."adapter" in ('manual', 'github', 'rss', 'atom', 'greenhouse'));
