@@ -654,6 +654,35 @@ export const pathfinderItemNotes = pgTable('pathfinder_item_notes', {
   check('pathfinder_item_notes_status_valid', sql`${t.status} in ('draft', 'approved')`),
 ]);
 
+/**
+ * 用户的学习路径。
+ *
+ * **一个账号只存一份**（userId 作主键）：产品里它叫「我的路径」，是单数——
+ * 允许多份就要配列表、命名和删除，而真正的需求是「这一份能长期改下去」。
+ *
+ * 路径整体以 JSON 存：它本来就是一份自洽的视图结构，拆成周表和任务表会让
+ * 每次重排都变成多表写入，而 Neon HTTP 没有事务。完成与锁定状态各存一份 id 列表，
+ * 与路径主体分开，改动其一不必重写另一个。
+ */
+export const pathfinderPlans = pgTable('pathfinder_plans', {
+  userId: text('user_id').primaryKey(),
+  /** PathfinderPlan 的 JSON；写入前必经 schema 校验 */
+  plan: text('plan').notNull(),
+  /** 已完成任务 id 的 JSON 数组 */
+  completedTaskIds: text('completed_task_ids').notNull().default('[]'),
+  /** 锁定任务 id 的 JSON 数组；重新生成某一周时这些原样保留 */
+  pinnedTaskIds: text('pinned_task_ids').notNull().default('[]'),
+  /**
+   * 生成这份路径时用的画像（JSON）。
+   *
+   * 「重新生成第 N 周」需要原始输入才能算出新任务；不存的话，换台设备
+   * 就只能整份重来，等于把部分重生成变成了摆设。
+   */
+  profile: text('profile'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
 /** Pathfinder 条目标签；拆表后可直接按维度与标签索引筛选。 */
 export const pathfinderItemTags = pgTable('pathfinder_item_tags', {
   itemId: text('item_id').notNull(),

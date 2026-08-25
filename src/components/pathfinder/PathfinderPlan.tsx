@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { PathfinderApiResponse, PathfinderPlanPhase } from '@/lib/pathfinder/plan-view';
@@ -12,15 +14,39 @@ const PHASE_TONES: Record<PathfinderPlanPhase, string> = {
   review: 'border-pink-400/25 bg-pink-500/10 text-pink-200',
 };
 
+/**
+ * 路径展示与编辑。
+ *
+ * 排序用上移/下移按钮而不是拖拽：拖拽必须另配一套键盘操作才可用，
+ * 而按钮天然可聚焦、可用回车触发，读屏也能播报——这条路径页面的
+ * 无障碍基线本来就要求键盘可完成核心流程。
+ */
 export default function PathfinderPlanView({
   response,
   completedTaskIds,
+  pinnedTaskIds = [],
+  canRegenerate = false,
+  busyWeek = null,
   onToggleTask,
+  onTogglePin,
+  onMoveTask,
+  onRemoveTask,
+  onAddCustomTask,
+  onRegenerateWeek,
   onReset,
 }: {
   response: PathfinderApiResponse;
   completedTaskIds: readonly string[];
+  pinnedTaskIds?: readonly string[];
+  /** 没有原始画像时无法重跑生成，按钮禁用 */
+  canRegenerate?: boolean;
+  busyWeek?: number | null;
   onToggleTask: (taskId: string) => void;
+  onTogglePin?: (taskId: string) => void;
+  onMoveTask?: (taskId: string, direction: 'up' | 'down') => void;
+  onRemoveTask?: (taskId: string) => void;
+  onAddCustomTask?: (weekNumber: number, input: { action: string; estimatedMinutes: number }) => void;
+  onRegenerateWeek?: (weekNumber: number) => void;
   onReset: () => void;
 }) {
   const t = useTranslations('PathfinderHub.planResult');
@@ -104,8 +130,42 @@ export default function PathfinderPlanView({
               <span className="t-footnote text-white/60">{t('minutes', { minutes: week.estimatedMinutes })}</span>
             </div>
 
+            {(onRegenerateWeek || onAddCustomTask) && (
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                {onRegenerateWeek && (
+                  <button
+                    type="button"
+                    onClick={() => onRegenerateWeek(week.week)}
+                    disabled={!canRegenerate || busyWeek !== null}
+                    title={canRegenerate ? undefined : t('regenerateUnavailable')}
+                    className="inline-flex min-h-9 items-center rounded-lg border border-violet-400/25 bg-violet-500/10 px-3 py-1.5 text-xs font-semibold text-violet-100 transition-colors hover:bg-violet-500/20 disabled:opacity-40"
+                  >
+                    {busyWeek === week.week ? t('regenerating') : t('regenerateWeek')}
+                  </button>
+                )}
+                {onAddCustomTask && (
+                  <CustomTaskForm
+                    weekNumber={week.week}
+                    disabled={week.tasks.length >= 4}
+                    onAdd={onAddCustomTask}
+                    labels={{
+                      open: t('addCustom'),
+                      full: t('weekFull'),
+                      action: t('customAction'),
+                      minutes: t('customMinutes'),
+                      submit: t('customSubmit'),
+                      cancel: t('customCancel'),
+                    }}
+                  />
+                )}
+                {pinnedTaskIds.some((id) => week.tasks.some((task) => task.id === id)) && (
+                  <span className="t-footnote text-amber-200/80">{t('pinnedHint')}</span>
+                )}
+              </div>
+            )}
+
             <ol className="mt-6 space-y-3">
-              {week.tasks.map((task) => {
+              {week.tasks.map((task, taskIndex) => {
                 const checked = completedTaskIds.includes(task.id);
                 const deadlineValue = task.deadlineAt
                   ? new Date(task.deadlineAt)
@@ -139,6 +199,51 @@ export default function PathfinderPlanView({
                       </span>
                     </label>
 
+                    {onMoveTask && onRemoveTask && onTogglePin && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-white/[0.06] pt-3">
+                        <button
+                          type="button"
+                          onClick={() => onTogglePin(task.id)}
+                          aria-pressed={pinnedTaskIds.includes(task.id)}
+                          className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                            pinnedTaskIds.includes(task.id)
+                              ? 'border-amber-400/40 bg-amber-500/15 text-amber-100'
+                              : 'border-white/10 text-white/60 hover:bg-white/[0.05]'
+                          }`}
+                        >
+                          <span aria-hidden="true">{pinnedTaskIds.includes(task.id) ? '🔒' : '🔓'}</span>
+                          {pinnedTaskIds.includes(task.id) ? t('pinned') : t('pin')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onMoveTask(task.id, 'up')}
+                          disabled={taskIndex === 0}
+                          aria-label={t('moveUp')}
+                          className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-white/60 transition-colors hover:bg-white/[0.05] disabled:opacity-30"
+                        >
+                          <span aria-hidden="true">↑</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onMoveTask(task.id, 'down')}
+                          disabled={taskIndex === week.tasks.length - 1}
+                          aria-label={t('moveDown')}
+                          className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-white/60 transition-colors hover:bg-white/[0.05] disabled:opacity-30"
+                        >
+                          <span aria-hidden="true">↓</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onRemoveTask(task.id)}
+                          disabled={week.tasks.length <= 1}
+                          title={week.tasks.length <= 1 ? t('lastTaskHint') : undefined}
+                          className="ml-auto inline-flex min-h-9 items-center rounded-lg border border-white/10 px-2.5 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/[0.05] disabled:opacity-30"
+                        >
+                          {t('removeTask')}
+                        </button>
+                      </div>
+                    )}
+
                     <dl className="mt-4 grid grid-cols-1 gap-3 border-t border-white/[0.06] pt-4 sm:grid-cols-2">
                       <div>
                         <dt className="t-eyebrow text-white/60">{t('evidence')}</dt>
@@ -167,5 +272,88 @@ export default function PathfinderPlanView({
         </button>
       </div>
     </section>
+  );
+}
+
+/**
+ * 添加自定义任务的行内表单。
+ *
+ * 折叠在按钮后面：绝大多数时候用户只是看路径，一直摊开两个输入框会让
+ * 每一周都多出一块与阅读无关的界面。
+ */
+function CustomTaskForm({
+  weekNumber,
+  disabled,
+  onAdd,
+  labels,
+}: {
+  weekNumber: number;
+  disabled: boolean;
+  onAdd: (weekNumber: number, input: { action: string; estimatedMinutes: number }) => void;
+  labels: Record<'open' | 'full' | 'action' | 'minutes' | 'submit' | 'cancel', string>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [action, setAction] = useState('');
+  const [minutes, setMinutes] = useState(60);
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        disabled={disabled}
+        title={disabled ? labels.full : undefined}
+        className="inline-flex min-h-9 items-center rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-white/70 transition-colors hover:bg-white/[0.05] disabled:opacity-40"
+      >
+        {labels.open}
+      </button>
+    );
+  }
+
+  return (
+    <form
+      className="flex w-full flex-wrap items-end gap-2 rounded-xl border border-white/10 bg-white/[0.02] p-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (!action.trim()) return;
+        onAdd(weekNumber, { action, estimatedMinutes: minutes });
+        setAction('');
+        setMinutes(60);
+        setOpen(false);
+      }}
+    >
+      <label className="min-w-0 flex-1">
+        <span className="mb-1 block t-footnote text-white/60">{labels.action}</span>
+        <input
+          value={action}
+          onChange={(event) => setAction(event.target.value)}
+          maxLength={500}
+          autoFocus
+          className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-violet-400/60"
+        />
+      </label>
+      <label>
+        <span className="mb-1 block t-footnote text-white/60">{labels.minutes}</span>
+        <input
+          type="number"
+          value={minutes}
+          min={5}
+          max={1800}
+          step={5}
+          onChange={(event) => setMinutes(Number(event.target.value))}
+          className="w-24 rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-violet-400/60"
+        />
+      </label>
+      <button type="submit" className="min-h-9 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white">
+        {labels.submit}
+      </button>
+      <button
+        type="button"
+        onClick={() => setOpen(false)}
+        className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/60"
+      >
+        {labels.cancel}
+      </button>
+    </form>
   );
 }
