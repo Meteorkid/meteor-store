@@ -14,9 +14,18 @@
  *   node scripts/submit-urls.mjs --limit=100 --apply
  *   node scripts/submit-urls.mjs --only=indexnow --apply
  *
- * **默认 dry-run 是有意的**：百度的推送配额按天算（新站通常每天几十到几百条），
- * 手滑跑两遍就把当天的额度花在重复地址上了。IndexNow 没有硬配额，但短时间重复
- * 提交同一批地址会被降权处理。
+ * **默认 dry-run 是有意的**：百度的推送配额按天算，手滑跑两遍就把当天的额度
+ * 花在重复地址上了。IndexNow 没有硬配额，但短时间重复提交同一批地址会被降权处理。
+ *
+ * **两家的量级差了两个数量级，别用同一条命令推**：
+ *   IndexNow 一次收下整份 sitemap（664 条）没问题；
+ *   百度新站每天只有 **10 条**（2026-08 实测，响应里的 `remain` 就是当天余额），
+ *   随收录量增长才会涨。所以全量推只推 IndexNow，百度挑重点页面小批量推：
+ *
+ *   node scripts/submit-urls.mjs --only=indexnow --apply
+ *   node scripts/submit-urls.mjs --only=baidu --filter=/zh/ --limit=8 --apply
+ *
+ * 百度只认中文内容，`--filter=/zh/` 把配额花在它真正会收的页面上，别推 /en。
  *
  * 环境变量（没配的那家自动跳过）：
  *   INDEXNOW_KEY       自己生成的 8–128 位十六进制字符串，同时要能从
@@ -26,7 +35,10 @@
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.imagentx.top').replace(/\/+$/, '');
 const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
-const BAIDU_ENDPOINT = 'https://data.zz.baidu.com/urls';
+// 百度这个接口只有 http：443 上那张证书是百度主站的通配符证书，SAN 里没有
+// data.zz.baidu.com（`*.baidu.com` 匹配不到三级域名），改成 https 会直接
+// ERR_TLS_CERT_ALTNAME_INVALID。详见 src/lib/search-ping.ts 里的说明。
+const BAIDU_ENDPOINT = 'http://data.zz.baidu.com/urls';
 
 /** IndexNow 协议单次上限 10000；百度单次建议 2000 以内，取小的那个做批大小 */
 const BATCH_SIZE = 2000;
@@ -104,7 +116,9 @@ async function pushBaidu(urls) {
   if (!token) return console.log('· 百度：未配置 BAIDU_PUSH_TOKEN，跳过');
 
   for (const batch of chunk(urls, BATCH_SIZE)) {
-    const endpoint = `${BAIDU_ENDPOINT}?site=${encodeURIComponent(SITE_URL)}&token=${encodeURIComponent(token)}`;
+    // site 不能编码，百度按字面匹配登记的站点；编码后会返回 400 site init fail。
+    // 详见 src/lib/search-ping.ts 里的说明。
+    const endpoint = `${BAIDU_ENDPOINT}?site=${SITE_URL}&token=${encodeURIComponent(token)}`;
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'content-type': 'text/plain' },
@@ -112,7 +126,27 @@ async function pushBaidu(urls) {
       signal: AbortSignal.timeout(30000),
     });
     // 百度即使 HTTP 200 也会在正文里报 over_quota / not_same_site，必须打出来看
-    console.log(`· 百度：${batch.length} 条 → HTTP ${res.status} ${(await res.text()).slice(0, 300)}`);
+    const body = (await res.text()).slice(0, 300);
+    console.log(`· 百度：${batch.length} 条 → HTTP ${res.status} ${body}`);
+
+    if (body.includes('site init fail')) {
+      console.error('  `site` 参数与站长平台登记的站点对不上。注意它**不能 percent-encode**，');
+      console.error(`  且要与后台完全一致（当前用的是 ${SITE_URL}）。`);
+      return;
+    }
+
+    // remain 是**当天剩余可推条数**，新站通常只有 10 条，随着收录量增长才会涨。
+    // 推完就停：后续批次只会拿到 over_quota，白跑而且把真正的结果冲出屏幕。
+    let remain;
+    try {
+      remain = JSON.parse(body).remain;
+    } catch {
+      /* 非 JSON（网关错误页等）时不做配额判断 */
+    }
+    if (remain === 0) {
+      console.log('  当天配额已用完（remain=0），停止后续批次。配额每天重置。');
+      return;
+    }
   }
 }
 
@@ -136,8 +170,17 @@ async function main() {
   }
 
   console.log('');
-  if (args.only !== 'baidu') await pushIndexNow(urls);
-  if (args.only !== 'indexnow') await pushBaidu(urls);
+  // 两家分别兜异常：一家挂掉不该连累另一家，也不该把已经推成功的那家的结果
+  // 淹没在一整屏堆栈里（实测过：百度的 TLS 报错会连证书内容一起打出来，
+  // 而上面 IndexNow 的 200 就被冲到屏幕外了）
+  if (args.only !== 'baidu') await pushIndexNow(urls).catch(reportFailure('IndexNow'));
+  if (args.only !== 'indexnow') await pushBaidu(urls).catch(reportFailure('百度'));
+}
+
+function reportFailure(name) {
+  return (error) => {
+    console.error(`· ${name}：请求失败 —— ${error?.cause?.code || error?.code || error?.message || error}`);
+  };
 }
 
 main().catch((error) => {

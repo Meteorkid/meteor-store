@@ -945,6 +945,13 @@ Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户�
   博客列表页（不 await、不抛异常——推送失败不该把一次成功的发布变成 500）。
   批量推 sitemap 用 `scripts/submit-urls.mjs`，**默认 dry-run**：百度推送配额按天算，
   手滑跑两遍就把当天额度花在重复地址上了。`INDEXNOW_KEY` / `BAIDU_PUSH_TOKEN` 没配就整体空转
+- **百度推送有三个坑，2026-08 接入时逐个踩过**：①**接口只有 http**，`data.zz.baidu.com`
+  的 443 上是百度主站那张通配符证书（`*.baidu.com` 匹配不到三级域名），
+  改成 https 直接 `ERR_TLS_CERT_ALTNAME_INVALID`；②**`site` 参数不能 percent-encode**，
+  百度拿它按字面匹配后台登记的站点，编码后返回 400 `site init fail`；
+  ③**新站每天只有 10 条配额**（响应里的 `remain` 就是当天余额），随收录量增长才涨。
+  所以全量推只推 IndexNow（`--only=indexnow`，一次收 664 条没问题），
+  百度用 `--only=baidu --filter=/zh/ --limit=8` 把配额花在它真正会收的中文页上
 - **IndexNow 的 `SiteVerificationNotCompleted` 不是密钥配错了**，别去改 `INDEXNOW_KEY`：
   它没法给一个 Bing 从没收录过的域名做自举。2026-08 首次接入时排查过——密钥文件对 bingbot
   返回 200 + `text/plain`、内容与环境变量逐字节一致、robots.txt 也没挡，等 10 分钟重试依然 403。

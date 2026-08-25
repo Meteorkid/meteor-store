@@ -16,7 +16,19 @@ import { SITE_URL } from './constants';
  */
 
 const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
-const BAIDU_ENDPOINT = 'https://data.zz.baidu.com/urls';
+
+/**
+ * **百度这个接口只有 http，不要"顺手改成 https"。**
+ *
+ * `data.zz.baidu.com` 上确实监听了 443，但证书是百度主站那张通配符证书，
+ * SAN 里没有 `data.zz.baidu.com`（`*.baidu.com` 匹配不到三级域名 `data.zz`）。
+ * 用 https 请求会直接 `ERR_TLS_CERT_ALTNAME_INVALID`，2026-08 实测过。
+ *
+ * 代价是 `BAIDU_PUSH_TOKEN` 以明文过网。可接受：这个 token 的权限只有
+ * "为本站提交待收录地址"，泄露的后果上限是有人替我们消耗每天的推送配额，
+ * 拿不到任何数据、也改不了站点。真出问题在百度站长平台点一下就能重置。
+ */
+const BAIDU_ENDPOINT = 'http://data.zz.baidu.com/urls';
 
 /** IndexNow 密钥的对外地址。密钥本身不是机密（协议要求公开可读），走环境变量只是免得换密钥要改代码 */
 export const INDEXNOW_KEY_PATH = '/indexnow-key.txt';
@@ -72,7 +84,11 @@ async function pingBaidu(urls: string[]): Promise<PingOutcome> {
   const token = process.env.BAIDU_PUSH_TOKEN?.trim();
   if (!token) return { target: 'baidu', ok: false, status: 'skipped' };
 
-  const endpoint = `${BAIDU_ENDPOINT}?site=${encodeURIComponent(SITE_URL)}&token=${encodeURIComponent(token)}`;
+  // **`site` 不能 encodeURIComponent**：百度是拿这个参数按字面去匹配站长平台里登记的站点，
+  // 编码成 `https%3A%2F%2F…` 那种形式会匹配不上，返回 400 `site init fail`。
+  // `:` 和 `/` 出现在 query 值里本来就合法（RFC 3986），不编码没有副作用。
+  // token 是字母数字，编不编码都一样，保留编码以防将来换成含特殊字符的值。
+  const endpoint = `${BAIDU_ENDPOINT}?site=${SITE_URL}&token=${encodeURIComponent(token)}`;
   try {
     const res = await fetch(endpoint, {
       method: 'POST',
