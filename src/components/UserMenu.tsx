@@ -134,23 +134,21 @@ export default function UserMenu() {
             >
               {t('myFavorites')}
             </Link>
+            {/*
+              管理员只给一条通往后台总入口的链接，不在这里罗列具体页面。
+              这里原本是「待审核」「邀请码」两条深链接——那是后台只有两个页面时
+              加的，此后后台长到 12 个页面，菜单一直没跟上，反而没有任何一条能
+              到达总入口，桌面端只能手输网址。总入口页自带完整导航，
+              以后新增后台页不需要再回来改这里。
+            */}
             {user.isAdmin && (
-              <>
-                <Link
-                  href="/admin/review"
-                  onClick={() => setOpen(false)}
-                  className="block px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
-                >
-                  {t('pendingReview')}
-                </Link>
-                <Link
-                  href="/admin/invite-codes"
-                  onClick={() => setOpen(false)}
-                  className="block px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
-                >
-                  {t('inviteCodes')}
-                </Link>
-              </>
+              <Link
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="block px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
+              >
+                {t('adminDashboard')}
+              </Link>
             )}
             <Link
               href="/apps"

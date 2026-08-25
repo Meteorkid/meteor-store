@@ -12,6 +12,7 @@ import GlassPreference from '@/components/GlassPreference';
 import WechatAccountBinding from '@/components/WechatAccountBinding';
 import { db } from '@/lib/db';
 import { users, licenseKeys, posts, orders, postFavorites } from '@/lib/db/schema';
+import { isAdminSession } from '@/lib/admin';
 import { getSession } from '@/lib/auth';
 import { findPurchasable } from '@/lib/products';
 import type { Locale } from '@/i18n/routing';
@@ -85,6 +86,8 @@ export default async function AccountPage({
   const displayName = user.name || user.email.split('@')[0];
   const initial = displayName[0]?.toUpperCase() ?? '?';
 
+  const isAdmin = isAdminSession(session);
+
   const quickLinks = [
     { label: t('quickApps'), desc: t('quickAppsDesc'), href: '/apps', badge: null,
       icon: <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/> },
@@ -96,6 +99,18 @@ export default async function AccountPage({
       icon: <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/> },
     { label: t('quickRedeem'), desc: t('quickRedeemDesc'), href: '/redeem', badge: null,
       icon: <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/> },
+    /*
+     * 管理入口只给管理员看，且只放一条通往总入口的链接。
+     *
+     * 不在这里罗列各个后台页面：后台已经从 2 个长到 12 个，而用户菜单里那两条
+     * 深链接（待审核、邀请码）就是当年只有两个页面时加的，此后再没跟上——
+     * 入口一旦分散成清单，就必然与实际页面漂移。总入口页自带完整导航，
+     * 新增后台页不需要再回来改这里。
+     */
+    ...(isAdmin ? [{
+      label: t('quickAdmin'), desc: t('quickAdminDesc'), href: '/admin', badge: null,
+      icon: <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>,
+    }] : []),
   ];
 
   // 活动时间线：投稿 + 订单

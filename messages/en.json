@@ -291,7 +291,9 @@
     "wechatUnbindFailed": "Failed to unlink WeChat. Please try again.",
     "wechatBind": "Link WeChat",
     "wechatLinkedSuccess": "WeChat linked successfully. You can now log in by scanning the QR code.",
-    "wechatBoundAs": "Bound account: "
+    "wechatBoundAs": "Bound account: ",
+    "quickAdmin": "Admin",
+    "quickAdminDesc": "Moderation and operations"
   },
   "BlogApiTokenManager": {
     "title": "Blog API tokens",

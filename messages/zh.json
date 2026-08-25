@@ -291,7 +291,9 @@
     "wechatUnbindFailed": "解除绑定失败，请重试。",
     "wechatBind": "绑定微信",
     "wechatLinkedSuccess": "微信绑定成功，之后可直接扫码登录。",
-    "wechatBoundAs": "当前绑定账号："
+    "wechatBoundAs": "当前绑定账号：",
+    "quickAdmin": "管理后台",
+    "quickAdminDesc": "审核、内容与运营"
   },
   "BlogApiTokenManager": {
     "title": "博客 API 令牌",
