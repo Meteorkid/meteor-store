@@ -20,15 +20,25 @@ import { SITE_URL } from '@/lib/constants';
 
 const NONCE_HEADER = 'x-nonce';
 
+/**
+ * 当前请求的 pathname。服务端组件拿不到自己的地址，而 `[locale]/layout.tsx`
+ * 要靠它给**每个页面**算出 canonical 与 hreflang——只在这里注入一次，
+ * 就不用给 68 个页面逐个补 `alternates`，将来新增页面也自动带上。
+ */
+const PATHNAME_HEADER = 'x-pathname';
+
 const intlMiddleware = createMiddleware(routing);
 
 export function proxy(request: NextRequest) {
   // 32 字节随机 → base64
   const nonce = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
 
-  // 把 nonce 写到 request headers，让服务端组件能读到
+  const pathname = new URL(request.url).pathname;
+
+  // 把 nonce 和 pathname 写到 request headers，让服务端组件能读到
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(NONCE_HEADER, nonce);
+  requestHeaders.set(PATHNAME_HEADER, pathname);
   const requestWithNonce = new NextRequest(request, { headers: requestHeaders });
 
   // 让 next-intl 处理 locale，并把带 nonce 的请求头继续传给渲染请求
@@ -36,7 +46,6 @@ export function proxy(request: NextRequest) {
 
   // trial 路由（/apps/{id}/trial）会被产品详情页的 iframe 同源内嵌，
   // 需要放行 frame-ancestors；其余页面一律禁止被 iframe 嵌入。
-  const pathname = new URL(request.url).pathname;
   const isTrial = /\/apps\/.+\/trial$/.test(pathname);
 
   // 构造本请求的 CSP，把 nonce 注入进去

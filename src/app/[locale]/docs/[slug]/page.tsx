@@ -40,19 +40,13 @@ export async function generateMetadata({
     };
   }
 
-  const articlePath = `/docs/${article.slug}`;
-
+  // canonical / hreflang 由 [locale]/layout.tsx 按请求路径统一下发，
+  // 这里不要再声明一份——两条 canonical 指同一个地址只是冗余，
+  // 但将来任一处改了路径规则就会互相矛盾，搜索引擎会两条都忽略
   return {
     title: article.title,
     description: article.excerpt,
     keywords: article.keywords,
-    alternates: {
-      canonical: `${SITE_URL}/${locale}${articlePath}`,
-      languages: {
-        zh: `${SITE_URL}/zh${articlePath}`,
-        en: `${SITE_URL}/en${articlePath}`,
-      },
-    },
   };
 }
 

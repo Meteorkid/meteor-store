@@ -919,6 +919,33 @@ Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户�
 `/products/{不存在}`、`/blog/p/{不存在}` 也一样，是全站既存行为。对 SEO 不利，
 搜索引擎会把这些页面当正常内容收录，需要时单独处理。
 
+## 收录与 canonical
+
+站点长期搜不到的直接原因是**从没在站长平台提交过**，但技术上也有一份自己制造的重复内容。
+两条都要治，先记住这一条：
+
+- **规范主机名是 `www.imagentx.top`，唯一数据源是 `src/lib/constants.ts` 的 `SITE_URL`。**
+  非 www 由 `deploy/nginx.conf` 里一个独立 server 块 301 过来。**改主机名要同时改这两处**——
+  canonical 指向一个会 301 的地址等于自相矛盾，`src/lib/__tests__/seo.test.ts` 钉住了这条。
+  历史教训：两个主机名曾写在同一个 server 块里，于是每个页面都有 www / 非 www 两个
+  都返回 200 的地址，再乘以 `/zh` `/en` 就是四份重复内容，而当时全站没有一条 canonical
+- **canonical 与 hreflang 只有一个出口：`[locale]/layout.tsx` 的 `<head>`**，
+  路径由 proxy 注入的 `x-pathname` 请求头算出（`buildAlternateUrls`）。
+  **不要改用 `generateMetadata` 的 `alternates`**：Next 的 metadata 按字段浅合并，
+  任何页面只要声明了自己的 `alternates`（博客几个页面就用它挂 RSS 的 `types`），
+  就会把布局那一层整个顶掉，canonical **静默消失**。也不要在页面里再声明一份，
+  两处规则一旦漂移，搜索引擎遇到矛盾的 canonical 会两条都忽略
+- **`routing.ts` 的 `alternateLinks: false` 别删**：next-intl 默认下发 hreflang 的
+  `Link` 响应头，但它按**请求的 host** 生成地址（从非 www 进来就发一组非 www 的），
+  `x-default` 还指向不带语言前缀的路径——那个地址必然 307。和 HTML 里那套并存就是互相矛盾
+- **软 404 仍未修**：`notFound()` 返回 200 而不是 404，`/products/{不存在}` 等同理。
+  已排除的猜想见 `[locale]/[...rest]/page.tsx` 的注释（Suspense、自定义 not-found 都不是原因，
+  也不是 catch-all 特有）。目前靠 catch-all 上的 `noindex` 挡住「垃圾页被收录」这一层
+- **主动推送**：`src/lib/search-ping.ts`，发布内容时由 `revalidatePublishedPaths()` 顺手推
+  博客列表页（不 await、不抛异常——推送失败不该把一次成功的发布变成 500）。
+  批量推 sitemap 用 `scripts/submit-urls.mjs`，**默认 dry-run**：百度推送配额按天算，
+  手滑跑两遍就把当天额度花在重复地址上了。`INDEXNOW_KEY` / `BAIDU_PUSH_TOKEN` 没配就整体空转
+
 ## 验证与 CI
 
 `.github/workflows/ci.yml` 在 push 到 main 和所有 PR 上跑：
