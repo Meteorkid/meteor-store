@@ -67,7 +67,7 @@ export type EntitlementSummary = {
 };
 
 /** 归一化后的授权来源，订单与邀请码兑换共用一种形状 */
-type Grant = {
+export type Grant = {
   productId: string;
   planName: string;
   planId: string | null;
@@ -78,7 +78,7 @@ type Grant = {
 };
 
 /** 累加后的 Pass 覆盖范围 */
-type AccumulatedPass = {
+export type AccumulatedPass = {
   planId: PassPlanId | null;
   /** null 且 lifetime 为 false 表示每条授权都算不出覆盖范围 */
   expiresAt: string | null;
@@ -92,7 +92,7 @@ type AccumulatedPass = {
  * 续费的起算点取「现有到期时间」与「本次发放时间」里更晚的那个：
  * 提前续费应该顺延，过期后再买则从当次算起。
  */
-function accumulatePass(grants: Grant[]): AccumulatedPass | null {
+export function accumulatePass(grants: Grant[]): AccumulatedPass | null {
   if (grants.length === 0) return null;
 
   const sorted = [...grants].sort((a, b) => {

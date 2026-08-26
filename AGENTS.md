@@ -308,6 +308,97 @@ bio 来自 `users.bio` 字段，用户在 `/account` 页面设置（label 显示
 - 管理员直发模式 `adminPublish`：投稿由管理员创建时跳过审核直接发布；已发布文章编辑后
   保持 `published` 不下架。仅 `asAdmin` 路径下生效，普通作者走 `submit` 流程
 
+### 后台的外壳与鉴权
+
+**页面骨架只有一份：`src/app/[locale]/admin/layout.tsx`。** 它渲染 Header、侧边导航、
+Footer 和内容列；后台页面**只写自己的正文**，不要再各自套
+`<div className="min-h-screen">` + `<Header />` + `<main>`——套了就是两个 Header。
+（历史状态：13 个页面各抄一份骨架，其中 `/admin/review` 和 `/admin/invite-codes`
+两个页面从头到尾没渲染导航，进去就是死路，只能靠手输网址跳出来。）
+
+- **鉴权有两层，两层都要留着**。布局那道是**兜底**：新增后台页忘了写检查也进不去。
+  页面里那道不能省——取数在渲染前发生，且 `generateMetadata` 也要跟着权限走。
+  `src/lib/__tests__/admin-authz.test.ts` 把两层都钉住，还逐个 handler 检查
+  `/api/admin/**`：**整个文件里别处有 `isAdminSession` 不算数**，新加的那个 handler
+  自己没调就是个洞
+- **导航是竖排侧栏**（`AdminNav.tsx`），按职能分六组，待办数走徽标。别改回横排：
+  13 个条目横排要么换行把正文顶下去、要么横向滚动把后面几项藏起来，
+  两种都让「这个后台有哪些能力」不可见。窄屏折叠成一个按钮，展开后仍是竖排
+- **`AdminNav.tsx` 里 `href: '/admin/xxx'` 的字面量写法别动**：`admin-entry.test.ts`
+  正则扫这个文件的源码，保证每个 `/admin/*` 目录都在导航里、且不指向已删除的页面。
+  改成变量拼接或常量表，那条约束会静默失效（连注释里都不能出现这个形状的假路径，
+  测试分不出注释和代码）
+- 侧栏徽标走 `getAdminBadgeCounts()`——四张表的 count 压成**单条** SQL 子查询，
+  因为它挂在布局上、每次进后台都要跑。查询失败返回全 0，不让徽标把整个后台带崩。
+  布局在同段路由内跳转时不会重跑，所以徽标是「进后台那一刻」的快照，不是实时值
+
+### 账号管理
+
+`/admin/users`，服务层 [src/lib/admin-users.ts](file:///Users/meteor/github/meteor-store/src/lib/admin-users.ts)，
+接口 `GET/PATCH /api/admin/users`。
+
+- **会员状态不重算一套规则**：直接复用 entitlements 的 `accumulatePass`（已 export）。
+  后台显示的到期时间必须和用户在 `/apps`、`/account` 看到的逐字一致，否则
+  「后台说还有 3 天、用户说已经打不开了」这种问题永远查不清。
+  授权码撤销的门控（已交付订单要求 license `active`、邀请码要求 `active`）也照抄——
+  退款后后台不该还把人显示成会员
+- **别改成逐个用户调 `getUserEntitlementSummary`**：Neon HTTP 下那是每人两次网络往返。
+  `computePassMap()` 一次把这批人的 Pass 授权全捞回来，在内存里按人累加
+- **会员筛选先取候选集再分页，不是先分页再筛**：Pass 是否有效要靠档位叠加才算得准，
+  SQL 里算不出。所以用 EXISTS 把「持有过 Pass 的人」捞成候选集（就是付费用户，量本来就小），
+  在内存里算准之后再分页。反过来做的话每页会少几条而总数还按 SQL 的算，页码直接对不上
+- **`ADMIN_EMAILS` 的落地情况摆在页面顶部**（`getAdminRoster()`）：配了邮箱不等于真能进后台，
+  `isAdminSession` 还要求账号存在且邮箱已验证。让「明明配了却进不去」一眼可见，
+  而不是等人来报障
+- 三个管理动作都写审计日志：**强制下线**（递增 `token_version`，会话 / PAT /
+  「记住此设备」三者同时失效）、**解除两步验证**（此前只能直接改库）、**改写邮箱验证状态**
+- **两条自我保护的红线**，改接口时别拆掉：
+  ① 不能在这里解除**自己**的两步验证——`/admin/mfa` 的关闭流程要求出示有效 TOTP 码或恢复码，
+  这条接口只认管理员身份，放开等于给「拿到一个活着的管理员会话」的人开一条免验证关 MFA 的近路；
+  ② 不能取消**管理员账号**的邮箱验证——`isAdminSession` 要求 `emailVerified`，
+  取消等于把人锁在门外，而恢复只能改库
+- **没有删除账号的入口**，也别顺手加：`account-deletion.ts` 是给用户自助注销用的，
+  管理员误点没有撤销手段
+- **相关子查询引用外层表，必须手写限定名 `"users"."id"`，不能写 `${users.id}`**。
+  drizzle 在单表查询里会把 **SELECT 列表**内 `sql` 片段中的 Column 改写成裸列名
+  （`"id"`），而子查询的每张表都有自己的 `id`——Postgres 按内层优先解析，于是
+  `p.author_id = "id"` 实际是 `p.author_id = p.id`（恒为 0）、
+  `o.email = "email"` 实际是 `o.email = o.email`（恒真，把「这个人的订单」变成
+  「全站订单」）。**语句合法、tsc 通过、测试全绿，只有数字是假的。**
+  更阴的是同样的写法放进 **WHERE 反而是对的**（drizzle 只改写 SELECT 列表，
+  见 `hasPassGrantSql`），一对一错全看位置，肉眼审查分不出来。
+  `src/lib/__tests__/admin-users-sql.test.ts` 对着 `.toSQL()` 的真实输出断言，
+  改这段之后必须让它仍然绿——**别只看 tsc**
+- **「活跃令牌」不能只看 `slot is not null`**：槽位是下次创建 PAT 时才惰性回收的，
+  刚被强制下线的账号令牌全失效而 slot 仍在。要同时判 `revoked_at` / `expires_at` /
+  `token_version`（`expires_at` 是 ISO 文本列，比较前 `::timestamptz`，
+  别和 `now()::text` 比字符串）
+- **会员筛选的候选集有硬上限 `PASS_CANDIDATE_LIMIT`**：它整批进 `inArray`，
+  而 Postgres 参数上限 65535、每人占 2 个位。超限时截断并 `console.warn`，
+  不留一个「某天静默失败」的坑
+- **管理员的会员状态要单独显示**：`getUserEntitlementSummary` 对 `ADMIN_EMAILS` 里的账号
+  **直接短路返回全部产品**，从不看 Pass。所以后台把「管理员」作为主状态显示、
+  真实 Pass 记录降为副行——否则一个 Pass 过期的管理员在后台写着「会员已过期」，
+  而他在 `/apps` 看到的是全部可用，正好是这页要消除的那种不一致
+- **解除两步验证会连带递增 `token_version`**（作废全部会话 / PAT /「记住此设备」）。
+  这不是顺手加的：信任设备令牌的作用恰恰是**跳过第二因子**，而管理员按这个按钮的
+  典型场景就是「用户把手机弄丢了」——那台手机上很可能正躺着一张 30 天免检票。
+  只清 TOTP 不动版本号等于换了锁却留着后门钥匙。确认文案里必须写明会踢掉所有设备
+- 私有响应一律 `Cache-Control: no-store`（`privateJson()`）：这个接口返回邮箱、
+  消费额和**授权码明文**，而线上是 nginx 反代，反代层对 `/api/*` 做统一缓存很常见
+- PATCH 走 `assertMatchingOrigin`：解除他人两步验证的敏感度不低于 `/api/admin/mfa`，
+  那边有这道纵深防御，这里也要有
+- **不能对自己「强制下线」**：session 当场失效，页面刷新拿到 `forbidden()` 的 404，
+  只弹一句「Not found」，管理员根本不知道是自己把自己踢了。要下线自己走正常登出
+- `AdminUserSummary` **只放页面真正渲染的字段**：它整份跨 RSC 边界序列化进页面，
+  多带一个就是多泄漏一份。`studentEmail` / `avatarUrl` 是 PII，没展示需求就别装进来
+- 后台页面用 `getAdminPageSession()`（`admin-session.ts`，React `cache()` 包过）
+  而不是 `getSession()`：一个后台页要过 `generateMetadata` + 布局兜底 + 页面自己
+  三道同样的检查，每道都是一次 JWT 验签加一次主键查询。
+  **没有把 `getSession` 本身包起来**——它还被一堆 route handler 调用，
+  其中有「改完 `token_version` 再读一次」这类路径，缓存住会读到旧值
+
+
 ### 邀请码
 
 管理员创建邀请码 → 用户兑换 → 自动生成授权码（license key）。
@@ -821,8 +912,14 @@ Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户�
 - **生命/宝石/治愈进度/道具都画在 canvas 里，读屏软件拿不到**，
   所以关键变化要写进一个 `sr-only` 的 live region（两个入口各有一份）。
   只播「变化」不播「状态」——每帧播分数会让读屏用户没法听别的。
-  React 侧要存**结构化数据**而不是译好的字符串：翻译函数每次渲染都是新的，
-  在 effect 里用它会被 exhaustive-deps 要求加进依赖，而依赖一变游戏实例就被销毁重建
+  React 侧要存**结构化数据**而不是译好的字符串：在 effect 里用翻译函数会被
+  exhaustive-deps 要求把它加进依赖，于是游戏实例的生命周期被拴在 i18n 上下文上，
+  上下文一变就销毁重建。
+  （**更正**：早先这里写的是「翻译函数每次渲染都是新的」，不准确——
+  实测 `use-intl@4.13.4` 的 `useTranslations` 内部是 `useMemo`，
+  只要 IntlProvider 的 props 不变，`t` 的引用是稳定的，
+  放进 `useCallback`/`useEffect` 依赖不会造成每次渲染重跑。
+  该避免的理由是上面那条耦合，不是引用不稳定。）
 - **`COLORS` 里删颜色时必须同步所有引用**：canvas 的 `fillStyle` 被赋成 `undefined`
   时**不报错**，只是保持上一个颜色，画面会静默画错色。测试里有一条交叉核对定义与引用
 

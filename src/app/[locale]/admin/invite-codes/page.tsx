@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import InviteCodeManager from '@/components/InviteCodeManager';
-import { getSession } from '@/lib/auth';
+import { getAdminPageSession } from '@/lib/admin-session';
 import { isAdminSession } from '@/lib/admin';
 import { products } from '@/data/products';
 import { PASS_NAME, PASS_PRODUCT_ID, passPlans } from '@/data/pass';
@@ -17,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'AdminInviteCodesPage' });
-  const session = await getSession();
+  const session = await getAdminPageSession();
   const allowed = session && isAdminSession(session);
   return {
     title: allowed ? t('metaTitle') : t('metaNotFound'),
@@ -35,7 +33,7 @@ export default async function InviteCodesPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'AdminInviteCodesPage' });
-  const session = await getSession();
+  const session = await getAdminPageSession();
   if (!session || !isAdminSession(session)) notFound();
 
   // 全站会员排在最前：发 Pass 是最常用的赠码场景，单品发码次之
@@ -59,20 +57,14 @@ export default async function InviteCodesPage({
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Header />
-      <main className="container mx-auto px-4 py-10 md:py-14">
-        <div className="mx-auto max-w-3xl">
-          <header className="mb-8">
-            <h1 className="t-title-2">{t('title')}</h1>
-            <p className="mt-2 text-sm text-gray-400">
-              {t('description')}
-            </p>
-          </header>
-          <InviteCodeManager products={productOptions} />
-        </div>
-      </main>
-      <Footer />
-    </div>
+    <>
+      <header className="mb-8">
+        <h1 className="t-title-2">{t('title')}</h1>
+        <p className="mt-2 text-sm text-gray-400">
+          {t('description')}
+        </p>
+      </header>
+      <InviteCodeManager products={productOptions} />
+    </>
   );
 }

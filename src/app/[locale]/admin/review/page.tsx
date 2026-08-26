@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import ReviewQueue, { type ReviewItem } from '@/components/ReviewQueue';
-import { getSession } from '@/lib/auth';
+import { getAdminPageSession } from '@/lib/admin-session';
 import { isAdminSession } from '@/lib/admin';
 import { getPendingPosts } from '@/lib/posts';
 import { getSectionById } from '@/data/blog-sections';
@@ -22,7 +20,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'AdminReviewPage' });
-  const session = await getSession();
+  const session = await getAdminPageSession();
   const allowed = session && isAdminSession(session);
   return {
     title: allowed ? t('metaTitle') : t('metaNotFound'),
@@ -40,7 +38,7 @@ export default async function ReviewPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'AdminReviewPage' });
-  const session = await getSession();
+  const session = await getAdminPageSession();
   // 非管理员按「页面不存在」处理，不暴露后台的存在
   if (!session || !isAdminSession(session)) notFound();
 
@@ -58,20 +56,19 @@ export default async function ReviewPage({
     html: markdownToHtml(p.content),
   }));
 
+  /*
+   * 这一页收回阅读宽度：布局给的内容列约 872px，而这里渲染的是**整篇文章正文**，
+   * 英文投稿在这个宽度下一行接近 110 个字符，远超舒适区间。
+   * 其余后台页是表格和表单，宽一点反而更好，所以不动布局、只在这里收。
+   */
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Header />
-      <main className="container mx-auto px-4 py-10 md:py-14">
-        <div className="mx-auto max-w-3xl">
-          <header className="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-            <h1 className="t-title-2">{t('title')}</h1>
-            <p className="t-footnote tabular-nums text-white/60">{t('count', { count: items.length })}</p>
-          </header>
+    <div className="max-w-3xl">
+      <header className="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+        <h1 className="t-title-2">{t('title')}</h1>
+        <p className="t-footnote tabular-nums text-white/60">{t('count', { count: items.length })}</p>
+      </header>
 
-          <ReviewQueue items={items} />
-        </div>
-      </main>
-      <Footer />
+      <ReviewQueue items={items} />
     </div>
   );
 }

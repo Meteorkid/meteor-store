@@ -1,10 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import AdminNav from '@/components/AdminNav';
-import { getSession } from '@/lib/auth';
+import { getAdminPageSession } from '@/lib/admin-session';
 import { isAdminSession } from '@/lib/admin';
 import { getAdminStats } from '@/lib/admin-stats';
 
@@ -15,7 +12,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'AdminDashboardPage' });
-  const session = await getSession();
+  const session = await getAdminPageSession();
   const allowed = session && isAdminSession(session);
   return {
     title: allowed ? t('metaTitle') : t('metaNotFound'),
@@ -33,7 +30,7 @@ export default async function AdminDashboardPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'AdminDashboardPage' });
-  const session = await getSession();
+  const session = await getAdminPageSession();
   if (!session || !isAdminSession(session)) notFound();
 
   const stats = await getAdminStats();
@@ -58,43 +55,35 @@ export default async function AdminDashboardPage({
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Header />
-      <main className="container mx-auto px-4 py-10 md:py-14">
-        <div className="mx-auto max-w-5xl">
-          <header className="mb-8">
-            <h1 className="t-title-2">{t('title')}</h1>
-          </header>
+    <>
+      <header className="mb-8">
+        <h1 className="t-title-2">{t('title')}</h1>
+      </header>
 
-          <AdminNav />
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {cards.map((card) => (
-              <div
-                key={card.label}
-                className="glass-card rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6"
-              >
-                <p className="t-footnote text-white/50">{card.label}</p>
-                <p className="t-title-1 mt-2 text-white">{card.value}</p>
-              </div>
-            ))}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {cards.map((card) => (
+          <div
+            key={card.label}
+            className="glass-card rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6"
+          >
+            <p className="t-footnote text-white/50">{card.label}</p>
+            <p className="t-title-1 mt-2 text-white">{card.value}</p>
           </div>
+        ))}
+      </div>
 
-          <h2 className="t-title-3 mt-12 mb-4 text-white/70">{t('passSection')}</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {passCards.map((card) => (
-              <div
-                key={card.label}
-                className="glass-card rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.03] p-6"
-              >
-                <p className="t-footnote text-emerald-300/70">{card.label}</p>
-                <p className="t-title-1 mt-2 text-emerald-300">{card.value}</p>
-              </div>
-            ))}
+      <h2 className="t-title-3 mt-12 mb-4 text-white/70">{t('passSection')}</h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {passCards.map((card) => (
+          <div
+            key={card.label}
+            className="glass-card rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.03] p-6"
+          >
+            <p className="t-footnote text-emerald-300/70">{card.label}</p>
+            <p className="t-title-1 mt-2 text-emerald-300">{card.value}</p>
           </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
+        ))}
+      </div>
+    </>
   );
 }

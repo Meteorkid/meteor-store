@@ -149,3 +149,46 @@ export async function getAllPosts(): Promise<AdminPost[]> {
 
   return allPosts;
 }
+
+/** 侧边栏徽标用的待办计数。 */
+export interface AdminBadgeCounts {
+  pendingPosts: number;
+  pendingComments: number;
+  pendingReports: number;
+  pendingFeedback: number;
+}
+
+/**
+ * 侧边栏徽标计数。
+ *
+ * 四张表的 count 压成单条 SQL 子查询：Neon HTTP 下每个 count 都是一次网络往返，
+ * 而这个查询挂在 admin 布局上、每次进后台都要跑一遍。别拆回四个 Promise.all。
+ * 失败时返回全 0——徽标是辅助信息，不该让整个后台 500。
+ */
+export async function getAdminBadgeCounts(): Promise<AdminBadgeCounts> {
+  interface BadgeRow {
+    pending_posts: number;
+    pending_comments: number;
+    pending_reports: number;
+    pending_feedback: number;
+  }
+  try {
+    const result = await db.execute(sql<BadgeRow>`
+      SELECT
+        (SELECT count(*)::int FROM posts WHERE status = 'pending') AS pending_posts,
+        (SELECT count(*)::int FROM comments WHERE status = 'pending') AS pending_comments,
+        (SELECT count(*)::int FROM reports WHERE status = 'pending') AS pending_reports,
+        (SELECT count(*)::int FROM feedbacks WHERE status = 'pending') AS pending_feedback
+    `);
+    const row = result.rows[0];
+    return {
+      pendingPosts: Number(row?.pending_posts ?? 0),
+      pendingComments: Number(row?.pending_comments ?? 0),
+      pendingReports: Number(row?.pending_reports ?? 0),
+      pendingFeedback: Number(row?.pending_feedback ?? 0),
+    };
+  } catch (err) {
+    console.error('admin badge counts query failed:', err);
+    return { pendingPosts: 0, pendingComments: 0, pendingReports: 0, pendingFeedback: 0 };
+  }
+}
