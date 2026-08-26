@@ -140,3 +140,27 @@ for id in $(grep -oE "^    id: '[a-z0-9-]+'" src/data/products.ts | sed "s/.*'\(
   warmed=$((warmed + 1))
 done
 echo "  已预热 $warmed 个产品封面 × 3 种宽度"
+
+# 同步公开镜像（Gitee / GitLab）。
+#
+# **放在部署成功之后**：镜像应当反映线上真正在跑的那个提交。放在部署前的话，
+# 构建失败或上传中断会留下「镜像比线上新」的状态——而这两个仓库是对外公开的，
+# 看到的人会以为那就是线上版本。
+#
+# **失败不阻断**：镜像是 SEO 外链，不是部署链路的一环。Gitee 抽风或网络不通
+# 不该把一次已经成功的部署判成失败，那只会诱使人重跑整个脚本（又是一次完整构建）。
+#
+# **为什么要自动化**：这两个镜像曾经落后 270 个提交才被发现。公开仓库停在半年前，
+# 比没有这个仓库更难看；README 里那条指向站点的链接也会跟着一起过期。
+echo "==> 同步公开镜像"
+for remote in gitee gitlab; do
+  if ! git remote get-url "$remote" >/dev/null 2>&1; then
+    echo "  跳过 $remote（未配置该 remote）"
+    continue
+  fi
+  if git push "$remote" main >/dev/null 2>&1; then
+    echo "  ✅ $remote 已同步到 $(git rev-parse --short HEAD)"
+  else
+    echo "  ⚠️  $remote 推送失败——不影响本次部署，稍后手动补：git push $remote main" >&2
+  fi
+done
