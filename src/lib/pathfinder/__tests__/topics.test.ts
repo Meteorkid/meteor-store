@@ -75,3 +75,35 @@ describe('识别本身', () => {
     expect(topicsForItem({ title: '', summary: null })).toEqual([]);
   });
 });
+
+describe('幂等与中文正文', () => {
+  it('认得出自己上一轮产出的主题', () => {
+    // 标签回填会把当前标签一起喂回来。不认自己的输出，重跑一次就会把
+    // 识别对的主题全丢掉——中文展示名尤其明显，\b 词边界对中文不成立
+    const first = topicsForItem({ title: 'Distributed training on multi-GPU clusters' });
+    expect(first).toContain('分布式');
+
+    const second = topicsForItem({ title: 'Distributed training on multi-GPU clusters', labels: first });
+    expect(second).toEqual(first);
+  });
+
+  it('中文正文也能识别', () => {
+    // 条目摘要现在会被翻成中文，只按英文模式匹配会让翻译过的条目认不出主题
+    expect(topicsForItem({ summary: '这次更新改进了推理部署时的显存占用' })).toContain('推理部署');
+  });
+});
+
+describe('词尾变化不能漏', () => {
+  it.each([
+    ['Piloting the world\'s first double-blind AI evaluations', '评测'],
+    ['Robotic manipulation benchmarks', '具身智能'],
+    ['FileStore rendezvous leaks a file descriptor', '分布式'],
+    ['Responding to the next frontier of critical cyber capabilities', '安全与对齐'],
+    ['Automate Dependabot pull request triage with Copilot', '开发者工具'],
+    ['DiffusionGemma: 4x faster text generation', '大模型'],
+  ])('%s → %s', (text, topic) => {
+    // \b 卡在复数 s 上是最容易漏的一类：evaluation 匹配不到 evaluations，
+    // 上面每一条都来自实测中被漏掉的真实标题
+    expect(inferTopics(text)).toContain(topic);
+  });
+});
