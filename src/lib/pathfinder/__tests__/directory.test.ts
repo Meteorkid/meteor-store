@@ -95,11 +95,45 @@ describe('主题与机构入口', () => {
 
 describe('学生周报', () => {
   it('只收录窗口内新增的条目', () => {
-    const fresh = catalogItemFixture({ id: 'fresh', discoveredAt: '2026-08-22T00:00:00.000Z' });
-    const stale = catalogItemFixture({ id: 'stale', discoveredAt: '2026-07-01T00:00:00.000Z' });
+    // 新旧看的是来源发布时间，两个字段都写出来免得读者以为看的是 discoveredAt
+    const fresh = catalogItemFixture({
+      id: 'fresh', discoveredAt: '2026-08-22T00:00:00.000Z', publishedAt: '2026-08-22T00:00:00.000Z',
+    });
+    const stale = catalogItemFixture({
+      id: 'stale', discoveredAt: '2026-07-01T00:00:00.000Z', publishedAt: '2026-07-01T00:00:00.000Z',
+    });
 
     expect(buildPathfinderWeekly([fresh, stale], NOW).added.map((item) => item.id))
       .toEqual(['fresh']);
+  });
+
+  it('新旧以来源发布时间为准，不用我们的抓取时间', () => {
+    // 这是首次导入造成的基线失真：全部存量在同一天被抓到，周报于是显示
+    // 「本周新增 178 条」，而真正这一周才发布的只有 17 条
+    const backfilled = catalogItemFixture({
+      id: 'backfilled',
+      discoveredAt: '2026-08-25T00:00:00.000Z',
+      publishedAt: '2024-03-01T00:00:00.000Z',
+    });
+    const genuinelyNew = catalogItemFixture({
+      id: 'genuinely-new',
+      discoveredAt: '2026-08-25T00:00:00.000Z',
+      publishedAt: '2026-08-24T00:00:00.000Z',
+    });
+
+    expect(buildPathfinderWeekly([backfilled, genuinelyNew], NOW).added.map((item) => item.id))
+      .toEqual(['genuinely-new']);
+  });
+
+  it('来源没给发布时间时才退回抓取时间', () => {
+    const noPublishDate = catalogItemFixture({
+      id: 'no-date',
+      discoveredAt: '2026-08-24T00:00:00.000Z',
+      publishedAt: null,
+    });
+
+    expect(buildPathfinderWeekly([noPublishDate], NOW).added.map((item) => item.id))
+      .toEqual(['no-date']);
   });
 
   it('本周截止里不含已经过期的条目', () => {
@@ -115,6 +149,7 @@ describe('学生周报', () => {
     const items = Array.from({ length: 6 }, (_, index) => catalogItemFixture({
       id: `item-${index}`,
       discoveredAt: '2026-08-23T00:00:00.000Z',
+      publishedAt: '2026-08-23T00:00:00.000Z',
     }));
     const weekly = buildPathfinderWeekly(items, NOW);
 

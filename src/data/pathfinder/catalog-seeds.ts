@@ -362,6 +362,129 @@ function defaultsFor(itemType: PathfinderItemType): Pick<
 }
 
 export const STATIC_PATHFINDER_ITEMS: PathfinderCatalogItem[] = [
+  /*
+   * 下面这批仓库是为了摊薄来源集中度补进来的。
+   *
+   * 实测问题：开源任务 68 条里 apache/airflow 占 22、pytorch/pytorch 占 20，
+   * 两个仓库就是六成；而收紧「可上手」判据（排除已认领 / 有关联 PR / 陈旧）之后，
+   * backend 方向一度只剩 0 条候选。候选池太小时，任何一条严格的质量判据都会
+   * 直接表现为「这个方向没有任务」——所以扩仓库和收紧判据必须一起做。
+   *
+   * 选取标准是「确实在跑 good first issue 流程」的活跃项目，而不是明星项目：
+   * 一个 star 很多但从不标注新手任务的仓库，进来也只会贡献 0 条。
+   */
+  seed({
+    id: 'rust', source: 'github', canonicalUrl: 'https://github.com/rust-lang/rust', itemType: 'open-source',
+    titleZh: 'Rust', titleEn: 'Rust', organization: 'Rust Foundation', direction: 'backend',
+    summaryZh: 'Rust 语言官方仓库，E-easy 标签下的任务附带完整的实现指引，是系统方向少见的新手友好入口。',
+    summaryEn: 'The Rust language repository; issues labelled E-easy come with step-by-step mentoring notes.',
+    tags: { topic: ['systems'], skill: ['rust'], career: ['backend'], format: ['repository'] },
+  }),
+  seed({
+    id: 'kubernetes', source: 'github', canonicalUrl: 'https://github.com/kubernetes/kubernetes', itemType: 'open-source',
+    titleZh: 'Kubernetes', titleEn: 'Kubernetes', organization: 'CNCF', direction: 'backend',
+    summaryZh: '容器编排事实标准，有专门的新贡献者引导流程与 good first issue 分诊。',
+    summaryEn: 'The container orchestration standard, with a dedicated new-contributor onboarding track.',
+    tags: { topic: ['infrastructure'], skill: ['go', 'kubernetes'], career: ['backend'], format: ['repository'] },
+  }),
+  seed({
+    id: 'grafana', source: 'github', canonicalUrl: 'https://github.com/grafana/grafana', itemType: 'open-source',
+    titleZh: 'Grafana', titleEn: 'Grafana', organization: 'Grafana Labs', direction: 'backend',
+    summaryZh: '可观测性面板，前后端都有新手任务，适合想同时练 Go 与 TypeScript 的人。',
+    summaryEn: 'Observability dashboards with beginner issues across both its Go backend and TypeScript frontend.',
+    tags: { topic: ['observability'], skill: ['go', 'typescript'], career: ['backend'], format: ['repository'] },
+  }),
+  seed({
+    id: 'supabase', source: 'github', canonicalUrl: 'https://github.com/supabase/supabase', itemType: 'open-source',
+    titleZh: 'Supabase', titleEn: 'Supabase', organization: 'Supabase', direction: 'backend',
+    summaryZh: '开源 Firebase 替代品，文档与示例类任务多，适合第一次提 PR。',
+    summaryEn: 'The open-source Firebase alternative; documentation and example issues suit a first pull request.',
+    tags: { topic: ['backend-as-a-service'], skill: ['typescript', 'postgres'], career: ['backend'], format: ['repository'] },
+  }),
+  seed({
+    id: 'prisma', source: 'github', canonicalUrl: 'https://github.com/prisma/prisma', itemType: 'open-source',
+    titleZh: 'Prisma', titleEn: 'Prisma', organization: 'Prisma', direction: 'backend',
+    summaryZh: 'TypeScript ORM，issue 里对复现步骤要求明确，适合练习定位问题。',
+    summaryEn: 'A TypeScript ORM whose issues demand clear reproductions — good practice at diagnosing bugs.',
+    tags: { topic: ['database'], skill: ['typescript'], career: ['backend'], format: ['repository'] },
+  }),
+  seed({
+    id: 'astro', source: 'github', canonicalUrl: 'https://github.com/withastro/astro', itemType: 'open-source',
+    titleZh: 'Astro', titleEn: 'Astro', organization: 'Astro', direction: 'frontend',
+    summaryZh: '内容站点框架，社区对新贡献者的响应速度在前端项目里属于快的。',
+    summaryEn: 'A content-focused web framework whose maintainers respond unusually quickly to new contributors.',
+    tags: { topic: ['web-framework'], skill: ['typescript'], career: ['frontend'], format: ['repository'] },
+  }),
+  seed({
+    id: 'mui', source: 'github', canonicalUrl: 'https://github.com/mui/material-ui', itemType: 'open-source',
+    titleZh: 'MUI', titleEn: 'MUI', organization: 'MUI', direction: 'frontend',
+    summaryZh: 'React 组件库，长期维护一批标注清楚的 good first issue。',
+    summaryEn: 'A React component library that keeps a steady queue of well-scoped good first issues.',
+    tags: { topic: ['ui-components'], skill: ['react', 'typescript'], career: ['frontend'], format: ['repository'] },
+  }),
+  seed({
+    id: 'storybook', source: 'github', canonicalUrl: 'https://github.com/storybookjs/storybook', itemType: 'open-source',
+    titleZh: 'Storybook', titleEn: 'Storybook', organization: 'Storybook', direction: 'frontend',
+    summaryZh: '组件开发与文档工具，任务颗粒度小，适合把「跑通本地开发环境」这一关先过掉。',
+    summaryEn: 'Component workshop tooling with small-grained tasks — a gentle way to get a dev environment running.',
+    tags: { topic: ['developer-tools'], skill: ['typescript'], career: ['frontend'], format: ['repository'] },
+  }),
+  seed({
+    id: 'excalidraw', source: 'github', canonicalUrl: 'https://github.com/excalidraw/excalidraw', itemType: 'open-source',
+    titleZh: 'Excalidraw', titleEn: 'Excalidraw', organization: 'Excalidraw', direction: 'frontend',
+    summaryZh: '手绘风白板，改动效果肉眼可见，适合第一次体会「我的代码上线了」。',
+    summaryEn: 'A hand-drawn style whiteboard where every change is visible — a satisfying first contribution.',
+    tags: { topic: ['canvas'], skill: ['react', 'typescript'], career: ['frontend'], format: ['repository'] },
+  }),
+  seed({
+    id: 'polars', source: 'github', canonicalUrl: 'https://github.com/pola-rs/polars', itemType: 'open-source',
+    titleZh: 'Polars', titleEn: 'Polars', organization: 'Polars', direction: 'data',
+    summaryZh: 'Rust 实现的高性能 DataFrame，Python 侧的任务不要求先懂 Rust。',
+    summaryEn: 'A high-performance DataFrame library in Rust; many Python-side tasks need no Rust at all.',
+    tags: { topic: ['dataframe'], skill: ['python', 'rust'], career: ['data'], format: ['repository'] },
+  }),
+  seed({
+    id: 'duckdb', source: 'github', canonicalUrl: 'https://github.com/duckdb/duckdb', itemType: 'open-source',
+    titleZh: 'DuckDB', titleEn: 'DuckDB', organization: 'DuckDB', direction: 'data',
+    summaryZh: '进程内分析型数据库，适合想读懂查询执行过程的人。',
+    summaryEn: 'An in-process analytical database — a readable codebase for learning query execution.',
+    tags: { topic: ['database'], skill: ['cpp', 'sql'], career: ['data'], format: ['repository'] },
+  }),
+  seed({
+    id: 'great-expectations', source: 'github', canonicalUrl: 'https://github.com/great-expectations/great_expectations', itemType: 'open-source',
+    titleZh: 'Great Expectations', titleEn: 'Great Expectations', organization: 'Great Expectations', direction: 'data',
+    summaryZh: '数据质量校验框架，新增校验规则是颗粒度合适的入门任务。',
+    summaryEn: 'A data-quality framework where adding a new expectation is a well-sized starter task.',
+    tags: { topic: ['data-quality'], skill: ['python'], career: ['data'], format: ['repository'] },
+  }),
+  seed({
+    id: 'llama-index', source: 'github', canonicalUrl: 'https://github.com/run-llama/llama_index', itemType: 'open-source',
+    titleZh: 'LlamaIndex', titleEn: 'LlamaIndex', organization: 'LlamaIndex', direction: 'ai',
+    summaryZh: 'RAG 框架，接入新数据源是标准化程度高的入门任务。',
+    summaryEn: 'A RAG framework where adding a new data connector is a well-templated starter task.',
+    tags: { topic: ['rag'], skill: ['python'], career: ['ai'], format: ['repository'] },
+  }),
+  seed({
+    id: 'vllm', source: 'github', canonicalUrl: 'https://github.com/vllm-project/vllm', itemType: 'open-source',
+    titleZh: 'vLLM', titleEn: 'vLLM', organization: 'vLLM', direction: 'ai',
+    summaryZh: '大模型推理引擎，适合想弄清 KV cache 与批处理调度的人。',
+    summaryEn: 'An LLM inference engine — the place to understand KV caching and continuous batching.',
+    tags: { topic: ['inference'], skill: ['python', 'cuda'], career: ['ai'], format: ['repository'] },
+  }),
+  seed({
+    id: 'gradio', source: 'github', canonicalUrl: 'https://github.com/gradio-app/gradio', itemType: 'open-source',
+    titleZh: 'Gradio', titleEn: 'Gradio', organization: 'Hugging Face', direction: 'ai',
+    summaryZh: '机器学习演示界面库，前端与 Python 两侧都有新手任务。',
+    summaryEn: 'The ML demo UI library, with beginner issues on both its Python and frontend sides.',
+    tags: { topic: ['ml-tooling'], skill: ['python', 'typescript'], career: ['ai'], format: ['repository'] },
+  }),
+  seed({
+    id: 'datasets', source: 'github', canonicalUrl: 'https://github.com/huggingface/datasets', itemType: 'open-source',
+    titleZh: 'Hugging Face Datasets', titleEn: 'Hugging Face Datasets', organization: 'Hugging Face', direction: 'ai',
+    summaryZh: '数据集加载与处理库，任务边界清晰，是 Hugging Face 生态里最好入门的仓库之一。',
+    summaryEn: 'Dataset loading and processing; tasks have crisp boundaries, making it one of the easiest HF repos to enter.',
+    tags: { topic: ['dataset'], skill: ['python'], career: ['ai'], format: ['repository'] },
+  }),
   seed({
     id: 'nextjs', source: 'github', canonicalUrl: 'https://github.com/vercel/next.js', itemType: 'open-source',
     titleZh: 'Next.js', titleEn: 'Next.js', organization: 'Vercel', direction: 'frontend',

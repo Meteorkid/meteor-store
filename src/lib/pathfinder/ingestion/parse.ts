@@ -7,6 +7,8 @@ import {
   normalizeIngestionUrl,
   toIsoDate,
 } from './normalize';
+import { isActionableIssue } from './actionable';
+import { topicsForItem } from './topics';
 
 export function parsePathfinderSource(
   source: PathfinderSyncSource,
@@ -78,7 +80,9 @@ export function parseRss(
       publishedAt,
       learningEligible: source.learningEligible,
       requiresManualEligibilityCheck: false,
-      tags: ['AI', source.organization],
+      // 机构名归「机构」维度；`AI` 挂在每一条 AI 动态上，等于没有筛选作用
+      // （实测 104 条动态全部带它）。主题改为从标题与摘要里按词表识别
+      tags: topicsForItem({ title, summary }),
       contentHash: hash,
     } satisfies IngestedPathfinderItem];
   });
@@ -114,6 +118,18 @@ export function parseGithubSearch(
     const title = cleanExternalText(typeof raw.title === 'string' ? raw.title : '', 180);
     if (!title || !url || !isAllowedHost(url, source.allowedItemHosts)) return [];
     if (CRASH_TITLE_PATTERN.test(title)) return [];
+
+    // 「开着的 issue」不等于「能上手的 issue」：查询层已挡掉已指派和有关联 PR 的，
+    // 这里再按年龄与维护者是否回应过筛一遍，理由见 actionable.ts
+    if (!isActionableIssue({
+      createdAt: typeof raw.created_at === 'string' ? raw.created_at : null,
+      updatedAt: typeof raw.updated_at === 'string' ? raw.updated_at : null,
+      comments: typeof raw.comments === 'number' ? raw.comments : 0,
+      isPullRequest: raw.pull_request !== undefined,
+      hasAssignee: isRecord(raw.assignee)
+        || (Array.isArray(raw.assignees) && raw.assignees.length > 0),
+    })) return [];
+
     const repository = repositoryName(raw.repository_url);
     const labels = Array.isArray(raw.labels)
       ? raw.labels.flatMap((label) => isRecord(label) && typeof label.name === 'string' ? [label.name] : [])
@@ -167,7 +183,9 @@ export function parseGithubSearch(
       // 泛搜索的 issue 可能来自任何仓库，能不能上手要人看过才知道；
       // 已策展仓库的贡献指南是公开的，没有需要逐人核对的个人资格条件
       requiresManualEligibilityCheck: !source.curated,
-      tags: [...new Set(['good first issue', repository, ...labels].filter(Boolean))].slice(0, 12),
+      // 仓库名归「机构」维度，原始标签大半是维护者的分诊记号；
+      // 主题一律按词表从标题/摘要/标签里识别，噪声标签天然进不来
+      tags: topicsForItem({ title, summary, labels }),
       contentHash: '',
     };
     item.contentHash = contentHash(item);
@@ -273,7 +291,9 @@ export function parseGreenhouseJobs(
       learningEligible: source.learningEligible,
       // 工作许可、年级、地点都是画像收集不到的硬条件，只能由本人核对
       requiresManualEligibilityCheck: true,
-      tags: [...new Set(['internship', company, location].filter(Boolean))].slice(0, 8),
+      // 地点已经存在 region 字段里、公司名归「机构」维度，都不进主题。
+      // 职位板不带正文，只能从职位名识别方向（如「Machine Learning Intern」）
+      tags: topicsForItem({ title }),
       contentHash: '',
     };
     item.contentHash = contentHash(item);

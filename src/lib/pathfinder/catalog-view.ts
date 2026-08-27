@@ -271,6 +271,53 @@ export function catalogActionScore(item: PathfinderCatalogItem, now = new Date()
  * 按浏览排序整理列表。所有分支都以 id 作为最终 tiebreaker，
  * 保证同分条目在服务端多次渲染之间顺序稳定（否则分页会漏条或重复）。
  */
+/**
+ * 按机构轮转，避免单一来源刷屏。
+ *
+ * 实测问题：178 条里 OpenAI 占 40、Google DeepMind 占 31，两家就是四成；开源任务
+ * 里 apache/airflow 22 条、pytorch/pytorch 20 条。任何一种排序下，列表前两屏都会
+ * 被同一家的内容铺满，读者看到的「机会库」实际只有两三个来源。
+ *
+ * 做法是**轮转而不是截断**：按机构分组、保持组内原有排序，然后一轮一轮地各取一条。
+ * 谁都不会被删掉，只是不能连着占位——排在第 1 的仍然排第 1，条目总数也不变。
+ * 这一点很重要：截断会让「某家机构的第 3 条以后永远看不到」，而分页与计数
+ * 又是按完整列表算的，两者会对不上。
+ *
+ * 必须在排序**之后**调用：它依赖传入顺序表达优先级，自己不做任何排序。
+ *
+ * 与本文件里的 `diversifyBySource` 不是一回事，别混用：那个是「每个来源最多 N 条 +
+ * 截断到 limit」的配额语义，适合选固定条数的推荐位；用在分页长列表上时，超额的
+ * 部分会被整段挪到末尾，OpenAI 的第 2 条之后仍然是连续的。这里要的是全程轮转。
+ */
+export function diversifyByOrganization(
+  items: readonly PathfinderCatalogItem[],
+  locale: PathfinderLocale = 'zh',
+): PathfinderCatalogItem[] {
+  if (items.length <= 2) return [...items];
+
+  const groups = new Map<string, PathfinderCatalogItem[]>();
+  for (const item of items) {
+    // 机构名按当前语言取，与目录页展示的口径一致；空机构各自成组，
+    // 免得所有缺机构的条目被并成一大组反而扎堆
+    const key = localizedText(item.organization, locale).trim().toLocaleLowerCase()
+      || `\u0000${item.id}`;
+    const group = groups.get(key);
+    if (group) group.push(item);
+    else groups.set(key, [item]);
+  }
+  if (groups.size === 1) return [...items];
+
+  const queues = [...groups.values()];
+  const result: PathfinderCatalogItem[] = [];
+  // 轮转：每一轮从每个机构取一条，取完的组自然退出
+  for (let round = 0; result.length < items.length; round += 1) {
+    for (const queue of queues) {
+      if (round < queue.length) result.push(queue[round]);
+    }
+  }
+  return result;
+}
+
 export function sortCatalogItems(
   items: readonly PathfinderCatalogItem[],
   sort: CatalogSort,

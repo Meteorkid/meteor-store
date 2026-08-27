@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  diversifyByOrganization,
   catalogActionScore,
   catalogStats,
   diversifyBySource,
@@ -383,5 +384,46 @@ describe('可直接上手的任务', () => {
 
   it('不开开关时两种粒度都保留', () => {
     expect(filterCatalogItems([issue, repo], { q: '' }, NOW)).toHaveLength(2);
+  });
+});
+
+describe('按机构轮转', () => {
+  const item = (id: string, org: string) => catalogItemFixture({
+    id, organization: { zh: org, en: org },
+  });
+
+  it('不让单一来源连着占满前几位', () => {
+    // 实测：OpenAI 40 条 + Google DeepMind 31 条占全部条目四成，
+    // 任何排序下前两屏都是同一家
+    const items = [
+      item('o1', 'OpenAI'), item('o2', 'OpenAI'), item('o3', 'OpenAI'),
+      item('d1', 'DeepMind'), item('d2', 'DeepMind'),
+      item('h1', 'Hugging Face'),
+    ];
+    expect(diversifyByOrganization(items).map((i) => i.id))
+      .toEqual(['o1', 'd1', 'h1', 'o2', 'd2', 'o3']);
+  });
+
+  it('是轮转不是截断：条目一条不少', () => {
+    // 截断会让「某家的第 3 条以后永远看不到」，而分页与计数按完整列表算，两者会对不上
+    const items = Array.from({ length: 20 }, (_, i) => item(`x${i}`, i < 15 ? 'OpenAI' : 'Other'));
+    const result = diversifyByOrganization(items);
+
+    expect(result).toHaveLength(20);
+    expect(new Set(result.map((i) => i.id))).toEqual(new Set(items.map((i) => i.id)));
+  });
+
+  it('组内顺序不变，排第一的仍排第一', () => {
+    const items = [item('a', 'X'), item('b', 'X'), item('c', 'Y')];
+    const result = diversifyByOrganization(items).map((i) => i.id);
+
+    expect(result[0]).toBe('a');
+    expect(result.indexOf('a')).toBeLessThan(result.indexOf('b'));
+  });
+
+  it('只有一个机构或条目太少时原样返回', () => {
+    const single = [item('a', 'X'), item('b', 'X'), item('c', 'X')];
+    expect(diversifyByOrganization(single).map((i) => i.id)).toEqual(['a', 'b', 'c']);
+    expect(diversifyByOrganization([item('a', 'X')]).map((i) => i.id)).toEqual(['a']);
   });
 });

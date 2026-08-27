@@ -5,9 +5,17 @@ import {
 } from '../catalog-seeds';
 
 describe('Pathfinder 静态可信种子', () => {
-  it('首版规模保持在 30–50 条且覆盖四类内容', () => {
+  it('规模保持在 30–80 条且覆盖四类内容', () => {
+    /*
+     * 上界从 50 提到 80：为摊薄来源集中度补进了 16 个开源仓库。
+     *
+     * 起因是实测 68 条开源任务里 apache/airflow 占 22、pytorch/pytorch 占 20，
+     * 两个仓库就是六成；而收紧「可上手」判据后 backend 方向一度只剩 0 条候选。
+     * 候选池太小时任何严格判据都会表现为「这个方向没有任务」，所以扩仓库与
+     * 收紧判据必须一起做。上界仍然存在，是因为这份种子要人工核实过每一条。
+     */
     expect(STATIC_PATHFINDER_ITEMS.length).toBeGreaterThanOrEqual(30);
-    expect(STATIC_PATHFINDER_ITEMS.length).toBeLessThanOrEqual(50);
+    expect(STATIC_PATHFINDER_ITEMS.length).toBeLessThanOrEqual(80);
 
     const types = new Set(STATIC_PATHFINDER_ITEMS.map((item) => item.itemType));
     expect(types).toEqual(new Set(['open-source', 'competition', 'internship', 'ai-update']));
@@ -135,7 +143,12 @@ describe('Pathfinder 静态可信种子', () => {
       .filter((item) => item.itemType === 'competition' || item.itemType === 'internship')
       .filter((item) => !item.id.match(/aic-open-source|ibm-z-datathon|unu-ai-sdgs|mitacs-gri|oist-spring|max-planck/));
     expect(portals.every((item) => item.learningEligible === false)).toBe(true);
-    expect(STATIC_PATHFINDER_ITEMS.filter((item) => item.learningEligible)).toHaveLength(30);
+
+    // 不写死总数：那只会跟着目录大小走，加一条种子就要改一次，而它并不比
+    // 上面那行多钉住任何东西。真正要保证的是「能进学习路径的都不是长期门户」
+    const eligible = STATIC_PATHFINDER_ITEMS.filter((item) => item.learningEligible);
+    expect(eligible.length).toBeGreaterThan(0);
+    for (const item of eligible) expect(portals).not.toContainEqual(item);
   });
 
   it('综合招聘入口明确用标签覆盖四个技术方向', () => {

@@ -1,5 +1,10 @@
 import type { PathfinderCatalogItem } from './catalog-types';
-import { catalogDeadlineTimestamp, getDeadlineState, sortCatalogItems } from './catalog-view';
+import {
+  catalogDeadlineTimestamp,
+  diversifyByOrganization,
+  getDeadlineState,
+  sortCatalogItems,
+} from './catalog-view';
 
 /**
  * 主题与机构入口。
@@ -140,6 +145,27 @@ export interface PathfinderWeekly {
  * 不做「本周热点」——热度不是这个产品的判据，而且没有互动数据可依。
  * 纯函数：周报页与将来的周报邮件用同一份内容，不会各算一套。
  */
+/**
+ * 一个条目「新」在什么时候。
+ *
+ * **不能用 `discoveredAt`（我们第一次抓到它的时间）**：首次导入会把历史存量
+ * 一次性写成同一天，于是周报显示「本周新增 178 条」，而其中真正是这一周才
+ * 出现的只有 17 条。基线失真让这个数字完全不可读——它衡量的是我们什么时候
+ * 上线了抓取，不是这一周世界上发生了什么。
+ *
+ * 所以以**来源自己的发布时间**为准，`discoveredAt` 仅在来源没给发布时间时兜底。
+ * 代价是：一条我们今天才收录、但去年就发布的条目不会出现在周报里。这是对的——
+ * 周报回答的是「这周有什么新东西」，补录历史存量不属于这个问题。
+ */
+function weeklyNoveltyTimestamp(item: PathfinderCatalogItem): number | null {
+  for (const candidate of [item.publishedAt, item.discoveredAt]) {
+    if (!candidate) continue;
+    const parsed = Date.parse(candidate);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
 export function buildPathfinderWeekly(
   items: readonly PathfinderCatalogItem[],
   now = new Date(),
@@ -150,10 +176,11 @@ export function buildPathfinderWeekly(
 
   const added = published
     .filter((item) => {
-      const discovered = Date.parse(item.discoveredAt);
-      return Number.isFinite(discovered) && discovered >= since.getTime();
+      const at = weeklyNoveltyTimestamp(item);
+      return at !== null && at >= since.getTime();
     })
-    .sort((a, b) => Date.parse(b.discoveredAt) - Date.parse(a.discoveredAt) || a.id.localeCompare(b.id));
+    .sort((a, b) => (weeklyNoveltyTimestamp(b) ?? 0) - (weeklyNoveltyTimestamp(a) ?? 0)
+      || a.id.localeCompare(b.id));
 
   const closing = published
     .filter((item) => {
@@ -169,7 +196,8 @@ export function buildPathfinderWeekly(
   return {
     added,
     closing,
-    highlights: sortCatalogItems(added, 'action', now).slice(0, 3),
+    // 精选只有三条，全来自同一家机构的话这个栏目就没有「精选」的意义了
+    highlights: diversifyByOrganization(sortCatalogItems(added, 'action', now)).slice(0, 3),
     since: since.toISOString(),
     until: now.toISOString(),
   };

@@ -5,6 +5,7 @@ import { pathfinderItems, pathfinderItemTags, pathfinderSources } from '@/lib/db
 import { fetchPathfinderSource } from './fetch-source';
 import { parsePathfinderSource } from './parse';
 import { PATHFINDER_SYNC_SOURCE_MAP, PATHFINDER_SYNC_SOURCES } from './sources';
+import { isTranslationEnabled, needsTranslation, translateAll } from '../translate';
 import { PATHFINDER_DIRECTIONS, type PathfinderDirection } from '../catalog-types';
 import type {
   IngestedPathfinderItem,
@@ -145,6 +146,41 @@ async function syncOneSource(
   }
 }
 
+/**
+ * 给英文条目补上中文标题与摘要（原地修改传入的对象）。
+ *
+ * 抓取来源（RSS、GitHub）几乎不给中文，而管线在缺中文时用英文兜底，于是中文站
+ * 长期显示英文——实测 178 条已发布条目里 178 条标题、172 条摘要中英逐字相同。
+ *
+ * **不重算 contentHash**：它是「英文原文变没变」的判据，把译文掺进去会让
+ * 每次翻译结果的细微差异都被当成内容更新，条目每轮都被判为 changed。
+ *
+ * 翻译失败时什么都不做，英文兜底照旧生效——中文没补上只是不好看，
+ * 而让同步整批失败会让机会库直接空掉。
+ */
+async function applyChineseText(items: readonly IngestedPathfinderItem[]): Promise<void> {
+  if (!isTranslationEnabled() || items.length === 0) return;
+
+  // 来源偶尔本来就给中文，重复翻译既费钱又可能把已经通顺的原文改坏
+  const pending = items.filter((item) => (
+    needsTranslation(item.titleZh ?? item.titleEn) || needsTranslation(item.summaryZh ?? item.summaryEn)
+  ));
+  if (pending.length === 0) return;
+
+  const translated = await translateAll(pending.map((item) => ({
+    id: item.externalId,
+    titleEn: item.titleEn ?? '',
+    summaryEn: item.summaryEn ?? '',
+  })));
+
+  for (const item of pending) {
+    const zh = translated.get(item.externalId);
+    if (!zh) continue;
+    if (zh.titleZh) item.titleZh = zh.titleZh;
+    if (zh.summaryZh) item.summaryZh = zh.summaryZh;
+  }
+}
+
 async function persistItems(
   source: PathfinderSyncSource,
   incoming: IngestedPathfinderItem[],
@@ -167,6 +203,7 @@ async function persistItems(
     .map((item) => [item.externalId, item]));
 
   const inserts: Array<typeof pathfinderItems.$inferInsert> = [];
+  const pendingInserts: Array<{ item: IngestedPathfinderItem; urlHash: string }> = [];
   const updates: Array<{ existing: ExistingItem; item: IngestedPathfinderItem; urlHash: string }> = [];
   const unchanged: Array<{ existing: ExistingItem; item: IngestedPathfinderItem }> = [];
   let skipped = 0;
@@ -187,6 +224,19 @@ async function persistItems(
       }
       continue;
     }
+    pendingInserts.push(preparedItem);
+  }
+
+  /*
+   * 只给「新增」和「英文原文变了」的条目补中文，`unchanged` 一律不动。
+   *
+   * 解析阶段永远把 titleZh 置为 null（来源不给中文），所以不能按 incoming 判断
+   * 该不该翻——那样每轮同步都会把全部条目重译一遍，每小时上百条的调用费，
+   * 而结果和上一轮一模一样。这里放在分类之后，正是因为只有到这一步才知道
+   * 哪些条目的英文原文确实是新的。
+   */
+  await applyChineseText([...pendingInserts.map(({ item }) => item), ...updates.map(({ item }) => item)]);
+  for (const preparedItem of pendingInserts) {
     inserts.push(toInsertRow(source, preparedItem.item, preparedItem.urlHash, now));
   }
 

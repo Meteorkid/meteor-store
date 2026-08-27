@@ -16,11 +16,18 @@ export const GITHUB_QUERY_LIMIT = 256;
  * 已入库的 issue 会与新来源对不上号（同步会按 URL 判为「已由别的来源收录」
  * 而跳过），核验时间不再刷新，30 天后悄悄变成 stale。
  *
- * 当前每个方向 4–9 个仓库，分 2 桶后每条查询约 130–160 字符，
- * 可以增长到每方向约 16 个仓库。超出时由测试在 CI 上报错，
- * 届时把这个值调大一次（会重排一次，同步能安全处理）。
+ * 桶数从 2 改成了 4。触发原因有两个叠加：为摊薄来源集中度补进 16 个仓库，
+ * 以及查询里新增了 `-linked:pr` 与 `updated:>=YYYY-MM-DD` 两个限定符
+ * （共约 33 字符）——backend 方向的查询因此达到 303 字符，超过上限 256。
+ *
+ * **重排的代价要知道**：仓库到桶的映射变了，同一个 issue 会落到新的来源 id 下。
+ * 已入库的旧条目在 `persistItems` 里会按 URL 命中、但 `sourceId` 对不上，
+ * 于是走「已由别的来源收录」的分支被跳过，`verifiedAt` 不再刷新，30 天后变成
+ * stale。这次可以接受：新加的「可上手」判据本来就会淘汰掉存量开源任务里的
+ * 绝大多数（实测 82% 超过一年未活动），让它们自然过期正好。
+ * 但**不要把这件事当成无痛操作**，下次调整前先确认存量条目是否还需要保留。
  */
-const CURATED_ISSUE_BUCKETS = 2;
+const CURATED_ISSUE_BUCKETS = 4;
 
 /** 稳定的字符串哈希（FNV-1a）。只用于分桶，不涉及安全。导出以便测试钉住「新增仓库不挪动已有仓库」。 */
 export function stableBucket(value: string, buckets: number): number {
@@ -47,10 +54,39 @@ export function curatedRepositoriesByDirection(): Map<PathfinderDirection, strin
   return byDirection;
 }
 
+/**
+ * 「没人在做」的查询层判据。
+ *
+ * - `no:assignee`：已指派给别人的，学生做了也交不上去。
+ * - `-linked:pr`：已经有关联 PR 的 issue 说明有人正在做。这是 GitHub 搜索
+ *   自带的限定符，比逐条调 timeline 接口便宜——后者每条 issue 一次请求，
+ *   68 条就会打满未授权 60 次/小时的配额。
+ *
+ * 这两条是「稳定」判据，不随时间变化，所以可以同时进 fetchUrl 与 siteUrl；
+ * 滚动的时间窗只能进 fetchUrl（见 buildCuratedIssueSources 的说明）。
+ */
 export function buildCuratedIssueQuery(repos: readonly string[]): string {
-  return `is:issue is:open no:assignee archived:false label:"good first issue" ${
+  return `is:issue is:open no:assignee -linked:pr archived:false label:"good first issue" ${
     repos.map((repo) => `repo:${repo}`).join(' ')
   }`;
+}
+
+/**
+ * issue 至少要在这么多天内有过活动才值得推荐。
+ *
+ * 实测生产库里 68 条开源任务有 56 条（82%）的发布时间超过一年，最老的一条来自
+ * 2016 年——一个「Good First Issue」在仓库里躺了十年没人做，通常意味着它其实
+ * 不好做、或者维护者已经不管这块了，推给学生只会让人白花一个周末。
+ *
+ * 取 365 天而不是更短：实测 180 天与 365 天的结果几乎一样（真正砍掉存量的是
+ * `-linked:pr`），而更短的窗口只会在候选本来就少的方向上把池子清空。
+ */
+export const CURATED_ISSUE_ACTIVE_DAYS = 365;
+
+/** 给查询加上滚动时间窗。只用于 fetchUrl——siteUrl 必须保持稳定。 */
+export function withRecentActivity(query: string, now = new Date()): string {
+  const since = new Date(now.getTime() - CURATED_ISSUE_ACTIVE_DAYS * 86_400_000);
+  return `${query} updated:>=${since.toISOString().slice(0, 10)}`;
 }
 
 /**
@@ -82,7 +118,14 @@ export function buildCuratedIssueSources(): PathfinderSyncSource[] {
          */
         name: `GitHub Good First Issues · ${direction}`,
         adapterId: 'github',
-        fetchUrl: `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=20`,
+        /*
+         * 时间窗只进 fetchUrl，不进 siteUrl。
+         *
+         * siteUrl 在数据库里有唯一索引且会被写回（见 sync.ts 的 upsert），
+         * 把每天都在变的日期放进去，等于每天生成一条新来源；而 fetchUrl
+         * 明确不入库，随代码/时间变化是安全的。
+         */
+        fetchUrl: `https://api.github.com/search/issues?q=${encodeURIComponent(withRecentActivity(query))}&sort=updated&order=desc&per_page=20`,
         // siteUrl 在数据库里有唯一索引，每条来源必须不同；这里指向同一批 issue 的
         // GitHub 搜索页，既天然唯一，点开也确实是这条来源的内容
         siteUrl: `https://github.com/search?q=${encodeURIComponent(query)}&type=issues`,

@@ -12,6 +12,7 @@ import {
   filterCatalogItems,
   paginateCatalog,
   parseCatalogFilters,
+  diversifyByOrganization,
   sortCatalogItems,
 } from '@/lib/pathfinder/catalog-view';
 
@@ -43,7 +44,12 @@ export default async function PathfinderOpportunitiesPage({
   const rawParams = await searchParams;
   const filters = parseCatalogFilters(rawParams);
   const catalog = await listCatalogItems();
-  const items = sortCatalogItems(filterCatalogItems(catalog, filters), filters.sort);
+  // 排序之后再按机构轮转：不删条目，只是不让单一来源连着占满前两屏
+  // （实测 OpenAI 40 条 + Google DeepMind 31 条占了全部条目的四成）
+  const items = diversifyByOrganization(
+    sortCatalogItems(filterCatalogItems(catalog, filters), filters.sort),
+    locale === 'en' ? 'en' : 'zh',
+  );
   const page = paginateCatalog(items, filters.page);
   // 收藏状态一次查完再分发给卡片，避免每张卡片各打一个请求
   const session = await getSession();
