@@ -22,6 +22,20 @@ const ReviewSchema = z.object({
   learningEligible: z.boolean(),
 });
 
+/**
+ * 批量审核。
+ *
+ * 逐条点在几十条待办面前不现实——一次同步就可能带进来几十条新条目。
+ * 上限 50：请求要在网关超时前返回，而且一次批太多会让「人工过一眼」
+ * 退化成走过场，那正是这条流程要防的事。
+ */
+const ReviewBatchSchema = z.object({
+  action: z.literal('review-batch'),
+  ids: z.array(z.string().min(1).max(100)).min(1).max(50),
+  decision: z.enum(['published', 'rejected']),
+  learningEligible: z.boolean(),
+});
+
 const SourceSchema = z.object({
   action: z.literal('source'),
   id: z.string().min(1).max(100),
@@ -46,7 +60,7 @@ const ListQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(30),
 });
 
-const PatchSchema = z.discriminatedUnion('action', [ReviewSchema, SourceSchema, ArchiveSchema, RestoreSchema]).superRefine((value, context) => {
+const PatchSchema = z.discriminatedUnion('action', [ReviewSchema, ReviewBatchSchema, SourceSchema, ArchiveSchema, RestoreSchema]).superRefine((value, context) => {
   if (value.action === 'source' && value.enabled === undefined && value.autoPublish === undefined) {
     context.addIssue({ code: 'custom', message: '没有需要更新的字段' });
   }
@@ -116,6 +130,39 @@ export async function PATCH(request: NextRequest) {
     });
     invalidatePathfinderCatalog();
     return NextResponse.json({ item });
+  }
+
+  if (parsed.data.action === 'review-batch') {
+    const done: string[] = [];
+    const failed: string[] = [];
+    // 串行、逐条走与单条审核完全相同的路径：条件更新防并发、每条都写审计日志。
+    // 图省事直接写一条批量 UPDATE 的话，两个管理员同时点会重复处理，
+    // 而且审计里只剩一条「批量」记录，事后查不出具体动了哪些条目
+    for (const id of parsed.data.ids) {
+      const item = await reviewPathfinderItem({
+        id,
+        reviewerId: session.userId,
+        decision: parsed.data.decision,
+        learningEligible: parsed.data.learningEligible,
+      });
+      if (!item) { failed.push(id); continue; }
+      await logAdminAction(session, {
+        action: `pathfinder.item.${parsed.data.decision}`,
+        targetType: 'pathfinder-item',
+        targetId: item.id,
+        detail: {
+          title: item.titleZh || item.titleEn,
+          learningEligible: item.learningEligible,
+          canonicalUrl: item.canonicalUrl,
+          batch: true,
+        },
+        ip,
+      });
+      done.push(item.id);
+    }
+    if (done.length > 0) invalidatePathfinderCatalog();
+    // 部分失败要如实返回：全成功才 ok，否则界面要说清楚少了几条
+    return NextResponse.json({ done: done.length, failed: failed.length });
   }
 
   if (parsed.data.action === 'archive') {

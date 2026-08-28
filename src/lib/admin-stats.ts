@@ -156,12 +156,14 @@ export interface AdminBadgeCounts {
   pendingComments: number;
   pendingReports: number;
   pendingFeedback: number;
+  /** Pathfinder 待审条目 + 待确认的 AI 解读初稿 */
+  pendingPathfinder: number;
 }
 
 /**
  * 侧边栏徽标计数。
  *
- * 四张表的 count 压成单条 SQL 子查询：Neon HTTP 下每个 count 都是一次网络往返，
+ * 各表的 count 压成单条 SQL 子查询：Neon HTTP 下每个 count 都是一次网络往返，
  * 而这个查询挂在 admin 布局上、每次进后台都要跑一遍。别拆回四个 Promise.all。
  * 失败时返回全 0——徽标是辅助信息，不该让整个后台 500。
  */
@@ -171,6 +173,7 @@ export async function getAdminBadgeCounts(): Promise<AdminBadgeCounts> {
     pending_comments: number;
     pending_reports: number;
     pending_feedback: number;
+    pending_pathfinder: number;
   }
   try {
     const result = await db.execute(sql<BadgeRow>`
@@ -178,7 +181,14 @@ export async function getAdminBadgeCounts(): Promise<AdminBadgeCounts> {
         (SELECT count(*)::int FROM posts WHERE status = 'pending') AS pending_posts,
         (SELECT count(*)::int FROM comments WHERE status = 'pending') AS pending_comments,
         (SELECT count(*)::int FROM reports WHERE status = 'pending') AS pending_reports,
-        (SELECT count(*)::int FROM feedbacks WHERE status = 'pending') AS pending_feedback
+        (SELECT count(*)::int FROM feedbacks WHERE status = 'pending') AS pending_feedback,
+        -- Pathfinder 的待办有两类，合成一个数：待审条目与待人工确认的解读初稿。
+        -- 分成两个徽标会让侧栏里出现两个几乎总是同时亮起的红点，
+        -- 而它们的入口是同一个页面
+        (
+          (SELECT count(*)::int FROM pathfinder_items WHERE status = 'pending')
+          + (SELECT count(*)::int FROM pathfinder_item_notes WHERE status = 'draft')
+        ) AS pending_pathfinder
     `);
     const row = result.rows[0];
     return {
@@ -186,9 +196,13 @@ export async function getAdminBadgeCounts(): Promise<AdminBadgeCounts> {
       pendingComments: Number(row?.pending_comments ?? 0),
       pendingReports: Number(row?.pending_reports ?? 0),
       pendingFeedback: Number(row?.pending_feedback ?? 0),
+      pendingPathfinder: Number(row?.pending_pathfinder ?? 0),
     };
   } catch (err) {
     console.error('admin badge counts query failed:', err);
-    return { pendingPosts: 0, pendingComments: 0, pendingReports: 0, pendingFeedback: 0 };
+    return {
+      pendingPosts: 0, pendingComments: 0, pendingReports: 0, pendingFeedback: 0,
+      pendingPathfinder: 0,
+    };
   }
 }

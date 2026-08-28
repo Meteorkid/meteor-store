@@ -63,7 +63,7 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
       title: t('groupSite'),
       items: [
         { href: '/admin/announcements', label: t('announcements') },
-        { href: '/admin/pathfinder', label: 'Pathfinder' },
+        { href: '/admin/pathfinder', label: 'Pathfinder', badge: counts?.pendingPathfinder },
       ],
     },
     {
@@ -86,7 +86,8 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
     groups.flatMap((g) => g.items).find((item) => isActive(item.href))?.label ?? t('dashboard');
 
   const totalBadge = (counts?.pendingPosts ?? 0) + (counts?.pendingComments ?? 0)
-    + (counts?.pendingReports ?? 0) + (counts?.pendingFeedback ?? 0);
+    + (counts?.pendingReports ?? 0) + (counts?.pendingFeedback ?? 0)
+    + (counts?.pendingPathfinder ?? 0);
 
   const list = (
     <div className="space-y-6">

@@ -57,6 +57,11 @@ interface ItemRow {
   requiresManualEligibilityCheck?: boolean;
 }
 
+/** 一次批量审核最多几条。与接口侧的上限保持一致。 */
+const BATCH_LIMIT = 50;
+/** busy 状态用的哨兵：批量操作不对应任何单个条目 id */
+const BATCH_BUSY_KEY = '__batch__';
+
 type AdminStatus = 'pending' | 'published' | 'stale' | 'expired' | 'archived';
 const ADMIN_STATUSES: AdminStatus[] = ['pending', 'published', 'stale', 'expired', 'archived'];
 
@@ -154,6 +159,53 @@ export default function PathfinderAdminManager() {
     }
   }
 
+  /**
+   * 批量通过当前列表里的待审条目。
+   *
+   * 一次最多 BATCH_LIMIT 条（与接口侧一致）：请求要在网关超时前返回，
+   * 而且一次批太多会让「人工过一眼」退化成走过场。所以按钮上写清楚这次会处理
+   * 多少条，并要求二次确认——批量发布是对外可见的动作，误点没有一键撤销。
+   */
+  async function approveVisible() {
+    const ids = items.filter((item) => item.status === 'pending').slice(0, BATCH_LIMIT).map((item) => item.id);
+    if (ids.length === 0) return;
+
+    const message = zh
+      ? `确认发布这 ${ids.length} 条待审内容？\n\n发布后立即对所有访客可见。`
+      : `Publish these ${ids.length} pending entries?\n\nThey become visible to everyone immediately.`;
+    if (!window.confirm(message)) return;
+
+    setBusyId(BATCH_BUSY_KEY);
+    setError('');
+    try {
+      const response = await fetch('/api/admin/pathfinder', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'review-batch',
+          ids,
+          decision: 'published',
+          // 与逐条审核的默认一致：进入学习路径要单独判断，批量不替人做这个决定
+          learningEligible: false,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Request failed');
+      // 部分失败要说出来，否则用户只看到「少了几条」而不知道为什么
+      if (result.failed > 0) {
+        setError(zh
+          ? `${result.failed} 条未能处理（可能已被其他管理员处理）`
+          : `${result.failed} could not be processed (possibly handled by another admin)`);
+      }
+      const doneIds = new Set(ids);
+      setItems((current) => current.filter((item) => !doneIds.has(item.id)));
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   function confirmArchive(item: ItemRow) {
     const title = zh ? item.titleZh || item.titleEn : item.titleEn || item.titleZh;
     const message = zh
@@ -218,7 +270,23 @@ export default function PathfinderAdminManager() {
             <h2 className="t-title-3">{zh ? '内容审核与下架' : 'Review and takedown'}</h2>
             <p className="mt-1 text-sm text-white/60">{zh ? '待审内容核对原文后发布；已发布内容发现失效或错误时可立即下架。' : 'Verify pending entries before publishing, and take down published entries immediately if they become invalid or incorrect.'}</p>
           </div>
-          <span className="t-footnote text-white/60">{items.length}</span>
+          <div className="flex items-center gap-3">
+            {status === 'pending' && items.some((item) => item.status === 'pending') && (
+              <button
+                type="button"
+                disabled={busyId !== null}
+                onClick={approveVisible}
+                className="rounded-lg border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-100 disabled:opacity-50"
+              >
+                {busyId === BATCH_BUSY_KEY
+                  ? (zh ? '发布中…' : 'Publishing…')
+                  : (zh
+                    ? `批量发布前 ${Math.min(BATCH_LIMIT, items.filter((i) => i.status === 'pending').length)} 条`
+                    : `Publish first ${Math.min(BATCH_LIMIT, items.filter((i) => i.status === 'pending').length)}`)}
+              </button>
+            )}
+            <span className="t-footnote text-white/60">{items.length}</span>
+          </div>
         </div>
         <div className="mb-5 grid gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
           <select
