@@ -9,6 +9,7 @@ import {
   toIsoDate,
 } from './normalize';
 import { isActionableIssue } from './actionable';
+import { isStudentRelevant } from './student-relevance';
 import { topicsForItem } from './topics';
 
 export function parsePathfinderSource(
@@ -45,6 +46,14 @@ export function parseRss(
       readTag(block, ['description', 'summary', 'content:encoded', 'content']) ?? '',
       320,
     );
+
+    /*
+     * 企业博客把研究、产品营销和公关混在同一条 RSS 里。营销与公关对学生没有
+     * 可操作性，只会稀释机会库的信噪比——实测 109 条 AI 动态里有 16 条属于此类
+     * （「用 Google 搜索办一场完美晚宴的 5 种方式」「OpenAI 任命首席营收官」）。
+     * 判据偏保守，实测 0 条研究被误杀，理由见 student-relevance.ts。
+     */
+    if (!isStudentRelevant(title, summary)) return [];
     const publishedAt = toIsoDate(readTag(block, ['pubDate', 'published', 'updated', 'dc:date']));
     const hash = contentHash({ title, url, summary, publishedAt });
 

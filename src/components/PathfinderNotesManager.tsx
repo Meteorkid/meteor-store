@@ -10,6 +10,11 @@ import { useCallback, useEffect, useState } from 'react';
  * 人工确认就会退化成走过场。
  */
 
+/** 一次批量生成几条。与接口侧的上限保持一致。 */
+const BATCH_SIZE = 8;
+/** busy 状态用的哨兵：批量生成不对应任何单个 itemId */
+const BATCH_KEY = '__batch__';
+
 interface Note {
   itemId: string;
   status: 'draft' | 'approved';
@@ -82,6 +87,40 @@ export default function PathfinderNotesManager({
     }
   };
 
+  /*
+   * 批量生成一次只做几条。上限小是有意的：每条都是一次 LLM 调用，请求要在
+   * 网关超时前返回；而且一次灌进太多待确认草稿，会让「人工逐条读一遍」
+   * 这一步重新变成走过场——那正是这个流程要防的事。
+   */
+  const generateBatch = async (itemIds: string[]) => {
+    setBusy(BATCH_KEY);
+    setError(null);
+    try {
+      const response = await fetch('/api/admin/pathfinder/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'generate-batch', itemIds }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setError(data.error ?? (zh ? '批量生成失败' : 'Batch generation failed'));
+        return;
+      }
+      const failed = (data.results ?? []).filter((r: { ok: boolean }) => !r.ok);
+      // 部分失败要说出来，否则用户只看到「少了几条」而不知道为什么
+      if (failed.length > 0) {
+        setError(zh
+          ? `${failed.length} 条生成失败：${failed[0].error ?? ''}`
+          : `${failed.length} failed: ${failed[0].error ?? ''}`);
+      }
+      load();
+    } catch {
+      setError(zh ? '网络异常' : 'Network error');
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const drafts = notes.filter((note) => note.status === 'draft');
   const approved = notes.filter((note) => note.status === 'approved');
   const pendingCandidates = candidates.filter(
@@ -108,7 +147,21 @@ export default function PathfinderNotesManager({
         <p className="mt-4 rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>
       )}
 
-      <h3 className="mt-8 t-title-4">{zh ? `待生成（${pendingCandidates.length}）` : `Needs a draft (${pendingCandidates.length})`}</h3>
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="t-title-4">{zh ? `待生成（${pendingCandidates.length}）` : `Needs a draft (${pendingCandidates.length})`}</h3>
+        {pendingCandidates.length > 1 && (
+          <button
+            type="button"
+            disabled={!enabled || busy !== null}
+            onClick={() => generateBatch(pendingCandidates.slice(0, BATCH_SIZE).map((c) => c.id))}
+            className="rounded-lg border border-violet-400/25 bg-violet-500/10 px-3 py-1.5 text-xs font-semibold text-violet-100 disabled:opacity-50"
+          >
+            {busy === BATCH_KEY
+              ? (zh ? '生成中…' : 'Generating…')
+              : (zh ? `批量生成前 ${Math.min(BATCH_SIZE, pendingCandidates.length)} 条` : `Draft first ${Math.min(BATCH_SIZE, pendingCandidates.length)}`)}
+          </button>
+        )}
+      </div>
       <ul className="mt-3 divide-y divide-white/[0.07]">
         {pendingCandidates.slice(0, 20).map((candidate) => (
           <li key={candidate.id} className="flex flex-wrap items-center gap-3 py-3">

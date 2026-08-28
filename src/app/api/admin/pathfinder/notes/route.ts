@@ -29,6 +29,18 @@ export const dynamic = 'force-dynamic';
 
 const ActionSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('generate'), itemId: z.string().min(1).max(200) }),
+  /*
+   * 批量生成初稿。
+   *
+   * 逐条点「生成」在 100+ 条待办面前不现实——实测 109 条 AI 动态里只有 1 条
+   * 走完了流程。上限刻意留得很小（一次最多 8 条）：每条都是一次 LLM 调用，
+   * 请求要在网关超时前返回，而且一次生成太多会让「人工逐条确认」这一步
+   * 重新变成走过场。
+   */
+  z.object({
+    action: z.literal('generate-batch'),
+    itemIds: z.array(z.string().min(1).max(200)).min(1).max(8),
+  }),
   z.object({ action: z.literal('approve'), itemId: z.string().min(1).max(200) }),
   z.object({ action: z.literal('revert'), itemId: z.string().min(1).max(200) }),
   z.object({ action: z.literal('delete'), itemId: z.string().min(1).max(200) }),
@@ -59,11 +71,13 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
-  const { action, itemId } = parsed.data;
+  const { action } = parsed.data;
+  const itemId = 'itemId' in parsed.data ? parsed.data.itemId : '';
 
   // 生成要调模型、按 token 计费，限得比其它管理动作更紧
   const ip = getClientIp(request);
-  const quota = action === 'generate' ? 10 : 60;
+  // 批量一次就是好几次 LLM 调用，配额比单条更严
+  const quota = action === 'generate-batch' ? 3 : action === 'generate' ? 10 : 60;
   const { limited } = await rateLimit(`pf-notes:${action}:${session.userId}:${ip}`, quota, 60_000, {
     fallback: 'memory',
   });
@@ -100,6 +114,42 @@ export async function POST(request: NextRequest) {
         console.error('Editorial note generation failed:', error);
         return NextResponse.json({ error: '生成失败，请稍后重试' }, { status: 502 });
       }
+    }
+
+    case 'generate-batch': {
+      if (!isEditorialEnabled()) {
+        return NextResponse.json({ error: '未配置 DEEPSEEK_API_KEY，解读功能未启用' }, { status: 503 });
+      }
+
+      const results: Array<{ itemId: string; ok: boolean; error?: string }> = [];
+      // 串行：并发打同一个供应商容易触发限流，一旦限流整批都白跑
+      for (const id of parsed.data.itemIds) {
+        const item = await getCatalogItem(id);
+        if (!item || item.itemType !== 'ai-update') {
+          results.push({ itemId: id, ok: false, error: '条目不存在或不是 AI 动态' });
+          continue;
+        }
+        try {
+          const note = await generateEditorialNote(item);
+          const saved = await saveEditorialDraft(id, note);
+          if (!saved.saved) {
+            results.push({ itemId: id, ok: false, error: '已有人工确认的解读' });
+            continue;
+          }
+          await logAdminAction(session, {
+            action: 'pathfinder.note.generate',
+            targetType: 'pathfinder_item',
+            targetId: id,
+            detail: { title: item.title.zh, batch: true },
+          });
+          results.push({ itemId: id, ok: true });
+        } catch (error) {
+          // 单条失败不终止整批：一次网络抖动不该让前面几条的花费白付
+          console.error('Editorial note generation failed:', id, error);
+          results.push({ itemId: id, ok: false, error: '生成失败' });
+        }
+      }
+      return NextResponse.json({ results });
     }
 
     case 'edit': {
