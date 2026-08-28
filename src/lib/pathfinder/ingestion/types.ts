@@ -32,6 +32,18 @@ export interface PathfinderSyncSource {
    * 都由那条仓库条目背书，可以直接发布并纳入学习路径。
    */
   curated?: boolean;
+  /**
+   * 抓取镜像、但把条目链接改写回官方域名。
+   *
+   * 少数官方站点从生产服务器（阿里云）出网不通——实测 huggingface.co 与
+   * blog.google 都是 20 秒超时，而 openai.com 正常。对这类来源只能走镜像抓取，
+   * 但**条目链接必须指回官方**：站点对读者的承诺是「每条信息都保留来源」、
+   * 卡片上标的是「官方来源」，让它指向第三方镜像就是标错了出处。
+   *
+   * 只改主机名，路径原样保留（镜像的路径结构与官方一致）。改写发生在
+   * `allowedItemHosts` 校验之前，所以白名单里写官方域名即可。
+   */
+  rewriteItemHost?: { from: string; to: string };
 }
 
 export interface IngestedPathfinderItem {

@@ -168,13 +168,70 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     learningEligible: false,
   },
   {
+    /*
+     * 下面两条是为补上 google-ai-blog 关闭后的缺口补进来的，同时摊薄来源集中度。
+     *
+     * 选取前提是**从生产服务器实测可达**：候选里 developers.googleblog.com、
+     * research.google、ai.meta.com、bair.berkeley.edu 都是 20 秒超时，只有这两条
+     * 与 hf-mirror 通得过。挑可达的官方博客，而不是挑名气最大的。
+     */
+    id: 'qwen-blog',
+    name: 'Qwen Blog',
+    adapterId: 'rss',
+    fetchUrl: 'https://qwenlm.github.io/blog/index.xml',
+    siteUrl: 'https://qwenlm.github.io/blog/',
+    allowedFetchHosts: ['qwenlm.github.io'],
+    allowedItemHosts: ['qwenlm.github.io'],
+    itemType: 'ai-update',
+    direction: 'ai',
+    trustLevel: 'official',
+    enabled: true,
+    // 新来源先进人工队列。这两个 feed 我们从没抓过，内容质量与噪声比例
+    // 都还没见过——自动发布等于让未审内容直接上线。
+    // 审过一批、确认可用之后再改成 true（同时要更新 admin-catalog 的白名单测试）
+    autoPublish: false,
+    organization: 'Qwen',
+    learningEligible: false,
+  },
+  {
+    id: 'microsoft-research-blog',
+    name: 'Microsoft Research',
+    adapterId: 'rss',
+    fetchUrl: 'https://www.microsoft.com/en-us/research/feed/',
+    siteUrl: 'https://www.microsoft.com/en-us/research/blog/',
+    allowedFetchHosts: ['www.microsoft.com'],
+    allowedItemHosts: ['www.microsoft.com'],
+    itemType: 'ai-update',
+    direction: 'ai',
+    trustLevel: 'official',
+    enabled: true,
+    // 新来源先进人工队列。这两个 feed 我们从没抓过，内容质量与噪声比例
+    // 都还没见过——自动发布等于让未审内容直接上线。
+    // 审过一批、确认可用之后再改成 true（同时要更新 admin-catalog 的白名单测试）
+    autoPublish: false,
+    organization: 'Microsoft Research',
+    learningEligible: false,
+  },
+  {
     id: 'hugging-face-blog',
     name: 'Hugging Face Blog',
     adapterId: 'rss',
-    fetchUrl: 'https://huggingface.co/blog/feed.xml',
+    /*
+     * 抓镜像，不抓官方。
+     *
+     * huggingface.co 从生产服务器（阿里云）出网不通——实测 20 秒超时，
+     * 而这条来源自上线起 `last_success_at` 一直是 null、一条内容都没进来过，
+     * 期间没有任何告警。hf-mirror.com 是社区维护的国内镜像，实测 1.2 秒返回
+     * 851 条，内容与官方同步。
+     *
+     * 条目链接由 `rewriteItemHost` 改写回官方域名：卡片上标的是「官方来源」，
+     * 指向第三方镜像就是标错出处。镜像与官方的路径结构一致，只换主机名即可。
+     */
+    fetchUrl: 'https://hf-mirror.com/blog/feed.xml',
     siteUrl: 'https://huggingface.co/blog',
-    allowedFetchHosts: ['huggingface.co'],
+    allowedFetchHosts: ['hf-mirror.com'],
     allowedItemHosts: ['huggingface.co'],
+    rewriteItemHost: { from: 'hf-mirror.com', to: 'huggingface.co' },
     itemType: 'ai-update',
     direction: 'ai',
     trustLevel: 'verified',
@@ -203,6 +260,20 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     id: 'google-ai-blog',
     name: 'Google AI',
     adapterId: 'rss',
+    /*
+     * 关闭：从生产服务器出网不通，且没有可达的替代。
+     *
+     * blog.google 实测 20 秒超时；找过的替代源（developers.googleblog.com、
+     * research.google、ai.meta.com、bair.berkeley.edu）从服务器上同样全部不通，
+     * 也没有可信的镜像。
+     *
+     * 关掉而不是留着反复失败：一条永远失败的来源会一直占着同步的重试与日志，
+     * 掩盖真正的新故障。Google 的研究内容由仍然可达的 google-deepmind-blog
+     * 覆盖；blog.google 那半边本来就以产品与消费向公告为主
+     * （「用 Google 搜索升级家居装饰」这类），对学生的价值本来就低。
+     *
+     * 服务器出网条件变化后，把 enabled 改回 true 即可。
+     */
     fetchUrl: 'https://blog.google/technology/ai/rss/',
     siteUrl: 'https://blog.google/technology/ai/',
     allowedFetchHosts: ['blog.google'],
@@ -210,7 +281,7 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     itemType: 'ai-update',
     direction: 'ai',
     trustLevel: 'official',
-    enabled: true,
+    enabled: false,
     autoPublish: true,
     organization: 'Google',
     learningEligible: false,

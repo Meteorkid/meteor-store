@@ -5,6 +5,7 @@ import {
   markdownToSummary,
   isAllowedHost,
   normalizeIngestionUrl,
+  rewriteHost,
   toIsoDate,
 } from './normalize';
 import { isActionableIssue } from './actionable';
@@ -33,7 +34,10 @@ export function parseRss(
     const rawUrl = readAtomLink(block)
       ?? readTag(block, ['link'])
       ?? readTag(block, ['guid', 'id']);
-    const url = rawUrl ? normalizeIngestionUrl(cleanExternalText(rawUrl, 800)) : null;
+    // 镜像抓取的来源要把链接改回官方域名，再走白名单校验
+    const url = rawUrl
+      ? rewriteHost(normalizeIngestionUrl(cleanExternalText(rawUrl, 800)), source.rewriteItemHost)
+      : null;
     if (!title || !url || !isAllowedHost(url, source.allowedItemHosts)) return [];
 
     const externalId = cleanExternalText(readTag(block, ['guid', 'id']) ?? url, 500);

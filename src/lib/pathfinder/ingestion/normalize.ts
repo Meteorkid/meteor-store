@@ -28,6 +28,29 @@ export function normalizeIngestionUrl(raw: string): string | null {
   }
 }
 
+/**
+ * 把镜像域名换回官方域名。
+ *
+ * 只在来源声明了 `rewriteItemHost` 时生效，且**只改主机名**——镜像的路径结构
+ * 与官方一致（`hf-mirror.com/blog/x` ↔ `huggingface.co/blog/x`），改路径反而
+ * 会造出不存在的地址。主机名必须精确相等才改，不做后缀匹配：
+ * `evil-hf-mirror.com` 不该被当成 `hf-mirror.com`。
+ */
+export function rewriteHost(
+  url: string | null,
+  rule: { from: string; to: string } | undefined,
+): string | null {
+  if (!url || !rule) return url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== rule.from) return url;
+    parsed.hostname = rule.to;
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 export function isAllowedHost(raw: string, allowedHosts: readonly string[]): boolean {
   try {
     const url = new URL(raw);
