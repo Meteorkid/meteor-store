@@ -6,7 +6,7 @@ const hoursAgo = (n: number) => new Date(NOW.getTime() - n * 3_600_000).toISOStr
 
 const source = (over: Partial<Parameters<typeof judgeSourceHealth>[0]> = {}) => ({
   id: 's', name: '来源', enabled: true,
-  consecutiveFailures: 0, lastSuccessAt: hoursAgo(2), lastError: null,
+  consecutiveFailures: 0, lastSuccessAt: hoursAgo(2), lastError: null, enabledInCode: true,
   ...over,
 });
 
@@ -32,11 +32,25 @@ describe('来源健康度', () => {
     expect(judgeSourceHealth(source({ lastSuccessAt: hoursAgo(12) }), NOW).level).toBe('ok');
   });
 
-  it('手动关闭的来源不算故障', () => {
+  it('代码与后台一致的关闭不算故障', () => {
     // 关闭是一个明确的决定，不该混在故障里让人分不清哪些需要处理
-    const health = judgeSourceHealth(source({ enabled: false, lastSuccessAt: null }), NOW);
+    const health = judgeSourceHealth(
+      source({ enabled: false, enabledInCode: false, lastSuccessAt: null }), NOW);
     expect(health.level).toBe('ok');
     expect(health.reason).toContain('关闭');
+  });
+
+  it('代码配置为启用但后台关着，要报出来', () => {
+    /*
+     * ensureSourceRows 的 upsert 写的是 `enabled AND excluded.enabled`：
+     * 数据库一旦是 false，代码怎么改都变不回 true。hugging-face-blog 就栽在这里——
+     * 它在库里被关着，于是换镜像地址、改 allowedFetchHosts 全是空转，
+     * 而后台只显示「已手动关闭」，看不出「代码以为它开着」。
+     */
+    const health = judgeSourceHealth(
+      source({ enabled: false, enabledInCode: true, lastSuccessAt: null }), NOW);
+    expect(health.level).toBe('warning');
+    expect(health.reason).toContain('代码配置为启用');
   });
 
   it('时间戳非法时不误报', () => {

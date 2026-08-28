@@ -51,6 +51,15 @@ export function rewriteHost(
   }
 }
 
+/** 按来源声明的规则做字面替换（镜像站会把原站名换成自己的）。 */
+export function rewriteText(
+  value: string,
+  rules: ReadonlyArray<{ from: string; to: string }> | undefined,
+): string {
+  if (!rules?.length || !value) return value;
+  return rules.reduce((text, rule) => text.split(rule.from).join(rule.to), value);
+}
+
 export function isAllowedHost(raw: string, allowedHosts: readonly string[]): boolean {
   try {
     const url = new URL(raw);

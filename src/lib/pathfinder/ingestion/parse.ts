@@ -6,6 +6,7 @@ import {
   isAllowedHost,
   normalizeIngestionUrl,
   rewriteHost,
+  rewriteText,
   toIsoDate,
 } from './normalize';
 import { isActionableIssue } from './actionable';
@@ -31,7 +32,12 @@ export function parseRss(
   ];
 
   return blocks.slice(0, 30).flatMap((block) => {
-    const title = cleanExternalText(readTag(block, ['title']) ?? '', 180);
+    // 镜像来源要把被替换掉的原站名改回来，否则等于以「官方来源」的名义
+    // 发布被篡改过的文本（详见 types.ts 的 rewriteItemText）
+    const title = rewriteText(
+      cleanExternalText(readTag(block, ['title']) ?? '', 180),
+      source.rewriteItemText,
+    );
     const rawUrl = readAtomLink(block)
       ?? readTag(block, ['link'])
       ?? readTag(block, ['guid', 'id']);
@@ -42,9 +48,12 @@ export function parseRss(
     if (!title || !url || !isAllowedHost(url, source.allowedItemHosts)) return [];
 
     const externalId = cleanExternalText(readTag(block, ['guid', 'id']) ?? url, 500);
-    const summary = cleanExternalText(
-      readTag(block, ['description', 'summary', 'content:encoded', 'content']) ?? '',
-      320,
+    const summary = rewriteText(
+      cleanExternalText(
+        readTag(block, ['description', 'summary', 'content:encoded', 'content']) ?? '',
+        320,
+      ),
+      source.rewriteItemText,
     );
 
     /*

@@ -232,6 +232,9 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     allowedFetchHosts: ['hf-mirror.com'],
     allowedItemHosts: ['huggingface.co'],
     rewriteItemHost: { from: 'hf-mirror.com', to: 'huggingface.co' },
+    // 镜像还会把正文里的「Hugging Face」换成自己的名字：实测 30 条里有 3 条
+    // 标题写着「HF Mirror Inference Endpoints」，原文是「Hugging Face …」
+    rewriteItemText: [{ from: 'HF Mirror', to: 'Hugging Face' }],
     itemType: 'ai-update',
     direction: 'ai',
     trustLevel: 'verified',

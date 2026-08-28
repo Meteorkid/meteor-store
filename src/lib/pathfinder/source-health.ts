@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { pathfinderSources } from '@/lib/db/schema';
+import { PATHFINDER_SYNC_SOURCE_MAP } from './ingestion';
 
 /**
  * 来源健康度。
@@ -49,13 +50,29 @@ export function judgeSourceHealth(
     consecutiveFailures: number;
     lastSuccessAt: string | null;
     lastError: string | null;
+    /** 代码配置里是否启用。与数据库的 enabled 不一致时要报出来 */
+    enabledInCode: boolean;
   },
   now = new Date(),
 ): SourceHealth {
   const base = { ...source, level: 'ok' as SourceHealthLevel, reason: '' };
 
-  // 手动关闭的来源不算故障：关闭本身就是一个明确的决定
-  if (!source.enabled) return { ...base, level: 'ok', reason: '已手动关闭' };
+  if (!source.enabled) {
+    /*
+     * 数据库里关掉、但代码配置里是启用的——这种不一致要报出来。
+     *
+     * `ensureSourceRows` 的 upsert 写的是 `enabled AND excluded.enabled`：
+     * 数据库一旦是 false，代码怎么改都永远变不回 true。hugging-face-blog
+     * 就栽在这里——它在库里被关着，于是换镜像地址、改 allowedFetchHosts
+     * 全是空转，而后台只显示「已手动关闭」，看不出「代码以为它开着」。
+     *
+     * 真正由管理员主动关闭的来源，代码侧也会一并标记 enabled: false
+     * （比如出网不通的 google-ai-blog），那种一致的关闭才算正常。
+     */
+    return source.enabledInCode
+      ? { ...base, level: 'warning', reason: '代码配置为启用，但后台被关闭了' }
+      : { ...base, level: 'ok', reason: '已手动关闭' };
+  }
 
   if (!source.lastSuccessAt) {
     // 关键的一条：从未成功过。失败次数可能只有 1，光看计数完全不显眼
@@ -93,6 +110,9 @@ export async function listSourceHealth(now = new Date()): Promise<SourceHealth[]
   }).from(pathfinderSources);
 
   return rows
-    .map((row) => judgeSourceHealth(row, now))
+    .map((row) => judgeSourceHealth({
+      ...row,
+      enabledInCode: PATHFINDER_SYNC_SOURCE_MAP.get(row.id)?.enabled ?? false,
+    }, now))
     .sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level] || a.id.localeCompare(b.id));
 }

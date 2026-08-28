@@ -44,6 +44,17 @@ export interface PathfinderSyncSource {
    * `allowedItemHosts` 校验之前，所以白名单里写官方域名即可。
    */
   rewriteItemHost?: { from: string; to: string };
+  /**
+   * 把镜像替换掉的品牌名改回来。
+   *
+   * 镜像站不只改域名，还会把正文里的原站名替换成自己的——实测 hf-mirror.com
+   * 抓到的 30 条里有 3 条标题写着「HF Mirror Inference Endpoints」，
+   * 原文是「Hugging Face Inference Endpoints」。链接已经改回官方了，正文再不改，
+   * 就成了以「官方来源」的名义发布被篡改过的文本。
+   *
+   * 只做字面替换，作用于标题与摘要。
+   */
+  rewriteItemText?: ReadonlyArray<{ from: string; to: string }>;
 }
 
 export interface IngestedPathfinderItem {
