@@ -13,6 +13,14 @@ describe('Pathfinder 自动发布白名单', () => {
 
     expect(allowedSources.map((source) => source.id)).toEqual([
       'openai-news',
+      /*
+       * qwen / microsoft-research 上线时先进人工队列，审过一批后才转自动发布：
+       * Qwen 30 条全是模型与论文发布，Microsoft Research 10 条全是研究成果
+       * （Skala DFT 泛函、MindTopo 基准、CARE-X 放射学 VLM、Aurora 气象模型），
+       * 没有营销与公关内容。新增来源都应该走这个「先审后放」的顺序。
+       */
+      'qwen-blog',
+      'microsoft-research-blog',
       'google-deepmind-blog',
       'google-ai-blog',
       'github-ai-blog',
@@ -32,7 +40,7 @@ describe('Pathfinder 自动发布白名单', () => {
   });
 
   it.each([
-    'hugging-face-blog',
+    // hugging-face-blog 已审过 26 条后转为自动发布，不再属于这一组
     'github-good-first-issues',
     'unknown-source',
   ])('拒绝非自动发布官方白名单来源：%s', (sourceId) => {

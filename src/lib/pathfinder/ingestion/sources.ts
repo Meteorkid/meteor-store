@@ -186,10 +186,9 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     direction: 'ai',
     trustLevel: 'official',
     enabled: true,
-    // 新来源先进人工队列。这两个 feed 我们从没抓过，内容质量与噪声比例
-    // 都还没见过——自动发布等于让未审内容直接上线。
-    // 审过一批、确认可用之后再改成 true（同时要更新 admin-catalog 的白名单测试）
-    autoPublish: false,
+    // 已审过一批（Qwen 30 条、Microsoft Research 10 条）：全部是模型发布与
+    // 研究成果，没有营销与公关内容，故转为自动发布
+    autoPublish: true,
     organization: 'Qwen',
     learningEligible: false,
   },
@@ -205,10 +204,9 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     direction: 'ai',
     trustLevel: 'official',
     enabled: true,
-    // 新来源先进人工队列。这两个 feed 我们从没抓过，内容质量与噪声比例
-    // 都还没见过——自动发布等于让未审内容直接上线。
-    // 审过一批、确认可用之后再改成 true（同时要更新 admin-catalog 的白名单测试）
-    autoPublish: false,
+    // 已审过一批（Qwen 30 条、Microsoft Research 10 条）：全部是模型发布与
+    // 研究成果，没有营销与公关内容，故转为自动发布
+    autoPublish: true,
     organization: 'Microsoft Research',
     learningEligible: false,
   },
@@ -239,7 +237,11 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     direction: 'ai',
     trustLevel: 'verified',
     enabled: true,
-    autoPublish: false,
+    // 已审过一批（26 条）：标题全部是模型、论文与工具发布，无营销内容。
+    // 注意这个 feed **不提供摘要**（只有 guid/link/pubDate/title），
+    // 页面会显示「官方来源未提供摘要，点开可查看原文」——这是来源本身的限制，
+    // 不是抽取失败，不要为此去猜正文
+    autoPublish: true,
     organization: 'Hugging Face',
     learningEligible: false,
   },

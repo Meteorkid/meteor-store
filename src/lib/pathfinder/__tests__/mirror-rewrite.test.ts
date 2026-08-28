@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { rewriteHost, rewriteText } from '../ingestion/normalize';
+import { cleanFeedSummary, rewriteHost, rewriteText } from '../ingestion/normalize';
 import { PATHFINDER_SYNC_SOURCE_MAP } from '../ingestion';
 
 describe('镜像来源的回写', () => {
@@ -47,6 +47,41 @@ describe('镜像来源的回写', () => {
         .toBeDefined();
       // 条目白名单必须写官方域名——回写发生在校验之前
       expect(source.allowedItemHosts).toContain(source.rewriteItemHost.to);
+    }
+  });
+});
+
+describe('feed 摘要的链接行', () => {
+  it('去掉文章开头那一排跳转链接', () => {
+    /*
+     * 不少官方博客在正文最前面放一排链接。RSS 的 description 原样带进来，
+     * 去掉 HTML 之后就是一串裸词——实测 Qwen 的 30 条摘要无一例外都以
+     * 「Tech Report GitHub Hugging Face ModelScope DISCORD」开头。
+     */
+    expect(cleanFeedSummary(
+      'Tech Report GitHub Hugging Face ModelScope DISCORD\nIntroduction We are excited to introduce Qwen3Guard.',
+      200,
+    )).toMatch(/^Introduction/);
+
+    // 全大写短行几乎必然是链接行，这条也覆盖了标签表里没有的产品名
+    expect(cleanFeedSummary(
+      'QWEN CHAT GITHUB HUGGING FACE MODELSCOPE DISCORD\nWe are excited to introduce Qwen-Image-Edit.',
+      200,
+    )).toMatch(/^We are/);
+
+    expect(cleanFeedSummary('论文 DISCORD\n介绍 强化学习（RL）已成为关键范式。', 200))
+      .toMatch(/^介绍/);
+  });
+
+  it('不误删正文首句', () => {
+    // 摘要的第一句往往是最重要的一句，判据必须保守
+    for (const [text, start] of [
+      ['Skala 1.1 is an updated functional from Microsoft Research.\nIt offers higher accuracy.', 'Skala'],
+      ['A path, a fence, a knot.\nMindTopo sets a new benchmark.', 'A path'],
+      ['大模型的推理成本一直是部署瓶颈。\n本文介绍一种新方法。', '大模型'],
+      ['没有换行的单行摘要，不该动它', '没有换行'],
+    ] as const) {
+      expect(cleanFeedSummary(text, 200), text.slice(0, 20)).toMatch(new RegExp(`^${start}`));
     }
   });
 });

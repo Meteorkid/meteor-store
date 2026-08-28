@@ -71,6 +71,80 @@ export function isAllowedHost(raw: string, allowedHosts: readonly string[]): boo
   }
 }
 
+/**
+ * 文章开头那一行「链接行」的标签词。
+ *
+ * 不少官方博客在正文最前面放一排跳转链接（技术报告 / GitHub / Hugging Face /
+ * ModelScope / Discord）。RSS 的 description 把它们原样带进来，去掉 HTML 之后
+ * 就变成一串裸词，于是每条摘要都以「Tech Report GitHub Hugging Face ModelScope
+ * DISCORD」开头——实测 Qwen 的 30 条无一例外，摘要前 30 多个字符全是噪声。
+ */
+const LINK_ROW_LABELS = new Set([
+  'github', 'hugging face', 'huggingface', 'modelscope', 'discord', 'twitter', 'x',
+  'tech report', 'technical report', 'paper', 'papers', 'demo', 'api', 'blog', 'code',
+  'colab', 'notebook', 'model', 'models', 'dataset', 'datasets', 'homepage', 'chat',
+  'qwen chat', 'wechat', 'weibo', 'youtube',
+  '技术报告', '论文', '演示', '主页', '代码', '模型', '数据集', '博客', '微信',
+]);
+
+/** 句末标点：出现即说明这一行是正文，不是链接行。 */
+const SENTENCE_END = /[。．.!?！？]/;
+
+/**
+ * 去掉开头的链接行。
+ *
+ * 判据保守：只看**第一行**，且要求它不含句末标点、并且绝大部分词都是已知的
+ * 链接标签。宁可漏掉几种没见过的写法，也不要把真正的首句当成链接行删掉——
+ * 摘要的第一句往往是最重要的一句。
+ */
+export function stripLeadingLinkRow(text: string): string {
+  const lines = text.split('\n');
+  if (lines.length < 2) return text;
+
+  const first = lines[0].trim();
+  if (!first || first.length > 120 || SENTENCE_END.test(first)) return text;
+
+  /*
+   * 全大写的短行几乎必然是链接行：`QWEN CHAT GITHUB HUGGING FACE MODELSCOPE
+   * DISCORD` 就是这种。正文首句极少全大写，再叠加「无句末标点 + 短」两个条件，
+   * 误删风险很低。这条规则也覆盖了标签表里没有的产品名。
+   */
+  const letters = first.replace(/[^A-Za-z]/g, '');
+  if (letters.length >= 4 && letters === letters.toUpperCase()) {
+    return lines.slice(1).join('\n');
+  }
+
+  /*
+   * 否则按已知标签剥离，看还剩多少。**必须按长度降序**：
+   * 否则 `chat` 会先把 `qwen chat` 里的 chat 吃掉，导致多词标签再也匹配不上。
+   */
+  let rest = first.toLocaleLowerCase();
+  for (const label of [...LINK_ROW_LABELS].sort((a, b) => b.length - a.length)) {
+    rest = rest.split(label).join(' ');
+  }
+  const leftover = rest.replace(/[\s|·•,，、/\-—]+/g, '');
+  // 剥完基本没剩东西才认定是链接行
+  if (leftover.length > 2) return text;
+
+  return lines.slice(1).join('\n');
+}
+
+/**
+ * 清洗 feed 摘要。
+ *
+ * 与 `cleanExternalText` 的差别只有一处：在折叠空白**之前**先去掉开头的链接行。
+ * 折叠之后行结构就没了，判断不出哪一段原本是独立的一行。
+ */
+export function cleanFeedSummary(raw: string, maxLength: number): string {
+  const withoutCdata = raw.replace(/^\s*<!\[CDATA\[|\]\]>\s*$/g, '');
+  const decoded = decodeXmlEntities(withoutCdata);
+  // 去标签时把块级标签换成换行，保住行结构
+  const text = decoded
+    .replace(/<\/?(p|div|br|li|h[1-6])[^>]*>/gi, '\n')
+    .replace(/<[^>]*>/g, ' ');
+  return cleanExternalText(stripLeadingLinkRow(text), maxLength);
+}
+
 export function cleanExternalText(raw: string, maxLength: number): string {
   const withoutCdata = raw.replace(/^\s*<!\[CDATA\[|\]\]>\s*$/g, '');
   const decoded = decodeXmlEntities(withoutCdata);

@@ -1,6 +1,7 @@
 import type { IngestedPathfinderItem, PathfinderSyncSource } from './types';
 import {
   cleanExternalText,
+  cleanFeedSummary,
   contentHash,
   markdownToSummary,
   isAllowedHost,
@@ -49,7 +50,9 @@ export function parseRss(
 
     const externalId = cleanExternalText(readTag(block, ['guid', 'id']) ?? url, 500);
     const summary = rewriteText(
-      cleanExternalText(
+      // 用 cleanFeedSummary 而不是 cleanExternalText：要先去掉文章开头那一行
+      // 跳转链接，折叠空白之后就分不出哪段原本是独立一行了
+      cleanFeedSummary(
         readTag(block, ['description', 'summary', 'content:encoded', 'content']) ?? '',
         320,
       ),
