@@ -367,3 +367,55 @@ export async function sendPathfinderDeadlineReminder(data: PathfinderDeadlineRem
 
   if (error) throw new Error(`Email send failed: ${error.message}`);
 }
+
+interface AdminPendingDigestData {
+  to: string[];
+  /** 各类待办的条数，只放大于 0 的项 */
+  items: Array<{ label: string; count: number; href: string }>;
+  total: number;
+}
+
+/**
+ * 管理员待办摘要邮件。
+ *
+ * 站内的角标只在人打开网站时才看得到。这封信补的是「完全离开站点」的情况：
+ * 由定时任务按天调用，有待办才发，没有就不打扰。
+ *
+ * 不做「距上次发送多久」这类去重表——**调用频率本身就是去重**：一天跑一次，
+ * 就一天最多一封。加一张表只会多一个要维护、要迁移的东西。
+ */
+export async function sendAdminPendingDigest(data: AdminPendingDigestData) {
+  if (data.to.length === 0 || data.total <= 0) return;
+
+  const siteUrl = getSiteUrl();
+  const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
+  const rows = data.items.map((item) => `
+    <tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;">
+        <a href="${siteUrl}${escapeHtml(item.href)}" style="color:#7c3aed;text-decoration:none;">${escapeHtml(item.label)}</a>
+      </td>
+      <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">${item.count}</td>
+    </tr>`).join('');
+
+  try {
+    await getResend().emails.send({
+      from: `Meteor Store <${fromEmail}>`,
+      replyTo: getReplyToEmail(),
+      // 逐个收件人分别发送，避免在信头里互相暴露管理员邮箱
+      to: data.to,
+      subject: `后台有 ${data.total} 项待处理`,
+      html: `
+        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;">
+          <p style="font-size:15px;color:#333;">后台目前有 <strong>${data.total}</strong> 项待处理：</p>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">${rows}</table>
+          <p style="margin-top:20px;">
+            <a href="${siteUrl}/zh/admin" style="display:inline-block;background:#7c3aed;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:14px;">进入后台</a>
+          </p>
+          <p style="font-size:12px;color:#999;margin-top:24px;">没有待处理事项时不会收到这封信。</p>
+        </div>`,
+    });
+  } catch (err) {
+    // 提醒发送失败不应影响定时任务的其它工作，仅记录日志
+    console.error('Admin pending digest email failed:', err);
+  }
+}

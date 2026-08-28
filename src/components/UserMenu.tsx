@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import AdminPendingBadge, { AdminPendingCount } from './AdminPendingBadge';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
@@ -78,6 +79,11 @@ export default function UserMenu() {
             <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500 border border-black" />
           </span>
         )}
+        {/*
+          * 待办角标只对管理员渲染。它补的是「人不在后台」的情况：
+          * 侧栏那套徽标只在后台布局里算，人在博客页、产品页时看不到。
+          */}
+        {user.isAdmin && <AdminPendingBadge label={t('adminDashboard')} />}
         {user.avatarUrl ? (
           <Image
             src={user.avatarUrl}
@@ -145,9 +151,10 @@ export default function UserMenu() {
               <Link
                 href="/admin"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
+                className="flex items-center justify-between gap-2 px-4 py-2 text-sm text-amber-300/80 transition-colors hover:bg-white/5 hover:text-amber-300"
               >
-                {t('adminDashboard')}
+                <span>{t('adminDashboard')}</span>
+                <AdminPendingCount />
               </Link>
             )}
             <Link
