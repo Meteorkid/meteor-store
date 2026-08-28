@@ -23,10 +23,41 @@ const GITHUB_MIN_INTERVAL_MS = 2_500;
 /** 上一次 GitHub 请求的时刻。模块级状态，同一进程内的所有来源共享节流。 */
 let lastGithubRequestAt = 0;
 
-async function throttleGithub(): Promise<void> {
+/**
+ * 次级限流的冷却截止时刻。
+ *
+ * 次级限流一旦触发，惩罚是分钟级的（GitHub 的原话是「wait a few minutes」），
+ * 而且**期间继续请求会延长惩罚**。实测：第一次未节流的同步触发后，紧接着的
+ * 第二次同步仍然全是 403，而主配额 `x-ratelimit-remaining` 还剩 21。
+ *
+ * 所以命中之后不再发请求，而是让剩下的 GitHub 来源直接失败——同步是每小时跑
+ * 一次的定时任务，这一轮少几个来源，下一轮自然补上；在请求里等几分钟则会
+ * 撞上网关超时，什么也拿不到还白等。
+ */
+let githubCooldownUntil = 0;
+
+/** 命中次级限流后默认冷却多久（GitHub 未给 Retry-After 时使用）。 */
+const GITHUB_COOLDOWN_MS = 5 * 60_000;
+
+async function throttleGithub(sourceId: string): Promise<void> {
+  if (Date.now() < githubCooldownUntil) {
+    const seconds = Math.ceil((githubCooldownUntil - Date.now()) / 1000);
+    throw new Error(
+      `pathfinder source ${sourceId} skipped: GitHub 次级限流冷却中，还需 ${seconds} 秒`,
+    );
+  }
   const wait = lastGithubRequestAt + GITHUB_MIN_INTERVAL_MS - Date.now();
   if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
   lastGithubRequestAt = Date.now();
+}
+
+/** 从 403 响应里识别次级限流，并记下冷却截止时刻。 */
+function noteGithubSecondaryLimit(response: Response, body: string): void {
+  if (response.status !== 403 && response.status !== 429) return;
+  if (!/secondary rate limit/i.test(body)) return;
+  const retryAfter = Number(response.headers.get('retry-after'));
+  githubCooldownUntil = Date.now()
+    + (Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : GITHUB_COOLDOWN_MS);
 }
 
 export async function fetchPathfinderSource(
@@ -63,7 +94,7 @@ async function fetchPathfinderSourceOnce(
   if (source.adapterId === 'github') {
     headers['X-GitHub-Api-Version'] = '2022-11-28';
     if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-    await throttleGithub();
+    await throttleGithub(source.id);
   }
 
   for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects += 1) {
@@ -96,6 +127,11 @@ async function fetchPathfinderSourceOnce(
     }
 
     if (!response.ok) {
+      if (source.adapterId === 'github') {
+        // 读一小段正文来区分次级限流与其它 403（权限、仓库不存在等）
+        const body = await response.text().catch(() => '');
+        noteGithubSecondaryLimit(response, body.slice(0, 500));
+      }
       throw new Error(`pathfinder source ${source.id} returned ${response.status}`);
     }
     const declaredLength = Number(response.headers.get('content-length') ?? 0);
