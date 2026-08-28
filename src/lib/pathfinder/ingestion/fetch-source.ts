@@ -84,6 +84,17 @@ async function fetchPathfinderSourceOnce(
   conditional: { etag?: string | null; lastModified?: string | null },
 ): Promise<PathfinderFetchResult> {
   let currentUrl = source.fetchUrl;
+
+  /*
+   * 节流必须在超时信号创建**之前**。
+   *
+   * `AbortSignal.timeout` 从创建那一刻开始计时，而节流最长会睡满一个间隔
+   * （目前 6 秒），恰好等于超时预算——放在信号之后，等真正发请求时预算已经
+   * 耗尽，每个需要等待的 GitHub 请求都会立刻 abort，表现为「fetch failed」。
+   * 这个顺序错误不会被类型或单测发现，只在真实同步里表现为来源莫名失败。
+   */
+  if (source.adapterId === 'github') await throttleGithub(source.id);
+
   // 每次尝试的全部重定向共用预算；网络失败只重试一次，避免单个坏节点拖垮整批同步。
   const signal = AbortSignal.timeout(SOURCE_ATTEMPT_TIMEOUT_MS);
   const headers: Record<string, string> = {
@@ -99,7 +110,6 @@ async function fetchPathfinderSourceOnce(
   if (source.adapterId === 'github') {
     headers['X-GitHub-Api-Version'] = '2022-11-28';
     if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-    await throttleGithub(source.id);
   }
 
   for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects += 1) {

@@ -12,6 +12,27 @@ const source = readFileSync(
 );
 
 describe('GitHub 请求节流', () => {
+  it('节流必须发生在超时信号创建之前', () => {
+    /*
+     * AbortSignal.timeout 从创建那一刻开始计时，而节流最长会睡满一个间隔
+     * （6 秒），恰好等于超时预算 SOURCE_ATTEMPT_TIMEOUT_MS。顺序反了的话，
+     * 等真正发请求时预算已经耗尽，每个需要等待的 GitHub 请求都会立刻 abort，
+     * 表现为「fetch failed」——类型检查和单测都发现不了，只在真实同步里冒出来。
+     */
+    const throttleAt = source.indexOf('await throttleGithub(source.id)');
+    const signalAt = source.indexOf('AbortSignal.timeout(SOURCE_ATTEMPT_TIMEOUT_MS)');
+    expect(throttleAt).toBeGreaterThan(0);
+    expect(signalAt).toBeGreaterThan(0);
+    expect(throttleAt).toBeLessThan(signalAt);
+  });
+
+  it('节流间隔不能长到吃掉整个超时预算', () => {
+    const interval = Number(source.match(/GITHUB_MIN_INTERVAL_MS = ([\d_]+)/)?.[1]?.replace(/_/g, ''));
+    const timeout = Number(source.match(/SOURCE_ATTEMPT_TIMEOUT_MS = ([\d_]+)/)?.[1]?.replace(/_/g, ''));
+    // 即使顺序正确，两者相等也说明配置很危险：任何一处改动都可能让请求没有时间跑完
+    expect(interval).toBeLessThanOrEqual(timeout);
+  });
+
   it('github 适配器发请求前必须先节流', () => {
     /*
      * 起因：一次同步里 16 个策展 issue 查询连着打过去，8 个拿到 403；
@@ -19,11 +40,7 @@ describe('GitHub 请求节流', () => {
      * 说明卡的是次级限流（突发流量）而不是主配额。请求本来就是串行的，
      * 缺的只是间隔。
      */
-    const branch = source.slice(
-      source.indexOf("if (source.adapterId === 'github')"),
-      source.indexOf("for (let redirects"),
-    );
-    expect(branch).toMatch(/await throttleGithub\(/);
+    expect(source).toMatch(/if \(source\.adapterId === 'github'\) await throttleGithub\(/);
   });
 
   it('间隔换算下来要低于主配额 30 次/分钟', () => {
