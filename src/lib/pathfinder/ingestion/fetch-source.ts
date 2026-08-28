@@ -7,6 +7,28 @@ const MAX_REDIRECTS = 3;
 const SOURCE_ATTEMPTS = 2;
 const SOURCE_ATTEMPT_TIMEOUT_MS = 6_000;
 
+/**
+ * GitHub 请求之间的最小间隔。
+ *
+ * 搜索接口的**次级限流**比文档写的「30 次/分钟」更严：请求虽然是串行发的，
+ * 但彼此间隔不到几十毫秒时会被判为突发流量直接 403。实测一次同步里 16 个
+ * 策展 issue 查询连着打过去，有 8 个拿到 403，而单独手动请求同一个查询
+ * 返回 200 且 `x-ratelimit-remaining` 还有 29——说明卡的不是主配额。
+ *
+ * 2.5 秒对应 24 次/分钟，在主配额 30 以内留了余量。代价是一次同步多花约 40 秒，
+ * 对每小时跑一次的定时任务无所谓。
+ */
+const GITHUB_MIN_INTERVAL_MS = 2_500;
+
+/** 上一次 GitHub 请求的时刻。模块级状态，同一进程内的所有来源共享节流。 */
+let lastGithubRequestAt = 0;
+
+async function throttleGithub(): Promise<void> {
+  const wait = lastGithubRequestAt + GITHUB_MIN_INTERVAL_MS - Date.now();
+  if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+  lastGithubRequestAt = Date.now();
+}
+
 export async function fetchPathfinderSource(
   source: PathfinderSyncSource,
   conditional: { etag?: string | null; lastModified?: string | null } = {},
@@ -41,6 +63,7 @@ async function fetchPathfinderSourceOnce(
   if (source.adapterId === 'github') {
     headers['X-GitHub-Api-Version'] = '2022-11-28';
     if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+    await throttleGithub();
   }
 
   for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects += 1) {
