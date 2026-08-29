@@ -42,6 +42,17 @@ const ActionSchema = z.discriminatedUnion('action', [
     itemIds: z.array(z.string().min(1).max(200)).min(1).max(8),
   }),
   z.object({ action: z.literal('approve'), itemId: z.string().min(1).max(200) }),
+  /*
+   * 批量确认。
+   *
+   * 生成能批量而确认只能逐条的话，瓶颈只是从前一步挪到了后一步——实测 152 条
+   * AI 动态里只有 1 条走完了流程。上限同样很小：确认是这条流程里唯一的人工
+   * 环节，一次放太多就等于取消了它。
+   */
+  z.object({
+    action: z.literal('approve-batch'),
+    itemIds: z.array(z.string().min(1).max(200)).min(1).max(8),
+  }),
   z.object({ action: z.literal('revert'), itemId: z.string().min(1).max(200) }),
   z.object({ action: z.literal('delete'), itemId: z.string().min(1).max(200) }),
   z.object({
@@ -150,6 +161,26 @@ export async function POST(request: NextRequest) {
         }
       }
       return NextResponse.json({ results });
+    }
+
+    case 'approve-batch': {
+      const results: Array<{ itemId: string; ok: boolean }> = [];
+      // 串行、逐条走与单条确认相同的路径：条件更新防并发，审计逐条留痕
+      for (const id of parsed.data.itemIds) {
+        const ok = await approveEditorialNote(id, session.userId);
+        if (ok) {
+          await logAdminAction(session, {
+            action: 'pathfinder.note.approve',
+            targetType: 'pathfinder_item',
+            targetId: id,
+            detail: { batch: true },
+          });
+        }
+        results.push({ itemId: id, ok });
+      }
+      const done = results.filter((r) => r.ok).length;
+      // 部分失败要如实返回：草稿可能已被别人处理或退回
+      return NextResponse.json({ done, failed: results.length - done });
     }
 
     case 'edit': {

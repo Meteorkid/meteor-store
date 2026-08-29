@@ -1981,7 +1981,8 @@
       "published": "Published {date}",
       "noSummary": "The official source provides no summary. Open the item to read the original.",
       "originalLanguage": "Title and summary are the source original; no official translation exists yet.",
-      "actionableTask": "Ready to start"
+      "actionableTask": "Ready to start",
+      "stillOpen": "Confirmed still open · {date}"
     },
     "filters": {
       "searchLabel": "Keyword",
@@ -2347,10 +2348,12 @@
       "closingDescription": "Still open, sorted by how soon they close.",
       "highlightsTitle": "Start with these",
       "highlightsDescription": "Picked from this week\\u2019s additions, favouring items you can act on without extra eligibility checks.",
-      "addedTitle": "Added this week ({count})",
+      "addedTitle": "New this week ({count})",
       "emptyTitle": "Nothing new this week",
       "emptyDescription": "The sync brought back no new items and nothing is closing soon. Check again next week.",
-      "browse": "Browse opportunities"
+      "browse": "Browse opportunities",
+      "addedFeaturedNote": "Ranked by how actionable they are — {shown} shown, {rest} more available.",
+      "addedMore": "Show the other {rest}"
     }
   }
 }

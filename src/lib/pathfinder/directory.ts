@@ -156,8 +156,14 @@ export interface PathfinderWeekly {
  * 所以以**来源自己的发布时间**为准，`discoveredAt` 仅在来源没给发布时间时兜底。
  * 代价是：一条我们今天才收录、但去年就发布的条目不会出现在周报里。这是对的——
  * 周报回答的是「这周有什么新东西」，补录历史存量不属于这个问题。
+ *
+ * **静态种子一律不算新增**。它们是人工维护的常驻目录（仓库入口、长期赛事门户），
+ * `publishedAt` 为空而 `discoveredAt` 是同一个常量，于是每次改动那个常量，
+ * 66 条种子就会集体涌进周报——实测「本周新增」曾因此显示 91 条，其中 66 条
+ * 是几个月前就在目录里的仓库。它们不是这周的新闻。
  */
 function weeklyNoveltyTimestamp(item: PathfinderCatalogItem): number | null {
+  if (item.origin === 'static') return null;
   for (const candidate of [item.publishedAt, item.discoveredAt]) {
     if (!candidate) continue;
     const parsed = Date.parse(candidate);
@@ -165,6 +171,15 @@ function weeklyNoveltyTimestamp(item: PathfinderCatalogItem): number | null {
   }
   return null;
 }
+
+/**
+ * 周报里直接展开的新增条数。
+ *
+ * 周报的价值在「这周该看什么」，不在「这周一共来了多少」。一次同步就可能带回
+ * 几十条，全部平铺出来读者只会往下滚——实测曾经一屏之内 91 条。
+ * 先给出最值得行动的一小批，其余折叠，想看全的人点一下就有。
+ */
+export const WEEKLY_FEATURED_LIMIT = 12;
 
 export function buildPathfinderWeekly(
   items: readonly PathfinderCatalogItem[],

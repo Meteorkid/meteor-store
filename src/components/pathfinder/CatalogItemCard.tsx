@@ -7,6 +7,7 @@ import { catalogMetaFields } from '@/lib/pathfinder/catalog-fields';
 import {
   formatCatalogDeadlineDate,
   formatDate,
+  isLongOpenPosting,
   getDeadlineState,
   isActionableTask,
   localizedText,
@@ -169,7 +170,20 @@ export default async function CatalogItemCard({
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
           {t(`trust.${item.source.trustLevel}`)} · {localizedText(item.source.name, locale)}
         </span>
-        {verifiedDate && <span className="t-footnote text-white/60">{t('verified', { date: verifiedDate })}</span>}
+        {/*
+          * 发布很久但最近核验过的岗位，把「仍然开放」明说出来。
+          * 一个 2023 年发布的实习岗，读者第一反应是「过期了吧」，
+          * 而它其实还开着——我们的核验时间才是这里的有效信息。
+          */}
+        {verifiedDate && (
+          isLongOpenPosting(item) ? (
+            <span className="t-footnote rounded-full bg-emerald-500/15 px-2 py-0.5 text-emerald-200">
+              {t('stillOpen', { date: verifiedDate })}
+            </span>
+          ) : (
+            <span className="t-footnote text-white/60">{t('verified', { date: verifiedDate })}</span>
+          )
+        )}
         <span className="ml-auto inline-flex flex-wrap items-center gap-2">
           {saveState && (
             <SaveButton

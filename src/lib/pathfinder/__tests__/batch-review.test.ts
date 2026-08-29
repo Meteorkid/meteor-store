@@ -85,3 +85,47 @@ describe('待处理徽标', () => {
     expect(navSource).toContain('counts?.pendingPathfinder ?? 0');
   });
 });
+
+describe('解读的批量确认', () => {
+  const notesRoute = readFileSync(
+    path.join(__dirname, '..', '..', '..', 'app', 'api', 'admin', 'pathfinder', 'notes', 'route.ts'),
+    'utf-8',
+  );
+  const notesUi = readFileSync(
+    path.join(__dirname, '..', '..', '..', 'components', 'PathfinderNotesManager.tsx'),
+    'utf-8',
+  );
+
+  it('生成与确认都能批量', () => {
+    /*
+     * 只让生成批量、确认仍逐条的话，瓶颈只是从前一步挪到了后一步——
+     * 实测 152 条 AI 动态里只有 1 条走完了流程。
+     */
+    expect(notesRoute).toContain("z.literal('generate-batch')");
+    expect(notesRoute).toContain("z.literal('approve-batch')");
+    expect(notesUi).toContain('generateBatch');
+    expect(notesUi).toContain('approveBatch');
+  });
+
+  it('确认仍逐条走条件更新并留审计', () => {
+    const branch = notesRoute.slice(
+      notesRoute.indexOf("case 'approve-batch'"),
+      notesRoute.indexOf("case 'edit'"),
+    );
+    expect(branch).toContain('for (const id of parsed.data.itemIds)');
+    expect(branch).toContain('approveEditorialNote(');
+    expect(branch).toContain('logAdminAction(');
+  });
+
+  it('批量确认要二次确认，且部分失败要说出来', () => {
+    const fn = notesUi.slice(notesUi.indexOf('const approveBatch'));
+    expect(fn).toContain('window.confirm');
+    expect(fn).toContain('data.failed > 0');
+  });
+
+  it('确认的批量上限比发布更小', () => {
+    // 确认是这条流程里唯一的人工环节，一次放太多就等于取消了它
+    const approveLimit = Number(notesRoute.match(/action: z\.literal\('approve-batch'\)[\s\S]*?\.max\((\d+)\),\n\s*\}\)/)?.[1]);
+    expect(approveLimit).toBeLessThanOrEqual(10);
+  });
+});

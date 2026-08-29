@@ -14,6 +14,8 @@ import { useCallback, useEffect, useState } from 'react';
 const BATCH_SIZE = 8;
 /** busy 状态用的哨兵：批量生成不对应任何单个 itemId */
 const BATCH_KEY = '__batch__';
+/** busy 状态用的哨兵：批量确认 */
+const APPROVE_KEY = '__approve__';
 
 interface Note {
   itemId: string;
@@ -121,6 +123,44 @@ export default function PathfinderNotesManager({
     }
   };
 
+  /**
+   * 批量确认。
+   *
+   * 生成能批量而确认只能逐条的话，瓶颈只是从前一步挪到了后一步。
+   * 上限同样很小：确认是这条流程里唯一的人工环节，一次放太多就等于取消了它——
+   * 所以按钮上写明这次处理多少条，并要求二次确认（确认后即对外可见）。
+   */
+  const approveBatch = async (itemIds: string[]) => {
+    const message = zh
+      ? `确认发布这 ${itemIds.length} 条解读？\n\n发布后立即出现在对应条目的详情页。`
+      : `Publish these ${itemIds.length} notes?\n\nThey appear on the item pages immediately.`;
+    if (!window.confirm(message)) return;
+
+    setBusy(APPROVE_KEY);
+    setError(null);
+    try {
+      const response = await fetch('/api/admin/pathfinder/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve-batch', itemIds }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setError(data.error ?? (zh ? '批量确认失败' : 'Batch approval failed'));
+        return;
+      }
+      // 部分失败要说出来：草稿可能已被别人处理或退回
+      if (data.failed > 0) {
+        setError(zh ? `${data.failed} 条未能确认（可能已被处理）` : `${data.failed} could not be approved`);
+      }
+      load();
+    } catch {
+      setError(zh ? '网络异常' : 'Network error');
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const drafts = notes.filter((note) => note.status === 'draft');
   const approved = notes.filter((note) => note.status === 'approved');
   const pendingCandidates = candidates.filter(
@@ -182,7 +222,21 @@ export default function PathfinderNotesManager({
         )}
       </ul>
 
-      <h3 className="mt-10 t-title-4">{zh ? `待确认（${drafts.length}）` : `Awaiting review (${drafts.length})`}</h3>
+      <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="t-title-4">{zh ? `待确认（${drafts.length}）` : `Awaiting review (${drafts.length})`}</h3>
+        {drafts.length > 1 && (
+          <button
+            type="button"
+            disabled={busy !== null}
+            onClick={() => approveBatch(drafts.slice(0, BATCH_SIZE).map((d) => d.itemId))}
+            className="rounded-lg border border-emerald-400/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-100 disabled:opacity-50"
+          >
+            {busy === APPROVE_KEY
+              ? (zh ? '确认中…' : 'Approving…')
+              : (zh ? `确认前 ${Math.min(BATCH_SIZE, drafts.length)} 条` : `Approve first ${Math.min(BATCH_SIZE, drafts.length)}`)}
+          </button>
+        )}
+      </div>
       <div className="mt-3 space-y-5">
         {drafts.map((note) => {
           const edited = draftEdits[note.itemId] ?? note;

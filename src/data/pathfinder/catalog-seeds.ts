@@ -11,6 +11,7 @@ import type {
   PathfinderSourceAdapter,
   PathfinderSourceType,
 } from '@/lib/pathfinder/catalog-types';
+import { topicsForItem } from '@/lib/pathfinder/ingestion/topics';
 import {
   PATHFINDER_DIRECTIONS,
   emptyPathfinderTags,
@@ -250,6 +251,26 @@ function seed(definition: SeedDefinition): PathfinderCatalogItem {
     ...(definition.directions ?? []),
     ...controlledTagDirections,
   ])];
+
+  /*
+   * 主题走与抓取条目相同的词表归一化。
+   *
+   * 这里手写的是原始 slug（`web-framework`、`technology-jobs`、`ai`），它们和
+   * 抓取来的 GitHub 标签是同一类东西——对读者没有含义，混进主题页就成了
+   * 一堆看不懂的英文短横线词。走同一份词表，主题页才只有一套口径。
+   *
+   * **必须在 controlledTagDirections 之后**：原始 slug 里的 `ai` / `frontend` /
+   * `backend` / `data` 同时兼着推断方向的职责，先归一化会把它们换成中文展示名，
+   * 方向推断就再也匹配不上了。
+   *
+   * 原始 slug 仍作为识别的输入之一（连同标题与摘要），所以 `deep-learning`
+   * 这类有实义的词不会白写。
+   */
+  tags.topic = topicsForItem({
+    title: `${definition.titleZh} ${definition.titleEn}`,
+    summary: `${definition.summaryZh ?? ''} ${definition.summaryEn ?? ''}`,
+    labels: tags.topic,
+  });
 
   return {
     id: `static-${definition.id}`,

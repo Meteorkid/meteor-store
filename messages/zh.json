@@ -1981,7 +1981,8 @@
       "published": "发布于 {date}",
       "noSummary": "官方来源未提供摘要，点开可查看原文。",
       "originalLanguage": "标题与摘要为来源原文（英文），暂无官方中文版本。",
-      "actionableTask": "可直接上手"
+      "actionableTask": "可直接上手",
+      "stillOpen": "最近确认仍开放 · {date}"
     },
     "filters": {
       "searchLabel": "关键词",
@@ -2350,7 +2351,9 @@
       "addedTitle": "本周新增（{count}）",
       "emptyTitle": "这周没有新变化",
       "emptyDescription": "同步任务没有带回新条目，也没有临近截止的机会。下周再来看看。",
-      "browse": "去机会库看看"
+      "browse": "去机会库看看",
+      "addedFeaturedNote": "按「最值得行动」排序，先给出 {shown} 条；其余 {rest} 条可展开。",
+      "addedMore": "展开其余 {rest} 条"
     }
   }
 }

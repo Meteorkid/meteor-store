@@ -236,6 +236,26 @@ const DIFFICULTY_ENTRY_ORDER: Record<PathfinderDifficulty, number> = {
  * 资格是否要人工核对、来源可信度、临期程度、核验新鲜度。
  * 评分只影响排序，不改变任何可行性判定。
  */
+/**
+ * 发布很久、但最近核验过仍然开放。
+ *
+ * 卡片上要把这件事说出来：一个 2023 年发布的岗位，读者第一反应是「过期了吧」，
+ * 而它其实还开着——我们的核验时间才是有效信息。反过来，如果不加这个标注就直接
+ * 展示旧日期，等于让人自己去猜。
+ */
+export const STALE_POSTING_DAYS = 365;
+
+export function isLongOpenPosting(item: PathfinderCatalogItem, now = new Date()): boolean {
+  const publishedAt = Date.parse(item.publishedAt ?? '');
+  if (!Number.isFinite(publishedAt)) return false;
+  if ((now.getTime() - publishedAt) / 86_400_000 <= STALE_POSTING_DAYS) return false;
+
+  // 没有近期核验就谈不上「仍然开放」，那种情况不该给读者任何保证
+  const verifiedAt = Date.parse(item.verifiedAt);
+  if (!Number.isFinite(verifiedAt)) return false;
+  return (now.getTime() - verifiedAt) / 86_400_000 <= 30;
+}
+
 export function catalogActionScore(item: PathfinderCatalogItem, now = new Date()): number {
   let score = 0;
 
@@ -258,6 +278,23 @@ export function catalogActionScore(item: PathfinderCatalogItem, now = new Date()
     if (ageDays <= 7) score += 10;
     else if (ageDays <= 30) score += 6;
     else if (ageDays <= 90) score += 3;
+  }
+
+  /*
+   * 发布很久的岗位降权。
+   *
+   * 实测有实习岗位的发布时间早至 2023 年（Databricks 的 2027 Summer PM Intern），
+   * 页面确实还开着、核验也是最近做的，但「挂了两年还开着」通常意味着它长期收简历、
+   * 而不是一个正在积极招人的坑。排在新发布的岗位前面会误导人。
+   *
+   * 只降权、不过滤：它毕竟还开着，愿意投的人应该能找到它。
+   * 卡片上另有「最近确认仍开放」的标注说明这一点。
+   */
+  const publishedAt = Date.parse(item.publishedAt ?? '');
+  if (Number.isFinite(publishedAt)) {
+    const ageDays = Math.floor((now.getTime() - publishedAt) / 86_400_000);
+    if (ageDays > 730) score -= 14;
+    else if (ageDays > 365) score -= 8;
   }
 
   // 免费与已知费用都比「费用待确认」更容易决定要不要投入

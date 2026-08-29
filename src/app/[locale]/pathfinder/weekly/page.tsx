@@ -6,7 +6,8 @@ import type { Locale } from '@/i18n/routing';
 import { getSession } from '@/lib/auth';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
 import { formatDate } from '@/lib/pathfinder/catalog-view';
-import { buildPathfinderWeekly } from '@/lib/pathfinder/directory';
+import { buildPathfinderWeekly, WEEKLY_FEATURED_LIMIT } from '@/lib/pathfinder/directory';
+import { sortCatalogItems } from '@/lib/pathfinder/catalog-view';
 import { listPathfinderSaves } from '@/lib/pathfinder/saves';
 
 export const dynamic = 'force-dynamic';
@@ -105,16 +106,46 @@ export default async function PathfinderWeeklyPage({
               </section>
             )}
 
-            {weekly.added.length > 0 && (
-              <section>
-                <h2 className="t-title-2 text-white">{t('addedTitle', { count: weekly.added.length })}</h2>
-                <div className="mt-3">
-                  {weekly.added.slice(0, 20).map((item) => (
-                    <CatalogItemCard key={item.id} item={item} locale={locale as Locale} compact />
-                  ))}
-                </div>
-              </section>
-            )}
+            {weekly.added.length > 0 && (() => {
+              /*
+               * 先给最值得行动的一小批，其余折叠。
+               *
+               * 标题里的数字是**全部**新增数，而展开的只有前 WEEKLY_FEATURED_LIMIT 条——
+               * 两者不一致会让人以为漏了，所以下面那句说明必须写清楚「先给出几条、
+               * 其余多少条可展开」。历史教训：标题写着 91 条而页面只渲染 20 条，
+               * 中间没有任何交代。
+               */
+              const featured = sortCatalogItems(weekly.added, 'action').slice(0, WEEKLY_FEATURED_LIMIT);
+              const rest = weekly.added.filter((item) => !featured.includes(item));
+
+              return (
+                <section>
+                  <h2 className="t-title-2 text-white">{t('addedTitle', { count: weekly.added.length })}</h2>
+                  {rest.length > 0 && (
+                    <p className="mt-2 t-footnote text-white/60">
+                      {t('addedFeaturedNote', { shown: featured.length, rest: rest.length })}
+                    </p>
+                  )}
+                  <div className="mt-3">
+                    {featured.map((item) => (
+                      <CatalogItemCard key={item.id} item={item} locale={locale as Locale} compact />
+                    ))}
+                  </div>
+                  {rest.length > 0 && (
+                    <details className="mt-4">
+                      <summary className="cursor-pointer text-sm text-violet-200 hover:underline">
+                        {t('addedMore', { rest: rest.length })}
+                      </summary>
+                      <div className="mt-3">
+                        {rest.map((item) => (
+                          <CatalogItemCard key={item.id} item={item} locale={locale as Locale} compact />
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </section>
+              );
+            })()}
           </div>
         )}
       </div>
