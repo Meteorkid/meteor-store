@@ -42,7 +42,7 @@ describe('周报不把常驻目录当成本周新增', () => {
       id: 's', origin: 'static', publishedAt: null, discoveredAt: '2026-08-28T00:00:00.000Z',
     });
     const feedItem = catalogItemFixture({
-      id: 'f', origin: 'sync', publishedAt: '2026-08-28T00:00:00.000Z', discoveredAt: '2026-08-28T00:00:00.000Z',
+      id: 'f', origin: 'database', publishedAt: '2026-08-28T00:00:00.000Z', discoveredAt: '2026-08-28T00:00:00.000Z',
     });
 
     expect(buildPathfinderWeekly([staticItem, feedItem], NOW).added.map((i) => i.id))

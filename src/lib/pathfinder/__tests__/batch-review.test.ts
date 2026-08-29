@@ -129,3 +129,38 @@ describe('解读的批量确认', () => {
     expect(approveLimit).toBeLessThanOrEqual(10);
   });
 });
+
+describe('批量补齐解读初稿的 cron', () => {
+  const cron = readFileSync(
+    path.join(__dirname, '..', '..', '..', 'app', 'api', 'cron', 'pathfinder-notes', 'route.ts'),
+    'utf-8',
+  );
+
+  it('只生成草稿，绝不发布', () => {
+    /*
+     * 人工确认那一步是这条流程的全部意义所在。一个把「生成」和「发布」并成
+     * 一步的接口等于取消了它——哪怕它只在服务端、只由定时任务调用。
+     */
+    expect(cron).toContain('saveEditorialDraft');
+    expect(cron).not.toContain('approveEditorialNote');
+    expect(cron).not.toMatch(/status:\s*'approved'/);
+  });
+
+  it('复用真实的生成逻辑，不另写一份 prompt', () => {
+    // 另写一份会与 EDITORIAL_PROMPT_VERSION 漂移，事后无法判断某条解读用的是哪版
+    expect(cron).toContain("from '@/lib/pathfinder/editorial'");
+    expect(cron).toContain('generateEditorialNote');
+  });
+
+  it('鉴权用常数时间比较，限流 fail-closed，单次有上限', () => {
+    expect(cron).toContain('timingSafeEqual');
+    expect(cron).toContain('failClosed: true');
+    expect(cron).toMatch(/Math\.min\(30,/);
+  });
+
+  it('串行生成，单条失败不终止整批', () => {
+    // 并发打同一个供应商容易触发限流，一旦限流整批都白花钱
+    expect(cron).toContain('for (const item of pending)');
+    expect(cron).toMatch(/catch \(error\) \{[\s\S]*?failed \+= 1/);
+  });
+});

@@ -98,11 +98,11 @@ describe('学生周报', () => {
     // 新旧看的是来源发布时间，两个字段都写出来免得读者以为看的是 discoveredAt
     // origin 显式写出来：静态种子是常驻目录、一律不算新增，见 weeklyNoveltyTimestamp
     const fresh = catalogItemFixture({
-      id: 'fresh', origin: 'sync',
+      id: 'fresh', origin: 'database',
       discoveredAt: '2026-08-22T00:00:00.000Z', publishedAt: '2026-08-22T00:00:00.000Z',
     });
     const stale = catalogItemFixture({
-      id: 'stale', origin: 'sync',
+      id: 'stale', origin: 'database',
       discoveredAt: '2026-07-01T00:00:00.000Z', publishedAt: '2026-07-01T00:00:00.000Z',
     });
 
@@ -114,12 +114,12 @@ describe('学生周报', () => {
     // 这是首次导入造成的基线失真：全部存量在同一天被抓到，周报于是显示
     // 「本周新增 178 条」，而真正这一周才发布的只有 17 条
     const backfilled = catalogItemFixture({
-      id: 'backfilled', origin: 'sync',
+      id: 'backfilled', origin: 'database',
       discoveredAt: '2026-08-25T00:00:00.000Z',
       publishedAt: '2024-03-01T00:00:00.000Z',
     });
     const genuinelyNew = catalogItemFixture({
-      id: 'genuinely-new', origin: 'sync',
+      id: 'genuinely-new', origin: 'database',
       discoveredAt: '2026-08-25T00:00:00.000Z',
       publishedAt: '2026-08-24T00:00:00.000Z',
     });
@@ -130,7 +130,7 @@ describe('学生周报', () => {
 
   it('来源没给发布时间时才退回抓取时间', () => {
     const noPublishDate = catalogItemFixture({
-      id: 'no-date', origin: 'sync',
+      id: 'no-date', origin: 'database',
       discoveredAt: '2026-08-24T00:00:00.000Z',
       publishedAt: null,
     });
@@ -150,7 +150,7 @@ describe('学生周报', () => {
 
   it('精选从本周新增里挑，最多三条', () => {
     const items = Array.from({ length: 6 }, (_, index) => catalogItemFixture({
-      id: `item-${index}`, origin: 'sync',
+      id: `item-${index}`, origin: 'database',
       discoveredAt: '2026-08-23T00:00:00.000Z',
       publishedAt: '2026-08-23T00:00:00.000Z',
     }));
