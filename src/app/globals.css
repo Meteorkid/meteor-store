@@ -603,6 +603,23 @@ html {
   will-change: transform;
 }
 
+/*
+ * 允许徽标探出卡片上沿。
+ *
+ * `.glass-card` 的 `overflow: hidden` 会把负偏移的绝对定位子元素裁掉一半——
+ * 下载卡右上角的「推荐」徽标（`-top-2.5`）就是这样只露出下半截的。
+ *
+ * 写成一个有名字的类而不是内联 `style`：这个坑已经被踩过两次
+ * （PricingCard 当初用内联样式打了补丁，DownloadCard 没同步到），
+ * 有名字才能让下一个人看懂为什么要关掉 overflow。
+ *
+ * **必须定义在 `.glass-card` 之后**：两者特异性相同 (0,1,0)，靠源码顺序取胜。
+ * 挪到前面去就不生效了。
+ */
+.glass-card-badge-safe {
+  overflow: visible;
+}
+
 .glass-card::after {
   content: '';
   position: absolute;

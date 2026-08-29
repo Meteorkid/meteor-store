@@ -55,7 +55,7 @@ export default function DownloadCard({
       .catch(() => setEntitled(false));
   }, [gated, user, productId]);
 
-  const cardClass = `glass-card group relative flex items-start gap-4 rounded-2xl p-5 transition-all duration-200 ${
+  const cardClass = `glass-card glass-card-badge-safe group relative flex items-start gap-4 rounded-2xl p-5 transition-all duration-200 ${
     recommended
       ? '!border-violet-500/30 !bg-violet-500/[0.06] hover:!border-violet-500/50 hover:!bg-violet-500/[0.1]'
       : ''
