@@ -80,7 +80,15 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const remaining = items.filter((item) => item.status === 'published').length
-    - covered.size - generated;
+  /*
+   * remaining 只数**还能生成**的条目。
+   *
+   * 早先减的是全部已发布条目，于是把无摘要、永远生成不了的那批也算了进去，
+   * 报出 remaining:44 而实际一条都排不上——看着像没跑完，其实已经到头了。
+   */
+  const eligible = items.filter((item) => (
+    item.status === 'published' && canGenerateEditorialNote(item)
+  ));
+  const remaining = eligible.filter((item) => !covered.has(item.id)).length - generated;
   return NextResponse.json({ generated, failed, remaining: Math.max(0, remaining) });
 }

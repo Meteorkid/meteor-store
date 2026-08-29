@@ -89,6 +89,36 @@ const SYSTEM_PROMPT = `你在为「Meteor Pathfinder」写面向中国大学生�
  * 实测全库有 14 条 AI 动态的英文摘要为空（部分 RSS 只给标题），
  * 这类条目宁可没有解读，也不要有一条说自己没内容的解读。
  */
+/**
+ * 模型在解读里承认自己没有材料。
+ *
+ * 「源摘要非空」不足以保证写得出解读：月度汇总类文章的摘要往往就是标题的复述
+ * （「这里是 Google 在 2026 年 7 月的最新 AI 更新」），模型只能如实写
+ * 「具体内容未在摘要中详述」。那是一句公开的免责声明，不是解读。
+ *
+ * **按输入长度卡阈值行不通**——实测 41 字的摘要信息完整
+ * （「我们宣布 Gemini API 中托管代理的新功能，使开发者能够构建可靠的生产级代理」），
+ * 而 25 字的那条才是纯指针。模型自己的产出才是可靠信号：它说不出内容时会明说。
+ *
+ * 代价是这类条目每轮同步都会重试一次（约 ¥0.003），比引入一个新状态、
+ * 加一次数据库迁移来记住「试过且失败」要划算。
+ */
+const UNFOUNDED_PATTERNS: readonly RegExp[] = [
+  // 「材料/摘要/原文 未提供|未详述|没有说明」
+  /(材料|摘要|原文|来源)(中)?(未|没有)(提供|详细|详述|列出|说明|披露)/,
+  /未在(材料|摘要|原文)中/,
+  /暂(时)?无法(评估|判断|确定|得知)/,
+  /(材料|信息|细节)不足/,
+  /(具体)?(内容|细节)(尚)?未(在|被)?.{0,8}(列出|提供|说明|披露|详述)/,
+  /无(法|从)得知/,
+  /仅(有|凭|依据).{0,6}标题/,
+];
+
+export function looksUnfounded(note: EditorialNote): boolean {
+  const text = `${note.whatHappened} ${note.whyItMatters} ${note.suggestedAction}`;
+  return UNFOUNDED_PATTERNS.some((pattern) => pattern.test(text));
+}
+
 export function canGenerateEditorialNote(item: PathfinderCatalogItem): boolean {
   if (item.itemType !== 'ai-update') return false;
   return Boolean((item.summary.zh || item.summary.en || '').trim());
@@ -195,7 +225,15 @@ export async function generateEditorialNote(
   const payload = await response.json() as {
     choices?: Array<{ message?: { content?: string } }>;
   };
-  return parseEditorialResponse(payload.choices?.[0]?.message?.content);
+  const note = parseEditorialResponse(payload.choices?.[0]?.message?.content);
+  /*
+   * 模型自己说没材料时就不要这一版：把它存成草稿只会让审核队列里堆着
+   * 一堆注定要删的东西，而放行则会把免责声明公开出去。
+   */
+  if (looksUnfounded(note)) {
+    throw new Error('模型判断材料不足，未产出可用解读');
+  }
+  return note;
 }
 
 /**

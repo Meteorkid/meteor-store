@@ -10,6 +10,7 @@ import {
   normalizeEditorialNote,
   parseEditorialResponse,
   canGenerateEditorialNote,
+  looksUnfounded,
 } from '../editorial';
 import { catalogItemFixture } from './fixtures';
 
@@ -218,5 +219,43 @@ describe('材料不足时不生成解读', () => {
     const prompt = buildEditorialPrompt(item('这是摘要', 'summary'));
     expect(prompt).toContain('来源摘要：这是摘要');
     expect(prompt).not.toContain('来源未提供摘要');
+  });
+});
+
+describe('模型承认没材料时不留下这一版', () => {
+  const note = (whatHappened: string) => ({
+    whatHappened,
+    whyItMatters: '值得关注',
+    skills: ['技能'],
+    suggestedAction: '本周去读一遍原文',
+  });
+
+  it.each([
+    'Google 发布了一系列 AI 更新，具体内容未在材料中详细说明。',
+    'Google 在 2026 年 6 月发布了更新，具体内容未在摘要中详述。',
+    '该合作的具体技术细节和实施时间暂无法评估。',
+    '据标题称，但未提供更多细节，材料不足。',
+    '仅有官方标题信息，具体技术细节尚未披露。',
+  ])('识别：%s', (text) => {
+    expect(looksUnfounded(note(text))).toBe(true);
+  });
+
+  it.each([
+    'OpenAI 宣布加入 PORTS-Pike 项目，旨在支持南俄亥俄州的社区发展和就业增长。',
+    '英国政府与 Google DeepMind 合作构建 AI 驱动的原型，用于加速住房规划决策。',
+    // 正常提到「某模型未公开权重」是有效信息，不该被当成缺陷
+    'Meta 发布了新模型，但未公开训练数据的具体构成，仅说明了参数规模。',
+  ])('不误伤：%s', (text) => {
+    expect(looksUnfounded(note(text))).toBe(false);
+  });
+
+  it('按输入长度卡阈值行不通，所以判据放在产出侧', () => {
+    /*
+     * 实测 41 字的摘要信息完整（「我们宣布 Gemini API 中托管代理的新功能……」），
+     * 而 25 字的「这里是 Google 在 2026 年 7 月的最新 AI 更新」才是纯指针。
+     * 长度分不开这两者，模型自己的产出才能。
+     */
+    const short = { ...catalogItemFixture({ id: 'x', itemType: 'ai-update' }), summary: { zh: '这里是 Google 的最新 AI 更新。', en: '' } };
+    expect(canGenerateEditorialNote(short)).toBe(true);
   });
 });
