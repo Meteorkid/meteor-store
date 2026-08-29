@@ -19,6 +19,14 @@ type ExistingItem = typeof pathfinderItems.$inferSelect;
 /**
  * 同步全部已启用的白名单来源。首次执行会写入来源配置；之后尊重数据库中的 enabled 开关。
  */
+/**
+ * 每轮同步最多跑几个 GitHub 来源。
+ *
+ * 4 个 × 6 秒间隔 = 24 秒的搜索请求，远低于触发次级限流的强度；
+ * 16 个桶四轮跑完，每个桶约四小时轮到一次。
+ */
+const GITHUB_SOURCES_PER_RUN = 4;
+
 export async function syncPathfinderSources(
   requestedIds?: readonly string[],
 ): Promise<PathfinderSyncBatchResult> {
@@ -45,9 +53,32 @@ export async function syncPathfinderSources(
     }];
   });
 
+  /*
+   * 每轮只跑一部分 GitHub 来源。
+   *
+   * 策展 issue 现在有 16 个分桶（为容纳新仓库与 `-linked:pr`、`updated:>=`
+   * 两个限定符，桶数从 2 提到了 4）。它们的同步间隔相同，于是每轮同步会一次性
+   * 打出 16 条搜索查询——即便间隔 6 秒，GitHub 的**次级限流**仍会在中途触发，
+   * 之后的来源全被冷却跳过。实测 12 个来源因此连续失败，最多 28 次。
+   *
+   * 所以按「最久没成功过」排序，每轮只取前几个。16 个桶分四轮跑完，
+   * 每个桶大约四小时轮到一次——对「找开源任务」这件事完全够用，
+   * 而且再也不会把配额一次性打光。
+   *
+   * 显式指定 sourceIds 时不限流：那是人工触发的定向同步，量本来就小。
+   */
+  const githubSources = sources.filter((s) => s.config.adapterId === 'github');
+  const otherSources = sources.filter((s) => s.config.adapterId !== 'github');
+  const throttledGithub = requested
+    ? githubSources
+    : [...githubSources]
+        .sort((a, b) => String(a.row.lastSuccessAt ?? '').localeCompare(String(b.row.lastSuccessAt ?? '')))
+        .slice(0, GITHUB_SOURCES_PER_RUN);
+  const selected = [...otherSources, ...throttledGithub];
+
   const results: PathfinderSourceSyncResult[] = [];
   // 2GB 服务器和外部站点都不适合高并发；逐个来源执行，单个来源失败不拖垮整批。
-  for (const source of sources) {
+  for (const source of selected) {
     results.push(await syncOneSource(source.config, source.row));
   }
   const maintenanceChanged = (

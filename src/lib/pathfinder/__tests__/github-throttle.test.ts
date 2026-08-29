@@ -75,3 +75,41 @@ describe('次级限流的冷却', () => {
     expect(fn).toContain("retry-after");
   });
 });
+
+describe('每轮只跑一部分 GitHub 来源', () => {
+  const sync = readFileSync(
+    path.join(__dirname, '..', 'ingestion', 'sync.ts'),
+    'utf-8',
+  );
+
+  it('有上限，且低于分桶总数', () => {
+    /*
+     * 策展 issue 有 16 个分桶且同步间隔相同，全上会一次性打出 16 条搜索查询。
+     * 即便间隔 6 秒，次级限流仍会在中途触发，之后的来源全被冷却跳过——
+     * 实测 12 个来源因此连续失败，最多 28 次。
+     */
+    const perRun = Number(sync.match(/GITHUB_SOURCES_PER_RUN = (\d+)/)?.[1]);
+    expect(perRun).toBeGreaterThan(0);
+    expect(perRun).toBeLessThan(16);
+  });
+
+  it('按「最久没成功过」轮转，不会有桶被饿死', () => {
+    const block = sync.slice(sync.indexOf('const githubSources'), sync.indexOf('const results:'));
+    expect(block).toContain('lastSuccessAt');
+    expect(block).toMatch(/\.sort\(/);
+    expect(block).toContain('GITHUB_SOURCES_PER_RUN');
+  });
+
+  it('人工指定 sourceIds 时不限流', () => {
+    // 那是定向同步，量本来就小；限流会让「补跑某一个来源」变得不可预期
+    const block = sync.slice(sync.indexOf('const throttledGithub'), sync.indexOf('const selected'));
+    expect(block).toMatch(/requested\s*\n?\s*\?\s*githubSources/);
+  });
+
+  it('非 GitHub 来源不受影响', () => {
+    // RSS 与职位板没有这个限流问题，不该被连累
+    const block = sync.slice(sync.indexOf('const githubSources'), sync.indexOf('const results:'));
+    expect(block).toContain('otherSources');
+    expect(block).toMatch(/\[\.\.\.otherSources/);
+  });
+});
