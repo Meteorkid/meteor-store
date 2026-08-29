@@ -6,6 +6,7 @@ import PathfinderNotesManager from '@/components/PathfinderNotesManager';
 import { listSourceHealth } from '@/lib/pathfinder/source-health';
 import { isAdminSession } from '@/lib/admin';
 import { getAdminPageSession } from '@/lib/admin-session';
+import { canGenerateEditorialNote } from '@/lib/pathfinder/editorial';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
 import { sortCatalogItems } from '@/lib/pathfinder/catalog-view';
 
@@ -29,7 +30,10 @@ export default async function AdminPathfinderPage({ params }: { params: Promise<
 
   // 待生成的候选按最近新增排序：解读的价值随时间衰减，旧动态先不排队
   const candidates = sortCatalogItems(
-    (await listCatalogItems({ type: 'ai-update' })).filter((item) => item.status === 'published'),
+    (await listCatalogItems({ type: 'ai-update' }))
+      .filter((item) => item.status === 'published')
+      // 无摘要的条目材料不足，列在这里只会给出一个点了必然失败的按钮
+      .filter((item) => canGenerateEditorialNote(item)),
     'recent',
   ).slice(0, 40).map((item) => ({
     id: item.id,

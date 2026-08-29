@@ -9,6 +9,7 @@ import {
   isEditorialEnabled,
   normalizeEditorialNote,
   parseEditorialResponse,
+  canGenerateEditorialNote,
 } from '../editorial';
 import { catalogItemFixture } from './fixtures';
 
@@ -71,10 +72,14 @@ describe('提示词', () => {
     expect(prompt).toContain('2026-08-13');
   });
 
-  it('来源没有摘要时明确要求保守，而不是留空让模型自由发挥', () => {
-    const prompt = buildEditorialPrompt(aiUpdate({ summary: { zh: '', en: '' } }));
-    expect(prompt).toContain('来源未提供摘要');
-    expect(prompt).toContain('保守');
+  it('来源没有摘要时根本不生成，而不是让模型保守发挥', () => {
+    /*
+     * 这条原本断言提示词里有「来源未提供摘要，请相应保守」的分支。模型确实
+     * 照做了——但它保守的方式是在解读里写「材料未提供具体细节，因此暂无法
+     * 评估具体影响」，那是一句公开的免责声明，不是解读。实测这样产出了 21 条。
+     * 现在改为不生成：这类条目宁可没有解读，也不要有一条说自己没内容的解读。
+     */
+    expect(canGenerateEditorialNote(aiUpdate({ summary: { zh: '', en: '' } }))).toBe(false);
   });
 
   it('中文摘要优先于英文', () => {
@@ -176,5 +181,42 @@ describe('未配置密钥时的行为', () => {
 
   it('模型 id 固定写进记录，便于日后判断哪批解读该重做', () => {
     expect(EDITORIAL_MODEL).toBe('deepseek-v4-flash');
+  });
+});
+
+describe('材料不足时不生成解读', () => {
+  const item = (summaryZh: string, summaryEn: string) => ({
+    ...catalogItemFixture({ id: 'x', itemType: 'ai-update' }),
+    summary: { zh: summaryZh, en: summaryEn },
+  });
+
+  it('源摘要为空时拒绝生成', () => {
+    /*
+     * 提示词里原有一条「来源未提供摘要，请相应保守」的分支，模型也照做了——
+     * 但它保守的方式是在解读里写「材料未提供具体细节，因此暂无法评估具体影响」。
+     * 那不是解读，是一句公开的免责声明：读者想知道「这条对我意味着什么」，
+     * 得到的是「不知道」。实测这样产出了 21 条，其中 16 条源摘要本来就是空的
+     * （Hugging Face 的镜像 feed 只给标题）。
+     */
+    expect(canGenerateEditorialNote(item('', ''))).toBe(false);
+    expect(canGenerateEditorialNote(item('', '   '))).toBe(false);
+    expect(canGenerateEditorialNote(item('有摘要', ''))).toBe(true);
+    expect(canGenerateEditorialNote(item('', 'has summary'))).toBe(true);
+  });
+
+  it('非 AI 动态一律不生成', () => {
+    const other = { ...item('有摘要', 'ok'), itemType: 'open-source' as const };
+    expect(canGenerateEditorialNote(other)).toBe(false);
+  });
+
+  it('生成函数自己也兜底，不依赖调用方过滤', async () => {
+    await expect(generateEditorialNote(item('', ''))).rejects.toThrow(/材料不足/);
+  });
+
+  it('提示词不再有「未提供摘要」的分支', () => {
+    // 有守卫之后那是死代码，留着会让人以为无摘要也能生成
+    const prompt = buildEditorialPrompt(item('这是摘要', 'summary'));
+    expect(prompt).toContain('来源摘要：这是摘要');
+    expect(prompt).not.toContain('来源未提供摘要');
   });
 });

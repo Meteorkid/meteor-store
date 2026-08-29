@@ -1,7 +1,11 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
-import { generateEditorialNote, isEditorialEnabled } from '@/lib/pathfinder/editorial';
+import {
+  canGenerateEditorialNote,
+  generateEditorialNote,
+  isEditorialEnabled,
+} from '@/lib/pathfinder/editorial';
 import { listEditorialNotes, saveEditorialDraft } from '@/lib/pathfinder/editorial-store';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
@@ -54,6 +58,8 @@ export async function POST(request: NextRequest) {
   const covered = new Set(notes.map((note) => note.itemId));
   const pending = items
     .filter((item) => item.status === 'published' && !covered.has(item.id))
+    // 无摘要的条目材料不足，生成出来只会是一句「暂无法评估」的免责声明
+    .filter((item) => canGenerateEditorialNote(item))
     // 新的先来：解读的价值随时间衰减
     .sort((a, b) => String(b.publishedAt ?? '').localeCompare(String(a.publishedAt ?? '')))
     .slice(0, limit);

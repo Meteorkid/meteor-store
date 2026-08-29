@@ -78,6 +78,22 @@ const SYSTEM_PROMPT = `你在为「Meteor Pathfinder」写面向中国大学生�
  * 单独抽出来是为了能在没有网络和 API key 的情况下测试——提示词里漏掉 canonicalUrl
  * 或把摘要截断到无意义，都是不发一次请求就该被发现的问题。
  */
+/**
+ * 有没有足够材料写解读。
+ *
+ * 来源摘要为空时不要生成。提示词里原本有一条「来源未提供摘要，请相应保守」的
+ * 分支，模型也确实照做了——但它保守的方式是**在解读里写出「材料未提供具体细节，
+ * 因此暂无法评估具体影响」**。那不是解读，是一句公开的免责声明；读者点进来
+ * 想知道「这条对我意味着什么」，得到的是「不知道」。
+ *
+ * 实测全库有 14 条 AI 动态的英文摘要为空（部分 RSS 只给标题），
+ * 这类条目宁可没有解读，也不要有一条说自己没内容的解读。
+ */
+export function canGenerateEditorialNote(item: PathfinderCatalogItem): boolean {
+  if (item.itemType !== 'ai-update') return false;
+  return Boolean((item.summary.zh || item.summary.en || '').trim());
+}
+
 export function buildEditorialPrompt(item: PathfinderCatalogItem): string {
   const summary = item.summary.zh || item.summary.en;
   return [
@@ -89,7 +105,8 @@ export function buildEditorialPrompt(item: PathfinderCatalogItem): string {
     `原文地址：${item.canonicalUrl}`,
     item.publishedAt ? `发布时间：${item.publishedAt.slice(0, 10)}` : '',
     '',
-    summary ? `来源摘要：${summary}` : '来源未提供摘要，只能依据标题与机构判断，请相应地保守。',
+    // 摘要必然非空：canGenerateEditorialNote 已经把无摘要的条目挡在外面
+    `来源摘要：${summary}`,
   ].filter(Boolean).join('\n');
 }
 
@@ -139,6 +156,10 @@ export async function generateEditorialNote(
 ): Promise<EditorialNote> {
   if (item.itemType !== 'ai-update') {
     throw new Error(`只为 AI 动态生成解读，收到 ${item.itemType}`);
+  }
+  // 兜底：调用方应先用 canGenerateEditorialNote 过滤，这里不依赖它做对
+  if (!canGenerateEditorialNote(item)) {
+    throw new Error('来源未提供摘要，材料不足以写出有价值的解读');
   }
 
   const apiKey = process.env.DEEPSEEK_API_KEY;
