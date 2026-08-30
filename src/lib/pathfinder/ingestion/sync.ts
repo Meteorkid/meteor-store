@@ -22,10 +22,15 @@ type ExistingItem = typeof pathfinderItems.$inferSelect;
 /**
  * 每轮同步最多跑几个 GitHub 来源。
  *
- * 4 个 × 6 秒间隔 = 24 秒的搜索请求，远低于触发次级限流的强度；
- * 16 个桶四轮跑完，每个桶约四小时轮到一次。
+ * 取 2 是实测出来的，不是估的：单条昂贵查询稳定返回 200，而一轮跑 4 条时
+ * 第三条就 403（次级限流）。GitHub 对搜索接口的次级限流看的不只是频次，
+ * 还看查询开销，而策展 issue 用的是多 repo 限定 + `-linked:pr` 的复杂查询。
+ *
+ * 16 个桶因此需要 8 小时轮完一遍。对 good-first-issue 这类内容完全够用——
+ * 一个新手任务不会在几小时内被抢光，而把配额一次打光会让整批来源连续失败
+ * （实测曾有 12 个来源连续失败，最多 28 次）。
  */
-const GITHUB_SOURCES_PER_RUN = 4;
+const GITHUB_SOURCES_PER_RUN = 2;
 
 export async function syncPathfinderSources(
   requestedIds?: readonly string[],

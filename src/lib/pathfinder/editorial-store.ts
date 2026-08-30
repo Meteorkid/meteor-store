@@ -1,4 +1,4 @@
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { pathfinderItemNotes } from '@/lib/db/schema';
 import {
@@ -158,18 +158,6 @@ export async function getApprovedEditorialNote(
   return row ? toNote(row) : null;
 }
 
-/** 批量取已确认解读，供列表页标记哪些条目已有解读。 */
-export async function getApprovedNoteIds(itemIds: readonly string[]): Promise<Set<string>> {
-  if (itemIds.length === 0) return new Set();
-  const rows = await db
-    .select({ itemId: pathfinderItemNotes.itemId })
-    .from(pathfinderItemNotes)
-    .where(and(
-      inArray(pathfinderItemNotes.itemId, [...itemIds]),
-      eq(pathfinderItemNotes.status, 'approved'),
-    ));
-  return new Set(rows.map((row) => row.itemId));
-}
 
 /** 后台用：按状态列出解读。 */
 export async function listEditorialNotes(

@@ -26,7 +26,16 @@ import { topicsForItem } from './topics';
  * 可操作性——它既不是能读的技术材料，也不是能参与的事。
  */
 const CASE_STUDY_PATTERNS: readonly RegExp[] = [
-  /\bhow\s+[\w&.'-]+(\s+[\w&.'-]+)?\s+(uses?|used|is using|scales?|transformed?|built|builds|cuts?|saves?|boosts?|automates?|makes?)\b/i,
+  /*
+   * 「How {公司} {动词} …」。
+   *
+   * 动词部分要允许助动词与时态变化，否则每出现一种新写法就漏一条：
+   * 最初只列了 uses / is using / makes，于是漏掉了
+   * `How loveholidays is making everyone a builder`（真实案例）、
+   * `has transformed`、`scaled`、`was able to automate`。
+   * 把「is / has / was + 分词」和「-ed / -ing / -s」拆成结构，而不是逐个枚举时态。
+   */
+  /\bhow\s+[\w&.'-]+(\s+[\w&.'-]+)?\s+((is|are|was|were|has|have|had)\s+(been\s+)?(able\s+to\s+)?)?(us\w+|scal\w+|transform\w+|build\w*|built|cut\w*|sav\w+|boost\w+|automat\w+|mak\w+|migrat\w+|streamlin\w+|accelerat\w+)\b/i,
   /\b(cuts?|reduced?|saved?|boosted?|increased?)\s+[\w\s]{0,20}\b\d{1,3}%/i,
   /\bwith\s+(chatgpt|copilot|gemini|claude)\s+(work|business|enterprise|for business)\b/i,
 ];
@@ -67,7 +76,7 @@ const CONSUMER_PATTERNS: readonly RegExp[] = [
  * 看起来像回顾软文，实际是研究综述。这类冲突一律按「保留」处理。
  */
 const RESEARCH_MARKERS: readonly RegExp[] = [
-  /\b(model|models|benchmark\w*|dataset|architecture|algorithm|paper|research|preprint)\b/i,
+  /\b(model|models|benchmark\w*|dataset|architecture|algorithm|paper|research|preprint|agentic|agent workflow\w*)\b/i,
   /\b(train\w+|fine[- ]?tun\w+|inference|evaluat\w+|ablation|state[- ]of[- ]the[- ]art|\bsota\b)\b/i,
   /\b(open[- ]sourc\w+|release[sd]?\s+.{0,20}\b(model|weights|code|library|sdk|api)\b)/i,
   /\b(accuracy|latency|throughput|parameters|tokens?|embedding\w*|transformer)\b/i,
@@ -91,24 +100,32 @@ export function nonTechnicalReason(
   // 研究信号优先：宁可放进来几条营销，也不要丢掉一条研究
   if (RESEARCH_MARKERS.some((pattern) => pattern.test(text))) return null;
 
+  // 客户案例与消费向清单文只看标题：摘要里常引用产品名，按整段匹配会误伤
+  const titleText = title ?? '';
   /*
-   * 能识别出主题的一律保留。
+   * 案例判据优先于主题信号。
+   *
+   * 「How {公司} {动词} …」这个**结构**是比「标题里提到某个工具名」强得多的
+   * 营销信号。反过来排的话，同类标题的命运取决于它恰好提到哪个产品——
+   * 实测 `How NVIDIA scales expertise with ChatGPT Work` 被正确判为案例
+   * （`\bgpt\b` 匹不到 ChatGPT），而 `How Acme has transformed its workflow
+   * with Copilot` 却因为 Copilot 在「开发者工具」词表里而被放行。同一类东西，
+   * 结果全看运气。
+   */
+  if (CASE_STUDY_PATTERNS.some((pattern) => pattern.test(titleText))) return 'case-study';
+  if (CONSUMER_PATTERNS.some((pattern) => pattern.test(titleText))) return 'consumer';
+  /*
+   * 能识别出主题的保留。
    *
    * 主题词表本身就是一份「技术领域」清单，命中它就是技术性的证据。
-   * 注意这个推断**是单向的**：有主题 → 必留；无主题 → 什么也说明不了
+   * 注意这个推断**是单向的**：有主题 → 留；无主题 → 什么也说明不了
    * （WeatherNext、AMIE 这些真研究同样识别不出主题，见文件头）。
-   * 反过来用会把研究一起丢掉。
    *
-   * 实测这一条救回了「How canvases make agentic workflows visible, steerable,
-   * and cost-effective」——它被客户案例的 `how X makes` 模式误伤，
-   * 而它实际在讲 agent 工作流。
+   * 排在案例判据之后、公司与消费判据之前：它救得了「标题像营销但内容是技术」
+   * 的条目，但救不了结构上就是客户案例的那些。
    */
   if (topicsForItem({ title, summary }).length > 0) return null;
 
-  // 客户案例与消费向清单文只看标题：摘要里常引用产品名，按整段匹配会误伤
-  const titleText = title ?? '';
-  if (CASE_STUDY_PATTERNS.some((pattern) => pattern.test(titleText))) return 'case-study';
-  if (CONSUMER_PATTERNS.some((pattern) => pattern.test(titleText))) return 'consumer';
   if (CORPORATE_PATTERNS.some((pattern) => pattern.test(text))) return 'corporate';
   return null;
 }
