@@ -323,8 +323,9 @@ export function catalogActionScore(item: PathfinderCatalogItem, now = new Date()
  * 必须在排序**之后**调用：它依赖传入顺序表达优先级，自己不做任何排序。
  *
  * 与本文件里的 `diversifyBySource` 不是一回事，别混用：那个是「每个来源最多 N 条 +
- * 截断到 limit」的配额语义，适合选固定条数的推荐位；用在分页长列表上时，超额的
- * 部分会被整段挪到末尾，OpenAI 的第 2 条之后仍然是连续的。这里要的是全程轮转。
+ * 截断到 limit」的配额语义，首页各分区在用（选固定条数的推荐位，正合适）；
+ * 用在分页长列表上时，超额的部分会被整段挪到末尾，OpenAI 的第 2 条之后仍然是
+ * 连续的。这里要的是全程轮转。
  */
 export function diversifyByOrganization(
   items: readonly PathfinderCatalogItem[],

@@ -54,3 +54,35 @@ describe('研究内容绝不能被误杀', () => {
     expect(nonTechnicalReason(null)).toBeNull();
   });
 });
+
+describe('案例判据的时态与助动词', () => {
+  it.each([
+    'How loveholidays is making everyone a builder with Codex',
+    'How Acme has transformed its workflow with Copilot',
+    'How Acme was able to automate reviews',
+    'How Acme scaled support with AI',
+  ])('识别：%s', (title) => {
+    /*
+     * 最初把时态写死在动词列表里（uses / is using / makes），于是每出现一种
+     * 新写法就漏一条——`is making` 就是真实漏掉的那条。改成把
+     * 「is/has/was + 分词」和词尾变化拆成结构，而不是逐个枚举。
+     */
+    expect(nonTechnicalReason(title)).toBe('case-study');
+  });
+
+  it('案例判据优先于主题信号', () => {
+    /*
+     * 反过来排的话，同类标题的命运取决于恰好提到哪个产品名：
+     * `with ChatGPT Work` 会被判为案例（\bgpt\b 匹不到 ChatGPT），
+     * 而 `with Copilot` 因为 Copilot 在「开发者工具」词表里被放行。
+     */
+    expect(nonTechnicalReason('How NVIDIA scales expertise with ChatGPT Work')).toBe('case-study');
+    expect(nonTechnicalReason('How Acme has transformed its workflow with Copilot')).toBe('case-study');
+  });
+
+  it('技术性的 how 文不被误伤', () => {
+    // agentic 已纳入研究信号，比靠主题词表救回来更准
+    expect(nonTechnicalReason('How canvases make agentic workflows visible, steerable, and cost-effective')).toBeNull();
+    expect(nonTechnicalReason('How diffusion models work')).toBeNull();
+  });
+});
