@@ -4,8 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PricingSection from '@/components/PricingSection';
-import { products } from '@/data/products';
-import { webAppCount } from '@/data/app-manifest';
+import { productLineIds } from '@/data/product-tracks';
 import { SHOW_PRICING } from '@/lib/constants';
 
 export async function generateMetadata({
@@ -48,13 +47,12 @@ export default async function PricingPage({
           <p className="t-eyebrow text-primary mb-4 text-center">{t('eyebrow')}</p>
           <h1 className="t-title-1 hero-gradient mb-4 text-center">{t('title')}</h1>
           <p className="text-muted-foreground mx-auto max-w-2xl text-center text-lg">
-            {t('description', { count: products.length, appCount: webAppCount })}
+            {t('description', { count: productLineIds.length })}
           </p>
         </div>
 
         <PricingSection
-          productCount={products.length}
-          webAppCount={webAppCount}
+          productCount={productLineIds.length}
           cosmic
           showHeader={false}
         />

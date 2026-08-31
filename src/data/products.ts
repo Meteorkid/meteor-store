@@ -157,7 +157,9 @@ export const products: Product[] = [
       {
         id: 'starter',
         name: { zh: 'Starter', en: 'Starter' },
-        price: 29,
+        // 实验室免费：原价保留在 originalPrice 划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 29,
         period: '月',
         features: [
           { zh: '1,000 次 API 调用/月', en: '1,000 API calls/month' },
@@ -169,7 +171,9 @@ export const products: Product[] = [
       {
         id: 'pro',
         name: { zh: 'Pro', en: 'Pro' },
-        price: 79,
+        // 实验室免费：原价保留在 originalPrice 划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 79,
         period: '月',
         features: [
           { zh: '10,000 次 API 调用/月', en: '10,000 API calls/month' },
@@ -182,7 +186,9 @@ export const products: Product[] = [
       {
         id: 'enterprise',
         name: { zh: 'Enterprise', en: 'Enterprise' },
-        price: 199,
+        // 实验室免费：原价保留在 originalPrice 划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 199,
         period: '月',
         features: [
           { zh: '无限 API 调用', en: 'Unlimited API calls' },
@@ -319,7 +325,9 @@ export const products: Product[] = [
       {
         id: 'student',
         name: { zh: 'Student', en: 'Student' },
-        price: 19,
+        // 实验室免费：原价保留在 originalPrice 划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 19,
         period: '年',
         features: [
           { zh: '完整骨骼模型', en: 'Full skeleton model' },
@@ -331,7 +339,9 @@ export const products: Product[] = [
       {
         id: 'professional',
         name: { zh: 'Professional', en: 'Professional' },
-        price: 49,
+        // 实验室免费：原价保留在 originalPrice 划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 49,
         period: '年',
         features: [
           { zh: '完整骨骼模型', en: 'Full skeleton model' },
@@ -344,7 +354,9 @@ export const products: Product[] = [
       {
         id: 'institution',
         name: { zh: 'Institution', en: 'Institution' },
-        price: 199,
+        // 实验室免费：原价保留在 originalPrice 划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 199,
         period: '年',
         features: [
           { zh: '完整骨骼模型', en: 'Full skeleton model' },
@@ -585,7 +597,9 @@ export const products: Product[] = [
       {
         id: 'pro',
         name: { zh: 'Pro', en: 'Pro' },
-        price: 29,
+        // 实验室免费：原价保留在 originalPrice 划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 29,
         period: '买断',
         features: [
           { zh: 'Free 全部功能', en: 'Everything in Free' },
@@ -695,7 +709,9 @@ export const products: Product[] = [
       {
         id: 'premium',
         name: { zh: 'Premium', en: 'Premium' },
-        price: 5,
+        // 实验室免费：原价保留在 originalPrice 划线展示，恢复收费时把它挪回 price
+        price: 0,
+        originalPrice: 5,
         period: '月',
         features: [
           { zh: '全部忍术', en: 'All jutsu' },
@@ -849,25 +865,6 @@ export const products: Product[] = [
   },
 ];
 
-export interface ProductCategory {
-  id: 'all' | 'ai' | 'developer' | 'design' | 'utility';
-  name: LocalizedText;
-  icon: string;
-}
-
-export const categories: ProductCategory[] = [
-  { id: 'all', name: { zh: '全部产品', en: 'All Products' }, icon: '🚀' },
-  { id: 'ai', name: { zh: 'AI 工具', en: 'AI Tools' }, icon: '🤖' },
-  { id: 'developer', name: { zh: '开发者工具', en: 'Developer Tools' }, icon: '💻' },
-  { id: 'design', name: { zh: '设计工具', en: 'Design Tools' }, icon: '🎨' },
-  { id: 'utility', name: { zh: '实用工具', en: 'Utilities' }, icon: '🛠️' },
-];
-
-export interface LocalizedProductCategory {
-  id: 'all' | 'ai' | 'developer' | 'design' | 'utility';
-  name: string;
-  icon: string;
-}
 
 /** 按 locale 把单个产品拍平成单语对象，供客户端组件直接消费 */
 export function localizeProduct(product: Product, locale: Locale): LocalizedProduct {
@@ -926,9 +923,4 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
 /** 按 locale 拍平所有产品 */
 export function localizeProducts(locale: Locale): LocalizedProduct[] {
   return products.map((p) => localizeProduct(p, locale));
-}
-
-/** 按 locale 拍平分类列表 */
-export function localizeCategories(locale: Locale): LocalizedProductCategory[] {
-  return categories.map((c) => ({ id: c.id, name: c.name[locale], icon: c.icon }));
 }

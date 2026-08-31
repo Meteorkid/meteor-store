@@ -10,10 +10,8 @@ import { PASS_NAME, PASS_PRODUCT_ID, passPlans, type PassPlanId } from '@/data/p
 import type { Locale } from '@/i18n/routing';
 
 interface PricingSectionProps {
-  /** 站内产品总数 */
+  /** Pass 覆盖的主产品线工具数（见 product-tracks.ts 的 productLineIds） */
   productCount: number;
-  /** 其中能在浏览器里直接打开的（已登记进 app-manifest 的）数量 */
-  webAppCount: number;
   /**
    * 星座星图模式：三档作为星座的三颗主星，星轨连线横向贯穿卡片。
    * 首页的定价区块保持默认（false）不变，只有独立定价页开启。
@@ -33,12 +31,15 @@ interface PricingSectionProps {
  * 月价和年价还会并排出现。想单买某个应用的人走产品页，这里只给一个入口。
  * 价格与权益全部来自 src/data/pass.ts，改价只动那一个文件。
  *
- * 两个数量由服务端算好传进来：客户端组件 import products 会把 800 行的
+ * 数量由服务端算好传进来：客户端组件 import products 会把 800 行的
  * 产品目录（含双语描述与 features）整个打进客户端 bundle，只为数个数不划算。
+ *
+ * **文案只能提主产品线**：实验室那七款本来就免费，而站内能在浏览器直接打开的
+ * 四款（app-manifest）如今全在实验室里——Pass 一款都不覆盖。副标题曾写着
+ * 「其中 N 款可在浏览器直接打开」，收缩之后那句话对 Pass 已经完全不成立。
  */
 export default function PricingSection({
   productCount,
-  webAppCount,
   cosmic = false,
   showHeader = true,
 }: PricingSectionProps) {
@@ -83,7 +84,7 @@ export default function PricingSection({
               {t('title')}
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              {t('subtitle', { count: productCount, appCount: webAppCount })}
+              {t('subtitle', { count: productCount })}
             </p>
           </div>
         )}

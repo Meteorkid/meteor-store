@@ -66,8 +66,8 @@ describe('免费入库', () => {
   it('没有免费档的产品不能白拿', async () => {
     const { POST } = await import('../route');
 
-    // omnicrawl 三档全是付费，不该能通过入库接口绕过付款
-    const response = await POST(post({ productId: 'omnicrawl' }));
+    // xnook 只有 ¥9 买断一档，不该能通过入库接口绕过付款
+    const response = await POST(post({ productId: 'xnook' }));
 
     expect(response.status).toBe(400);
     expect(inserted).toHaveLength(0);

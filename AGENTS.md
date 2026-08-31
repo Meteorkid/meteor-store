@@ -415,9 +415,36 @@ Footer 和内容列；后台页面**只写自己的正文**，不要再各自套
   `RedeemDialog` 弹窗（未登录时引导登录），以及独立页 `/redeem`——
   **`/redeem` 别删**，兑换成功邮件里发的是那个链接
 
+## 产品线：一条主线 + 一个实验室
+
+12 款产品曾并排摆在首页按分类筛选，结果是没有任何两款共享同一个用户（爬虫开发者、
+医学生、火影迷、AI 代理用户……），访客第一眼看不出这个站在卖什么。现在收缩成三条 track，
+唯一数据源是 [src/data/product-tracks.ts](file:///Users/meteor/github/meteor-store/src/data/product-tracks.ts)：
+
+| track | 成员 | 定位 |
+|-------|------|------|
+| `flagship` | xisland, xnook | 主线付费主体，站点唯一认真卖的东西 |
+| `funnel` | statux, claude-phone-control, cursor-source-analyzer | 同一条线上的免费入口，作用是引流不是收钱 |
+| `lab` | omnicrawl, skeleton-anatomy, tollow, chakra-visualizer, webgl-fluid-sim, ex-memory, ui-design-system | 实验室，一律 ¥0，作用是证明能力 |
+
+- **绝对不要靠删或合并 `products` 数组的条目来做收缩**：`orders` 表存的是 productId，
+  `getUserEntitlements`、`/api/download/[productId]`、订单页、成功页、邀请码后台全按 id 查。
+  删掉一个条目等于让已购用户的订单和授权同时失效，而且没有补救手段。
+  收缩只在呈现层做，**数据层 12 个条目一个不动**
+- 三条 track 的并集必须等于 `products` 全集，由
+  `src/data/__tests__/product-tracks.test.ts` 钉住：**新加产品忘了归类，CI 会红**
+- **实验室一律免费**：原价挪进 `originalPrice` 划线展示（复用限免机制），
+  测试钉住「lab 里每一档 `price` 必须为 0」。曾经卖过钱的四款要保留划线原价——
+  对已购用户体面，也让「免费」这件事看得见
+- **分类筛选已删除**（`CategoryFilter` 组件、`categories` 数组、`localizeCategories` 一并移除）：
+  收缩后「爬虫/AI/设计/工具」四个分类里有三个只剩零到一款，点下去是空页面。
+  `Product.category` 字段本身保留，它描述的是产品属性
+- 首页 `ProductShowcase`、`/products`、Footer 产品栏都只列主线五款，实验室走 `/lab` 一个入口。
+  **别把实验室那七款加回首页**——那正是这次收缩要消除的东西
+
 ## 商业模式：Meteor Pass + 单品
 
-全站**只有一个定价区块**：首页 `#pricing` 的 `PricingSection`，卖全站会员 **Meteor Pass**。
+全站**只有一个定价区块**：首页 `#pricing` 的 `PricingSection`，卖产品线通行证 **Meteor Pass**。
 历史上首页并排放过两个：`PricingSection` 拼三个不同产品的中间档当成三个档位卖
 （¥79/月、¥19/月、¥49/**年** 并排，单位都不统一，三张卡全标「推荐」，年付开关只对月付档生效），
 外加一个 `FeaturesComparison` 渲染完全虚构的 Basic/Pro/Enterprise——
@@ -452,11 +479,15 @@ Footer 和内容列；后台页面**只写自己的正文**，不要再各自套
 - **单品授权优先于 Pass**：自己买断的产品不该显示成「靠会员在用」，Pass 只填补没被单品覆盖的产品。
   Pass 展开的条目带 `viaPass: true`，`/apps` 靠它避免把档位后缀追加成「年付 · 年付」；
   档位本身走 `passPlanId` 由页面本地化，**别把中文档位名塞进 `planName`**，英文站会漏出来
-- **权益文案不能写得比实际交付更满**：12 款产品里只有 4 款（`appComponents` 注册表里的）
-  真能在浏览器打开，其余是发授权码。定价页的两个数字由服务端从
-  `products.length` 和 `Object.keys(appComponents).length` 算出来传给 `PricingSection`，
-  不要写死，也不要让客户端组件 import 整个 products（800 行会被打进 bundle）。
-  `src/data/__tests__/pass.test.ts` 把「不得再出现『无需下载』『解锁全部站内应用』」钉在 CI 上
+- **Pass 只覆盖主产品线，不是「站内全部产品」**：实验室那七款本来就免费，算进权益里
+  既不准确，也让 Pass 看起来像在卖不要钱的货。更要紧的是，站内能在浏览器直接打开的四款
+  （`appComponents` 注册表）收缩后**全部落在实验室**，Pass 一款都不覆盖——
+  副标题里「其中 N 款可在浏览器直接打开」那句已随之删除，`webAppCount` 这个 prop 也已移除
+- **权益文案不能写得比实际交付更满**：定价页的数量由服务端从 `productLineIds.length`
+  算出来传给 `PricingSection`，不要写死，也不要让客户端组件 import 整个 products
+  （800 行会被打进 bundle；`product-tracks.ts` 只有 id 数组，可以安全导入）。
+  `src/data/__tests__/pass.test.ts` 把「不得再出现『无需下载』『解锁全部站内应用』
+  『站内全部产品』」钉在 CI 上
 
 ### 免费档与「免费入库」
 
@@ -480,8 +511,9 @@ Footer 和内容列；后台页面**只写自己的正文**，不要再各自套
 定价卡会把原价划掉、旁边标「限免」。判断能不能免费拿只看 `price`，
 所以支付接口的零价拦截、列表页的 `minPrice`、入库接口全都自动正确，无需额外分支。
 
-当前状态（2026-08）：`ex-memory`、`ui-design-system` 限免；
-`statux` 公开免费（安装包不门控，不登录也能下）；
+当前状态（2026-09，产品线收缩后）：**实验室七款一律 ¥0**，原价全部挪进 `originalPrice`
+划线展示（见上一节的产品线表）。主线里 `statux` / `claude-phone-control` /
+`cursor-source-analyzer` 公开免费（statux 安装包不门控，不登录也能下）；
 `xnook` 纯付费（¥9 买断，安装包走 R2 门控）；`xisland` 免费档 + ¥12 买断，安装包走 R2 门控。
 
 ### 安装包分发（Cloudflare R2 + 预签名 URL）
@@ -1081,7 +1113,7 @@ pnpm build                  # 构建
 | /admin/comments 也加举报联动入口 | 评论量大后,目前仅 /admin/posts 有,且评论侧已有逐条举报按钮 |
 | Pass 续费流程（到期自动续/一键续费） | 当前支付宝/微信都是单次付款不是代扣,到期后是**静默失效**;提醒已上线,续费入口还没做 |
 | 上传 xnook / xisland / statux 的安装包 | products.ts 已配好 r2Key 条目（statux 0.4.3 非门控、xisland 1.12.0 / xnook 1.3.15 门控）。发新版时签名公证后跑 `scripts/upload-release.mjs`,把新条目粘进 products.ts 即可；上线前确认对应对象已传到 R2 私有 bucket |
-| 限免产品恢复收费 | ex-memory / ui-design-system 想开始收费时,把 `originalPrice` 挪回 `price` 即可;在那之前它们也没有实际交付物,需要一并解决 |
+| 实验室产品恢复收费 | 实验室七款想重新收费时,把 `originalPrice` 挪回 `price` 即可——但先想清楚它是否该回到主线:实验室的定位就是不收钱。`product-tracks.test.ts` 会拦住「留在 lab 却带价格」的组合 |
 
 **已完成的待办**（从上表移除,留作记录）：
 - ✅ 阅读进度条（`BlogReadingProgress` 已上线,挂在 `/blog/[slug]` 和 `/blog/p/[id]`）

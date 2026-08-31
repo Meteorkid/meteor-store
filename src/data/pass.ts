@@ -1,7 +1,11 @@
 import type { LocalizedText } from './blog-sections';
 
 /**
- * Meteor Pass —— 全站会员：一次订阅解锁站内全部产品。
+ * Meteor Pass —— XIsland 产品线的全家桶：一次订阅拿到主线全部工具，以后新增的自动包含。
+ *
+ * **不要再写成「解锁站内全部产品」**：实验室那七款（见 product-tracks.ts）本来就免费，
+ * 把免费的东西算进权益里既不准确，也让 Pass 看起来像在卖不要钱的货。Pass 覆盖的是
+ * flagship + funnel 这一条线，而它的价值重心在**将来**——这条线以后做的每个工具都算在内。
  *
  * Pass 走的是和单品购买**同一条**支付/交付链路（orders → license_keys → 邮件），
  * 只是 productId 固定为 PASS_PRODUCT_ID。它**不在** `src/data/products.ts` 的
@@ -49,9 +53,9 @@ export const passPlans: PassPlan[] = [
     period: '月',
     durationMonths: 1,
     features: [
-      { zh: '解锁站内全部产品的使用授权', en: 'Every product in the store, licensed to you' },
-      { zh: 'Web 应用在浏览器直接打开，其余发放授权码', en: 'Web apps open in the browser; the rest ship as license keys' },
-      { zh: '新上架的产品自动包含', en: 'New products included automatically' },
+      { zh: 'XIsland 产品线全部工具的使用授权', en: 'Every tool on the XIsland line, licensed to you' },
+      { zh: 'macOS 应用发放授权码，站内应用直接打开', en: 'macOS apps ship as license keys; in-browser apps open directly' },
+      { zh: '这条线以后新增的工具自动包含', en: 'Future tools on this line included automatically' },
       { zh: '邮件支持', en: 'Email support' },
     ],
   },
@@ -82,7 +86,7 @@ export const passPlans: PassPlan[] = [
     features: [
       { zh: '年付的全部权益', en: 'Everything in Annual' },
       { zh: '永久有效，不再续费', en: 'Yours forever, no renewals' },
-      { zh: '将来新增的产品同样包含', en: 'Future products included too' },
+      { zh: '这条线以后做的每一个工具都算在内', en: 'Every tool this line ever ships is yours' },
       { zh: '直接联系店主', en: 'A direct line to the maker' },
     ],
   },

@@ -121,4 +121,11 @@ describe('passPlans', () => {
     expect(allFeatures.some((f) => f.includes('无需下载'))).toBe(false);
     expect(allFeatures.some((f) => f.includes('解锁全部站内应用'))).toBe(false);
   });
+
+  it('权益文案不得把免费的实验室作品算进 Pass', () => {
+    // 实验室七款（见 product-tracks.ts）本来就免费，写成「站内全部产品」
+    // 既不准确，也让 Pass 看起来像在卖不要钱的东西
+    const allFeatures = passPlans.flatMap((p) => p.features.map((f) => f.zh));
+    expect(allFeatures.some((f) => f.includes('站内全部产品'))).toBe(false);
+  });
 });

@@ -14,8 +14,7 @@ import TerminalSection from '@/components/TerminalSection';
 import PricingSection from '@/components/PricingSection';
 import CTASection from '@/components/CTASection';
 import BackToTop from '@/components/BackToTop';
-import { webAppCount } from '@/data/app-manifest';
-import { products } from '@/data/products';
+import { productLineIds } from '@/data/product-tracks';
 import { SHOW_PRICING } from '@/lib/constants';
 
 export async function generateMetadata({
@@ -62,14 +61,8 @@ export default async function Home({
       <TestimonialsSection />
 
       {/* Pricing Section —— 全站唯一的定价区块。
-          数量在服务端算：app-manifest 是可安全导入的站内应用轻量清单，
-          并由类型与测试保证它和组件注册表、products 中的 appUrl 保持一致 */}
-      {SHOW_PRICING && (
-        <PricingSection
-          productCount={products.length}
-          webAppCount={webAppCount}
-        />
-      )}
+          数量在服务端算，且只数主产品线：Pass 不覆盖实验室那七款（它们本来就免费） */}
+      {SHOW_PRICING && <PricingSection productCount={productLineIds.length} />}
 
       {/* Newsletter Section */}
       <NewsletterSection />

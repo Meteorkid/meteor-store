@@ -18,14 +18,18 @@ describe('findProduct', () => {
     expect(findProduct('')).toBeUndefined();
   });
 
-  it('Tollow 使用稳定的 Free 与 Pro ¥29 买断档位', () => {
+  it('Tollow 已移入实验室：两档都免费，Pro 保留 ¥29 划线原价', () => {
     const tollow = findProduct('tollow');
 
-    expect(tollow?.pricing.map((plan) => ({ id: plan.id, price: plan.price, period: plan.period })))
-      .toEqual([
-        { id: 'free', price: 0, period: undefined },
-        { id: 'pro', price: 29, period: '买断' },
-      ]);
+    expect(tollow?.pricing.map((plan) => ({
+      id: plan.id,
+      price: plan.price,
+      originalPrice: plan.originalPrice,
+      period: plan.period,
+    }))).toEqual([
+      { id: 'free', price: 0, originalPrice: undefined, period: undefined },
+      { id: 'pro', price: 0, originalPrice: 29, period: '买断' },
+    ]);
   });
 });
 

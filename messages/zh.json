@@ -70,7 +70,8 @@
     "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ 被你发现了",
     "onlineVisitors": "当前 {count} 人在线",
     "playAway": "它还在跑",
-    "playAwayLabel": "打开小游戏"
+    "playAwayLabel": "打开小游戏",
+    "lab": "实验室"
   },
   "SupportPage": {
     "title": "请我喝杯咖啡",
@@ -349,13 +350,16 @@
   },
   "ProductsPage": {
     "title": "产品",
-    "description": "探索我们的开发者工具产品",
+    "description": "一条产品线：给 AI 编码代理用的 macOS 工具",
     "noProducts": "暂无产品",
     "free": "免费",
     "from": "起",
     "details": "详情",
     "viewDetails": "查看详情",
-    "comingSoon": "即将上架"
+    "comingSoon": "即将上架",
+    "labHeading": "还有一个实验室",
+    "labNote": "{count} 个不属于这条线的作品 —— GPU 流体模拟、3D 骨骼解剖、爬虫框架……全部免费。",
+    "labCta": "去实验室看看"
   },
   "BlogPage": {
     "title": "博客",
@@ -656,8 +660,8 @@
   },
   "PricingPage": {
     "eyebrow": "定价",
-    "title": "Meteor Pass · 全站会员",
-    "description": "一次订阅，解锁站内全部 {count} 款产品——其中 {appCount} 款可在浏览器直接打开。按需选择月付、年付或买断。"
+    "title": "Meteor Pass · 产品线通行证",
+    "description": "一次订阅，覆盖 XIsland 产品线全部 {count} 款工具，以后新增的自动包含。按需选择月付、年付或买断。"
   },
   "StoryPage": {
     "title": "一封来自店主的信",
@@ -866,7 +870,7 @@
     "trialHint": "无需购买即可体验完整功能，购买后解锁持续使用。",
     "loadTrialAria": "加载 {name} 免费试用",
     "passPrompt": "想把站内应用全部拿下？",
-    "passCta": "看 Meteor Pass 全站会员 →",
+    "passCta": "看 Meteor Pass 产品线通行证 →",
     "downloadChecking": "校验中…",
     "downloadLoginHint": "登录后可下载",
     "downloadLockedHint": "获得授权后可下载"
@@ -902,14 +906,18 @@
     "statLatency": "响应延迟"
   },
   "ProductShowcase": {
-    "title": "精选产品",
-    "subtitle": "选择适合你的工具",
-    "categoryAll": "全部",
-    "categoryCrawler": "爬虫",
-    "categoryAi": "AI",
-    "categoryDesign": "设计",
-    "categoryUtility": "工具",
-    "viewAll": "查看全部产品"
+    "viewAll": "查看产品线详情",
+    "lineEyebrow": "AI 代理工具线",
+    "lineTitle": "XIsland — 给 AI 编码代理的控制塔",
+    "lineSubtitle": "你的 AI 代理正在跑什么、跑到哪一步、要不要打断？这条线上的工具围绕同一件事：让你随时知道，并且随时能接管。",
+    "chainStatux": "Statux 在状态栏告诉你代理正在做什么",
+    "chainXisland": "XIsland 让你在灵动岛里直接接管",
+    "chainXnook": "XNook 把常用工具收进同一个壳",
+    "chainPhone": "离开电脑后，用手机继续管",
+    "groupCore": "核心工具",
+    "groupFree": "免费入口",
+    "groupFreeNote": "开源免费，装上就能用 —— 也是了解这条线最快的方式",
+    "viewLab": "还有 {count} 个实验作品"
   },
   "ProductDemo": {
     "eyebrow": "代码驱动",
@@ -1032,8 +1040,8 @@
   },
   "PricingSection": {
     "eyebrow": "定价",
-    "title": "一张通行证，解锁全部应用",
-    "subtitle": "一次订阅，覆盖站内全部 {count} 款产品——其中 {appCount} 款可在浏览器直接打开，其余发放授权码，新上架的自动包含。只想要其中一个？也可以单买。",
+    "title": "一张通行证，拿下整条产品线",
+    "subtitle": "一次订阅，覆盖 XIsland 产品线全部 {count} 款工具 —— macOS 应用发放授权码，这条线以后新增的自动包含。只想要其中一个？也可以单买。",
     "periodMonthly": "月",
     "periodAnnual": "年",
     "redeemCta": "有邀请码？点此兑换",
@@ -2355,5 +2363,14 @@
       "addedFeaturedNote": "按「最值得行动」排序，先给出 {shown} 条；其余 {rest} 条可展开。",
       "addedMore": "展开其余 {rest} 条"
     }
+  },
+  "LabPage": {
+    "title": "实验室 — Meteor Store",
+    "description": "做过的一些东西：GPU 流体模拟、3D 骨骼解剖、爬虫框架、打字练习。全部免费，随便玩。",
+    "eyebrow": "实验室",
+    "heading": "我做过的东西",
+    "intro": "这些不卖钱。它们是练手、是好奇心、是某个周末的产物 —— 留在这里当作能力的证明，也欢迎你随便玩。",
+    "backNote": "真正在认真做的，是另一条线。",
+    "backCta": "看 XIsland 产品线"
   }
 }

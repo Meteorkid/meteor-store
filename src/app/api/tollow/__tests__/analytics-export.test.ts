@@ -32,12 +32,16 @@ vi.mock('@/lib/rate-limit', () => ({
 vi.mock('@/lib/tollow', () => ({
   listAllTollowPracticeSessions: async () => {
     state.listCalls += 1;
+    // 时间相对当前生成，不能写死日期：range=7d 是滑动窗口，
+    // 固定日期过了七天就落到窗口外，统计归零，测试变成定时炸弹
+    const startedAt = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const endedAt = new Date(startedAt.getTime() + 60_000);
     return [{
       id: 'S1',
       bookId: 'book-one',
       bookTitle: '第一本书',
-      startedAt: '2026-08-24T00:00:00.000Z',
-      endedAt: '2026-08-24T00:01:00.000Z',
+      startedAt: startedAt.toISOString(),
+      endedAt: endedAt.toISOString(),
       durationMs: 60_000,
       wordsTyped: 100,
       wpm: 80,

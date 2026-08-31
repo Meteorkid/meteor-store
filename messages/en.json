@@ -70,7 +70,8 @@
     "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ you found me",
     "onlineVisitors": "{count} people online now",
     "playAway": "It's still running",
-    "playAwayLabel": "Open the mini-game"
+    "playAwayLabel": "Open the mini-game",
+    "lab": "Lab"
   },
   "SupportPage": {
     "title": "Buy Me a Coffee",
@@ -349,13 +350,16 @@
   },
   "ProductsPage": {
     "title": "Products",
-    "description": "Explore our developer tools",
+    "description": "One product line: macOS tools for AI coding agents",
     "noProducts": "No products",
     "free": "Free",
     "from": "from",
     "details": "Details",
     "viewDetails": "View Details",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "labHeading": "There is also a lab",
+    "labNote": "{count} pieces that do not belong to this line — GPU fluid simulation, 3D skeletal anatomy, a crawler framework… all free.",
+    "labCta": "Visit the lab"
   },
   "BlogPage": {
     "title": "Blog",
@@ -656,8 +660,8 @@
   },
   "PricingPage": {
     "eyebrow": "Pricing",
-    "title": "Meteor Pass · All-Access Pass",
-    "description": "One subscription unlocks all {count} products in the store — {appCount} open right in the browser. Pick monthly, annual, or lifetime."
+    "title": "Meteor Pass · the line pass",
+    "description": "One subscription covers all {count} tools on the XIsland line, with future additions included. Pick monthly, annual, or lifetime."
   },
   "StoryPage": {
     "title": "A Letter from the Store Owner",
@@ -902,14 +906,18 @@
     "statLatency": "Response Time"
   },
   "ProductShowcase": {
-    "title": "Featured Products",
-    "subtitle": "Choose the right tool for you",
-    "categoryAll": "All",
-    "categoryCrawler": "Crawler",
-    "categoryAi": "AI",
-    "categoryDesign": "Design",
-    "categoryUtility": "Utility",
-    "viewAll": "View All Products"
+    "viewAll": "See the full line",
+    "lineEyebrow": "AI Agent Toolchain",
+    "lineTitle": "XIsland — a control tower for AI coding agents",
+    "lineSubtitle": "What is your agent running, how far along is it, is it time to step in? Everything on this line does one thing: keep you informed, and let you take over at any moment.",
+    "chainStatux": "Statux shows what your agent is doing, right in the status bar",
+    "chainXisland": "XIsland lets you take over from the Dynamic Island",
+    "chainXnook": "XNook keeps your everyday tools in one shell",
+    "chainPhone": "Away from your Mac? Keep managing from your phone",
+    "groupCore": "Core tools",
+    "groupFree": "Free entry points",
+    "groupFreeNote": "Open source and free — the fastest way to get a feel for the line",
+    "viewLab": "{count} more experiments"
   },
   "ProductDemo": {
     "eyebrow": "Code Driven",
@@ -1032,8 +1040,8 @@
   },
   "PricingSection": {
     "eyebrow": "Pricing",
-    "title": "One pass, every app unlocked",
-    "subtitle": "One subscription covers all {count} products — {appCount} of them open right in the browser, the rest ship as license keys, and new ones are included automatically. Prefer just one? Buy it on its own.",
+    "title": "One pass, the whole line",
+    "subtitle": "One subscription covers all {count} tools on the XIsland line — macOS apps ship as license keys, and anything this line ships later is included. Only want one of them? You can buy it on its own.",
     "periodMonthly": "mo",
     "periodAnnual": "yr",
     "redeemCta": "Have an invitation code? Redeem it",
@@ -2355,5 +2363,14 @@
       "addedFeaturedNote": "Ranked by how actionable they are — {shown} shown, {rest} more available.",
       "addedMore": "Show the other {rest}"
     }
+  },
+  "LabPage": {
+    "title": "Lab — Meteor Store",
+    "description": "Things I have built: GPU fluid simulation, 3D skeletal anatomy, a crawler framework, typing practice. All free, all yours to play with.",
+    "eyebrow": "Lab",
+    "heading": "Things I have built",
+    "intro": "None of this is for sale. These came out of practice, curiosity, or a single weekend — they stay here as proof of what I can build, and you are welcome to play with all of them.",
+    "backNote": "The line I actually work on is elsewhere.",
+    "backCta": "See the XIsland line"
   }
 }
