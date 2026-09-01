@@ -9,6 +9,8 @@
 #     /bin/bash /var/www/meteor-store/scripts/backup-db.sh 2>&1 \
 #     | /usr/bin/logger -t meteor-db-backup
 #
+# 连接串由脚本自己从 ../.env.production 提取，cron 里不必再加载环境。
+#
 # 为什么有它：2026-09-01 Neon 出网配额被打满，SQL over HTTP 和 TCP 两条通道
 # 同时返回 402 长达约 23 小时——那段时间**没有任何本地备份**，25 笔订单、
 # 4 个用户、19 篇投稿全部只存在于一个够不着的地方。备份与用哪家数据库无关，
@@ -27,7 +29,17 @@ TARGET="${BACKUP_DIR}/meteor-store-${STAMP}.dump"
 
 fail() { echo "❌ $*" >&2; exit 1; }
 
-[[ -n "${DATABASE_URL:-}" ]] || fail "缺少 DATABASE_URL（cron 里用 --env-file 或在脚本前 source .env.production）"
+# DATABASE_URL 优先取环境变量，其次从项目根的 .env.production 里**只提取这一行**。
+# 不 source 整个文件：那会执行文件里的任意内容，也会把一堆密钥灌进环境，
+# 而备份只需要这一个值。cron 行因此不必再拼 env 加载。
+if [[ -z "${DATABASE_URL:-}" ]]; then
+  ENV_FILE="${DB_BACKUP_ENV_FILE:-$(cd "$(dirname "$0")/.." && pwd)/.env.production}"
+  if [[ -r "$ENV_FILE" ]]; then
+    DATABASE_URL="$(sed -n 's/^DATABASE_URL=//p' "$ENV_FILE" | head -1 | sed 's/^"//; s/"$//')"
+    export DATABASE_URL
+  fi
+fi
+[[ -n "${DATABASE_URL:-}" ]] || fail "缺少 DATABASE_URL：环境变量没有，${ENV_FILE:-.env.production} 里也没读到"
 
 # pg_dump 的版本必须 >= 服务端，否则直接拒绝连接。
 # 优先用 PATH 里的，其次找常见的版本化安装路径（Homebrew / PGDG）。
