@@ -16,7 +16,7 @@
  *
  * 可以重复跑：每次只挑仍然「中英同值」的条目，已经翻好的不会再翻一遍。
  */
-import { neon } from '@neondatabase/serverless';
+import { createSql } from './lib/pg-sql.mjs';
 
 const args = process.argv.slice(2);
 const apply = args.includes('--apply');
@@ -34,7 +34,7 @@ if (apply && !apiKey) {
   process.exit(1);
 }
 
-const sql = neon(databaseUrl);
+const sql = createSql(databaseUrl);
 const BATCH = 10;
 const ENDPOINT = 'https://api.deepseek.com/chat/completions';
 

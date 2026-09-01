@@ -26,7 +26,7 @@
  * 只增删账本行，**不执行任何迁移 SQL、不改业务表**。
  */
 
-import { neon } from '@neondatabase/serverless';
+import { createSql } from './lib/pg-sql.mjs';
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -159,7 +159,7 @@ async function main() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) throw new Error('缺少必要环境变量：DATABASE_URL');
 
-  const sql = neon(databaseUrl);
+  const sql = createSql(databaseUrl);
   const entries = readJournal();
   const validHashes = new Set(entries.map((e) => e.hash));
 

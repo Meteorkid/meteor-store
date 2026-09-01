@@ -13,7 +13,7 @@
  */
 
 import { parseArgs } from 'node:util';
-import { neon } from '@neondatabase/serverless';
+import { createSql } from './lib/pg-sql.mjs';
 
 const REPO = 'Meteorkid/meteor-store';
 
@@ -40,7 +40,7 @@ if (!dbUrl) {
   console.error('请设置 DATABASE_URL 环境变量');
   process.exit(1);
 }
-const sql = neon(dbUrl);
+const sql = createSql(dbUrl);
 
 async function main() {
   // 查询反馈记录

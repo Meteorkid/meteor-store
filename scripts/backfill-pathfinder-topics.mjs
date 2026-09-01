@@ -17,7 +17,7 @@
  * 可以重复跑：识别时会把条目当前的标签一并喂回去，而词表认得出自己的产出
  * （见 topics.ts 里关于幂等的说明），所以第二次跑结果不变。
  */
-import { neon } from '@neondatabase/serverless';
+import { createSql } from './lib/pg-sql.mjs';
 import { topicsForItem } from '../src/lib/pathfinder/ingestion/topics.ts';
 
 const apply = process.argv.includes('--apply');
@@ -26,7 +26,7 @@ if (!databaseUrl) {
   console.error('缺少 DATABASE_URL');
   process.exit(1);
 }
-const sql = neon(databaseUrl);
+const sql = createSql(databaseUrl);
 
 const rows = await sql`
   select i.id, i.title_zh, i.title_en, i.summary_zh, i.summary_en,

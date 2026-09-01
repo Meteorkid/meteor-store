@@ -14,7 +14,7 @@
  * `--apply` 把判定不通过的条目置为 archived（不是删除：可逆、保留记录，
  * 而且同步不会把 archived 复活，见 changedPathfinderStatus）。
  */
-import { neon } from '@neondatabase/serverless';
+import { createSql } from './lib/pg-sql.mjs';
 import { notActionableReason } from '../src/lib/pathfinder/ingestion/actionable.ts';
 
 const apply = process.argv.includes('--apply');
@@ -25,7 +25,7 @@ if (!token) {
   console.error('缺少 GITHUB_TOKEN：未授权配额只有 60 次/小时，不足以回查全部条目');
   process.exit(1);
 }
-const sql = neon(databaseUrl);
+const sql = createSql(databaseUrl);
 
 /** 从 issue 页面地址反推 REST 接口地址。 */
 function apiUrlOf(canonicalUrl) {

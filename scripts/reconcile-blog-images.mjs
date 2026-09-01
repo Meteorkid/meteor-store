@@ -5,7 +5,7 @@ import {
   ListObjectsV2Command,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { neon } from '@neondatabase/serverless';
+import { createSql } from './lib/pg-sql.mjs';
 import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import {
@@ -128,7 +128,7 @@ function printPlan(plan, apply) {
 async function main() {
   const { apply } = parseCliArgs(process.argv.slice(2));
   const config = readConfig();
-  const sql = neon(config.databaseUrl);
+  const sql = createSql(config.databaseUrl);
   const r2 = createR2Client(config);
   const now = new Date();
 

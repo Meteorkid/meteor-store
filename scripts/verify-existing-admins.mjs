@@ -1,4 +1,4 @@
-import { neon } from '@neondatabase/serverless';
+import { createSql } from './lib/pg-sql.mjs';
 
 function getAdminEmails() {
   return [...new Set(
@@ -20,7 +20,7 @@ async function main() {
   const adminEmails = getAdminEmails();
   if (adminEmails.length === 0) throw new Error('ADMIN_EMAILS is empty; refusing to continue');
 
-  const sql = neon(databaseUrl);
+  const sql = createSql(databaseUrl);
   const params = placeholders(adminEmails.length);
   const matched = await sql.query(
     `SELECT email_verified FROM users WHERE lower(email) IN (${params})`,

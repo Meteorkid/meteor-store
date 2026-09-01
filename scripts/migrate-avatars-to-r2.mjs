@@ -21,7 +21,7 @@
  *   - 不删旧 data URL（数据库字段直接覆盖，没有对象要清理）
  */
 
-import { neon } from '@neondatabase/serverless';
+import { createSql } from './lib/pg-sql.mjs';
 import {
   S3Client,
   PutObjectCommand,
@@ -117,7 +117,7 @@ async function main() {
   if (DRY_RUN) console.log('[dry-run] 仅打印，不写库不上传\n');
 
   const r2 = readR2Config();
-  const sql = neon(readDbUrl());
+  const sql = createSql(readDbUrl());
 
   // 拉所有 data URL 头像。Neon serverless 的 sqlTag 是参数化的
   const rows = await sql`

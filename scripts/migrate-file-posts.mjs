@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'fs';
 import { join, extname } from 'path';
 import matter from 'gray-matter';
-import { neon } from '@neondatabase/serverless';
+import { createSql } from './lib/pg-sql.mjs';
 import crypto from 'crypto';
 
 const CONTENT_DIR = join(process.cwd(), 'content/blog');
@@ -19,7 +19,7 @@ function parseFile(filepath) {
 async function main() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) throw new Error('DATABASE_URL is not set');
-  const sql = neon(databaseUrl);
+  const sql = createSql(databaseUrl);
 
   // 获取管理员用户 ID
   const adminEmail = (process.env.ADMIN_EMAILS ?? '').split(',')[0].trim().toLowerCase();
