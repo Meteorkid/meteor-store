@@ -32,8 +32,10 @@ fail() { echo "❌ $*" >&2; exit 1; }
 # DATABASE_URL 优先取环境变量，其次从项目根的 .env.production 里**只提取这一行**。
 # 不 source 整个文件：那会执行文件里的任意内容，也会把一堆密钥灌进环境，
 # 而备份只需要这一个值。cron 行因此不必再拼 env 加载。
+PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+ENV_FILE="${DB_BACKUP_ENV_FILE:-$PROJECT_DIR/.env.production}"
+
 if [[ -z "${DATABASE_URL:-}" ]]; then
-  ENV_FILE="${DB_BACKUP_ENV_FILE:-$(cd "$(dirname "$0")/.." && pwd)/.env.production}"
   if [[ -r "$ENV_FILE" ]]; then
     DATABASE_URL="$(sed -n 's/^DATABASE_URL=//p' "$ENV_FILE" | head -1 | sed 's/^"//; s/"$//')"
     export DATABASE_URL
@@ -94,3 +96,16 @@ echo "✅ 备份完成 ${TARGET}（$(du -h "$TARGET" | cut -f1)，${TABLE_COUNT}
 DELETED=$(find "$BACKUP_DIR" -name 'meteor-store-*.dump' -type f -mtime "+${KEEP_DAYS}" -print -delete | wc -l | tr -d ' ')
 REMAIN=$(find "$BACKUP_DIR" -name 'meteor-store-*.dump' -type f | wc -l | tr -d ' ')
 echo "   保留 ${KEEP_DAYS} 天，删除 ${DELETED} 份过期备份，现存 ${REMAIN} 份"
+
+# ---- 异地副本：传一份到 R2 ----
+# 本地备份和数据库在同一台机器上，防得了「删错了」，防不了「机器整体没了」。
+# **上传失败不让整个备份失败**：本地那份已经写好并校验过，异地副本是加固不是前提。
+# 但必须留下明显的告警——cron 的 stderr 会进 syslog。
+if [[ -r "$ENV_FILE" ]] && grep -q '^R2_ACCOUNT_ID=' "$ENV_FILE" 2>/dev/null; then
+  if command -v node >/dev/null 2>&1; then
+    ( cd "$PROJECT_DIR" && node --env-file="$ENV_FILE" "$PROJECT_DIR/scripts/backup-to-r2.mjs" "$TARGET" "$KEEP_DAYS" ) \
+      || echo "⚠️  R2 异地副本上传失败——本地备份仍然有效，但异地副本缺了这一份" >&2
+  else
+    echo "⚠️  找不到 node，跳过 R2 异地副本" >&2
+  fi
+fi
