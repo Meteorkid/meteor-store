@@ -4,7 +4,7 @@
 
 - **项目名称**: Meteor Store
 - **技术栈**: Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS 4
-- **数据**: Neon Postgres + Drizzle ORM；限流用 Upstash Redis；错误监控用 Sentry
+- **数据**: 自建 PostgreSQL 18（与应用同机，只监听 127.0.0.1）+ Drizzle ORM；限流用 Upstash Redis；错误监控用 Sentry
 - **组成**: 三个子系统 —— 内容（博客/文档/开源展示）、商业（产品/支付/授权码）、身份（注册登录）
 
 ## 可用 Skills
@@ -245,7 +245,8 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - `post_favorites` 表复合主键 `(targetId, userId)` 天然防重复收藏。
   **`targetId` 复用 views/likes 的约定**：文件文章用 slug，数据库投稿用 `post.id`，
   两个空间不会撞——投稿是 base64url 短 id，文件 slug 是 kebab-case
-- `toggleFavorite` 内部先 SELECT 再 INSERT/DELETE：Neon HTTP 不支持事务，
+- `toggleFavorite` 内部先 SELECT 再 INSERT/DELETE：这套写法当初是为绕开 Neon HTTP 不支持事务，
+  迁到自建 PG 后事务可用了，但**不要重写**——它本身就是更稳的做法，改动没有收益。
   复合主键兜底并发（两人同时收藏同一篇，最坏情况是其中一人收到唯一约束错误，
   调用方应捕获并重试一次读取状态）
 - **列表页收藏数走批量查询** `getFavoriteCounts(targetIds[])`：N 篇文章一次 `GROUP BY`，
@@ -292,7 +293,8 @@ API 是 `GET/POST /api/blog/favorites`，页面 `/blog/favorites`，UI 入口在
 - 接口在 [src/app/api/post-stats/route.ts](file:///Users/meteor/github/meteor-store/src/app/api/post-stats/route.ts)，
   每次请求会 `recordView` 记一次浏览（合并了原来的 `POST /api/views`）；
   view/like/comment/favorite 四项计数与 liked/favorited 两项状态压成**单条 SQL 子查询**——
-  Neon HTTP 下每个 count 都是一次网络往返，压成一条直接减少 RTT 与数据库连接
+  当初 Neon HTTP 下每个 count 都是一次网络往返，压成一条直接减少 RTT 与数据库连接；
+  迁到同机 PG 后延迟已微不足道，但这个写法仍然更省，保留
 - **按 IP 限流 60 次/分钟**：POST 会写 `page_views`，不是纯读接口
 - 评论数只统计 `status='approved'`（与 `/api/comments` GET 的过滤一致）
 - 点赞/收藏状态查询当前用户命中：未登录时两个状态子查询直接以 SQL `0` 占位，不额外发查询
@@ -365,7 +367,7 @@ Footer 和内容列；后台页面**只写自己的正文**，不要再各自套
   「后台说还有 3 天、用户说已经打不开了」这种问题永远查不清。
   授权码撤销的门控（已交付订单要求 license `active`、邀请码要求 `active`）也照抄——
   退款后后台不该还把人显示成会员
-- **别改成逐个用户调 `getUserEntitlementSummary`**：Neon HTTP 下那是每人两次网络往返。
+- **别改成逐个用户调 `getUserEntitlementSummary`**：那是每人两次往返，N 个用户就是 2N 次查询。
   `computePassMap()` 一次把这批人的 Pass 授权全捞回来，在内存里按人累加
 - **会员筛选先取候选集再分页，不是先分页再筛**：Pass 是否有效要靠档位叠加才算得准，
   SQL 里算不出。所以用 EXISTS 把「持有过 Pass 的人」捞成候选集（就是付费用户，量本来就小），
@@ -697,7 +699,7 @@ bucket 完全隔离。服务层在
 - **`reconcile --apply` 不得与上传并发**：它会分步回填/修复账本，最后重算
   `users.blog_image_bytes`。从 `--apply` 开始到最终 recalibrate 完成必须停止 PM2
   或用等效方式冻结两个图片上传入口，否则并发预占可能被重算覆盖而短暂放宽配额
-- **生产顺序固定**：停 PM2/冻结上传 → 确认备份或 Neon 恢复点 → 先 `0028`、
+- **生产顺序固定**：停 PM2/冻结上传 → 先手动跑一次 `scripts/backup-db.sh` 确认有当天备份 → 先 `0028`、
   再 `0029` → dry-run → `--apply` → 二次 dry-run → 部署新应用 → restart PM2 并做健康检查。
   `--apply` 或二次 dry-run 失败时保持停写，不得部署或 restart，排障后从 dry-run 重新核对。
   两个迁移都是 additive，新应用失败可回滚旧应用并保留新表/列，但旧应用不提供 PAT 功能；
@@ -1171,6 +1173,46 @@ pnpm build                  # 构建
    - 使用 `react-patterns` 确保 React 最佳实践
    - 使用 `performance-optimization` 优化性能
    - 使用 `frontend-excellence` 确保代码质量
+
+## 数据库（自建 PostgreSQL 18）
+
+2026-09-02 从 Neon 迁过来，**与应用同机**，跑在阿里云那台 1.8G 内存的机器上。
+
+| | |
+|---|---|
+| 版本 | PostgreSQL 18.6（PGDG 源），UTF8 |
+| 监听 | **仅 127.0.0.1 / ::1**，不对公网开放 |
+| 库 / 角色 | `meteor_store` / `meteor_store` |
+| 密码 | `/root/.pg-meteor-store-pw`（权限 600），**不进仓库、不进 crontab** |
+| 配置 | `/var/lib/pgsql/18/data/postgresql.conf`，原始副本在同目录 `.orig` |
+| 参数 | `shared_buffers=128MB`、`max_connections=30`、`work_mem=4MB`（整库仅 36MB，全装得下） |
+| 实测占用 | postgres 全部进程合计约 **93MB** |
+| 服务 | `systemctl {status,restart} postgresql-18`，已设开机自启 |
+
+- **驱动是 `drizzle-orm/node-postgres` + `pg.Pool`，不是 neon-http**（见
+  `src/lib/db/index.ts`）。neon-http 走 HTTP、只能连 Neon。连接池上限 10，
+  服务端 30，留余量给 pg_dump 与手工 psql
+- **池上必须挂 `error` 监听**：空闲连接被服务端切断时 pg 会在池上抛错，
+  不监听就是未捕获异常，会直接带崩整个 Node 进程
+- **事务现在可用了，但不要去重写既有代码**。「复合主键兜底并发」「条件更新防竞态」
+  「单条 CTE 原子写入」当初是为绕开 Neon HTTP 无事务而设计的，它们本身就是更稳的
+  做法，改成事务没有收益，只有大面积回归的风险
+- **9 个手动运维脚本仍在用 `@neondatabase/serverless`**（`scripts/migrate-avatars-to-r2.mjs`、
+  `backfill-pathfinder-*.mjs`、`verify-existing-admins.mjs`、`migrate-file-posts.mjs`、
+  `reconcile-blog-images.mjs`、`feedback-to-issue.mjs` 等），它们**连不上自建库**，
+  下次要用之前得先改驱动。三个 cron 脚本不受影响——它们打的是本机 HTTP 接口
+- **接受了单点故障**：数据库与应用同机，机器挂了就是全站挂，不再有「Neon 挂了
+  首页还在」的降级余地。换来的是不受任何流量配额约束、出网流量归零。
+  代价由每日备份兜底（见下一节），**所以那个 cron 绝对不能停**
+- 手工连库：
+
+  ```bash
+  PGPASSWORD=$(cat /root/.pg-meteor-store-pw) \
+    /usr/pgsql-18/bin/psql -h 127.0.0.1 -U meteor_store -d meteor_store
+  ```
+
+- 回滚到 Neon 的退路还在：`/var/www/meteor-store/.env.production.bak-neon-20260902`
+  存着原连接串，但 Neon Free 的配额问题依旧，只应作为应急
 
 ## 数据库备份
 
