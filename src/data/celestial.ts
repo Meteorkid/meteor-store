@@ -74,3 +74,18 @@ export const SEVEN_LUMINARIES: Array<{
     gradient: 'radial-gradient(circle at 32% 28%, #faf0cd 0%, #e8cf8a 42%, #c9a24b 78%, #7a5c22 100%)',
   }
 ];
+
+/**
+ * 取某一象的七宿，按天区本来的顺序。
+ *
+ * 产品卡上的宿名是**按展示顺序依次分配**的，不用哈希——哈希会碰撞，
+ * 实测 12 款产品里「昴」出现了 3 次，同一个宿名挂在两个产品上，
+ * 标记就失去意义了。依次分配则天然无重复，而且合乎二十八宿本来就是
+ * 一圈有序天区的道理。
+ *
+ * 站内的分配：主线走东方青龙（主生发，对应「正在做的」），
+ * 实验室走北方玄武（主收藏，对应「做过的东西」）——实验室七款正好对上玄武七宿。
+ */
+export function mansionsOf(symbolId: FourSymbolId): readonly string[] {
+  return MANSION_GROUPS.find((g) => g.symbolId === symbolId)?.mansions ?? [];
+}

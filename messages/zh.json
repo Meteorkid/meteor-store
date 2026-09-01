@@ -70,8 +70,7 @@
     "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ 被你发现了",
     "onlineVisitors": "当前 {count} 人在线",
     "playAway": "它还在跑",
-    "playAwayLabel": "打开小游戏",
-    "lab": "实验室"
+    "playAwayLabel": "打开小游戏"
   },
   "SupportPage": {
     "title": "请我喝杯咖啡",
@@ -349,17 +348,20 @@
     "usageGuide": "完整调用指南 →"
   },
   "ProductsPage": {
-    "title": "产品",
-    "description": "一条产品线：给 AI 编码代理用的 macOS 工具",
-    "noProducts": "暂无产品",
+    "title": "星图上的十二枚",
+    "description": "一条认真在做的产品线，和一间随便玩的实验室。都在这张图上。",
     "free": "免费",
     "from": "起",
     "details": "详情",
     "viewDetails": "查看详情",
     "comingSoon": "即将上架",
-    "labHeading": "还有一个实验室",
-    "labNote": "{count} 个不属于这条线的作品 —— GPU 流体模拟、3D 骨骼解剖、爬虫框架……全部免费。",
-    "labCta": "去实验室看看"
+    "labNote": "这些不卖钱。练手、好奇心、某个周末的产物 —— 留在这里当作能力的证明，也欢迎你随便玩。",
+    "lineTitle": "XIsland — 给 AI 编码代理的控制塔",
+    "lineNote": "你的 AI 代理正在跑什么、跑到哪一步、要不要打断？这条线上的工具围绕同一件事：让你随时知道，并且随时能接管。",
+    "groupCore": "核心工具",
+    "groupFree": "免费入口",
+    "groupFreeNote": "开源免费，装上就能用 —— 也是了解这条线最快的方式",
+    "labTitle": "实验室"
   },
   "BlogPage": {
     "title": "博客",
@@ -2363,14 +2365,5 @@
       "addedFeaturedNote": "按「最值得行动」排序，先给出 {shown} 条；其余 {rest} 条可展开。",
       "addedMore": "展开其余 {rest} 条"
     }
-  },
-  "LabPage": {
-    "title": "实验室 — Meteor Store",
-    "description": "做过的一些东西：GPU 流体模拟、3D 骨骼解剖、爬虫框架、打字练习。全部免费，随便玩。",
-    "eyebrow": "实验室",
-    "heading": "我做过的东西",
-    "intro": "这些不卖钱。它们是练手、是好奇心、是某个周末的产物 —— 留在这里当作能力的证明，也欢迎你随便玩。",
-    "backNote": "真正在认真做的，是另一条线。",
-    "backCta": "看 XIsland 产品线"
   }
 }

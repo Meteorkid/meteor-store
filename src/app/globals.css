@@ -1110,3 +1110,26 @@ html {
     box-shadow: 0 0 18px 6px rgba(196,181,253,0.7), 0 0 32px 12px rgba(139,92,246,0.35);
   }
 }
+
+/*
+ * 星区里少数亮星的呼吸animation。
+ *
+ * 只给亮星用，不要整片闪——整片闪会从「夜空」变成「跑马灯」，
+ * 而且在暗色大面积区域里持续的透明度变化很容易让人眼疲劳。
+ * 时长和延迟由组件按确定性随机给，避免所有星同步呼吸。
+ */
+@keyframes celestial-twinkle {
+  0%, 100% { opacity: var(--twinkle-lo); }
+  50%      { opacity: var(--twinkle-hi); }
+}
+.celestial-twinkle {
+  animation: celestial-twinkle var(--twinkle-dur) ease-in-out infinite;
+  animation-delay: var(--twinkle-delay);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* 关动画时要把 opacity 钉在高值上，否则星点会停在某个随机的暗态 */
+  .celestial-twinkle {
+    animation: none;
+    opacity: var(--twinkle-hi);
+  }
+}

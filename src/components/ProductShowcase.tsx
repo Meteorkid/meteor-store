@@ -74,7 +74,7 @@ export default function ProductShowcase() {
           ))}
         </div>
 
-        {/* 出口：产品线详情 + 实验室 */}
+        {/* 出口：产品页 + 其中的实验室区块（实验室不再单独一页）*/}
         <div className="mt-14 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/products"
@@ -86,7 +86,7 @@ export default function ProductShowcase() {
             </svg>
           </Link>
           <Link
-            href="/lab"
+            href="/products#lab"
             className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-6 py-3 text-white/70 transition-colors hover:border-white/20 hover:text-white"
           >
             {t('viewLab', { count: labProductIds.length })}

@@ -7,9 +7,17 @@ import { getTranslations } from 'next-intl/server';
 interface ProductCardProps {
   product: LocalizedProduct;
   priority?: boolean;
+  /**
+   * 二十八宿标记（见 src/data/celestial.ts）。纯装饰，故 aria-hidden。
+   * 放在标题行**内部**而不是探出卡片上沿——`.glass-card` 有 overflow: hidden，
+   * 负偏移的徽标会被裁掉一半（要探出得加 .glass-card-badge-safe）。
+   */
+  mansion?: string;
+  /** 该宿所属四象的配色，形如 "94 234 212" */
+  mansionRgb?: string;
 }
 
-export default async function ProductCard({ product, priority = false }: ProductCardProps) {
+export default async function ProductCard({ product, priority = false, mansion, mansionRgb }: ProductCardProps) {
   const t = await getTranslations('ProductsPage');
   const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map(p => p.price)) : 0;
 
@@ -25,9 +33,24 @@ export default async function ProductCard({ product, priority = false }: Product
 
       <div className="relative px-3 pb-3 pt-5">
         {/* Title */}
-        <div className="mb-2">
-          <h3 className="text-xl font-bold text-white" style={{ viewTransitionName: `product-title-${product.id}` }}>{product.name}</h3>
-          <p className="mt-1 text-sm text-gray-400">{product.tagline}</p>
+        <div className="mb-2 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="text-xl font-bold text-white" style={{ viewTransitionName: `product-title-${product.id}` }}>{product.name}</h3>
+            <p className="mt-1 text-sm text-gray-400">{product.tagline}</p>
+          </div>
+          {mansion && mansionRgb && (
+            <span
+              aria-hidden="true"
+              className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[13px] font-medium tracking-normal"
+              style={{
+                borderColor: `rgb(${mansionRgb} / 0.3)`,
+                color: `rgb(${mansionRgb} / 0.9)`,
+                background: `rgb(${mansionRgb} / 0.07)`,
+              }}
+            >
+              {mansion}
+            </span>
+          )}
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2">

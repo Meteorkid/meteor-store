@@ -40,7 +40,7 @@ function toFullPinyin(str: string): string {
 const STATIC_PAGES: Array<Omit<SearchEntry, 'keywords' | 'initials' | 'fullPinyin'> & { extra?: string }> = [
   { id: 'page-home', title: '首页', group: '页面', href: '/', extra: 'home index 主页' },
   { id: 'page-products', title: '全部产品', group: '页面', href: '/products', extra: 'products 工具 列表' },
-  { id: 'page-lab', title: '实验室', subtitle: '做过的东西，全部免费', group: '页面', href: '/lab', extra: 'lab 实验室 免费 作品 试玩 流体 解剖 爬虫 打字' },
+  { id: 'anchor-lab', title: '实验室', subtitle: '产品页 · 做过的东西，全部免费', group: '页面', href: '/products#lab', extra: 'lab 实验室 免费 作品 试玩 流体 解剖 爬虫 打字' },
   { id: 'page-docs', title: '帮助中心', group: '页面', href: '/docs', extra: 'help docs 帮助 问题 解答 安装 授权' },
   { id: 'page-blog', title: '博客', group: '页面', href: '/blog', extra: 'blog 文章' },
   { id: 'page-story', title: '一封来自店主的信', subtitle: '作者小序 · 一个大学生和他的学费', group: '页面', href: '/story', extra: 'story 关于 作者 店主 小序 学费 流星雨' },

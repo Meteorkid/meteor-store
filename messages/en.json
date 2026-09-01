@@ -70,8 +70,7 @@
     "copyrightOperatorAlt": "© {year} Meteor Store · {operator} (｡•̀ᴗ-)✧ you found me",
     "onlineVisitors": "{count} people online now",
     "playAway": "It's still running",
-    "playAwayLabel": "Open the mini-game",
-    "lab": "Lab"
+    "playAwayLabel": "Open the mini-game"
   },
   "SupportPage": {
     "title": "Buy Me a Coffee",
@@ -349,17 +348,20 @@
     "usageGuide": "Full usage guide →"
   },
   "ProductsPage": {
-    "title": "Products",
-    "description": "One product line: macOS tools for AI coding agents",
-    "noProducts": "No products",
+    "title": "Twelve on the Star Chart",
+    "description": "One product line I work on, and a lab I play in. Both are on this chart.",
     "free": "Free",
     "from": "from",
     "details": "Details",
     "viewDetails": "View Details",
     "comingSoon": "Coming Soon",
-    "labHeading": "There is also a lab",
-    "labNote": "{count} pieces that do not belong to this line — GPU fluid simulation, 3D skeletal anatomy, a crawler framework… all free.",
-    "labCta": "Visit the lab"
+    "labNote": "None of this is for sale. Practice, curiosity, the product of a single weekend — they stay here as proof of what I can build, and you are welcome to play with all of them.",
+    "lineTitle": "XIsland — a control tower for AI coding agents",
+    "lineNote": "What is your agent running, how far along is it, is it time to step in? Everything on this line does one thing: keep you informed, and let you take over at any moment.",
+    "groupCore": "Core tools",
+    "groupFree": "Free entry points",
+    "groupFreeNote": "Open source and free — the fastest way to get a feel for the line",
+    "labTitle": "The Lab"
   },
   "BlogPage": {
     "title": "Blog",
@@ -2363,14 +2365,5 @@
       "addedFeaturedNote": "Ranked by how actionable they are — {shown} shown, {rest} more available.",
       "addedMore": "Show the other {rest}"
     }
-  },
-  "LabPage": {
-    "title": "Lab — Meteor Store",
-    "description": "Things I have built: GPU fluid simulation, 3D skeletal anatomy, a crawler framework, typing practice. All free, all yours to play with.",
-    "eyebrow": "Lab",
-    "heading": "Things I have built",
-    "intro": "None of this is for sale. These came out of practice, curiosity, or a single weekend — they stay here as proof of what I can build, and you are welcome to play with all of them.",
-    "backNote": "The line I actually work on is elsewhere.",
-    "backCta": "See the XIsland line"
   }
 }

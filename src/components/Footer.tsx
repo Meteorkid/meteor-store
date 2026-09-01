@@ -37,7 +37,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
   const t = useTranslations('Footer');
   const locale = useLocale() as Locale;
   // 页脚只列主线五款：12 条链接会把这一栏拉得比相邻栏长一倍，
-  // 也让「这个站在卖什么」重新变得看不出来。实验室那七款走末尾一个入口
+  // 也让「这个站在卖什么」重新变得看不出来。实验室在产品页下半部分（/products#lab）
   const productLinks = selectProductLine(localizeProducts(locale)).map((p) => ({
     name: p.name,
     href: `/products/${p.id}`,
@@ -85,11 +85,6 @@ export default function Footer({ showSocial = false }: FooterProps) {
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link href="/lab" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                  {t('lab')}
-                </Link>
-              </li>
             </ul>
           </div>
 
