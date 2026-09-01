@@ -1172,6 +1172,56 @@ pnpm build                  # 构建
    - 使用 `performance-optimization` 优化性能
    - 使用 `frontend-excellence` 确保代码质量
 
+## 数据库备份
+
+**每天 03:40 由服务器 cron 自动备份**，脚本是
+[scripts/backup-db.sh](file:///Users/meteor/github/meteor-store/scripts/backup-db.sh)，
+产物在服务器 `/var/backups/meteor-store/`，保留 14 天。
+
+```
+40 3 * * * /usr/bin/flock -n /run/lock/meteor-db-backup.lock \
+  /bin/bash /var/www/meteor-store/scripts/backup-db.sh 2>&1 | /usr/bin/logger -t meteor-db-backup
+```
+
+查日志：`journalctl -t meteor-db-backup --since today`。
+连接串由脚本自己从 `../.env.production` 里 **sed 出 DATABASE_URL 那一行**——
+不 source 整个文件，那会执行文件内容并把一堆无关密钥灌进环境。
+
+- **为什么有它**：2026-09-01 Neon 出网配额被打满，SQL over HTTP 与 TCP 两条通道
+  同时返回 402 约 23 小时，那时才发现**一份备份都没有**——25 笔订单、4 个用户、
+  19 篇投稿只存在于一个够不着的地方。备份防的是「够不着 / 删错了 / 账号出问题」
+  这一整类事，和用哪家数据库无关
+- **先写 `.partial` 再原子改名，绝不让 pg_dump 直接写最终路径**。
+  `pg_dump -f` 在启动瞬间就截断目标文件：直接写最终名的话，一次失败的备份
+  （网络断、配额超、磁盘满）会把同名的上一份好备份截成 0 字节，而目录里文件还在、
+  大小要点开才看得出来。**这是实测踩出来的**——同一分钟内跑两次，第二次失败把
+  第一次 320K 的备份毁成 0 字节。文件名时间戳也因此从分钟精度改到秒
+- **校验不过一律丢弃**：要能被 `pg_restore -l` 读出目录，且 users / orders / posts /
+  license_keys 四张表都在，缺一张就拒收并非零退出。静默失败的备份比没有备份更危险，
+  它给的是虚假的安全感。清理旧备份放在校验通过**之后**，否则一次失败会连旧的一起删
+- **只跑备份不跑恢复 = 没有备份**。上面那个 0 字节的 bug，正是靠真的还原一次才发现的。
+  改动脚本后要再走一遍：起个临时 PG 18 → `pg_restore` → 逐表核对行数
+- 恢复到本地临时实例核对的方法：
+
+  ```bash
+  initdb -D /tmp/pg18 -E UTF8 --locale=C -U postgres      # macOS 上需 LC_ALL=C，否则报 multithreaded
+  pg_ctl -D /tmp/pg18 -o "-p 55433 -c listen_addresses=127.0.0.1 -c unix_socket_directories=''" start
+  createdb -h 127.0.0.1 -p 55433 -U postgres restoretest
+  pg_restore -h 127.0.0.1 -p 55433 -U postgres -d restoretest --no-owner --no-privileges <备份>
+  ```
+
+### 服务器装 PostgreSQL 客户端的两个坑
+
+pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 PGDG 官方仓库时：
+
+- **`$releasever` 在 Alibaba Cloud Linux 3 上是 `3` 不是 `8`**，PGDG 的 repo 文件会拼出
+  `.../redhat/rhel-3-x86_64/...` 这种 404 路径。装完 `pgdg-redhat-repo` 后要
+  `sed -i 's/$releasever/8/g' /etc/yum.repos.d/pgdg-redhat-all.repo`
+- **服务器到 `download.postgresql.org` 实测只有 85 B/s**，metadata 都拉不完。
+  把 baseurl 换成 `https://mirrors.aliyun.com/postgresql/repos/yum`（实测 31 KB/s）。
+  **换镜像之后更不能加 `--nogpgcheck`**——那等于同时放弃来源和签名两道保障；
+  PGDG 的 GPG key 随仓库包一起装好了，正常 `dnf install postgresql18` 能验证通过
+
 ## 部署配置
 
 - **平台**: 自建服务器（阿里云 47.120.20.26），nginx 1.24 反代 + PM2 跑 `next start`。
