@@ -49,7 +49,12 @@ SKIP_TYPE_CHECK=1 pnpm build
 
 echo "==> 2. 打包 .next（排除 .next/dev 开发缓存，避免产物膨胀到数百 MB）"
 rm -f "$TAR"
-tar -czf "$TAR" --exclude='.next/dev' -C . .next
+# macOS 打包必须关掉两样东西，否则产物里会混进 Apple 专有的伴生数据：
+#   COPYFILE_DISABLE=1  —— 不生成 ._xxx 的 AppleDouble 伴生文件。它们会跟着解包
+#     散落进服务器的 .next 与仓库工作区（线上已经积了一批 ._proxy.ts、._page.tsx 之类）
+#   --no-xattrs         —— 不写 com.apple.provenance 等扩展属性头，否则服务器端
+#     解包时每个文件刷一行 "Ignoring unknown extended header keyword"，淹掉真正的输出
+COPYFILE_DISABLE=1 tar -czf "$TAR" --no-xattrs --exclude='.next/dev' -C . .next
 echo "   产物 $(du -h "$TAR" | cut -f1)"
 
 echo "==> 3. 上传 .next 到服务器"
