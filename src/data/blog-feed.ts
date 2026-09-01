@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import { getBlogPosts, estimateReadingTime, type BlogPost } from './blog';
+import { getBlogPosts, toSummary, type BlogPost } from './blog';
 import { buildTagIndex, normalizeTag, type TagSummary } from './blog-tags';
 import { getPublishedUserPosts } from '@/lib/posts';
 import type { BlogSectionId } from './blog-sections';
@@ -16,7 +16,13 @@ import { type Locale } from '@/i18n/routing';
  * 审核通过时 revalidatePath 让它重新生成——见 api/posts/review。
  */
 
-export interface FeedPost extends BlogPost {
+/**
+ * 列表链路的文章形状。**不含正文**：/blog、分区页、标签页、两个 RSS、sitemap、
+ * 搜索索引、相关阅读没有一个消费者读它，而把全站正文取回来只为算阅读时长，
+ * 曾经把 Neon 出网额度打满（见 src/lib/posts.ts 的 readingTimeSql）。
+ * 需要正文的只有文章详情页，它走 getPostById 单篇查询。
+ */
+export interface FeedPost extends Omit<BlogPost, 'content'> {
   /** 文章地址。投稿是 /blog/p/{id}；文件文章已迁库（content/blog 为空），fromFile 分支是历史残留的死分支 */
   href: string;
   /** 投稿的作者名；站主自己的文章为 null */
@@ -25,10 +31,15 @@ export interface FeedPost extends BlogPost {
   eventDate: string;
 }
 
-export type FeedPostSummary = Omit<FeedPost, 'content'>;
+/**
+ * 会到达客户端的形状。正文已不进 FeedPost，所以它目前与 FeedPost 等价——
+ * 保留独立类型与 toFeedSummary 的字段白名单，是为了挡住以后新增的服务端字段。
+ */
+export type FeedPostSummary = FeedPost;
 
 function fromFile(post: BlogPost): FeedPost {
-  return { ...post, href: `/blog/${post.slug}`, author: null };
+  // 走 toSummary 的字段白名单丢掉正文：直接展开 post 不会被类型检查拦下
+  return { ...toSummary(post), href: `/blog/${post.slug}`, author: null };
 }
 
 /** 显式列出会到达客户端的字段，避免以后新增字段被无意带过去 */
@@ -69,12 +80,12 @@ export const getFeedPosts = cache(async (locale: Locale): Promise<FeedPost[]> =>
         slug: p.id,
         title: p.title,
         excerpt: p.excerpt,
-        content: p.content,
         // publishedAt 是 ISO 时间戳，列表和排序都只用到日期部分
         date: (p.publishedAt ?? p.createdAt).slice(0, 10),
         section: p.sectionId,
         sections: p.sections,
-        readingTime: estimateReadingTime(p.content),
+        // 由 SQL 算好，正文不出库
+        readingTime: p.readingTime,
         tags: p.tags,
         draft: false,
         href: `/blog/p/${p.id}`,

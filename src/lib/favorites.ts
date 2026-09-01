@@ -3,7 +3,6 @@ import { db } from './db';
 import { postFavorites } from './db/schema';
 import { getBlogPosts } from '@/data/blog';
 import { getPublishedUserPostsByIds } from './posts';
-import { estimateReadingTime } from '@/data/blog';
 import type { FeedPostSummary } from '@/data/blog-feed';
 import type { Locale } from '@/i18n/routing';
 
@@ -162,7 +161,7 @@ export async function getUserFavoritePosts(
             date: (p.publishedAt ?? p.createdAt).slice(0, 10),
             section: p.sectionId,
             sections: p.sections,
-            readingTime: estimateReadingTime(p.content),
+            readingTime: p.readingTime,
             tags: p.tags,
             draft: false,
             href: `/blog/p/${p.id}`,

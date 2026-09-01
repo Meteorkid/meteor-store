@@ -54,6 +54,15 @@ export type UserPostSummary = Pick<
   | 'locale' 
 >;
 
+/**
+ * 列表链路的行：不含正文，阅读时长由数据库算好。
+ * 需要正文的地方（文章详情页、编辑器）走 getPostById 单篇查询。
+ */
+export type UserPostFeedItem = UserPostSummary & {
+  authorName: string | null;
+  readingTime: number;
+};
+
 /** 短 id，直接作为 URL：/blog/p/{id}。与文件文章的 slug 空间隔开，不会撞。 */
 export function newPostId(): string {
   return crypto.randomBytes(8).toString('base64url');
@@ -145,6 +154,14 @@ async function attachTags(rows: PostRow[]): Promise<UserPost[]> {
   return related.map((row) => ({ ...row, status: row.status as PostStatus }));
 }
 
+/** attachTags 的 feed 版：行里没有 content，其余关系补齐方式相同 */
+async function attachFeedRelations(
+  rows: { id: string; sectionId: string; status: string }[],
+): Promise<UserPostFeedItem[]> {
+  const related = await attachRelations(rows);
+  return related.map((row) => ({ ...row, status: row.status as PostStatus })) as UserPostFeedItem[];
+}
+
 const postColumns = {
   id: posts.id,
   authorId: posts.authorId,
@@ -177,6 +194,39 @@ const postSummaryColumns = {
   updatedAt: posts.updatedAt,
   eventDate: posts.eventDate,
   locale: posts.locale,
+};
+
+/**
+ * 阅读时长在 SQL 里算，**正文不出库**。
+ *
+ * 列表链路（/blog、分区页、标签页、两个 RSS、sitemap、搜索索引、相关阅读）没有
+ * 任何一个消费者读正文——它在应用层唯一的用途就是喂给 estimateReadingTime。
+ * 而 posts.content 是整篇 Markdown，把全部已发布文章的正文搬回来只为算一个数字，
+ * 是 Neon 出网流量最大的一笔开销：额度打满后所有投稿查询直接 402，
+ * 博客整体降级成「只展示文件文章」，而 content/blog 早已迁空，等于博客空了。
+ *
+ * 公式必须与 src/data/blog.ts 的 estimateReadingTime 保持一致（中文 400 字/分 +
+ * 英文 200 词/分，下限 1 分钟）。两边靠 posts-reading-time.test.ts 对着同一组样本
+ * 交叉验证，改任何一边都要让它仍然绿。
+ *
+ * **列名写死成 `"posts"."content"` 而不是 `${posts.content}`**：drizzle 会把
+ * SELECT 列表里 sql 片段中的 Column 改写成裸列名，join 查询下那要靠「另一张表
+ * 恰好没有同名列」才不出错（见 admin-users-sql.test.ts 记的同类教训）。
+ *
+ * 空正文的边界：regexp_split_to_array('', '\s+') 返回 {''} 而不是空数组，
+ * array_length 会给出 1——nullif(..., array['']) 把这种情况归零，
+ * 对应 JS 侧 .filter(Boolean) 的行为。
+ */
+const readingTimeSql = sql<number>`greatest(1, round(
+  (length("posts"."content") - length(regexp_replace("posts"."content", '[一-龥]', '', 'g')))::numeric / 400.0
+  + coalesce(array_length(nullif(regexp_split_to_array(btrim(regexp_replace("posts"."content", '[一-龥]', ' ', 'g')), '\\s+'), array['']), 1), 0)::numeric / 200.0
+))::int`;
+
+/** 列表 / RSS / 搜索用的列：摘要 + 作者名 + SQL 算好的阅读时长，**刻意不含 content** */
+const postFeedColumns = {
+  ...postSummaryColumns,
+  authorName: users.name,
+  readingTime: readingTimeSql,
 };
 
 /** 分区去重、去空，主分区排头。用户输入不可信。 */
@@ -333,35 +383,46 @@ export async function getPendingPosts(): Promise<UserPost[]> {
   return attachTags(rows);
 }
 
-/** 已发布的用户文章，供博客列表与 RSS 合并 */
-export async function getPublishedUserPosts(locale?: string): Promise<UserPost[]> {
+/**
+ * 已发布的用户文章，供博客列表、分区页、标签页、两个 RSS、sitemap 与搜索索引合并。
+ *
+ * **不取正文**（见 readingTimeSql 的说明）：这个函数是整条博客读取链路的根，
+ * 每次列表页渲染都会跑一遍，取回全站正文只为算阅读时长曾把 Neon 出网额度打满。
+ */
+export async function getPublishedUserPosts(locale?: string): Promise<UserPostFeedItem[]> {
+  return attachFeedRelations(await publishedFeedQuery(locale));
+}
+
+/**
+ * 单独导出 builder 供 posts-feed-sql.test.ts 对着 `.toSQL()` 断言。
+ * 正文是否真的留在数据库里，只有生成的 SQL 说了算——类型和单测都看不出来。
+ */
+export function publishedFeedQuery(locale?: string) {
   const conditions = [eq(posts.status, 'published')];
   if (locale) conditions.push(eq(posts.locale, locale));
-  
-  const rows = await db
-    .select(postColumns)
+
+  return db
+    .select(postFeedColumns)
     .from(posts)
     .leftJoin(users, eq(posts.authorId, users.id))
     .where(and(...conditions))
     .orderBy(desc(posts.publishedAt));
-
-  return attachTags(rows);
 }
 
 /**
  * 按 id 批量取已发布的投稿。「我的收藏」页用——只拉收藏命中的那几篇，
- * 避免 getPublishedUserPosts 那样把全表（含 content）都捞进内存再筛。
+ * 不像 getPublishedUserPosts 那样扫全部已发布文章。同样不取正文。
  * 传入的 id 里可能混入文件文章的 slug，它们不会命中任何投稿，天然被忽略。
  */
-export async function getPublishedUserPostsByIds(ids: string[]): Promise<UserPost[]> {
+export async function getPublishedUserPostsByIds(ids: string[]): Promise<UserPostFeedItem[]> {
   if (ids.length === 0) return [];
   const rows = await db
-    .select(postColumns)
+    .select(postFeedColumns)
     .from(posts)
     .leftJoin(users, eq(posts.authorId, users.id))
     .where(and(eq(posts.status, 'published'), inArray(posts.id, ids)));
 
-  return attachTags(rows);
+  return attachFeedRelations(rows);
 }
 
 /**

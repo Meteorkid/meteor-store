@@ -170,8 +170,31 @@
 | 某标签下的文章 | `getFeedPostsByTag(input)` |
 
 - 文章地址由 `href` 字段决定，**别自己拼 `/blog/${slug}`**：投稿是 `/blog/p/{id}`
-- 数据库读失败时降级为只有文件文章，不抛错。投稿看不见 < 整个博客 500
-- 传给客户端组件前过一次 `toFeedSummary()`，正文不进客户端 bundle
+- 数据库读失败时降级为只有文件文章，不抛错。投稿看不见 < 整个博客 500。
+  **注意这条降级现在等于博客空白**——`content/blog` 已迁空，文件文章一篇都没有了
+- 传给客户端组件前过一次 `toFeedSummary()`，字段白名单挡住以后新增的服务端字段
+
+### `FeedPost` 不带正文，别加回去
+
+`getFeedPosts()` 这条链路上（列表、分区页、标签页、两个 RSS、sitemap、搜索索引、
+相关阅读）**没有一个消费者读正文**。正文唯一的去处是文章详情页，它走
+`getPostById()` 单篇查询。
+
+- **`getPublishedUserPosts` / `getPublishedUserPostsByIds` 用 `postFeedColumns`，
+  里面没有 `content`。** 阅读时长由 SQL 算（`readingTimeSql`，见 `src/lib/posts.ts`），
+  公式与 `src/data/blog.ts` 的 `estimateReadingTime` 同口径
+- 历史教训：这两个查询原本用 `postColumns`（含 `content`），于是**每次列表页、
+  分区页、标签页、RSS、sitemap 渲染，都把全站 Markdown 从 Neon 搬一遍再扔掉**，
+  只为算一个阅读时长。`cache()` 只在单次请求内去重，跨请求无效，爬虫遍历分区页和
+  标签页会成倍放大。结果是 Neon 出网额度被打满、所有投稿查询 402，
+  而降级路径把它伪装成「只展示文件文章」——文件文章早已为空，博客直接空白
+- `readingTimeSql` 里的列名**写死成 `"posts"."content"`**，不要改成 `${posts.content}`：
+  drizzle 会把 SELECT 列表里 `sql` 片段中的 Column 改写成裸列名，join 查询下
+  那要靠「另一张表恰好没有同名列」才不出错（同类教训见 `admin-users-sql.test.ts`）
+- 两条测试钉住这件事：`posts-feed-sql.test.ts` 对着 `.toSQL()` 断言正文没被选成返回列、
+  且引用带表限定名；同文件里另一组用 JS 复刻 SQL 语义与 `estimateReadingTime` 交叉验证。
+  **单测环境没有真 Postgres**，所以改公式后要另找一个 PG 实例抽样核对
+  （本地 `initdb` 起一个临时库即可，别拿生产库试）
 
 ### 站主的文章
 
