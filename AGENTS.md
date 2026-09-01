@@ -1174,6 +1174,33 @@ pnpm build                  # 构建
    - 使用 `performance-optimization` 优化性能
    - 使用 `frontend-excellence` 确保代码质量
 
+## Node 运行时
+
+**服务器跑 Node v22.23.2，装在 `/usr/local/lib/nodejs/`，不是 rpm 包。**
+
+```
+/usr/local/bin/node -> /usr/local/lib/nodejs/node-v22.23.2-linux-x64/bin/node   ← 实际在用
+/usr/bin/node                                                                    ← Node 20.20.2（NodeSource rpm），保留作回滚
+```
+
+`/usr/local/bin` 在 PATH 里排在 `/usr/bin` 前面，所以 `node` 命令自动解析到新版。
+`engines: node >=22.0.0` 声明在 package.json，三个 GitHub workflow 与本地也统一在 22——
+**四处版本要一起动**，此前本地 22 构建、服务器 20 运行的不一致就是这么来的。
+
+- **为什么不用 rpm**：NodeSource 的仓库对这台机器只有 **4.6 KB/s**（35MB 的包要跑两小时），
+  而阿里云、清华都**没有** nodesource 镜像。二进制 tarball 走
+  `https://mirrors.aliyun.com/nodejs-release/` 实测 **16.9 MB/s**，1.6 秒下完，
+  并用同目录的 `SHASUMS256.txt` 校验过
+- **升级 Node 之后 `pm2 update` 不够**：它只重启 daemon，应用的 interpreter 是记在进程
+  配置里的，重启会沿用旧值——实测 daemon 已经是 22 了而应用进程仍挂在 `/usr/bin/node` 上。
+  必须 `pm2 delete meteor-store && pm2 start ecosystem.config.cjs && pm2 save` 重建配置。
+  验证方式是读 `/proc/<pid>/exe`，别只看 `pm2 describe` 的字段
+- **`pnpm` 和 `pm2` 装在 `/usr/lib/node_modules/`，不属于任何 rpm 包**，靠 shebang 找 PATH
+  里的 node，所以换 node 之后要逐个验证还能跑——**部署脚本依赖 pnpm，pm2 挂了应用就管不了**
+- 回滚：删掉 `/usr/local/bin/{node,npm,npx}` 三个符号链接，PATH 自动落回 `/usr/bin/node`
+  的 20.20.2，再 `pm2 delete` + `pm2 start` 重建即可
+- 升级动机：`@aws-sdk` 从 2027 年 1 月起要求 Node ≥22（R2 上传用到它）
+
 ## 数据库（自建 PostgreSQL 18）
 
 2026-09-02 从 Neon 迁过来，**与应用同机**，跑在阿里云那台 1.8G 内存的机器上。
