@@ -68,6 +68,7 @@ export function parseRss(
     if (!isStudentRelevant(title, summary)) return [];
     const publishedAt = toIsoDate(readTag(block, ['pubDate', 'published', 'updated', 'dc:date']));
     const hash = contentHash({ title, url, summary, publishedAt });
+    const isZh = source.language === 'zh';
 
     return [{
       sourceId: source.id,
@@ -76,10 +77,12 @@ export function parseRss(
       type: source.itemType,
       direction: source.direction,
       directions: [source.direction],
-      titleZh: null,
-      titleEn: title,
-      summaryZh: null,
-      summaryEn: summary || null,
+      // 中文来源的原文直接落中文列。写进 *_en 渲染上看不出问题
+      // （localizeNullable 两个方向都兜底），但列名与内容不符
+      titleZh: isZh ? title : null,
+      titleEn: isZh ? null : title,
+      summaryZh: isZh ? summary || null : null,
+      summaryEn: isZh ? null : summary || null,
       organization: source.organization,
       organizationEn: source.organization,
       difficulty: 'all',

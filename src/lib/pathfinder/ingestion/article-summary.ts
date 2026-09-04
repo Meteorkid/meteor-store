@@ -1,4 +1,5 @@
 import { PATHFINDER_MAX_RESPONSE_BYTES } from './fetch-source';
+import type { PathfinderArticleSummaryConfig, PathfinderSyncSource } from './types';
 
 /**
  * 从文章页正文里取一段摘要。
@@ -72,22 +73,64 @@ export function extractArticleSummary(pageHtml: string, containerMarker: string)
   return '';
 }
 
-export interface ArticleSummaryConfig {
-  /** 正文容器 class 里的唯一片段 */
-  containerMarker: string;
-  /** 允许抓取的主机名，与来源的 allowedFetchHosts 同样的白名单语义 */
-  allowedHosts: readonly string[];
+/**
+ * 从站点提供的 Markdown 版正文里取一段。
+ *
+ * 比解析 HTML 可靠得多：AGI Hunt 的日报页是 448KB、正文段落埋在渲染出来的
+ * 结构里，而 `/daily/{date}.md` 是同一份内容的纯文本版，`## 今日总结`
+ * 这一节的首段就是当天的综述。
+ *
+ * 按标题定位而不是「取第一段」：文件开头是一行出处声明和一级标题，
+ * 而正文首段是各来源里唯一逐日不同、真正有信息量的那段。
+ */
+export function extractMarkdownSummary(markdown: string, heading: string): string {
+  const headingAt = markdown.indexOf(heading);
+  if (headingAt < 0) return '';
+
+  const body = markdown.slice(headingAt + heading.length, headingAt + heading.length + 60_000);
+  for (const block of body.split(/\n\s*\n/)) {
+    // 列表项与下一节标题都不是综述段落；`- **X** — …` 是日报的重点条目格式
+    const text = block.trim();
+    if (!text || text.startsWith('#') || text.startsWith('-') || text.startsWith('>')) continue;
+    const plain = text.replace(/\s+/g, ' ');
+    if (plain.length < MIN_SUMMARY_LENGTH) continue;
+    return plain.length <= MAX_SUMMARY_LENGTH
+      ? plain
+      : `${plain.slice(0, MAX_SUMMARY_LENGTH - 1).trimEnd()}…`;
+  }
+  return '';
 }
 
 /**
- * 拉一次文章页并提取摘要。
+ * 算出该抓哪个地址。
+ *
+ * 两处调整叠在一起，抽出来是因为同步管线与 `scripts/backfill-article-summaries.mts`
+ * 都要用，而其中任何一处漏掉后缀或漏掉镜像改写，表现都是「静默抓不到摘要」。
+ *
+ * - 镜像来源的 canonicalUrl 已被 `rewriteItemHost` 改写成官方域名，抓取要换回镜像
+ * - Markdown 模式要在条目链接后面补上后缀（如 `.md`）
+ */
+export function articleSummaryUrl(
+  source: Pick<PathfinderSyncSource, 'rewriteItemHost' | 'articleSummary'>,
+  canonicalUrl: string,
+): string | null {
+  const config = source.articleSummary;
+  if (!config) return null;
+  const onFetchHost = source.rewriteItemHost
+    ? canonicalUrl.replace(source.rewriteItemHost.to, config.fetchHost)
+    : canonicalUrl;
+  return config.mode === 'markdown' ? `${onFetchHost}${config.urlSuffix}` : onFetchHost;
+}
+
+/**
+ * 拉一次正文并提取摘要。
  *
  * 主机白名单在这里再验一次：条目链接可能已被 `rewriteItemHost` 改写成官方域名，
  * 而实际能抓到的是镜像——两者未必相同，所以不能直接信任条目的 canonicalUrl。
  */
 export async function fetchArticleSummary(
   url: string,
-  config: ArticleSummaryConfig,
+  config: PathfinderArticleSummaryConfig,
 ): Promise<string> {
   let parsed: URL;
   try {
@@ -96,7 +139,7 @@ export async function fetchArticleSummary(
     return '';
   }
   if (parsed.protocol !== 'https:') return '';
-  if (!config.allowedHosts.includes(parsed.hostname)) return '';
+  if (parsed.hostname !== config.fetchHost) return '';
 
   try {
     const response = await fetch(url, {
@@ -111,7 +154,9 @@ export async function fetchArticleSummary(
 
     const text = await response.text();
     if (text.length > PATHFINDER_MAX_RESPONSE_BYTES) return '';
-    return extractArticleSummary(text, config.containerMarker);
+    return config.mode === 'markdown'
+      ? extractMarkdownSummary(text, config.heading)
+      : extractArticleSummary(text, config.containerMarker);
   } catch {
     // 超时、网络异常、供应商故障都走这里：没有摘要，但抓取不受影响
     return '';

@@ -3,7 +3,7 @@ import { and, eq, inArray, or, sql, type SQLWrapper } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderItemTags, pathfinderSources } from '@/lib/db/schema';
 import { fetchPathfinderSource } from './fetch-source';
-import { fetchArticleSummary } from './article-summary';
+import { articleSummaryUrl, fetchArticleSummary } from './article-summary';
 import { parsePathfinderSource } from './parse';
 import { PATHFINDER_SYNC_SOURCE_MAP, PATHFINDER_SYNC_SOURCES } from './sources';
 import { isTranslationEnabled, needsTranslation, translateAll } from '../translate';
@@ -211,17 +211,22 @@ async function applyArticleSummaries(
   const config = source.articleSummary;
   if (!config) return;
 
-  const pending = items.filter((item) => !(item.summaryZh ?? item.summaryEn ?? '').trim());
+  /*
+   * 默认只补空缺，省掉不必要的请求；`replacesFeedSummary` 的来源全量重取——
+   * 它的 feed 给的是一份逐日不变的样板文，留着比空着更糟。
+   */
+  const pending = config.replacesFeedSummary
+    ? items
+    : items.filter((item) => !(item.summaryZh ?? item.summaryEn ?? '').trim());
   for (const item of pending) {
-    // 抓的是镜像域名，而 canonicalUrl 已被改写成官方域名，这里换回去
-    const fetchUrl = source.rewriteItemHost
-      ? item.canonicalUrl.replace(source.rewriteItemHost.to, config.fetchHost)
-      : item.canonicalUrl;
-    const summary = await fetchArticleSummary(fetchUrl, {
-      containerMarker: config.containerMarker,
-      allowedHosts: [config.fetchHost],
-    });
-    if (summary) item.summaryEn = summary;
+    const url = articleSummaryUrl(source, item.canonicalUrl);
+    if (!url) continue;
+    const summary = await fetchArticleSummary(url, config);
+    // 中文来源的正文摘要同样是中文，写进 summaryEn 会让列名与内容不符
+    if (summary) {
+      if (source.language === 'zh') item.summaryZh = summary;
+      else item.summaryEn = summary;
+    }
     // 礼貌间隔：同一个站点连着拉几十页容易被限流
     await new Promise((resolve) => setTimeout(resolve, 300));
   }

@@ -238,7 +238,7 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
      * 没有摘要、也生成不了解读。正文首段从文章页取——注意抓的是镜像域名，
      * 而条目链接已被改写成官方域名，两者不同。
      */
-    articleSummary: { containerMarker: 'blog-content', fetchHost: 'hf-mirror.com' },
+    articleSummary: { mode: 'html', containerMarker: 'blog-content', fetchHost: 'hf-mirror.com' },
     itemType: 'ai-update',
     direction: 'ai',
     trustLevel: 'verified',
@@ -311,6 +311,51 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     enabled: true,
     autoPublish: true,
     organization: 'GitHub',
+    learningEligible: false,
+  },
+  {
+    /*
+     * 唯一的日更中文来源。
+     *
+     * 加它是因为其余动态来源全是企业官方博客，一周才发几篇：实测同步
+     * 每小时准点跑，但连着 17 小时一条新条目都没带回来，机会库看着像坏了。
+     *
+     * **接的是日报，不是 AGI Hunt 的快讯流。** 那个流 `/feed.xml` 每 24 小时
+     * 产出 5761 条（按 /api/channels 的 count_24h 合计），而 feed 只保留最新
+     * 50 条、实测跨度仅 20 分钟；RSS 适配器每次最多取 30 条、同步每小时一次，
+     * 等于每小时从 240 条里随机采 30 条，覆盖率 12%，还要每天往待审队列灌
+     * 720 条。这正是 `github-good-first-issues` 停用的那个失败模式，量级还大 4 倍。
+     * 日报是站方自己按天汇总的一期，1 条/天，人读得完。
+     */
+    id: 'agihunt-daily',
+    name: 'AGI Hunt 日报',
+    adapterId: 'rss',
+    fetchUrl: 'https://agihunt.info/daily/feed.xml',
+    siteUrl: 'https://agihunt.info/daily/',
+    allowedFetchHosts: ['agihunt.info'],
+    allowedItemHosts: ['agihunt.info'],
+    /*
+     * feed 的 description 是模板套日期，30 条按日期归一化后只有 1 种写法，
+     * 直接用会让列表页出现一整屏一模一样的说明文字。真正的当天综述在
+     * `/daily/{date}.md` 的「今日总结」一节，取那一段覆盖掉样板文。
+     * 站点自己提供 .md 版，比解析 448KB 的日报页可靠。
+     */
+    articleSummary: {
+      mode: 'markdown',
+      fetchHost: 'agihunt.info',
+      urlSuffix: '.md',
+      heading: '## 今日总结',
+      replacesFeedSummary: true,
+    },
+    language: 'zh',
+    itemType: 'ai-update',
+    direction: 'ai',
+    // 聚合站不是官方信源，且它自己的内容就是 AI 从 X / Reddit 汇总来的二次转述。
+    // 卡片上标「官方来源」是标错出处
+    trustLevel: 'verified',
+    enabled: true,
+    autoPublish: true,
+    organization: 'AGI Hunt',
     learningEligible: false,
   },
   {
