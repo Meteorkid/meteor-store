@@ -18,7 +18,9 @@ describe('翻译的接入位置', () => {
      * 每轮同步都会把全部抓到的条目重译一遍——每小时上百次调用，结果与上一轮
      * 完全相同。必须等分类出 inserts / updates 之后再翻。
      */
-    expect(syncSource).toContain('applyChineseText([...pendingInserts');
+    // 接入点现在多了一步「补正文首段」，两者共用同一批条目
+    expect(syncSource).toContain('const needsEnrichment = [...pendingInserts');
+    expect(syncSource).toContain('applyChineseText(needsEnrichment)');
     expect(syncSource).not.toMatch(/withChineseText\(parsePathfinderSource/);
   });
 

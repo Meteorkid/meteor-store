@@ -3,6 +3,7 @@ import { and, eq, inArray, or, sql, type SQLWrapper } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderItemTags, pathfinderSources } from '@/lib/db/schema';
 import { fetchPathfinderSource } from './fetch-source';
+import { fetchArticleSummary } from './article-summary';
 import { parsePathfinderSource } from './parse';
 import { PATHFINDER_SYNC_SOURCE_MAP, PATHFINDER_SYNC_SOURCES } from './sources';
 import { isTranslationEnabled, needsTranslation, translateAll } from '../translate';
@@ -194,6 +195,38 @@ async function syncOneSource(
  * 翻译失败时什么都不做，英文兜底照旧生效——中文没补上只是不好看，
  * 而让同步整批失败会让机会库直接空掉。
  */
+/**
+ * 给没有摘要的条目补一段正文首段（原地修改）。
+ *
+ * 只在来源显式开启 `articleSummary` 时生效，且**只处理本来就没有摘要的条目**——
+ * 这是抓取管线里唯一逐条拉文章页的路径，每条一次 HTTP 请求。
+ *
+ * 串行且带间隔：一次同步可能有几十条，并发打同一个站点既不礼貌也容易被限流。
+ * 单条失败只是这条没摘要，不影响其它条目，也不影响整轮同步。
+ */
+async function applyArticleSummaries(
+  source: PathfinderSyncSource,
+  items: readonly IngestedPathfinderItem[],
+): Promise<void> {
+  const config = source.articleSummary;
+  if (!config) return;
+
+  const pending = items.filter((item) => !(item.summaryZh ?? item.summaryEn ?? '').trim());
+  for (const item of pending) {
+    // 抓的是镜像域名，而 canonicalUrl 已被改写成官方域名，这里换回去
+    const fetchUrl = source.rewriteItemHost
+      ? item.canonicalUrl.replace(source.rewriteItemHost.to, config.fetchHost)
+      : item.canonicalUrl;
+    const summary = await fetchArticleSummary(fetchUrl, {
+      containerMarker: config.containerMarker,
+      allowedHosts: [config.fetchHost],
+    });
+    if (summary) item.summaryEn = summary;
+    // 礼貌间隔：同一个站点连着拉几十页容易被限流
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+}
+
 async function applyChineseText(items: readonly IngestedPathfinderItem[]): Promise<void> {
   if (!isTranslationEnabled() || items.length === 0) return;
 
@@ -271,7 +304,10 @@ async function persistItems(
    * 而结果和上一轮一模一样。这里放在分类之后，正是因为只有到这一步才知道
    * 哪些条目的英文原文确实是新的。
    */
-  await applyChineseText([...pendingInserts.map(({ item }) => item), ...updates.map(({ item }) => item)]);
+  const needsEnrichment = [...pendingInserts.map(({ item }) => item), ...updates.map(({ item }) => item)];
+  // 顺序要紧：先补正文首段，翻译才有东西可翻；反过来的话补上的永远是英文
+  await applyArticleSummaries(source, needsEnrichment);
+  await applyChineseText(needsEnrichment);
   for (const preparedItem of pendingInserts) {
     inserts.push(toInsertRow(source, preparedItem.item, preparedItem.urlHash, now));
   }

@@ -233,6 +233,12 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     // 镜像还会把正文里的「Hugging Face」换成自己的名字：实测 30 条里有 3 条
     // 标题写着「HF Mirror Inference Endpoints」，原文是「Hugging Face …」
     rewriteItemText: [{ from: 'HF Mirror', to: 'Hugging Face' }],
+    /*
+     * 这个 feed 只给 guid/link/pubDate/title，没有 description，于是条目在站内
+     * 没有摘要、也生成不了解读。正文首段从文章页取——注意抓的是镜像域名，
+     * 而条目链接已被改写成官方域名，两者不同。
+     */
+    articleSummary: { containerMarker: 'blog-content', fetchHost: 'hf-mirror.com' },
     itemType: 'ai-update',
     direction: 'ai',
     trustLevel: 'verified',

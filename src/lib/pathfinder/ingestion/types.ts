@@ -55,6 +55,22 @@ export interface PathfinderSyncSource {
    * 只做字面替换，作用于标题与摘要。
    */
   rewriteItemText?: ReadonlyArray<{ from: string; to: string }>;
+  /**
+   * feed 不给摘要时，从文章页正文里取一段。
+   *
+   * **按来源显式开启**：这是抓取管线里唯一会逐条拉文章页的路径，每条一次
+   * HTTP 请求、每页数百 KB。只有确实拿不到 description 的来源才值得付这个代价
+   * （Hugging Face 的镜像 feed 只给 guid/link/pubDate/title）。
+   *
+   * `fetchHost` 单独写而不是复用 allowedItemHosts：条目链接会被
+   * `rewriteItemHost` 改写成官方域名，而实际能抓到的是镜像，两者不同。
+   */
+  articleSummary?: {
+    /** 正文容器 class 里的唯一片段 */
+    containerMarker: string;
+    /** 实际抓取用的主机名（可能是镜像，与条目链接的域名不同） */
+    fetchHost: string;
+  };
 }
 
 export interface IngestedPathfinderItem {
