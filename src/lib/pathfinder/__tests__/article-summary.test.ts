@@ -49,16 +49,28 @@ describe('正文首段提取', () => {
 });
 
 describe('接线', () => {
-  it('只有确实拿不到 description 的来源才开启', () => {
+  it('是按来源选择性开启，不是全局默认', () => {
     /*
-     * 这是抓取管线里唯一逐条拉文章页的路径，每条一次 HTTP 请求。
+     * 这是抓取管线里唯一逐条拉正文的路径，每条一次 HTTP 请求。
      * 全局开启会给每个来源都加上这份开销。
+     *
+     * 这里**不写死来源清单**：新增一个确实拿不到 description 的来源是正常的，
+     * 钉清单只会让合法改动变红。要保证的是它仍然是少数派。
      */
-    const enabled = [...PATHFINDER_SYNC_SOURCE_MAP.values()].filter((s) => s.articleSummary);
-    expect(enabled.map((s) => s.id)).toEqual(['hugging-face-blog']);
+    const sources = [...PATHFINDER_SYNC_SOURCE_MAP.values()];
+    const enabled = sources.filter((s) => s.articleSummary);
+    expect(enabled.length).toBeGreaterThan(0);
+    expect(enabled.length).toBeLessThan(sources.length / 2);
   });
 
-  it('抓取用的主机与条目链接的域名分开配置', () => {
+  it('每个开启的来源都要声明抓取主机', () => {
+    // 没有 fetchHost 就没法做白名单校验，等于允许抓任意地址
+    for (const source of [...PATHFINDER_SYNC_SOURCE_MAP.values()].filter((s) => s.articleSummary)) {
+      expect(source.articleSummary!.fetchHost, source.id).toBeTruthy();
+    }
+  });
+
+  it('走镜像的来源，抓取主机与条目链接域名必须分开', () => {
     // 条目链接被 rewriteItemHost 改写成官方域名，而实际能抓到的是镜像
     const hf = PATHFINDER_SYNC_SOURCE_MAP.get('hugging-face-blog')!;
     expect(hf.articleSummary!.fetchHost).toBe('hf-mirror.com');

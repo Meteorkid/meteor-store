@@ -32,7 +32,7 @@ export function parseRss(
     ...(xml.match(/<entry\b[\s\S]*?<\/entry>/gi) ?? []),
   ];
 
-  return blocks.slice(0, 30).flatMap((block) => {
+  return blocks.slice(0, source.maxItemsPerSync ?? 30).flatMap((block) => {
     // 镜像来源要把被替换掉的原站名改回来，否则等于以「官方来源」的名义
     // 发布被篡改过的文本（详见 types.ts 的 rewriteItemText）
     const title = rewriteText(

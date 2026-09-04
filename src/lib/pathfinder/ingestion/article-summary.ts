@@ -2,16 +2,16 @@ import { PATHFINDER_MAX_RESPONSE_BYTES } from './fetch-source';
 import type { PathfinderArticleSummaryConfig, PathfinderSyncSource } from './types';
 
 /**
- * 从文章页正文里取一段摘要。
+ * 从正文里取一段摘要。
  *
- * 少数来源的 RSS 不提供 `<description>`——Hugging Face 的镜像 feed 只给
- * guid/link/pubDate/title，于是那 26 条在站内没有摘要、也生成不了解读
- * （见 editorial.ts 的 canGenerateEditorialNote）。
+ * 两种来源需要它，缺失的方式不同：Hugging Face 的镜像 feed 只给
+ * guid/link/pubDate/title，压根没有 `<description>`（那 26 条在站内没有摘要、
+ * 也生成不了解读，见 editorial.ts 的 canGenerateEditorialNote）；AGI Hunt 日报
+ * 给的 description 则是一份逐日不变的样板文，比空着更糟。后者用
+ * `replacesFeedSummary` 覆盖，前者只填空缺。
  *
- * **这是抓取管线里唯一会逐条拉文章页的路径**，代价明确：每条一次 HTTP 请求、
- * 每页约 320KB。因此它是**按来源显式开启**的（`articleSummary` 配置），
- * 且只对「本来就没有摘要的新条目」触发——已有摘要的、以及同步中未变化的条目
- * 都不会重新拉。
+ * **这是抓取管线里唯一会逐条拉正文的路径**，代价明确：每条一次 HTTP 请求、
+ * 每页数百 KB。因此它是**按来源显式开启**的（`articleSummary` 配置）。
  *
  * 提取失败一律返回空字符串：没有摘要只是不好看，页面已有
  * 「官方来源未提供摘要」的兜底；而让抓取因此失败会丢掉整条来源。

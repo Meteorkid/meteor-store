@@ -106,6 +106,18 @@ export interface PathfinderSyncSource {
    * AGI Hunt 日报给的 description 则是一份逐日不变的样板文。
    */
   articleSummary?: PathfinderArticleSummaryConfig;
+  /**
+   * 单轮同步最多取几条，默认 30。
+   *
+   * 只有开了 `articleSummary` 的来源需要调它：每条要多一次正文请求，
+   * 而整批同步共用 route 的 60 秒预算。AGI Hunt 日报实测单页 0.6–2.2 秒、
+   * 加 300ms 礼貌间隔约 1.7 秒/条，照默认 30 条要 51 秒——正文补全发生在
+   * 入库**之前**，超时就整条来源回滚，于是每小时重试、每次都超时，
+   * 那条来源会永远进不来。
+   *
+   * 调小不会漏内容：feed 里更早的条目下一轮仍在，而日更来源每轮只有 1 条是新的。
+   */
+  maxItemsPerSync?: number;
 }
 
 export interface IngestedPathfinderItem {
