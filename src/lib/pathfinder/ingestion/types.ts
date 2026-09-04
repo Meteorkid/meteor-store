@@ -9,6 +9,39 @@ import type {
 
 export type PathfinderAdapterId = 'rss' | 'github' | 'greenhouse';
 
+/**
+ * 正文摘要的抓取方式。
+ *
+ * `fetchHost` 单独写而不是复用 allowedItemHosts：条目链接可能被
+ * `rewriteItemHost` 改写成官方域名，而实际能抓到的是镜像，两者不同。
+ *
+ * `replacesFeedSummary` 区分两种缺失。默认只填**本来就空着**的摘要，
+ * 省掉不必要的请求；置 true 时连已有摘要一起覆盖——AGI Hunt 日报的
+ * description 是模板套日期，30 条归一化后只有 1 种，留着会让列表页
+ * 出现一整屏一模一样的说明文字。
+ */
+export type PathfinderArticleSummaryConfig = {
+  /** 实际抓取用的主机名（可能是镜像，与条目链接的域名不同） */
+  fetchHost: string;
+  /** feed 给的 description 是样板文时置 true：覆盖它，而不是只填空缺 */
+  replacesFeedSummary?: boolean;
+} & (
+  | {
+    /** 从 HTML 正文首段取 */
+    mode: 'html';
+    /** 正文容器 class 里的唯一片段 */
+    containerMarker: string;
+  }
+  | {
+    /** 从站点提供的 Markdown 版正文取 */
+    mode: 'markdown';
+    /** 拼在条目链接后面得到 Markdown 版的后缀，如 `.md` */
+    urlSuffix: string;
+    /** 取这个标题下的第一段，如 `## 今日总结` */
+    heading: string;
+  }
+);
+
 export interface PathfinderSyncSource {
   id: string;
   name: string;
@@ -19,6 +52,15 @@ export interface PathfinderSyncSource {
   allowedItemHosts: readonly string[];
   itemType: PathfinderItemType;
   direction: PathfinderDirection;
+  /**
+   * feed 正文的语言，默认英文。
+   *
+   * RSS 适配器默认把标题与摘要写进 `titleEn` / `summaryEn`，因为现有来源
+   * 全是英文站。中文来源（AGI Hunt 日报）必须显式标出来，否则中文正文会被
+   * 存进 `title_en` / `summary_en`——渲染上看不出问题（`localizeNullable`
+   * 两个方向都兜底），但列名与内容不符，将来任何按语言分流的逻辑都会读错。
+   */
+  language?: 'zh';
   trustLevel: 'official' | 'verified';
   enabled: boolean;
   autoPublish: boolean;
@@ -56,21 +98,14 @@ export interface PathfinderSyncSource {
    */
   rewriteItemText?: ReadonlyArray<{ from: string; to: string }>;
   /**
-   * feed 不给摘要时，从文章页正文里取一段。
+   * feed 不给可用摘要时，从正文里取一段。
    *
-   * **按来源显式开启**：这是抓取管线里唯一会逐条拉文章页的路径，每条一次
-   * HTTP 请求、每页数百 KB。只有确实拿不到 description 的来源才值得付这个代价
-   * （Hugging Face 的镜像 feed 只给 guid/link/pubDate/title）。
-   *
-   * `fetchHost` 单独写而不是复用 allowedItemHosts：条目链接会被
-   * `rewriteItemHost` 改写成官方域名，而实际能抓到的是镜像，两者不同。
+   * **按来源显式开启**：这是抓取管线里唯一会逐条拉正文的路径，每条一次
+   * HTTP 请求、每页数百 KB。只有确实拿不到可用 description 的来源才值得付
+   * 这个代价——Hugging Face 的镜像 feed 只给 guid/link/pubDate/title，
+   * AGI Hunt 日报给的 description 则是一份逐日不变的样板文。
    */
-  articleSummary?: {
-    /** 正文容器 class 里的唯一片段 */
-    containerMarker: string;
-    /** 实际抓取用的主机名（可能是镜像，与条目链接的域名不同） */
-    fetchHost: string;
-  };
+  articleSummary?: PathfinderArticleSummaryConfig;
 }
 
 export interface IngestedPathfinderItem {

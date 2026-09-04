@@ -20,8 +20,24 @@ import { fetchArticleSummary } from '../src/lib/pathfinder/ingestion/article-sum
 import { PATHFINDER_SYNC_SOURCE_MAP } from '../src/lib/pathfinder/ingestion/sources';
 
 const apply = process.argv.includes('--apply');
+/**
+ * 连接串来源：环境变量 → .env.production → .env.local。
+ *
+ * 在服务器上跑时用 .env.production（生产是自建 PostgreSQL），本地开发用
+ * .env.local。**别只认 .env.local**——生产早已从 Neon 迁到自建库，
+ * 只读本地文件会把写操作发到已经废弃的那个库去。
+ */
+function readEnvFile(file: string): string | undefined {
+  try {
+    return readFileSync(file, 'utf8').match(/^DATABASE_URL=(.*)$/m)?.[1]
+      ?.trim().replace(/^["']|["']$/g, '');
+  } catch {
+    return undefined;
+  }
+}
 const databaseUrl = process.env.DATABASE_URL
-  ?? readFileSync('.env.local', 'utf8').match(/^DATABASE_URL=(.*)$/m)?.[1]?.trim().replace(/^["']|["']$/g, '');
+  ?? readEnvFile('.env.production')
+  ?? readEnvFile('.env.local');
 if (!databaseUrl) {
   console.error('缺少 DATABASE_URL');
   process.exit(1);
