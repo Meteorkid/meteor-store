@@ -8,7 +8,27 @@ import ScrambleText from './ScrambleText';
 import MagneticWrap from './MagneticWrap';
 import { SHOW_PRICING } from '@/lib/constants';
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  /** 站内产品总数 */
+  productCount: number;
+  /** 其中能在浏览器里直接打开的（已登记进 app-manifest 的）数量 */
+  webAppCount: number;
+  /** 完全免费的数量（实验室全部免费） */
+  freeCount: number;
+  /** 帮助中心的文章数 */
+  helpCount: number;
+}
+
+/**
+ * 首页 Hero。
+ *
+ * **这四个数字必须是可核实的事实**，由服务端从真实数据算好传进来。
+ * 曾经写死成「1K+ 活跃用户 / 4.9 平均评分 / < 50ms 响应延迟」——三个都没有
+ * 任何数据源支撑。对开发者受众，编造的社会证明一眼就能看穿，是负分；
+ * 而站点同时是个体工商户的经营主体，虚构用户数据属于虚假宣传。
+ * 现在这四个数字随产品目录自动变化，不会再漂移成谎话。
+ */
+export default function HeroSection({ productCount, webAppCount, freeCount, helpCount }: HeroSectionProps) {
   const t = useTranslations('HeroSection');
 
   return (
@@ -99,10 +119,10 @@ export default function HeroSection() {
             style={{ animationDelay: '1.15s' }}
           >
             {[
-              { value: '9+', label: t('statTools') },
-              { value: '1K+', label: t('statUsers') },
-              { value: '4.9', label: t('statRating') },
-              { value: '< 50ms', label: t('statLatency') },
+              { value: String(productCount), label: t('statTools') },
+              { value: String(webAppCount), label: t('statPlayable') },
+              { value: String(freeCount), label: t('statFree') },
+              { value: String(helpCount), label: t('statDocs') },
             ].map((stat) => (
               <div key={stat.label} className="px-4 py-3 rounded-xl backdrop-blur-md bg-white/[0.03] border-t border-t-white/[0.10] border-b border-b-transparent border-x border-x-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 <div className="text-2xl md:text-3xl font-bold text-white mb-1">{stat.value}</div>

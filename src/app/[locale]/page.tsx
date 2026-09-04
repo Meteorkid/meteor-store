@@ -6,7 +6,6 @@ import HeroSection from '@/components/HeroSection';
 import ProductShowcase from '@/components/ProductShowcase';
 import ProductDemo from '@/components/ProductDemo';
 import FeaturesSection from '@/components/FeaturesSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
 import PartnersSection from '@/components/PartnersSection';
 import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
@@ -14,7 +13,10 @@ import TerminalSection from '@/components/TerminalSection';
 import PricingSection from '@/components/PricingSection';
 import CTASection from '@/components/CTASection';
 import BackToTop from '@/components/BackToTop';
-import { productLineIds } from '@/data/product-tracks';
+import { labProductIds, productLineIds } from '@/data/product-tracks';
+import { products } from '@/data/products';
+import { webAppCount } from '@/data/app-manifest';
+import { helpArticles } from '@/data/help-articles';
 import { SHOW_PRICING } from '@/lib/constants';
 
 export async function generateMetadata({
@@ -43,7 +45,15 @@ export default async function Home({
       <Header />
 
       {/* Hero Section */}
-      <HeroSection />
+      {/* Hero 的四个数字由服务端从真实数据算出：产品总数、可在浏览器直接打开的数量、
+          完全免费的数量、帮助文档篇数。全部可核实，且随目录自动变化——
+          此前是写死的「1K+ 活跃用户 / 4.9 评分 / < 50ms 延迟」，没有任何数据源 */}
+      <HeroSection
+        productCount={products.length}
+        webAppCount={webAppCount}
+        freeCount={labProductIds.length}
+        helpCount={helpArticles.length}
+      />
 
       {/* Partners Section */}
       <PartnersSection />
@@ -55,10 +65,7 @@ export default async function Home({
       <ProductDemo />
 
       {/* Features Section（核心能力） */}
-      <FeaturesSection layout="grid" featureCount={6} />
-
-      {/* Testimonials Section */}
-      <TestimonialsSection />
+      <FeaturesSection layout="grid" featureCount={4} />
 
       {/* Pricing Section —— 全站唯一的定价区块。
           数量在服务端算，且只数主产品线：Pass 不覆盖实验室那七款（它们本来就免费） */}
