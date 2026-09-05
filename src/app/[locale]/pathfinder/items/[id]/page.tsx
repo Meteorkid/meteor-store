@@ -189,10 +189,10 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
                 />
               </div>
               <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                <a href={item.canonicalUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-white/10 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-white/15">
+                <a href={item.canonicalUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-violet-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-violet-500">
                   {t('openOriginal')} ↗
                 </a>
-                <a href={item.source.siteUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-white/10 px-4 py-2.5 text-center text-sm font-semibold text-white/70 hover:text-white">
+                <a href={item.source.siteUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-violet-400/40 bg-violet-500/15 px-4 py-2.5 text-center text-sm font-semibold text-violet-100 hover:bg-violet-500/25 hover:text-white">
                   {t('visitSource')} ↗
                 </a>
               </div>
