@@ -572,9 +572,32 @@ bucket 完全隔离。服务层在
   安装包地址从头到尾没进过页面。这和 `/apps/{id}` 必须服务端门控不矛盾：
   那里渲染的是应用本体，藏在客户端等于没藏
 
-**macOS 分发前必须签名 + 公证**，否则用户下载后被 Gatekeeper 拦下，比没有下载更糟。
-上传前自查：`spctl -a -t open --context context:primary-signature -v X.dmg`
-与 `xcrun stapler validate X.dmg`。
+#### macOS 签名与公证：**现状是没做**
+
+这里此前写着「分发前必须签名 + 公证」，但**那条要求从未被遵守过**。
+2026-09-05 实测 XIsland 1.12.0/1.13.0、XNook 1.3.15/1.3.16 四个包：
+
+```
+spctl -a -t open --context context:primary-signature -v X.dmg
+  → rejected   source=no usable signature
+xcrun stapler validate X.dmg
+  → does not have a ticket stapled to it
+```
+
+四个全是这个结果——不是某一版退化，是从来就没签过。留着一条读起来像已生效、
+实际从没执行的规则，比承认现状更糟：下一个人会以为 bucket 里的包是签过的。
+
+用户侧目前靠帮助中心的 `macos-cannot-open-app.md`（中英双语）缓解：
+走 Apple 官方的「系统设置 → 隐私与安全性 → 仍要打开」，
+并明确不指导关闭 Gatekeeper 或运行绕过命令。
+
+**要做签名公证需要 Apple Developer 账号（$99/年）+ 在构建流程里加 `codesign`
+与 `notarytool`，属于未立项的待办。** 真做了之后，上传前用这两条自查：
+
+```bash
+spctl -a -t open --context context:primary-signature -v X.dmg
+xcrun stapler validate X.dmg
+```
 
 ### 站内应用的门控必须在服务端
 
@@ -1137,7 +1160,7 @@ pnpm build                  # 构建
 | 评论树形查询优化 | 评论量增长后服务端按层级返回,加 `parentId` 索引 |
 | /admin/comments 也加举报联动入口 | 评论量大后,目前仅 /admin/posts 有,且评论侧已有逐条举报按钮 |
 | Pass 续费流程（到期自动续/一键续费） | 当前支付宝/微信都是单次付款不是代扣,到期后是**静默失效**;提醒已上线,续费入口还没做 |
-| 上传 xnook / xisland / statux 的安装包 | products.ts 已配好 r2Key 条目（statux 0.4.3 非门控、xisland 1.12.0 / xnook 1.3.15 门控）。发新版时签名公证后跑 `scripts/upload-release.mjs`,把新条目粘进 products.ts 即可；上线前确认对应对象已传到 R2 私有 bucket |
+| 发新版安装包 | 当前已上架：statux 0.4.3（非门控）、xisland 1.13.0 / xnook 1.3.16（门控）。发新版跑 `scripts/upload-release.mjs --product X --version Y --file Z --gated`，把打印的 r2Key/version/sha256 更新进 products.ts 的**现有条目**（保持 id 为 `dmg` 不变，否则产品页会同时冒出两个下载按钮）；本地 `.env.local` 缺 `R2_RELEASE_BUCKET`，跑脚本时要临时 export |
 | 实验室产品恢复收费 | 实验室七款想重新收费时,把 `originalPrice` 挪回 `price` 即可——但先想清楚它是否该回到主线:实验室的定位就是不收钱。`product-tracks.test.ts` 会拦住「留在 lab 却带价格」的组合 |
 
 **已完成的待办**（从上表移除,留作记录）：

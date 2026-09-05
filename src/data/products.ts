@@ -550,7 +550,7 @@ export const products: Product[] = [
     ],
     github: 'https://github.com/Meteorkid/XIsland',
     downloads: [
-      { id: 'dmg', label: { zh: '下载 DMG', en: 'Download DMG' }, r2Key: 'releases/xisland/1.12.0/XIsland-1.12.0.dmg', icon: 'dmg', gated: true, version: '1.12.0', sha256: '5f8f69fb08625ab3facd635afec6f523e5edd144a5a92a9836c24e2f884a5d38' },
+      { id: 'dmg', label: { zh: '下载 DMG', en: 'Download DMG' }, r2Key: 'releases/xisland/1.13.0/XIsland-1.13.0.dmg', icon: 'dmg', gated: true, version: '1.13.0', sha256: '4c18b053e15721b3e62f397fe51e075ef4ae621660bd9ee5199db5feacdf724c' },
     ],
     category: 'developer',
     icon: '🏝️',
@@ -658,11 +658,11 @@ export const products: Product[] = [
       {
         id: 'dmg',
         label: { zh: '下载 DMG', en: 'Download DMG' },
-        r2Key: 'releases/xnook/1.3.15/XNook-1.3.15.dmg',
+        r2Key: 'releases/xnook/1.3.16/XNook-1.3.16.dmg',
         icon: 'dmg',
         gated: true,
-        version: '1.3.15',
-        sha256: '821b29c5573d6530bed1a036efa0cddb64e821b9c795b0de605b69fc1ac6c087',
+        version: '1.3.16',
+        sha256: '2339b50f38b6c13b4a160d4e94d23d20a3597404a42ed49bf2e909a0a2d603bf',
       },
     ],
     category: 'utility',
