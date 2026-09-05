@@ -66,6 +66,34 @@ describe('Pathfinder ingestion', () => {
     });
   });
 
+  it('中文来源的原文落中文列，不落 *_en', () => {
+    /*
+     * RSS 适配器默认把标题与摘要写进 titleEn / summaryEn，因为现有来源全是英文站。
+     * 中文来源写进 *_en 渲染上看不出问题（localizeNullable 两个方向都兜底），
+     * 但列名与内容不符，将来任何按语言分流的逻辑都会读错。
+     */
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('agihunt-daily')!;
+    const xml = `
+      <rss><channel>
+        <item><title>2026-09-04 AI 资讯日报</title><link>https://agihunt.info/daily/2026-09-04</link><guid>https://agihunt.info/daily/2026-09-04</guid><description>过去 24 小时全站最热 AI 动态的结构化梳理，含今日总结与各频道观察。</description><pubDate>Thu, 03 Sep 2026 23:13:27 GMT</pubDate></item>
+      </channel></rss>`;
+    const items = parseRss(source, xml);
+    expect(items).toHaveLength(1);
+    expect(items[0].titleZh).toBe('2026-09-04 AI 资讯日报');
+    expect(items[0].titleEn).toBeNull();
+    expect(items[0].summaryZh).toContain('结构化梳理');
+    expect(items[0].summaryEn).toBeNull();
+  });
+
+  it('按来源限制单轮取几条', () => {
+    // 开了 articleSummary 的来源每条要多一次正文请求，整批同步共用 60 秒预算
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('agihunt-daily')!;
+    const item = (d: string) => `<item><title>${d} AI 资讯日报</title><link>https://agihunt.info/daily/${d}</link><guid>${d}</guid><description>当天的 AI 动态结构化梳理，含今日总结与各频道观察。</description></item>`;
+    const days = ['2026-09-04', '2026-09-03', '2026-09-02', '2026-09-01', '2026-08-31'];
+    const items = parseRss(source, `<rss><channel>${days.map(item).join('')}</channel></rss>`);
+    expect(items).toHaveLength(source.maxItemsPerSync!);
+  });
+
   it('按来源同步周期判断是否到期，非法时间会安全重试', () => {
     const now = new Date('2026-08-24T02:00:00.000Z');
     expect(isPathfinderSourceDue(null, 60, now)).toBe(true);

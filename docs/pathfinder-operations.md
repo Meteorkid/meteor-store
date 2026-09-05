@@ -102,6 +102,9 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
 
 - OpenAI、Google DeepMind、Google AI 和 GitHub AI 官方 RSS 可自动发布为 AI 动态，但永远不能进入学习路径。
 - Hugging Face Blog 含社区内容，默认人工审核。
+- **AGI Hunt 日报（`agihunt-daily`）是唯一的日更中文来源，自动发布。** 加它是因为其余动态来源全是企业官方博客，一周才发几篇——实测同步每小时准点跑，却连着 17 小时一条新条目都没带回来。它是聚合站不是官方信源（内容本身是 AI 从 X / Reddit 汇总的二次转述），所以 `trustLevel` 是 `verified` 而不是 `official`。
+- **接的是日报，不是 AGI Hunt 的快讯流，别改。** 快讯流 `/feed.xml` 每 24 小时产出 5761 条（`/api/channels` 的 `count_24h` 合计），而 feed 只保留最新 50 条、实测跨度仅 20 分钟；RSS 适配器每轮最多取 30 条、同步每小时一次，等于每小时从约 240 条里随机采 30 条，覆盖率 12%，还要每天往待审队列灌 720 条——正是 `github-good-first-issues` 停用的那个失败模式，量级还大 4 倍。日报是站方按天汇总的一期，1 条/天。
+- **日报来源的 `maxItemsPerSync` 是 3，不要调大。** 它的 feed description 是模板套日期（30 条归一化后只有 1 种），所以开了 `replacesFeedSummary`，每条都要额外拉一次 `/daily/{date}.md` 取「今日总结」。实测约 1.7 秒/条，照默认 30 条要 51 秒；而正文补全跑在入库**之前**，超时就整条来源回滚，于是每小时重试、每次都超时，这条来源会永远进不来。
 - **泛 GitHub 搜索来源（`github-good-first-issues`）已停用**：它扫全站、每小时带回约 30 条
   几乎不重复的 issue，实测一天累积 178 条全部滞留 pending 且从未被审核；仓库构成以赏金农场
   和训练营作业仓库为主，方向推断有 149/178 落到默认值。职责已由下一条接管。

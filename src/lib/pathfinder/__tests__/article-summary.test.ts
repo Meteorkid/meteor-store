@@ -1,7 +1,11 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { extractArticleSummary } from '../ingestion/article-summary';
+import {
+  articleSummaryUrl,
+  extractArticleSummary,
+  extractMarkdownSummary,
+} from '../ingestion/article-summary';
 import { PATHFINDER_SYNC_SOURCE_MAP } from '../ingestion';
 
 const page = (body: string) => `<html><body>
@@ -85,5 +89,89 @@ describe('接线', () => {
     const chinese = sync.indexOf('await applyChineseText(needsEnrichment)');
     expect(article).toBeGreaterThan(0);
     expect(article).toBeLessThan(chinese);
+  });
+});
+
+/** AGI Hunt 日报 .md 的真实结构：一行出处、一级标题、章节标题、综述段、重点列表。 */
+const daily = (paragraph: string) => `> 出处:AGI HUNT · https://agihunt.info · AI 资讯日报 2026-09-04
+
+# AI 资讯日报 · 2026-09-04
+
+## 今日总结
+
+${paragraph}
+
+- **OpenAI 正式发布 GPT-6 Astra** — 官方称其为目前最智能的旗舰。
+
+## 与昨日对比
+`;
+
+describe('Markdown 正文取段', () => {
+  const summary = '过去一天，讨论从 Astra 会不会发转到 GPT-6 Astra 已正式上线，'
+    + '并叠上 Nvidia 以 129 亿美元收购 Hugging Face、多家消费级助手被报告同步宕机。';
+
+  it('取指定标题下的第一段', () => {
+    expect(extractMarkdownSummary(daily(summary), '## 今日总结')).toBe(summary);
+  });
+
+  it('跳过出处引用、标题与重点列表', () => {
+    /*
+     * 文件开头那行 `> 出处:…` 和随后的一级标题逐日不变，重点列表是
+     * `- **X** — …` 的条目格式；三者都不是当天的综述。
+     */
+    const out = extractMarkdownSummary(daily(summary), '## 今日总结');
+    expect(out).not.toContain('出处');
+    expect(out.startsWith('-')).toBe(false);
+    expect(out.startsWith('#')).toBe(false);
+  });
+
+  it('找不到标题时返回空，不退化成取第一段', () => {
+    // 站点改了章节名就该显式失败，而不是把出处行当成综述发出去
+    expect(extractMarkdownSummary(daily(summary), '## 不存在的章节')).toBe('');
+  });
+
+  it('过长的截断并加省略号', () => {
+    const out = extractMarkdownSummary(daily('长'.repeat(500)), '## 今日总结');
+    expect(out.length).toBe(320);
+    expect(out.endsWith('…')).toBe(true);
+  });
+
+  it('太短的段落不算综述', () => {
+    expect(extractMarkdownSummary(daily('太短。'), '## 今日总结')).toBe('');
+  });
+});
+
+describe('抓取地址', () => {
+  it('Markdown 模式在条目链接后面补后缀', () => {
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('agihunt-daily')!;
+    expect(articleSummaryUrl(source, 'https://agihunt.info/daily/2026-09-04'))
+      .toBe('https://agihunt.info/daily/2026-09-04.md');
+  });
+
+  it('镜像来源换回抓取主机', () => {
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('hugging-face-blog')!;
+    expect(articleSummaryUrl(source, 'https://huggingface.co/blog/x'))
+      .toBe('https://hf-mirror.com/blog/x');
+  });
+
+  it('未开启的来源没有抓取地址', () => {
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('openai-news')!;
+    expect(articleSummaryUrl(source, 'https://openai.com/index/x/')).toBeNull();
+  });
+});
+
+describe('全量覆盖摘要的来源要限量', () => {
+  it('replacesFeedSummary 的来源必须设 maxItemsPerSync', () => {
+    /*
+     * 这类来源每轮把取到的**每一条**都拉一次正文，而正文补全跑在入库之前、
+     * 整批同步又共用 route 的 60 秒预算。AGI Hunt 日报实测约 1.7 秒/条，
+     * 照默认 30 条要 51 秒——超时就整条来源回滚，于是每小时重试、每次都超时，
+     * 那条来源永远进不来。
+     */
+    for (const source of [...PATHFINDER_SYNC_SOURCE_MAP.values()]) {
+      if (!source.articleSummary?.replacesFeedSummary) continue;
+      expect(source.maxItemsPerSync, source.id).toBeDefined();
+      expect(source.maxItemsPerSync!, source.id).toBeLessThanOrEqual(5);
+    }
   });
 });
