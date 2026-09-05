@@ -78,6 +78,8 @@ export interface DigestContent {
   /** 上游 `.md` 顶部那行出处声明，必须原样展示 */
   attribution: string | null;
   sections: DigestSection[];
+  /** 这期一共引用了多少条快讯（按去重后的 /p/ 链接算） */
+  itemCount: number;
 }
 
 /** 出处声明是文件开头的引用行，形如 `> 出处:AGI HUNT · https://…` */
@@ -192,7 +194,12 @@ export function parseDigestMarkdown(markdown: string): DigestContent {
     });
   }
 
-  return { attribution, sections };
+  return {
+    attribution,
+    sections,
+    // 全篇去重：同一条快讯常被今日总结和分频道观察各引一次
+    itemCount: new Set(markdown.match(/\/p\/[0-9a-f]+/g) ?? []).size,
+  };
 }
 
 /**

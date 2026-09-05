@@ -69,7 +69,13 @@ export function catalogMetaFields(
  * 与卡片同源的判断：不相关的事实不是「留白更安全」，而是会误导。
  */
 export const CATALOG_FACT_KEYS = {
-  'ai-update': ['published', 'region'],
+  /*
+   * AI 动态不列地区：抓取管线给每条 RSS 都硬编码 `region: 'global'`
+   * （见 ingestion/parse.ts），线上实测 100/100 全是「全球」——一个恒定值
+   * 不构成事实，只是占着位置。这正是本文件开头说的那类问题，当时只清了卡片，
+   * 详情页的事实表漏了。
+   */
+  'ai-update': ['published'],
   competition: ['deadline', 'cost', 'region', 'remote', 'time', 'device', 'network'],
   internship: ['region', 'remote', 'deadline', 'published'],
   'open-source': ['time', 'device', 'network'],

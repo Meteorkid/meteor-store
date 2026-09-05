@@ -2150,6 +2150,7 @@
       "digestEyebrow": "Full digest",
       "digestTitle": "Everything that happened today",
       "digestItemCount": "{count} items",
+      "digestItemsLabel": "Stories",
       "originalLanguage": "Title and summary are the source original; no official translation exists yet.",
       "storylineEyebrow": "Same storyline",
       "storylineTitle": "Other items on this storyline ({count})",

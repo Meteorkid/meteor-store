@@ -86,6 +86,12 @@ describe('详情页关键事实按类型裁剪', () => {
     expect(CATALOG_FACT_KEYS['ai-update']).not.toContain('device');
     expect(CATALOG_FACT_KEYS['ai-update']).not.toContain('network');
     expect(CATALOG_FACT_KEYS['ai-update']).not.toContain('remote');
+    /*
+     * 地区同理，只是漏得更久：抓取管线给每条 RSS 硬编码 region: 'global'
+     * （见 ingestion/parse.ts），线上实测 100/100 全是「全球」。
+     * 一个恒定值不构成事实，只是占着侧栏的位置。
+     */
+    expect(CATALOG_FACT_KEYS['ai-update']).not.toContain('region');
   });
 
   it('竞赛保留截止与费用，实习保留地点与形式', () => {

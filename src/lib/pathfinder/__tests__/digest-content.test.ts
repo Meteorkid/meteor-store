@@ -53,6 +53,15 @@ describe('日报全文解析', () => {
     expect(channels.subsections.map((s) => s.heading)).toEqual(['编程与Agent', '研究']);
   });
 
+  it('全篇条目数按去重算', () => {
+    /*
+     * 同一条快讯常被今日总结和分频道观察各引一次，不去重会把数字吹起来。
+     * 这个数会显示在详情页侧栏——去掉恒定的「地区」之后，日报的关键信息
+     * 只剩发布时间一行，靠它才说得出点东西。
+     */
+    expect(parseDigestMarkdown(SAMPLE).itemCount).toBe(3);
+  });
+
   it('按去重后的 /p/ 链接数统计小节条目', () => {
     // 折叠状态下让人在展开前知道值不值得点；同一条被引用多次只算一条
     const [, channels] = parseDigestMarkdown(SAMPLE).sections;

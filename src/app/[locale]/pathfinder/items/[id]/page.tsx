@@ -55,10 +55,6 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
     deadline: { label: t('deadlineLabel'), value: item.deadlineText ? localizedText(item.deadlineText, locale) : formatCatalogDeadlineDate(item, typedLocale) ?? t('unknown') },
     published: { label: t('publishedAt'), value: formatDate(item.publishedAt, typedLocale) ?? t('unknown') },
   };
-  // 每类条目只列真正相关的事实（顺序与判断见 catalog-fields.ts）：
-  // 一条 AI 动态标着「免费 · 形式未注明 · 需要电脑」既没有信息量，
-  // 又会让人误以为这是可以报名的机会。
-  const facts = CATALOG_FACT_KEYS[item.itemType].map((key) => allFacts[key]);
   // 只取已人工确认的解读；草稿永远不进渲染层
   const editorialNote = item.itemType === 'ai-update'
     ? await getApprovedEditorialNote(item.id)
@@ -80,6 +76,19 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
   const digest = digestUrl && digestSource?.articleSummary
     ? await fetchDigestContent(digestUrl, digestSource.articleSummary.fetchHost)
     : null;
+
+  /*
+   * 每类条目只列真正相关的事实（顺序与判断见 catalog-fields.ts）：
+   * 一条 AI 动态标着「免费 · 形式未注明 · 需要电脑」既没有信息量，
+   * 又会让人误以为这是可以报名的机会。
+   *
+   * 日报再补一条「收录快讯」：去掉恒定的地区之后它只剩发布时间一行，
+   * 而「这期有多少条」既是真事实，也让人在读之前知道要面对多大的量。
+   */
+  const facts = [
+    ...CATALOG_FACT_KEYS[item.itemType].map((key) => allFacts[key]),
+    ...(digest ? [{ label: t('digestItemsLabel'), value: t('digestItemCount', { count: digest.itemCount }) }] : []),
+  ];
 
   const storyline = item.itemType === 'ai-update'
     ? findRelatedItems(item, await listCatalogItems({ type: 'ai-update' })).slice(0, 5)

@@ -2150,6 +2150,7 @@
       "digestEyebrow": "完整日报",
       "digestTitle": "今天都发生了什么",
       "digestItemCount": "{count} 条",
+      "digestItemsLabel": "收录快讯",
       "originalLanguage": "标题与摘要为来源原文（英文），暂无官方中文版本。",
       "storylineEyebrow": "同一条线索",
       "storylineTitle": "这件事的其它条目（{count}）",
