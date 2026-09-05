@@ -7,6 +7,7 @@ import { listCatalogItems } from '@/lib/pathfinder/catalog';
 import {
   catalogStats,
   formatCatalogDeadlineDate,
+  latestDigestItem,
   localizedText,
   selectPathfinderHomeFeed,
   sortByDeadline,
@@ -31,6 +32,7 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
   const stats = catalogStats(catalog);
   const homeFeed = selectPathfinderHomeFeed(catalog);
   const deadlines = sortByDeadline(catalog).slice(0, 5);
+  const digest = latestDigestItem(catalog);
 
   return (
     <main className="container mx-auto px-4 py-10 sm:py-14 lg:py-16">
@@ -141,6 +143,27 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
                 </ol>
                 <Link href="/pathfinder/opportunities?deadline=30d" className="mt-5 inline-flex text-xs font-semibold text-amber-200 hover:text-amber-100">
                   {t('viewDeadlines')} →
+                </Link>
+              </section>
+            )}
+
+            {digest && (
+              /*
+                 资讯摘要单独放侧栏，不进 AI 动态主区。它答不上机会库那三个问题
+                 （截止 / 资格 / 费用），定位是环境信息——脚注里写明「不计入学习路径」，
+                 与本页「不追逐无行动价值的热点」那句文案才不矛盾。
+               */
+              <section className="glass rounded-2xl p-5">
+                <p className="t-eyebrow text-violet-300">{t('digestEyebrow')}</p>
+                <h2 className="mt-2 t-title-4 text-white">{t('digestTitle')}</h2>
+                <p className="mt-3 line-clamp-4 text-sm leading-6 text-white/60">
+                  {localizedText(digest.summary, locale)}
+                </p>
+                <p className="mt-3 t-footnote text-white/60">
+                  {t('digestNote', { source: localizedText(digest.source.name, locale) })}
+                </p>
+                <Link href={`/pathfinder/items/${digest.id}`} className="mt-4 inline-flex text-xs font-semibold text-violet-200 hover:text-violet-100">
+                  {t('digestLink')} →
                 </Link>
               </section>
             )}

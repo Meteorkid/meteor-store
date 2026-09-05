@@ -118,6 +118,20 @@ export interface PathfinderSyncSource {
    * 调小不会漏内容：feed 里更早的条目下一轮仍在，而日更来源每轮只有 1 条是新的。
    */
   maxItemsPerSync?: number;
+  /**
+   * 这个来源产出的是**资讯摘要**，不是机会条目。
+   *
+   * pathfinder 的每个面都围绕「可以做的事」组织：机会库的卡片问「截止 / 资格 /
+   * 费用」，本周问「新增了什么机会、什么要截止」，学习路径要求
+   * `learningEligible`。日更的资讯摘要一个都答不上，混进去是分类错误——
+   * `CatalogItemCard` 为 `ai-update` 专门关掉截止时间与资格两块，卡片模型
+   * 本身就说明了这点。
+   *
+   * 打开后它会从**机会库、本周新增、发现页的 AI 动态主区**一起排掉，改由
+   * 发现页侧栏的「今天的 AI」单独承载——那里的定位是环境信息，与发现页
+   * 「不追逐无行动价值的热点」那句文案不冲突。条目详情页与 RSS 不受影响。
+   */
+  digest?: boolean;
 }
 
 export interface IngestedPathfinderItem {

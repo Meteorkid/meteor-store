@@ -1944,7 +1944,11 @@
       "viewDeadlines": "查看 30 天内机会",
       "planEyebrow": "从收藏到行动",
       "planTitle": "不知道先做什么？",
-      "planDescription": "告诉我们你的目标与现实条件，系统会用已核验目录生成 4–8 周的确定性路径。"
+      "planDescription": "告诉我们你的目标与现实条件，系统会用已核验目录生成 4–8 周的确定性路径。",
+      "digestEyebrow": "今天的 AI",
+      "digestTitle": "过去 24 小时发生了什么",
+      "digestNote": "来源 {source} · 每日更新。资讯参考，不计入学习路径。",
+      "digestLink": "读今天的日报"
     },
     "catalog": {
       "types": {
@@ -2143,6 +2147,9 @@
       "relatedEyebrow": "继续探索",
       "relatedTitle": "同方向条目",
       "noSummary": "官方来源未提供摘要，请打开原文查看。",
+      "digestEyebrow": "完整日报",
+      "digestTitle": "今天都发生了什么",
+      "digestItemCount": "{count} 条",
       "originalLanguage": "标题与摘要为来源原文（英文），暂无官方中文版本。",
       "storylineEyebrow": "同一条线索",
       "storylineTitle": "这件事的其它条目（{count}）",

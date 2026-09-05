@@ -9,6 +9,7 @@ import {
   type PathfinderItemType,
   type PathfinderRemoteStatus,
 } from './catalog-types';
+import { PATHFINDER_SYNC_SOURCE_MAP } from './ingestion/sources';
 
 export type PathfinderLocale = 'zh' | 'en';
 export type DeadlineFilter = '30d' | '90d';
@@ -100,6 +101,36 @@ export function isActionableTask(
   return false;
 }
 
+/**
+ * 是不是资讯摘要条目。
+ *
+ * 判据在来源配置上（`digest`），不在条目字段上：同一个 `ai-update` 类型里，
+ * OpenAI 的单条发布是「一件事」，AGI Hunt 的日报是「一堆事的综述」，
+ * 区别来自来源而不是类型。三个机会面共用这一个判定，避免各自写各自的。
+ */
+export function isDigestItem(item: PathfinderCatalogItem): boolean {
+  return PATHFINDER_SYNC_SOURCE_MAP.get(item.sourceId)?.digest === true;
+}
+
+/**
+ * 最新一条资讯摘要，给发现页侧栏用。
+ *
+ * 只取一条：它是环境信息，多放几条就又变成和机会抢版面了。
+ *
+ * **按 `publishedAt` 排，不能用 `sortByRecency`。** 后者按 `verifiedAt` 排，
+ * 而每轮同步会把所有条目的 `verifiedAt` 刷成同一个值——线上实测三期日报
+ * 的 `verifiedAt` 一模一样，排序分不出先后，取到的是数组里恰好排在前面的
+ * 那条（实测是昨天那期，不是今天的）。日报的「新」只有发布时间说了算。
+ */
+export function latestDigestItem(
+  items: readonly PathfinderCatalogItem[],
+): PathfinderCatalogItem | null {
+  const digests = items.filter((item) => item.status === 'published' && isDigestItem(item));
+  return [...digests].sort((a, b) => (
+    (b.publishedAt ?? b.discoveredAt ?? '').localeCompare(a.publishedAt ?? a.discoveredAt ?? '')
+  ))[0] ?? null;
+}
+
 export function filterCatalogItems(
   items: readonly PathfinderCatalogItem[],
   filters: CatalogFilterCriteria,
@@ -112,6 +143,8 @@ export function filterCatalogItems(
 
   return items.filter((item) => {
     if (item.status !== 'published') return false;
+    // 资讯摘要类来源不进机会库；它们仍在发现页的 AI 动态区与本周里
+    if (isDigestItem(item)) return false;
     if (filters.type && item.itemType !== filters.type) return false;
     if (filters.direction && !item.directions.includes(filters.direction)) return false;
     if (filters.difficulty && item.difficulty !== filters.difficulty) return false;
@@ -583,7 +616,8 @@ export function selectPathfinderHomeFeed(
       (item) => item.organization.en || item.organization.zh,
     ),
     updates: diversifyBySource(
-      sortByRecency(published.filter((item) => item.itemType === 'ai-update')),
+      // 资讯摘要不进主区，由侧栏的「今天的 AI」单独承载
+      sortByRecency(published.filter((item) => item.itemType === 'ai-update' && !isDigestItem(item))),
       HOME_MAX_PER_SOURCE,
       4,
     ),

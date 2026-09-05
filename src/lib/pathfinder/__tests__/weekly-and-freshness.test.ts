@@ -100,3 +100,21 @@ describe('久挂岗位', () => {
     expect(catalogActionScore(old, NOW)).toBeGreaterThan(-100);
   });
 });
+
+describe('本周新增排除资讯摘要', () => {
+  it('日更摘要不算「本周新增的机会」', () => {
+    /*
+     * 本周问的是「这周多了什么机会」，空状态也写着「没有带回新条目，也没有
+     * 临近截止的机会」。日更摘要每天都新，不排掉的话会稳定占据新增列表，
+     * 把真正的机会挤下去——上线后实测本周新增 35 条里有 3 条是它。
+     */
+    const now = new Date('2026-09-05T00:00:00.000Z');
+    const recent = '2026-09-04T00:00:00.000Z';
+    // origin 必须是 database：weeklyNoveltyTimestamp 对 static 条目直接返回 null
+    const digest = catalogItemFixture({ id: 'digest', sourceId: 'agihunt-daily', itemType: 'ai-update', origin: 'database', publishedAt: recent, discoveredAt: recent });
+    const opportunity = catalogItemFixture({ id: 'op', sourceId: 'openai-news', origin: 'database', publishedAt: recent, discoveredAt: recent });
+    const weekly = buildPathfinderWeekly([digest, opportunity], now);
+    expect(weekly.added.map((i) => i.id)).toEqual(['op']);
+  });
+});
+

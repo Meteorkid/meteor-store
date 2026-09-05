@@ -8,6 +8,9 @@ import type { Locale } from '@/i18n/routing';
 import { getSession } from '@/lib/auth';
 import { getCatalogItem, listCatalogItems } from '@/lib/pathfinder/catalog';
 import { getApprovedEditorialNote } from '@/lib/pathfinder/editorial-store';
+import { fetchDigestContent } from '@/lib/pathfinder/digest-content';
+import { articleSummaryUrl } from '@/lib/pathfinder/ingestion/article-summary';
+import { PATHFINDER_SYNC_SOURCE_MAP } from '@/lib/pathfinder/ingestion/sources';
 import { findRelatedItems } from '@/lib/pathfinder/related';
 import { listPathfinderSaves } from '@/lib/pathfinder/saves';
 import { CATALOG_FACT_KEYS } from '@/lib/pathfinder/catalog-fields';
@@ -16,6 +19,7 @@ import {
   formatCatalogDeadlineDate,
   formatDate,
   getDeadlineState,
+  isDigestItem,
   localizedText,
   localizedTextState,
   sortByRecency,
@@ -67,6 +71,16 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
   // 同一条线索的条目：靠标题里的专名重叠判定，见 lib/pathfinder/related.ts。
   // 这与下面「同方向的其它条目」是两回事——前者说的是同一件事的后续，
   // 后者只是碰巧在一个方向里，不能混在一个区块里让读者自己分辨。
+  /*
+   * 资讯摘要条目额外抓一次全文。不进数据库——一期 320KB，按天累积一年约 117MB，
+   * 而日报发布后内容不再变，缓存命中率接近 100%（见 digest-content.ts）。
+   */
+  const digestSource = isDigestItem(item) ? PATHFINDER_SYNC_SOURCE_MAP.get(item.sourceId) : undefined;
+  const digestUrl = digestSource ? articleSummaryUrl(digestSource, item.canonicalUrl) : null;
+  const digest = digestUrl && digestSource?.articleSummary
+    ? await fetchDigestContent(digestUrl, digestSource.articleSummary.fetchHost)
+    : null;
+
   const storyline = item.itemType === 'ai-update'
     ? findRelatedItems(item, await listCatalogItems({ type: 'ai-update' })).slice(0, 5)
     : [];
@@ -108,6 +122,66 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
 
         <div className="grid grid-cols-1 gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-14">
           <div className="min-w-0 space-y-12">
+            {digest && (
+              <section>
+                <p className="t-eyebrow text-violet-300">{t('digestEyebrow')}</p>
+                <h2 className="mt-2 t-title-2 text-white">{t('digestTitle')}</h2>
+                {/* 上游 .md 自带的出处声明，原样展示，不改写也不省略 */}
+                {digest.attribution && (
+                  <p className="mt-3 border-l-2 border-violet-400/30 pl-3 t-footnote text-white/60">
+                    {digest.attribution}
+                  </p>
+                )}
+
+                {digest.sections.map((section) => (
+                  <div key={section.heading} className="mt-10 first:mt-8">
+                    <h3 className="t-title-3 text-white">{section.heading}</h3>
+
+                    {section.html && (
+                      <div
+                        className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-white/70 prose-li:text-white/70 prose-strong:text-white prose-a:text-violet-200 prose-a:underline prose-a:decoration-violet-300/30 prose-a:underline-offset-4 prose-a:font-normal hover:prose-a:decoration-violet-200 mt-4"
+                        dangerouslySetInnerHTML={{ __html: section.html }}
+                      />
+                    )}
+
+                    {/*
+                      有小节的节按小节折叠：实测「分频道观察」与「分公司动态」
+                      合计占一期 97% 的篇幅，全铺开页面重到没法读。
+                      条目数放在标题旁，让人在展开前就知道值不值得点。
+                    */}
+                    {section.subsections.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        {section.subsections.map((sub) => (
+                          <details
+                            key={sub.heading}
+                            className="group rounded-xl border border-white/10 bg-white/[0.02] open:border-violet-400/25 open:bg-violet-500/[0.06]"
+                          >
+                            <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+                              {/* 只有开合状态用得上这个箭头，读屏靠 details 自身语义，故隐藏 */}
+                              <span
+                                aria-hidden="true"
+                                className="text-violet-300 motion-safe:transition-transform group-open:rotate-90"
+                              >
+                                ›
+                              </span>
+                              <span className="min-w-0 flex-1 t-title-4 text-white">{sub.heading}</span>
+                              <span className="shrink-0 t-footnote text-white/60">
+                                {t('digestItemCount', { count: sub.itemCount })}
+                              </span>
+                            </summary>
+                            <div
+                              className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-white/70 prose-li:text-white/70 prose-strong:text-white prose-a:text-violet-200 prose-a:underline prose-a:decoration-violet-300/30 prose-a:underline-offset-4 prose-a:font-normal hover:prose-a:decoration-violet-200 border-t border-white/10 px-4 py-4"
+                              dangerouslySetInnerHTML={{ __html: sub.html }}
+                            />
+                          </details>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </section>
+            )}
+
             <section>
               <p className="t-eyebrow text-violet-300">{t('fitEyebrow')}</p>
               <h2 className="mt-2 t-title-2 text-white">{t('fitTitle')}</h2>

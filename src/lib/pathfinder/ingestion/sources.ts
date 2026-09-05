@@ -350,6 +350,8 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     // 日更来源每轮只有 1 条是新的；取 3 条留一点余量，漏跑一两轮也能补回来。
     // 照默认 30 条会让首轮的正文补全耗时约 51 秒，超掉 route 的 60 秒预算
     maxItemsPerSync: 3,
+    // 产出的是资讯摘要不是机会条目；只由发现页侧栏承载（理由见 types.ts）
+    digest: true,
     language: 'zh',
     itemType: 'ai-update',
     direction: 'ai',

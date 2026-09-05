@@ -218,6 +218,7 @@ async function applyArticleSummaries(
   const pending = config.replacesFeedSummary
     ? items
     : items.filter((item) => !(item.summaryZh ?? item.summaryEn ?? '').trim());
+  let missed = 0;
   for (const item of pending) {
     const url = articleSummaryUrl(source, item.canonicalUrl);
     if (!url) continue;
@@ -226,9 +227,30 @@ async function applyArticleSummaries(
     if (summary) {
       if (source.language === 'zh') item.summaryZh = summary;
       else item.summaryEn = summary;
+    } else {
+      missed += 1;
     }
     // 礼貌间隔：同一个站点连着拉几十页容易被限流
     await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+
+  /*
+   * 全军覆没时报警。
+   *
+   * 抽取失败是静默的——拿不到就保持原样，页面显示样板文或「未提供摘要」，
+   * 没有任何迹象表明是上游改版。零星失败正常（单页超时），但**一条都没成功**
+   * 基本只有一个解释：`containerMarker` / `heading` 对不上了。
+   *
+   * 只报汇总不逐条报：同步每小时一轮，逐条会把日志刷满。
+   */
+  if (pending.length > 0 && missed === pending.length) {
+    console.error({
+      event: 'pathfinder_article_summary_failed',
+      sourceId: source.id,
+      attempted: pending.length,
+      mode: config.mode,
+      marker: config.mode === 'markdown' ? config.heading : config.containerMarker,
+    });
   }
 }
 

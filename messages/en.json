@@ -1944,7 +1944,11 @@
       "viewDeadlines": "View opportunities due in 30 days",
       "planEyebrow": "From discovery to action",
       "planTitle": "Not sure what to do first?",
-      "planDescription": "Share your goal and constraints. Pathfinder will use verified catalog items to build a deterministic 4–8 week path."
+      "planDescription": "Share your goal and constraints. Pathfinder will use verified catalog items to build a deterministic 4–8 week path.",
+      "digestEyebrow": "Today in AI",
+      "digestTitle": "What happened in the last 24 hours",
+      "digestNote": "From {source} · updated daily. Context only, not part of a learning path.",
+      "digestLink": "Read today's digest"
     },
     "catalog": {
       "types": {
@@ -2143,6 +2147,9 @@
       "relatedEyebrow": "Keep exploring",
       "relatedTitle": "Items in the same direction",
       "noSummary": "The official source provides no summary. Open the original to read it.",
+      "digestEyebrow": "Full digest",
+      "digestTitle": "Everything that happened today",
+      "digestItemCount": "{count} items",
       "originalLanguage": "Title and summary are the source original; no official translation exists yet.",
       "storylineEyebrow": "Same storyline",
       "storylineTitle": "Other items on this storyline ({count})",

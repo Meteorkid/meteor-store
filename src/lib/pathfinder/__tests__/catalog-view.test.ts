@@ -10,11 +10,13 @@ import {
   localizedTextState,
   paginateCatalog,
   parseCatalogFilters,
+  latestDigestItem,
   selectPathfinderHomeFeed,
   sortByDeadline,
   sortCatalogItems,
 } from '../catalog-view';
 import { catalogItemFixture } from './fixtures';
+import { PATHFINDER_SYNC_SOURCE_MAP } from '../ingestion/sources';
 
 const NOW = new Date('2026-08-24T00:00:00.000Z');
 
@@ -425,5 +427,56 @@ describe('按机构轮转', () => {
     const single = [item('a', 'X'), item('b', 'X'), item('c', 'X')];
     expect(diversifyByOrganization(single).map((i) => i.id)).toEqual(['a', 'b', 'c']);
     expect(diversifyByOrganization([item('a', 'X')]).map((i) => i.id)).toEqual(['a']);
+  });
+});
+
+describe('资讯摘要不进机会库', () => {
+  /*
+   * 机会库的每张卡片都在回答「什么时候截止、我够不够资格、要花多少钱」，
+   * 而日更的资讯摘要三个问题一个都答不上（CatalogItemCard 为 ai-update
+   * 专门关掉了截止时间与资格两块，卡片模型本身就说明它不属于这个列表）。
+   * 它仍然出现在发现页的 AI 动态区与本周——那两处本来就是按时间排的资讯位。
+   */
+  it('资讯摘要来源被机会库过滤掉', () => {
+    const digest = catalogItemFixture({ id: 'digest', sourceId: 'agihunt-daily', itemType: 'ai-update' });
+    const normal = catalogItemFixture({ id: 'normal', sourceId: 'openai-news', itemType: 'ai-update' });
+    const kept = filterCatalogItems([digest, normal], parseCatalogFilters({}), NOW);
+    expect(kept.map((i) => i.id)).toEqual(['normal']);
+  });
+
+  it('日报来源确实开着这个开关', () => {
+    // 开关写在来源配置里；这里钉住接线，避免改来源时静默失效
+    expect(PATHFINDER_SYNC_SOURCE_MAP.get('agihunt-daily')?.digest).toBe(true);
+  });
+
+  it('资讯摘要不进发现页的 AI 动态主区', () => {
+    // 主区留给「一件事」（OpenAI 单条发布），摘要是「一堆事的综述」，由侧栏承载
+    const digest = catalogItemFixture({ id: 'digest', sourceId: 'agihunt-daily', itemType: 'ai-update' });
+    const normal = catalogItemFixture({ id: 'normal', sourceId: 'openai-news', itemType: 'ai-update' });
+    const feed = selectPathfinderHomeFeed([digest, normal], NOW);
+    expect(feed.updates.map((i) => i.id)).toEqual(['normal']);
+  });
+
+  it('侧栏按发布时间取最新一期，不受 verifiedAt 影响', () => {
+    /*
+     * 每轮同步会把所有条目的 verifiedAt 刷成同一个值——线上实测三期日报的
+     * verifiedAt 一模一样。用 sortByRecency（按 verifiedAt）排的话分不出先后，
+     * 取到的是数组里恰好靠前的那条，实测是昨天那期。所以这里刻意让两条的
+     * verifiedAt 相同、且把旧的一期放在数组前面，钉住必须按 publishedAt 取。
+     */
+    const sameVerified = '2026-09-05T06:27:04.464Z';
+    const older = catalogItemFixture({ id: 'old', sourceId: 'agihunt-daily', itemType: 'ai-update', verifiedAt: sameVerified, publishedAt: '2026-09-01T00:00:00.000Z' });
+    const newer = catalogItemFixture({ id: 'new', sourceId: 'agihunt-daily', itemType: 'ai-update', verifiedAt: sameVerified, publishedAt: '2026-09-04T00:00:00.000Z' });
+    const normal = catalogItemFixture({ id: 'normal', sourceId: 'openai-news', itemType: 'ai-update' });
+    expect(latestDigestItem([older, newer, normal])?.id).toBe('new');
+    // 没有摘要来源时侧栏整块不渲染，靠这里返回 null
+    expect(latestDigestItem([normal])).toBeNull();
+  });
+
+  it('这个开关是少数派，不是默认行为', () => {
+    const all = [...PATHFINDER_SYNC_SOURCE_MAP.values()];
+    const excluded = all.filter((s) => s.digest);
+    expect(excluded.length).toBeGreaterThan(0);
+    expect(excluded.length).toBeLessThan(all.length / 2);
   });
 });

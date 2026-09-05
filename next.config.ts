@@ -31,6 +31,23 @@ function getR2RemotePattern(): URL[] {
 }
 
 const nextConfig: NextConfig = {
+  /*
+   * Next 的数据缓存（`unstable_cache` / fetch 缓存）活在服务进程自己的堆里，
+   * 默认上限 50MB——那是个要照顾各种规格的保守通用值，对这台机器偏小。
+   *
+   * Pathfinder 的日报全文是大头：一期渲染后序列化约 0.3MB，180 天公开窗口
+   * 全量约 52MB，单它一项就顶穿默认预算，还要和目录快照（catalog.ts）抢。
+   * 超出后不会出故障，只是被挤出内存的条目改从 `.next/cache` 读盘，
+   * 但没必要为省这几十兆去反复读盘。
+   *
+   * 128MB 约占这台 1.8G 机器的 7%（PostgreSQL 自己约 93MB），余量足够。
+   * **注意这是每进程的**：PM2 现在是 fork 单进程，将来若改 cluster
+   * 多开 worker，实际占用要乘以进程数，届时要重新算。
+   *
+   * 它救不了部署：`deploy-local.sh` 整包替换 `.next`，内存与磁盘缓存一起清空，
+   * 上线后那些页面仍要各重算一次。
+   */
+  cacheMaxMemorySize: 134_217_728,
   turbopack: {
     // 避免被用户主目录里的其它 lockfile 误导，固定以当前项目为解析根目录。
     root: process.cwd(),

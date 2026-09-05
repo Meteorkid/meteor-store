@@ -3,6 +3,7 @@ import {
   catalogDeadlineTimestamp,
   diversifyByOrganization,
   getDeadlineState,
+  isDigestItem,
   sortCatalogItems,
 } from './catalog-view';
 
@@ -191,6 +192,8 @@ export function buildPathfinderWeekly(
 
   const added = published
     .filter((item) => {
+      // 「本周新增」问的是新增了什么**机会**；资讯摘要不算（见 ingestion/types.ts 的 digest）
+      if (isDigestItem(item)) return false;
       const at = weeklyNoveltyTimestamp(item);
       return at !== null && at >= since.getTime();
     })
