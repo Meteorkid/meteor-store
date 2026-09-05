@@ -5,7 +5,7 @@ vi.mock('next/cache', () => ({
   unstable_cache: (callback: (...args: unknown[]) => unknown) => callback,
 }));
 
-import { fetchDigestContent, parseDigestMarkdown } from '../digest-content';
+import { fetchDigestContent, parseDigestMarkdown, restructureDigestBody } from '../digest-content';
 
 /** 一期日报的真实结构：出处引用行 → H1 → 综述节 → 带小节的观察节。 */
 const SAMPLE = `> 出处:AGI HUNT · https://agihunt.info · AI 资讯日报 2026-09-05
@@ -161,6 +161,46 @@ describe('全文失效告警', () => {
     expect(await fetchDigestContent('https://evil.test/x.md', 'agihunt.info')).toBeNull();
     expect(error).not.toHaveBeenCalled();
     error.mockRestore();
+  });
+});
+
+describe('把行内链接提到行首', () => {
+  /*
+   * 上游写法是「一句话。[详情](u) 又一句话。[详情](u) [详情](u)」串成一整段。
+   * 每个「详情」其实是一条独立快讯，混在文字中间时连着出现就成了
+   * 「详情 详情 详情」，既看不出哪条链接对应哪句话，也没有固定的可点位置。
+   */
+  const BULLET = '- **标题** — 句子甲。[详情](https://x/p/a) 句子乙。[详情](https://x/p/b) [详情](https://x/p/c)';
+
+  it('加粗小标题独占一行，每条快讯各自成行且链接在前', () => {
+    expect(restructureDigestBody(BULLET).trim().split('\n')).toEqual([
+      '- **标题**',
+      '  - [详情](https://x/p/a) 句子甲。',
+      '  - [详情](https://x/p/b) [详情](https://x/p/c) 句子乙。',
+    ]);
+  });
+
+  it('段落形态同样重排', () => {
+    // 分频道观察那边不是列表而是段落，写法一样
+    expect(restructureDigestBody('正文一。[详情](https://x/p/a) 正文二。[详情](https://x/p/b)').trim().split('\n'))
+      .toEqual(['- [详情](https://x/p/a) 正文一。', '- [详情](https://x/p/b) 正文二。']);
+  });
+
+  it('只重排，不增删链接与文字', () => {
+    const out = restructureDigestBody(BULLET);
+    expect((out.match(/https:\/\/x\/p\//g) ?? []).length).toBe(3);
+    for (const piece of ['标题', '句子甲。', '句子乙。']) expect(out).toContain(piece);
+  });
+
+  it('标题、引用与无链接的导语原样透传', () => {
+    // 重排是为了固定可点位置，不是重写别人的排版
+    const untouched = '#### 小标题\n\n没有链接的一段导语。\n\n> 出处:某站';
+    expect(restructureDigestBody(untouched)).toBe(untouched);
+  });
+
+  it('句尾只有单条链接且无小标题时不硬拆', () => {
+    const single = '一句话带一个链接。[详情](https://x/p/a)';
+    expect(restructureDigestBody(single)).toBe(single);
   });
 });
 

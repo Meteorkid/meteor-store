@@ -86,6 +86,76 @@ function readAttribution(markdown: string): string | null {
   return match ? match[1].trim() : null;
 }
 
+/** 一串紧挨着的行内链接，中间只隔空白。 */
+const LINK_RUN = /(?:\[[^\]\n]*\]\([^)\s]+\)[ \t]*)+/g;
+
+/** 列表项开头的加粗小标题，形如 `- **标题** — 正文`。 */
+const BOLD_LEAD = /^(\*\*[^*]+\*\*)\s*(?:—|--|-)?\s*/;
+
+/**
+ * 把行内链接提到行首，并按链接切成一行一条。
+ *
+ * 上游的写法是「一句话。[详情](u) 又一句话。[详情](u) [详情](u)」反复串成一整段——
+ * 每个「详情」其实是一条独立快讯，但混在文字中间，连着出现时就成了
+ * 「详情 详情 详情」，读者既分不清哪条链接对应哪句话，也找不到可点的位置。
+ *
+ * 改成在链接处切段、每段独占一行、链接统一放行首，可点区域就落在固定的左侧，
+ * 一行一条也和「一个详情=一条新闻」对上了。
+ *
+ * 只重排、不增删：链接与文字原样保留，仅调整顺序与换行。
+ */
+function liftLinksToLineStart(body: string): string[] {
+  const segments: Array<{ links: string; text: string }> = [];
+  let cursor = 0;
+  LINK_RUN.lastIndex = 0;
+  for (let m = LINK_RUN.exec(body); m !== null; m = LINK_RUN.exec(body)) {
+    segments.push({ links: m[0].trim(), text: body.slice(cursor, m.index).trim() });
+    cursor = m.index + m[0].length;
+  }
+  // 末尾没有链接的残句也要保留，否则会丢正文
+  const tail = body.slice(cursor).trim();
+  if (tail) segments.push({ links: '', text: tail });
+
+  return segments
+    .filter((seg) => seg.links || seg.text)
+    .map((seg) => [seg.links, seg.text].filter(Boolean).join(' '));
+}
+
+/**
+ * 重排一节正文里的链接。
+ *
+ * 逐行处理，只动「含行内链接」的列表项与段落；标题、代码块、无链接的导语
+ * 一律原样透传——重排的目的是让可点位置固定，不是重写别人的排版。
+ */
+export function restructureDigestBody(markdown: string): string {
+  const out: string[] = [];
+  for (const line of markdown.split('\n')) {
+    const trimmed = line.trim();
+    const isBullet = trimmed.startsWith('- ');
+    const hasLink = /\[[^\]\n]*\]\([^)\s]+\)/.test(trimmed);
+    if (!hasLink || trimmed.startsWith('#') || trimmed.startsWith('>')) {
+      out.push(line);
+      continue;
+    }
+
+    const content = isBullet ? trimmed.slice(2) : trimmed;
+    const lead = content.match(BOLD_LEAD);
+    const body = lead ? content.slice(lead[0].length) : content;
+    const lines = liftLinksToLineStart(body);
+    // 切不出多段时不动它：单条链接原样留在句尾比硬拆更好读
+    if (lines.length <= 1 && !lead) {
+      out.push(line);
+      continue;
+    }
+
+    if (lead) out.push(`- ${lead[1]}`);
+    const indent = lead ? '  ' : '';
+    for (const item of lines) out.push(`${indent}- ${item}`);
+    out.push('');
+  }
+  return out.join('\n');
+}
+
 /**
  * 把一期日报拆成章节树。
  *
@@ -111,12 +181,12 @@ export function parseDigestMarkdown(markdown: string): DigestContent {
       if (!text) return [];
       // 每条快讯是一个 /p/ 链接；同一条可能被引用多次，按去重后计数
       const itemCount = new Set(text.match(/\/p\/[0-9a-f]+/g) ?? []).size;
-      return [{ heading: sub.slice(0, at).trim(), html: markdownToHtml(text), itemCount }];
+      return [{ heading: sub.slice(0, at).trim(), html: markdownToHtml(restructureDigestBody(text)), itemCount }];
     });
 
     sections.push({
       heading,
-      html: lead.trim() ? markdownToHtml(lead.trim()) : '',
+      html: lead.trim() ? markdownToHtml(restructureDigestBody(lead.trim())) : '',
       subsections,
       collapsed: subsections.length > 0,
     });
