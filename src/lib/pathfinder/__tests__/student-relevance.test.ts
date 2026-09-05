@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { isStudentRelevant, nonTechnicalReason } from '../ingestion/student-relevance';
 
@@ -86,3 +88,50 @@ describe('案例判据的时态与助动词', () => {
     expect(nonTechnicalReason('How diffusion models work')).toBeNull();
   });
 });
+
+describe('中文来源的判据', () => {
+  /*
+   * 这一组存在的理由：拒绝判据与 topics.ts 的词表原本全是英文正则，
+   * 中文条目既拿不到主题、也命中不了英文研究信号——等于整个闸门对中文
+   * 来源不生效（实测 AGI Hunt 日报的 topics 是 []，它是「过了闸门」
+   * 而不是「被检查过」）。
+   */
+  it.each([
+    ['某银行如何借助我们的平台把审批效率提升 40%', 'case-study'],
+    ['任命张伟为首席营收官', 'corporate'],
+    ['我们对人工智能监管的看法', 'corporate'],
+    ['5 种方式用它规划你的假期旅行', 'consumer'],
+    ['广告业务扩展到欧洲市场', 'consumer'],
+  ])('识别中文非技术内容：%s', (title, reason) => {
+    expect(nonTechnicalReason(title)).toBe(reason);
+  });
+
+  it.each([
+    ['我们开源了一个 7B 中文基座模型', '包含预训练权重与评测结果，在多项基准上达到同规模最优。'],
+    ['用扩散模型把台风路径预报提前 12 小时', '论文已被接收，数据集同步开放。'],
+    // 同时命中「如何…用…降低」与百分比两条案例判据，靠研究信号优先救回
+    ['如何用强化学习把推理延迟降低 30%', '技术报告：KV cache 调度与量化的组合优化。'],
+    // 命中「达成合作」这条公关判据，同样靠研究信号救回
+    ['与高校达成合作，共建具身智能实验室', '联合培养方向包含机器人操作与多模态感知。'],
+  ])('不误杀中文真研究：%s', (title, summary) => {
+    expect(nonTechnicalReason(title, summary)).toBeNull();
+  });
+
+  it('中文研究信号必须与中文拒绝判据同时存在', () => {
+    /*
+     * 只补拒绝判据、不补研究信号的话，中文真研究会失去「研究信号优先」
+     * 这层保护而被整片误杀——上面那两条 how/合作 用例就会变红。
+     * 这里直接对着源码断言两者都在，避免将来有人只删其中一半。
+     */
+    const src = readFileSync(path.join(__dirname, '..', 'ingestion', 'student-relevance.ts'), 'utf-8');
+    const chinese = /[一-鿿]/;
+    const section = (name: string) => {
+      const at = src.indexOf(`const ${name}`);
+      return src.slice(at, src.indexOf('];', at));
+    };
+    for (const name of ['CASE_STUDY_PATTERNS', 'CORPORATE_PATTERNS', 'CONSUMER_PATTERNS', 'RESEARCH_MARKERS']) {
+      expect(chinese.test(section(name)), name).toBe(true);
+    }
+  });
+});
+

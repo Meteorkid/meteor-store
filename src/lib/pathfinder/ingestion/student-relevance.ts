@@ -38,6 +38,12 @@ const CASE_STUDY_PATTERNS: readonly RegExp[] = [
   /\bhow\s+[\w&.'-]+(\s+[\w&.'-]+)?\s+((is|are|was|were|has|have|had)\s+(been\s+)?(able\s+to\s+)?)?(us\w+|scal\w+|transform\w+|build\w*|built|cut\w*|sav\w+|boost\w+|automat\w+|mak\w+|migrat\w+|streamlin\w+|accelerat\w+)\b/i,
   /\b(cuts?|reduced?|saved?|boosted?|increased?)\s+[\w\s]{0,20}\b\d{1,3}%/i,
   /\bwith\s+(chatgpt|copilot|gemini|claude)\s+(work|business|enterprise|for business)\b/i,
+  /*
+   * 中文同构写法。中文没有词边界，所以用「不跨句」（[^，。；]）限定跨度，
+   * 而不是 \b——不限定的话「如何」和十几个字外的「提升」会跨句拼成假阳性。
+   */
+  /(如何|怎样)[^，。；]{0,20}(用|借助|通过|基于|依托)[^，。；]{0,20}(提升|降低|节省|加速|优化|转型|重构)/,
+  /(提升|提高|降低|减少|节省|缩短|增长)[^，。；]{0,10}\d{1,3}\s*%/,
 ];
 
 /**
@@ -53,6 +59,12 @@ const CORPORATE_PATTERNS: readonly RegExp[] = [
   /\b(commitment|pledge|donat\w+|invests?|investment)\s+(of|to|in)\s+.{0,20}\$/i,
   /\b(our approach to|new policy|policy ideas|democratic oversight|regulat\w+ framework)\b/i,
   /\bnational security\b/i,
+  /(任命|出任|升任|卸任|离任).{0,10}(为|担任|首席|总裁|负责人)|(加入|进入).{0,4}(董事会|管理层)/,
+  /(扩展|拓展|落地|进入).{0,8}(业务|市场|区域|国家|办公室|布局)/,
+  /(达成|宣布|建立).{0,6}(战略)?(合作|伙伴关系|联盟)/,
+  /(捐赠|承诺投入|注资|追加投资).{0,12}(亿|万|百万|十亿)?\s*(美元|人民币|元)/,
+  /(公开信|致.{0,8}的信|政策主张|监管框架|我们对.{0,12}的(看法|立场))/,
+  /(国家安全|合规声明|社会责任报告)/,
 ];
 
 /**
@@ -65,6 +77,9 @@ const CONSUMER_PATTERNS: readonly RegExp[] = [
   /^\d+\s+(new\s+)?(ways?|things|tips|updates?|features?)\b/i,
   /\b(ads?|advertising|pricing|subscription|seats?|plans?)\s+(are\s+)?(coming|expand\w*|launch\w*|test\w*|available)\b/i,
   /\b(shopping|travel|recipes?|dinner party|home decor|holiday|gift guide|weather app)\b/i,
+  /^\s*\d{1,2}\s*(种|个|条|大)\s*(方法|方式|技巧|用法|玩法|新功能|理由)/,
+  /(广告|定价|订阅|会员|席位|套餐).{0,8}(上线|扩展|调整|测试|开放|涨价|降价)/,
+  /(购物|旅行|食谱|家居|装修|礼物指南|节日|星座|减肥)/,
 ];
 
 /**
@@ -80,6 +95,14 @@ const RESEARCH_MARKERS: readonly RegExp[] = [
   /\b(train\w+|fine[- ]?tun\w+|inference|evaluat\w+|ablation|state[- ]of[- ]the[- ]art|\bsota\b)\b/i,
   /\b(open[- ]sourc\w+|release[sd]?\s+.{0,20}\b(model|weights|code|library|sdk|api)\b)/i,
   /\b(accuracy|latency|throughput|parameters|tokens?|embedding\w*|transformer)\b/i,
+  /*
+   * 中文研究信号**必须与上面三组同时存在**。词表（topics.ts）和这里原有的判据
+   * 都是英文正则，中文条目既拿不到主题、也命中不了英文研究信号——只补拒绝判据
+   * 的话，中文的真研究会失去「研究信号优先」这层保护而被整片误杀。
+   */
+  /(模型|大模型|论文|预印本|研究|基准|数据集|架构|算法|智能体|开源|权重)/,
+  /(训练|预训练|微调|蒸馏|量化|推理|评测|对齐|多模态|上下文|参数量)/,
+  /(准确率|延迟|吞吐|显存|算力|token)/,
 ];
 
 export type ContentRejectReason = 'case-study' | 'corporate' | 'consumer';
