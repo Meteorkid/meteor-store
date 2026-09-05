@@ -110,12 +110,22 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
             )}
           </div>
           <h1 lang={title.fallback ? 'en' : undefined} className="mt-5 max-w-5xl t-title-1 text-white">{title.text}</h1>
-          <p lang={summary.fallback ? 'en' : undefined} className="mt-4 max-w-4xl t-body text-white/60">
-            {summary.text || t('noSummary')}
-          </p>
-          {/* 与卡片一致：只有摘要仍是英文才提示，专有名词标题不算「没有中文版本」 */}
-          {summary.fallback && (
-            <p className="mt-3 t-footnote text-white/60">{t('originalLanguage')}</p>
+          {/*
+            拿到全文时不再重复摘要。
+            日报的卡片摘要取自「今日总结」的首段，而全文里那一段照样会渲染出来——
+            两处逐字相同、同屏可见，读者会以为页面出错了。
+            全文抓取失败（digest 为 null）时这段必须保留，否则页面只剩一个标题。
+          */}
+          {!digest && (
+            <>
+              <p lang={summary.fallback ? 'en' : undefined} className="mt-4 max-w-4xl t-body text-white/60">
+                {summary.text || t('noSummary')}
+              </p>
+              {/* 与卡片一致：只有摘要仍是英文才提示，专有名词标题不算「没有中文版本」 */}
+              {summary.fallback && (
+                <p className="mt-3 t-footnote text-white/60">{t('originalLanguage')}</p>
+              )}
+            </>
           )}
           <p className="mt-5 text-sm font-semibold text-white/80">{localizedText(item.organization, locale)}</p>
         </header>
