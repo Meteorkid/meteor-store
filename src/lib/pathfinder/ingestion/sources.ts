@@ -239,6 +239,15 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
      * 而条目链接已被改写成官方域名，两者不同。
      */
     articleSummary: { mode: 'html', containerMarker: 'blog-content', fetchHost: 'hf-mirror.com' },
+    /*
+     * 这个 feed **一条 description 都不给**，所以取到的每一条都要拉一次正文——
+     * 效果等同 `replacesFeedSummary`，却因为走的是「只填空缺」分支而漏在了
+     * 那条限量测试外面。镜像实测约 1.2 秒/页、加 300ms 间隔约 1.5 秒/条，
+     * 照默认 30 条要 45 秒：没超 60 秒预算，但给 feed 抓取和入库剩不下什么，
+     * 镜像慢一点就会翻车成「超时→整条来源回滚→每小时重试」。
+     * 12 条最坏约 18 秒。HF 不会一小时发 12 篇，调小不会漏。
+     */
+    maxItemsPerSync: 12,
     itemType: 'ai-update',
     direction: 'ai',
     trustLevel: 'verified',
@@ -259,6 +268,24 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     siteUrl: 'https://deepmind.google/blog/',
     allowedFetchHosts: ['deepmind.google'],
     allowedItemHosts: ['deepmind.google'],
+    /*
+     * 这个 feed 的 description 时有时无：37 条已发布条目里 18 条完全没有摘要，
+     * 于是站内空着、也生成不了解读（见 editorial.ts 的 canGenerateEditorialNote）。
+     * 缺的那些从文章页正文首段补——**只填空缺，不设 replacesFeedSummary**：
+     * 另外 19 条 feed 给的摘要是正常的，覆盖掉没有好处。
+     *
+     * `maxItemsPerSync: 8` 是按最坏情况定的：正文页从生产服务器实测约 4 秒，
+     * 加 300ms 礼貌间隔约 4.3 秒/条。照默认 30 条、且恰好全部缺摘要的话要 129 秒，
+     * 而正文补全发生在入库**之前**，超时就整条来源回滚——每小时重试、每次都超时，
+     * 这条来源会永远进不来。8 条最坏约 34 秒，给 feed 抓取和入库留足余量。
+     * 调小不会漏：DeepMind 每周才发一两篇，而同步每小时一轮。
+     */
+    articleSummary: {
+      mode: 'html',
+      containerMarker: 'uni-blog-article-container',
+      fetchHost: 'deepmind.google',
+    },
+    maxItemsPerSync: 8,
     itemType: 'ai-update',
     direction: 'ai',
     trustLevel: 'official',

@@ -160,18 +160,69 @@ describe('抓取地址', () => {
   });
 });
 
-describe('全量覆盖摘要的来源要限量', () => {
-  it('replacesFeedSummary 的来源必须设 maxItemsPerSync', () => {
+describe('要拉正文的来源都得限量', () => {
+  it('凡开了 articleSummary 的来源都必须设 maxItemsPerSync', () => {
     /*
-     * 这类来源每轮把取到的**每一条**都拉一次正文，而正文补全跑在入库之前、
-     * 整批同步又共用 route 的 60 秒预算。AGI Hunt 日报实测约 1.7 秒/条，
-     * 照默认 30 条要 51 秒——超时就整条来源回滚，于是每小时重试、每次都超时，
-     * 那条来源永远进不来。
+     * 正文补全跑在入库之前，整批同步共用 route 的 60 秒预算——超时就整条来源
+     * 回滚，于是每小时重试、每次都超时，那条来源**永远进不来**。
+     *
+     * 这条断言原本只管 `replacesFeedSummary` 的来源，理由是「只有它们每条都拉」。
+     * 那个理由是错的：`hugging-face-blog` 走的是「只填空缺」分支，而它的 feed
+     * 一条 description 都不给，于是每一条都是空缺——**行为完全等同全量重取，
+     * 却漏在了断言外面**，默认 30 条 × 约 1.5 秒 = 45 秒，只差一点就翻车。
+     *
+     * 所以判据改成「会不会拉正文」而不是「用哪个标志」。上限按各来源实测
+     * 耗时分别定（见 sources.ts 的注释），这里只要求「设了，且不离谱」。
      */
     for (const source of [...PATHFINDER_SYNC_SOURCE_MAP.values()]) {
-      if (!source.articleSummary?.replacesFeedSummary) continue;
+      if (!source.articleSummary) continue;
       expect(source.maxItemsPerSync, source.id).toBeDefined();
+      expect(source.maxItemsPerSync!, source.id).toBeLessThanOrEqual(12);
+    }
+  });
+
+  it('全量覆盖的来源要更紧', () => {
+    // 这类来源连有摘要的条目也重取，同样条数下耗时是「只填空缺」的上界
+    for (const source of [...PATHFINDER_SYNC_SOURCE_MAP.values()]) {
+      if (!source.articleSummary?.replacesFeedSummary) continue;
       expect(source.maxItemsPerSync!, source.id).toBeLessThanOrEqual(5);
     }
+  });
+});
+
+describe('Google DeepMind 正文抽取', () => {
+  /*
+   * 按 2026-09-06 抓下来的真实页面结构写：正文在 `uni-blog-article-container`
+   * 里，页面顶部还有一段「Skip to main content + 标题」的 chrome。
+   * 上游改版时这条会红——抽取失败本身是静默的（拿不到就保持原样），
+   * 没有测试的话只会表现为「新条目又开始没有摘要了」，很难联想到是改版。
+   */
+  const deepmindPage = (body: string) => `<html><body>
+    <div class="uni-article-paragraph"><p>Skip to main content Proactive cyber defense for governments and enterprises</p></div>
+    <div class="uni-content uni-blog-article-container article-container__content">
+      ${body}
+    </div></body></html>`;
+
+  it('取到正文首段而不是页面 chrome', () => {
+    const html = deepmindPage(
+      '<p>Defenders wanting to use advanced AI have faced a difficult dilemma: adopt enormous frontier models that could be expensive to deploy and difficult to control.</p>',
+    );
+    expect(extractArticleSummary(html, 'uni-blog-article-container'))
+      .toMatch(/^Defenders wanting to use advanced AI/);
+  });
+
+  it('配置里的 containerMarker 与页面结构一致', () => {
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('google-deepmind-blog')!;
+    expect(source.articleSummary).toBeDefined();
+    expect(source.articleSummary!.mode).toBe('html');
+    const marker = (source.articleSummary as { containerMarker: string }).containerMarker;
+    expect(extractArticleSummary(deepmindPage('<p>' + 'x'.repeat(100) + '</p>'), marker).length)
+      .toBeGreaterThan(0);
+  });
+
+  it('只填空缺，不覆盖 feed 已给的摘要', () => {
+    // 37 条里 19 条 feed 是给了摘要的，覆盖掉没有好处
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('google-deepmind-blog')!;
+    expect(source.articleSummary!.replacesFeedSummary).toBeUndefined();
   });
 });
