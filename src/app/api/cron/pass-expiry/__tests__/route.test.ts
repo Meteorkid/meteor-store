@@ -15,7 +15,7 @@ vi.mock('@/lib/rate-limit', () => ({
 describe('Pass 到期提醒 cron 接口', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.PASS_EXPIRY_CRON_SECRET = 'cron-secret';
+    process.env.PATHFINDER_CRON_SECRET = 'cron-secret';
   });
 
   it('带正确 token 时触发提醒并返回统计', async () => {
@@ -53,7 +53,7 @@ describe('Pass 到期提醒 cron 接口', () => {
 
   it('未配置 secret 时拒绝调用', async () => {
     const { POST } = await import('../route');
-    delete process.env.PASS_EXPIRY_CRON_SECRET;
+    delete process.env.PATHFINDER_CRON_SECRET;
 
     const request = new Request('https://www.imagentx.top/api/cron/pass-expiry', {
       method: 'POST',

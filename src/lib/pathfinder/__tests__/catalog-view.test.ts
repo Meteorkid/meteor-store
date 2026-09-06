@@ -107,22 +107,33 @@ describe('Pathfinder catalog view helpers', () => {
     )).toEqual([dateOnly]);
   });
 
-  it('目录统计区分可学习与官方来源', () => {
+  it('统计条只算对学生有意义的口径', () => {
+    /*
+     * 原先是「已收录条目 / 可纳入学习路径 / 官方来源 / 学习方向」，前三个是
+     * 运营视角的库存量——对着学生说「我们收了 286 条、其中 200 条来自官方来源」
+     * 并不回答「这对我有什么用」。
+     */
     const items = [
-      catalogItemFixture({ id: 'official-ai' }),
+      // 免费且可进路径，同时是能直接上手的 issue
       catalogItemFixture({
-        id: 'verified-data',
-        direction: 'data',
-        learningEligible: false,
-        source: {
-          ...catalogItemFixture().source,
-          id: 'verified-source',
-          trustLevel: 'verified',
-        },
+        id: 'free-task',
+        itemType: 'open-source',
+        canonicalUrl: 'https://github.com/o/r/issues/1',
       }),
+      // 要花钱，所以不算进 free
+      catalogItemFixture({ id: 'paid', direction: 'data', costCny: 200 }),
+      // 有未过期的截止日期
+      catalogItemFixture({ id: 'dated', itemType: 'competition', deadlineDate: '2026-10-01' }),
+      // 已过期的不算
+      catalogItemFixture({ id: 'expired', itemType: 'competition', deadlineDate: '2026-08-01' }),
     ];
 
-    expect(catalogStats(items)).toEqual({ total: 2, learning: 1, official: 1, directions: 2 });
+    expect(catalogStats(items, NOW)).toEqual({
+      free: 3,
+      actionable: 1,
+      dated: 1,
+      directions: 2,
+    });
   });
 
   it('首页为竞赛、实习、开源设置独立席位，不被高频开源条目淹没', () => {
@@ -184,22 +195,27 @@ describe('Pathfinder catalog view helpers', () => {
 
     const feed = selectPathfinderHomeFeed(items, NOW);
 
-    expect(feed.featured.map((item) => item.itemType)).toEqual([
+    /*
+     * 竞赛与实习合成一组：原先拆成 featured（每类各挑一条）和 opportunities
+     * （其余的），同一类东西被切在页面两处，最好的那条竞赛还排在
+     * 「其余竞赛」上面一节，读起来是倒的。
+     */
+    // 两类交替排布，任一类都不会把另一类挤掉
+    expect(feed.deadlined.map((item) => item.itemType)).toEqual([
       'competition',
       'internship',
-      'open-source',
+      'competition',
+      'internship',
+      'competition',
+      'internship',
+      'competition',
+      'internship',
     ]);
-    expect(feed.featured.map((item) => item.id)).toContain('competition-soon');
-    expect(feed.featured.map((item) => item.id)).toContain('internship-soon');
-    expect(feed.opportunities.map((item) => item.itemType)).toEqual([
-      'competition',
-      'internship',
-      'competition',
-      'internship',
-      'competition',
-      'internship',
-    ]);
-    expect(feed.opportunities.map((item) => item.id)).not.toContain('competition-expired');
+    // 截止近的排前面，首条会被突出显示
+    expect(feed.deadlined[0].id).toBe('competition-soon');
+    expect(feed.deadlined[1].id).toBe('internship-soon');
+    // 已过期的不进首页
+    expect(feed.deadlined.map((item) => item.id)).not.toContain('competition-expired');
     expect(feed.openSource).toHaveLength(4);
     expect(feed.updates.map((item) => item.id)).toEqual(['ai-update']);
   });

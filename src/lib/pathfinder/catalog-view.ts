@@ -552,11 +552,27 @@ export function formatDate(value: string | null, locale: PathfinderLocale) {
   }).format(date);
 }
 
-export function catalogStats(items: readonly PathfinderCatalogItem[]) {
+/**
+ * 发现页统计条的口径。
+ *
+ * 原先是「已收录条目 / 可纳入学习路径 / 官方来源 / 学习方向」——前三个是
+ * 运营视角的库存量，对着学生说「我们收了 286 条、其中 200 条来自官方来源」
+ * 并不回答「这对我有什么用」。现在四个数都尽量回答那个问题：
+ *
+ * - `free`：不花钱就能做的事。这是公益站点最该先说的一件事
+ * - `actionable`：能直接上手的任务，而不是只能读的材料
+ * - `dated`：有明确截止日期的机会——**刻意不叫「还能报名的机会」**：
+ *   没有截止日期的长期开放岗位同样能报，那样叫会把 114 条里的绝大多数
+ *   说成不能报，是往反方向误导
+ * - `directions`：覆盖几个方向，说明这不是单一领域的站
+ */
+export function catalogStats(items: readonly PathfinderCatalogItem[], now = new Date()) {
   return {
-    total: items.length,
-    learning: items.filter((item) => item.learningEligible).length,
-    official: items.filter((item) => item.source.trustLevel === 'official').length,
+    free: items.filter((item) => item.learningEligible && item.cost.amount === 0).length,
+    actionable: items.filter((item) => isActionableTask(item)).length,
+    dated: items.filter((item) => (
+      catalogDeadlineTimestamp(item) !== null && getDeadlineState(item, now).state !== 'expired'
+    )).length,
     directions: new Set(items.flatMap((item) => item.directions)).size,
   };
 }
@@ -565,8 +581,18 @@ export function catalogStats(items: readonly PathfinderCatalogItem[]) {
 export const HOME_MAX_PER_SOURCE = 2;
 
 export interface PathfinderHomeFeed {
-  featured: PathfinderCatalogItem[];
-  opportunities: PathfinderCatalogItem[];
+  /**
+   * 竞赛与实习合成一组。
+   *
+   * 原先拆成 `featured`（每类各挑一条）和 `opportunities`（其余的）两个区块，
+   * 于是同一类东西被切在页面两处，最好的那条竞赛还排在「其余竞赛」上面一节，
+   * 读起来是倒的。合成一组之后首条仍然突出显示，顺序由截止时间决定。
+   *
+   * 排在开源与 AI 动态之前：全站 114 条非资讯条目里只有个位数带明确截止日期，
+   * 它们既最稀缺、也是唯一有时间压力的内容——把它们埋在下面等于把
+   * 唯一的回访动机藏起来。
+   */
+  deadlined: PathfinderCatalogItem[];
   openSource: PathfinderCatalogItem[];
   updates: PathfinderCatalogItem[];
 }
@@ -595,21 +621,13 @@ export function selectPathfinderHomeFeed(
     published.filter((item) => item.itemType === 'open-source'),
   );
 
-  const featured = [
-    competitions.find((item) => item.learningEligible),
-    internships.find((item) => item.learningEligible),
-    openSourceCandidates.find((item) => item.learningEligible),
-  ].filter((item): item is PathfinderCatalogItem => Boolean(item));
-  const featuredIds = new Set(featured.map((item) => item.id));
-
   return {
-    featured,
-    opportunities: interleaveByType(
-      diversifyBySource(competitions.filter((item) => !featuredIds.has(item.id)), HOME_MAX_PER_SOURCE, 3),
-      diversifyBySource(internships.filter((item) => !featuredIds.has(item.id)), HOME_MAX_PER_SOURCE, 3),
+    deadlined: interleaveByType(
+      diversifyBySource(competitions, HOME_MAX_PER_SOURCE, 4),
+      diversifyBySource(internships, HOME_MAX_PER_SOURCE, 4),
     ),
     openSource: diversifyBySource(
-      openSourceCandidates.filter((item) => !featuredIds.has(item.id)),
+      openSourceCandidates,
       HOME_MAX_PER_SOURCE,
       4,
       // 同一个抓取来源会带回同一个仓库的多条 issue，这里按仓库限席位

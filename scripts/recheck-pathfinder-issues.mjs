@@ -13,11 +13,19 @@
  *
  * `--apply` 把判定不通过的条目置为 archived（不是删除：可逆、保留记录，
  * 而且同步不会把 archived 复活，见 changedPathfinderStatus）。
+ *
+ * `--quiet` 只在最后打一行 JSON 摘要，供 crontab 使用——逐条输出进 syslog 会刷屏，
+ * 与另外四个 cron 脚本的日志形状也对不上。**同步任务从不回查已入库条目**
+ * （抓取阶段的判定只作用于新条目），所以不定期跑这个，已关闭的 issue
+ * 会一直挂在「可直接上手」里越积越多。
  */
 import { createSql } from './lib/pg-sql.mjs';
 import { notActionableReason } from '../src/lib/pathfinder/ingestion/actionable.ts';
 
 const apply = process.argv.includes('--apply');
+const quiet = process.argv.includes('--quiet');
+/** 逐条进度：cron 下静默，交互下照常打印 */
+const say = (...args) => { if (!quiet) console.log(...args); };
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) { console.error('缺少 DATABASE_URL'); process.exit(1); }
 const token = process.env.GITHUB_TOKEN;
@@ -38,10 +46,11 @@ const rows = await sql`
   where item_type = 'open-source' and status = 'published'
   order by published_at asc
 `;
-console.log(`公开的开源条目 ${rows.length} 条，开始回查 GitHub…\n`);
+say(`公开的开源条目 ${rows.length} 条，开始回查 GitHub…\n`);
 
 const doomed = [];
 let skipped = 0;
+let failed = 0;
 for (const row of rows) {
   const api = apiUrlOf(row.canonical_url);
   // 仓库入口（不是具体 issue）不适用这套判据，跳过
@@ -57,7 +66,8 @@ for (const row of rows) {
   });
   if (!response.ok) {
     // 404 通常意味着 issue 被删或转移；保守起见不动它，只报出来
-    console.log(`  ?  HTTP ${response.status}  ${(row.title_en ?? '').slice(0, 55)}`);
+    failed += 1;
+    say(`  ?  HTTP ${response.status}  ${(row.title_en ?? '').slice(0, 55)}`);
     continue;
   }
   const raw = await response.json();
@@ -73,20 +83,47 @@ for (const row of rows) {
   const verdict = closed ? 'closed' : reason;
   if (verdict) {
     doomed.push({ id: row.id, title: row.title_en, verdict });
-    console.log(`  ✗ [${verdict}] ${(row.title_en ?? '').slice(0, 55)}`);
+    say(`  ✗ [${verdict}] ${(row.title_en ?? '').slice(0, 55)}`);
   }
 }
 
-console.log(`\n回查完成：${rows.length} 条中 ${doomed.length} 条不再符合「可直接上手」，跳过 ${skipped} 条仓库入口`);
+say(`\n回查完成：${rows.length} 条中 ${doomed.length} 条不再符合「可直接上手」，跳过 ${skipped} 条仓库入口`);
 const byReason = new Map();
 for (const d of doomed) byReason.set(d.verdict, (byReason.get(d.verdict) ?? 0) + 1);
-console.log('原因分布:', [...byReason].map(([k, v]) => `${k}=${v}`).join('  ') || '无');
+say('原因分布:', [...byReason].map(([k, v]) => `${k}=${v}`).join('  ') || '无');
 
-if (!apply) {
-  console.log('\n[dry-run] 未写库。加 --apply 才会把这些条目置为 archived。');
+/**
+ * 收尾。`--quiet` 下只打一行 JSON，形状与另外四个 cron 脚本一致。
+ *
+ * **每条退出路径都要经过这里**：早先「没有要归档的」直接 process.exit(0) 不打任何东西，
+ * 在 cron 里就分不清「今天确实没有」和「脚本根本没跑起来」。
+ */
+function finish(archived) {
+  if (quiet) {
+    const line = JSON.stringify({
+      event: 'pathfinder_recheck_cron',
+      timestamp: new Date().toISOString(),
+      success: true,
+      checked: rows.length,
+      doomed: doomed.length,
+      archived,
+      skipped,
+      failed,
+      applied: apply,
+    });
+    // GitHub 整体不可达时 doomed 会是 0，看起来和「今天没有要归档的」一样，
+    // 所以 failed 占多数时按失败报出来，让 cron 日志里能看见
+    if (failed > 0 && failed >= rows.length - skipped) console.error(line);
+    else console.log(line);
+  }
   process.exit(0);
 }
-if (doomed.length === 0) process.exit(0);
+
+if (!apply) {
+  say('\n[dry-run] 未写库。加 --apply 才会把这些条目置为 archived。');
+  finish(0);
+}
+if (doomed.length === 0) finish(0);
 
 const now = new Date().toISOString();
 // 条件更新：只动仍是 published 的行，与同步任务并发时不会盖掉别的状态
@@ -95,4 +132,5 @@ const updated = await sql`
   where id = any(${doomed.map((d) => d.id)}) and status = 'published'
   returning id
 `;
-console.log(`\n已归档 ${updated.length} 条`);
+say(`\n已归档 ${updated.length} 条`);
+finish(updated.length);

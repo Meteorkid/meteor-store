@@ -7,11 +7,9 @@ import { listCatalogItems } from '@/lib/pathfinder/catalog';
 import { buildSamplePlan } from '@/lib/pathfinder/sample-plan';
 import {
   catalogStats,
-  formatCatalogDeadlineDate,
   latestDigestItem,
   localizedText,
   selectPathfinderHomeFeed,
-  sortByDeadline,
 } from '@/lib/pathfinder/catalog-view';
 
 const DIRECTION_KEYS = ['ai', 'frontend', 'backend', 'data'] as const;
@@ -32,7 +30,6 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
   const catalog = await listCatalogItems();
   const stats = catalogStats(catalog);
   const homeFeed = selectPathfinderHomeFeed(catalog);
-  const deadlines = sortByDeadline(catalog).slice(0, 5);
   const digest = latestDigestItem(catalog);
   /*
    * 首屏的示例路径用真实目录实时生成（buildPath 是纯函数，实测 0.2ms）。
@@ -103,9 +100,9 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
 
         <section aria-label={t('statsAria')} className="grid grid-cols-2 border-b border-white/10 sm:grid-cols-4">
           {([
-            ['total', stats.total],
-            ['learning', stats.learning],
-            ['official', stats.official],
+            ['free', stats.free],
+            ['actionable', stats.actionable],
+            ['dated', stats.dated],
             ['directions', stats.directions],
           ] as const).map(([key, value], index) => (
             <div key={key} className={`py-5 ${index % 2 ? 'pl-5' : ''} ${index > 0 ? 'sm:border-l sm:border-white/10 sm:pl-6' : ''}`}>
@@ -136,17 +133,20 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="min-w-0">
-            <section>
-              <SectionHeader eyebrow={t('featuredEyebrow')} title={t('featuredTitle')} href="/pathfinder/opportunities" linkLabel={t('viewAll')} />
-              <div>
-                {homeFeed.featured.map((item, index) => <CatalogItemCard key={item.id} item={item} locale={typedLocale} featured={index === 0} />)}
-              </div>
-            </section>
-
-            {homeFeed.opportunities.length > 0 && (
-              <section className="mt-12 sm:mt-16">
-                <SectionHeader eyebrow={t('latestEyebrow')} title={t('latestTitle')} href="/pathfinder/opportunities" linkLabel={t('viewAll')} />
-                <div>{homeFeed.opportunities.map((item) => <CatalogItemCard key={item.id} item={item} locale={typedLocale} />)}</div>
+            {homeFeed.deadlined.length > 0 && (
+              <section>
+                <SectionHeader
+                  eyebrow={t('deadlinedEyebrow')}
+                  title={t('deadlinedTitle', { count: stats.dated })}
+                  href="/pathfinder/opportunities"
+                  linkLabel={t('viewAll')}
+                />
+                <p className="mb-3 t-footnote text-white/60">{t('deadlinedNote')}</p>
+                <div>
+                  {homeFeed.deadlined.map((item, index) => (
+                    <CatalogItemCard key={item.id} item={item} locale={typedLocale} featured={index === 0} />
+                  ))}
+                </div>
               </section>
             )}
 
@@ -167,26 +167,6 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
           </div>
 
           <aside className="space-y-6">
-            {deadlines.length > 0 && (
-              <section className="glass rounded-2xl p-5">
-                <p className="t-eyebrow text-amber-300">{t('deadlinesEyebrow')}</p>
-                <h2 className="mt-2 t-title-4 text-white">{t('deadlinesTitle')}</h2>
-                <ol className="mt-4 divide-y divide-white/[0.07]">
-                  {deadlines.map((item) => (
-                    <li key={item.id} className="py-4 first:pt-0 last:pb-0">
-                      <Link href={`/pathfinder/items/${item.id}`} className="block text-sm font-semibold leading-5 text-white hover:text-violet-200">
-                        {localizedText(item.title, locale)}
-                      </Link>
-                      <p className="mt-1 t-footnote text-white/60">{formatCatalogDeadlineDate(item, typedLocale)} · {localizedText(item.organization, locale)}</p>
-                    </li>
-                  ))}
-                </ol>
-                <Link href="/pathfinder/opportunities?deadline=30d" className="mt-5 inline-flex text-xs font-semibold text-amber-200 hover:text-amber-100">
-                  {t('viewDeadlines')} →
-                </Link>
-              </section>
-            )}
-
             {digest && (
               /*
                  资讯摘要单独放侧栏，不进 AI 动态主区。它答不上机会库那三个问题

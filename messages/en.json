@@ -1907,13 +1907,16 @@
       "samplePlanCta": "Build my path",
       "statsAria": "Pathfinder catalog statistics",
       "stats": {
-        "total": "Catalog items",
-        "learning": "Eligible for paths",
-        "official": "Official sources",
-        "directions": "Learning directions"
+        "free": "Free to do",
+        "actionable": "Ready to start",
+        "dated": "With a deadline",
+        "directions": "Tracks"
       },
       "directionsEyebrow": "Start with a direction",
       "directionsTitle": "Four common technical paths for university students",
+      "deadlinedEyebrow": "Time-sensitive",
+      "deadlinedTitle": "Opportunities with a deadline ({count})",
+      "deadlinedNote": "Competitions and internships are the only dated items here — miss one and you wait for the next round. Undated ones stay open.",
       "directions": {
         "ai": {
           "title": "Artificial intelligence",
@@ -1933,19 +1936,12 @@
         }
       },
       "viewDirection": "View skill map",
-      "featuredEyebrow": "Good starting points",
-      "featuredTitle": "Items that help you begin",
       "viewAll": "View all",
-      "latestEyebrow": "Recently verified",
-      "latestTitle": "Current competitions and internships",
       "openSourceEyebrow": "Join real collaboration",
       "openSourceTitle": "Open-source projects worth exploring",
       "updatesEyebrow": "AI updates",
       "updatesTitle": "Changes worth a student's attention",
       "updatesDescription": "We include updates that clarify a direction, tool choice, or learning priority—not hype without an actionable takeaway.",
-      "deadlinesEyebrow": "Time-sensitive",
-      "deadlinesTitle": "Upcoming deadlines",
-      "viewDeadlines": "View opportunities due in 30 days",
       "planEyebrow": "From discovery to action",
       "planTitle": "Not sure what to do first?",
       "planDescription": "Share your goal and constraints. Pathfinder will use verified catalog items to build a deterministic 4–8 week path.",

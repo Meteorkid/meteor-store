@@ -1172,7 +1172,11 @@ pnpm build                  # 构建
 - ✅ 博客收藏功能（`post_favorites` 表 + `/api/blog/favorites` + `/blog/favorites` 页）
 - ✅ `feedback`/`topics/propose` 输入净化统一（抽 `src/lib/sanitize.ts` 的 `sanitizeUserInput`,旧 `sanitizeInput` re-export 标 @deprecated）
 - ✅ 用户协议 UGC 条款（EULA 第 8 节:8.1 内容授权 / 8.2 内容责任 / 8.3 审核与下架;提交表单与评论输入区加入「提交即同意」链接到 /eula）
-- ✅ Pass 到期提醒（`notifyExpiringPasses` + `/api/cron/pass-expiry` + `pass_reminders` 表唯一索引保证幂等）
+- ✅ Pass 到期提醒（`notifyExpiringPasses` + `/api/cron/pass-expiry` + `pass_reminders` 表唯一索引保证幂等）。
+  **注意「代码有」不等于「会触发」**：这条曾在这里挂着 ✅ 一个月，而服务器上既没有调度器打它、
+  接口读的 `PASS_EXPIRY_CRON_SECRET` 也从没配进 `.env.production`——一封提醒都没发出去。
+  现已改为与其它 cron 共用 `PATHFINDER_CRON_SECRET`，调度走 `scripts/pass-expiry-cron.mjs`。
+  `src/app/api/cron/__tests__/cron-secret.test.ts` 钉住「cron 路由只许用这一个密钥变量」
 - ✅ 后台订单状态流转（paid → refunded）：`refundOrder` + `/api/admin/commerce` 的 `refund-order`（原路退款 + 撤销授权码）；出现第一笔真实退款时按流程走一遍验证
 - ✅ 修完全部 `react-hooks/set-state-in-effect` warning（实际 15 处,非原记的 7 处）,`eslint.config.mjs` 的 warn 覆盖已删,恢复为 error。改法:`useSyncExternalStore` 用于 matchMedia/深夜判定/locale/random quip 等外部状态;"渲染期调整状态"用于依赖变化重置派生状态(SpotlightSearch/InviteCodeManager/TerminalSection);fetch-on-mount 改用内联 fetch + `.then()` 回调,setState 全部异步,并保留事件处理器用的 `fetchXxx` wrapper
 
@@ -1247,10 +1251,12 @@ pnpm build                  # 构建
 - **事务现在可用了，但不要去重写既有代码**。「复合主键兜底并发」「条件更新防竞态」
   「单条 CTE 原子写入」当初是为绕开 Neon HTTP 无事务而设计的，它们本身就是更稳的
   做法，改成事务没有收益，只有大面积回归的风险
-- **9 个手动运维脚本仍在用 `@neondatabase/serverless`**（`scripts/migrate-avatars-to-r2.mjs`、
-  `backfill-pathfinder-*.mjs`、`verify-existing-admins.mjs`、`migrate-file-posts.mjs`、
-  `reconcile-blog-images.mjs`、`feedback-to-issue.mjs` 等），它们**连不上自建库**，
-  下次要用之前得先改驱动。三个 cron 脚本不受影响——它们打的是本机 HTTP 接口
+- **手动运维脚本的驱动已全部迁完**（2026-09-06 核实：仓库里没有任何文件再 import
+  `@neondatabase/serverless`）。统一走 `scripts/lib/pg-sql.mjs` 的 `createSql()`——
+  它保持 `neon()` 的调用形状（标签模板 + `.query()`，都返回 rows），所以脚本正文没动过。
+  `backfill-article-summaries.mts` 例外，直接用 `pg.Client`。
+  **写新脚本时用 `createSql`，别再照着老代码抄 `neon()`**：那个驱动走 HTTP，只能连 Neon。
+  四个 cron 脚本不涉及——它们打的是本机 HTTP 接口
 - **接受了单点故障**：数据库与应用同机，机器挂了就是全站挂，不再有「Neon 挂了
   首页还在」的降级余地。换来的是不受任何流量配额约束、出网流量归零。
   代价由每日备份兜底（见下一节），**所以那个 cron 绝对不能停**
