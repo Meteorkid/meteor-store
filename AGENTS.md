@@ -1256,7 +1256,8 @@ pnpm build                  # 构建
   它保持 `neon()` 的调用形状（标签模板 + `.query()`，都返回 rows），所以脚本正文没动过。
   `backfill-article-summaries.mts` 例外，直接用 `pg.Client`。
   **写新脚本时用 `createSql`，别再照着老代码抄 `neon()`**：那个驱动走 HTTP，只能连 Neon。
-  四个 cron 脚本不涉及——它们打的是本机 HTTP 接口
+  四个打本机 HTTP 接口的 cron 脚本不涉及驱动；**但 `recheck-pathfinder-issues.mjs`
+  是直连数据库的**（它也在 cron 里，见下面的计划任务一节），改驱动时别漏掉它
 - **接受了单点故障**：数据库与应用同机，机器挂了就是全站挂，不再有「Neon 挂了
   首页还在」的降级余地。换来的是不受任何流量配额约束、出网流量归零。
   代价由每日备份兜底（见下一节），**所以那个 cron 绝对不能停**
@@ -1269,6 +1270,37 @@ pnpm build                  # 构建
 
 - 回滚到 Neon 的退路还在：`/var/www/meteor-store/.env.production.bak-neon-20260902`
   存着原连接串，但 Neon Free 的配额问题依旧，只应作为应急
+
+## 服务器计划任务
+
+**全部调度都在 root 的 crontab 里**（`crontab -l`），没有 systemd timer、没有 `/etc/cron.d`。
+改动前先 `crontab -l > 备份`，历史备份在 `/root/crontab.bak-*`。
+
+| 时间 | 任务 | 脚本 | node |
+|------|------|------|------|
+| 每小时 :27 | Pathfinder 抓取同步 | `pathfinder-sync-cron.mjs` | `/usr/bin/node` |
+| 每天 03:40 | 数据库备份（+ R2 异地副本） | `backup-db.sh` | — |
+| 每天 04:13 | 回查开源 issue 是否已关闭，归档失效条目 | `recheck-pathfinder-issues.mjs --apply --quiet` | **`/usr/local/bin/node`** |
+| 每天 09:17 | Pathfinder 截止提醒 | `pathfinder-deadlines-cron.mjs` | `/usr/bin/node` |
+| 每天 09:37 | 管理员待办摘要 | `admin-digest-cron.mjs` | `/usr/bin/node` |
+| 每天 09:52 | Meteor Pass 到期提醒 | `pass-expiry-cron.mjs` | `/usr/bin/node` |
+
+- **`recheck` 必须用 `/usr/local/bin/node`（22.23.2），不能照抄别的任务用的 `/usr/bin/node`**。
+  它 import 了 `actionable.ts`，需要 `--experimental-strip-types`，而 `/usr/bin/node`
+  是 Node 20.20.2，直接报 `bad option` 退出——**照抄现有行会让它每晚静默失败**。
+  另外配 `--disable-warning=MODULE_TYPELESS_PACKAGE_JSON`：不加的话每晚往 syslog
+  写 4 行「Reparsing as ES module」，正好抵消掉「一行 JSON 摘要」的意义
+- **`recheck` 是唯一直连数据库的 cron**，其余四个都只打 `127.0.0.1:3000` 的接口。
+  所以只有它受数据库驱动变更影响
+- 每条都套 `flock -n`：跑过头时下一轮直接跳过，而不是叠着跑
+- 密钥一律走 `--env-file=/var/www/meteor-store/.env.production`，**不写进 crontab**——
+  `ps` 看得到命令行，crontab 还会被备份到别处
+- 查日志：`journalctl -t <tag> --since today`，tag 就是各行 `logger -t` 后面那个
+- **「代码写了」不等于「会跑」**。Pass 到期提醒的接口 2026-08-07 就上线并在
+  AGENTS.md 里挂着 ✅，但既没有调度器打它、密钥变量也从没配进 `.env.production`，
+  整整一个月一封提醒都没发出去（2026-09-06 才发现并修）。
+  **新增 cron 接口时，把这张表和 crontab 一起改**，别只写代码
+
 
 ## 数据库备份
 
