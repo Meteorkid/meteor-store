@@ -100,7 +100,7 @@ async function fetchPathfinderSourceOnce(
   const headers: Record<string, string> = {
     Accept: source.adapterId === 'rss'
       ? 'application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9'
-      : source.adapterId === 'greenhouse'
+      : source.adapterId === 'greenhouse' || source.adapterId === 'codeforces'
         ? 'application/json'
         : 'application/vnd.github+json',
     'User-Agent': `Meteor-Pathfinder/1.0 (+${SITE_URL}/pathfinder)`,

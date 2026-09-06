@@ -20,6 +20,7 @@ export function parsePathfinderSource(
 ): IngestedPathfinderItem[] {
   if (source.adapterId === 'rss') return parseRss(source, body);
   if (source.adapterId === 'greenhouse') return parseGreenhouseJobs(source, body);
+  if (source.adapterId === 'codeforces') return parseCodeforcesContests(source, body);
   return parseGithubSearch(source, body);
 }
 
@@ -239,6 +240,96 @@ const MAX_JOBS_PER_SYNC = 20;
  * 这里下沉到具体岗位：岗位名、地点、发布时间都来自雇主官方职位板。
  * 不请求 `content=true`：大公司职位板有上千个岗位，带正文会直接超过响应体上限。
  */
+/**
+ * Codeforces 赛程。
+ *
+ * 站内此前**一条自动化的竞赛来源都没有**——9 条竞赛全是手写的静态种子，
+ * 加一条要改代码。而竞赛恰恰是最适合这个受众的一类：全球开放、不要工作许可、
+ * 不用申请、免费，这几点是欧美实习岗都不满足的。
+ *
+ * 只收未开始的（`phase === 'BEFORE'`）：已经打完的比赛对读者没有任何行动价值。
+ * 这同时让量级自限——实测 2146 场里只有 5 场未开始，不会灌爆目录，
+ * 所以不需要像 issue 那样另设配额。
+ *
+ * 开始时间当截止时间用：比赛一开打就报不了名了，语义上就是最后期限。
+ */
+export function parseCodeforcesContests(
+  source: PathfinderSyncSource,
+  json: string,
+): IngestedPathfinderItem[] {
+  let payload: unknown;
+  try {
+    payload = JSON.parse(json);
+  } catch {
+    throw new Error(`pathfinder source returned invalid JSON: ${source.id}`);
+  }
+  if (!isRecord(payload) || payload.status !== 'OK' || !Array.isArray(payload.result)) {
+    throw new Error(`pathfinder source returned unexpected payload: ${source.id}`);
+  }
+
+  return payload.result.flatMap((raw) => {
+    if (!isRecord(raw)) return [];
+    if (raw.phase !== 'BEFORE') return [];
+    const id = typeof raw.id === 'number' ? raw.id : null;
+    const title = cleanExternalText(typeof raw.name === 'string' ? raw.name : '', 180);
+    const startSeconds = typeof raw.startTimeSeconds === 'number' ? raw.startTimeSeconds : null;
+    if (id === null || !title || startSeconds === null) return [];
+
+    // 列表页是 /contests/{id}；/contest/{id} 会 302，规范化后会留下一个会跳转的地址
+    const url = normalizeIngestionUrl(`https://codeforces.com/contests/${id}`);
+    if (!url || !isAllowedHost(url, source.allowedItemHosts)) return [];
+
+    const startsAt = new Date(startSeconds * 1000).toISOString();
+    const hours = typeof raw.durationSeconds === 'number'
+      ? Math.max(1, Math.round(raw.durationSeconds / 3600))
+      : null;
+    const summary = hours
+      ? `在线编程竞赛，比赛时长约 ${hours} 小时。开始后不能再报名。`
+      : '在线编程竞赛。开始后不能再报名。';
+
+    return [{
+      sourceId: source.id,
+      externalId: String(id),
+      canonicalUrl: url,
+      type: source.itemType,
+      direction: source.direction,
+      directions: [source.direction],
+      titleZh: null,
+      titleEn: title,
+      summaryZh: summary,
+      summaryEn: null,
+      organization: source.organization,
+      organizationEn: source.organization,
+      difficulty: 'all',
+      estimatedMinutes: hours ? hours * 60 : null,
+      costCny: 0,
+      costAmount: 0,
+      costCurrency: 'CNY',
+      costLabelZh: null,
+      costLabelEn: null,
+      // 竞赛要写代码提交，手机做不了
+      device: 'computer',
+      network: 'normal',
+      region: 'global',
+      regionZh: '全球',
+      regionEn: 'Global',
+      remoteStatus: 'remote',
+      eligibilityZh: '任何人都可以注册参加，无需资格审核，不收费。',
+      eligibilityEn: 'Open to anyone with a free account. No screening, no fee.',
+      deadlineAt: startsAt,
+      deadlineText: null,
+      deadlineTextZh: null,
+      deadlineTextEn: null,
+      deadlineDate: startsAt.slice(0, 10),
+      publishedAt: null,
+      learningEligible: source.learningEligible,
+      requiresManualEligibilityCheck: false,
+      tags: topicsForItem({ title, summary }),
+      contentHash: contentHash({ title, url, summary, publishedAt: startsAt }),
+    } satisfies IngestedPathfinderItem];
+  });
+}
+
 export function parseGreenhouseJobs(
   source: PathfinderSyncSource,
   json: string,

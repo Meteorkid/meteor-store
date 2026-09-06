@@ -430,6 +430,38 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
    * 工作许可、年级、地点都是画像判断不了的硬条件，所以解析层一律标记为需人工核对。
    */
   {
+    /*
+     * 站内第一条自动化的竞赛来源。
+     *
+     * 此前 9 条竞赛全是手写静态种子，加一条要改代码——于是「有截止日期的机会」
+     * 长期只有个位数，而那恰恰是全站唯一有时间压力、能驱动回访的内容。
+     *
+     * 挑编程竞赛而不是继续加欧美实习：实测 Greenhouse 上能找到的学生岗
+     * 几乎全在 SF / NY / London / Dublin，需要当地工作许可，对这个站的读者
+     * 多半投不了。竞赛反过来——全球开放、不用申请、不要工作许可、免费，
+     * 这四条欧美实习岗一条都不满足。
+     *
+     * Codeforces 的公开 API 实测用我们自己的 UA 与 Accept 就能通（Devpost 的
+     * RSS 带正确 Accept 仍返回 406，是机器人防护，那条路走不通）。
+     */
+    id: 'codeforces-contests',
+    name: 'Codeforces',
+    adapterId: 'codeforces',
+    fetchUrl: 'https://codeforces.com/api/contest.list?gym=false',
+    siteUrl: 'https://codeforces.com/contests',
+    allowedFetchHosts: ['codeforces.com'],
+    allowedItemHosts: ['codeforces.com'],
+    itemType: 'competition',
+    direction: 'backend',
+    trustLevel: 'official',
+    enabled: true,
+    // 事实全部来自官方 API：标题、开始时间、时长，没有需要人判断的字段
+    autoPublish: true,
+    organization: 'Codeforces',
+    // 报名即参加、当场出结果，是能直接排进学习路径的一件具体的事
+    learningEligible: true,
+  },
+  {
     id: 'databricks-student-jobs',
     name: 'Databricks Careers',
     adapterId: 'greenhouse',

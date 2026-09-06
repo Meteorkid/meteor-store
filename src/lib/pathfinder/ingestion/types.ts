@@ -7,7 +7,7 @@ import type {
   PathfinderRemoteStatus,
 } from '../catalog-types';
 
-export type PathfinderAdapterId = 'rss' | 'github' | 'greenhouse';
+export type PathfinderAdapterId = 'rss' | 'github' | 'greenhouse' | 'codeforces';
 
 /**
  * 正文摘要的抓取方式。

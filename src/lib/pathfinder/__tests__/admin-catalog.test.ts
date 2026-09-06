@@ -24,6 +24,7 @@ describe('Pathfinder 自动发布白名单', () => {
       'google-deepmind-blog',
       'google-ai-blog',
       'github-ai-blog',
+      'codeforces-contests',
       // 雇主自己的职位板：内容是事实性岗位信息，但资格由解析层强制标为需人工核对
       'databricks-student-jobs',
       'scale-ai-student-jobs',

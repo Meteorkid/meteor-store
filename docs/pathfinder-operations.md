@@ -116,6 +116,10 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
   桶数固定，新增仓库不会挪动已有仓库的来源归属；某个桶的查询超过 GitHub 的 256 字符上限时
   CI 会报错，届时把 `CURATED_ISSUE_BUCKETS` 调大一次即可。
 - 竞赛和实习首版使用人工核验的官方入口，不运行通用网页爬虫。
+- **Codeforces（`codeforces-contests`）是站内第一条自动化的竞赛来源，自动发布。** 此前 9 条竞赛全是手写静态种子，加一条要改代码，于是「有截止日期的机会」长期只有个位数——而那是全站唯一有时间压力、能驱动回访的内容。事实全部来自官方 API（标题、开始时间、时长），没有需要人判断的字段，故直发。
+- **只收 `phase === 'BEFORE'` 的比赛，开始时间当截止时间。** 打完的比赛没有行动价值；只收未开始的同时让量级自限——实测 2146 场里只有 5 场未开始，所以不需要像 issue 那样另设配额。API 返回非 `OK` 时**抛错而不是当成空目录**，否则上游故障会伪装成「本轮没有新比赛」。
+- **为什么加竞赛而不是继续加欧美实习**：实测 Greenhouse 上能找到的学生岗（Stripe 15、Cloudflare 4、Datadog 2、Figma 1）几乎全在 SF / NY / London / Dublin / Toronto，需要当地工作许可，对这个站的读者多半投不了；其中还有几条是非技术岗。竞赛反过来——全球开放、不用申请、不要工作许可、免费，这四条欧美实习岗一条都不满足。Devpost 的 RSS 带正确 Accept 仍返回 406（机器人防护），Kaggle / AIcrowd / Zindi / DrivenData / MLH 都没有可发现的公开 feed。
+- **新增 adapter 必须同时改数据库约束**：`pathfinder_sources.adapter` 有 CHECK 约束，漏改会让同步在写库时失败。改 `schema.ts` 后用 `pnpm db:generate` 生成迁移，别手写——journal 还要配套的 schema snapshot，手改会漏掉（`migration-journal.test.ts` 钉着这条）。
 - 6 条具体时效机会已核验到 2026-08-24。只有 Mitacs 与 OIST 公布了时区并保存绝对时间；其余条目只保存官方日期，筛选和排程可使用日期，但界面不会伪造时刻。
 - 外币费用保留原币种与官方金额。系统不使用临时汇率推算人民币；用户未明确接受外币支出时，任何已知非零外币费用的机会都不会进入路径。
 - GitHub 规则推断内容、AI 动态和带“人工资格核验”标记的机会即使公开，也由服务端强制禁止直接进入学习路径。

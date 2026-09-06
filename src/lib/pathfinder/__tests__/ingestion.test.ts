@@ -3,7 +3,7 @@ import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fetchPathfinderSource, PATHFINDER_MAX_RESPONSE_BYTES } from '../ingestion/fetch-source';
 import { cleanExternalText, isAllowedHost, markdownToSummary, normalizeIngestionUrl } from '../ingestion/normalize';
-import { parseGithubSearch, parseGreenhouseJobs, parseRss } from '../ingestion/parse';
+import { parseCodeforcesContests, parseGithubSearch, parseGreenhouseJobs, parseRss } from '../ingestion/parse';
 import {
   buildCuratedIssueQuery,
   GITHUB_QUERY_LIMIT,
@@ -92,6 +92,51 @@ describe('Pathfinder ingestion', () => {
     const days = ['2026-09-04', '2026-09-03', '2026-09-02', '2026-09-01', '2026-08-31'];
     const items = parseRss(source, `<rss><channel>${days.map(item).join('')}</channel></rss>`);
     expect(items).toHaveLength(source.maxItemsPerSync!);
+  });
+
+  it('Codeforces 只收未开始的比赛，开始时间当截止时间', () => {
+    /*
+     * 打完的比赛对读者没有任何行动价值，收进来只会占位置；只收 BEFORE
+     * 同时让量级自限——实测 2146 场里只有 5 场未开始，不需要另设配额。
+     * 开始时间即最后期限：一开打就报不了名了。
+     */
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('codeforces-contests')!;
+    const json = JSON.stringify({
+      status: 'OK',
+      result: [
+        { id: 2260, name: 'Educational Codeforces Round 194', phase: 'BEFORE', startTimeSeconds: 1788000000, durationSeconds: 7200 },
+        { id: 1000, name: '已经打完的一场', phase: 'FINISHED', startTimeSeconds: 1700000000, durationSeconds: 7200 },
+      ],
+    });
+    const items = parseCodeforcesContests(source, json);
+    expect(items).toHaveLength(1);
+    expect(items[0].titleEn).toBe('Educational Codeforces Round 194');
+    // 列表页是 /contests/{id}；/contest/{id} 会 302
+    expect(items[0].canonicalUrl).toBe('https://codeforces.com/contests/2260');
+    expect(items[0].deadlineAt).toBe(new Date(1788000000 * 1000).toISOString());
+    expect(items[0].estimatedMinutes).toBe(120);
+  });
+
+  it('Codeforces 条目免费、全球、无需资格审核', () => {
+    // 这四条正是它比欧美实习岗更适合这个受众的原因，写进事实字段而不只是文案
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('codeforces-contests')!;
+    const [item] = parseCodeforcesContests(source, JSON.stringify({
+      status: 'OK',
+      result: [{ id: 1, name: 'Round', phase: 'BEFORE', startTimeSeconds: 1788000000, durationSeconds: 7200 }],
+    }));
+    expect(item.costCny).toBe(0);
+    expect(item.regionZh).toBe('全球');
+    expect(item.remoteStatus).toBe('remote');
+    expect(item.requiresManualEligibilityCheck).toBe(false);
+    // 要写代码提交，手机做不了
+    expect(item.device).toBe('computer');
+  });
+
+  it('Codeforces 返回非 OK 时抛错，不静默当成空目录', () => {
+    // 静默返回空会让同步显示「成功、0 条」，把上游故障伪装成没有新比赛
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('codeforces-contests')!;
+    expect(() => parseCodeforcesContests(source, JSON.stringify({ status: 'FAILED', comment: 'x' })))
+      .toThrow(/unexpected payload/);
   });
 
   it('按来源同步周期判断是否到期，非法时间会安全重试', () => {
