@@ -1901,6 +1901,10 @@
       "searchPlaceholder": "搜索方向、技能、组织或关键词",
       "search": "搜索",
       "searchHint": "支持中英文标题、技能标签与组织名称",
+      "samplePlanEyebrow": "示例路径",
+      "samplePlanTitle": "一条 {weeks} 周路径长什么样",
+      "samplePlanNote": "以「大二 · 零基础 · 每周 4 小时 · 不花钱 · AI 方向」为例，由已核验目录实时生成，不是写死的样板。换成你的条件会得到另一条。",
+      "samplePlanCta": "生成我的路径",
       "statsAria": "Pathfinder 目录统计",
       "stats": {
         "total": "已收录条目",

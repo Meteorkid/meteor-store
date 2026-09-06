@@ -4,6 +4,7 @@ import CatalogItemCard from '@/components/pathfinder/CatalogItemCard';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
+import { buildSamplePlan } from '@/lib/pathfinder/sample-plan';
 import {
   catalogStats,
   formatCatalogDeadlineDate,
@@ -33,6 +34,12 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
   const homeFeed = selectPathfinderHomeFeed(catalog);
   const deadlines = sortByDeadline(catalog).slice(0, 5);
   const digest = latestDigestItem(catalog);
+  /*
+   * 首屏的示例路径用真实目录实时生成（buildPath 是纯函数，实测 0.2ms）。
+   * 目录里凑不出可行路径时返回 null，整块不渲染——宁可不展示，
+   * 也不要在目录空了之后还摆着一条其实生成不出来的路径。
+   */
+  const samplePlan = buildSamplePlan(catalog, locale === 'en' ? 'en' : 'zh', new Date());
 
   return (
     <main className="container mx-auto px-4 py-10 sm:py-14 lg:py-16">
@@ -60,6 +67,39 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
             <p className="mt-2 px-1 t-footnote text-white/60">{t('searchHint')}</p>
           </form>
         </header>
+
+        {samplePlan && (
+          /*
+            渲染每周任务的 action 而不是 objective：objective 是
+            「围绕「X」完成本周{阶段}产出」这样的模板，六周几乎一模一样；
+            action 才是真正有层次的那一层（阅读 → 最小可复现练习 →
+            只改一个变量做对比 → 提交最小贡献 → 整理成果 → 复盘）。
+          */
+          <section className="border-b border-white/10 py-10 sm:py-12">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="t-eyebrow text-violet-300">{t('samplePlanEyebrow')}</p>
+                <h2 className="mt-2 t-title-2 text-white">
+                  {t('samplePlanTitle', { weeks: samplePlan.weeks.length })}
+                </h2>
+                <p className="mt-3 max-w-2xl t-footnote text-white/60">{t('samplePlanNote')}</p>
+              </div>
+              <Link href="/pathfinder/plan" className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-500">
+                {t('samplePlanCta')}
+              </Link>
+            </div>
+            <ol className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {samplePlan.weeks.map((week) => (
+                <li key={week.week} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                  <p className="t-footnote font-semibold text-violet-200">{week.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/70">
+                    {week.tasks[0]?.action ?? week.objective}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
 
         <section aria-label={t('statsAria')} className="grid grid-cols-2 border-b border-white/10 sm:grid-cols-4">
           {([

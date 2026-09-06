@@ -1901,6 +1901,10 @@
       "searchPlaceholder": "Search directions, skills, or organizations",
       "search": "Search",
       "searchHint": "Searches titles, skill tags, and organization names",
+      "samplePlanEyebrow": "Sample path",
+      "samplePlanTitle": "What a {weeks}-week path looks like",
+      "samplePlanNote": "Generated live from the verified catalog for a second-year beginner with 4 hours a week, no budget, AI track. Your own conditions produce a different path.",
+      "samplePlanCta": "Build my path",
       "statsAria": "Pathfinder catalog statistics",
       "stats": {
         "total": "Catalog items",
