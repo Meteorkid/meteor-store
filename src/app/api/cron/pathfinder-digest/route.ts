@@ -35,6 +35,14 @@ export async function POST(request: NextRequest) {
     const result = await announceDailyDigest();
     // 公开公告接口是按请求读的，但铃铛所在的布局可能被缓存，发出后失效一次
     if (result.status === 'created') revalidatePath('/api/announcements');
+    /*
+     * 读不到目录要按失败报，让包装脚本非零退出、在 syslog 里看得见。
+     * 报成功的话，某天数据库短暂不可用就会静默跳过当天通知而无人知晓。
+     */
+    if (result.status === 'catalog-unavailable') {
+      console.error({ event: 'pathfinder_digest_catalog_unavailable' });
+      return NextResponse.json({ success: false, ...result }, { status: 503 });
+    }
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
     console.error({ event: 'pathfinder_digest_announce_failed', error: String(error) });

@@ -22,8 +22,13 @@ const SOURCE_KEY_PREFIX = 'pathfinder-digest';
 const BODY_SUMMARY_LIMIT = 180;
 
 export interface DigestAnnouncementResult {
-  /** 'created' 已发出；'duplicate' 今天已发过；'no-digest' 今天还没有日报 */
-  status: 'created' | 'duplicate' | 'no-digest';
+  /**
+   * - `created` 已发出
+   * - `duplicate` 这一期已发过
+   * - `no-digest` 上游还没出这一期（正常，上游会断更）
+   * - `catalog-unavailable` 读不到目录，**不是**「今天没有日报」
+   */
+  status: 'created' | 'duplicate' | 'no-digest' | 'catalog-unavailable';
   sourceKey?: string;
 }
 
@@ -46,7 +51,24 @@ function latestDigest(items: Awaited<ReturnType<typeof listCatalogItems>>) {
 }
 
 export async function announceDailyDigest(): Promise<DigestAnnouncementResult> {
-  const digest = latestDigest(await listCatalogItems());
+  const catalog = await listCatalogItems();
+
+  /*
+   * 先分清「上游没出」和「我们读不到」。
+   *
+   * `listCatalogItems` 在数据库不可用时会静默降级成仓库内的静态种子，而种子里
+   * 没有日报——两种情况都表现为「找不到日报」。这个任务一天只跑一次，
+   * 混为一谈的话，某天撞上数据库短暂不可用就会静默跳过当天通知、日志还显示成功。
+   * 实测撞到过一次：部署刚重启、目录缓存冷时的第一次调用就返回了 no-digest。
+   *
+   * 判据用「有没有来自数据库的条目」而不是「目录是不是空的」：生产的目录里
+   * 恒有数百条数据库条目，一条都没有只可能是降级。
+   */
+  if (!catalog.some((item) => item.origin === 'database')) {
+    return { status: 'catalog-unavailable' };
+  }
+
+  const digest = latestDigest(catalog);
   if (!digest) return { status: 'no-digest' };
 
   const day = (digest.publishedAt ?? digest.discoveredAt ?? '').slice(0, 10);

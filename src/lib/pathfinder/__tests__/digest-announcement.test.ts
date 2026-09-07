@@ -61,3 +61,28 @@ describe('日报通知', () => {
     expect(route).toContain('rateLimit');
   });
 });
+
+describe('读不到目录与上游没出稿要分开报', () => {
+  it('目录降级时返回 catalog-unavailable，不是 no-digest', () => {
+    /*
+     * listCatalogItems 在数据库不可用时会静默降级成仓库内的静态种子，
+     * 而种子里没有日报——两种情况都表现为「找不到日报」。这个任务一天
+     * 只跑一次，混为一谈的话，某天撞上数据库短暂不可用就会静默跳过当天
+     * 通知、日志还显示成功。实测撞到过一次：部署刚重启、目录缓存冷时的
+     * 第一次调用就返回了 no-digest。
+     */
+    const lib = read('lib', 'pathfinder', 'digest-announcement.ts');
+    expect(lib).toContain("status: 'catalog-unavailable'");
+    // 判据是「有没有数据库来源的条目」，不是「目录空不空」
+    expect(lib).toContain("item.origin === 'database'");
+  });
+
+  it('cron 路由把读不到目录报成失败，让包装脚本非零退出', () => {
+    // 报成功的话，静默跳过当天通知就没人会发现
+    const route = read('app', 'api', 'cron', 'pathfinder-digest', 'route.ts');
+    expect(route).toContain('catalog-unavailable');
+    expect(route).toContain('503');
+    expect(route).toContain('success: false');
+  });
+});
+
