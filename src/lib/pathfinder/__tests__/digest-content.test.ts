@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 // 单测没有 Next 的缓存上下文；与 api/admin/pathfinder 的测试同一种处理
@@ -210,6 +212,36 @@ describe('把行内链接提到行首', () => {
   it('句尾只有单条链接且无小标题时不硬拆', () => {
     const single = '一句话带一个链接。[详情](https://x/p/a)';
     expect(restructureDigestBody(single)).toBe(single);
+  });
+});
+
+describe('资讯摘要的公开窗口比普通动态短', () => {
+  it('两档窗口都写在 sync.ts 里，且日报那档明显更短', () => {
+    /*
+     * 日更来源按天累积：180 天窗口下会攒出约 180 条日报，双语就是 360 个
+     * sitemap URL——按整站 826 个算，四成会是过期新闻。而一份两个月前的
+     * AI 日报没有回看价值，和「某个模型发布了」那类单条动态不是一回事。
+     *
+     * 对着源码断言而不是跑 SQL：归档发生在数据库里，单测没有真 Postgres
+     * （见 posts-feed-sql.test.ts 的同类做法）。这里要钉的是「两档存在
+     * 且日报更短」这个不变量，防止有人把它改回一档。
+     */
+    const src = readFileSync(path.join(__dirname, '..', 'ingestion', 'sync.ts'), 'utf-8');
+    const read = (name: string) => Number(src.match(new RegExp(`${name} = (\\d+)`))?.[1]);
+    const ai = read('AI_UPDATE_WINDOW_DAYS');
+    const digest = read('DIGEST_WINDOW_DAYS');
+    expect(ai).toBeGreaterThan(0);
+    expect(digest).toBeGreaterThan(0);
+    expect(digest).toBeLessThan(ai / 4);
+  });
+
+  it('归档按来源分档，不是只按条目类型', () => {
+    // 两者都是 ai-update，只能靠来源的 digest 标志区分
+    const src = readFileSync(path.join(__dirname, '..', 'ingestion', 'sync.ts'), 'utf-8');
+    const fn = src.slice(src.indexOf('async function archiveOldAiUpdates'));
+    expect(fn).toContain('source.digest');
+    expect(fn).toContain('DIGEST_WINDOW_DAYS');
+    expect(fn).toContain('AI_UPDATE_WINDOW_DAYS');
   });
 });
 

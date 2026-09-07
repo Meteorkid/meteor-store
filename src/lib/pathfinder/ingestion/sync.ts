@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { and, eq, inArray, or, sql, type SQLWrapper } from 'drizzle-orm';
+import { and, eq, inArray, not, or, sql, type SQLWrapper } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderItemTags, pathfinderSources } from '@/lib/db/schema';
 import { fetchPathfinderSource } from './fetch-source';
@@ -563,13 +563,42 @@ async function markUnverifiedLearningItemsStale(now: Date) {
   return rows.length;
 }
 
+/** AI 动态的公开窗口。单条技术发布过一段时间仍有查阅价值。 */
+const AI_UPDATE_WINDOW_DAYS = 180;
+
+/**
+ * 资讯摘要的公开窗口，比普通 AI 动态短得多。
+ *
+ * 日更来源按天累积：180 天窗口下会攒出约 180 条日报，双语就是 360 个
+ * sitemap URL——按现在整站 826 个算，四成会是过期新闻。而一份两个月前的
+ * AI 日报没有任何回看价值，它和「某个模型发布了」那类单条动态不是一回事：
+ * 后者过一阵仍可查阅，前者只在当天成立。
+ *
+ * 短窗口同时压掉部署后的冷启动面：日报详情页要现抓现渲染上游全文
+ * （见 digest-content.ts），窗口越长，一次部署后待重算的页面就越多。
+ */
+const DIGEST_WINDOW_DAYS = 14;
+
 async function archiveOldAiUpdates(now: Date) {
-  const archiveBefore = new Date(now.getTime() - 180 * 86_400_000).toISOString();
   const updatedAt = now.toISOString();
+  const digestSourceIds = PATHFINDER_SYNC_SOURCES
+    .filter((source) => source.digest)
+    .map((source) => source.id);
+
+  const cutoff = (days: number) => new Date(now.getTime() - days * 86_400_000).toISOString();
+  const isStale = (days: number) => sql`coalesce(${pathfinderItems.publishedAt}, ${pathfinderItems.discoveredAt}) < ${cutoff(days)}`;
+  // 没有资讯摘要来源时 inArray 会生成恒假条件，等价于只跑普通那档
+  const isDigest = digestSourceIds.length > 0
+    ? inArray(pathfinderItems.sourceId, digestSourceIds)
+    : sql`false`;
+
   const rows = await db.update(pathfinderItems).set({ status: 'archived', updatedAt }).where(and(
     eq(pathfinderItems.status, 'published'),
     eq(pathfinderItems.itemType, 'ai-update'),
-    sql`coalesce(${pathfinderItems.publishedAt}, ${pathfinderItems.discoveredAt}) < ${archiveBefore}`,
+    or(
+      and(isDigest, isStale(DIGEST_WINDOW_DAYS)),
+      and(not(isDigest), isStale(AI_UPDATE_WINDOW_DAYS)),
+    ),
   )).returning({ id: pathfinderItems.id });
   return rows.length;
 }
