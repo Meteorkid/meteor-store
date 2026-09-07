@@ -70,11 +70,14 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
 crontab 每天调用一次受版本控制的包装脚本，密钥与其它 Pathfinder 任务共用：
 
 ```cron
-7 7 * * * /usr/bin/flock -n /run/lock/meteor-pathfinder-digest.lock /usr/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/pathfinder-digest-cron.mjs 2>&1 | /usr/bin/logger -t meteor-pathfinder-digest
+7 9 * * * /usr/bin/flock -n /run/lock/meteor-pathfinder-digest.lock /usr/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/pathfinder-digest-cron.mjs 2>&1 | /usr/bin/logger -t meteor-pathfinder-digest
 ```
 
-选早上 7 点：上游 06:00（北京时间）出稿，抓取 cron 在 06:27 那轮入库，7:07
-时那一期已经在目录里了。
+**选北京时间 09:07，不是早上 7 点。** 服务器时区是 Asia/Shanghai，所以 crontab
+里的时间就是北京时间。实测上游在 UTC 22:49–23:16 出稿（北京 06:49–07:16），
+而我们的抓取要到 **UTC 00:27 = 北京 08:27** 才把它入库——排在 7 点会赶在入库
+之前，那天什么都发不出去。09:07 比入库晚 40 分钟，也不与已有的 9:17 / 9:37 /
+9:52 三个任务撞车。
 
 - **幂等由 `announcements.source_key` 的唯一索引保证**（迁移 `0045`），键是
   `pathfinder-digest:{那一期的发布日}`。补跑、重试、手动触发都落在同一行上，
