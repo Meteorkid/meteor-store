@@ -62,6 +62,35 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
     /usr/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/pathfinder-deadlines-cron.mjs
     ```
 
+## 日报通知（每天自动发进铃铛）
+
+当天的资讯日报会作为一条公告发进通知箱（Header 铃铛）。日报是全站唯一每天
+都有新内容的东西，不推送的话只有主动打开发现页侧栏才看得到。
+
+crontab 每天调用一次受版本控制的包装脚本，密钥与其它 Pathfinder 任务共用：
+
+```cron
+7 7 * * * /usr/bin/flock -n /run/lock/meteor-pathfinder-digest.lock /usr/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/pathfinder-digest-cron.mjs 2>&1 | /usr/bin/logger -t meteor-pathfinder-digest
+```
+
+选早上 7 点：上游 06:00（北京时间）出稿，抓取 cron 在 06:27 那轮入库，7:07
+时那一期已经在目录里了。
+
+- **幂等由 `announcements.source_key` 的唯一索引保证**（迁移 `0045`），键是
+  `pathfinder-digest:{那一期的发布日}`。补跑、重试、手动触发都落在同一行上，
+  铃铛里不会堆出重复通知。人工发的公告 `source_key` 为 null——它们可以重复，
+  「同一件事再说一遍」是合理操作，而 Postgres 不约束多个 null。
+- **键用那一期自己的发布日，不是运行当天**：上游偶尔断更（实测 36 天出 30 期），
+  用运行当天做键会在断更那天把昨天那期当成新的再发一遍。断更时接口返回
+  `duplicate`，这是正常的，不算失败。
+- **通知正文自带当天综述**，不只给一个链接：铃铛面板里读完就走是常态，
+  不点也该知道发生了什么；链接是给想读全文的人的。
+- **铃铛只把本站链接渲染成可点的**，外站地址保持纯文本。公告目前只有管理员
+  和定时任务能写，但把任意外链变成可点是另一回事——将来若开放更多写入路径，
+  那里就是钓鱼链接的入口。用 React 元素拼接而不是 innerHTML，没有注入面。
+- 部署顺序：**先执行 `0045` 迁移再部署应用**。列是 additive，旧应用不受影响，
+  但新代码写入 `source_key` 时列不存在会直接报错。
+
 ## AI 动态解读（DeepSeek 起草 + 人工确认）
 
 详情页的「这条动态对你意味着什么」由 DeepSeek 依据条目自身的来源材料起草，

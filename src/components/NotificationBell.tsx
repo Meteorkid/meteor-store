@@ -167,7 +167,11 @@ export default function NotificationBell() {
                           {date && <span className="t-footnote ml-2 font-normal text-white/60">{date}</span>}
                         </p>
                       )}
-                      {body && <p className="mt-1 text-sm leading-relaxed text-white/70 whitespace-pre-wrap">{body}</p>}
+                      {body && (
+                        <p className="mt-1 text-sm leading-relaxed text-white/70 whitespace-pre-wrap">
+                          <AnnouncementBody text={body} />
+                        </p>
+                      )}
                       {!title && date && <p className="t-footnote text-white/60">{date}</p>}
                     </li>
                   );
@@ -178,5 +182,42 @@ export default function NotificationBell() {
         </div>
       )}
     </div>
+  );
+}
+
+/** 正文里的站内链接。只认自己的域名，外站地址仍按纯文本显示。 */
+const INTERNAL_LINK = /(https?:\/\/[^\s]+)/g;
+
+/**
+ * 把正文里的站内链接渲染成可点的。
+ *
+ * 公告正文是纯文本，此前 URL 只能显示成一串不能点的字——自动发的日报通知
+ * 正好要带一个「读全文」的地址，不可点等于让人手动复制。
+ *
+ * **只放行本站地址**：公告由管理员和定时任务写入，但把任意外链变成可点
+ * 是另一回事——将来若开放更多写入路径，这里就是钓鱼链接的入口。
+ * 外站地址保持纯文本，看得见、点不了。
+ *
+ * 用 React 元素拼接而不是 dangerouslySetInnerHTML：文本经 React 转义，
+ * 天然没有注入面。
+ */
+function AnnouncementBody({ text }: { text: string }) {
+  const siteOrigin = typeof window === 'undefined' ? '' : window.location.origin;
+  return (
+    <>
+      {text.split(INTERNAL_LINK).map((part, index) => {
+        const isInternal = siteOrigin && part.startsWith(`${siteOrigin}/`);
+        if (!isInternal) return <span key={index}>{part}</span>;
+        return (
+          <a
+            key={index}
+            href={part}
+            className="text-violet-200 underline decoration-violet-300/40 underline-offset-4 hover:decoration-violet-200"
+          >
+            {part.slice(siteOrigin.length)}
+          </a>
+        );
+      })}
+    </>
   );
 }

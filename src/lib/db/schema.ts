@@ -247,6 +247,15 @@ export const feedbacks = pgTable('feedbacks', {
  */
 export const announcements = pgTable('announcements', {
   id: text('id').primaryKey(),                        // crypto.randomUUID()
+  /*
+   * 自动生成的公告的幂等键，例如 `pathfinder-digest:2026-09-07`。
+   *
+   * 人工发的公告为 null——它们可以重复，「同一件事再说一遍」是合理操作。
+   * 自动任务不行：cron 补跑、重试或手动触发都必须落在同一行上，否则
+   * 铃铛里会出现两条一模一样的通知。唯一索引让重复写入直接失败，
+   * 而不是靠「先查后写」——那在并发下挡不住。
+   */
+  sourceKey: text('source_key'),
   titleZh: text('title_zh'),
   titleEn: text('title_en'),
   bodyZh: text('body_zh'),
@@ -258,6 +267,8 @@ export const announcements = pgTable('announcements', {
 }, (t) => [
   // 公开接口：只取已发布，按发布时间倒序
   index('announcements_published_idx').on(t.published, t.publishedAt),
+  // 自动公告的幂等保证；人工公告 sourceKey 为 null，Postgres 不约束多个 null
+  uniqueIndex('announcements_source_key_idx').on(t.sourceKey),
 ]);
 
 export const inviteCodes = pgTable('invite_codes', {
