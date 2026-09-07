@@ -86,3 +86,23 @@ describe('读不到目录与上游没出稿要分开报', () => {
   });
 });
 
+describe('部署不得把构建机的缓存送上生产', () => {
+  it('打包排除 .next/cache', () => {
+    /*
+     * 服务器解包前会 mv .next .next.rollback 再整包展开，所以本地 .next/cache
+     * 会原样替换线上那份；而 unstable_cache / fetch 缓存就存在
+     * .next/cache/fetch-cache 里。
+     *
+     * 本地 .env.production 指向 2026-09-02 已停用的 Neon 库（实测仍可连、
+     * 有 276 条旧 pathfinder_items、0 条日报），于是每次部署都把一份来自
+     * 已停用数据库的目录快照送上线。实测后果就是本文件上面那个 no-digest：
+     * 快照里有数据库来源的条目（catalog-unavailable 守卫因此不触发）却没有日报。
+     */
+    const deploy = readFileSync(path.join(__dirname, '..', '..', '..', '..', 'deploy', 'deploy-local.sh'), 'utf-8');
+    const tarLine = deploy.split('\n').find((line) => line.includes('tar -czf') && line.includes('.next'));
+    expect(tarLine).toBeTruthy();
+    expect(tarLine).toContain("--exclude='.next/cache'");
+    expect(tarLine).toContain("--exclude='.next/dev'");
+  });
+});
+

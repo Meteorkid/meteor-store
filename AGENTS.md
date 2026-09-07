@@ -1382,6 +1382,15 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - **部署方式**: **push 到 main 不会自动部署**。服务器只有 2G 内存，`pnpm build` 会 OOM，
   所以构建放在本地：`bash deploy/deploy-local.sh`（本地构建 → 上传 `.next` → 重启 PM2）。
   `.github/workflows/deploy.yml` 是 `workflow_dispatch` 手动触发的备选路径，不由 push 触发
+- **构建机的 `.next/cache` 绝不上生产**（`deploy-local.sh` 已 `--exclude='.next/cache'`）。
+  服务器解包前 `mv .next .next.rollback` 再整包展开，所以本地缓存会原样替换线上那份，
+  而 `unstable_cache` / fetch 缓存就存在 `.next/cache/fetch-cache` 里。
+  **本地 `.env.production` 指向的是 2026-09-02 已停用的 Neon 库**（实测仍可连、
+  有 276 条旧 `pathfinder_items`、0 条日报），于是每次部署都会把一份来自已停用
+  数据库的目录快照送上线，真实用户在 revalidate 到期前看到缺了迁库之后全部内容的旧目录。
+  实测症状很隐蔽：部署后第一次调用日报通知接口返回 `no-digest`——快照里有数据库
+  来源的条目、却没有日报。**本地那份 `.env.production` 仍是旧的，需要时手动更新；
+  它只影响本地构建，服务器上那份是对的。**
 - **环境变量在服务器上**：`/var/www/meteor-store/.env.production`，部署脚本**不会**同步它，
   改完要 `pm2 restart meteor-store --update-env`
 

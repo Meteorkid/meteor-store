@@ -54,7 +54,18 @@ rm -f "$TAR"
 #     散落进服务器的 .next 与仓库工作区（线上已经积了一批 ._proxy.ts、._page.tsx 之类）
 #   --no-xattrs         —— 不写 com.apple.provenance 等扩展属性头，否则服务器端
 #     解包时每个文件刷一行 "Ignoring unknown extended header keyword"，淹掉真正的输出
-COPYFILE_DISABLE=1 tar -czf "$TAR" --no-xattrs --exclude='.next/dev' -C . .next
+#
+#   --exclude='.next/cache'  —— **构建机的缓存绝不能上生产**。服务器解包前会
+#     `mv .next .next.rollback` 再整包展开，所以本地 .next/cache 会原样替换掉
+#     线上那份；而 unstable_cache / fetch 缓存就存在 .next/cache/fetch-cache 里。
+#     本地 .env.production 指向的是 2026-09-02 已停用的 Neon 库（实测仍可连、
+#     有 276 条旧 pathfinder_items、0 条日报），于是每次部署都把一份**来自
+#     已停用数据库的目录快照**送上线，真实用户在 revalidate 到期前看到的是
+#     缺了迁库之后全部内容的旧目录。
+#     实测后果：部署后第一次调用日报通知接口返回 no-digest——快照里有数据库
+#     来源的条目（守卫因此不触发）却没有日报。
+#     排除之后服务器冷启动自行从真实库重建，这也正是下面「预热」那步一直假设的状态。
+COPYFILE_DISABLE=1 tar -czf "$TAR" --no-xattrs --exclude='.next/dev' --exclude='.next/cache' -C . .next
 echo "   产物 $(du -h "$TAR" | cut -f1)"
 
 echo "==> 3. 上传 .next 到服务器"
