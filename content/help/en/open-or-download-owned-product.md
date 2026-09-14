@@ -43,9 +43,11 @@ If macOS blocks the app on first launch with a "cannot be verified" warning, fol
 
 ## macOS: what to do when an app will not open
 
+The XIsland and XNook macOS packages currently available from Meteor Store have not been signed with a Developer ID certificate or notarized by Apple. macOS may show a security warning when you first open them.
+
 This section covers the specific warning that says the developer cannot be verified or Apple cannot check the app for malicious software. If macOS reports that the app is damaged or will damage your computer, stop here — delete the file, download it again from the official product page, and contact technical support if the warning persists.
 
-For the "cannot be verified" warning, use Apple's built-in Open Anyway feature:
+For the "cannot be verified" warning, confirm that the file came from the official product page, then choose Open Anyway in System Settings → Privacy & Security:
 
 1. Try to open the app once in Finder — the security warning will appear. Dismiss it.
 2. Open System Settings from the Apple menu.

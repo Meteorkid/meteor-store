@@ -2,9 +2,11 @@
 
 macOS uses Gatekeeper to check apps downloaded from the internet. These checks cover the developer signature, Apple notarization status, and whether the file has been modified. Distribution outside the App Store does not by itself mean an app cannot be opened, and different warnings require different responses.
 
+The XIsland and XNook macOS packages currently available from Meteor Store have not been signed with a Developer ID certificate or notarized by Apple. macOS may show a security warning when you first open them.
+
 Continue with the steps below only if you downloaded the app from an official Meteor Store product page, the filename is what you expected, and the warning says that the developer cannot be verified or Apple cannot check the app for malicious software.
 
-## Use Open Anyway
+## Use Open Anyway in Privacy & Security
 
 1. Try to open the app once in Finder, then dismiss the security warning.
 2. Open System Settings from the Apple menu.

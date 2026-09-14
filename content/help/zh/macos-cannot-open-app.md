@@ -2,11 +2,13 @@
 
 macOS 使用 Gatekeeper 检查从互联网下载的 App，包括开发者签名、Apple 公证状态，以及文件是否被改动。App 没有通过 App Store 分发，不等于它一定无法打开；不同安全提示也需要采用不同处理方式。
 
+当前 Meteor Store 提供的 XIsland 和 XNook macOS 安装包尚未完成开发者签名和 Apple 公证，首次打开时可能出现安全提示。
+
 只有在你从 Meteor Store 官方产品页下载、文件名符合预期，并且看到“无法验证开发者”或“Apple 无法检查其是否包含恶意软件”一类提示时，才继续下面的步骤。
 
 ![macOS Gatekeeper 安全警告弹窗](/help/macos-cannot-open-app/shared/step-01-security-warning.webp "macOS 提示无法验证开发者的安全警告弹窗")
 
-## 使用“仍要打开”
+## 在“隐私与安全性”中使用“仍要打开”
 
 1. 在“访达”中尝试打开这个 App 一次，然后关闭出现的安全提示。
 2. 打开苹果菜单中的“系统设置”。
