@@ -137,7 +137,7 @@ export default function AuthForm({
           href={next}
           className="inline-block rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
         >
-          {t('backHome')}
+          {t(next === '/' ? 'backHome' : 'continue')}
         </Link>
       </div>
     );

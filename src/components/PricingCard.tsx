@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
 import { CheckIconSm } from './CheckIcon';
 import PaymentModal from './PaymentModal';
 import { useAuth } from './AuthProvider';
+import { buildLoginHref } from '@/lib/login-return';
 
 import type { PassPlanId } from '@/data/pass';
 
@@ -49,6 +50,7 @@ export default function PricingCard({
   const [claiming, setClaiming] = useState(false);
   const [claimError, setClaimError] = useState('');
   const t = useTranslations('PricingCard');
+  const locale = useLocale();
   const router = useRouter();
   const { user } = useAuth();
 
@@ -60,7 +62,7 @@ export default function PricingCard({
   const handleClaim = async () => {
     if (!productId) return;
     if (!user) {
-      router.push('/login');
+      router.push(buildLoginHref(`/products/${productId}#pricing`));
       return;
     }
     setClaiming(true);
@@ -73,7 +75,8 @@ export default function PricingCard({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      router.push('/apps');
+      // 完整导航重新读取授权，避免返回同一产品页时沿用领取前的客户端状态。
+      window.location.assign(`/${locale}/apps/${productId}`);
     } catch (err) {
       setClaimError(err instanceof Error ? err.message : t('claimFailed'));
       setClaiming(false);

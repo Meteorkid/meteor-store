@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
 import type { Entitlement } from '@/lib/entitlements';
+import { buildLoginHref } from '@/lib/login-return';
 
 interface DownloadCardProps {
   productId: string;
@@ -117,7 +118,7 @@ export default function DownloadCard({
   // 门控下载：未登录 / 未授权时给引导，不给链接
   if (!user) {
     return (
-      <Link href="/login" className={cardClass}>
+      <Link href={buildLoginHref(`/products/${productId}#download`)} className={cardClass}>
         {body}
         {lockIcon}
         <span className="sr-only">{t('downloadLoginHint')}</span>

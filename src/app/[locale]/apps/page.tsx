@@ -1,6 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getSession } from '@/lib/auth';
 import { getUserEntitlementSummary } from '@/lib/entitlements';
+import { findProduct } from '@/lib/products';
+import { getProductAccess } from '@/lib/product-access';
+import { buildLoginHref } from '@/lib/login-return';
 import type { PassPlanId } from '@/data/pass';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -58,7 +61,7 @@ export default async function MyAppsPage({ params }: MyAppsPageProps) {
               <svg className="mx-auto mb-4 w-10 h-10 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
               <p className="mb-6 text-white/60">{t('loginHint')}</p>
               <Link
-                href="/login"
+                href={buildLoginHref('/apps')}
                 className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-gray-200"
               >
                 {t('loginToContinue')}
@@ -95,31 +98,37 @@ export default async function MyAppsPage({ params }: MyAppsPageProps) {
             )
           ) : (
             <ul className="space-y-4">
-              {entitlements.map((e) => (
-                <li
-                  key={e.productId}
-                  className="glass-card flex items-center justify-between rounded-2xl p-5"
-                >
-                  <div>
-                    <h2 className="text-lg font-semibold text-white">{e.productName}</h2>
-                    <p className="mt-1 text-sm text-white/50">
-                      {/* Pass 的档位由 passPlanId 本地化渲染，
-                          planName 里不再塞中文，否则英文站会冒出「年付」 */}
-                      {e.viaPass && e.passPlanId
-                        ? `${e.planName} · ${passPlanLabels[e.passPlanId]}`
-                        : e.planName}
-                      {!e.viaPass && e.billingPeriod === 'annual' ? ' · ' + t('annual') : ''}
-                      {e.expiresAt ? ' · ' + t('passExpires', { date: formatExpiry(e.expiresAt) }) : ''}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/apps/${e.productId}`}
-                    className="shrink-0 rounded-full bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
+              {entitlements.map((e) => {
+                const product = findProduct(e.productId);
+                if (!product) return null;
+                const access = getProductAccess(product);
+
+                return (
+                  <li
+                    key={e.productId}
+                    className="glass-card flex items-center justify-between rounded-2xl p-5"
                   >
-                    {t('launch')}
-                  </Link>
-                </li>
-              ))}
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">{e.productName}</h2>
+                      <p className="mt-1 text-sm text-white/50">
+                        {/* Pass 的档位由 passPlanId 本地化渲染，
+                            planName 里不再塞中文，否则英文站会冒出「年付」 */}
+                        {e.viaPass && e.passPlanId
+                          ? `${e.planName} · ${passPlanLabels[e.passPlanId]}`
+                          : e.planName}
+                        {!e.viaPass && e.billingPeriod === 'annual' ? ' · ' + t('annual') : ''}
+                        {e.expiresAt ? ' · ' + t('passExpires', { date: formatExpiry(e.expiresAt) }) : ''}
+                      </p>
+                    </div>
+                    <Link
+                      href={access.href}
+                      className="shrink-0 rounded-full bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
+                    >
+                      {t(access.action)}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

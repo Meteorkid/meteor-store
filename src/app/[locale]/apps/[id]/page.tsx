@@ -2,9 +2,10 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Link } from '@/i18n/navigation';
+import { Link, redirect } from '@/i18n/navigation';
 import { appComponents } from '@/components/apps/registry';
 import { findProduct } from '@/lib/products';
+import { getProductAccess } from '@/lib/product-access';
 import { getSession } from '@/lib/auth';
 import { getUserEntitlements } from '@/lib/entitlements';
 import { getTollowAccess } from '@/lib/tollow-access';
@@ -28,11 +29,15 @@ interface AppPageProps {
 export default async function AppPage({ params }: AppPageProps) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'AppPage' });
   const tPaywall = await getTranslations({ locale, namespace: 'Paywall' });
 
   const product = findProduct(id);
   if (!product) notFound();
+
+  const renderApp = appComponents[id];
+  if (!renderApp) {
+    redirect({ href: getProductAccess(product).href, locale });
+  }
 
   const session = await getSession();
   const tollowAccess = session && id === TOLLOW_PRODUCT_ID
@@ -45,8 +50,6 @@ export default async function AppPage({ params }: AppPageProps) {
     ? tollowAccess.level !== 'none'
     : entitlements.some((e) => e.productId === id);
 
-  const renderApp = appComponents[id];
-
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
@@ -55,20 +58,11 @@ export default async function AppPage({ params }: AppPageProps) {
         <p className="mb-10 text-white/50">{product.tagline.zh}</p>
 
         {hasAccess ? (
-          renderApp ? (
-            renderApp({
-              locale,
-              userId: session?.userId,
-              tollowAccessLevel: tollowAccess?.level,
-            })
-          ) : (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-              <div className="mb-4 text-4xl">🚧</div>
-              <p className="text-white/60">
-                {t('placeholder', { name: product.name.zh })}
-              </p>
-            </div>
-          )
+          renderApp({
+            locale,
+            userId: session?.userId,
+            tollowAccessLevel: tollowAccess?.level,
+          })
         ) : (
           <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
             <div className="mb-4 text-4xl">🔒</div>
