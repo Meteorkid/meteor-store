@@ -4,11 +4,11 @@
 # 用法：bash scripts/health-check.sh [url]
 #
 # crontab 示例（每 5 分钟）：
-#   */5 * * * * /bin/bash /var/www/meteor-store/scripts/health-check.sh https://imagentx.top
+#   */5 * * * * /bin/bash /var/www/meteor-store/scripts/health-check.sh https://www.imagentx.top
 # ============================================================
 set -euo pipefail
 
-SITE_URL="${1:-${NEXT_PUBLIC_SITE_URL:-https://imagentx.top}}"
+SITE_URL="${1:-${NEXT_PUBLIC_SITE_URL:-https://www.imagentx.top}}"
 HEALTH_URL="${SITE_URL}/api/health"
 LOG_FILE="${HEALTH_CHECK_LOG_FILE:-/tmp/meteor-store-health-check.log}"
 ALERT_HOOK="${HEALTH_ALERT_WEBHOOK:-}"  # 飞书/Discord/Slack webhook URL
