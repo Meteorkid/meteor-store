@@ -1404,7 +1404,7 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - **环境变量在服务器上**：`/var/www/meteor-store/.env.production`，部署脚本**不会**同步它，
   改完要 `pm2 restart meteor-store --update-env`
 
-## 每日一新（2026-10-15 已上线，论文来源修复待部署验证）
+## 每日一新（2026-10-15 已上线）
 
 - 独立阅读页 `/daily`、后台 `/admin/daily`；栏目协议与配置在 `src/lib/daily/types.ts`，服务在 `service.ts`，来源适配在 `content.ts`。同一天同栏目只保存一份公共内容，个人只保存选择与提醒开关。
 - 新表迁移 `0046` 已在生产执行。偏好纳入账号导出和注销；私人响应 `no-store`，不要混入公开公告缓存。
@@ -1413,7 +1413,7 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - 采集重跑不覆盖已发布/待审稿；编辑使用 `expectedUpdatedAt` 条件更新。采集完成后才记发布时间，发布中的修订保留原发布时间。
 - 每天北京时间 09:30 固定一次提醒快照，无稿也存空快照；晚到内容不补入，同一天不重复提醒。系统公告与日刊提醒分开，双铃铛共享请求和已读，缓存按账号隔离。
 - `scripts/daily-cron.mjs generate|remind` 与其它任务共用 `PATHFINDER_CRON_SECRET`，生产分别在 08:40、09:30 执行。旧 `pathfinder-digest` 接口鉴权后返回 `retired`，原广播调度已替换；后续改调度仍须同步真实 crontab 并检查日志。
-- 首次生产论文生成触发 10 秒超时；后续延长超时探测发现完整 arXiv RSS 需约 81 秒。修复已改用官方 API（`max_results=20`）与 Atom 解析，专项与全量测试通过，但修复部署及生产论文生成结果尚待确认。交付记录见 `docs/process/2026-10-15-daily-masters-release.md`。
+- 论文使用 arXiv 官方 API 限量读取最新 20 条并解析 Atom，以首发日期筛选近七天论文；保留历史 RSS 解析兼容。`dfa2c58` 已在线验证生成 3 篇草稿，重复运行不覆盖已有内容。交付记录见 `docs/process/2026-10-15-daily-masters-release.md`。
 
 ## 硕士申请日历（2026-10-15 已上线，首批内容待审核）
 
