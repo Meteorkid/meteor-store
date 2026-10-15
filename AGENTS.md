@@ -1399,6 +1399,16 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - **环境变量在服务器上**：`/var/www/meteor-store/.env.production`，部署脚本**不会**同步它，
   改完要 `pm2 restart meteor-store --update-env`
 
+## 每日一新（代码已完成，生产调度待上线）
+
+- 独立阅读页 `/daily`、后台 `/admin/daily`；栏目协议与配置在 `src/lib/daily/types.ts`，服务在 `service.ts`，来源适配在 `content.ts`。同一天同栏目只保存一份公共内容，个人只保存选择与提醒开关。
+- 新表迁移为 `0046`，先迁移后部署。偏好纳入账号导出和注销；私人响应 `no-store`，不要混入公开公告缓存。
+- `null` 偏好代表尚未设置，`channels: []` 是用户明确空选。游客不覆盖已有账号设置；写偏好要核对 `X-Daily-User` 与当前会话，避免切换账号时旧请求写入新账号。
+- 英语与论文采集结果先入草稿，管理员审核后发布；AI 只复用当天已公开数据库资讯。论文保留原始摘要/版本/预印本标识，活动须官方来源及确认时区。无新稿和失败必须分开。
+- 采集重跑不覆盖已发布/待审稿；编辑使用 `expectedUpdatedAt` 条件更新。采集完成后才记发布时间，发布中的修订保留原发布时间。
+- 每天北京时间 09:30 固定一次提醒快照，无稿也存空快照；晚到内容不补入，同一天不重复提醒。系统公告与日刊提醒分开，双铃铛共享请求和已读，缓存按账号隔离。
+- `scripts/daily-cron.mjs generate|remind` 与其它任务共用 `PATHFINDER_CRON_SECRET`。旧 `pathfinder-digest` 接口改为鉴权后返回 `retired`，不再广播；上线时必须同时切换真实 crontab 并验证日志。具体操作与回滚见 `docs/process/daily-fresh.md`，当前不能把本地验收当成线上已运行。
+
 ## 联系方式
 
 - **开发者**: meteor

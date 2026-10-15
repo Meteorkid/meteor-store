@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { pickAnnouncementText, type Announcement } from '@/lib/announcement-text';
+import { useAuth } from '@/components/AuthProvider';
+import { Link } from '@/i18n/navigation';
+import { dailyChannels } from '@/lib/daily/types';
+import { EMPTY_REMINDER_STATE, ensureDailyReminder, getReminderState, markDailyReminderRead, subscribeDailyReminder, syncDailyReminderRead } from '@/lib/daily/reminder-client';
 
 /**
  * 上次打开铃铛的时间（ISO 字符串）。存一个分界点而不是已读 id 数组——
@@ -95,6 +99,9 @@ function formatDate(value: string, locale: string): string {
 export default function NotificationBell() {
   const t = useTranslations('NotificationBell');
   const locale = useLocale();
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const daily = useSyncExternalStore(subscribeDailyReminder, () => getReminderState(userId), () => EMPTY_REMINDER_STATE);
   const items = useSyncExternalStore(subscribe, getItems, () => SERVER_ITEMS);
   const readAt = useSyncExternalStore(subscribe, getReadAt, () => SERVER_READ_AT);
   const [open, setOpen] = useState(false);
@@ -105,6 +112,24 @@ export default function NotificationBell() {
   }, []);
 
   useEffect(() => {
+    if (!userId) return;
+    ensureDailyReminder(userId);
+    const refresh = () => ensureDailyReminder(userId);
+    const preferencesChanged = () => ensureDailyReminder(userId, true);
+    const syncRead = () => syncDailyReminderRead(userId);
+    const timer = window.setInterval(refresh, 60_000);
+    window.addEventListener('focus', refresh);
+    window.addEventListener('daily-preferences-changed', preferencesChanged);
+    window.addEventListener('storage', syncRead);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+      window.removeEventListener('daily-preferences-changed', preferencesChanged);
+      window.removeEventListener('storage', syncRead);
+    };
+  }, [userId]);
+
+  useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
@@ -112,11 +137,18 @@ export default function NotificationBell() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
+  useEffect(() => {
+    if (open && userId && daily.reminder && daily.reminder.date > daily.readDate) {
+      markDailyReminderRead(userId);
+    }
+  }, [open, userId, daily.reminder, daily.readDate]);
+
   // ISO 时间戳按字典序比较即等于按时间比较；readAt 为空串时全部算未读
-  const unread = items !== null && items.some((a) => announcedAt(a) > readAt);
+  const unread = (items !== null && items.some((a) => announcedAt(a) > readAt)) || Boolean(daily.reminder && daily.reminder.date > daily.readDate);
 
   const togglePanel = () => {
     if (!open && items) markAllRead();
+    if (!open && userId) markDailyReminderRead(userId);
     setOpen(!open);
   };
 
@@ -149,6 +181,15 @@ export default function NotificationBell() {
             <p className="text-sm font-medium text-white">{t('title')}</p>
           </div>
           <div className="max-h-96 overflow-y-auto">
+            <div className="border-b border-white/10 px-4 py-3">
+              <Link href={daily.reminder ? `/daily?date=${daily.reminder.date}` : '/daily'} className="t-title-4 text-violet-200 underline-offset-4 hover:underline">
+                {locale === 'en' ? 'Daily Fresh' : '每日一新'} →
+              </Link>
+              {daily.reminder && <p className="mt-1 t-footnote text-white/70">
+                {daily.reminder.date} · {dailyChannels.filter(channel => daily.reminder?.channels.includes(channel.id)).map(channel => locale === 'en' ? channel.en : channel.zh).join(' · ')}
+              </p>}
+              {daily.failed && <p className="mt-1 t-footnote text-white/60">{locale === 'en' ? 'Daily updates are temporarily unavailable.' : '每日更新暂时读取失败，可进入页面查看。'}</p>}
+            </div>
             {items === null ? (
               <p className="t-footnote px-4 py-6 text-center text-white/60">{t('loading')}</p>
             ) : items.length === 0 ? (

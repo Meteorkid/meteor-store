@@ -77,10 +77,12 @@ describe('读不到目录与上游没出稿要分开报', () => {
     expect(lib).toContain("item.origin === 'database'");
   });
 
-  it('cron 路由把读不到目录报成失败，让包装脚本非零退出', () => {
-    // 报成功的话，静默跳过当天通知就没人会发现
-    const route = read('app', 'api', 'cron', 'pathfinder-digest', 'route.ts');
-    expect(route).toContain('catalog-unavailable');
+  it('新的每日任务将采集失败报给调度器，旧入口不再全站广播', () => {
+    const legacy = read('app', 'api', 'cron', 'pathfinder-digest', 'route.ts');
+    expect(legacy).not.toContain('announceDailyDigest');
+    expect(legacy).toContain("status: 'retired'");
+    const route = read('app', 'api', 'cron', 'daily', 'route.ts');
+    expect(route).toContain("edition.status === 'failed'");
     expect(route).toContain('503');
     expect(route).toContain('success: false');
   });

@@ -1,5 +1,39 @@
 import { sql } from 'drizzle-orm';
-import { pgTable, text, integer, bigint, boolean, numeric, primaryKey, index, uniqueIndex, check } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, bigint, boolean, numeric, primaryKey, index, uniqueIndex, check, jsonb } from 'drizzle-orm/pg-core';
+import type { DailyChannelId, DailyEditionChannelId, DailyContent, DailyStatus } from '../daily/types';
+export const dailyEditions = pgTable('daily_editions', {
+  id: text('id').primaryKey(),
+  date: text('date').notNull(),
+  channel: text('channel').$type<DailyEditionChannelId>().notNull(),
+  status: text('status').$type<DailyStatus>().notNull(),
+  title: text('title').notNull(),
+  summary: text('summary').notNull(),
+  content: jsonb('content').$type<DailyContent>(),
+  sourceKey: text('source_key'),
+  error: text('error'),
+  publishedAt: text('published_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  uniqueIndex('daily_editions_date_channel_idx').on(t.date, t.channel),
+  uniqueIndex('daily_editions_source_idx').on(t.channel, t.sourceKey),
+  check('daily_editions_channel_check', sql`${t.channel} IN ('english', 'papers', 'ai', 'events')`),
+  check('daily_editions_status_check', sql`${t.status} IN ('draft', 'published', 'empty', 'failed')`),
+]);
+
+export const dailyPreferences = pgTable('daily_preferences', {
+  userId: text('user_id').primaryKey(),
+  channels: jsonb('channels').$type<DailyChannelId[]>().notNull(),
+  reminders: boolean('reminders').notNull().default(false),
+  updatedAt: text('updated_at').notNull(),
+});
+
+// 空快照也保存：09:30 后的补发不能让当天第二次重跑产生新提醒。
+export const dailyReminders = pgTable('daily_reminders', {
+  date: text('date').primaryKey(),
+  editionIds: jsonb('edition_ids').$type<string[]>().notNull(),
+  publishedAt: text('published_at').notNull(),
+});
 
 export const orders = pgTable('orders', {
   id: text('id').primaryKey(),                        // crypto.randomUUID()

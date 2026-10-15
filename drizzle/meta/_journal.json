@@ -323,6 +323,13 @@
       "when": 1788754250817,
       "tag": "0045_nappy_lenny_balinger",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1791974072150,
+      "tag": "0046_real_goblin_queen",
+      "breakpoints": true
     }
   ]
 }

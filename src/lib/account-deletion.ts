@@ -3,6 +3,7 @@ import { db } from './db';
 import {
   blogImages,
   comments,
+  dailyPreferences,
   feedbacks,
   inviteRedemptions,
   likes,
@@ -37,6 +38,7 @@ export async function deleteUserAccount(input: DeleteUserAccountInput): Promise<
   const postIds = userPosts.map((post) => post.id);
 
   const cleanup: Promise<unknown>[] = [
+    db.delete(dailyPreferences).where(eq(dailyPreferences.userId, input.userId)),
     db.delete(blogImages).where(eq(blogImages.userId, input.userId)),
     db.delete(personalAccessTokens).where(eq(personalAccessTokens.userId, input.userId)),
     db.delete(comments).where(eq(comments.authorId, input.userId)),

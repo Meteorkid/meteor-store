@@ -5,6 +5,7 @@ import { db } from './db';
 import {
   blogImages,
   comments,
+  dailyPreferences,
   feedbacks,
   inviteRedemptions,
   licenseKeys,
@@ -43,6 +44,7 @@ export async function exportUserData(userId: string, email: string) {
     tollowProgressRows,
     tollowSessionRows,
     tollowFavoriteRows,
+    dailyPreferenceRows,
   ] = await Promise.all([
     db.select({
       id: users.id,
@@ -193,6 +195,8 @@ export async function exportUserData(userId: string, email: string) {
       createdAt: tollowTextFavorites.createdAt,
       updatedAt: tollowTextFavorites.updatedAt,
     }).from(tollowTextFavorites).where(eq(tollowTextFavorites.userId, userId)),
+    db.select({ channels: dailyPreferences.channels, reminders: dailyPreferences.reminders, updatedAt: dailyPreferences.updatedAt })
+      .from(dailyPreferences).where(eq(dailyPreferences.userId, userId)),
   ]);
 
   const postIds = postRows.map((post) => post.id);
@@ -252,6 +256,7 @@ export async function exportUserData(userId: string, email: string) {
       likes: likeRows,
       reports: reportRows,
     },
+    daily: { preferences: dailyPreferenceRows[0] ?? null },
     tollow: {
       bookProgress: tollowProgressRows,
       practiceSessions: tollowSessionRows,

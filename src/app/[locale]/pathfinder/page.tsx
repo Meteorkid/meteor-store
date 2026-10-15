@@ -167,6 +167,12 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
           </div>
 
           <aside className="space-y-6">
+            <section className="rounded-2xl border border-white/10 p-5">
+              <p className="t-eyebrow text-violet-300">{locale === 'en' ? 'YOUR DAILY READING' : '每天，学一点新东西'}</p>
+              <h2 className="mt-2 t-title-3 text-white">{locale === 'en' ? 'Daily Fresh' : '每日一新'}</h2>
+              <p className="mt-3 text-sm leading-6 text-white/70">{locale === 'en' ? 'English, papers, AI updates and events. Choose the topics you care about.' : '英语、论文、AI 大事与发布会，自由选择你关注的栏目。'}</p>
+              <Link href="/daily" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-violet-200">{locale === 'en' ? 'Choose your daily reading' : '查看每日一新'} →</Link>
+            </section>
             {digest && (
               /*
                  资讯摘要单独放侧栏，不进 AI 动态主区。它答不上机会库那三个问题

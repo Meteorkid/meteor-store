@@ -8,7 +8,7 @@ import { users } from '@/lib/db/schema';
 export async function GET() {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ user: null });
+    return NextResponse.json({ user: null }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
   const [row] = await db
@@ -24,10 +24,11 @@ export async function GET() {
   return NextResponse.json({
     user: {
       ...session,
+      id: session.userId,
       avatarUrl: row?.avatarUrl ?? null,
       bio: row?.bio ?? null,
       isStudent: row?.isStudent ?? false,
       isAdmin: isAdminSession(session),
     },
-  });
+  }, { headers: { 'Cache-Control': 'no-store' } });
 }

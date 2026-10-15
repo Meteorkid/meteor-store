@@ -89,6 +89,8 @@ export default async function AccountPage({
   const isAdmin = isAdminSession(session);
 
   const quickLinks = [
+    { label: locale === 'en' ? 'Daily Fresh' : '每日一新', desc: locale === 'en' ? 'Choose your daily reading' : '选择栏目，组成你的每日阅读', href: '/daily', badge: null,
+      icon: <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4M16 12a4 4 0 11-8 0 4 4 0 018 0"/> },
     { label: t('quickApps'), desc: t('quickAppsDesc'), href: '/apps', badge: null,
       icon: <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/> },
     { label: t('quickPosts'), desc: t('quickPostsDesc'), href: '/blog/my-posts', badge: userPosts.length,

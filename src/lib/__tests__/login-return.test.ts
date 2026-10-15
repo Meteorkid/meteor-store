@@ -3,6 +3,11 @@ import { buildLoginHref, normalizeLoginReturn } from '../login-return';
 import { products } from '@/data/products';
 
 describe('normalizeLoginReturn', () => {
+  it('每日一新登录后回到阅读页，仍拒绝附加的任意跳转', () => {
+    expect(normalizeLoginReturn('/daily')).toBe('/daily');
+    expect(buildLoginHref('/daily')).toBe('/login?next=%2Fdaily');
+    expect(normalizeLoginReturn('/daily?next=https://evil.example')).toBe('/');
+  });
   it('保留原有体验页并允许返回我的产品', () => {
     expect(normalizeLoginReturn('/apps/ex-memory')).toBe('/apps/ex-memory');
     expect(normalizeLoginReturn('/apps/tollow/trial')).toBe('/apps/tollow/trial');

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STATIC_PATHFINDER_ITEMS } from '@/data/pathfinder/catalog-seeds';
 import type { PathfinderCatalogItem } from '../catalog-types';
 
@@ -26,10 +26,14 @@ const readTombstones = vi.mocked(readStaticPathfinderTombstones);
 describe('Pathfinder catalog repository', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    // 完整种子目录的断言固定在截止日前；过期行为在下方单独覆盖。
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-09-01T00:00:00Z'));
     listDatabaseItems.mockReset();
     listDatabaseItems.mockResolvedValue([]);
     readTombstones.mockResolvedValue({ ids: [], available: true });
   });
+  afterEach(() => vi.useRealTimers());
 
   it('数据库无动态条目时返回完整静态目录', async () => {
     const items = await listCatalogItems();

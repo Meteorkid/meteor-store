@@ -81,7 +81,7 @@ describe('健康检查脚本的故障通知', () => {
           reject(error);
           return;
         }
-        resolve({ code: error?.code ?? 0, stderr });
+        resolve({ code: typeof error?.code === 'number' ? error.code : 0, stderr });
       });
     });
   }
