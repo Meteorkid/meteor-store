@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const DAILY_EDITION_CHANNEL_IDS = ['english', 'papers', 'ai', 'events'] as const;
-export const DAILY_CHANNEL_IDS = DAILY_EDITION_CHANNEL_IDS;
+export const DAILY_CHANNEL_IDS = [...DAILY_EDITION_CHANNEL_IDS, 'masters'] as const;
 export const DailyEditionChannelSchema = z.enum(DAILY_EDITION_CHANNEL_IDS);
 export type DailyEditionChannelId = z.infer<typeof DailyEditionChannelSchema>;
 export const DailyChannelSchema = z.enum(DAILY_CHANNEL_IDS);
@@ -12,9 +12,10 @@ export const dailyChannels = [
   { id: 'papers', zh: '每日论文', en: 'Daily Papers', descriptionZh: '从研究问题出发，找到值得读的论文。', descriptionEn: 'Research questions and papers worth reading.' },
   { id: 'ai', zh: 'AI 圈大事', en: 'AI Briefing', descriptionZh: '有出处的消息，读完再看原文。', descriptionEn: 'Sourced updates with links to the original.' },
   { id: 'events', zh: '发布会日历', en: 'Events', descriptionZh: '近期预告、当天活动与官方回放。', descriptionEn: 'Upcoming events, live sessions and replays.' },
+  { id: 'masters', zh: '硕士申请', en: 'Master’s applications', descriptionZh: '全年申请日历，关注项目与提交截止。', descriptionEn: 'Year-round application rounds and deadlines.' },
 ] as const;
 
-export const dailyEditionChannels = dailyChannels;
+export const dailyEditionChannels = dailyChannels.filter(channel => channel.id !== 'masters');
 
 const safeUrl = z.string().url().max(2000).refine(value => new URL(value).protocol === 'https:', 'Use an HTTPS URL');
 const text = z.string().trim().min(1).max(6000);

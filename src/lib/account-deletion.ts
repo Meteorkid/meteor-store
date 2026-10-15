@@ -4,6 +4,8 @@ import {
   blogImages,
   comments,
   dailyPreferences,
+  mastersNotices,
+  mastersWatches,
   feedbacks,
   inviteRedemptions,
   likes,
@@ -39,6 +41,8 @@ export async function deleteUserAccount(input: DeleteUserAccountInput): Promise<
 
   const cleanup: Promise<unknown>[] = [
     db.delete(dailyPreferences).where(eq(dailyPreferences.userId, input.userId)),
+    db.delete(mastersNotices).where(eq(mastersNotices.userId, input.userId)),
+    db.delete(mastersWatches).where(eq(mastersWatches.userId, input.userId)),
     db.delete(blogImages).where(eq(blogImages.userId, input.userId)),
     db.delete(personalAccessTokens).where(eq(personalAccessTokens.userId, input.userId)),
     db.delete(comments).where(eq(comments.authorId, input.userId)),

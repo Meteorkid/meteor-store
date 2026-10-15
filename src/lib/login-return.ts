@@ -2,6 +2,7 @@ import { getProductTrack } from '@/data/product-tracks';
 
 const ALLOWED_LOGIN_RETURNS = new Set([
   '/daily',
+  '/masters',
   '/apps',
   '/apps/ex-memory',
   '/apps/tollow/trial',

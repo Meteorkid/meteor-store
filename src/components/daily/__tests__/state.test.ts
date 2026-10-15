@@ -11,7 +11,7 @@ describe('每日阅读偏好与本地进度', () => {
     expect(parseGuestPreferences(null)).toBeNull();
     expect(parseGuestPreferences('{broken')).toBeNull();
     expect(parseGuestPreferences('{"channels":[],"reminders":false}')).toEqual({ channels: [], reminders: false });
-    expect(visibleChannels('following', null)).toEqual(['english', 'papers', 'ai', 'events']);
+    expect(visibleChannels('following', null)).toEqual(['english', 'papers', 'ai', 'events', 'masters']);
     expect(visibleChannels('following', { channels: [], reminders: false })).toEqual([]);
   });
 
@@ -29,11 +29,17 @@ describe('每日阅读偏好与本地进度', () => {
   });
 
   it('全部视图不被关注列表隐藏，关注视图保持栏目顺序', () => {
-    expect(visibleChannels('all', { channels: [], reminders: false })).toHaveLength(4);
+    expect(visibleChannels('all', { channels: [], reminders: false })).toHaveLength(5);
     expect(visibleChannels('following', { channels: ['events', 'english'], reminders: false }))
       .toEqual(['english', 'events']);
   });
 
+  it('旧四栏偏好保持原选择，不自动关注新增申请栏目', () => {
+    const old = parseGuestPreferences('{"channels":["english","papers","ai","events"],"reminders":false}');
+    expect(visibleChannels('following', old)).toEqual(['english', 'papers', 'ai', 'events']);
+    expect(visibleChannels('all', old)).toContain('masters');
+    expect(parseReadKeys('["2026-10-14:masters"]', '2026-10-14')).toEqual([]);
+  });
 
   it('游客、不同账号的已读存储互相隔离', () => {
     expect(dailyReadStorageKey(null)).not.toBe(dailyReadStorageKey('guest'));

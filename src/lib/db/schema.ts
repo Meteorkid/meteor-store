@@ -1,6 +1,56 @@
 import { sql } from 'drizzle-orm';
 import { pgTable, text, integer, bigint, boolean, numeric, primaryKey, index, uniqueIndex, check, jsonb } from 'drizzle-orm/pg-core';
 import type { DailyChannelId, DailyEditionChannelId, DailyContent, DailyStatus } from '../daily/types';
+import type { MastersRegion, MastersRoundDetails, MastersWatchInput } from '../masters/types';
+
+export const mastersRounds = pgTable('masters_rounds', {
+  id: text('id').primaryKey(),
+  identityKey: text('identity_key').notNull(),
+  intakeYear: integer('intake_year').notNull(),
+  region: text('region').$type<MastersRegion>().notNull(),
+  details: jsonb('details').$type<MastersRoundDetails>().notNull(),
+  status: text('status').$type<'draft' | 'published'>().notNull().default('draft'),
+  verifiedOn: text('verified_on'),
+  revision: integer('revision').notNull().default(1),
+  dateVersion: integer('date_version').notNull().default(1),
+  dateChangedAt: text('date_changed_at'),
+  previousDeadlineText: text('previous_deadline_text'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  uniqueIndex('masters_rounds_identity_idx').on(t.identityKey),
+  index('masters_rounds_year_status_idx').on(t.intakeYear, t.status),
+  check('masters_rounds_region_check', sql`${t.region} IN ('hong-kong', 'macau', 'singapore', 'uk', 'australia')`),
+  check('masters_rounds_status_check', sql`${t.status} IN ('draft', 'published')`),
+]);
+
+export const mastersWatches = pgTable('masters_watches', {
+  userId: text('user_id').notNull(),
+  roundId: text('round_id').notNull(),
+  status: text('status').$type<MastersWatchInput['status']>().notNull().default('preparing'),
+  reminders: boolean('reminders').notNull().default(false),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  primaryKey({ columns: [t.userId, t.roundId] }),
+  index('masters_watches_round_idx').on(t.roundId),
+  check('masters_watches_status_check', sql`${t.status} IN ('preparing', 'submitted', 'abandoned')`),
+]);
+
+export const mastersNotices = pgTable('masters_notices', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  roundId: text('round_id').notNull(),
+  kind: text('kind').$type<'deadline' | 'changed'>().notNull(),
+  leadDays: integer('lead_days'),
+  dateVersion: integer('date_version').notNull(),
+  createdAt: text('created_at').notNull(),
+  readAt: text('read_at'),
+}, t => [
+  index('masters_notices_user_idx').on(t.userId, t.createdAt),
+  check('masters_notices_kind_check', sql`${t.kind} IN ('deadline', 'changed')`),
+]);
+
 export const dailyEditions = pgTable('daily_editions', {
   id: text('id').primaryKey(),
   date: text('date').notNull(),

@@ -1,9 +1,10 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ getSession: vi.fn(), getDailyEditions: vi.fn(), getDailyPreferences: vi.fn() }));
+const mocks = vi.hoisted(() => ({ getSession: vi.fn(), getDailyEditions: vi.fn(), getDailyPreferences: vi.fn(), getMastersSummary: vi.fn() }));
 vi.mock('@/lib/auth', () => ({ getSession: mocks.getSession }));
 vi.mock('@/lib/daily/service', () => ({ getDailyEditions: mocks.getDailyEditions, getDailyPreferences: mocks.getDailyPreferences }));
+vi.mock('@/lib/masters/service', () => ({ getMastersSummary: mocks.getMastersSummary }));
 vi.mock('next/navigation', () => ({ notFound: () => { throw new Error('NOT_FOUND'); } }));
 vi.mock('next-intl/server', () => ({ setRequestLocale: vi.fn() }));
 vi.mock('@/components/Header', () => ({ default: () => null }));
@@ -22,6 +23,7 @@ describe('每日阅读服务端页面', () => {
     mocks.getSession.mockResolvedValue(null);
     mocks.getDailyEditions.mockResolvedValue([]);
     mocks.getDailyPreferences.mockResolvedValue(null);
+    mocks.getMastersSummary.mockResolvedValue({ intakeYear: 2027, total: 0, opening: 0, closingSoon: 0, changed: 0 });
   });
   afterEach(() => vi.useRealTimers());
 
@@ -51,4 +53,10 @@ describe('每日阅读服务端页面', () => {
     expect(renderToStaticMarkup(page)).toContain('&quot;loadFailed&quot;:true');
   });
 
+  it('历史日刊也读取当前申请汇总，而不是使用历史日刊日期', async () => {
+    const page = await DailyPage({ params: Promise.resolve({ locale: 'zh' }), searchParams: Promise.resolve({ date: '2026-10-01' }) });
+    expect(mocks.getDailyEditions).toHaveBeenCalledWith('2026-10-01');
+    expect(mocks.getMastersSummary).toHaveBeenCalledWith();
+    expect(renderToStaticMarkup(page)).toContain('&quot;intakeYear&quot;:2027');
+  });
 });

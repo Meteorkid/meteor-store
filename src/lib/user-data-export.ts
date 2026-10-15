@@ -6,6 +6,8 @@ import {
   blogImages,
   comments,
   dailyPreferences,
+  mastersNotices,
+  mastersWatches,
   feedbacks,
   inviteRedemptions,
   licenseKeys,
@@ -45,6 +47,8 @@ export async function exportUserData(userId: string, email: string) {
     tollowSessionRows,
     tollowFavoriteRows,
     dailyPreferenceRows,
+    mastersWatchRows,
+    mastersNoticeRows,
   ] = await Promise.all([
     db.select({
       id: users.id,
@@ -197,6 +201,11 @@ export async function exportUserData(userId: string, email: string) {
     }).from(tollowTextFavorites).where(eq(tollowTextFavorites.userId, userId)),
     db.select({ channels: dailyPreferences.channels, reminders: dailyPreferences.reminders, updatedAt: dailyPreferences.updatedAt })
       .from(dailyPreferences).where(eq(dailyPreferences.userId, userId)),
+    db.select({ roundId: mastersWatches.roundId, status: mastersWatches.status, reminders: mastersWatches.reminders,
+      createdAt: mastersWatches.createdAt, updatedAt: mastersWatches.updatedAt }).from(mastersWatches).where(eq(mastersWatches.userId, userId)),
+    db.select({ roundId: mastersNotices.roundId, kind: mastersNotices.kind, leadDays: mastersNotices.leadDays,
+      dateVersion: mastersNotices.dateVersion, createdAt: mastersNotices.createdAt, readAt: mastersNotices.readAt })
+      .from(mastersNotices).where(eq(mastersNotices.userId, userId)),
   ]);
 
   const postIds = postRows.map((post) => post.id);
@@ -257,6 +266,7 @@ export async function exportUserData(userId: string, email: string) {
       reports: reportRows,
     },
     daily: { preferences: dailyPreferenceRows[0] ?? null },
+    masters: { applications: mastersWatchRows, notices: mastersNoticeRows },
     tollow: {
       bookProgress: tollowProgressRows,
       practiceSessions: tollowSessionRows,

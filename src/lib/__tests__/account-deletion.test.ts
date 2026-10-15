@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   blogImages,
   dailyPreferences,
+  mastersNotices,
+  mastersWatches,
   personalAccessTokens,
   postSections,
   tollowBookProgress,
@@ -80,6 +82,8 @@ describe('账户数据删除顺序', () => {
     expect(state.deletedTables.at(-1)).toBe(users);
     expect(state.deletedTables).toContain(blogImages);
     expect(state.deletedTables).toContain(dailyPreferences);
+    expect(state.deletedTables).toContain(mastersNotices);
+    expect(state.deletedTables).toContain(mastersWatches);
     expect(state.deletedTables.indexOf(blogImages)).toBeLessThan(
       state.deletedTables.indexOf(users),
     );

@@ -1409,6 +1409,15 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - 每天北京时间 09:30 固定一次提醒快照，无稿也存空快照；晚到内容不补入，同一天不重复提醒。系统公告与日刊提醒分开，双铃铛共享请求和已读，缓存按账号隔离。
 - `scripts/daily-cron.mjs generate|remind` 与其它任务共用 `PATHFINDER_CRON_SECRET`。旧 `pathfinder-digest` 接口改为鉴权后返回 `retired`，不再广播；上线时必须同时切换真实 crontab 并验证日志。具体操作与回滚见 `docs/process/daily-fresh.md`，当前不能把本地验收当成线上已运行。
 
+## 硕士申请日历（第五个阅读选项，生产待上线）
+
+- `/masters` 与 `/admin/masters`，服务在 `src/lib/masters/`。申请轮次是长期记录，不能塞进 30 天日刊快照，也不能按单一官方 URL 把不同年份合并。
+- `DAILY_CHANNEL_IDS` 含五种阅读选项；`DAILY_EDITION_CHANNEL_IDS` 仍为四种日刊内容。管理员日刊、生成器和 `daily_editions` 只使用四种内容类型，硕士日历走独立数据源。
+- `0047` 新增轮次、个人申请和提醒三张表。入学年份不可直接覆写，下一年必须创建新记录；仅日期不补时刻，国内/国际申请者必须区分。
+- `revision` 追踪编辑，`dateVersion` 只追踪结构化日期/状态；修说明标点不能触发新的截止提醒。保存轮次与同步改期提醒同一事务，编辑使用版本条件更新。
+- 提醒未读优先分页，不能让前20条已读遮住后面的未读。已提交/放弃、关闭提醒、下架以及过期日期会被读取端再次过滤。私人接口 no-store，写入核对 X-Masters-User。
+- 个人关注和通知纳入导出/注销；ICS 是快照，不承诺自动同步或客户端必定提醒。上线与内容维护见 `docs/process/masters-application-calendar.md`。
+
 ## 联系方式
 
 - **开发者**: meteor

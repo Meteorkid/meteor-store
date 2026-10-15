@@ -1,11 +1,12 @@
 export const dailyText = {
   zh: {
-    title: '每日一新', description: '英语、论文、AI 动向与发布会，挑选今天需要的内容。',
+    title: '每日一新', description: '英语、论文、AI 动向、发布会与硕士申请，挑选今天需要的内容。',
     dateLabel: '阅读日期', previous: '前一天', next: '后一天', today: '今天', history: '北京时间 · 可回看最近 30 天',
     all: '全部栏目', following: '我关注的', manage: '管理栏目', settingsTitle: '组成你的一天',
     settingsDescription: '勾选想看的栏目，保存后组成你的每日阅读页。',
     allSelected: '全选', clear: '清空', cancel: '取消', save: '保存选择', saving: '保存中…',
     reminders: '每日更新提醒', remindersHint: '英语、论文、AI 与发布会每天最多一条合辑铃铛提醒，不发送邮件。',
+    mastersSelectionHint: '硕士申请只添加日历入口；截止提醒需在具体申请轮次单独开启。',
     guestHint: '当前选择仅保存在这个浏览器。登录后可跨设备保存。',
     accountHint: '关注栏目保存在你的账号中，已读标记仅保存在当前浏览器。',
     reminderLogin: '登录后可开启站内提醒。', login: '登录并同步', saved: '选择已保存',
@@ -30,12 +31,13 @@ export const dailyText = {
     readScope: '已读标记仅保存在当前浏览器。',
   },
   en: {
-    title: 'A little new, every day', description: 'English, papers, AI updates and events. Choose what matters today.',
+    title: 'A little new, every day', description: 'English, papers, AI updates, events and master’s application dates. Choose what matters today.',
     dateLabel: 'Reading date', previous: 'Previous day', next: 'Next day', today: 'Today', history: 'Beijing time · Last 30 days',
     all: 'All channels', following: 'Following', manage: 'Manage channels', settingsTitle: 'Make it your daily read',
     settingsDescription: 'Choose what you want to read, then save your selection.',
     allSelected: 'Select all', clear: 'Clear', cancel: 'Cancel', save: 'Save selection', saving: 'Saving…',
     reminders: 'Daily update reminder', remindersHint: 'One daily bell digest for English, papers, AI and events. No emails.',
+    mastersSelectionHint: 'The master’s channel adds a calendar link. Deadline reminders are enabled separately for each round.',
     guestHint: 'Your selection stays in this browser. Sign in to save it across devices.',
     accountHint: 'Channels sync with your account. Read marks stay in this browser.',
     reminderLogin: 'Sign in to enable in-app reminders.', login: 'Sign in to sync', saved: 'Selection saved',

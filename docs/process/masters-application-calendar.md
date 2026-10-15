@@ -1,0 +1,65 @@
+# 硕士申请日历：维护与上线
+
+## 能力与边界
+
+`/masters` 保存全年申请轮次，作为每日一新的第五个阅读选项；它不依赖当天是否出刊，也不受 30 天日刊历史限制。用户可按入学年、入学季、地区、学校、专业和类型筛选，关注具体轮次，记录准备中/已提交/已放弃，并单独开启 30/7/1 天站内提醒。
+
+旧账号的四栏选择不自动增加第五栏。关注栏目、关注申请轮次和开启截止提醒是三个不同动作。已提交/已放弃/取消提醒时不再显示该轮次的普通提醒，注销与数据导出覆盖关注及提醒记录。
+
+这里记录公开申请期限，不收集个人录取信、offer 接受时间或留位费期限。首版不发送邮件、短信或微信消息。
+
+## 首批官方数据
+
+来源于 2026-10-14 核验，共五地区、六所学校、11 个申请轮次；导入只创建草稿，管理员检查后逐条发布。不是五地区全部学校和专业的完整目录。
+
+| 地区 | 项目 | 轮次 | 官方来源 |
+| --- | --- | --- | --- |
+| 香港 | HKU MSc Computer Science General Stream，无 Delta X Fellowship | 主轮、补录 | [项目申请说明](https://master.cds.hku.hk/msccs/about/msc-in-computer-science-application-procedure-2027-28/) |
+| 香港 | HKUST MSc International Management | 四轮，兼有滚动审理 | [申请轮次](https://mimt.hkust.edu.hk/admissions/application-deadlines-procedures) |
+| 新加坡 | NUS MComp with Specialisations | 2027 年 8 月入学 | [申请说明](https://www.comp.nus.edu.sg/programmes/pg/misc/application/) |
+| 澳门 | 澳门城市大学 MSc Financial Technology | 2027/28 | [项目页面](https://fof.cityu.edu.mo/en/masterofscienceinfintech) |
+| 英国 | Oxford MSc Advanced Computer Science | 2027/28 最终轮 | [项目页面](https://www.ox.ac.uk/admissions/graduate/courses/msc-advanced-computer-science) |
+| 澳洲 | UQ Master of Computer Science，国际申请者 | 2027 S1、S2 | [2027 项目页面](https://study.uq.edu.au/study-options/programs/master-computer-science-5522?year=2027) |
+
+具体日期、适用对象和核验备注统一保存在 `src/lib/masters/seeds.ts`。澳洲采用国际学生内容，不混用本地学生时间。澳门使用项目级来源，未把校级通用截止直接复制到尚未核验例外的专业。
+
+## 日常维护
+
+1. 在 `/admin/masters` 选择入学年份，导入首批草稿或新建轮次。
+2. 核对项目/方向、入学季、学习模式、申请人类别、轮次与截止事项。申请、材料、推荐信、奖学金不能擅自共用期限。
+3. 核对官方来源后填写核验日期，保存并审核发布。既有记录的入学年份不可改；新年度要新建记录，不自动平移去年日期。
+4. 官方改期后修正结构化日期/开放状态，系统增加日期版本并给正在准备且已开启提醒的关注者生成变更提示；修文案不重复提醒。
+5. 暂不公开的记录可下架。前台隐藏草稿，个人关注显示通用不可用状态，可取消，不泄漏新草稿内容。
+
+没有自动对全部大学网站持续爬取和验证；管理员要持续核验已收录项目。来源变更在核验保存后才成为正式新日期，不能把模型推测直接发布为截止时间。
+
+## 日期、提醒和日历文件
+
+- 区分已确认、官方未公布、尚待核验；缺开放日不代表必然已经开放，缺时刻不能补成 23:59。
+- 精确时刻使用官方时区换算；仅日期的条目不显示小时级倒计时。时区未知时仅按北京时间日历日提醒，日期经过后显示“截止日期已过”，官方入口仍可访问。
+- 30/7/1 为临期窗口：例如剩 5 天时归入 7 天档，不伪称恰好提前 7 天。新关注者开启提醒可立即补到当前档位，不堆叠三个旧档。
+- 站内提醒不是系统推送，用户打开网站才能看到。ICS 导出可自行导入日历；全天事件不代表允许提交到午夜，实际弹出提醒取决于日历软件设置。
+- ICS 是下载快照，不是自动订阅。官方改期后需重新导出；UID 保持稳定、SEQUENCE 增长，但不同日历客户端的导入合并行为仍需用户确认。
+- 提醒按用户、轮次、日期版本和档位生成稳定 ID。未读优先返回，每次最多 20 条，标为已读后继续取余下未读；失效消息不会遮住有效消息，尚未读的当前改期提示不会因为超过 30 天而消失。
+
+## 数据与上线
+
+先执行日刊 `0046`，再执行 `0047_wide_thunderbolts.sql`。`0047` 只新增 `masters_rounds`、`masters_watches`、`masters_notices` 及索引约束，不更新旧表。
+
+先备份生产数据库，再迁移与部署。回滚应用时保留新表和申请记录，撤销新调度；不要把本地测试库或测试账号覆盖到生产。
+
+共用 `PATHFINDER_CRON_SECRET`，执行器 `/usr/local/bin/node` 通过 `--env-file` 读取密钥。确认服务器为 Asia/Shanghai 后，可在现有 crontab 备份基础上增加：
+
+```cron
+0 9 * * * /usr/bin/flock -n /tmp/meteor-masters-deadlines.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/masters-deadlines-cron.mjs 2>&1 | /usr/bin/logger -t meteor-masters-deadlines
+```
+
+日刊 09:30 快照与申请期限提醒分开；管理员发布已核实的改期时，在同一数据库事务内生成申请变更提醒，不等下一次日刊。上线后检查实际 crontab、日志与重复运行结果；当前尚未修改生产调度。
+
+## 验证记录
+
+2026-10-15：226 个测试文件、2,129 项测试通过；TypeScript、全站 ESLint、生产构建通过。
+
+隔离 PostgreSQL 18 已验证草稿隔离、重复导入、25 条提醒读完前20后仍能读取余下5条、并发编辑、纯文案不增日期版本、真实改期、提交后停止提醒、账号隔离、下架过滤、入学年份保护、UTC/全天ICS。真实 HTTP 验证了鉴权、归属头、导出、进度状态、旧日刊偏好保留及调度密钥。
+
+浏览器实际验证地区筛选、关注轮次、提醒开关、已提交状态刷新保留、第五栏目独立入口、后台下架/再发布、375px 无横向溢出和地区切换。实际下载文件通过 UTC 时间、三档提醒、CRLF 与75字节折行检查；未向用户真实日历创建日程。

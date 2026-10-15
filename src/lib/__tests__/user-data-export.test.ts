@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   blogImages,
   dailyPreferences,
+  mastersWatches,
   personalAccessTokens,
   postSections,
   posts,
@@ -120,6 +121,7 @@ vi.mock('../db', () => ({
           if (table === tollowPracticeSessions) return tollowSessionRows;
           if (table === tollowTextFavorites) return tollowFavoriteRows;
           if (table === dailyPreferences) return [{ channels: ['english'], reminders: false, updatedAt: '2026-10-14T00:00:00Z' }];
+          if (table === mastersWatches) return [{ roundId: 'round-1', status: 'preparing', reminders: true }];
           return [];
         },
       }),
@@ -180,6 +182,7 @@ describe('用户数据导出', () => {
     expect(exported.account).not.toHaveProperty('blogImageBytes');
     expect(exported.daily.preferences?.channels).toEqual(['english']);
     expect(exported.daily.preferences).not.toHaveProperty('userId');
+    expect(exported.masters.applications).toEqual([{ roundId: 'round-1', status: 'preparing', reminders: true }]);
     expect(exported.tollow).toEqual({
       bookProgress: tollowProgressRows,
       practiceSessions: tollowSessionRows,

@@ -5,6 +5,8 @@ import { products } from '@/data/products';
 describe('normalizeLoginReturn', () => {
   it('每日一新登录后回到阅读页，仍拒绝附加的任意跳转', () => {
     expect(normalizeLoginReturn('/daily')).toBe('/daily');
+    expect(normalizeLoginReturn('/masters')).toBe('/masters');
+    expect(buildLoginHref('/masters')).toBe('/login?next=%2Fmasters');
     expect(buildLoginHref('/daily')).toBe('/login?next=%2Fdaily');
     expect(normalizeLoginReturn('/daily?next=https://evil.example')).toBe('/');
   });

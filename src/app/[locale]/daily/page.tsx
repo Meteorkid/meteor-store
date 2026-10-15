@@ -8,6 +8,7 @@ import { dailyText } from '@/components/daily/text';
 import { getSession } from '@/lib/auth';
 import { dailyDate, isDailyHistoryDate } from '@/lib/daily/types';
 import { getDailyEditions, getDailyPreferences } from '@/lib/daily/service';
+import { getMastersSummary } from '@/lib/masters/service';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,9 +29,10 @@ export default async function DailyPage({ params, searchParams }: {
   const date = query.date ?? today;
   if (typeof date !== 'string' || !isDailyHistoryDate(date, today)) notFound();
   const session = await getSession();
-  const [editionResult, preferencesResult] = await Promise.allSettled([
+  const [editionResult, preferencesResult, mastersResult] = await Promise.allSettled([
     getDailyEditions(date),
     session ? getDailyPreferences(session.userId) : Promise.resolve(null),
+    getMastersSummary(),
   ]);
 
   return (
@@ -40,6 +42,8 @@ export default async function DailyPage({ params, searchParams }: {
         <DailyHub date={date} today={today} userId={session?.userId ?? null}
           editions={editionResult.status === 'fulfilled' ? editionResult.value : []}
           initialPreferences={preferencesResult.status === 'fulfilled' ? preferencesResult.value : null}
+          mastersSummary={mastersResult.status === 'fulfilled' ? mastersResult.value : null}
+          mastersSummaryFailed={mastersResult.status === 'rejected'}
           loadFailed={editionResult.status === 'rejected'} preferencesFailed={preferencesResult.status === 'rejected'} />
       </main>
       <Footer />

@@ -7,6 +7,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { Link } from '@/i18n/navigation';
 import { dailyChannels } from '@/lib/daily/types';
 import { EMPTY_REMINDER_STATE, ensureDailyReminder, getReminderState, markDailyReminderRead, subscribeDailyReminder, syncDailyReminderRead } from '@/lib/daily/reminder-client';
+import { EMPTY_MASTERS_NOTICES, ensureMastersNotices, getMastersNoticeState, markMastersRead, subscribeMastersNotices } from '@/lib/masters/notice-client';
 
 /**
  * 上次打开铃铛的时间（ISO 字符串）。存一个分界点而不是已读 id 数组——
@@ -102,6 +103,7 @@ export default function NotificationBell() {
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const daily = useSyncExternalStore(subscribeDailyReminder, () => getReminderState(userId), () => EMPTY_REMINDER_STATE);
+  const masters = useSyncExternalStore(subscribeMastersNotices, () => getMastersNoticeState(userId), () => EMPTY_MASTERS_NOTICES);
   const items = useSyncExternalStore(subscribe, getItems, () => SERVER_ITEMS);
   const readAt = useSyncExternalStore(subscribe, getReadAt, () => SERVER_READ_AT);
   const [open, setOpen] = useState(false);
@@ -114,17 +116,21 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!userId) return;
     ensureDailyReminder(userId);
-    const refresh = () => ensureDailyReminder(userId);
+    ensureMastersNotices(userId);
+    const refresh = () => { ensureDailyReminder(userId); ensureMastersNotices(userId); };
     const preferencesChanged = () => ensureDailyReminder(userId, true);
+    const applicationsChanged = () => ensureMastersNotices(userId, true);
     const syncRead = () => syncDailyReminderRead(userId);
     const timer = window.setInterval(refresh, 60_000);
     window.addEventListener('focus', refresh);
     window.addEventListener('daily-preferences-changed', preferencesChanged);
+    window.addEventListener('masters-watches-changed', applicationsChanged);
     window.addEventListener('storage', syncRead);
     return () => {
       window.clearInterval(timer);
       window.removeEventListener('focus', refresh);
       window.removeEventListener('daily-preferences-changed', preferencesChanged);
+      window.removeEventListener('masters-watches-changed', applicationsChanged);
       window.removeEventListener('storage', syncRead);
     };
   }, [userId]);
@@ -144,7 +150,7 @@ export default function NotificationBell() {
   }, [open, userId, daily.reminder, daily.readDate]);
 
   // ISO 时间戳按字典序比较即等于按时间比较；readAt 为空串时全部算未读
-  const unread = (items !== null && items.some((a) => announcedAt(a) > readAt)) || Boolean(daily.reminder && daily.reminder.date > daily.readDate);
+  const unread = (items !== null && items.some((a) => announcedAt(a) > readAt)) || Boolean(daily.reminder && daily.reminder.date > daily.readDate) || masters.notices.some(notice => !notice.readAt);
 
   const togglePanel = () => {
     if (!open && items) markAllRead();
@@ -181,6 +187,27 @@ export default function NotificationBell() {
             <p className="text-sm font-medium text-white">{t('title')}</p>
           </div>
           <div className="max-h-96 overflow-y-auto">
+            {(masters.notices.length > 0 || masters.failed) && <section className="border-b border-white/10 px-4 py-3" aria-label={locale === 'en' ? 'Application reminders' : '硕士申请提醒'}>
+              <p className="t-title-4 text-white">{locale === 'en' ? 'Application reminders' : '硕士申请提醒'}</p>
+              {masters.failed && <p className="mt-2 t-footnote text-amber-200">{locale === 'en' ? 'Could not refresh application reminders.' : '申请提醒暂时读取失败，请稍后重试。'}</p>}
+              <ul className="divide-y divide-white/10">
+                {masters.notices.map(notice => <li key={notice.id} className="py-3">
+                  <p className="t-footnote text-amber-200">{notice.kind === 'changed'
+                    ? (locale === 'en' ? 'Application dates updated' : '申请日期或开放状态有变更')
+                    : (locale === 'en' ? `Deadline within ${notice.leadDays} days` : `${notice.leadDays} 天内截止`)}{!notice.readAt ? (locale === 'en' ? ' · Unread' : ' · 未读') : ''}</p>
+                  {/* 完整导航重置日历筛选，确保跨地区的提醒目标不会被当前筛选藏住。 */}
+                  <a href={`/${locale}/masters?year=${notice.round.intakeYear}#round-${notice.roundId}`} className="mt-1 block text-sm font-semibold text-violet-200 underline-offset-4 hover:underline">
+                    {notice.round.details.university} · {notice.round.details.programme}
+                  </a>
+                  <p className="mt-1 t-footnote text-white/70">{notice.round.details.intakeLabel} · {notice.round.details.roundName} · {notice.round.details.deadlineText || notice.round.details.deadlineOn || (locale === 'en' ? 'Check official dates' : '请查看官方日期')}</p>
+                </li>)}
+              </ul>
+              {userId && masters.notices.some(notice => !notice.readAt) && <button type="button" disabled={masters.marking}
+                onClick={() => markMastersRead(userId, masters.notices.filter(notice => !notice.readAt).map(notice => notice.id))}
+                className="min-h-10 t-footnote font-semibold text-violet-200 underline underline-offset-4 disabled:opacity-50">
+                {locale === 'en' ? 'Mark these reminders as read' : '将这些申请提醒标为已读'}
+              </button>}
+            </section>}
             <div className="border-b border-white/10 px-4 py-3">
               <Link href={daily.reminder ? `/daily?date=${daily.reminder.date}` : '/daily'} className="t-title-4 text-violet-200 underline-offset-4 hover:underline">
                 {locale === 'en' ? 'Daily Fresh' : '每日一新'} →

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { useLocale } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import MastersSummaryCard from '@/components/masters/MastersSummaryCard';
+import { defaultMastersYear, type MastersSummary } from '@/lib/masters/types';
 import { dailyChannels, DAILY_CHANNEL_IDS, isDailyHistoryDate, shiftDailyDate, type DailyEdition, type DailyPreferences } from '@/lib/daily/types';
 import EditionContent from './EditionContent';
 import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, dailyReadStorageKey, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
@@ -17,6 +19,8 @@ export interface DailyHubProps {
   initialPreferences: DailyPreferences | null;
   loadFailed?: boolean;
   preferencesFailed?: boolean;
+  mastersSummary?: MastersSummary | null;
+  mastersSummaryFailed?: boolean;
 }
 
 function readStorage(key: string): string | null {
@@ -57,7 +61,7 @@ export default function DailyHub(props: DailyHubProps) {
   return <DailyHubForIdentity key={`${identity ?? 'guest'}:${props.date}`} {...props} activeUserId={identity} />;
 }
 
-function DailyHubForIdentity({ date, today, editions, userId, activeUserId, initialPreferences, loadFailed = false, preferencesFailed = false }: DailyHubProps & { activeUserId: string | null }) {
+function DailyHubForIdentity({ date, today, editions, userId, activeUserId, initialPreferences, loadFailed = false, preferencesFailed = false, mastersSummary = null, mastersSummaryFailed = false }: DailyHubProps & { activeUserId: string | null }) {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const copy = dailyText[locale];
   const router = useRouter();
@@ -178,6 +182,7 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
       {editing && <section id="daily-settings" className="mb-7 rounded-2xl border border-violet-400/30 bg-violet-400/[0.04] p-5 sm:p-7" aria-labelledby="daily-settings-title">
         <h2 id="daily-settings-title" className="t-title-3 text-white">{copy.settingsTitle}</h2>
         <p className="mt-2 t-footnote text-white/60">{copy.settingsDescription}</p>
+        <p className="mt-2 t-footnote text-white/60">{copy.mastersSelectionHint}</p>
         <fieldset disabled={saving} className="mt-5">
           <legend className="sr-only">{copy.manage}</legend>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -207,14 +212,14 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
       {notice && <p className="mb-5 t-footnote text-emerald-200" role="status">{notice}</p>}
       {localError && <p className="mb-5 t-footnote text-amber-200" role="alert">{localError}</p>}
 
-      {loadFailed ? <section className="my-6 rounded-2xl border border-amber-300/20 p-7" role="alert">
+      {loadFailed && selectedChannels.some(channel => channel !== 'masters') ? <section className="my-6 rounded-2xl border border-amber-300/20 p-7" role="alert">
         <h2 className="t-title-3 text-white">{copy.loadFailed}</h2><p className="mt-3 t-body text-white/70">{copy.loadFailedHint}</p>
         <button type="button" onClick={() => router.refresh()} className={`${buttonClass} mt-5`}>{copy.retry}</button>
       </section> : selectedChannels.length === 0 ? <section className="my-6 rounded-2xl border border-white/10 px-6 py-12 text-center">
         <h2 className="t-title-3 text-white">{copy.noChannels}</h2><p className="mt-3 t-body text-white/70">{copy.noChannelsHint}</p>
         <button type="button" onClick={openSettings} className={`${buttonClass} mt-6`}>{copy.manage}</button>
       </section> : <div className="divide-y divide-white/10">
-        {dailyChannels.filter(channel => selectedChannels.includes(channel.id)).map((channel, index) => {
+        {dailyChannels.filter(channel => channel.id !== 'masters' && selectedChannels.includes(channel.id)).map((channel, index) => {
           const edition = editions.find(item => item.channel === channel.id);
           const published = edition?.status === 'published' && edition.content !== null;
           const status = published ? 'published' : edition?.status === 'empty' ? 'empty' : edition?.status === 'failed' ? 'failed' : 'unpublished';
@@ -240,6 +245,7 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
           </article>;
         })}
       </div>}
+      {selectedChannels.includes('masters') && <MastersSummaryCard summary={mastersSummary} year={defaultMastersYear(new Date(`${today}T00:00:00+08:00`))} issueDate={date} today={today} locale={locale} failed={mastersSummaryFailed} />}
       <p className="border-t border-white/10 pt-6 t-footnote text-white/60">{copy.readHint} {copy.readScope}</p>
     </div>
   );

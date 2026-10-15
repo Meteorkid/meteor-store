@@ -330,6 +330,13 @@
       "when": 1791974072150,
       "tag": "0046_real_goblin_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1791987678223,
+      "tag": "0047_wide_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

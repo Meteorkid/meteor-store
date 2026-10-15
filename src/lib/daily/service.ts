@@ -165,7 +165,7 @@ export async function getDailyReminder(userId: string): Promise<DailyReminder | 
   // 下架后不继续从提醒暴露；补发未进入快照的栏目也不会加入。
   const editions = await db.select({ channel: dailyEditions.channel }).from(dailyEditions).where(and(
     inArray(dailyEditions.id, snapshot.editionIds), eq(dailyEditions.status, 'published'),
-    inArray(dailyEditions.channel, preferences.channels),
+    inArray(dailyEditions.channel, preferences.channels.filter((channel): channel is DailyEditionChannelId => channel !== 'masters')),
   ));
   const channels = DAILY_CHANNEL_IDS.filter(channel => editions.some(row => row.channel === channel));
   return channels.length ? { date, channels, publishedAt: snapshot.publishedAt } : null;
