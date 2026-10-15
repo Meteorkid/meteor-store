@@ -41,6 +41,25 @@ function feed(...items: string[]) {
   </rss>`;
 }
 
+function atomPaper(overrides: Partial<{ id: string; published: string; summary: string; authors: string }> = {}) {
+  const item = {
+    id: 'http://arxiv.org/abs/2610.12345v2', published: '2026-10-14T04:00:00Z',
+    summary: 'We assume x &lt; y and compare A &amp; B.',
+    authors: '<author><name>Ada Chen</name></author><author><name>Alex Rivera</name></author>',
+    ...overrides,
+  };
+  return `<entry><id>${item.id}</id><updated>2026-10-20T04:00:00Z</updated>
+    <published>${item.published}</published><title>Learning &amp; Evaluation</title>
+    <summary>${item.summary}</summary>${item.authors}
+    <category term="cs.AI" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.LG" scheme="http://arxiv.org/schemas/atom"/></entry>`;
+}
+
+function atomFeed(...entries: string[]) {
+  return `<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">
+    <updated>2026-10-20T00:00:00Z</updated>${entries.join('')}</feed>`;
+}
+
 function aiRow(overrides: Record<string, unknown> = {}) {
   return {
     id: 'pf_official', titleZh: '官方更新', titleEn: 'Official update',
@@ -107,6 +126,45 @@ describe('每日英语内容池', () => {
 });
 
 describe('arXiv 论文元数据', () => {
+  it('读取小批量 Atom API，使用首发日期并保留原始摘要、作者和版本', async () => {
+    const { parseArxivFeed } = await import('../content');
+    expect(parseArxivFeed(atomFeed(atomPaper()), day)).toEqual([{
+      id: 'https://arxiv.org/abs/2610.12345', url: 'https://arxiv.org/abs/2610.12345',
+      title: 'Learning & Evaluation', summary: 'We assume x < y and compare A & B.',
+      originalAbstract: 'We assume x < y and compare A & B.',
+      sourceName: 'arXiv', sourceType: 'official', sourcePublishedAt: '2026-10-14T04:00:00.000Z',
+      authors: ['Ada Chen', 'Alex Rivera'], version: 'v2', preprint: true,
+      category: 'cs.AI · cs.LG',
+    }]);
+  });
+
+  it('Atom 排除过期首发和已用论文，重复版本保留最新且每期最多三篇', async () => {
+    const { parseArxivFeed } = await import('../content');
+    const xml = atomFeed(
+      atomPaper({ published: '2026-09-01T04:00:00Z' }),
+      ...['00001v1', '00001v3', '00002v1', '00003v1', '00004v1', '00005v1']
+        .map((id) => atomPaper({ id: `http://arxiv.org/abs/2610.${id}` })),
+    );
+    const items = parseArxivFeed(xml, day, ['https://arxiv.org/abs/2610.00002']);
+    expect(items.map((item) => [item.id, item.version])).toEqual([
+      ['https://arxiv.org/abs/2610.00001', 'v3'],
+      ['https://arxiv.org/abs/2610.00003', 'v1'],
+      ['https://arxiv.org/abs/2610.00004', 'v1'],
+    ]);
+  });
+
+  it('Atom API 错误、缺失元数据和截断不能被当成正常空稿', async () => {
+    const { parseArxivFeed } = await import('../content');
+    expect(() => parseArxivFeed(atomFeed('<entry><id>http://arxiv.org/api/errors#incorrect_id_format</id></entry>'), day)).toThrow(/API/);
+    expect(() => parseArxivFeed(atomFeed(atomPaper({ authors: '' })), day)).toThrow(/元数据不完整/);
+    expect(() => parseArxivFeed(atomFeed(atomPaper({ id: '' })), day)).toThrow(/元数据不完整/);
+    expect(() => parseArxivFeed(atomFeed(atomPaper({ id: 'http://arxiv.org/abs/2610.12345' })), day)).toThrow(/元数据不完整/);
+    expect(() => parseArxivFeed(atomFeed('<entry><id>incomplete</id>'), day)).toThrow(/不完整/);
+    expect(() => parseArxivFeed('<!DOCTYPE feed>' + atomFeed(), day)).toThrow(/DTD/);
+    expect(parseArxivFeed(atomFeed(), day)).toEqual([]);
+    expect(parseArxivFeed(atomFeed(atomPaper({ id: 'http://arxiv.org.evil.test/abs/2610.12345v1' })), day)).toEqual([]);
+  });
+
   it('保留原始摘要、作者、版本、公告类型与预印本标识，不虚构代码链接', async () => {
     const { parseArxivFeed } = await import('../content');
     const [item] = parseArxivFeed(feed(paper({ version: 'v3', announceType: 'replace-cross' })), day);
@@ -190,13 +248,13 @@ describe('arXiv 论文元数据', () => {
 
   it('正常抓取仅生成待审草稿，使用固定 HTTPS 源并禁用重定向', async () => {
     const { loadDailyContent } = await import('../content');
-    const fetchMock = vi.fn().mockResolvedValue(new Response(feed(paper())));
+    const fetchMock = vi.fn().mockResolvedValue(new Response(atomFeed(atomPaper())));
     vi.stubGlobal('fetch', fetchMock);
     const result = await loadDailyContent('papers', day);
     expect(result.status).toBe('draft');
     expect(result.content?.kind).toBe('papers');
     expect(result.sourceKey).toMatch(/^papers:[a-f0-9]{64}$/);
-    expect(fetchMock).toHaveBeenCalledWith('https://rss.arxiv.org/rss/cs.AI+cs.CL+cs.LG', expect.objectContaining({
+    expect(fetchMock).toHaveBeenCalledWith('https://export.arxiv.org/api/query?search_query=cat%3Acs.AI+OR+cat%3Acs.CL+OR+cat%3Acs.LG&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending', expect.objectContaining({
       redirect: 'error', cache: 'no-store', signal: expect.any(AbortSignal),
     }));
   });

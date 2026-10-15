@@ -2,6 +2,8 @@
 
 2026-10-15 已增加第五个阅读选项“硕士申请”，使用独立全年日历及截止提醒，见 `masters-application-calendar.md`。以下四种日刊的内容与调度规则保持不变。
 
+2026-10-15 已按 `52d5c9b`（每日一新）与 `a644e64`（硕士申请扩展）分批提交并部署至广州生产机 `8.138.218.165`，迁移与真实 crontab 已落地。论文来源上线后暴露超时问题，修复已通过本地验证、待部署验收；完整记录见 [本次部署交付记录](2026-10-15-daily-masters-release.md)。
+
 ## 本地运行
 
 沿用项目 Node 22、pnpm 与 PostgreSQL 配置。先用指向本地测试库的 `DATABASE_URL` 执行 `pnpm db:migrate`，然后 `pnpm dev`，访问 `/zh/daily` 或 `/en/daily`。后台入口为 `/zh/admin/daily`，仍由 `ADMIN_EMAILS`、已验证账号及当前会话控制。
@@ -11,7 +13,7 @@
 ## 内容维护
 
 - 英语：预置 7 课原创草稿，按日选取未用课程；管理员在发布前检查表达、例句和答案。课程池耗尽时明确显示无新内容，后台可继续手工录入。
-- 论文：读取 arXiv AI/语言/机器学习合并 RSS，最近 7 天、同日优先新论文，保留原始摘要、作者、版本与公告类型。生成草稿后由管理员补充阅读提示并审核。原始摘要保留，避免中文编辑覆盖来源。预印本始终标识。
+- 论文：待发布修复改用 arXiv 官方 API（`max_results=20`）与 Atom 解析。首轮部署的合并 RSS 在生产触发 10 秒超时，后续延长超时探测完整 RSS 需约 81 秒，不能靠大幅延长线上等待时间解决。选取最近 7 天尚未入选的论文；生成草稿后由管理员补充阅读提示并审核，保留原始摘要、作者和版本，不能把入选日冒充论文首发日。修复上线结果以交付记录为准。
 - AI：取当天已公开的 Pathfinder 数据库资讯，保留官方/聚合来源身份。没有今日来源就不拿昨日内容替代。
 - 发布会：管理员按官方信息录入预告或回放。已知时间须写有偏移的时间戳及有效时区；未知时刻留空显示待定。
 - “生成/重试”只采集今天，并且不会覆盖已有草稿或已发布内容。已有内容通过编辑保存，冲突时重新加载。
@@ -25,20 +27,22 @@
 
 个人栏目选择与提醒开关纳入账号导出及注销清理。私人接口全部 `no-store`；公共内容与私人数据不混用缓存。关注和提醒独立，提醒默认关闭。
 
-## 调度切换（尚未在生产执行）
+## 生产调度（2026-10-15 已切换）
 
-沿用 `PATHFINDER_CRON_SECRET`。执行器使用 `/usr/local/bin/node`，通过 `--env-file` 读生产环境，不在命令行写密钥。先备份当前 crontab，确认服务器时区为 Asia/Shanghai；若不是，按当地时区转换以下时间。
+沿用 `PATHFINDER_CRON_SECRET`。执行器使用 `/usr/local/bin/node`，通过 `--env-file` 读生产环境，不在命令行写密钥。生产 crontab 已配置北京时间 08:40 生成、09:30 提醒。后续修改仍先备份 crontab，并核对时区；不能重复追加相同任务。
 
 ```cron
-40 8 * * * /usr/bin/flock -n /tmp/meteor-daily-generate.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/daily-cron.mjs generate 2>&1 | /usr/bin/logger -t meteor-daily-generate
-30 9 * * * /usr/bin/flock -n /tmp/meteor-daily-remind.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/daily-cron.mjs remind 2>&1 | /usr/bin/logger -t meteor-daily-remind
+40 8 * * * /usr/bin/flock -n /run/lock/meteor-daily-generate.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/daily-cron.mjs generate 2>&1 | /usr/bin/logger -t meteor-daily-generate
+30 9 * * * /usr/bin/flock -n /run/lock/meteor-daily-remind.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/daily-cron.mjs remind 2>&1 | /usr/bin/logger -t meteor-daily-remind
 ```
 
-撤下旧 `pathfinder-digest-cron.mjs` 的日报广播任务。为兼容部署切换，旧接口仍鉴权，但只返回 `retired`，不再给全站写公告；历史公告保留。原有 Pathfinder 抓取任务继续运行。
+旧 `pathfinder-digest-cron.mjs` 的日报广播任务已撤下。为兼容部署切换，旧接口仍鉴权，但只返回 `retired`，不再给全站写公告；历史公告保留。原有 Pathfinder 抓取任务继续运行。
 
 提醒每天北京时间 09:30 固定一次已发布期刊 ID 快照；即使没有稿件也记录空快照。迟到的采集、后续审核和补发只更新页面，不新增第二条提醒。重试保持幂等；偏好只在读取时组合，不给每个用户复制内容。
 
-## 上线核验
+## 验收清单
+
+以下是完整验收目标，不代表本次均在生产执行。隔离环境记录与生产验证范围分别列出。
 
 1. 类型、lint、完整单测、生产构建通过；数据库迁移在独立 PG 实测通过。
 2. 用两个账号保存不同栏目，并刷新、退出、切换账号；确认不被游客偏好覆盖，空选保持为空。
@@ -47,7 +51,7 @@
 5. 检查实际 crontab 和两项日志；故障需返回非零并在日志显示，不能把“代码存在”记成“定时任务已上线”。
 6. 验证每日快照重复执行只有一条、09:30 后的发布不补入提醒，系统公告仍正常显示。
 
-本次本地验收数据均在临时 PostgreSQL 数据库中，未创建生产日刊、发送真实提醒或修改生产调度。
+下方本地验收数据均在临时 PostgreSQL 数据库中。2026-10-15 的生产迁移、调度切换和生成检查另见交付记录；本次没有执行生产登录后的偏好保存、管理员发布或其他写操作验收。
 
 ## 本地验证记录（2026-10-14）
 
@@ -60,3 +64,9 @@
 - 论文标记不推断同行评审结论：来源于预印本服务器，并不能证明从未正式发表；界面提示核对原文的发表/评审状态，RSS 公告时间统一显示为来源日期。
 
 全量检查还修正了两处既有测试问题：健康检查用例的返回码类型收窄，以及目录种子用例未固定日期导致随真实截止日漂移。未改变健康检查或目录的业务行为。
+
+## 生产验证范围（2026-10-15）
+
+已用真实匿名浏览器及公开 API 验证页面和内容隔离；私有接口返回 401，管理员 API 返回 404。管理员页面沿用现有“HTTP 200、页面内渲染 404”的行为，不能仅凭状态码断言后台开放。生产登录后的写流程未执行，不能引用本地双账号验证作为生产写验收。
+
+arXiv 官方 API 单次探测约 3 秒、52 KB；真实 20 条样本已成功选出 3 篇，作者、摘要与版本完整。修复的 25 项专项测试、类型和修改文件 ESLint 通过；限制为 4 个 worker 后，全量 226 文件、2,132 项测试通过（22.49 秒）。首次默认高并行有 3 个测试文件超时，未修改超时阈值或产品逻辑。第 4 个修复提交、部署构建与生产论文生成状态仍待回填。

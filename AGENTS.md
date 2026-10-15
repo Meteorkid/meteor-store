@@ -1278,20 +1278,25 @@ pnpm build                  # 构建
 
 | 时间 | 任务 | 脚本 | node |
 |------|------|------|------|
-| 每小时 :27 | Pathfinder 抓取同步 | `pathfinder-sync-cron.mjs` | `/usr/bin/node` |
+| 每小时 :27 | Pathfinder 抓取同步 | `pathfinder-sync-cron.mjs` | `/usr/local/bin/node` |
 | 每天 03:40 | 数据库备份（+ R2 异地副本） | `backup-db.sh` | — |
 | 每天 04:13 | 回查开源 issue 是否已关闭，归档失效条目 | `recheck-pathfinder-issues.mjs --apply --quiet` | **`/usr/local/bin/node`** |
-| 每天 09:17 | Pathfinder 截止提醒 | `pathfinder-deadlines-cron.mjs` | `/usr/bin/node` |
-| 每天 09:37 | 管理员待办摘要 | `admin-digest-cron.mjs` | `/usr/bin/node` |
-| 每天 09:52 | Meteor Pass 到期提醒 | `pass-expiry-cron.mjs` | `/usr/bin/node` |
+| 每天 08:40 | 每日一新内容生成 | `daily-cron.mjs generate` | `/usr/local/bin/node` |
+| 每天 09:00 | 硕士申请截止提醒 | `masters-deadlines-cron.mjs` | `/usr/local/bin/node` |
+| 每天 09:17 | Pathfinder 截止提醒 | `pathfinder-deadlines-cron.mjs` | `/usr/local/bin/node` |
+| 每天 09:30 | 每日一新提醒快照 | `daily-cron.mjs remind` | `/usr/local/bin/node` |
+| 每天 09:37 | 管理员待办摘要 | `admin-digest-cron.mjs` | `/usr/local/bin/node` |
+| 每天 09:52 | Meteor Pass 到期提醒 | `pass-expiry-cron.mjs` | `/usr/local/bin/node` |
 
-- **`recheck` 必须用 `/usr/local/bin/node`（22.23.2），不能照抄别的任务用的 `/usr/bin/node`**。
-  它 import 了 `actionable.ts`，需要 `--experimental-strip-types`，而 `/usr/bin/node`
-  是 Node 20.20.2，直接报 `bad option` 退出——**照抄现有行会让它每晚静默失败**。
+- 上表时间均为北京时间。2026-10-15 已在广州生产机安装每日一新与硕士申请任务，
+  并撤下旧 `pathfinder-digest-cron.mjs` 全站日报广播；原有 Pathfinder 抓取继续运行。
+- **迁机后 Node 调度统一使用 `/usr/local/bin/node`（22.23.2），不要恢复旧 `/usr/bin/node` 写法**。
+  `recheck` import 了 `actionable.ts`，需要 `--experimental-strip-types`；旧机 `/usr/bin/node`
+  为 Node 20.20.2，会报 `bad option` 退出。
   另外配 `--disable-warning=MODULE_TYPELESS_PACKAGE_JSON`：不加的话每晚往 syslog
   写 4 行「Reparsing as ES module」，正好抵消掉「一行 JSON 摘要」的意义
-- **`recheck` 是唯一直连数据库的 cron**，其余四个都只打 `127.0.0.1:3000` 的接口。
-  所以只有它受数据库驱动变更影响
+- `recheck` 直接连接数据库；Pathfinder、每日一新和硕士申请的 HTTP 包装脚本
+  请求 `127.0.0.1:3000`，数据库访问在应用服务内完成。数据库备份另走 `pg_dump`。
 - 每条都套 `flock -n`：跑过头时下一轮直接跳过，而不是叠着跑
 - 密钥一律走 `--env-file=/var/www/meteor-store/.env.production`，**不写进 crontab**——
   `ps` 看得到命令行，crontab 还会被备份到别处
@@ -1399,24 +1404,25 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - **环境变量在服务器上**：`/var/www/meteor-store/.env.production`，部署脚本**不会**同步它，
   改完要 `pm2 restart meteor-store --update-env`
 
-## 每日一新（代码已完成，生产调度待上线）
+## 每日一新（2026-10-15 已上线，论文来源修复待部署验证）
 
 - 独立阅读页 `/daily`、后台 `/admin/daily`；栏目协议与配置在 `src/lib/daily/types.ts`，服务在 `service.ts`，来源适配在 `content.ts`。同一天同栏目只保存一份公共内容，个人只保存选择与提醒开关。
-- 新表迁移为 `0046`，先迁移后部署。偏好纳入账号导出和注销；私人响应 `no-store`，不要混入公开公告缓存。
+- 新表迁移 `0046` 已在生产执行。偏好纳入账号导出和注销；私人响应 `no-store`，不要混入公开公告缓存。
 - `null` 偏好代表尚未设置，`channels: []` 是用户明确空选。游客不覆盖已有账号设置；写偏好要核对 `X-Daily-User` 与当前会话，避免切换账号时旧请求写入新账号。
 - 英语与论文采集结果先入草稿，管理员审核后发布；AI 只复用当天已公开数据库资讯。论文保留原始摘要/版本/预印本标识，活动须官方来源及确认时区。无新稿和失败必须分开。
 - 采集重跑不覆盖已发布/待审稿；编辑使用 `expectedUpdatedAt` 条件更新。采集完成后才记发布时间，发布中的修订保留原发布时间。
 - 每天北京时间 09:30 固定一次提醒快照，无稿也存空快照；晚到内容不补入，同一天不重复提醒。系统公告与日刊提醒分开，双铃铛共享请求和已读，缓存按账号隔离。
-- `scripts/daily-cron.mjs generate|remind` 与其它任务共用 `PATHFINDER_CRON_SECRET`。旧 `pathfinder-digest` 接口改为鉴权后返回 `retired`，不再广播；上线时必须同时切换真实 crontab 并验证日志。具体操作与回滚见 `docs/process/daily-fresh.md`，当前不能把本地验收当成线上已运行。
+- `scripts/daily-cron.mjs generate|remind` 与其它任务共用 `PATHFINDER_CRON_SECRET`，生产分别在 08:40、09:30 执行。旧 `pathfinder-digest` 接口鉴权后返回 `retired`，原广播调度已替换；后续改调度仍须同步真实 crontab 并检查日志。
+- 首次生产论文生成触发 10 秒超时；后续延长超时探测发现完整 arXiv RSS 需约 81 秒。修复已改用官方 API（`max_results=20`）与 Atom 解析，专项与全量测试通过，但修复部署及生产论文生成结果尚待确认。交付记录见 `docs/process/2026-10-15-daily-masters-release.md`。
 
-## 硕士申请日历（第五个阅读选项，生产待上线）
+## 硕士申请日历（2026-10-15 已上线，首批内容待审核）
 
 - `/masters` 与 `/admin/masters`，服务在 `src/lib/masters/`。申请轮次是长期记录，不能塞进 30 天日刊快照，也不能按单一官方 URL 把不同年份合并。
 - `DAILY_CHANNEL_IDS` 含五种阅读选项；`DAILY_EDITION_CHANNEL_IDS` 仍为四种日刊内容。管理员日刊、生成器和 `daily_editions` 只使用四种内容类型，硕士日历走独立数据源。
-- `0047` 新增轮次、个人申请和提醒三张表。入学年份不可直接覆写，下一年必须创建新记录；仅日期不补时刻，国内/国际申请者必须区分。
+- `0047` 已在生产新增轮次、个人申请和提醒三张表。首批 11 条种子均为草稿，尚未公开，必须逐条核验后发布。入学年份不可直接覆写，下一年必须创建新记录；仅日期不补时刻，国内/国际申请者必须区分。
 - `revision` 追踪编辑，`dateVersion` 只追踪结构化日期/状态；修说明标点不能触发新的截止提醒。保存轮次与同步改期提醒同一事务，编辑使用版本条件更新。
 - 提醒未读优先分页，不能让前20条已读遮住后面的未读。已提交/放弃、关闭提醒、下架以及过期日期会被读取端再次过滤。私人接口 no-store，写入核对 X-Masters-User。
-- 个人关注和通知纳入导出/注销；ICS 是快照，不承诺自动同步或客户端必定提醒。上线与内容维护见 `docs/process/masters-application-calendar.md`。
+- 个人关注和通知纳入导出/注销；ICS 是快照，不承诺自动同步或客户端必定提醒。生产每日 09:00 检查申请截止提醒；本次未执行生产登录后写操作验收。内容维护见 `docs/process/masters-application-calendar.md`。
 
 ## 联系方式
 
