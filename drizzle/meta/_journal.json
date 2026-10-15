@@ -337,6 +337,13 @@
       "when": 1791987678223,
       "tag": "0047_wide_thunderbolts",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1792054411544,
+      "tag": "0048_medical_loners",
+      "breakpoints": true
     }
   ]
 }

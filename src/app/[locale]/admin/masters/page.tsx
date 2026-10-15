@@ -30,8 +30,8 @@ export default async function MastersAdminPage({ params }: { params: Promise<{ l
       <header className="mb-8">
         <h1 className="t-title-2">{locale === 'en' ? 'Masters application calendar' : '硕士申请日历'}</h1>
         <p className="mt-2 text-sm text-white/60">{locale === 'en'
-          ? 'Verify official programme dates, applicant groups and intake years before publishing. Unannounced dates stay unknown.'
-          : '按项目、申请群体和入学年份核验官方日期，再审核发布。未公布的日期保持未知。'}</p>
+          ? 'Connected official programmes are checked and published automatically. Use this page for corrections or unpublishing.'
+          : '已接入官方项目每天自动核对并发布；此处用于人工补充、纠错或下架。未公布的日期保持未知。'}</p>
       </header>
       <MastersManager initialYear={year} initialRounds={rounds} />
     </>

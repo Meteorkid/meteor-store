@@ -50,6 +50,12 @@ export async function getMastersRoundsByIds(ids: string[]): Promise<MastersRound
   return db.select(roundColumns).from(mastersRounds)
     .where(and(inArray(mastersRounds.id, [...new Set(ids)]), eq(mastersRounds.status, 'published')));
 }
+/** 仅自动同步读取暂停标记；公开列表仍使用不含内部标记的roundColumns。 */
+export async function getMastersAutomationRounds(ids: string[]): Promise<Array<MastersRound & { automationPaused: boolean }>> {
+  if (!ids.length) return [];
+  return db.select({ ...roundColumns, automationPaused: mastersRounds.automationPaused }).from(mastersRounds)
+    .where(inArray(mastersRounds.id, [...new Set(ids)]));
+}
 export async function getMastersSummary(year = defaultMastersYear()): Promise<MastersSummary> {
   const rounds = await listMastersRounds(year);
   const today = dailyDate();
@@ -61,17 +67,18 @@ export async function getMastersSummary(year = defaultMastersYear()): Promise<Ma
 }
 
 /** 更新和改期提醒一同提交；日期版本与正文版本分开，修标点不会重发临期提醒。 */
-export async function saveMastersRound(value: MastersRoundInput): Promise<MastersRound | null> {
+export async function saveMastersRound(value: MastersRoundInput, options: { automatic?: boolean } = {}): Promise<MastersRound | null> {
   const input = MastersRoundInputSchema.parse(value);
   try {
     return await db.transaction(async tx => {
       const id = input.id ?? randomUUID();
-      const [previous] = await tx.select(roundColumns).from(mastersRounds).where(eq(mastersRounds.id, id)).limit(1);
+      const [previous] = await tx.select({ ...roundColumns, automationPaused: mastersRounds.automationPaused }).from(mastersRounds).where(eq(mastersRounds.id, id)).limit(1);
+      if (options.automatic && previous?.automationPaused) return null;
       if (previous && (previous.updatedAt !== input.expectedUpdatedAt || previous.intakeYear !== input.intakeYear)) return null;
       if (!previous && input.expectedUpdatedAt) return null;
       const now = revisionAfter(previous?.updatedAt);
       const changed = previous ? datesFingerprint(previous) !== datesFingerprint(input) : false;
-      const values = { intakeYear: input.intakeYear, region: input.region, details: input.details,
+      const values = { intakeYear: input.intakeYear, region: input.region, details: input.details, automationPaused: !options.automatic,
         identityKey: identity(input), status: input.status, verifiedOn: input.verifiedOn,
         revision: (previous?.revision ?? 0) + 1,
         dateVersion: (previous?.dateVersion ?? 1) + (changed ? 1 : 0),
@@ -79,7 +86,7 @@ export async function saveMastersRound(value: MastersRoundInput): Promise<Master
         previousDeadlineText: changed && previous?.status === 'published' ? deadlineDescription(previous) : previous?.previousDeadlineText ?? null,
         updatedAt: now };
       const rows = previous
-        ? await tx.update(mastersRounds).set(values).where(and(eq(mastersRounds.id, id), eq(mastersRounds.updatedAt, input.expectedUpdatedAt!))).returning(roundColumns)
+        ? await tx.update(mastersRounds).set(values).where(and(eq(mastersRounds.id, id), eq(mastersRounds.updatedAt, input.expectedUpdatedAt!), options.automatic ? eq(mastersRounds.automationPaused, false) : undefined)).returning(roundColumns)
         : await tx.insert(mastersRounds).values({ id, createdAt: now, ...values }).onConflictDoNothing().returning(roundColumns);
       const saved = rows[0];
       if (!saved) return null;
@@ -94,7 +101,7 @@ export async function saveMastersRound(value: MastersRoundInput): Promise<Master
 }
 
 export async function unpublishMastersRound(id: string, expectedUpdatedAt: string): Promise<boolean> {
-  const rows = await db.update(mastersRounds).set({ status: 'draft', revision: sql`${mastersRounds.revision} + 1`, updatedAt: revisionAfter(expectedUpdatedAt) })
+  const rows = await db.update(mastersRounds).set({ status: 'draft', automationPaused: true, revision: sql`${mastersRounds.revision} + 1`, updatedAt: revisionAfter(expectedUpdatedAt) })
     .where(and(eq(mastersRounds.id, id), eq(mastersRounds.updatedAt, expectedUpdatedAt), eq(mastersRounds.status, 'published')))
     .returning({ id: mastersRounds.id });
   return rows.length === 1;

@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
-import { dailyDate } from '@/lib/daily/types';
+import { DAILY_EDITION_CHANNEL_IDS, dailyDate } from '@/lib/daily/types';
 import { freezeDailyReminder, generateDailyEditions } from '@/lib/daily/service';
 
 export const runtime = 'nodejs';
@@ -23,7 +23,11 @@ export async function POST(request: NextRequest) {
     if (action === 'remind') return NextResponse.json({ success: true, ...await freezeDailyReminder() });
     const editions = await generateDailyEditions(dailyDate());
     revalidatePath('/[locale]/daily', 'page');
-    const failed = editions.some(edition => edition.status === 'failed');
+    // 插入唯一键冲突或不完整任务不能因为「没有 failed 行」就伪装成功。
+    const failed = DAILY_EDITION_CHANNEL_IDS.some(channel => {
+      const edition = editions.find(row => row.channel === channel);
+      return !edition || edition.status === 'failed' || (edition.status === 'draft' && !edition.automationPaused);
+    });
     return NextResponse.json({ success: !failed, editions: editions.map(({ channel, status }) => ({ channel, status })) }, { status: failed ? 503 : 200 });
   } catch {
     console.error({ event: 'daily_cron_failed', action });

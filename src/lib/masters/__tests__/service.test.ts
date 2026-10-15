@@ -122,6 +122,35 @@ beforeEach(() => {
 });
 afterEach(() => vi.useRealTimers());
 
+describe('官方自动同步与人工暂停', () => {
+  it('事务内拒绝自动覆盖已暂停记录', async () => {
+    state.responses.push([{ ...round(), automationPaused: true }]);
+    expect(await saveMastersRound(input(), { automatic: true })).toBeNull();
+    expect(writes(mastersRounds)).toHaveLength(0);
+    expect(writes(mastersNotices)).toHaveLength(0);
+  });
+
+  it('人工保存和下架都会暂停后续自动同步', async () => {
+    state.responses.push([{ ...round(), automationPaused: false }], [round()], []);
+    await saveMastersRound(input());
+    expect(valuesOf(writes(mastersRounds)[0])[0].automationPaused).toBe(true);
+    state.operations = [];
+    state.responses.push([{ id: round().id }]);
+    await unpublishMastersRound(round().id, previousTime);
+    expect(valuesOf(writes(mastersRounds)[0])[0].automationPaused).toBe(true);
+  });
+
+  it('自动更新保留版本CAS并把暂停条件放进实际UPDATE', async () => {
+    state.responses.push([{ ...round(), automationPaused: false }], [round()], []);
+    await saveMastersRound(input(), { automatic: true });
+    const update = writes(mastersRounds)[0];
+    expect(valuesOf(update)[0].automationPaused).toBe(false);
+    expect(sqlOf(update.where).sql).toContain('"masters_rounds"."automation_paused"');
+    expect(sqlOf(update.where).params).toContain(false);
+    expect(sqlOf(update.where).params).toContain(previousTime);
+  });
+});
+
 describe('申请轮次公开边界与身份', () => {
   it('公开年列表和按ID查询均在SQL要求published，后台才可读取草稿', async () => {
     state.responses.push([], [], []);

@@ -31,7 +31,7 @@ export default async function DailyAdminPage({ params }: { params: Promise<{ loc
       <header className="mb-8">
         <h1 className="t-title-2">{locale === 'en' ? 'Daily Fresh' : '每日一新'}</h1>
         <p className="mt-2 text-sm text-white/60">
-          {locale === 'en' ? 'Review daily editions, confirm sources and publish. Dates follow Beijing time.' : '审核每日内容、核对来源后发布。期次按北京时间划分。'}
+          {locale === 'en' ? 'Daily editions are collected and published automatically. Use this page to correct or unpublish content.' : '每日自动采集并发布；此处用于纠错、手动补充或下架。期次按北京时间划分。'}
         </p>
       </header>
       <DailyManager initialDate={date} initialEditions={editions} />

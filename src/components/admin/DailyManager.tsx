@@ -110,7 +110,7 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
         setEditions(current => [...current.filter(item => !updates.has(item.channel)), ...updates.values()]);
         setNotice(data.editions.some(item => item.status === 'failed')
           ? t('部分栏目采集失败，请查看状态后重试。', 'Some channels failed. Check their status before retrying.')
-          : t('已更新栏目状态。英语与论文请审核后发布。', 'Channel status updated. Review English and papers before publishing.'));
+          : t('已自动更新并发布通过校验的内容，失败栏目将定时重试。', 'Validated content is published automatically. Failed channels will be retried.'));
       }
     } catch (failure) { setError(errorMessage(failure instanceof Error ? failure.message : 'failed')); }
     finally { setBusy(false); }
@@ -178,7 +178,7 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
   }
 
   const statuses = {
-    draft: t('待审核', 'Draft'), published: t('已发布', 'Published'), empty: t('无新内容', 'No new content'), failed: t('采集失败', 'Failed'),
+    draft: t('未公开草稿', 'Unpublished draft'), published: t('已发布', 'Published'), empty: t('无新内容', 'No new content'), failed: t('采集失败', 'Failed'),
   };
 
   return (
@@ -190,7 +190,7 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
         </form>
         <button className={buttonClass} type="button" disabled={busy || date !== dailyDate() || dateInput !== date} onClick={() => generate()}>{busy ? t('处理中…', 'Working…') : t('生成当天内容', 'Generate editions')}</button>
       </div>
-      <p className="text-sm text-white/60">{t('现有草稿和已发布内容不会被重新生成覆盖。发布会按官方信息手工录入；没有新活动时可以留空。', 'Generation preserves existing drafts and published editions. Enter events from official information; an empty day is fine.')}</p>
+      <p className="text-sm text-white/60">{t('栏目每天自动采集并发布。人工编辑或下架会暂停该期的自动更新；未确认的活动时间保持待定。', 'Channels are collected and published automatically. Editing or unpublishing pauses automation for that edition. Unconfirmed event times stay unspecified.')}</p>
       {dateInput !== date && <p className="text-sm text-white/70">{t('日期已更改，请先载入。下方仍为', 'Date changed. Load it first; the editions below are still for')} {date}。</p>}
       {date !== dailyDate() && <p className="text-sm text-white/60">{t('仅今天支持自动生成，历史和未来期刊可手工编辑。', 'Automatic generation is available only for today. Edit past and future editions manually.')}</p>}
       {error && <p role="alert" className="rounded-lg border border-red-400/30 p-3 text-sm text-red-200">{error}</p>}
@@ -208,7 +208,7 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
               {edition?.status === 'published' && <button type="button" className={buttonClass} disabled={busy} onClick={() => setRetiringId(edition.id)}>{t('下架', 'Unpublish')}</button>}
             </div>
             {edition?.status === 'published' && retiringId === edition.id && <div className="mt-4 border-t border-amber-300/30 pt-4" role="alert">
-              <p className="text-sm text-amber-200">{t('下架后读者将看不到这期内容，草稿会保留。', 'Readers will no longer see this edition. Its draft will be kept.')}</p>
+              <p className="text-sm text-amber-200">{t('下架后读者将看不到这期内容，草稿会保留，自动任务不会重新发布。', 'Readers will no longer see this edition. The draft is kept and automation will not republish it.')}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button type="button" className={buttonClass} disabled={busy} onClick={() => setRetiringId(null)}>{t('取消下架', 'Cancel unpublishing')}</button>
                 <button type="button" className={buttonClass} disabled={busy} onClick={() => retire(edition)}>{t('确认下架', 'Confirm unpublishing')}</button>
@@ -276,7 +276,7 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
                 <label className="flex items-center gap-2 text-sm text-white/70"><input type="checkbox" checked={item.preprint ?? false} onChange={event => updateItem(index, { preprint: event.target.checked })} />{t('预印本，未经同行评审', 'Preprint, not peer reviewed')}</label>
               </>}
               {editor.channel === 'events' && <div className="grid gap-3 sm:grid-cols-2">
-                <Select label={t('活动阶段', 'Event phase')} value={item.phase ?? 'upcoming'} options={[[ 'upcoming', t('预告', 'Upcoming') ], ['live', t('正在进行', 'Live')], ['replay', t('回放', 'Replay')]]} onChange={value => updateItem(index, { phase: value as DailyLinkItem['phase'] })} />
+                <Select label={t('活动阶段', 'Event phase')} value={item.phase ?? 'upcoming'} options={[[ 'upcoming', t('预告', 'Upcoming') ], ['live', t('正在进行', 'Live')], ['replay', t('回放', 'Replay')], ['announcement', t('活动公告', 'Announcement')]]} onChange={value => updateItem(index, { phase: value as DailyLinkItem['phase'] })} />
                 <Field label={t('实际开始时间（未知留空）', 'Actual start time (leave unknown empty)')} value={item.startAt ?? ''} onChange={value => updateItem(index, { startAt: value || undefined })} />
                 <Field label={t('已确认的时区', 'Confirmed time zone')} value={item.timeZone ?? ''} maxLength={80} placeholder="Asia/Shanghai" required={Boolean(item.startAt)} onChange={value => updateItem(index, { timeZone: value || undefined })} />
               </div>}
@@ -288,7 +288,7 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
         <div className="flex flex-wrap gap-3">
           <button type="button" className={buttonClass} disabled={busy} onClick={() => { if (!parseContent(editor.content).success) { setError(errorMessage('invalid')); return; } setPreview(!preview); }}>{preview ? t('收起预览', 'Hide preview') : t('预览内容', 'Preview content')}</button>
           <button type="submit" value="save" className={buttonClass} disabled={busy}>{editor.published ? t('保存已发布内容', 'Save published edition') : t('保存草稿', 'Save draft')}</button>
-          {!editor.published && <button type="submit" value="publish" className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" disabled={busy}>{t('审核通过并发布', 'Approve and publish')}</button>}
+          {!editor.published && <button type="submit" value="publish" className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" disabled={busy}>{t('手动发布', 'Publish manually')}</button>}
         </div>
         {preview && <section aria-label={t('内容预览', 'Content preview')} className="space-y-4 border-t border-white/15 pt-5">
           <p className="text-sm text-white/60">{t('管理预览 · 练习答案在此可见', 'Admin preview · answers are visible here')}</p>
@@ -302,7 +302,7 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
             <h4 className="font-semibold">{item.title}</h4><p className="whitespace-pre-wrap text-white/70">{item.summary}</p>
             <p className="text-sm text-white/60">{item.sourceName} · {item.sourceType === 'official' ? t('官方', 'Official') : t('第三方聚合', 'Aggregator')}{item.sourcePublishedAt ? ` · ${item.sourcePublishedAt}` : ''}</p>
             {item.authors?.length ? <p className="text-sm text-white/70">{item.authors.join(', ')} · {item.version} {item.preprint ? t('· 预印本', '· Preprint') : ''}</p> : null}
-            {editor.channel === 'events' && <p className="text-sm text-white/70">{item.phase === 'replay' ? t('回放', 'Replay') : item.phase === 'live' ? t('正在进行', 'Live') : t('预告', 'Upcoming')} · {item.startAt ?? t('时间待定', 'Time to be confirmed')}{item.timeZone ? ` · ${item.timeZone}` : ''}</p>}
+            {editor.channel === 'events' && <p className="text-sm text-white/70">{item.phase === 'announcement' ? t('活动公告', 'Announcement') : item.phase === 'replay' ? t('回放', 'Replay') : item.phase === 'live' ? t('正在进行', 'Live') : t('预告', 'Upcoming')} · {item.startAt ?? t('时间待定', 'Time to be confirmed')}{item.timeZone ? ` · ${item.timeZone}` : ''}</p>}
             {item.url.startsWith('https://') && <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-block text-sm text-violet-300 underline">{t('查看原文 / 官方活动', 'Open original / official event')}</a>}
           </article>)}
         </section>}

@@ -4,8 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DailyContentSchema } from '../types';
 import { englishLessons } from '../english-lessons';
 
-const mocks = vi.hoisted(() => ({ select: vi.fn(), where: vi.fn(), limit: vi.fn() }));
+const mocks = vi.hoisted(() => ({ select: vi.fn(), where: vi.fn(), limit: vi.fn(), generateEnglish: vi.fn(), events: vi.fn() }));
 vi.mock('@/lib/db', () => ({ db: { select: mocks.select } }));
+vi.mock('../english-generator', () => ({ generateDailyEnglish: mocks.generateEnglish }));
+vi.mock('../events', () => ({ loadDailyEvents: mocks.events }));
 
 const day = '2026-10-14';
 const publishedAt = 'Wed, 14 Oct 2026 00:00:00 -0400';
@@ -73,6 +75,7 @@ beforeEach(() => {
   vi.resetModules();
   vi.clearAllMocks();
   mocks.limit.mockResolvedValue([]);
+  mocks.events.mockResolvedValue({ status: 'empty', content: null });
   const query = { from: vi.fn(), innerJoin: vi.fn(), where: mocks.where, orderBy: vi.fn(), limit: mocks.limit };
   query.from.mockReturnValue(query);
   query.innerJoin.mockReturnValue(query);
@@ -99,30 +102,21 @@ describe('每日英语内容池', () => {
     }
   });
 
-  it('每课首次生成仍是草稿，用完不循环、不请求外部服务', async () => {
+  it('每天调用持续生成器并立即发布，传入近期课程标题避重复', async () => {
     const { loadDailyContent } = await import('../content');
-    const fetchMock = vi.fn();
-    vi.stubGlobal('fetch', fetchMock);
-    const used: string[] = [];
-    for (const lesson of englishLessons) {
-      const result = await loadDailyContent('english', day, used);
-      expect(result.status).toBe('draft');
-      expect(result.sourceKey).toBe(`english:${lesson.id}`);
-      expect(result.content).toEqual(lesson.content);
-      used.push(result.sourceKey!);
-    }
-    expect(await loadDailyContent('english', day, used)).toMatchObject({ status: 'empty', content: null });
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(mocks.select).not.toHaveBeenCalled();
+    mocks.generateEnglish.mockResolvedValue({ title: '新课程', summary: '今日练习', content: englishLessons[0].content, sourceKey: `english:generated:${day}` });
+    const result = await loadDailyContent('english', day, [], ['昨日课程']);
+    expect(result.status).toBe('published');
+    expect(result.sourceKey).toBe(`english:generated:${day}`);
+    expect(mocks.generateEnglish).toHaveBeenCalledWith(day, ['昨日课程']);
   });
 
-  it('返回独立内容快照，调用方修改不会污染后续课稿', async () => {
+  it('生成器失败上抛，不循环课程池或假装已有新课', async () => {
     const { loadDailyContent } = await import('../content');
-    const first = await loadDailyContent('english', day);
-    if (first.content?.kind !== 'english') throw new Error('Expected English lesson');
-    first.content.vocabulary[0].term = 'changed';
-    expect((await loadDailyContent('english', day)).content).toEqual(englishLessons[0].content);
+    mocks.generateEnglish.mockRejectedValueOnce(new Error('generation failed'));
+    await expect(loadDailyContent('english', day)).rejects.toThrow('generation failed');
   });
+
 });
 
 describe('arXiv 论文元数据', () => {
@@ -246,12 +240,12 @@ describe('arXiv 论文元数据', () => {
     ), day)).toEqual([]);
   });
 
-  it('正常抓取仅生成待审草稿，使用固定 HTTPS 源并禁用重定向', async () => {
+  it('正常抓取自动发布，使用固定 HTTPS 源并禁用重定向', async () => {
     const { loadDailyContent } = await import('../content');
     const fetchMock = vi.fn().mockResolvedValue(new Response(atomFeed(atomPaper())));
     vi.stubGlobal('fetch', fetchMock);
     const result = await loadDailyContent('papers', day);
-    expect(result.status).toBe('draft');
+    expect(result.status).toBe('published');
     expect(result.content?.kind).toBe('papers');
     expect(result.sourceKey).toMatch(/^papers:[a-f0-9]{64}$/);
     expect(fetchMock).toHaveBeenCalledWith('https://export.arxiv.org/api/query?search_query=cat%3Acs.AI+OR+cat%3Acs.CL+OR+cat%3Acs.LG&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending', expect.objectContaining({
@@ -346,9 +340,10 @@ describe('已有 AI 资讯与发布会', () => {
     expect(await loadDailyContent('ai', day)).toMatchObject({ status: 'empty', content: null });
   });
 
-  it('发布会默认无稿，等待管理员录入；非法日期不发请求', async () => {
+  it('发布会调用自动采集器；非法日期不发请求', async () => {
     const { loadDailyContent } = await import('../content');
     expect(await loadDailyContent('events', day)).toMatchObject({ status: 'empty', content: null });
+    expect(mocks.events).toHaveBeenCalledWith(day, []);
     await expect(loadDailyContent('papers', '2026-02-30')).rejects.toThrow();
     expect(mocks.select).not.toHaveBeenCalled();
   });

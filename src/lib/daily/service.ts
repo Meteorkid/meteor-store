@@ -53,15 +53,10 @@ export interface SaveDailyEditionInput {
   content: DailyContent; status: 'draft' | 'published'; expectedUpdatedAt?: string;
 }
 
-export async function saveDailyEdition(input: SaveDailyEditionInput): Promise<DailyEdition | null> {
-  DailyDateSchema.parse(input.date);
-  DailyEditionChannelSchema.parse(input.channel);
-  const content = DailyContentSchema.parse(input.content);
-  const id = `${input.date}:${input.channel}`;
-  if (input.id && input.id !== id) throw new Error('Edition identity mismatch');
-  if (content.kind !== input.channel) throw new Error('Content channel mismatch');
-  if (input.status !== 'draft' && input.status !== 'published') throw new Error('Invalid edition status');
-  if (!input.title.trim() || input.title.length > 300 || input.summary.length > 2000) throw new Error('Invalid edition text');
+function validatePublication(channel: DailyEditionChannelId, title: string, summary: string, value: unknown): DailyContent {
+  const content = DailyContentSchema.parse(value);
+  if (content.kind !== channel) throw new Error('Content channel mismatch');
+  if (!title.trim() || title.length > 300 || summary.length > 2000) throw new Error('Invalid edition text');
   if (content.kind === 'events' && content.items.some(item => item.sourceType !== 'official' || !item.phase)) {
     throw new Error('Events require an official source and phase');
   }
@@ -71,9 +66,19 @@ export async function saveDailyEdition(input: SaveDailyEditionInput): Promise<Da
       if (item.timeZone) new Intl.DateTimeFormat('en', { timeZone: item.timeZone });
     }
   }
+  return content;
+}
+
+export async function saveDailyEdition(input: SaveDailyEditionInput): Promise<DailyEdition | null> {
+  DailyDateSchema.parse(input.date);
+  DailyEditionChannelSchema.parse(input.channel);
+  const id = `${input.date}:${input.channel}`;
+  if (input.id && input.id !== id) throw new Error('Edition identity mismatch');
+  if (input.status !== 'draft' && input.status !== 'published') throw new Error('Invalid edition status');
+  const content = validatePublication(input.channel, input.title, input.summary, input.content);
   const now = revisionAfter(input.expectedUpdatedAt);
   const values = { title: input.title.trim(), summary: input.summary.trim(), content,
-    status: input.status, error: null, updatedAt: now,
+    status: input.status, automationPaused: true, error: null, updatedAt: now,
     publishedAt: input.status === 'published' ? now : null };
   // 有版本只做条件更新；无版本只做插入，避免两位管理员互相覆盖。
   if (input.expectedUpdatedAt) {
@@ -91,7 +96,7 @@ export async function saveDailyEdition(input: SaveDailyEditionInput): Promise<Da
 }
 
 export async function retireDailyEdition(id: string, expectedUpdatedAt: string): Promise<boolean> {
-  const rows = await db.update(dailyEditions).set({ status: 'draft', publishedAt: null, updatedAt: revisionAfter(expectedUpdatedAt) })
+  const rows = await db.update(dailyEditions).set({ status: 'draft', automationPaused: true, publishedAt: null, updatedAt: revisionAfter(expectedUpdatedAt) })
     .where(and(eq(dailyEditions.id, id), eq(dailyEditions.updatedAt, expectedUpdatedAt), eq(dailyEditions.status, 'published')))
     .returning({ id: dailyEditions.id });
   return rows.length === 1;
@@ -104,37 +109,42 @@ export async function generateDailyEditions(date: string, channel?: DailyEdition
   if (channel) DailyEditionChannelSchema.parse(channel);
   const existing = await listDailyEditions(date);
   const sourceRows = await db.select({ sourceKey: dailyEditions.sourceKey }).from(dailyEditions);
-  const recentRows = await db.select({ content: dailyEditions.content }).from(dailyEditions)
+  const recentRows = await db.select({ content: dailyEditions.content, title: dailyEditions.title }).from(dailyEditions)
     .where(gte(dailyEditions.date, shiftDailyDate(date, -30)));
-  const usedKeys = sourceRows.flatMap(row => row.sourceKey ? [row.sourceKey] : []);
-  for (const row of recentRows) {
-    if (row.content && row.content.kind !== 'english') usedKeys.push(...row.content.items.map(item => item.id));
-  }
+  const sourceKeys = sourceRows.flatMap(row => row.sourceKey ? [row.sourceKey] : []);
   for (const id of channel ? [channel] : DAILY_EDITION_CHANNEL_IDS) {
     const previous = existing.find(row => row.channel === id);
-    if (previous && (previous.status === 'published' || previous.status === 'draft')) continue;
+    if (previous && (previous.status === 'published' || previous.automationPaused
+      || (previous.status === 'draft' && !previous.sourceKey))) continue;
+    // AI 与活动允许分别选用同一官方公告，历史去重只在本栏目内执行。
+    const usedKeys = [...sourceKeys, ...recentRows.flatMap(row => row.content?.kind === id && row.content.kind !== 'english'
+      ? row.content.items.flatMap(item => [item.id, item.url]) : [])];
     let now = revisionAfter(previous?.updatedAt);
     let values: Omit<typeof dailyEditions.$inferInsert, 'id' | 'date' | 'channel' | 'createdAt'>;
     try {
-      const result = await loadDailyContent(id, date, usedKeys);
-      const content = result.content ? DailyContentSchema.parse(result.content) : null;
-      if (content && content.kind !== id) throw new Error('Generated channel mismatch');
+      // 旧的机器草稿原样校验、发布；人工接管的记录由独立标记保护，不能自动复活。
+      const result = previous?.status === 'draft'
+        ? previous
+        : await loadDailyContent(id, date, usedKeys, recentRows.filter(row => row.content?.kind === 'english').map(row => row.title));
+      const content = result.content ? validatePublication(id, result.title, result.summary, result.content) : null;
       if (result.status !== 'empty' && !content) throw new Error('Generated content missing');
       // 发布时间取采集完成时刻，跨过 09:30 的慢请求不能倒填进晨间提醒。
       now = revisionAfter(previous?.updatedAt);
-      values = { title: result.title, summary: result.summary, content, status: result.status,
+      values = { title: result.title, summary: result.summary, content, status: content ? 'published' : 'empty',
         sourceKey: result.sourceKey ?? null, error: null, updatedAt: now,
-        publishedAt: result.status === 'published' ? now : null };
+        automationPaused: false, publishedAt: content ? now : null };
     } catch {
       now = revisionAfter(previous?.updatedAt);
       // 不把上游错误原文（可能含请求信息）写入公开或管理页面。
       values = { title: '', summary: '', content: null, status: 'failed', sourceKey: null,
         error: 'content_unavailable', publishedAt: null, updatedAt: now };
     }
+    if (dailyDate() !== date) throw new Error('Daily generation crossed midnight');
     if (previous) {
       await db.update(dailyEditions).set(values).where(and(
         eq(dailyEditions.id, previous.id), eq(dailyEditions.updatedAt, previous.updatedAt),
-        inArray(dailyEditions.status, ['empty', 'failed']),
+        eq(dailyEditions.automationPaused, false),
+        inArray(dailyEditions.status, ['empty', 'failed', 'draft']),
       ));
     } else {
       await db.insert(dailyEditions).values({ id: `${date}:${id}`, date, channel: id, createdAt: now, ...values })

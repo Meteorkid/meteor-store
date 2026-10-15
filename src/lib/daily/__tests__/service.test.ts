@@ -215,28 +215,64 @@ describe('管理员编辑并发与下架', () => {
     for (const operation of state.operations) {
       expect(operation.kind).toBe('update');
       expect(whereSql(operation).params).toEqual([`${date}:ai`, cutoff, 'published']);
-      expect(operation.values).toMatchObject({ status: 'draft', publishedAt: null });
+      expect(operation.values).toMatchObject({ status: 'draft', automationPaused: true, publishedAt: null });
     }
   });
 });
 
 describe('按日生成与失败重试', () => {
+  it('自动草稿原样发布，发布时间取当前时间而不重新采集', async () => {
+    const draft = edition({ status: 'draft', publishedAt: null, automationPaused: false });
+    state.responses.push([draft], [], [], [{ id: draft.id }], [edition()]);
+    await generateDailyEditions(date, 'ai');
+    expect(state.loadContent).not.toHaveBeenCalled();
+    const write = state.operations.find(operation => operation.kind === 'update')!;
+    expect(write.values).toMatchObject({ status: 'published', content: draft.content, publishedAt: cutoff });
+    expect(whereSql(write).sql).toContain('"automation_paused"');
+    expect(whereSql(write).params).toContain(false);
+  });
+
+  it('人工接管或下架的草稿保持暂停，定时任务不能复活', async () => {
+    const draft = edition({ status: 'draft', automationPaused: true });
+    state.responses.push([draft], [], [], [draft]);
+    await generateDailyEditions(date, 'ai');
+    expect(state.loadContent).not.toHaveBeenCalled();
+    expect(state.operations.every(operation => operation.kind === 'select')).toBe(true);
+  });
+
+  it('正常内容直接公开，即使旧适配器仍返回draft也不再等待人工发布', async () => {
+    state.responses.push([], [], [], [{ id: `${date}:english` }], []);
+    state.loadContent.mockResolvedValue({ status: 'draft', title: '新课', summary: '今日课程', content: englishLessons[0].content, sourceKey: 'english:generated:2026-10-14' });
+    await generateDailyEditions(date, 'english');
+    expect(state.operations.find(operation => operation.kind === 'insert')?.values).toMatchObject({ status: 'published', publishedAt: cutoff });
+  });
+
+  it('跨午夜完成的采集不倒填昨天期刊', async () => {
+    state.responses.push([], [], []);
+    state.loadContent.mockImplementation(async () => {
+      vi.setSystemTime(new Date('2026-10-14T16:00:01Z'));
+      return { status: 'published', title: 'AI', summary: '摘要', content: aiContent };
+    });
+    await expect(generateDailyEditions(date, 'ai')).rejects.toThrow('midnight');
+    expect(state.operations.every(operation => operation.kind === 'select')).toBe(true);
+  });
   it.each(['2026-10-13', '2026-10-15'])('不使用今天来源倒填或预填 %s', async (value) => {
     await expect(generateDailyEditions(value)).rejects.toThrow('Only today can be generated');
     expect(state.operations).toHaveLength(0);
     expect(state.loadContent).not.toHaveBeenCalled();
   });
 
-  it('已发布与待审稿均不重新采集、不覆盖，使用过的来源与论文ID传给适配器', async () => {
+  it('已发布与暂停草稿均不重新采集，历史来源按栏目隔离', async () => {
     const previousPaper = { kind: 'papers' as const, items: [{ ...aiContent.items[0], id: 'https://arxiv.org/abs/2610.12345' }] };
-    const existing = [edition(), edition({ id: `${date}:papers`, channel: 'papers', status: 'draft', content: previousPaper })];
+    const existing = [edition(), edition({ id: `${date}:papers`, channel: 'papers', status: 'draft', content: previousPaper, automationPaused: true })];
     state.responses.push(existing, [{ sourceKey: 'english:small-first-step' }], [{ content: previousPaper }], [], [], existing);
     state.loadContent.mockImplementation(async (channel: string) => channel === 'english'
       ? { status: 'draft', title: '英语初稿', summary: '等待审核', content: englishLessons[1].content, sourceKey: `english:${englishLessons[1].id}` }
       : { status: 'empty', title: '发布会', summary: '无新活动', content: null });
     expect(await generateDailyEditions(date)).toEqual(existing);
     expect(state.loadContent.mock.calls.map((call) => call[0])).toEqual(['english', 'events']);
-    expect(state.loadContent).toHaveBeenCalledWith('english', date, expect.arrayContaining(['english:small-first-step', 'https://arxiv.org/abs/2610.12345']));
+    expect(state.loadContent).toHaveBeenCalledWith('english', date, ['english:small-first-step'], []);
+    expect(state.loadContent).toHaveBeenCalledWith('events', date, ['english:small-first-step'], []);
     const writes = state.operations.filter((operation) => operation.kind !== 'select');
     expect(writes).toHaveLength(2);
     expect(writes.every((operation) => operation.kind === 'insert' && operation.conflict === 'nothing')).toBe(true);
@@ -248,7 +284,7 @@ describe('按日生成与失败重试', () => {
     state.loadContent.mockResolvedValue({ status: 'published', title: 'AI', summary: '事实', content: aiContent, sourceKey: 'ai:new' });
     await generateDailyEditions(date, 'ai');
     const write = state.operations.find((operation) => operation.kind === 'update')!;
-    expect(whereSql(write).params).toEqual([failed.id, failed.updatedAt, 'empty', 'failed']);
+    expect(whereSql(write).params).toEqual([failed.id, failed.updatedAt, false, 'empty', 'failed', 'draft']);
     expect(write.values).toMatchObject({ status: 'published', sourceKey: 'ai:new', error: null });
     expect(state.operations.filter((operation) => operation.kind === 'insert')).toHaveLength(0);
   });

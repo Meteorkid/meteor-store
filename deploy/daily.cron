@@ -1,0 +1,7 @@
+# Asia/Shanghai：08:40 首次出刊，09:10 晨间补跑，之后每小时补齐失败或空栏目。
+40 8-23 * * * /usr/bin/flock -n /run/lock/meteor-daily-generate.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/daily-cron.mjs generate 2>&1 | /usr/bin/logger -t meteor-daily-generate
+10 9 * * * /usr/bin/flock -n /run/lock/meteor-daily-generate.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/daily-cron.mjs generate 2>&1 | /usr/bin/logger -t meteor-daily-generate
+30 9-23 * * * /usr/bin/flock -n /run/lock/meteor-daily-remind.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/daily-cron.mjs remind 2>&1 | /usr/bin/logger -t meteor-daily-remind
+# 申请日期先同步再生成提醒；午后补跑弥补官网短时故障。
+10 8,14 * * * /usr/bin/flock -n /run/lock/meteor-masters-sync.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/masters-sync-cron.mjs 2>&1 | /usr/bin/logger -t meteor-masters-sync
+0 9,15 * * * /usr/bin/flock -n /run/lock/meteor-masters-deadlines.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/masters-deadlines-cron.mjs 2>&1 | /usr/bin/logger -t meteor-masters-deadlines

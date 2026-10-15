@@ -1281,8 +1281,9 @@ pnpm build                  # 构建
 | 每小时 :27 | Pathfinder 抓取同步 | `pathfinder-sync-cron.mjs` | `/usr/local/bin/node` |
 | 每天 03:40 | 数据库备份（+ R2 异地副本） | `backup-db.sh` | — |
 | 每天 04:13 | 回查开源 issue 是否已关闭，归档失效条目 | `recheck-pathfinder-issues.mjs --apply --quiet` | **`/usr/local/bin/node`** |
-| 每天 08:40 | 每日一新内容生成 | `daily-cron.mjs generate` | `/usr/local/bin/node` |
-| 每天 09:00 | 硕士申请截止提醒 | `masters-deadlines-cron.mjs` | `/usr/local/bin/node` |
+| 每天 08:40 首次、09:10 补跑及 09:40–23:40 每小时 | 每日一新自动生成发布 | `daily-cron.mjs generate` | `/usr/local/bin/node` |
+| 每天 08:10、14:10 | 硕士官网同步并自动发布 | `masters-sync-cron.mjs` | `/usr/local/bin/node` |
+| 每天 09:00、15:00 | 硕士申请截止提醒 | `masters-deadlines-cron.mjs` | `/usr/local/bin/node` |
 | 每天 09:17 | Pathfinder 截止提醒 | `pathfinder-deadlines-cron.mjs` | `/usr/local/bin/node` |
 | 每天 09:30 | 每日一新提醒快照 | `daily-cron.mjs remind` | `/usr/local/bin/node` |
 | 每天 09:37 | 管理员待办摘要 | `admin-digest-cron.mjs` | `/usr/local/bin/node` |
@@ -1409,20 +1410,20 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - 独立阅读页 `/daily`、后台 `/admin/daily`；栏目协议与配置在 `src/lib/daily/types.ts`，服务在 `service.ts`，来源适配在 `content.ts`。同一天同栏目只保存一份公共内容，个人只保存选择与提醒开关。
 - 新表迁移 `0046` 已在生产执行。偏好纳入账号导出和注销；私人响应 `no-store`，不要混入公开公告缓存。
 - `null` 偏好代表尚未设置，`channels: []` 是用户明确空选。游客不覆盖已有账号设置；写偏好要核对 `X-Daily-User` 与当前会话，避免切换账号时旧请求写入新账号。
-- 英语与论文采集结果先入草稿，管理员审核后发布；AI 只复用当天已公开数据库资讯。论文保留原始摘要/版本/预印本标识，活动须官方来源及确认时区。无新稿和失败必须分开。
-- 采集重跑不覆盖已发布/待审稿；编辑使用 `expectedUpdatedAt` 条件更新。采集完成后才记发布时间，发布中的修订保留原发布时间。
+- 用户于2026-10-15明确要求无需手动发布：英语每日调用既有模型生成新课程，论文从arXiv、AI与活动从已接入来源自动整理；校验通过即公开。活动公告不猜具体时刻；无新稿和失败必须分开。博客投稿审核不受此规则影响。
+- `0048` 新增 `automation_paused`。人工编辑或下架后暂停该记录自动更新，定时任务不得复活；旧机器草稿可原样校验后公开，已发布内容不重生成。编辑和采集均使用版本条件更新，跨午夜的采集不倒填旧日。
 - 每天北京时间 09:30 固定一次提醒快照，无稿也存空快照；晚到内容不补入，同一天不重复提醒。系统公告与日刊提醒分开，双铃铛共享请求和已读，缓存按账号隔离。
-- `scripts/daily-cron.mjs generate|remind` 与其它任务共用 `PATHFINDER_CRON_SECRET`，生产分别在 08:40、09:30 执行。旧 `pathfinder-digest` 接口鉴权后返回 `retired`，原广播调度已替换；后续改调度仍须同步真实 crontab 并检查日志。
+- `scripts/daily-cron.mjs generate|remind` 与其它任务共用 `PATHFINDER_CRON_SECRET`，生产任务以 `deploy/daily.cron` 为准：08:40首次出刊、09:10补跑，随后每小时补齐至23:40；09:30冻结提醒，之后每小时补跑失败的快照。旧 `pathfinder-digest` 接口鉴权后返回 `retired`，原广播调度已替换；后续改调度仍须同步真实 crontab 并检查日志。
 - 论文使用 arXiv 官方 API 限量读取最新 20 条并解析 Atom，以首发日期筛选近七天论文；保留历史 RSS 解析兼容。`dfa2c58` 已在线验证生成 3 篇草稿，重复运行不覆盖已有内容。交付记录见 `docs/process/2026-10-15-daily-masters-release.md`。
 
-## 硕士申请日历（2026-10-15 已上线，首批内容待审核）
+## 硕士申请日历（官方来源自动同步）
 
 - `/masters` 与 `/admin/masters`，服务在 `src/lib/masters/`。申请轮次是长期记录，不能塞进 30 天日刊快照，也不能按单一官方 URL 把不同年份合并。
 - `DAILY_CHANNEL_IDS` 含五种阅读选项；`DAILY_EDITION_CHANNEL_IDS` 仍为四种日刊内容。管理员日刊、生成器和 `daily_editions` 只使用四种内容类型，硕士日历走独立数据源。
-- `0047` 已在生产新增轮次、个人申请和提醒三张表。首批 11 条种子均为草稿，尚未公开，必须逐条核验后发布。入学年份不可直接覆写，下一年必须创建新记录；仅日期不补时刻，国内/国际申请者必须区分。
+- `0047` 已在生产新增轮次、个人申请和提醒三张表。首批种子只作为初始化模板；`automation.ts` 每天重新读取六所学校官网证据，通过校验后自动公开及更新，不能把旧种子日期直接发布。入学年份不可直接覆写，下一年必须创建新记录；仅日期不补时刻，国内/国际申请者必须区分。
 - `revision` 追踪编辑，`dateVersion` 只追踪结构化日期/状态；修说明标点不能触发新的截止提醒。保存轮次与同步改期提醒同一事务，编辑使用版本条件更新。
 - 提醒未读优先分页，不能让前20条已读遮住后面的未读。已提交/放弃、关闭提醒、下架以及过期日期会被读取端再次过滤。私人接口 no-store，写入核对 X-Masters-User。
-- 个人关注和通知纳入导出/注销；ICS 是快照，不承诺自动同步或客户端必定提醒。生产每日 09:00 检查申请截止提醒；本次未执行生产登录后写操作验收。内容维护见 `docs/process/masters-application-calendar.md`。
+- 个人关注和通知纳入导出/注销；ICS 是快照，不承诺自动同步或客户端必定提醒。官网同步在08:10与14:10，截止提醒在09:00与15:00；人工保存和下架将设置`automation_paused`，自动同步不得覆盖；本次未执行生产登录后写操作验收。内容维护见 `docs/process/masters-application-calendar.md`。
 
 ## 联系方式
 

@@ -2,6 +2,8 @@
 
 2026-10-15 已通过提交 `a644e64` 部署至 `8.138.218.165`，`0047` 迁移和每日 09:00 截止提醒调度已执行配置。首批 11 条种子在生产均为草稿，尚未公开；交付记录见 [本次部署交付记录](2026-10-15-daily-masters-release.md)。
 
+2026-10-15 用户明确不进行手动发布，新增官网自动同步。上面的首批草稿状态是首次部署历史，当前公开状态以实际同步结果为准。
+
 ## 能力与边界
 
 `/masters` 保存全年申请轮次，作为每日一新的第五个阅读选项；它不依赖当天是否出刊，也不受 30 天日刊历史限制。用户可按入学年、入学季、地区、学校、专业和类型筛选，关注具体轮次，记录准备中/已提交/已放弃，并单独开启 30/7/1 天站内提醒。
@@ -25,7 +27,7 @@
 
 具体日期、适用对象和核验备注统一保存在 `src/lib/masters/seeds.ts`。澳洲采用国际学生内容，不混用本地学生时间。澳门使用项目级来源，未把校级通用截止直接复制到尚未核验例外的专业。
 
-## 日常维护
+## 可选的人工补充与纠错
 
 1. 在 `/admin/masters` 选择入学年份，导入首批草稿或新建轮次。
 2. 核对项目/方向、入学季、学习模式、申请人类别、轮次与截止事项。申请、材料、推荐信、奖学金不能擅自共用期限。
@@ -33,7 +35,7 @@
 4. 官方改期后修正结构化日期/开放状态，系统增加日期版本并给正在准备且已开启提醒的关注者生成变更提示；修文案不重复提醒。
 5. 暂不公开的记录可下架。前台隐藏草稿，个人关注显示通用不可用状态，可取消，不泄漏新草稿内容。
 
-没有自动对全部大学网站持续爬取和验证；管理员要持续核验已收录项目。来源变更在核验保存后才成为正式新日期，不能把模型推测直接发布为截止时间。
+日常发布无需管理员操作：`automation.ts`每天从六所学校的固定官方页面自动读取日期，校验入学年、项目、申请者类型及轮次后自动发布或更新。不是全网所有学校目录；来源打不开或结构变化时标记失败并自动补跑，保留上次已核验内容，不能发布模型推测或用旧种子日期兜底。人工补充、编辑和下架将暂停该记录的自动更新。
 
 ## 日期、提醒和日历文件
 
@@ -46,17 +48,17 @@
 
 ## 数据与上线
 
-先执行日刊 `0046`，再执行 `0047_wide_thunderbolts.sql`。`0047` 只新增 `masters_rounds`、`masters_watches`、`masters_notices` 及索引约束，不更新旧表。
+依次执行 `0046`、`0047_wide_thunderbolts.sql`和`0048_medical_loners.sql`；0048仅新增自动暂停标记并保护既有人工内容。`0047` 只新增 `masters_rounds`、`masters_watches`、`masters_notices` 及索引约束，不更新旧表。
 
 先备份生产数据库，再迁移与部署。回滚应用时保留新表和申请记录，撤销新调度；不要把本地测试库或测试账号覆盖到生产。
 
-共用 `PATHFINDER_CRON_SECRET`，执行器 `/usr/local/bin/node` 通过 `--env-file` 读取密钥。以下北京时间 09:00 调度已于 2026-10-15 配置到生产；后续修改先备份 crontab，不要重复追加：
+共用 `PATHFINDER_CRON_SECRET`，执行器 `/usr/local/bin/node` 通过 `--env-file` 读取密钥。任务以 `deploy/daily.cron` 为准：08:10、14:10同步官网并自动发布，09:00、15:00检查截止提醒；后续修改先备份crontab，不重复追加。以下为提醒任务：
 
 ```cron
-0 9 * * * /usr/bin/flock -n /run/lock/meteor-masters-deadlines.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/masters-deadlines-cron.mjs 2>&1 | /usr/bin/logger -t meteor-masters-deadlines
+0 9,15 * * * /usr/bin/flock -n /run/lock/meteor-masters-deadlines.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/masters-deadlines-cron.mjs 2>&1 | /usr/bin/logger -t meteor-masters-deadlines
 ```
 
-日刊 09:30 快照与申请期限提醒分开；管理员发布已核实的改期时，在同一数据库事务内生成申请变更提醒，不等下一次日刊。调度已配置不等于已有用户收到提醒；首批内容仍是草稿，后续应检查真实执行日志。
+日刊 09:30 快照与申请期限提醒分开；管理员发布已核实的改期时，在同一数据库事务内生成申请变更提醒，不等下一次日刊。调度已配置不等于已有用户收到提醒；公开数量与来源失败必须查看真实同步结果，后续应检查任务日志。
 
 ## 本地验证记录
 

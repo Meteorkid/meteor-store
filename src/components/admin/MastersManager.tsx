@@ -202,14 +202,14 @@ export default function MastersManager({ initialYear, initialRounds }: { initial
         <button type="button" className={buttonClass} disabled={busy || pending !== null || yearInput !== String(year)} onClick={() => requestAction({ kind: 'edit' })}>{t('新增申请轮次', 'Add application round')}</button>
       </div>
     </div>
-    <p className="text-sm text-white/60">{t('每条记录对应具体项目、入学季、申请群体和事项。新年度请新增，不沿用去年的截止日；导入的数据也需逐条审核。', 'Each record identifies a programme, intake, applicant group and deadline type. Add new years separately, verify their dates and review imported drafts.')}</p>
+    <p className="text-sm text-white/60">{t('已接入的官方项目每天自动核对并发布。每条记录区分入学季、申请群体和事项；人工编辑或下架会暂停该记录的自动更新。', 'Connected official programmes are checked and published automatically each day. Editing or unpublishing a record pauses automatic updates for it.')}</p>
     {yearInput !== String(year) && <p className="text-sm text-white/70">{t(`请先载入新年份；下方仍是 ${year} 年记录。`, `Load the new year first. The records below are still for ${year}.`)}</p>}
     {error && <p role="alert" className="rounded-lg border border-red-400/30 p-3 text-sm text-red-200">{error}</p>}
     {notice && <p role="status" className="text-sm text-emerald-300">{notice}</p>}
 
     {pending && <div ref={confirmationRef} tabIndex={-1} role="alert" className="rounded-xl border border-amber-300/40 bg-amber-300/5 p-4 outline-none">
       <p className="text-sm text-amber-200">{pending.kind === 'unpublish'
-        ? t('下架后将从公开日历移除，草稿仍保留。该记录尚未保存的编辑会关闭。', 'Unpublishing removes this record from the public calendar and keeps its draft. Unsaved edits to this record will close.')
+        ? t('下架后将从公开日历移除并暂停自动发布，草稿仍保留。该记录尚未保存的编辑会关闭。', 'Unpublishing removes this record and pauses automatic publishing. Its draft is kept; unsaved edits will close.')
         : t('此操作会关闭当前未保存的编辑。继续前请确认不需要这些改动。', 'This closes the current unsaved edits. Continue only if you no longer need them.')}</p>
       <div className="mt-3 flex gap-3"><button type="button" className={buttonClass} onClick={() => setPending(null)}>{t('取消', 'Cancel')}</button><button type="button" className={buttonClass} onClick={() => execute(pending)}>{pending.kind === 'unpublish' ? t('确认下架', 'Confirm unpublishing') : t('放弃改动并继续', 'Discard and continue')}</button></div>
     </div>}
@@ -281,7 +281,7 @@ export default function MastersManager({ initialYear, initialRounds }: { initial
           setPreview(value => !value);
         }}>{preview ? t('收起预览', 'Hide preview') : t('预览记录', 'Preview record')}</button>
         <button type="submit" value="save" className={buttonClass} disabled={busy || pending !== null}>{editor.status === 'published' ? t('保存已发布更正', 'Save published corrections') : t('保存草稿', 'Save draft')}</button>
-        {editor.status === 'draft' && <button type="submit" value="publish" className="min-h-10 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" disabled={busy || pending !== null}>{t('审核通过并发布', 'Approve and publish')}</button>}
+        {editor.status === 'draft' && <button type="submit" value="publish" className="min-h-10 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" disabled={busy || pending !== null}>{t('手动发布', 'Publish manually')}</button>}
       </div>
 
       {preview && <section className="space-y-3 border-t border-white/15 pt-5" aria-label={t('申请记录预览', 'Application preview')}>

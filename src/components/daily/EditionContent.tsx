@@ -71,6 +71,7 @@ function formatEventTime(item: DailyLinkItem, locale: string): string | null {
 function EnglishReading({ content, copy }: { content: EnglishContent; copy: DailyCopy }) {
   return (
     <div className="space-y-9">
+      <p className="t-footnote text-white/60">{copy.englishProvenance}</p>
       <section>
         <h3 className="mb-4 t-title-4 text-white">{copy.vocabulary}</h3>
         <div className="grid gap-3 sm:grid-cols-2">

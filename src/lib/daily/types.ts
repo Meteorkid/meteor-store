@@ -39,7 +39,7 @@ export const DailyLinkItemSchema = z.object({
   announcementType: z.enum(['new', 'cross', 'replace', 'replace-cross']).optional(),
   codeUrl: safeUrl.optional(), preprint: z.boolean().optional(),
   startAt: dateTime.optional(), timeZone: z.string().max(80).optional(),
-  phase: z.enum(['upcoming', 'live', 'replay']).optional(),
+  phase: z.enum(['upcoming', 'live', 'replay', 'announcement']).optional(),
 });
 export type DailyLinkItem = z.infer<typeof DailyLinkItemSchema>;
 
@@ -67,6 +67,7 @@ export interface DailyEdition {
   title: string; summary: string; content: DailyContent | null;
   sourceKey: string | null; publishedAt: string | null; updatedAt: string;
   error?: string | null;
+  automationPaused?: boolean;
 }
 
 export const DailyPreferencesSchema = z.object({

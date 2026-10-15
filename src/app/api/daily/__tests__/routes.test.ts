@@ -269,17 +269,23 @@ describe('日刊cron API', () => {
   it('生成采用北京时间今日，仅返回栏目状态', async () => {
     mocks.generateDailyEditions.mockResolvedValue([
       { channel: 'english', status: 'published', content: 'private draft content' },
-      { channel: 'papers', status: 'draft', error: 'private failure' },
+      { channel: 'papers', status: 'published', error: 'private failure' },
+      { channel: 'ai', status: 'published' },
       { channel: 'events', status: 'empty' },
     ]);
     const response = await postCron(cronRequest());
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ success: true, editions: [
-      { channel: 'english', status: 'published' }, { channel: 'papers', status: 'draft' }, { channel: 'events', status: 'empty' },
+      { channel: 'english', status: 'published' }, { channel: 'papers', status: 'published' }, { channel: 'ai', status: 'published' }, { channel: 'events', status: 'empty' },
     ] });
     expect(mocks.generateDailyEditions).toHaveBeenCalledWith(TODAY);
     expect(mocks.freezeDailyReminder).not.toHaveBeenCalled();
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/[locale]/daily', 'page');
+  });
+
+  it('缺失栏目不能误报生成成功', async () => {
+    mocks.generateDailyEditions.mockResolvedValue([{ channel: 'ai', status: 'published' }]);
+    expect((await postCron(cronRequest())).status).toBe(503);
   });
 
   it('任一栏目失败则整体返回503，不能静默报成功', async () => {

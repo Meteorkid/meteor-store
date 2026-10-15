@@ -4,7 +4,8 @@ import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderSources } from '@/lib/db/schema';
 import { SITE_URL } from '@/lib/constants';
 import { cleanExternalText, normalizeIngestionUrl, toIsoDate } from '@/lib/pathfinder/ingestion/normalize';
-import { englishLessons } from './english-lessons';
+import { generateDailyEnglish } from './english-generator';
+import { loadDailyEvents } from './events';
 import {
   DailyDateSchema, DailyLinkItemSchema, dailyDate, shiftDailyDate,
   type DailyEditionChannelId, type DailyContent, type DailyLinkItem,
@@ -33,24 +34,21 @@ export async function loadDailyContent(
   channel: DailyEditionChannelId,
   date: string,
   usedSourceKeys: string[] = [],
+  recentEnglishTitles: string[] = [],
 ): Promise<DailyContentResult> {
   DailyDateSchema.parse(date);
   const used = new Set(usedSourceKeys);
   if (channel === 'english') {
-    const lesson = englishLessons.find((item) => !used.has(`english:${item.id}`));
-    return lesson ? {
-      status: 'draft', title: lesson.title, summary: lesson.summary,
-      content: structuredClone(lesson.content), sourceKey: `english:${lesson.id}`,
-    } : empty('每日英语', '原创课程池已用完，等待补充审核。');
+    return { status: 'published', ...await generateDailyEnglish(date, recentEnglishTitles) };
   }
-  if (channel === 'events') return empty('发布会日历', '尚无经确认的新活动，等待录入官方信息。');
+  if (channel === 'events') return loadDailyEvents(date, usedSourceKeys);
   if (channel === 'ai') return loadAiContent(date, used);
 
   const xml = await fetchArxivFeed();
   const items = parseArxivFeed(xml, date, usedSourceKeys);
   return items.length > 0 ? {
-    status: 'draft', title: '每日论文精选',
-    summary: `精选 ${items.length} 篇近七天的 arXiv 预印本；保留原始摘要与来源日期，供审核后阅读。`,
+    status: 'published', title: '每日论文精选',
+    summary: `自动整理 ${items.length} 篇近七天的 arXiv 预印本，保留原始摘要与来源日期。`,
     content: { kind: 'papers', items }, sourceKey: sourceKey('papers', items),
   } : empty('每日论文', '最近一期中没有尚未入选的近七天论文，或来源当天未更新。');
 }
