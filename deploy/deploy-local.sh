@@ -16,8 +16,8 @@
 set -euo pipefail
 
 # 服务器 SSH 用户默认 root：服务器上无 deploy 用户，PM2 与应用目录均以 root 运行。
-# 可用环境变量 DEPLOY_USER 覆盖。
-SERVER="${DEPLOY_USER:-root}@47.120.20.26"
+# 可用环境变量 DEPLOY_USER / DEPLOY_HOST 覆盖用户与目标主机。
+SERVER="${DEPLOY_USER:-root}@${DEPLOY_HOST:-8.138.218.165}"
 APP_DIR="/var/www/meteor-store"
 TAR="/tmp/meteor-store-next.tar.gz"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

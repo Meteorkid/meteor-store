@@ -24,10 +24,10 @@ tar -czf /tmp/meteor-store-staging-next.tar.gz -C . .next
 echo "    产物 $(du -h /tmp/meteor-store-staging-next.tar.gz | cut -f1)"
 
 echo "==> 上传到服务器"
-scp "${SSH_OPTS[@]}" /tmp/meteor-store-staging-next.tar.gz "${DEPLOY_USER:-deploy}@${DEPLOY_HOST:-47.120.20.26}:/tmp/"
+scp "${SSH_OPTS[@]}" /tmp/meteor-store-staging-next.tar.gz "${DEPLOY_USER:-deploy}@${DEPLOY_HOST:-8.138.218.165}:/tmp/"
 
 echo "==> 服务器端部署"
-ssh "${SSH_OPTS[@]}" "${DEPLOY_USER:-deploy}@${DEPLOY_HOST:-47.120.20.26}" bash << 'REMOTE'
+ssh "${SSH_OPTS[@]}" "${DEPLOY_USER:-deploy}@${DEPLOY_HOST:-8.138.218.165}" bash << 'REMOTE'
 set -euo pipefail
 
 STAGING_DIR="/var/www/meteor-store/staging"

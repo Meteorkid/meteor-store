@@ -58,7 +58,7 @@ jobs:
           # 2. 必须钉 ECDSA 而不是 ED25519。该 action 不设置 HostKeyAlgorithms，
           #    Go 的 defaultHostKeyAlgos 里 ecdsa-sha2-nistp256 排在 ssh-ed25519 之前，
           #    服务器两把 key 都有时协商出来的是 ECDSA，钉 ed25519 会 host key mismatch。
-          fingerprint: SHA256:UNei3ouOkoMTHvqe/6n0UmUGX4mjKrjc0nvGyg5h9qc
+          fingerprint: SHA256:y5sJHeIOncNc6hATgyDWR+3VTtwDSUa6eQ/jbONv/cQ
           source: /tmp/meteor-store-next.tar.gz
           target: /var/www/meteor-store
           strip_components: 1
@@ -71,7 +71,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
           # 同上：纯 SHA256: 前缀 + ECDSA 那把，见上一步的注释
-          fingerprint: SHA256:UNei3ouOkoMTHvqe/6n0UmUGX4mjKrjc0nvGyg5h9qc
+          fingerprint: SHA256:y5sJHeIOncNc6hATgyDWR+3VTtwDSUa6eQ/jbONv/cQ
           script: |
             set -euo pipefail
             cd /var/www/meteor-store
