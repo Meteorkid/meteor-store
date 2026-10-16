@@ -1405,6 +1405,9 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - **环境变量在服务器上**：`/var/www/meteor-store/.env.production`，部署脚本**不会**同步它，
   改完要 `pm2 restart meteor-store --update-env`
 
+- **静态资源部署权限必须显式归一**：构建机可能继承`umask 077`。解包后`.next`及公开静态目录必须可遍历、静态文件可读；`deploy-local.sh`已固定目录755、文件644。不要对整个`.next`递归放宽，server/cache不属于公开资源。
+- **静态错误响应不得immutable缓存**：nginx按状态决定缓存头，错误为`no-store`。2026-10-16曾缓存403导致页面200但所有交互失效；`next.config.ts`的`deploymentId: static-recovery-20261016`用于恢复这些客户端，不能无故删除。验收必须检查真实JS/CSS请求与浏览器按钮，不能只测页面状态。
+
 ## 每日一新（2026-10-15 已上线）
 
 - 独立阅读页 `/daily`、后台 `/admin/daily`；栏目协议与配置在 `src/lib/daily/types.ts`，服务在 `service.ts`，来源适配在 `content.ts`。同一天同栏目只保存一份公共内容，个人只保存选择与提醒开关。
