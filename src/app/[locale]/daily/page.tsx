@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function DailyPage({ params, searchParams }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ date?: string | string[] }>;
+  searchParams: Promise<{ date?: string | string[]; view?: string | string[] }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -39,7 +39,7 @@ export default async function DailyPage({ params, searchParams }: {
     <div className="min-h-screen bg-black text-white">
       <Header />
       <main className="container mx-auto px-4 pb-12 pt-28 sm:pb-16 sm:pt-32">
-        <DailyHub date={date} today={today} userId={session?.userId ?? null}
+        <DailyHub date={date} today={today} viewAll={query.view === 'all'} userId={session?.userId ?? null}
           editions={editionResult.status === 'fulfilled' ? editionResult.value : []}
           initialPreferences={preferencesResult.status === 'fulfilled' ? preferencesResult.value : null}
           mastersSummary={mastersResult.status === 'fulfilled' ? mastersResult.value : null}

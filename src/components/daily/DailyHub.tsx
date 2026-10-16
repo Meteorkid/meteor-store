@@ -17,6 +17,7 @@ export interface DailyHubProps {
   editions: DailyEdition[];
   userId: string | null;
   initialPreferences: DailyPreferences | null;
+  viewAll?: boolean;
   loadFailed?: boolean;
   preferencesFailed?: boolean;
   mastersSummary?: MastersSummary | null;
@@ -61,7 +62,7 @@ export default function DailyHub(props: DailyHubProps) {
   return <DailyHubForIdentity key={`${identity ?? 'guest'}:${props.date}`} {...props} activeUserId={identity} />;
 }
 
-function DailyHubForIdentity({ date, today, editions, userId, activeUserId, initialPreferences, loadFailed = false, preferencesFailed = false, mastersSummary = null, mastersSummaryFailed = false }: DailyHubProps & { activeUserId: string | null }) {
+function DailyHubForIdentity({ date, today, editions, userId, activeUserId, initialPreferences, viewAll = false, loadFailed = false, preferencesFailed = false, mastersSummary = null, mastersSummaryFailed = false }: DailyHubProps & { activeUserId: string | null }) {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const copy = dailyText[locale];
   const router = useRouter();
@@ -74,7 +75,7 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
   const readKeys = parseReadKeys(readSnapshot, today);
   const preferences = pickPreferences(activeUserId, accountPreferences, parseGuestPreferences(guestSnapshot));
   const [chosenView, setChosenView] = useState<'all' | 'following' | null>(null);
-  const view = chosenView ?? (preferences === null ? 'all' : 'following');
+  const view = viewAll ? 'all' : chosenView ?? (preferences === null ? 'all' : 'following');
   const selectedChannels = visibleChannels(view, preferences);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<DailyPreferences>(defaultPreferences);
@@ -111,6 +112,15 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
     setEditing(true);
   };
 
+  const changeView = (value: 'all' | 'following') => {
+    setChosenView(value);
+    if (value === 'following' && viewAll) {
+      const query = new URLSearchParams(window.location.search);
+      query.delete('view');
+      router.replace(`/daily${query.size ? `?${query}` : ''}`, { scroll: false });
+    }
+  };
+
   const savePreferences = async () => {
     setSaving(true);
     setSaveError('');
@@ -127,7 +137,7 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
         saveStorage(GUEST_PREFERENCES_KEY, { ...draft, reminders: false });
       }
       window.dispatchEvent(new Event(DAILY_PREFERENCES_EVENT));
-      setChosenView('following');
+      changeView('following');
       setEditing(false);
       setNotice(copy.saved);
     } catch {
@@ -145,7 +155,7 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
   const previousDate = shiftDailyDate(date, -1);
   const nextDate = shiftDailyDate(date, 1);
   const changeDate = (value: string) => {
-    if (isDailyHistoryDate(value, today)) router.push(`/daily?date=${value}`);
+    if (isDailyHistoryDate(value, today)) router.push(`/daily?date=${value}${viewAll ? '&view=all' : ''}`);
   };
   const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-white disabled:opacity-40';
 
@@ -161,14 +171,14 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
           <input id="daily-date" type="date" value={date} min={shiftDailyDate(today, -29)} max={today} onChange={event => changeDate(event.target.value)}
             className="min-h-11 min-w-0 rounded-xl border border-white/15 bg-black px-3 py-2 text-sm text-white" />
           <button type="button" disabled={date === today} onClick={() => changeDate(nextDate)} aria-label={copy.next} className={buttonClass}>→</button>
-          {date !== today && <Link href="/daily" className={buttonClass}>{copy.today}</Link>}
+          {date !== today && <Link href={viewAll ? '/daily?view=all' : '/daily'} className={buttonClass}>{copy.today}</Link>}
         </div>
         <p className="mt-3 t-footnote text-white/60">{copy.history}</p>
       </header>
 
       <div className="flex flex-wrap items-center justify-between gap-3 py-5">
         <div role="group" aria-label={locale === 'zh' ? '栏目视图' : 'Channel view'} className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1">
-          {(['all', 'following'] as const).map(value => <button key={value} type="button" aria-pressed={view === value} onClick={() => setChosenView(value)}
+          {(['all', 'following'] as const).map(value => <button key={value} type="button" aria-pressed={view === value} onClick={() => changeView(value)}
             className={`min-h-10 rounded-lg px-4 py-2 text-sm font-medium ${view === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{copy[value]}</button>)}
         </div>
         <button type="button" className={buttonClass} onClick={() => editing ? setEditing(false) : openSettings()} disabled={preferenceStatus !== 'ready' || saving} aria-expanded={editing} aria-controls="daily-settings">{copy.manage}</button>

@@ -70,7 +70,8 @@ const nextConfig: NextConfig = {
       {
         source: "/_next/static/(.*)",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          // 开发产物文件名可复用，不能让刷新继续读到改动前的交互代码。
+          { key: "Cache-Control", value: process.env.NODE_ENV === 'production' ? "public, max-age=31536000, immutable" : "no-store" },
         ],
       },
       // 公开资源

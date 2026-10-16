@@ -38,6 +38,21 @@ describe('每日阅读服务端页面', () => {
     expect(mocks.getDailyPreferences).not.toHaveBeenCalled();
   });
 
+  it('全栏目深链传递临时视图，不覆盖账号的明确空选', async () => {
+    mocks.getSession.mockResolvedValue({ userId: 'user-1' });
+    mocks.getDailyPreferences.mockResolvedValue({ channels: [], reminders: false });
+    const page = await DailyPage({ params: Promise.resolve({ locale: 'zh' }), searchParams: Promise.resolve({ date: '2026-10-01', view: 'all' }) });
+    const html = renderToStaticMarkup(page);
+    expect(html).toContain('&quot;viewAll&quot;:true');
+    expect(html).toContain('&quot;channels&quot;:[]');
+    expect(mocks.getDailyEditions).toHaveBeenCalledWith('2026-10-01');
+  });
+
+  it.each([undefined, 'following', ['all', 'following']])('普通或未知视图 %s 保持原有偏好行为', async view => {
+    const page = await DailyPage({ params: Promise.resolve({ locale: 'zh' }), searchParams: Promise.resolve({ view }) });
+    expect(renderToStaticMarkup(page)).toContain('&quot;viewAll&quot;:false');
+  });
+
   it('偏好加载失败不会伪装成正常未设置，公共阅读仍可返回', async () => {
     mocks.getSession.mockResolvedValue({ userId: 'user-1' });
     mocks.getDailyPreferences.mockRejectedValue(new Error('database unavailable'));

@@ -1,284 +1,403 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { flushSync } from 'react-dom';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
+import { getHeaderNavigation, isHeaderLinkActive } from '@/data/header-navigation';
 import { SHOW_PRICING } from '@/lib/constants';
 import { useAuth } from './AuthProvider';
 import UserMenu from './UserMenu';
 import LanguageSwitcher from './LanguageSwitcher';
 import BrandMark from './BrandMark';
 import NotificationBell from './NotificationBell';
+import styles from './Header.module.css';
 
-const navLinks = [
-  { key: 'home', href: '/' },
-  { key: 'products', href: '/products' },
-  ...(SHOW_PRICING ? [{ key: 'pricing', href: '/pricing' }] : []),
-  { key: 'docs', href: '/docs' },
-  { key: 'blog', href: '/blog' },
-  { key: 'openSource', href: '/open-source' },
-  { key: 'pathfinder', href: '/pathfinder' },
-];
+const navigation = getHeaderNavigation(SHOW_PRICING);
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex="0"]';
+const accountLinks = [
+  { href: '/account', key: 'account' },
+  { href: '/apps', key: 'myProducts' },
+  { href: '/orders', key: 'myOrders' },
+  { href: '/blog/submit', key: 'writeArticle' },
+  { href: '/blog/my-posts', key: 'myPosts' },
+  { href: '/blog/favorites', key: 'myFavorites' },
+  { href: '/redeem', key: 'redeem' },
+  { href: '/student', key: 'studentDiscount' },
+] as const;
 
-/** 当前页高亮：锚点链接不参与，其余按路径前缀匹配 */
-function isActiveLink(href: string, pathname: string): boolean {
-  if (href.includes('#')) return false;
-  if (href === '/') return pathname === '/';
-  return pathname === href || pathname.startsWith(`${href}/`);
+function closeUtilityMenus(except?: EventTarget | null) {
+  window.dispatchEvent(new CustomEvent('header:close-popovers', { detail: except }));
 }
 
-// 顶部这段距离内导航栏始终可见
-const REVEAL_ZONE = 80;
-// 忽略小于该值的滚动抖动，避免导航栏频繁闪烁
-const DIRECTION_THRESHOLD = 6;
-// 停止滚动多久后重新显示导航栏
-const IDLE_REVEAL_DELAY = 180;
+function isGroupActive(group: (typeof navigation)[number], pathname: string) {
+  return pathname.startsWith(`${group.overview.href}/`)
+    || [group.overview, ...group.sections.flatMap(section => section.links)].some(link => isHeaderLinkActive(link.href, pathname));
+}
+
+function Chevron() {
+  return <svg className={styles.chevron} viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+
+function SearchIcon() {
+  return <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" /></svg>;
+}
 
 export default function Header() {
   const pathname = usePathname();
+  const locale = useLocale() === 'en' ? 'en' : 'zh';
   const t = useTranslations('Header');
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  // 向下滚动时隐藏；向上滚动或停止滚动时恢复显示
-  const [hidden, setHidden] = useState(false);
-  const lastScrollY = useRef(0);
   const { user, logout } = useAuth();
+  const [desktopOpen, setDesktopOpen] = useState<string | null>(null);
+  const [animateDesktop, setAnimateDesktop] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [animateMobile, setAnimateMobile] = useState(false);
+  const [mobileGroup, setMobileGroup] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const desktopKeyboard = useRef(false);
+  const openTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // 同一布局内切页及语言切换也要关闭导航，避免旧页面的菜单留在新页面上。
+  const routeKey = `${locale}:${pathname}`;
+  const [previousRoute, setPreviousRoute] = useState(routeKey);
+  if (previousRoute !== routeKey) {
+    setPreviousRoute(routeKey);
+    setDesktopOpen(null);
+    setMobileOpen(false);
+    setMobileGroup(null);
+    setFocusWithin(false);
+  }
+
+  const clearTimers = useCallback(() => {
+    clearTimeout(openTimer.current);
+    clearTimeout(closeTimer.current);
+  }, []);
+
+  const closeDesktop = useCallback(() => {
+    clearTimers();
+    setDesktopOpen(null);
+  }, [clearTimers]);
+
+  const closeMobile = useCallback((restoreFocus = false) => {
+    setMobileOpen(false);
+    setMobileGroup(null);
+    if (restoreFocus) hamburgerRef.current?.focus();
+  }, []);
+
+  const closeNavigation = () => {
+    closeDesktop();
+    closeMobile();
+  };
+
+  const openDesktop = (id: string, keyboard = false) => {
+    clearTimers();
+    closeUtilityMenus();
+    desktopKeyboard.current = keyboard;
+    setAnimateDesktop(!keyboard && !desktopOpen);
+    setDesktopOpen(id);
+  };
+
+  const hoverGroup = (id: string, pointerType: string) => {
+    if (pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    clearTimers();
+    if (desktopOpen === id) return;
+    if (desktopOpen) openDesktop(id);
+    else openTimer.current = setTimeout(() => openDesktop(id), 120);
+  };
+
+  const leaveGroup = () => {
+    clearTimers();
+    closeTimer.current = setTimeout(() => {
+      // 键盘展开时连触发器也属于操作范围，不让无关的鼠标移动收起菜单。
+      const currentGroup = desktopOpen ? triggerRefs.current[desktopOpen]?.parentElement : null;
+      if (desktopKeyboard.current && currentGroup?.contains(document.activeElement)) return;
+      if (!panelRef.current?.contains(document.activeElement)) setDesktopOpen(null);
+    }, 200);
+  };
+
+  const openSearch = () => {
+    // 搜索拥有自己的滚动锁；先完成移动菜单的清理，再打开搜索。
+    flushSync(() => closeNavigation());
+    closeUtilityMenus();
+    window.dispatchEvent(new CustomEvent('spotlight:open'));
+  };
 
   useEffect(() => {
+    closeUtilityMenus();
+    clearTimers();
+    return clearTimers;
+  }, [routeKey, clearTimers]);
+
+  useEffect(() => {
+    let previousY = window.scrollY;
     let rafId = 0;
     let idleTimer: ReturnType<typeof setTimeout> | undefined;
-    lastScrollY.current = window.scrollY;
-
     const onScroll = () => {
-      if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => setHidden(false), IDLE_REVEAL_DELAY);
-
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => setHidden(false), 180);
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
         const y = window.scrollY;
-        const delta = y - lastScrollY.current;
+        const delta = y - previousY;
         setScrolled(y > 20);
-        if (y <= REVEAL_ZONE) {
-          setHidden(false);
-        } else if (Math.abs(delta) > DIRECTION_THRESHOLD) {
-          setHidden(delta > 0);
-        }
-        lastScrollY.current = y;
+        if (y <= 80) setHidden(false);
+        else if (Math.abs(delta) > 6) setHidden(delta > 0);
+        previousY = y;
         rafId = 0;
       });
     };
-
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', onScroll);
-      if (rafId) cancelAnimationFrame(rafId);
-      if (idleTimer) clearTimeout(idleTimer);
+      cancelAnimationFrame(rafId);
+      clearTimeout(idleTimer);
     };
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [mobileOpen]);
+    const onOutsidePointer = (event: PointerEvent) => {
+      if (!headerRef.current?.contains(event.target as Node)) closeDesktop();
+    };
+    const desktopMedia = window.matchMedia('(min-width: 1024px)');
+    const onResize = () => {
+      closeDesktop();
+      closeMobile();
+      closeUtilityMenus();
+    };
+    document.addEventListener('pointerdown', onOutsidePointer);
+    desktopMedia.addEventListener('change', onResize);
+    window.addEventListener('popstate', onResize);
+    window.addEventListener('hashchange', onResize);
+    return () => {
+      document.removeEventListener('pointerdown', onOutsidePointer);
+      desktopMedia.removeEventListener('change', onResize);
+      window.removeEventListener('popstate', onResize);
+      window.removeEventListener('hashchange', onResize);
+    };
+  }, [closeDesktop, closeMobile]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const frame = requestAnimationFrame(() => mobileRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus());
+    const getFocusable = () => [headerRef.current, mobileRef.current].flatMap(root =>
+      Array.from(root?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(element => element.getClientRects().length > 0),
+    );
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (headerRef.current?.querySelector('[data-header-popover-open]')) return;
+        event.preventDefault();
+        closeMobile(true);
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = getFocusable();
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    const onFocus = (event: FocusEvent) => {
+      const target = event.target as Node;
+      if (!headerRef.current?.contains(target) && !mobileRef.current?.contains(target)) {
+        mobileRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+      }
+    };
+    const onSearch = () => { flushSync(() => closeMobile()); };
+    document.addEventListener('keydown', onKeyDown, true);
+    document.addEventListener('focusin', onFocus);
+    window.addEventListener('spotlight:open', onSearch);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown, true);
+      document.removeEventListener('focusin', onFocus);
+      window.removeEventListener('spotlight:open', onSearch);
+    };
+  }, [mobileOpen, closeMobile]);
+
+  const navLabel = locale === 'en' ? 'Main navigation' : '主导航';
 
   return (
-    <header
-      className={`sticky top-0 z-50 w-full will-change-transform transition-all duration-300 motion-reduce:transition-none ${
-        scrolled
-          ? 'glass !border-b-0 !shadow-[inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(0,0,0,0.2),0_1px_2px_rgba(0,0,0,0.3),0_4px_24px_rgba(0,0,0,0.35)]'
-          : 'bg-transparent'
-      } ${hidden && !mobileOpen ? '-translate-y-full' : 'translate-y-0'}`}
-    >
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo */}
-        {/* data-meteor-logo: 移动端连点 7 次触发流星雨秘技（见 EasterEggs） */}
-        <Link href="/" className="flex items-center gap-2 group" data-meteor-logo>
-          <BrandMark className="h-7 w-7 transition-transform duration-300 group-hover:scale-110" />
-          <span className="text-xl font-bold gradient-text">Meteor Store</span>
-        </Link>
-
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-1">
-          {navLinks.map((link) => {
-            const active = isActiveLink(link.href, pathname);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={active ? 'page' : undefined}
-                className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${
-                  active
-                    ? 'text-white bg-white/[0.09] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
-                }`}
-              >
-                {t(link.key)}
-              </Link>
-            );
-          })}
-          {/* 支持我入口 */}
-          <Link
-            href="/support"
-            aria-label={t('support')}
-            title={t('support')}
-            className="flex items-center px-3 py-2 text-base rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
-          >
-            ☕️
-          </Link>
-          {/* Spotlight 搜索入口 */}
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent('spotlight:open'))}
-            aria-label={t('searchShortcut')}
-            title={t('searchShortcutTitle')}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5 transition-all duration-200"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
-            </svg>
-            <kbd className="text-[10px] border border-white/15 rounded px-1 py-0.5 font-mono text-white/40">⌘K</kbd>
-          </button>
-          <div className="w-px h-5 bg-border mx-2" />
-          <NotificationBell />
-          <LanguageSwitcher />
-          <UserMenu />
-        </nav>
-
-        {/* Mobile: 搜索 + Hamburger */}
-        <div className="lg:hidden flex items-center gap-1">
-        <button
-          onClick={() => window.dispatchEvent(new CustomEvent('spotlight:open'))}
-          aria-label={t('search')}
-          className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
-        >
-          <svg className="w-5 h-5 text-foreground/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
-          </svg>
-        </button>
-        <NotificationBell />
-        <LanguageSwitcher />
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="lg:hidden relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
-          aria-label={mobileOpen ? t('closeMenu') : t('openMenu')}
-        >
-          <div className="w-5 h-4 flex flex-col justify-between">
-            <span
-              className={`block h-0.5 bg-foreground rounded-full transition-all duration-300 origin-center ${
-                mobileOpen ? 'rotate-45 translate-y-[7px]' : ''
-              }`}
-            />
-            <span
-              className={`block h-0.5 bg-foreground rounded-full transition-all duration-200 ${
-                mobileOpen ? 'opacity-0 scale-x-0' : ''
-              }`}
-            />
-            <span
-              className={`block h-0.5 bg-foreground rounded-full transition-all duration-300 origin-center ${
-                mobileOpen ? '-rotate-45 -translate-y-[7px]' : ''
-              }`}
-            />
-          </div>
-        </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu Overlay */}
-      <div
-        className={`lg:hidden fixed inset-0 top-16 bg-background/95 backdrop-blur-xl transition-all duration-300 z-40 ${
-          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
+    <>
+      <header
+        ref={headerRef}
+        className={`${styles.header} ${scrolled || desktopOpen || mobileOpen ? styles.headerSurface : ''} ${hidden && !desktopOpen && !mobileOpen && !focusWithin ? styles.headerHidden : ''}`}
+        onFocusCapture={() => setFocusWithin(true)}
+        onBlurCapture={event => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            setFocusWithin(false);
+            closeDesktop();
+          }
+        }}
+        onKeyDown={event => {
+          if (event.key === 'Escape' && desktopOpen) {
+            event.preventDefault();
+            triggerRefs.current[desktopOpen]?.focus();
+            closeDesktop();
+          }
+        }}
       >
-        <nav className="container mx-auto px-4 py-8 flex flex-col gap-2">
-          {navLinks.map((link) => {
-            const active = isActiveLink(link.href, pathname);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                aria-current={active ? 'page' : undefined}
-                className={`px-4 py-3 text-lg rounded-xl transition-colors ${
-                  active ? 'bg-white/[0.09] text-white' : 'text-foreground hover:bg-white/5'
-                }`}
-              >
-                {t(link.key)}
-              </Link>
-            );
-          })}
-          <Link
-            href="/support"
-            onClick={() => setMobileOpen(false)}
-            className="px-4 py-3 text-lg rounded-xl text-foreground hover:bg-white/5 transition-colors"
-          >
-            {t('support')}
+        <div className={`container mx-auto ${styles.bar}`}>
+          {/* 移动端连点 7 次的流星雨入口需要保留此标记。 */}
+          <Link href="/" className={styles.brand} data-meteor-logo onClick={closeNavigation} aria-label={`Meteor Store · ${t('home')}`}>
+            <BrandMark className="h-7 w-7" />
+            <span className={styles.brandName}>Meteor Store</span>
           </Link>
-          <div className="h-px bg-border my-4" />
-          {user ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 px-4 py-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white">
-                  {(user.name?.[0] || user.email[0]).toUpperCase()}
-                </span>
-                <div>
-                  <p className="text-sm font-medium text-white">{user.name || t('defaultUserName')}</p>
-                  <p className="text-xs text-gray-500">{user.email}</p>
+
+          <nav className={styles.desktopNav} aria-label={navLabel}>
+            {navigation.map(group => {
+              const expanded = desktopOpen === group.id;
+              const active = isGroupActive(group, pathname);
+              return (
+                <div key={group.id} onPointerEnter={event => hoverGroup(group.id, event.pointerType)} onPointerLeave={leaveGroup}
+                  onBlur={event => { if (desktopOpen === group.id && !event.currentTarget.contains(event.relatedTarget)) closeDesktop(); }}>
+                  <button
+                    type="button"
+                    ref={element => { triggerRefs.current[group.id] = element; }}
+                    id={`header-trigger-${group.id}`}
+                    aria-expanded={expanded}
+                    aria-controls={`header-panel-${group.id}`}
+                    data-active={active || undefined}
+                    className={styles.navTrigger}
+                    onClick={event => expanded ? closeDesktop() : openDesktop(group.id, event.detail === 0)}
+                    onKeyDown={event => {
+                      if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        openDesktop(group.id, true);
+                        requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>('a[href]')?.focus());
+                      }
+                    }}
+                  >
+                    {group.label[locale]}<Chevron />
+                  </button>
+                  {expanded && (
+                    <div ref={panelRef} id={`header-panel-${group.id}`} aria-labelledby={`header-trigger-${group.id}`} data-animate={animateDesktop || undefined} className={styles.desktopPanel} onPointerEnter={clearTimers}>
+                      <div className={`container mx-auto ${styles.panelContent}`}>
+                        <div className={styles.panelIntro}>
+                          <p className="t-eyebrow">{group.label[locale]}</p>
+                          <p className={`t-title-3 ${styles.panelDescription}`}>{group.description[locale]}</p>
+                          <Link href={group.overview.href} className={styles.overviewLink} onClick={closeNavigation} aria-current={isHeaderLinkActive(group.overview.href, pathname) ? 'page' : undefined}>
+                            {group.overview.label[locale]}<span aria-hidden="true">↗</span>
+                          </Link>
+                        </div>
+                        {group.sections.map(section => (
+                          <section className={styles.panelSection} key={section.id} aria-labelledby={`header-section-${group.id}-${section.id}`}>
+                            <h2 className={`t-footnote ${styles.sectionLabel}`} id={`header-section-${group.id}-${section.id}`}>{section.label[locale]}</h2>
+                            <ul className={styles.linkList}>
+                              {section.links.map(link => (
+                                <li key={link.id}>
+                                  <Link href={link.href} className={styles.panelLink} onClick={closeNavigation} aria-current={isHeaderLinkActive(link.href, pathname) ? 'page' : undefined}>
+                                    <span className="t-title-4">{link.label[locale]}</span>
+                                    {link.description && <span className={`t-footnote ${styles.linkDescription}`}>{link.description[locale]}</span>}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-              <Link
-                href="/account"
-                onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
-              >
-                {t('account')}
-              </Link>
-              <Link
-                href="/blog/submit"
-                onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
-              >
-                {t('writeArticle')}
-              </Link>
-              <Link
-                href="/blog/my-posts"
-                onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
-              >
-                {t('myPosts')}
-              </Link>
-              <Link
-                href="/blog/favorites"
-                onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 text-lg text-foreground hover:bg-white/5 rounded-xl transition-colors"
-              >
-                {t('myFavorites')}
-              </Link>
-              {user.isAdmin && (
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-4 py-3 text-lg text-amber-300/80 hover:bg-white/5 rounded-xl transition-colors"
-                >
-                  {t('adminDashboard')}
-                </Link>
-              )}
-              <button
-                onClick={() => { logout(); setMobileOpen(false); }}
-                className="w-full px-6 py-3 text-lg font-medium text-red-400 hover:bg-white/5 rounded-xl text-center transition-colors"
-              >
-                {t('logout')}
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/login"
-              onClick={() => setMobileOpen(false)}
-              className="px-6 py-3 text-lg font-medium bg-gradient-to-r from-purple-6 to-pink-6 text-white rounded-xl text-center hover:opacity-90 transition-opacity block"
+              );
+            })}
+          </nav>
+
+          <div className={styles.utilities} onPointerDownCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }} onFocusCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }}>
+            <button type="button" className={styles.iconButton} onClick={openSearch} aria-label={t('search')} title={t('searchShortcutTitle')}><SearchIcon /></button>
+            <NotificationBell />
+            <LanguageSwitcher />
+            <div className={styles.desktopAccount}><UserMenu /></div>
+            <button
+              ref={hamburgerRef}
+              type="button"
+              className={`${styles.iconButton} ${styles.hamburger}`}
+              aria-label={mobileOpen ? t('closeMenu') : t('openMenu')}
+              aria-expanded={mobileOpen}
+              aria-controls="header-mobile-panel"
+              onClick={event => {
+                closeUtilityMenus();
+                if (mobileOpen) closeMobile(true);
+                else {
+                  setAnimateMobile(event.detail > 0);
+                  setMobileOpen(true);
+                }
+              }}
             >
-              {t('login')}
-            </Link>
-          )}
-        </nav>
-      </div>
-    </header>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                {mobileOpen ? <path d="m5 5 10 10M5 15 15 5" /> : <path d="M3 6h14M3 14h14" />}
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* 与 header 平级，避免 transform/backdrop-filter 把 fixed 面板限制在导航栏高度内。 */}
+      {mobileOpen && (
+        <div ref={mobileRef} id="header-mobile-panel" data-animate={animateMobile || undefined} className={styles.mobilePanel}>
+          <nav className={`container mx-auto ${styles.mobileContent}`} aria-label={navLabel}>
+            {navigation.map(group => {
+              const expanded = mobileGroup === group.id;
+              return (
+                <div className={styles.mobileGroup} key={group.id}>
+                  <button type="button" className={styles.mobileTrigger} data-active={isGroupActive(group, pathname) || undefined} aria-expanded={expanded} aria-controls={`header-mobile-${group.id}`} onClick={() => setMobileGroup(expanded ? null : group.id)}>
+                    <span className="t-title-3">{group.label[locale]}</span><Chevron />
+                  </button>
+                  {expanded && (
+                    <div id={`header-mobile-${group.id}`} className={styles.mobileLinks}>
+                      <Link href={group.overview.href} className={styles.overviewLink} onClick={closeNavigation} aria-current={isHeaderLinkActive(group.overview.href, pathname) ? 'page' : undefined}>{group.overview.label[locale]}<span aria-hidden="true">↗</span></Link>
+                      {group.sections.map(section => (
+                        <section key={section.id}>
+                          <h2 className={`t-footnote ${styles.sectionLabel}`}>{section.label[locale]}</h2>
+                          <ul className={styles.linkList}>
+                            {section.links.map(link => (
+                              <li key={link.id}>
+                                <Link href={link.href} className={styles.panelLink} onClick={closeNavigation} aria-current={isHeaderLinkActive(link.href, pathname) ? 'page' : undefined}>
+                                  <span className="t-title-4">{link.label[locale]}</span>
+                                  {link.description && <span className={`t-footnote ${styles.linkDescription}`}>{link.description[locale]}</span>}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            <div className={styles.mobileAccount}>
+              {user ? (
+                <>
+                  <p className={`t-footnote ${styles.sectionLabel}`}>{user.name || t('defaultUserName')}</p>
+                  <div className={styles.accountLinks}>
+                    {accountLinks.map(link => <Link key={link.href} href={link.href} className={styles.accountLink} onClick={closeNavigation}>{t(link.key)}</Link>)}
+                    {user.isAdmin && (
+                      <Link href="/admin" className={styles.accountLink} onClick={closeNavigation}>{t('adminDashboard')}</Link>
+                    )}
+                  </div>
+                  <button type="button" className={styles.logout} onClick={() => { logout(); closeMobile(); }}>{t('logout')}</button>
+                </>
+              ) : <Link href="/login" className={styles.login} onClick={closeNavigation}>{t('login')}</Link>}
+            </div>
+          </nav>
+        </div>
+      )}
+    </>
   );
 }

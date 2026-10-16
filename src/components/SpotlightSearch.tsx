@@ -16,7 +16,8 @@ export default function SpotlightSearch() {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        setOpen((current) => !current);
+        if (open) setOpen(false);
+        else window.dispatchEvent(new CustomEvent('spotlight:open'));
         return;
       }
       if (event.key !== '/' || open) return;
@@ -27,7 +28,7 @@ export default function SpotlightSearch() {
         target.isContentEditable
       ) return;
       event.preventDefault();
-      setOpen(true);
+      window.dispatchEvent(new CustomEvent('spotlight:open'));
     };
     const onOpenEvent = () => setOpen(true);
     window.addEventListener('keydown', onKeyDown);

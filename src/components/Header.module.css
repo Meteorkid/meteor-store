@@ -1,0 +1,140 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  color: #fff;
+  transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.headerSurface {
+  background: rgb(13 12 19 / 94%);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  backdrop-filter: blur(24px) saturate(1.5);
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 12%);
+}
+
+.headerHidden:not(:focus-within):not(:has([data-header-popover-open])) { transform: translateY(-100%); }
+.header:focus-within { transition: background-color 180ms ease; }
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 64px;
+  padding-inline: 24px;
+}
+
+.brand { display: inline-flex; align-items: center; flex-shrink: 0; gap: 9px; border-radius: 6px; }
+.brandName { font-size: 17px; font-weight: 650; line-height: 1.4; letter-spacing: -.025em; white-space: nowrap; }
+.desktopNav, .utilities { display: flex; align-items: center; }
+.desktopNav { gap: 3px; }
+.utilities { gap: 5px; }
+
+.navTrigger, .iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: rgb(255 255 255 / 76%);
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.navTrigger { min-height: 42px; gap: 6px; padding: 8px 11px; font-size: 14px; font-weight: 500; line-height: 1.5; letter-spacing: 0; white-space: nowrap; }
+.navTrigger[aria-expanded="true"], .navTrigger[data-active] { color: #fff; background: rgb(255 255 255 / 7%); }
+.iconButton { width: 38px; height: 40px; flex-shrink: 0; }
+.chevron { width: 14px; height: 14px; flex-shrink: 0; transition: transform 160ms ease; }
+[aria-expanded="true"] > .chevron { transform: rotate(180deg); }
+.hamburger { display: none; }
+
+.desktopPanel {
+  position: absolute;
+  top: 100%;
+  inset-inline: 0;
+  max-height: calc(100dvh - 64px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: linear-gradient(115deg, rgb(31 23 46 / 97%), rgb(13 12 19 / 98%) 55%);
+  border-block: 1px solid rgb(255 255 255 / 12%);
+  box-shadow: 0 24px 40px rgb(0 0 0 / 24%);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  backdrop-filter: blur(28px) saturate(1.5);
+}
+
+.panelContent { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 40px; padding: 32px 24px 36px; }
+.panelIntro { padding-right: 20px; }
+.panelSection { min-width: 0; }
+.panelIntro > :first-child { color: rgb(255 255 255 / 64%); }
+.panelDescription { max-width: 20ch; margin-top: 13px; margin-bottom: 22px; }
+.overviewLink { display: inline-flex; align-items: center; gap: 12px; color: rgb(220 206 255); font-size: 14px; line-height: 1.6; border-radius: 4px; }
+.sectionLabel { color: rgb(255 255 255 / 62%); margin-bottom: 9px; }
+.linkList { display: grid; gap: 3px; list-style: none; margin: 0; padding: 0; }
+.panelLink { display: flex; flex-direction: column; gap: 4px; margin-inline: -10px; padding: 10px; border-radius: 8px; color: rgb(255 255 255 / 92%); transition: background-color 160ms ease, color 160ms ease; }
+.panelLink[aria-current="page"] { background: rgb(255 255 255 / 7%); color: #fff; }
+.linkDescription { color: rgb(255 255 255 / 64%); }
+.mobilePanel { display: none; }
+
+.header a:focus-visible, .header button:focus-visible, .mobilePanel a:focus-visible, .mobilePanel button:focus-visible { outline: 2px solid rgb(196 181 253); outline-offset: 3px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .navTrigger:hover, .iconButton:hover, .panelLink:hover, .accountLink:hover, .logout:hover { background: rgb(255 255 255 / 8%); color: #fff; }
+  .overviewLink:hover { color: #fff; }
+  .login:hover { background: rgb(255 255 255 / 15%); }
+}
+
+@media (max-width: 1023px) {
+  .bar { padding-inline: 20px; gap: 10px; }
+  .desktopNav, .desktopAccount { display: none; }
+  .hamburger { display: inline-flex; }
+  .mobilePanel {
+    display: block;
+    position: fixed;
+    inset: 64px 0 0;
+    z-index: 49;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: linear-gradient(150deg, rgb(26 21 38), rgb(12 12 18) 65%);
+  }
+  .mobileContent { padding: 12px 24px max(32px, env(safe-area-inset-bottom)); }
+  .mobileGroup { border-bottom: 1px solid rgb(255 255 255 / 12%); }
+  .mobileTrigger { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 18px 0; color: #fff; text-align: left; }
+  .mobileTrigger[data-active] { color: rgb(220 206 255); }
+  .mobileTrigger .chevron { width: 18px; height: 18px; color: rgb(255 255 255 / 70%); }
+  .mobileLinks { display: grid; gap: 22px; padding: 0 8px 24px; }
+  .mobileLinks > .overviewLink { padding-block: 4px; }
+  .mobileAccount { padding-block: 26px 8px; }
+  .accountLinks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 16px; }
+  .accountLink { display: block; border-radius: 6px; padding-block: 11px; font-size: 14px; line-height: 1.6; color: rgb(255 255 255 / 82%); transition: background-color 160ms ease, color 160ms ease; }
+  .logout { margin-top: 14px; padding: 10px 0; border-radius: 6px; color: rgb(253 164 175); font-size: 14px; line-height: 1.6; }
+  .login { display: flex; justify-content: center; padding: 12px 20px; border: 1px solid rgb(255 255 255 / 20%); border-radius: 10px; background: rgb(255 255 255 / 9%); color: #fff; font-size: 15px; font-weight: 500; line-height: 1.6; transition: background-color 160ms ease; }
+  /* 铃铛位于手机顶栏中部，面板使用整行宽度，避免向左伸出视口。 */
+  .utilities > [data-header-popover-open] > div { position: fixed; inset: 72px 14px auto; width: auto; margin-top: 0; }
+}
+
+@media (max-width: 420px) {
+  .bar { padding-inline: 14px; gap: 8px; }
+  .brandName { font-size: 15px; }
+  .brand { gap: 7px; }
+  .utilities { gap: 1px; }
+  .iconButton { width: 34px; }
+}
+
+@media (max-width: 359px) { .brandName { display: none; } }
+
+.desktopPanel[data-animate], .mobilePanel[data-animate] {
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+@starting-style {
+  .desktopPanel[data-animate], .mobilePanel[data-animate] { opacity: 0; transform: translateY(-5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header, .headerHidden, .desktopPanel, .mobilePanel, .chevron { animation: none; transform: none !important; transition: none !important; }
+  .header *, .mobilePanel * { transition: none !important; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .headerSurface, .desktopPanel { background: #111017; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

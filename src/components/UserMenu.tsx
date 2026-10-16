@@ -41,11 +41,27 @@ export default function UserMenu() {
   }, [user]);
 
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
+    const handleClick = (e: PointerEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    const closeFromHeader = (event: Event) => {
+      const except = (event as CustomEvent).detail;
+      if (!(except instanceof Node) || !ref.current?.contains(except)) setOpen(false);
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || !ref.current?.hasAttribute('data-header-popover-open')) return;
+      event.preventDefault();
+      setOpen(false);
+      ref.current.querySelector('button')?.focus();
+    };
+    document.addEventListener('pointerdown', handleClick);
+    document.addEventListener('keydown', handleEscape);
+    window.addEventListener('header:close-popovers', closeFromHeader);
+    return () => {
+      document.removeEventListener('pointerdown', handleClick);
+      document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('header:close-popovers', closeFromHeader);
+    };
   }, []);
 
   if (loading) {
@@ -66,12 +82,14 @@ export default function UserMenu() {
   const initial = (user.name?.[0] || user.email[0]).toUpperCase();
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" data-header-popover-open={open ? '' : undefined}
+      onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
         className="relative flex h-8 w-8 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white transition-transform hover:scale-105 overflow-hidden"
         aria-label={t('userMenuAria')}
+        aria-expanded={open}
       >
         {passStatus?.hasPass && (
           <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3">
@@ -99,7 +117,7 @@ export default function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-zinc-950/95 shadow-2xl backdrop-blur-xl">
+        <div className="absolute right-0 top-full mt-2 w-56 max-h-[calc(100dvh-80px)] overflow-y-auto overscroll-contain rounded-xl border border-white/10 bg-zinc-950/95 shadow-2xl backdrop-blur-xl">
           <div className="border-b border-white/[0.06] px-4 py-3">
             <p className="text-sm font-medium text-white flex items-center gap-2">
               {user.name || t('defaultUserName')}
@@ -163,6 +181,13 @@ export default function UserMenu() {
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
               {t('myProducts')}
+            </Link>
+            <Link
+              href="/orders"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+            >
+              {t('myOrders')}
             </Link>
             <Link
               href="/redeem"

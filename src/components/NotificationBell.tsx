@@ -136,11 +136,27 @@ export default function NotificationBell() {
   }, [userId]);
 
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
+    const handleClick = (e: PointerEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    const closeFromHeader = (event: Event) => {
+      const except = (event as CustomEvent).detail;
+      if (!(except instanceof Node) || !ref.current?.contains(except)) setOpen(false);
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || !ref.current?.hasAttribute('data-header-popover-open')) return;
+      event.preventDefault();
+      setOpen(false);
+      ref.current.querySelector('button')?.focus();
+    };
+    document.addEventListener('pointerdown', handleClick);
+    document.addEventListener('keydown', handleEscape);
+    window.addEventListener('header:close-popovers', closeFromHeader);
+    return () => {
+      document.removeEventListener('pointerdown', handleClick);
+      document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('header:close-popovers', closeFromHeader);
+    };
   }, []);
 
   useEffect(() => {
@@ -159,11 +175,13 @@ export default function NotificationBell() {
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" data-header-popover-open={open ? '' : undefined}
+      onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
       <button
         type="button"
         onClick={togglePanel}
         aria-label={t('ariaLabel')}
+        aria-expanded={open}
         className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -186,7 +204,7 @@ export default function NotificationBell() {
           <div className="border-b border-white/[0.06] px-4 py-3">
             <p className="text-sm font-medium text-white">{t('title')}</p>
           </div>
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-[min(24rem,calc(100dvh-136px))] overflow-y-auto overscroll-contain">
             {(masters.notices.length > 0 || masters.failed) && <section className="border-b border-white/10 px-4 py-3" aria-label={locale === 'en' ? 'Application reminders' : '硕士申请提醒'}>
               <p className="t-title-4 text-white">{locale === 'en' ? 'Application reminders' : '硕士申请提醒'}</p>
               {masters.failed && <p className="mt-2 t-footnote text-amber-200">{locale === 'en' ? 'Could not refresh application reminders.' : '申请提醒暂时读取失败，请稍后重试。'}</p>}
