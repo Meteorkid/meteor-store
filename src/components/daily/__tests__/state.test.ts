@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   parseAccountPreferences, parseGuestPreferences, pickPreferences, visibleChannels,
-  dailyReadStorageKey, parseReadKeys, toggleReadKey, gradeAnswers,
+  dailyReadStorageKey, parseReadKeys, toggleReadKey, gradeAnswers, MAX_DAILY_READ_KEYS,
 } from '../state';
 
 describe('每日阅读偏好与本地进度', () => {
@@ -11,7 +11,7 @@ describe('每日阅读偏好与本地进度', () => {
     expect(parseGuestPreferences(null)).toBeNull();
     expect(parseGuestPreferences('{broken')).toBeNull();
     expect(parseGuestPreferences('{"channels":[],"reminders":false}')).toEqual({ channels: [], reminders: false });
-    expect(visibleChannels('following', null)).toEqual(['english', 'papers', 'ai', 'events', 'masters']);
+    expect(visibleChannels('following', null)).toEqual(['english', 'papers', 'ai', 'events', 'open-source', 'competitions', 'internships', 'masters']);
     expect(visibleChannels('following', { channels: [], reminders: false })).toEqual([]);
   });
 
@@ -29,7 +29,7 @@ describe('每日阅读偏好与本地进度', () => {
   });
 
   it('全部视图不被关注列表隐藏，关注视图保持栏目顺序', () => {
-    expect(visibleChannels('all', { channels: [], reminders: false })).toHaveLength(5);
+    expect(visibleChannels('all', { channels: [], reminders: false })).toHaveLength(8);
     expect(visibleChannels('following', { channels: ['events', 'english'], reminders: false }))
       .toEqual(['english', 'events']);
   });
@@ -44,6 +44,17 @@ describe('每日阅读偏好与本地进度', () => {
   it('游客、不同账号的已读存储互相隔离', () => {
     expect(dailyReadStorageKey(null)).not.toBe(dailyReadStorageKey('guest'));
     expect(dailyReadStorageKey('user-1')).not.toBe(dailyReadStorageKey('user-2'));
+  });
+
+  it('旧五栏偏好不自动添加新栏目，已读容量覆盖七栏30天', () => {
+    const channels = ['english', 'papers', 'ai', 'events', 'masters'];
+    const old = parseAccountPreferences({ userId: 'user-1', preferences: { channels, reminders: true } }, 'user-1');
+    expect(visibleChannels('following', old)).toEqual(channels);
+    expect(visibleChannels('all', old)).toEqual(expect.arrayContaining(['open-source', 'competitions', 'internships']));
+    expect(MAX_DAILY_READ_KEYS).toBe(210);
+    const keys = Array.from({ length: 180 }, (_, index) => `saved-${index}`);
+    expect(toggleReadKey(keys, '2026-10-15:internships')).toHaveLength(181);
+    expect(parseReadKeys('["2026-10-15:open-source","2026-10-15:competitions","2026-10-15:internships"]', '2026-10-15')).toHaveLength(3);
   });
 
   it('拒绝账号切换后返回的其他用户偏好', () => {

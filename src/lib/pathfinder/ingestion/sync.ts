@@ -1,10 +1,10 @@
 import crypto from 'crypto';
-import { and, eq, inArray, not, or, sql, type SQLWrapper } from 'drizzle-orm';
+import { and, eq, inArray, not, notInArray, or, sql, type SQLWrapper } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderItemTags, pathfinderSources } from '@/lib/db/schema';
 import { fetchPathfinderSource } from './fetch-source';
 import { articleSummaryUrl, fetchArticleSummary } from './article-summary';
-import { parsePathfinderSource } from './parse';
+import { parseGreenhouseBoardIds, parsePathfinderSource } from './parse';
 import { PATHFINDER_SYNC_SOURCE_MAP, PATHFINDER_SYNC_SOURCES } from './sources';
 import { isTranslationEnabled, needsTranslation, translateAll } from '../translate';
 import { PATHFINDER_DIRECTIONS, type PathfinderDirection } from '../catalog-types';
@@ -132,12 +132,14 @@ async function syncOneSource(
   row: typeof pathfinderSources.$inferSelect,
 ): Promise<PathfinderSourceSyncResult> {
   try {
-    const response = await fetchPathfinderSource(source, {
+    // 职位板须重新取得完整 membership；旧 304 游标只保留 20 条，不能证明其它岗位已关闭。
+    const response = await fetchPathfinderSource(source, source.adapterId === 'greenhouse' ? {} : {
       etag: row.etag,
       lastModified: row.lastModified,
     });
     const now = new Date().toISOString();
     if (response.notModified) {
+      if (source.adapterId === 'greenhouse') throw new Error('Greenhouse 未返回完整职位板');
       await refreshSourceMembership(source, row.cursor, now);
       await markSourceSuccess(
         source.id,
@@ -149,20 +151,24 @@ async function syncOneSource(
       return { sourceId: source.id, fetched: 0, inserted: 0, updated: 0, skipped: 0, notModified: true };
     }
 
+    const boardIds = source.adapterId === 'greenhouse' ? parseGreenhouseBoardIds(response.body) : null;
     const incoming = parsePathfinderSource(source, response.body);
     const persisted = await persistItems(source, incoming, now);
+    const closed = boardIds === null ? 0 : await expireMissingGreenhouseJobs(source.id, boardIds, now);
     await markSourceSuccess(
       source.id,
       now,
       response.etag,
       response.lastModified,
-      buildPathfinderMembershipCursor(incoming),
+      boardIds === null ? buildPathfinderMembershipCursor(incoming)
+        : JSON.stringify({ version: 2, kind: 'greenhouse-board', externalIds: boardIds }),
     );
     return {
       sourceId: source.id,
       fetched: incoming.length,
       notModified: false,
       ...persisted,
+      updated: persisted.updated + closed,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message.slice(0, 500) : 'unknown sync error';
@@ -346,7 +352,7 @@ async function persistItems(
   // stale 条目只有在曾经人工通过或来源允许自动发布时才恢复公开。
   for (let offset = 0; offset < unchanged.length; offset += 20) {
     await Promise.all(unchanged.slice(offset, offset + 20).map(({ existing: old }) => {
-      const restoredStatus = old.status === 'stale'
+      const restoredStatus = old.status === 'stale' || (source.adapterId === 'greenhouse' && old.status === 'expired')
         ? restoredPathfinderStatus(old, source.autoPublish)
         : old.status;
       return db.update(pathfinderItems).set({
@@ -508,6 +514,15 @@ async function markSourceSuccess(
     consecutiveFailures: 0,
     updatedAt: now,
   }).where(eq(pathfinderSources.id, sourceId));
+}
+
+async function expireMissingGreenhouseJobs(sourceId: string, boardIds: string[], now: string): Promise<number> {
+  const rows = await db.update(pathfinderItems).set({ status: 'expired', updatedAt: now }).where(and(
+    eq(pathfinderItems.sourceId, sourceId), eq(pathfinderItems.itemType, 'internship'),
+    inArray(pathfinderItems.status, ['published', 'stale']),
+    boardIds.length > 0 ? notInArray(pathfinderItems.externalId, boardIds) : undefined,
+  )).returning({ id: pathfinderItems.id });
+  return rows.length;
 }
 
 async function refreshSourceMembership(

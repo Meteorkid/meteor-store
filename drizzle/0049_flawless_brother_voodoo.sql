@@ -1,0 +1,2 @@
+ALTER TABLE "daily_editions" DROP CONSTRAINT "daily_editions_channel_check";--> statement-breakpoint
+ALTER TABLE "daily_editions" ADD CONSTRAINT "daily_editions_channel_check" CHECK ("daily_editions"."channel" IN ('english', 'papers', 'ai', 'events', 'open-source', 'competitions', 'internships'));

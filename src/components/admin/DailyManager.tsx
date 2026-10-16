@@ -260,9 +260,22 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field label={t('原文 / 官方活动链接', 'Original / official event URL')} value={item.url} required type="url" maxLength={2000} onChange={url => updateItem(index, { url })} />
                 <Field label={t('来源名称', 'Source name')} value={item.sourceName} required maxLength={100} onChange={sourceName => updateItem(index, { sourceName })} />
-                <Select label={t('来源身份', 'Source type')} value={item.sourceType} options={editor.channel === 'events' ? [['official', t('官方', 'Official')]] : [['official', t('官方', 'Official')], ['aggregator', t('第三方聚合', 'Third-party aggregator')]]} onChange={value => updateItem(index, { sourceType: value as DailyLinkItem['sourceType'] })} />
+                <Select label={t('来源身份', 'Source type')} value={item.sourceType} options={['events', 'open-source', 'competitions', 'internships'].includes(editor.channel) ? [['official', t('官方', 'Official')]] : [['official', t('官方', 'Official')], ['aggregator', t('第三方聚合', 'Third-party aggregator')]]} onChange={value => updateItem(index, { sourceType: value as DailyLinkItem['sourceType'] })} />
                 <Field label={t('来源发布时间（选填）', 'Source publication time (optional)')} value={item.sourcePublishedAt ?? ''} onChange={value => updateItem(index, { sourcePublishedAt: value || undefined })} />
               </div>
+              {['open-source', 'competitions', 'internships'].includes(editor.channel) && <>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label={t('来源条目 ID', 'Source item ID')} value={item.id} required maxLength={300} onChange={id => updateItem(index, { id })} />
+                  <Field label={t('项目方 / 公司', 'Project / Employer')} value={item.organization ?? ''} maxLength={200} required={editor.channel === 'internships'} onChange={value => updateItem(index, { organization: value || undefined })} />
+                  <Field label={t('核验时间（带时区）', 'Verification time (with offset)')} value={item.verifiedAt ?? ''} required onChange={value => updateItem(index, { verifiedAt: value || undefined })} />
+                  <Field label={t('地点与办公方式', 'Location and work mode')} value={item.location ?? ''} maxLength={300} required={editor.channel === 'internships'} onChange={value => updateItem(index, { location: value || undefined })} />
+                </div>
+                <Field label={t('参与 / 申请要求', 'Requirements')} value={item.eligibility ?? ''} maxLength={2000} multiline required={editor.channel === 'internships'} onChange={value => updateItem(index, { eligibility: value || undefined })} />
+                {editor.channel === 'competitions' && <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label={t('开赛时间（不是报名截止）', 'Contest start (not registration deadline)')} value={item.startAt ?? ''} required onChange={value => updateItem(index, { startAt: value || undefined })} />
+                  <Field label={t('显示时区', 'Display time zone')} value={item.timeZone ?? ''} maxLength={80} required onChange={value => updateItem(index, { timeZone: value || undefined })} />
+                </div>}
+              </>}
               {editor.channel === 'papers' && <>
                 {item.originalAbstract && <details className="rounded-lg border border-white/10 p-3 text-sm text-white/70"><summary className="cursor-pointer">{t('原始摘要（只读）', 'Original abstract (read only)')}</summary><p className="mt-3 whitespace-pre-wrap leading-relaxed">{item.originalAbstract}</p></details>}
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -282,7 +295,7 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
               </div>}
               <button type="button" className={buttonClass} disabled={editor.content.kind === 'english' || editor.content.items.length <= 1} onClick={() => { if (editor.content.kind !== 'english') setEditor({ ...editor, content: { ...editor.content, items: editor.content.items.filter((_, i) => i !== index) } }); }}>{t('移除条目', 'Remove item')}</button>
             </div>)}
-            <button type="button" className={buttonClass} disabled={editor.content.items.length >= (editor.channel === 'papers' ? 3 : editor.channel === 'ai' ? 5 : 10)} onClick={() => { if (editor.content.kind !== 'english') setEditor({ ...editor, content: { ...editor.content, items: [...editor.content.items, newItem(editor.content.kind)] } }); }}>{t('添加条目', 'Add item')}</button>
+            <button type="button" className={buttonClass} disabled={editor.content.items.length >= (editor.channel === 'open-source' ? 1 : ['papers', 'competitions', 'internships'].includes(editor.channel) ? 3 : editor.channel === 'ai' ? 5 : 10)} onClick={() => { if (editor.content.kind !== 'english') setEditor({ ...editor, content: { ...editor.content, items: [...editor.content.items, newItem(editor.content.kind)] } }); }}>{t('添加条目', 'Add item')}</button>
           </>}
         </fieldset>
         <div className="flex flex-wrap gap-3">

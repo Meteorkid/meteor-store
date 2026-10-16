@@ -251,7 +251,7 @@ const MAX_JOBS_PER_SYNC = 20;
  * 这同时让量级自限——实测 2146 场里只有 5 场未开始，不会灌爆目录，
  * 所以不需要像 issue 那样另设配额。
  *
- * 开始时间当截止时间用：比赛一开打就报不了名了，语义上就是最后期限。
+ * 目录仍用开始时间停止推荐，但 API 没有独立报名截止字段，不能把开赛说成已核实的报名截止。
  */
 export function parseCodeforcesContests(
   source: PathfinderSyncSource,
@@ -284,8 +284,8 @@ export function parseCodeforcesContests(
       ? Math.max(1, Math.round(raw.durationSeconds / 3600))
       : null;
     const summary = hours
-      ? `在线编程竞赛，比赛时长约 ${hours} 小时。开始后不能再报名。`
-      : '在线编程竞赛。开始后不能再报名。';
+      ? `在线编程竞赛，比赛时长约 ${hours} 小时。所列时间为开赛时间，报名安排以官方页面为准。`
+      : '在线编程竞赛。所列时间为开赛时间，报名安排以官方页面为准。';
 
     return [{
       sourceId: source.id,
@@ -334,13 +334,7 @@ export function parseGreenhouseJobs(
   source: PathfinderSyncSource,
   json: string,
 ): IngestedPathfinderItem[] {
-  let payload: unknown;
-  try {
-    payload = JSON.parse(json);
-  } catch {
-    throw new Error(`pathfinder source returned invalid JSON: ${source.id}`);
-  }
-  const jobs = isRecord(payload) && Array.isArray(payload.jobs) ? payload.jobs : [];
+  const jobs = readGreenhouseBoard(json);
 
   return jobs.flatMap((raw) => {
     if (!isRecord(raw)) return [];
@@ -360,8 +354,7 @@ export function parseGreenhouseJobs(
       ? String(raw.id)
       : url;
     const publishedAt = toIsoDate(
-      (typeof raw.first_published === 'string' ? raw.first_published : null)
-      ?? (typeof raw.updated_at === 'string' ? raw.updated_at : null),
+      typeof raw.first_published === 'string' ? raw.first_published : null,
     );
     const deadlineAt = toIsoDate(
       typeof raw.application_deadline === 'string' ? raw.application_deadline : null,
@@ -418,6 +411,37 @@ export function parseGreenhouseJobs(
     item.contentHash = contentHash(item);
     return [item];
   }).slice(0, MAX_JOBS_PER_SYNC);
+}
+
+/** 关闭岗位只能依据完整原始职位板，不能使用筛选后或截断到 20 条的推荐列表。 */
+export function parseGreenhouseBoardIds(json: string): string[] {
+  return readGreenhouseBoard(json).map(job => String(job.id));
+}
+
+function readGreenhouseBoard(json: string): Record<string, unknown>[] {
+  let payload: unknown;
+  try { payload = JSON.parse(json); } catch { throw new Error('Greenhouse 职位板 JSON 无效'); }
+  if (!isRecord(payload) || !Array.isArray(payload.jobs)
+    || payload.jobs.length > 10_000
+    || (isRecord(payload.meta) && payload.meta.total !== undefined && payload.meta.total !== payload.jobs.length)
+    || payload.jobs.some(job => !isRecord(job) || !/^\d{1,30}$/.test(String(job.id)))) {
+    throw new Error('Greenhouse 职位板不完整');
+  }
+  const jobs = payload.jobs as Record<string, unknown>[];
+  if (new Set(jobs.map(job => String(job.id))).size !== jobs.length) throw new Error('Greenhouse 职位板 ID 重复');
+  return jobs;
+}
+
+/** v1 只保存最多 30 个解析后 ID，不能用来证明完整职位板。 */
+export function parseGreenhouseMembershipCursor(cursor: string | null): string[] | null {
+  if (!cursor) return null;
+  try {
+    const value = JSON.parse(cursor);
+    if (!isRecord(value) || value.version !== 2 || value.kind !== 'greenhouse-board'
+      || !Array.isArray(value.externalIds) || value.externalIds.length > 10_000
+      || value.externalIds.some(id => typeof id !== 'string' || !/^\d{1,30}$/.test(id))) return null;
+    return [...new Set(value.externalIds as string[])];
+  } catch { return null; }
 }
 
 function readTag(block: string, names: string[]): string | null {

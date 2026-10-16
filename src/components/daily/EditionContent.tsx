@@ -26,7 +26,13 @@ export default function EditionContent({ content, copy, locale }: { content: Dai
           {item.preprint && <p className="mt-2 t-footnote text-amber-200">{copy.preprint}</p>}
           {item.authors && item.authors.length > 0 && <p className="mt-2 t-footnote text-white/60">{copy.authors}: {item.authors.join(', ')}</p>}
           {content.kind === 'events' && <p className="mt-3 t-footnote text-violet-200">{copy.eventTime}: {formatEventTime(item, locale) ?? copy.timePending}</p>}
+          {content.kind === 'competitions' && <p className="mt-3 t-footnote text-violet-200">{copy.contestStart}: {formatEventTime(item, locale) ?? copy.timePending}</p>}
           <p className="mt-4 whitespace-pre-wrap break-words t-body text-white/80">{item.summary}</p>
+          {(item.organization || item.location || item.eligibility) && <dl className="mt-4 space-y-2 text-sm leading-7 text-white/70">
+            {item.organization && <div><dt className="inline text-white/60">{copy.organization}: </dt><dd className="inline">{item.organization}</dd></div>}
+            {item.location && <div><dt className="inline text-white/60">{copy.location}: </dt><dd className="inline">{item.location}</dd></div>}
+            {item.eligibility && <div><dt className="inline text-white/60">{copy.eligibility}: </dt><dd className="inline">{item.eligibility}</dd></div>}
+          </dl>}
           {content.kind === 'papers' && item.originalAbstract && <details className="mt-4 border-l-2 border-violet-400/40 pl-4">
             <summary className="cursor-pointer t-footnote text-violet-200">{copy.originalAbstract}</summary>
             <p className="mt-3 whitespace-pre-wrap break-words t-body text-white/70">{item.originalAbstract}</p>
@@ -34,6 +40,7 @@ export default function EditionContent({ content, copy, locale }: { content: Dai
           <p className="mt-4 t-footnote text-white/60">
             {copy.source}: {item.sourceName} · {item.sourceType === 'official' ? copy.official : copy.aggregator}
             {item.sourcePublishedAt && <> · {copy.sourceDate}: {formatSourceDate(item.sourcePublishedAt, locale)}</>}
+            {item.verifiedAt && <> · {copy.verifiedAt}: {formatEventTime({ ...item, startAt: item.verifiedAt, timeZone: 'Asia/Shanghai' }, locale)}</>}
           </p>
           <div className="mt-4 flex flex-wrap gap-5 t-footnote font-semibold text-violet-200">
             <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center underline decoration-violet-300/40 underline-offset-4">{copy.original} <span aria-hidden className="ml-1">↗</span></a>

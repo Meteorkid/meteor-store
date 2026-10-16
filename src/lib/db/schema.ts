@@ -69,7 +69,7 @@ export const dailyEditions = pgTable('daily_editions', {
 }, t => [
   uniqueIndex('daily_editions_date_channel_idx').on(t.date, t.channel),
   uniqueIndex('daily_editions_source_idx').on(t.channel, t.sourceKey),
-  check('daily_editions_channel_check', sql`${t.channel} IN ('english', 'papers', 'ai', 'events')`),
+  check('daily_editions_channel_check', sql`${t.channel} IN ('english', 'papers', 'ai', 'events', 'open-source', 'competitions', 'internships')`),
   check('daily_editions_status_check', sql`${t.status} IN ('draft', 'published', 'empty', 'failed')`),
 ]);
 

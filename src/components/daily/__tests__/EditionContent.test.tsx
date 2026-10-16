@@ -4,6 +4,31 @@ import EditionContent from '../EditionContent';
 import { dailyText } from '../text';
 
 describe('日刊内容展示', () => {
+  it('实习展示公司、地点、资格要求与核验时间，不宣称读者已符合条件', () => {
+    const html = renderToStaticMarkup(<EditionContent locale="zh" copy={dailyText.zh} content={{
+      kind: 'internships', items: [{ id: 'job-1', title: 'Software Intern', summary: '学生岗位。',
+        url: 'https://example.com/job', sourceName: 'Employer', sourceType: 'official',
+        organization: 'Example Company', location: 'San Francisco · 现场办公',
+        eligibility: '需要当地工作许可，具体年级要求以官网为准。', verifiedAt: '2026-10-15T03:00:00Z' }],
+    }} />);
+    expect(html).toContain('Example Company');
+    expect(html).toContain('San Francisco');
+    expect(html).toContain('需要当地工作许可');
+    expect(html).toContain('核验时间');
+    expect(html).not.toContain('你符合');
+  });
+
+  it('竞赛起始时间明确写开赛时间，不能误称报名截止', () => {
+    const html = renderToStaticMarkup(<EditionContent locale="zh" copy={dailyText.zh} content={{
+      kind: 'competitions', items: [{ id: 'contest-1', title: 'Programming Round', summary: '官方编程赛事。',
+        url: 'https://codeforces.com/contests/1234', sourceName: 'Codeforces', sourceType: 'official',
+        startAt: '2026-10-17T12:00:00Z', timeZone: 'UTC' }],
+    }} />);
+    expect(html).toContain('开赛时间');
+    expect(html).toContain('2026');
+    expect(html).not.toContain('报名截止');
+  });
+
   it('英语练习未提交时不展示答案或解析', () => {
     const html = renderToStaticMarkup(<EditionContent locale="zh" copy={dailyText.zh} content={{
       kind: 'english', vocabulary: [{ term: 'review', meaning: '复查', example: 'Review the change.', translation: '复查改动。' }],

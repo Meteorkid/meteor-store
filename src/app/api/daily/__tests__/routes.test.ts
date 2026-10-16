@@ -272,11 +272,13 @@ describe('日刊cron API', () => {
       { channel: 'papers', status: 'published', error: 'private failure' },
       { channel: 'ai', status: 'published' },
       { channel: 'events', status: 'empty' },
+      ...['open-source', 'competitions', 'internships'].map(channel => ({ channel, status: 'empty' })),
     ]);
     const response = await postCron(cronRequest());
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ success: true, editions: [
       { channel: 'english', status: 'published' }, { channel: 'papers', status: 'published' }, { channel: 'ai', status: 'published' }, { channel: 'events', status: 'empty' },
+      ...['open-source', 'competitions', 'internships'].map(channel => ({ channel, status: 'empty' })),
     ] });
     expect(mocks.generateDailyEditions).toHaveBeenCalledWith(TODAY);
     expect(mocks.freezeDailyReminder).not.toHaveBeenCalled();

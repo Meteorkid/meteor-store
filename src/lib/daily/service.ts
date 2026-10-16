@@ -2,6 +2,7 @@ import { and, eq, gte, inArray, lte, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { dailyEditions, dailyPreferences, dailyReminders } from '@/lib/db/schema';
 import { loadDailyContent } from './content';
+import { filterAvailableDailyOpportunities } from './opportunities';
 import {
   DAILY_CHANNEL_IDS, DAILY_EDITION_CHANNEL_IDS, DailyEditionChannelSchema, DailyContentSchema, DailyDateSchema, DailyPreferencesSchema,
   dailyDate, isDailyHistoryDate, shiftDailyDate,
@@ -31,7 +32,9 @@ export function publicDailyEdition(row: DailyEdition): DailyEdition {
 
 export async function getDailyEditions(date: string): Promise<DailyEdition[]> {
   if (!isDailyHistoryDate(date)) throw new Error('Date outside daily history');
-  return (await listDailyEditions(date)).map(publicDailyEdition);
+  const editions = (await listDailyEditions(date)).map(publicDailyEdition);
+  // 当天的机会列表随官方开放状态收缩，历史期次保留当时的来源快照。
+  return date === dailyDate() ? filterAvailableDailyOpportunities(editions) : editions;
 }
 
 export async function getDailyPreferences(userId: string): Promise<DailyPreferences | null> {
@@ -63,6 +66,14 @@ function validatePublication(channel: DailyEditionChannelId, title: string, summ
   if (content.kind === 'events') {
     for (const item of content.items) {
       if (item.startAt && !item.timeZone) throw new Error('Events require a confirmed timezone');
+      if (item.timeZone) new Intl.DateTimeFormat('en', { timeZone: item.timeZone });
+    }
+  }
+  if (content.kind === 'open-source' || content.kind === 'competitions' || content.kind === 'internships') {
+    for (const item of content.items) {
+      if (!item.verifiedAt || Date.parse(item.verifiedAt) > Date.now() || item.sourceType !== 'official') throw new Error('Opportunity requires verified official metadata');
+      if (content.kind === 'internships' && (!item.organization || !item.location || !item.eligibility)) throw new Error('Internship requires location and eligibility');
+      if (content.kind === 'competitions' && (!item.startAt || !item.timeZone)) throw new Error('Contest requires a confirmed start time');
       if (item.timeZone) new Intl.DateTimeFormat('en', { timeZone: item.timeZone });
     }
   }

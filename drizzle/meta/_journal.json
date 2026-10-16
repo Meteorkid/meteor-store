@@ -344,6 +344,13 @@
       "when": 1792054411544,
       "tag": "0048_medical_loners",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1792073697439,
+      "tag": "0049_flawless_brother_voodoo",
+      "breakpoints": true
     }
   ]
 }

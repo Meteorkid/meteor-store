@@ -3,6 +3,7 @@ import { DAILY_CHANNEL_IDS, DAILY_EDITION_CHANNEL_IDS, DailyPreferencesSchema, i
 export const GUEST_PREFERENCES_KEY = 'ms_daily_preferences_v1:guest';
 export const DAILY_STORAGE_EVENT = 'daily-storage-changed';
 export const DAILY_PREFERENCES_EVENT = 'daily-preferences-changed';
+export const MAX_DAILY_READ_KEYS = DAILY_EDITION_CHANNEL_IDS.length * 30;
 
 export function parseGuestPreferences(raw: string | null): DailyPreferences | null {
   if (!raw) return null;
@@ -43,14 +44,14 @@ export function parseReadKeys(raw: string | null, today: string): string[] {
       const [date, channel, extra] = item.split(':');
       return extra === undefined && isDailyHistoryDate(date, today)
         && DAILY_EDITION_CHANNEL_IDS.some(id => id === channel);
-    }))].slice(-120);
+    }))].slice(-MAX_DAILY_READ_KEYS);
   } catch {
     return [];
   }
 }
 
 export function toggleReadKey(keys: string[], key: string): string[] {
-  return keys.includes(key) ? keys.filter(item => item !== key) : [...keys, key].slice(-120);
+  return keys.includes(key) ? keys.filter(item => item !== key) : [...keys, key].slice(-MAX_DAILY_READ_KEYS);
 }
 
 export function gradeAnswers(answers: Array<number | undefined>, expected: number[]): number {

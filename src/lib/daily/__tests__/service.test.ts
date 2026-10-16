@@ -16,10 +16,11 @@ type Operation = {
 const state = vi.hoisted(() => ({
   responses: [] as unknown[][],
   operations: [] as Operation[],
-  loadContent: vi.fn(),
+  loadContent: vi.fn(), filterOpportunities: vi.fn(async (rows: unknown[]) => rows),
 }));
 
 vi.mock('@/lib/daily/content', () => ({ loadDailyContent: state.loadContent }));
+vi.mock('@/lib/daily/opportunities', () => ({ filterAvailableDailyOpportunities: state.filterOpportunities }));
 vi.mock('@/lib/db', () => {
   function query(kind: Operation['kind'], table?: unknown) {
     const operation: Operation = { kind, table };
@@ -265,16 +266,16 @@ describe('按日生成与失败重试', () => {
   it('已发布与暂停草稿均不重新采集，历史来源按栏目隔离', async () => {
     const previousPaper = { kind: 'papers' as const, items: [{ ...aiContent.items[0], id: 'https://arxiv.org/abs/2610.12345' }] };
     const existing = [edition(), edition({ id: `${date}:papers`, channel: 'papers', status: 'draft', content: previousPaper, automationPaused: true })];
-    state.responses.push(existing, [{ sourceKey: 'english:small-first-step' }], [{ content: previousPaper }], [], [], existing);
+    state.responses.push(existing, [{ sourceKey: 'english:small-first-step' }], [{ content: previousPaper }], [], [], [], [], [], existing);
     state.loadContent.mockImplementation(async (channel: string) => channel === 'english'
       ? { status: 'draft', title: '英语初稿', summary: '等待审核', content: englishLessons[1].content, sourceKey: `english:${englishLessons[1].id}` }
       : { status: 'empty', title: '发布会', summary: '无新活动', content: null });
     expect(await generateDailyEditions(date)).toEqual(existing);
-    expect(state.loadContent.mock.calls.map((call) => call[0])).toEqual(['english', 'events']);
+    expect(state.loadContent.mock.calls.map((call) => call[0])).toEqual(['english', 'events', 'open-source', 'competitions', 'internships']);
     expect(state.loadContent).toHaveBeenCalledWith('english', date, ['english:small-first-step'], []);
     expect(state.loadContent).toHaveBeenCalledWith('events', date, ['english:small-first-step'], []);
     const writes = state.operations.filter((operation) => operation.kind !== 'select');
-    expect(writes).toHaveLength(2);
+    expect(writes).toHaveLength(5);
     expect(writes.every((operation) => operation.kind === 'insert' && operation.conflict === 'nothing')).toBe(true);
   });
 

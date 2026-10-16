@@ -4,10 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DailyContentSchema } from '../types';
 import { englishLessons } from '../english-lessons';
 
-const mocks = vi.hoisted(() => ({ select: vi.fn(), where: vi.fn(), limit: vi.fn(), generateEnglish: vi.fn(), events: vi.fn() }));
+const mocks = vi.hoisted(() => ({ select: vi.fn(), where: vi.fn(), limit: vi.fn(), generateEnglish: vi.fn(), events: vi.fn(), openSource: vi.fn(), opportunities: vi.fn() }));
 vi.mock('@/lib/db', () => ({ db: { select: mocks.select } }));
 vi.mock('../english-generator', () => ({ generateDailyEnglish: mocks.generateEnglish }));
 vi.mock('../events', () => ({ loadDailyEvents: mocks.events }));
+vi.mock('../open-source', () => ({ loadDailyOpenSource: mocks.openSource }));
+vi.mock('../opportunities', () => ({ loadDailyOpportunities: mocks.opportunities }));
 
 const day = '2026-10-14';
 const publishedAt = 'Wed, 14 Oct 2026 00:00:00 -0400';
@@ -346,5 +348,19 @@ describe('已有 AI 资讯与发布会', () => {
     expect(mocks.events).toHaveBeenCalledWith(day, []);
     await expect(loadDailyContent('papers', '2026-02-30')).rejects.toThrow();
     expect(mocks.select).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('新增每日栏目的明确分发', () => {
+  it.each(['open-source', 'competitions', 'internships'] as const)('%s走独立来源，不能落入论文默认分支', async channel => {
+    const { loadDailyContent } = await import('../content');
+    const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);
+    mocks.openSource.mockResolvedValue({ status: 'empty', content: null });
+    mocks.opportunities.mockResolvedValue({ status: 'empty', content: null });
+    expect(await loadDailyContent(channel, day, ['previous'])).toMatchObject({ status: 'empty' });
+    if (channel === 'open-source') expect(mocks.openSource).toHaveBeenCalledWith(day, ['previous']);
+    else expect(mocks.opportunities).toHaveBeenCalledWith(channel, day, ['previous']);
+    expect(fetch).not.toHaveBeenCalled();
   });
 });

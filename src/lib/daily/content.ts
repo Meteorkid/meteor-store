@@ -6,6 +6,8 @@ import { SITE_URL } from '@/lib/constants';
 import { cleanExternalText, normalizeIngestionUrl, toIsoDate } from '@/lib/pathfinder/ingestion/normalize';
 import { generateDailyEnglish } from './english-generator';
 import { loadDailyEvents } from './events';
+import { loadDailyOpenSource } from './open-source';
+import { loadDailyOpportunities } from './opportunities';
 import {
   DailyDateSchema, DailyLinkItemSchema, dailyDate, shiftDailyDate,
   type DailyEditionChannelId, type DailyContent, type DailyLinkItem,
@@ -43,6 +45,8 @@ export async function loadDailyContent(
   }
   if (channel === 'events') return loadDailyEvents(date, usedSourceKeys);
   if (channel === 'ai') return loadAiContent(date, used);
+  if (channel === 'open-source') return loadDailyOpenSource(date, usedSourceKeys);
+  if (channel === 'competitions' || channel === 'internships') return loadDailyOpportunities(channel, date, usedSourceKeys);
 
   const xml = await fetchArxivFeed();
   const items = parseArxivFeed(xml, date, usedSourceKeys);
