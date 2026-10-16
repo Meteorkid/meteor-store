@@ -128,6 +128,11 @@ pm2 stop meteor-store 2>/dev/null || true
 rm -rf .next.rollback
 if [[ -d .next ]]; then mv .next .next.rollback; fi
 tar -xzf .next.tar.gz
+# 构建机可能使用 umask 077；nginx 需要遍历并读取公开静态目录，否则页面仅剩无交互的服务端正文。
+# 只调整对外资源，server/cache 等非公开产物不放宽权限。
+chmod 755 .next
+find .next/static -type d -exec chmod 755 {} +
+find .next/static -type f -exec chmod 644 {} +
 rm -f .next.tar.gz
 pm2 restart meteor-store --update-env
 pm2 save

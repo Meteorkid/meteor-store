@@ -31,6 +31,8 @@ function getR2RemotePattern(): URL[] {
 }
 
 const nextConfig: NextConfig = {
+  // 2026-10-16 部分浏览器缓存了静态资源403；更新URL使这些客户端也能恢复，保持服务端与构建值一致。
+  deploymentId: 'static-recovery-20261016',
   /*
    * Next 的数据缓存（`unstable_cache` / fetch 缓存）活在服务进程自己的堆里，
    * 默认上限 50MB——那是个要照顾各种规格的保守通用值，对这台机器偏小。
