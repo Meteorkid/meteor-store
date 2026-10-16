@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { Link, redirect } from '@/i18n/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getSession } from '@/lib/auth';
+import { buildLoginHref } from '@/lib/login-return';
 import { getUserFavoritePosts } from '@/lib/favorites';
 import { getSectionById } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
@@ -33,7 +33,7 @@ export default async function FavoritesPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'BlogFavoritesPage' });
   const session = await getSession();
-  if (!session) redirect('/login');
+  if (!session) return redirect({ href: buildLoginHref('/blog/favorites'), locale });
 
   let posts: Awaited<ReturnType<typeof getUserFavoritePosts>> = [];
   try {

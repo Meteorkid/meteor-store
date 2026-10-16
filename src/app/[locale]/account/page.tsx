@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
 import { eq, desc, sql } from 'drizzle-orm';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
+import { Link, redirect } from '@/i18n/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AccountForms from '@/components/AccountForms';
@@ -14,6 +13,7 @@ import { db } from '@/lib/db';
 import { users, licenseKeys, posts, orders, postFavorites } from '@/lib/db/schema';
 import { isAdminSession } from '@/lib/admin';
 import { getSession } from '@/lib/auth';
+import { buildLoginHref } from '@/lib/login-return';
 import { findPurchasable } from '@/lib/products';
 import type { Locale } from '@/i18n/routing';
 
@@ -64,13 +64,13 @@ export default async function AccountPage({
   };
 
   const session = await getSession();
-  if (!session) redirect('/login');
+  if (!session) return redirect({ href: buildLoginHref('/account'), locale });
 
   const [user] = await db
     .select({ id: users.id, email: users.email, name: users.name, avatarUrl: users.avatarUrl,
       bio: users.bio, emailVerified: users.emailVerified, isStudent: users.isStudent, createdAt: users.createdAt, wechatOpenid: users.wechatOpenid })
     .from(users).where(eq(users.id, session.userId)).limit(1);
-  if (!user) redirect('/login');
+  if (!user) return redirect({ href: buildLoginHref('/account'), locale });
 
   const [keys, userPosts, favRes, ordRes] = await Promise.all([
     user.emailVerified ? db.select().from(licenseKeys).where(eq(licenseKeys.email, user.email)).orderBy(desc(licenseKeys.createdAt)) : Promise.resolve([]),

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { Link, redirect } from '@/i18n/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PostRowActions from '@/components/PostRowActions';
 import { getSession } from '@/lib/auth';
+import { buildLoginHref } from '@/lib/login-return';
 import { getPostsByAuthor, type PostStatus } from '@/lib/posts';
 import { getSectionById } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
@@ -34,7 +34,7 @@ export default async function MyPostsPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'BlogMyPostsPage' });
   const session = await getSession();
-  if (!session) redirect('/login');
+  if (!session) return redirect({ href: buildLoginHref('/blog/my-posts'), locale });
 
   const STATUS_LABEL: Record<PostStatus, { text: string; className: string }> = {
     draft: { text: t('statusDraft'), className: 'text-white/60' },

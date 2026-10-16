@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
+import { Link, redirect } from '@/i18n/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PostSubmitForm from '@/components/PostSubmitForm';
 import { getSession } from '@/lib/auth';
+import { buildLoginHref, normalizeLoginReturn } from '@/lib/login-return';
 import { isAdminSession } from '@/lib/admin';
 import { getPostById, type UserPost } from '@/lib/posts';
 import { markdownToHtml } from '@/lib/markdown';
@@ -30,16 +31,25 @@ export default async function SubmitPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ id?: string }>;
+  searchParams: Promise<{ id?: string; admin?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'BlogSubmitPage' });
   const session = await getSession();
-  if (!session) redirect('/login');
+  const { id, admin } = await searchParams;
+  if (!session) {
+    const query = new URLSearchParams();
+    if (typeof id === 'string') query.set('id', id);
+    if (id && admin === '1') query.set('admin', '1');
+    const returnTo = normalizeLoginReturn(`/blog/submit${query.size ? `?${query}` : ''}`);
+    return redirect({
+      href: buildLoginHref(returnTo === '/' ? '/blog/submit' : returnTo),
+      locale,
+    });
+  }
 
   // ?id=xxx 时进入编辑模式：加载文章，校验作者或管理员，pending 不允许编辑
-  const { id } = await searchParams;
   let initialPost: UserPost | null = null;
   if (id) {
     const post = await getPostById(id);
@@ -49,7 +59,7 @@ export default async function SubmitPage({
     }
     // 管理员可以编辑 pending 文章（审核中需要修正），普通作者必须先撤回
     if (post.status === 'pending' && !isAdmin) {
-      redirect('/blog/my-posts');
+      return redirect({ href: '/blog/my-posts', locale });
     }
     initialPost = post;
   }

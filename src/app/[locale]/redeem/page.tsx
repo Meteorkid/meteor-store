@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import RedeemForm from '@/components/RedeemForm';
 import { getSession } from '@/lib/auth';
+import { buildLoginHref } from '@/lib/login-return';
 
 export async function generateMetadata({
   params,
@@ -29,7 +30,7 @@ export default async function RedeemPage({
   setRequestLocale(locale);
 
   const session = await getSession();
-  if (!session) redirect('/login');
+  if (!session) return redirect({ href: buildLoginHref('/redeem'), locale });
 
   return (
     <div className="min-h-screen bg-black text-white">

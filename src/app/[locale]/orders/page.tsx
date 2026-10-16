@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { desc, eq } from 'drizzle-orm';
-import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Link } from '@/i18n/navigation';
+import { Link, redirect } from '@/i18n/navigation';
 import { getSession } from '@/lib/auth';
+import { buildLoginHref } from '@/lib/login-return';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
 import { findPurchasable } from '@/lib/products';
@@ -31,7 +31,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ locale:
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'OrdersPage' });
   const session = await getSession();
-  if (!session) redirect('/login');
+  if (!session) return redirect({ href: buildLoginHref('/orders'), locale });
 
   const rows = await db
     .select({

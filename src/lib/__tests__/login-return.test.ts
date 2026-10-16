@@ -16,6 +16,23 @@ describe('normalizeLoginReturn', () => {
     expect(normalizeLoginReturn('/apps')).toBe('/apps');
   });
 
+  it.each([
+    '/account', '/orders', '/redeem', '/blog/submit', '/blog/my-posts',
+    '/blog/favorites', '/pathfinder/saved',
+  ])('保留需要登录的站内目的地：%s', (path) => {
+    expect(normalizeLoginReturn(path)).toBe(path);
+    expect(new URL(buildLoginHref(path), 'https://store.test').searchParams.get('next')).toBe(path);
+    expect(normalizeLoginReturn(`${path}?next=https://evil.example`)).toBe('/');
+  });
+
+  it.each([
+    '/blog/submit?id=Abc_123-defG',
+    '/blog/submit?id=Abc_123-defG&admin=1',
+  ])('投稿编辑只保留合法文章 ID 和管理员入口标记：%s', (path) => {
+    expect(normalizeLoginReturn(path)).toBe(path);
+    expect(new URL(buildLoginHref(path), 'https://store.test').searchParams.get('next')).toBe(path);
+  });
+
   it('所有现有产品都能返回详情、下载或定价区', () => {
     for (const product of products) {
       for (const anchor of ['', '#download', '#pricing']) {
@@ -36,6 +53,15 @@ describe('normalizeLoginReturn', () => {
     '/products/xisland\n',
     '/products/unknown-product',
     '/admin',
+    '/blog/submit?admin=1',
+    '/blog/submit?id=',
+    '/blog/submit?id=abc&admin=0',
+    '/blog/submit?id=abc&next=https://evil.example',
+    '/blog/submit?id=abc&id=def',
+    '/blog/submit?id=abc%26admin%3D1',
+    '/blog/submit?id=abc#fragment',
+    '/blog/submit?id=abc\n',
+    `/blog/submit?id=${'a'.repeat(65)}`,
     '',
     null,
     undefined,
