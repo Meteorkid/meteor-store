@@ -124,9 +124,6 @@ export default function Header() {
   };
 
   const openSearch = () => {
-    // 搜索拥有自己的滚动锁；先完成移动菜单的清理，再打开搜索。
-    flushSync(() => closeNavigation());
-    closeUtilityMenus();
     window.dispatchEvent(new CustomEvent('spotlight:open'));
   };
 
@@ -135,6 +132,19 @@ export default function Header() {
     clearTimers();
     return clearTimers;
   }, [routeKey, clearTimers]);
+
+  useEffect(() => {
+    const onSearch = () => {
+      // 按钮与快捷键共用交接，先释放导航的滚动锁和浮层，再让搜索接管。
+      flushSync(() => {
+        closeDesktop();
+        closeMobile();
+        closeUtilityMenus();
+      });
+    };
+    window.addEventListener('spotlight:open', onSearch);
+    return () => window.removeEventListener('spotlight:open', onSearch);
+  }, [closeDesktop, closeMobile]);
 
   useEffect(() => {
     let previousY = window.scrollY;
@@ -217,16 +227,13 @@ export default function Header() {
         mobileRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
       }
     };
-    const onSearch = () => { flushSync(() => closeMobile()); };
     document.addEventListener('keydown', onKeyDown, true);
     document.addEventListener('focusin', onFocus);
-    window.addEventListener('spotlight:open', onSearch);
     return () => {
       cancelAnimationFrame(frame);
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', onKeyDown, true);
       document.removeEventListener('focusin', onFocus);
-      window.removeEventListener('spotlight:open', onSearch);
     };
   }, [mobileOpen, closeMobile]);
 
@@ -318,7 +325,14 @@ export default function Header() {
             })}
           </nav>
 
-          <div className={styles.utilities} onPointerDownCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }} onFocusCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }}>
+          <div className={styles.utilities}
+            onClickCapture={event => {
+              if (event.target instanceof Element && event.target.closest('a[href]')) {
+                closeNavigation();
+                closeUtilityMenus();
+              }
+            }}
+            onPointerDownCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }} onFocusCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }}>
             <button type="button" className={styles.iconButton} onClick={openSearch} aria-label={t('search')} title={t('searchShortcutTitle')}><SearchIcon /></button>
             <NotificationBell />
             <LanguageSwitcher />
