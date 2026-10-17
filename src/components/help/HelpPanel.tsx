@@ -64,7 +64,7 @@ export default function HelpPanel() {
   const onDragStart = useCallback((e: React.MouseEvent) => {
     dragging.current = true;
     startX.current = e.clientX;
-    startWidth.current = state.width;
+    startWidth.current = panelRef.current?.getBoundingClientRect().width ?? state.width;
     document.body.style.cursor = 'ew-resize';
     document.body.style.userSelect = 'none';
 
@@ -120,7 +120,7 @@ export default function HelpPanel() {
       <div
         ref={panelRef}
         className="fixed right-0 top-0 z-50 flex h-full flex-col border-l border-white/[0.08] bg-black/85 backdrop-blur-xl"
-        style={{ width: state.width }}
+        style={{ width: state.width, maxWidth: '100%' }}
         role="complementary"
         aria-label={isZh ? '帮助面板' : 'Help panel'}
       >

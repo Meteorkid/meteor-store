@@ -93,7 +93,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                   <span key={category.id} className="flex items-center gap-2">
                     <a
                       href={`#${category.id}`}
-                      className="glass group relative inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm text-white/50 outline-none transition-all duration-300 hover:text-white/85 focus-visible:ring-2 focus-visible:ring-violet-300"
+                      className="glass group relative inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 py-1.5 text-sm text-white/60 outline-none transition-all duration-300 hover:text-white/85 focus-visible:ring-2 focus-visible:ring-violet-300"
                     >
                       <span
                         aria-hidden
@@ -140,7 +140,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                         <h3 className="t-title-4 mb-2 text-white/90 transition-colors duration-200 group-hover:text-white">
                           {article.title}
                         </h3>
-                        <p className="t-footnote text-white/50">{article.excerpt}</p>
+                        <p className="t-footnote text-white/60">{article.excerpt}</p>
                       </div>
                     </Link>
                   ))}
@@ -166,16 +166,15 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                         {category.label[currentLocale]}
                       </h2>
                     </div>
-                    <span className="glass t-footnote tabular-nums rounded-full px-3 py-0.5 text-white/30">
+                    <span className="glass t-footnote tabular-nums rounded-full px-3 py-0.5 text-white/60">
                       {category.articles.length}
                     </span>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     {category.articles.map((article) => (
-                      <Link
+                      <article
                         key={article.slug}
-                        href={`/docs/${article.slug}`}
-                        className="glass-card group relative block overflow-hidden rounded-2xl p-5 outline-none motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                        className="glass-card group relative overflow-hidden rounded-2xl p-5 motion-reduce:transition-none"
                       >
                         {/* 左上角星点 */}
                         <div
@@ -185,15 +184,20 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <h3 className="t-title-4 mb-1.5 text-white/80 transition-colors duration-200 group-hover:text-white">
-                              {article.title}
+                              <Link
+                                href={`/docs/${article.slug}`}
+                                className="outline-none after:absolute after:inset-0 after:z-[1] after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-violet-300"
+                              >
+                                {article.title}
+                              </Link>
                             </h3>
-                            <p className="t-footnote line-clamp-2 text-white/45">
+                            <p className="t-footnote line-clamp-2 text-white/60">
                               {article.excerpt}
                             </p>
                           </div>
                           {/* 操作按钮组 */}
                           <div className="mt-1 flex shrink-0 items-center gap-1">
-                            <OpenInPanelButton slug={article.slug} variant="icon" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 motion-reduce:transition-none" />
+                            <OpenInPanelButton slug={article.slug} variant="icon" className="relative z-10" />
                             <span
                               aria-hidden
                               className="text-white/25 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-violet-300/70 group-hover:drop-shadow-[0_0_4px_rgba(196,181,253,0.3)] motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
@@ -204,8 +208,8 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                               </svg>
                             </span>
                           </div>
-                          </div>
-                      </Link>
+                        </div>
+                      </article>
                     ))}
                   </div>
                 </section>
@@ -236,7 +240,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                 <p className="t-body mx-auto mb-7 max-w-xl text-white/60">{t('checkReadme')}</p>
                 <Link
                   href="/feedback?type=question"
-                  className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black outline-none transition-all duration-300 hover:bg-white/85 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                  className="group inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black outline-none transition-all duration-300 hover:bg-white/85 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                 >
                   {t('submitQuestion')}
                   <span

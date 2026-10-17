@@ -8,7 +8,8 @@ import MastersSummaryCard from '@/components/masters/MastersSummaryCard';
 import { defaultMastersYear, type MastersSummary } from '@/lib/masters/types';
 import { dailyChannels, DAILY_CHANNEL_IDS, isDailyHistoryDate, shiftDailyDate, type DailyEdition, type DailyPreferences } from '@/lib/daily/types';
 import EditionContent from './EditionContent';
-import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, dailyReadStorageKey, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
+import DailyOverview from './DailyOverview';
+import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, dailyReadStorageKey, getDailyEditionEntries, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
 import { dailyText } from './text';
 
 export interface DailyHubProps {
@@ -77,6 +78,7 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
   const [chosenView, setChosenView] = useState<'all' | 'following' | null>(null);
   const view = viewAll ? 'all' : chosenView ?? (preferences === null ? 'all' : 'following');
   const selectedChannels = visibleChannels(view, preferences);
+  const editionEntries = getDailyEditionEntries(date, selectedChannels, editions, readKeys);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<DailyPreferences>(defaultPreferences);
   const [saving, setSaving] = useState(false);
@@ -161,11 +163,11 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
 
   return (
     <div className="mx-auto max-w-4xl">
-      <header className="border-b border-white/10 pb-8 sm:pb-10">
+      <header className="border-b border-white/10 pb-6">
         <p className="t-eyebrow text-violet-300">DAILY FRESH</p>
-        <h1 className="mt-4 t-title-1 text-white">{copy.title}</h1>
-        <p className="mt-4 max-w-2xl t-body text-white/70">{copy.description}</p>
-        <div className="mt-7 flex flex-wrap items-center gap-2">
+        <h1 className="mt-3 t-title-1 text-white">{copy.title}</h1>
+        <p className="mt-3 max-w-2xl t-body text-white/70">{copy.description}</p>
+        <div className="mt-5 flex flex-wrap items-center gap-2">
           <button type="button" disabled={!isDailyHistoryDate(previousDate, today)} onClick={() => changeDate(previousDate)} aria-label={copy.previous} className={buttonClass}>←</button>
           <label className="sr-only" htmlFor="daily-date">{copy.dateLabel}</label>
           <input id="daily-date" type="date" value={date} min={shiftDailyDate(today, -29)} max={today} onChange={event => changeDate(event.target.value)}
@@ -222,6 +224,8 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
       {notice && <p className="mb-5 t-footnote text-emerald-200" role="status">{notice}</p>}
       {localError && <p className="mb-5 t-footnote text-amber-200" role="alert">{localError}</p>}
 
+      {!loadFailed && <DailyOverview entries={editionEntries} isToday={date === today} showMasters={selectedChannels.includes('masters')} locale={locale} copy={copy} />}
+
       {loadFailed && selectedChannels.some(channel => channel !== 'masters') ? <section className="my-6 rounded-2xl border border-amber-300/20 p-7" role="alert">
         <h2 className="t-title-3 text-white">{copy.loadFailed}</h2><p className="mt-3 t-body text-white/70">{copy.loadFailedHint}</p>
         <button type="button" onClick={() => router.refresh()} className={`${buttonClass} mt-5`}>{copy.retry}</button>
@@ -229,21 +233,18 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
         <h2 className="t-title-3 text-white">{copy.noChannels}</h2><p className="mt-3 t-body text-white/70">{copy.noChannelsHint}</p>
         <button type="button" onClick={openSettings} className={`${buttonClass} mt-6`}>{copy.manage}</button>
       </section> : <div className="divide-y divide-white/10">
-        {dailyChannels.filter(channel => channel.id !== 'masters' && selectedChannels.includes(channel.id)).map((channel, index) => {
-          const edition = editions.find(item => item.channel === channel.id);
-          const published = edition?.status === 'published' && edition.content !== null;
-          const status = published ? 'published' : edition?.status === 'empty' ? 'empty' : edition?.status === 'failed' ? 'failed' : 'unpublished';
+        {editionEntries.map(({ channel, edition, status, isRead }, index) => {
+          const published = status === 'published';
           const editionReadKey = `${date}:${channel.id}`;
-          const isRead = readKeys.includes(editionReadKey);
           return <article key={channel.id} id={channel.id} className="scroll-mt-24 py-9 sm:py-12" aria-labelledby={`daily-${channel.id}-title`}>
             <div className="mb-5 flex flex-wrap items-center gap-3">
               <span className="font-mono text-xs text-violet-200">{String(index + 1).padStart(2, '0')}</span>
               <p className="t-eyebrow text-violet-300">{channel[locale]}</p>
               <span className="ml-auto t-footnote text-white/60">{copy.issue} {date}{isRead ? ` · ${copy.read}` : ''}</span>
             </div>
-            <h2 id={`daily-${channel.id}-title`} className="t-title-2 text-white">{published ? edition.title : channel[locale]}</h2>
-            {published && edition.summary && <p className="mt-3 t-body text-white/70">{edition.summary}</p>}
-            {published && edition.content ? <>
+            <h2 id={`daily-${channel.id}-title`} className="t-title-2 text-white">{published && edition ? edition.title : channel[locale]}</h2>
+            {published && edition?.summary && <p className="mt-3 t-body text-white/70">{edition.summary}</p>}
+            {published && edition?.content ? <>
               <div className="mt-7"><EditionContent key={`${edition.id}:${edition.updatedAt}`} content={edition.content} copy={copy} locale={locale} /></div>
               <button type="button" onClick={() => toggleRead(editionReadKey)} aria-pressed={isRead} className={`${buttonClass} mt-7`}>
                 {isRead ? `✓ ${copy.read} · ${copy.markUnread}` : copy.markRead}

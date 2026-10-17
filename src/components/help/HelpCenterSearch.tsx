@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { useRouter } from '@/i18n/navigation';
+import { useLocale } from 'next-intl';
+import { Link, useRouter } from '@/i18n/navigation';
 import { searchHelpEntries, type HelpSearchEntry } from '@/data/help-search';
 
 interface HelpCenterSearchProps {
@@ -18,6 +19,7 @@ export default function HelpCenterSearch({
   initialQuery = '',
 }: HelpCenterSearchProps) {
   const router = useRouter();
+  const isZh = useLocale() === 'zh';
   const [query, setQuery] = useState(initialQuery);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -44,6 +46,20 @@ export default function HelpCenterSearch({
   );
 
   function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.nativeEvent.isComposing) return;
+    if (e.key === 'Escape' && open) {
+      e.preventDefault();
+      inputRef.current?.focus();
+      setOpen(false);
+      return;
+    }
+    if (e.target !== inputRef.current) return;
+    if (!open && e.key === 'ArrowDown' && results.length > 0) {
+      e.preventDefault();
+      setActiveIndex(0);
+      setOpen(true);
+      return;
+    }
     if (!open || results.length === 0) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -54,14 +70,23 @@ export default function HelpCenterSearch({
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (results[activeIndex]) goTo(results[activeIndex].slug);
-    } else if (e.key === 'Escape') {
-      setOpen(false);
-      inputRef.current?.blur();
     }
   }
 
+  function clearQuery() {
+    setQuery('');
+    inputRef.current?.focus();
+    setOpen(false);
+  }
+
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      onKeyDown={handleKeyDown}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false);
+      }}
+    >
       <div className="relative">
         <span
           aria-hidden
@@ -80,18 +105,16 @@ export default function HelpCenterSearch({
           onFocus={() => {
             if (query.trim()) setOpen(true);
           }}
-          onBlur={() => {
-            // 延迟关闭以允许点击结果
-            setTimeout(() => setOpen(false), 150);
-          }}
-          onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="glass w-full rounded-2xl border border-white/10 bg-white/[0.04] py-3.5 pl-12 pr-4 text-[1.0625rem] text-white placeholder:text-white/30 outline-none transition-colors focus:border-violet-400/60 focus:bg-white/[0.06]"
+          className="glass w-full rounded-2xl border border-white/10 bg-white/[0.04] py-3.5 pl-12 pr-14 text-[1.0625rem] text-white placeholder:text-white/60 outline-none transition-colors focus:border-violet-400/60 focus:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-violet-300 motion-reduce:transition-none"
           autoComplete="off"
           spellCheck={false}
           role="combobox"
+          aria-label={placeholder}
+          aria-autocomplete="list"
           aria-expanded={open && results.length > 0}
-          aria-controls="help-search-results"
+          aria-controls={open && results.length > 0 ? 'help-search-results' : undefined}
+          aria-describedby={open && query.trim() && results.length === 0 ? 'help-search-empty' : undefined}
           aria-activedescendant={
             open && results[activeIndex]
               ? `help-result-${results[activeIndex].slug}`
@@ -101,12 +124,9 @@ export default function HelpCenterSearch({
         {query && (
           <button
             type="button"
-            onClick={() => {
-              setQuery('');
-              inputRef.current?.focus();
-            }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-white/30 outline-none hover:text-white/60 focus-visible:ring-2 focus-visible:ring-violet-300"
-            aria-label="Clear search"
+            onClick={clearQuery}
+            className="absolute right-2 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full text-white/60 outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-violet-300"
+            aria-label={isZh ? '清空搜索' : 'Clear search'}
           >
             ✕
           </button>
@@ -134,7 +154,7 @@ export default function HelpCenterSearch({
               }`}
             >
               <p className="text-[0.9375rem] font-medium">{entry.title}</p>
-              <p className="t-footnote mt-0.5 line-clamp-1 text-white/40">
+              <p className="t-footnote mt-0.5 line-clamp-1 text-white/60">
                 {entry.excerpt}
               </p>
             </li>
@@ -144,7 +164,22 @@ export default function HelpCenterSearch({
 
       {open && query.trim() && results.length === 0 && (
         <div className="glass-lg absolute inset-x-0 top-full z-50 mt-2 rounded-2xl border border-white/10 bg-black/95 p-6 text-center shadow-2xl">
-          <p className="text-white/50">{noResults}</p>
+          <p id="help-search-empty" role="status" className="text-white/60">{noResults}</p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={clearQuery}
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/10 px-4 text-sm text-white/80 outline-none hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-violet-300"
+            >
+              {isZh ? '清空关键词' : 'Clear keywords'}
+            </button>
+            <Link
+              href="/feedback?type=question"
+              className="inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm text-violet-300 outline-none hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-violet-300"
+            >
+              {isZh ? '提交问题' : 'Submit a question'}
+            </Link>
+          </div>
         </div>
       )}
     </div>

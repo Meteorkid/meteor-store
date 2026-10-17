@@ -1,4 +1,4 @@
-import { DAILY_CHANNEL_IDS, DAILY_EDITION_CHANNEL_IDS, DailyPreferencesSchema, isDailyHistoryDate, type DailyPreferences } from '@/lib/daily/types';
+import { dailyEditionChannels, DAILY_CHANNEL_IDS, DAILY_EDITION_CHANNEL_IDS, DailyPreferencesSchema, isDailyHistoryDate, type DailyChannelId, type DailyEdition, type DailyPreferences } from '@/lib/daily/types';
 
 export const GUEST_PREFERENCES_KEY = 'ms_daily_preferences_v1:guest';
 export const DAILY_STORAGE_EVENT = 'daily-storage-changed';
@@ -29,6 +29,18 @@ export function parseAccountPreferences(value: unknown, userId: string): DailyPr
 export function visibleChannels(view: 'all' | 'following', preferences: DailyPreferences | null) {
   return DAILY_CHANNEL_IDS.filter(id => view === 'all' || preferences === null || preferences.channels.includes(id));
 }
+
+/** 概览和正文使用同一期、同一组栏目；全年日历不参与日刊阅读进度。 */
+export function getDailyEditionEntries(date: string, selected: readonly DailyChannelId[], editions: readonly DailyEdition[], readKeys: readonly string[]) {
+  return dailyEditionChannels.filter(channel => selected.includes(channel.id)).map(channel => {
+    const edition = editions.find(item => item.date === date && item.channel === channel.id);
+    const status: 'published' | 'empty' | 'failed' | 'unpublished' = edition?.status === 'published' && edition.content !== null ? 'published'
+      : edition?.status === 'empty' ? 'empty' : edition?.status === 'failed' ? 'failed' : 'unpublished';
+    return { channel, edition, status, isRead: status === 'published' && readKeys.includes(`${date}:${channel.id}`) };
+  });
+}
+
+export type DailyEditionEntry = ReturnType<typeof getDailyEditionEntries>[number];
 
 export function dailyReadStorageKey(userId: string | null) {
   return `ms_daily_read_v1:${userId === null ? 'guest' : `user:${encodeURIComponent(userId)}`}`;

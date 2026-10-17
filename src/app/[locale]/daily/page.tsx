@@ -38,7 +38,7 @@ export default async function DailyPage({ params, searchParams }: {
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      <main className="container mx-auto px-4 pb-12 pt-28 sm:pb-16 sm:pt-32">
+      <main className="container mx-auto px-4 pb-12 pt-10 sm:pb-16 sm:pt-14">
         <DailyHub date={date} today={today} viewAll={query.view === 'all'} userId={session?.userId ?? null}
           editions={editionResult.status === 'fulfilled' ? editionResult.value : []}
           initialPreferences={preferencesResult.status === 'fulfilled' ? preferencesResult.value : null}

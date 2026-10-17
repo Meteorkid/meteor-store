@@ -37,4 +37,27 @@ describe('日刊栏目深链', () => {
     expect(following).toContain('id="papers"');
     expect(following).not.toContain('id="english"');
   });
+
+  it('本期概览直达可见正文，不覆盖历史日期或关注设置', () => {
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} initialPreferences={{ channels: ['papers', 'ai'], reminders: false }} />);
+    expect(html).toContain('aria-label="本期概览"');
+    expect(html).toContain('href="#papers"');
+    expect(html).toContain('href="#ai"');
+    expect(html).not.toContain('href="#english"');
+    expect(html).toContain('value="2026-10-15"');
+  });
+
+  it('读取失败不渲染概览中的空计数和不存在的正文锚点', () => {
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} viewAll loadFailed />);
+    expect(html).toContain('今天的内容暂时无法读取');
+    expect(html).not.toContain('aria-label="本期概览"');
+    expect(html).not.toContain('href="#papers"');
+  });
+
+  it('只关注全年日历时没有日刊概览或0/0进度', () => {
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} initialPreferences={{ channels: ['masters'], reminders: false }} />);
+    expect(html).toContain('id="masters"');
+    expect(html).not.toContain('aria-label="本期概览"');
+    expect(html).not.toContain('0/0');
+  });
 });
