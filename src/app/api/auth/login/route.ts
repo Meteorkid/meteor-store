@@ -44,12 +44,14 @@ export async function POST(req: NextRequest) {
   // 两者都 failClosed：Redis 异常时宁可拒绝登录，也不留出「先打挂 Redis 再撞库」的窗口。
   // 代价是 Redis 故障期间无人能登录，对本站规模属于可接受的取舍。
   const ip = getClientIp(req);
-  const [byIp, byEmail] = await Promise.all([
-    rateLimit(`login:ip:${ip}`, 10, 60_000, { failClosed: true }),
-    rateLimit(`login:email:${email}`, 10, 900_000, { failClosed: true }),
-  ]);
+  const byIp = await rateLimit(`login:ip:${ip}`, 10, 60_000, { failClosed: true, fallback: 'memory' });
+  // IP 耗尽后不再创建邮箱窗口，避免继续用任意邮箱填满内存降级限流器。
+  if (byIp.limited) {
+    return NextResponse.json({ error: '登录尝试过于频繁，请稍后再试' }, { status: 429 });
+  }
 
-  if (byIp.limited || byEmail.limited) {
+  const byEmail = await rateLimit(`login:email:${email}`, 10, 900_000, { failClosed: true, fallback: 'memory' });
+  if (byEmail.limited) {
     return NextResponse.json({ error: '登录尝试过于频繁，请稍后再试' }, { status: 429 });
   }
 

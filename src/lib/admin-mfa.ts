@@ -1,7 +1,8 @@
 import { SignJWT, jwtVerify } from 'jose';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from './db';
 import { users } from './db/schema';
+import { rateLimit } from './rate-limit';
 import {
   decryptTotpSecret,
   encryptTotpSecret,
@@ -40,6 +41,14 @@ export function mfaChallengeCookieOptions() {
     maxAge: CHALLENGE_EXPIRY,
     path: '/',
   };
+}
+
+/** 第二因子验证入口共用账号预算；已验证身份后每次提交仅扣一次。 */
+export function limitMfaVerification(userId: string) {
+  return rateLimit(`mfa-verify:user:${userId}`, 10, 900_000, {
+    failClosed: true,
+    fallback: 'memory',
+  });
 }
 
 interface MfaChallengePayload {
@@ -214,11 +223,18 @@ export async function verifyUserTotpOrRecoveryCode(
     const idx = hashes.indexOf(hash);
     if (idx !== -1) {
       hashes.splice(idx, 1);
-      await db
+      // 比较完整旧数组，只有实际消费成功者能通过；竞争失败绝不回写旧快照。
+      const consumed = await db
         .update(users)
         .set({ totpRecoveryCodes: JSON.stringify(hashes) })
-        .where(eq(users.id, userId));
-      return true;
+        .where(and(
+          eq(users.id, userId),
+          eq(users.totpEnabled, true),
+          eq(users.totpSecretEnc, row.totpSecretEnc),
+          eq(users.totpRecoveryCodes, row.totpRecoveryCodes),
+        ))
+        .returning({ id: users.id });
+      return consumed.length === 1;
     }
   }
   return false;

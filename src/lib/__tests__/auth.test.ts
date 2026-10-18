@@ -86,15 +86,21 @@ describe('auth session', () => {
     await expect(getSession()).resolves.toBeNull();
   });
 
-  it('数据库故障时只有带已验证声明的新会话可以降级使用', async () => {
+  it('数据库故障时带已验证声明的会话也必须 fail closed', async () => {
     const { createSession, getSession } = await importAuth();
     await createSession({ userId: 'U1', email: 'a@b.com', emailVerified: true, tokenVersion: 0 });
     dbState.throws = true;
 
-    await expect(getSession()).resolves.toMatchObject({
-      userId: 'U1',
-      emailVerified: true,
-    });
+    await expect(getSession()).resolves.toBeNull();
+  });
+
+  it.each(['revoked', 'deleted'] as const)('会话 %s 后即使数据库故障也不能恢复身份', async (reason) => {
+    const { createSession, getSession } = await importAuth();
+    await createSession({ userId: 'U1', email: 'a@b.com', emailVerified: true, tokenVersion: 0 });
+    dbState.user = reason === 'deleted' ? null : { tokenVersion: 1, emailVerified: true };
+    await expect(getSession()).resolves.toBeNull();
+    dbState.throws = true;
+    await expect(getSession()).resolves.toBeNull();
   });
 
   it('数据库故障时旧会话缺少验证声明会 fail closed', async () => {

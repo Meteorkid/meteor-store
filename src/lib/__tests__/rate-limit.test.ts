@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockLimit = vi.fn();
 const slidingWindowMock = vi.fn((limit: number, window: string) => ({ limit, window }));
@@ -25,6 +25,50 @@ describe('rateLimit', () => {
     vi.resetModules();
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it('filling memory capacity cannot reset an exhausted active account budget', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-18T00:00:00Z'));
+    const { rateLimit } = await importRateLimit();
+    const options = { failClosed: true, fallback: 'memory' } as const;
+    await rateLimit('login:email:target@example.com', 1, 900_000, options);
+    expect((await rateLimit('login:email:target@example.com', 1, 900_000, options)).limited).toBe(true);
+    for (let i = 0; i < 9_999; i++) {
+      await rateLimit(`login:email:filler-${i}@example.com`, 1, 900_000, options);
+    }
+    // 超容量的新 key 不能淘汰最早创建的目标账号窗口。
+    await rateLimit('login:email:overflow@example.com', 1, 900_000, options);
+    expect((await rateLimit('login:email:target@example.com', 1, 900_000, options)).limited).toBe(true);
+    expect((await rateLimit('login:email:another@example.com', 1, 900_000, options)).limited).toBe(true);
+    expect(mockLimit).not.toHaveBeenCalled();
+  });
+
+  it('full memory retains existing counts, rejects new keys, and releases expired capacity', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.useFakeTimers();
+    const start = Date.parse('2026-10-18T00:00:00Z');
+    vi.setSystemTime(start);
+    const { rateLimit } = await importRateLimit();
+    const options = { fallback: 'memory' } as const;
+    await rateLimit('active-account', 2, 900_000, options);
+    for (let i = 0; i < 9_999; i++) await rateLimit(`short-window-${i}`, 1, 60_000, options);
+
+    expect(await rateLimit('active-account', 2, 900_000, options)).toMatchObject({ limited: false, remaining: 0 });
+    expect(await rateLimit('active-account', 2, 900_000, options)).toMatchObject({ limited: true, remaining: 0 });
+    expect(await rateLimit('new-account', 1, 900_000, options)).toMatchObject({ limited: true, remaining: 0, resetAt: start + 60_000 });
+
+    vi.setSystemTime(start + 60_000);
+    expect((await rateLimit('new-account', 1, 900_000, options)).limited).toBe(false);
+    expect((await rateLimit('active-account', 2, 900_000, options)).limited).toBe(true);
+    vi.setSystemTime(start + 900_000);
+    expect(await rateLimit('active-account', 2, 900_000, options)).toMatchObject({ limited: false, remaining: 1 });
   });
 
   it('fails open when Redis is not configured', async () => {

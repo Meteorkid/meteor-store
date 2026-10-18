@@ -6,6 +6,7 @@ import { createSession } from '@/lib/auth';
 import {
   MFA_CHALLENGE_COOKIE,
   readMfaChallengeTicket,
+  limitMfaVerification,
   verifyUserTotpOrRecoveryCode,
 } from '@/lib/admin-mfa';
 import {
@@ -19,7 +20,7 @@ import { assertMatchingOrigin } from '@/lib/csrf';
 /**
  * MFA 登录挑战验证。
  *
- * 登录接口验密通过后签发 5 分钟挑战 ticket（不设 cookie、不落 session），
+ * 登录接口验密通过后签发 5 分钟挑战 ticket（JSON / HttpOnly cookie，不落 session），
  * 这里验证 TOTP 动态码或恢复码后才签发正式 session。
  *
  * 安全取舍：
@@ -37,6 +38,7 @@ export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
   const { limited } = await rateLimit(`mfa-verify:ip:${ip}`, 10, 60_000, {
     failClosed: true,
+    fallback: 'memory',
   });
   if (limited) {
     return NextResponse.json({ error: '验证尝试过于频繁，请稍后再试' }, { status: 429 });
@@ -104,6 +106,10 @@ export async function POST(req: NextRequest) {
     });
     res.cookies.delete(MFA_CHALLENGE_COOKIE);
     return res;
+  }
+
+  if ((await limitMfaVerification(user.id)).limited) {
+    return NextResponse.json({ error: '验证尝试过于频繁，请稍后再试' }, { status: 429 });
   }
 
   const ok = await verifyUserTotpOrRecoveryCode(user.id, code);

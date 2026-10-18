@@ -61,8 +61,7 @@ export async function createSession(payload: SessionPayload): Promise<string> {
  * 这是"改密踢掉其他会话"的核心：旧 token 的 tokenVersion 落后于 DB，
  * 直接当作未登录处理。代价是每次 getSession 多一次主键查询，可接受。
  *
- * 数据库不可达时，只允许带 emailVerified 声明的新会话降级使用；
- * 不带该声明的旧会话 fail closed，避免未验证账户恢复正式身份。
+ * 数据库不可达时 fail closed，避免已撤销、已删号或已取消验证的会话恢复身份。
  */
 export async function getSession(): Promise<SessionPayload | null> {
   const jar = await cookies();
@@ -92,10 +91,8 @@ export async function getSession(): Promise<SessionPayload | null> {
     if (!row.emailVerified) return null;
     return { ...payload, emailVerified: true };
   } catch {
-    // 身份边界必须 fail closed：旧 token 没有 emailVerified 声明时，
-    // 数据库故障期间不能仅凭邮箱字符串恢复正式身份。
-    if (payload.emailVerified !== true) return null;
-    return payload as SessionPayload;
+    // 无法确认当前撤销状态时，JWT 中的旧快照不能恢复正式身份。
+    return null;
   }
 }
 

@@ -4,7 +4,10 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
 import { getSiteUrl } from '@/lib/constants';
-import { consumeWechatState, createWechatBindToken } from '@/lib/wechat-bind';
+import {
+  WECHAT_STATE_COOKIE, WECHAT_BIND_COOKIE, consumeWechatState, createWechatBindToken,
+  createWechatTransaction, wechatTransactionCookieOptions,
+} from '@/lib/wechat-bind';
 import {
   MFA_CHALLENGE_COOKIE,
   createMfaChallengeTicket,
@@ -15,6 +18,12 @@ import { exchangeWechatCode, fetchWechatUserInfo } from '@/lib/wechat-oauth';
 
 function redirectTo(path: string) {
   return NextResponse.redirect(new URL(path, getSiteUrl()));
+}
+
+function finishOAuth(res: NextResponse) {
+  res.cookies.set(WECHAT_STATE_COOKIE, '', { ...wechatTransactionCookieOptions('state'), maxAge: 0 });
+  res.cookies.set(WECHAT_BIND_COOKIE, '', { ...wechatTransactionCookieOptions('bind'), maxAge: 0 });
+  return res;
 }
 
 /**
@@ -29,7 +38,7 @@ export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code');
   const state = req.nextUrl.searchParams.get('state');
 
-  const oauthState = state ? await consumeWechatState(state) : null;
+  const oauthState = state ? await consumeWechatState(state, req.cookies.get(WECHAT_STATE_COOKIE)?.value) : null;
   if (!code || !oauthState) {
     return redirectTo('/zh/login?wechat=invalid');
   }
@@ -64,7 +73,7 @@ export async function GET(req: NextRequest) {
         .where(eq(users.id, existing.id));
     }
     if (!existing.emailVerified) {
-      return redirectTo(`/${locale}/login?wechat=unverified`);
+      return finishOAuth(redirectTo(`/${locale}/login?wechat=unverified`));
     }
 
     // 扫码登录必须和密码登录受同一道 MFA 约束。少了这一步，凡是绑过微信的账号
@@ -86,7 +95,7 @@ export async function GET(req: NextRequest) {
       });
       const res = redirectTo(`/${locale}/login?mfa=1${nextParam}`);
       res.cookies.set(MFA_CHALLENGE_COOKIE, ticket, mfaChallengeCookieOptions());
-      return res;
+      return finishOAuth(res);
     }
 
     await createSession({
@@ -96,14 +105,17 @@ export async function GET(req: NextRequest) {
       emailVerified: true,
       tokenVersion: existing.tokenVersion,
     });
-    return redirectTo(next === '/' ? `/${locale}/account?wechat=linked` : `/${locale}${next}`);
+    return finishOAuth(redirectTo(next === '/' ? `/${locale}/account?wechat=linked` : `/${locale}${next}`));
   }
 
   const info = await fetchWechatUserInfo(data.accessToken, data.openid);
+  const transaction = createWechatTransaction();
   const bindToken = await createWechatBindToken({
     openid: data.openid,
     unionid: data.unionid,
     nickname: info?.nickname,
-  });
-  return redirectTo(`/${locale}/wechat-bind?token=${encodeURIComponent(bindToken)}`);
+  }, transaction);
+  const res = finishOAuth(redirectTo(`/${locale}/wechat-bind?token=${encodeURIComponent(bindToken)}`));
+  res.cookies.set(WECHAT_BIND_COOKIE, transaction, wechatTransactionCookieOptions('bind'));
+  return res;
 }

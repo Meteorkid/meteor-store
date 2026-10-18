@@ -7,6 +7,7 @@ import {
   disableTotp,
   enableTotp,
   getUserTotpState,
+  limitMfaVerification,
   setupTotp,
 } from '@/lib/admin-mfa';
 import { otpauthUrl } from '@/lib/totp';
@@ -25,7 +26,9 @@ const ActionSchema = z.discriminatedUnion('action', [
   }),
   z.object({
     action: z.literal('disable'),
-    code: z.string().min(8).max(12),
+    code: z.string().max(12).refine((value) =>
+      /^\d{6}$/.test(value) || /^[A-Z2-9]{4}-?[A-Z2-9]{4}$/.test(value.trim().toUpperCase().replace(/\s+/g, '')),
+    ),
   }),
 ]);
 
@@ -45,6 +48,7 @@ export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
   const { limited } = await rateLimit(`admin-mfa:ip:${ip}`, 10, 60_000, {
     failClosed: true,
+    fallback: 'memory',
   });
   if (limited) {
     return NextResponse.json({ error: '请求过于频繁' }, { status: 429 });
@@ -83,6 +87,10 @@ export async function POST(req: NextRequest) {
     });
     // 恢复码明文仅此一次返回
     return NextResponse.json({ recoveryCodes: result.recoveryCodes });
+  }
+
+  if ((await limitMfaVerification(session.userId)).limited) {
+    return NextResponse.json({ error: '验证尝试过于频繁，请稍后再试' }, { status: 429 });
   }
 
   const ok = await disableTotp(session.userId, parsed.data.code);

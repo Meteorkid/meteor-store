@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
-import { readWechatBindToken } from '@/lib/wechat-bind';
+import { WECHAT_BIND_COOKIE, readWechatBindToken, wechatTransactionCookieOptions } from '@/lib/wechat-bind';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { assertMatchingOrigin } from '@/lib/csrf';
 import {
@@ -13,7 +13,7 @@ import {
 } from '@/lib/email-verification';
 import { isEmailDeliveryConfigured, sendEmailVerification } from '@/lib/email';
 import { isAdminEmail } from '@/lib/admin';
-import { verifyUserTotpOrRecoveryCode } from '@/lib/admin-mfa';
+import { limitMfaVerification, verifyUserTotpOrRecoveryCode } from '@/lib/admin-mfa';
 
 /** 邮箱不存在时消耗等量时间的假哈希，避免用响应快慢枚举账号（与 login 一致）。 */
 let dummyHash: Promise<string> | null = null;
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   if (forbidden) return forbidden;
 
   const ip = getClientIp(req);
-  const { limited } = await rateLimit(`wechat-bind:ip:${ip}`, 10, 900_000, { failClosed: true });
+  const { limited } = await rateLimit(`wechat-bind:ip:${ip}`, 10, 900_000, { failClosed: true, fallback: 'memory' });
   if (limited) {
     return NextResponse.json({ error: '操作过于频繁，请稍后再试' }, { status: 429 });
   }
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const mfaCode = typeof body?.mfaCode === 'string' ? body.mfaCode.trim() : '';
   const locale = body?.locale === 'en' ? 'en' : 'zh';
 
-  const identity = token ? await readWechatBindToken(token) : null;
+  const identity = token ? await readWechatBindToken(token, req.cookies.get(WECHAT_BIND_COOKIE)?.value) : null;
   if (!identity) {
     return NextResponse.json({ error: '绑定凭证无效或已过期，请重新扫码' }, { status: 400 });
   }
@@ -74,6 +74,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '请输入密码' }, { status: 400 });
     }
 
+    // 与主登录共用邮箱预算，不能通过换入口或换 IP 绕过密码尝试上限。
+    const byEmail = await rateLimit(`login:email:${email}`, 10, 900_000, {
+      failClosed: true,
+      fallback: 'memory',
+    });
+    if (byEmail.limited) {
+      return NextResponse.json({ error: '登录尝试过于频繁，请稍后再试' }, { status: 429 });
+    }
+
     const rows = await db.select().from(users).where(eq(users.email, email)).limit(1);
     const user = rows[0];
     const passwordMatches = await compare(password, user?.passwordHash ?? (await getDummyHash()));
@@ -91,6 +100,9 @@ export async function POST(req: NextRequest) {
           { error: '请输入两步验证码', code: 'MFA_REQUIRED' },
           { status: 403 },
         );
+      }
+      if ((await limitMfaVerification(user.id)).limited) {
+        return NextResponse.json({ error: '验证尝试过于频繁，请稍后再试' }, { status: 429 });
       }
       const ok = await verifyUserTotpOrRecoveryCode(user.id, mfaCode);
       if (!ok) {
@@ -118,7 +130,9 @@ export async function POST(req: NextRequest) {
       emailVerified: true,
     });
 
-    return NextResponse.json({ success: true, mode: 'login' });
+    const res = NextResponse.json({ success: true, mode: 'login' });
+    res.cookies.set(WECHAT_BIND_COOKIE, '', { ...wechatTransactionCookieOptions('bind'), maxAge: 0 });
+    return res;
   }
 
   // mode=register：新账号，微信资料回填昵称，密码用随机哈希占位
@@ -167,8 +181,10 @@ export async function POST(req: NextRequest) {
     console.error('Wechat bind registration: verification email send failed', { userId: id });
   }
 
-  return NextResponse.json(
+  const res = NextResponse.json(
     { success: true, mode: 'register', verificationRequired: true, emailSent, resendTicket },
     { status: 201 },
   );
+  res.cookies.set(WECHAT_BIND_COOKIE, '', { ...wechatTransactionCookieOptions('bind'), maxAge: 0 });
+  return res;
 }

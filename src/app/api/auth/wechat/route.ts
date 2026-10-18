@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSiteUrl } from '@/lib/constants';
 import { buildWechatAuthorizeUrl, isWechatOAuthConfigured } from '@/lib/wechat-oauth';
-import { createWechatState } from '@/lib/wechat-bind';
+import {
+  WECHAT_STATE_COOKIE, WECHAT_BIND_COOKIE, createWechatState, createWechatTransaction,
+  wechatTransactionCookieOptions,
+} from '@/lib/wechat-bind';
 import { normalizeLoginReturn } from '@/lib/login-return';
 
 /**
@@ -17,7 +20,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL(`/${locale}/login?wechat=unavailable${nextParam}`, getSiteUrl()));
   }
 
-  const state = await createWechatState(locale, next);
+  // 先在规范 origin 落 cookie，避免 apex 发起、www 回调时丢失 host-only 事务。
+  if (req.nextUrl.origin !== new URL(getSiteUrl()).origin) {
+    return NextResponse.redirect(new URL(`${req.nextUrl.pathname}${req.nextUrl.search}`, getSiteUrl()));
+  }
+  const transaction = createWechatTransaction();
+  const state = await createWechatState(locale, next, transaction);
   const redirectUri = `${getSiteUrl()}/api/auth/wechat/callback`;
-  return NextResponse.redirect(buildWechatAuthorizeUrl(state, redirectUri));
+  const res = NextResponse.redirect(buildWechatAuthorizeUrl(state, redirectUri));
+  res.cookies.set(WECHAT_STATE_COOKIE, transaction, wechatTransactionCookieOptions('state'));
+  res.cookies.set(WECHAT_BIND_COOKIE, '', { ...wechatTransactionCookieOptions('bind'), maxAge: 0 });
+  return res;
 }

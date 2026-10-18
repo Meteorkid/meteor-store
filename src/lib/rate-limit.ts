@@ -82,30 +82,33 @@ function memoryRateLimit(
   windowMs: number,
 ): { limited: boolean; remaining: number; resetAt: number } {
   const now = Date.now();
-
-  if (memoryWindows.size >= 10_000) {
-    for (const [windowKey, value] of memoryWindows) {
-      if (value.resetAt <= now) memoryWindows.delete(windowKey);
-    }
-    // 活跃键过多时淘汰最早的窗口，避免恶意伪造 key 导致内存持续增长。
-    const oldestKey = memoryWindows.keys().next().value;
-    if (memoryWindows.size >= 10_000 && oldestKey) memoryWindows.delete(oldestKey);
-  }
-
   const windowKey = `${key}:${limit}:${windowMs}`;
   const existing = memoryWindows.get(windowKey);
-  if (!existing || existing.resetAt <= now) {
-    const resetAt = now + windowMs;
-    memoryWindows.set(windowKey, { count: 1, resetAt });
-    return { limited: false, remaining: Math.max(0, limit - 1), resetAt };
+
+  if (existing && existing.resetAt > now) {
+    if (existing.count >= limit) {
+      return { limited: true, remaining: 0, resetAt: existing.resetAt };
+    }
+    existing.count += 1;
+    return { limited: false, remaining: Math.max(0, limit - existing.count), resetAt: existing.resetAt };
   }
 
-  if (existing.count >= limit) {
-    return { limited: true, remaining: 0, resetAt: existing.resetAt };
+  if (!existing && memoryWindows.size >= 10_000) {
+    let nextResetAt = Infinity;
+    for (const [storedKey, value] of memoryWindows) {
+      if (value.resetAt <= now) memoryWindows.delete(storedKey);
+      else nextResetAt = Math.min(nextResetAt, value.resetAt);
+    }
+    // 不能淘汰尚有效的窗口：填充新 key 否则能重置目标账号已耗尽的预算。
+    // 容量满时只拒绝新 key，已有窗口仍正常计数；过期后自动释放容量。
+    if (memoryWindows.size >= 10_000) {
+      return { limited: true, remaining: 0, resetAt: nextResetAt };
+    }
   }
 
-  existing.count += 1;
-  return { limited: false, remaining: Math.max(0, limit - existing.count), resetAt: existing.resetAt };
+  const resetAt = now + windowMs;
+  memoryWindows.set(windowKey, { count: 1, resetAt });
+  return { limited: false, remaining: Math.max(0, limit - 1), resetAt };
 }
 
 /**
