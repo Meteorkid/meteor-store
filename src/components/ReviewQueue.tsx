@@ -12,6 +12,7 @@ export interface ReviewItem {
   sectionLabel: string;
   tags: string[];
   createdAt: string;
+  updatedAt: string;
   /** 服务端渲染好的正文 HTML，走的是和正式文章相同的 sanitize 管线 */
   html: string;
 }
@@ -24,7 +25,8 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState('');
 
-  async function decide(id: string, approve: boolean) {
+  async function decide(item: ReviewItem, approve: boolean) {
+    const { id, updatedAt } = item;
     const note = notes[id]?.trim();
     if (!approve && !note) {
       setError(t('rejectReasonRequired'));
@@ -37,9 +39,10 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
       const res = await fetch('/api/posts/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId: id, approve, note }),
+        body: JSON.stringify({ postId: id, expectedUpdatedAt: updatedAt, approve, note }),
       });
       const data = await res.json();
+      if (res.status === 409) throw new Error(t('versionConflict'));
       if (!res.ok) throw new Error(data.error || t('operationFailed'));
       router.refresh();
     } catch (err) {
@@ -118,7 +121,7 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
-                  onClick={() => decide(item.id, true)}
+                  onClick={() => decide(item, true)}
                   disabled={busyId === item.id}
                   className="rounded-xl bg-emerald-400 px-4 py-2 text-[0.9375rem] font-semibold text-black transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:opacity-40"
                 >
@@ -126,7 +129,7 @@ export default function ReviewQueue({ items }: { items: ReviewItem[] }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => decide(item.id, false)}
+                  onClick={() => decide(item, false)}
                   disabled={busyId === item.id}
                   className="rounded-xl border border-red-400/30 px-4 py-2 text-[0.9375rem] font-semibold text-red-300 transition-colors duration-200 hover:bg-red-500/10 disabled:opacity-40"
                 >

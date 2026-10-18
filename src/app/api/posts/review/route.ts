@@ -9,6 +9,7 @@ import { revalidatePublishedPaths } from '@/lib/revalidate';
 
 export const ReviewSchema = z.object({
   postId: z.string().min(1),
+  expectedUpdatedAt: z.string().datetime({ precision: 3 }),
   approve: z.boolean(),
   note: z.string().trim().max(500).optional(),
 });
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  const { postId, approve, note } = parsed.data;
+  const { postId, expectedUpdatedAt, approve, note } = parsed.data;
 
   if (!approve && !note) {
     return NextResponse.json({ error: '驳回需要写明理由' }, { status: 400 });
@@ -44,14 +45,15 @@ export async function POST(req: NextRequest) {
 
   const changed = await reviewPost({
     postId,
+    expectedUpdatedAt,
     reviewerId: session.userId,
     approve,
     note,
   });
 
   if (!changed) {
-    // 条件更新没命中：要么 id 不存在，要么已经被处理过
-    return NextResponse.json({ error: '这篇已经处理过了' }, { status: 409 });
+    // 版本或状态已变化，不能把旧页面上的决定应用到新稿件。
+    return NextResponse.json({ error: '稿件已变更或已处理，请重新加载后审核' }, { status: 409 });
   }
 
   await logAdminAction(session, {

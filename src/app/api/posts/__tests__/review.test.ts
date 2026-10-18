@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { NextRequest } from 'next/server';
 
+const expectedUpdatedAt = '2026-08-10T09:00:00.000Z';
+const auditActions: unknown[] = [];
+vi.mock('@/lib/admin-audit', () => ({
+  logAdminAction: async (...args: unknown[]) => { auditActions.push(args); },
+}));
+
 let currentSession: { userId: string; email: string; name?: string; emailVerified?: true } | null = null;
 vi.mock('@/lib/auth', () => ({ getSession: async () => currentSession }));
 
@@ -10,7 +16,7 @@ vi.mock('@/lib/rate-limit', () => ({
   getClientIp: () => '1.2.3.4',
 }));
 
-/** reviewPost 返回条件更新是否命中；false 表示这篇已被处理过 */
+/** reviewPost 返回状态与所见版本条件更新是否命中 */
 let reviewResult = true;
 const reviewCalls: unknown[] = [];
 const fetchedPost = {
@@ -52,6 +58,7 @@ describe('POST /api/posts/review', () => {
     currentSession = { userId: 'U-admin', email: 'boss@example.com', emailVerified: true };
     reviewResult = true;
     reviewCalls.length = 0;
+    auditActions.length = 0;
     revalidated.length = 0;
     revalidateError = null;
     limited = false;
@@ -60,7 +67,7 @@ describe('POST /api/posts/review', () => {
   describe('权限', () => {
     it('未登录 → 401，不触碰文章', async () => {
       currentSession = null;
-      const res = await POST(request({ postId: 'p1', approve: true }));
+      const res = await POST(request({ postId: 'p1', expectedUpdatedAt, approve: true }));
 
       expect(res.status).toBe(401);
       expect(reviewCalls).toHaveLength(0);
@@ -68,7 +75,7 @@ describe('POST /api/posts/review', () => {
 
     it('登录了但不是管理员 → 403，不触碰文章', async () => {
       currentSession = { userId: 'U-normal', email: 'someone@example.com', emailVerified: true };
-      const res = await POST(request({ postId: 'p1', approve: true }));
+      const res = await POST(request({ postId: 'p1', expectedUpdatedAt, approve: true }));
 
       expect(res.status).toBe(403);
       expect(reviewCalls).toHaveLength(0);
@@ -76,7 +83,7 @@ describe('POST /api/posts/review', () => {
 
     it('未配置 ADMIN_EMAILS 时，连站主也进不来（而不是人人可进）', async () => {
       delete process.env.ADMIN_EMAILS;
-      const res = await POST(request({ postId: 'p1', approve: true }));
+      const res = await POST(request({ postId: 'p1', expectedUpdatedAt, approve: true }));
 
       expect(res.status).toBe(403);
       expect(reviewCalls).toHaveLength(0);
@@ -84,22 +91,46 @@ describe('POST /api/posts/review', () => {
   });
 
   describe('校验', () => {
+    it('缺少管理员看到的稿件版本 → 400，不触碰文章', async () => {
+      const res = await POST(request({ postId: 'p1', approve: true }));
+
+      expect(res.status).toBe(400);
+      expect(reviewCalls).toHaveLength(0);
+      expect(auditActions).toHaveLength(0);
+      expect(revalidated).toHaveLength(0);
+    });
+
+    it.each([
+      null, 123, {}, '', 'not-a-date',
+      '2026-08-10T09:00:00Z',
+      '2026-08-10T09:00:00.000001Z',
+      '2026-08-10T17:00:00.000+08:00',
+      '2026-02-30T09:00:00.000Z',
+    ])('拒绝非 UTC 毫秒版本 %j', async (version) => {
+      const res = await POST(request({ postId: 'p1', expectedUpdatedAt: version, approve: true }));
+
+      expect(res.status).toBe(400);
+      expect(reviewCalls).toHaveLength(0);
+      expect(auditActions).toHaveLength(0);
+      expect(revalidated).toHaveLength(0);
+    });
+
     it('限流命中 → 429', async () => {
       limited = true;
-      const res = await POST(request({ postId: 'p1', approve: true }));
+      const res = await POST(request({ postId: 'p1', expectedUpdatedAt, approve: true }));
       expect(res.status).toBe(429);
       expect(reviewCalls).toHaveLength(0);
     });
 
     it('驳回必须写理由，否则 400', async () => {
-      const res = await POST(request({ postId: 'p1', approve: false }));
+      const res = await POST(request({ postId: 'p1', expectedUpdatedAt, approve: false }));
 
       expect(res.status).toBe(400);
       expect(reviewCalls).toHaveLength(0);
     });
 
     it('驳回带理由时通过', async () => {
-      const res = await POST(request({ postId: 'p1', approve: false, note: '与分区不符' }));
+      const res = await POST(request({ postId: 'p1', expectedUpdatedAt, approve: false, note: '与分区不符' }));
 
       expect(res.status).toBe(200);
       expect(reviewCalls[0]).toMatchObject({ approve: false, note: '与分区不符' });
@@ -116,16 +147,19 @@ describe('POST /api/posts/review', () => {
   });
 
   describe('状态机与缓存', () => {
-    it('重复审核同一篇 → 409，靠条件更新拦住并发', async () => {
+    it('旧版本或已处理稿件 → 409，不留成功审计或触发公开缓存刷新', async () => {
       reviewResult = false;
-      const res = await POST(request({ postId: 'p1', approve: true }));
+      const res = await POST(request({ postId: 'p1', expectedUpdatedAt, approve: true }));
 
       expect(res.status).toBe(409);
+      expect((await res.json()).error).toContain('重新加载');
+      expect(reviewCalls[0]).toMatchObject({ expectedUpdatedAt });
+      expect(auditActions).toHaveLength(0);
       expect(revalidated).toHaveLength(0);
     });
 
     it('通过后按需失效相关静态页，新文章立刻可见', async () => {
-      await POST(request({ postId: 'p1', approve: true }));
+      await POST(request({ postId: 'p1', expectedUpdatedAt, approve: true }));
 
       // 列表、分区页、标签目录，以及同样含投稿的 RSS 与 sitemap
       // 路径都带 locale 前缀，两个语言版本都要失效
@@ -147,7 +181,7 @@ describe('POST /api/posts/review', () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
       try {
-        const res = await POST(request({ postId: 'p1', approve: true }));
+        const res = await POST(request({ postId: 'p1', expectedUpdatedAt, approve: true }));
 
         expect(res.status).toBe(200);
         expect(reviewCalls).toHaveLength(1);
@@ -161,7 +195,7 @@ describe('POST /api/posts/review', () => {
     });
 
     it('标签页整条动态路由一起失效，避免漏掉大小写不同的规范地址', async () => {
-      await POST(request({ postId: 'p1', approve: true }));
+      await POST(request({ postId: 'p1', expectedUpdatedAt, approve: true }));
 
       // 投稿写的是「法律」，但索引里的规范写法未必是同一种大小写，
       // 逐个 encodeURIComponent(tag) 失效会漏掉规范的那条
@@ -170,13 +204,14 @@ describe('POST /api/posts/review', () => {
     });
 
     it('驳回不触发缓存失效——没有任何公开内容发生变化', async () => {
-      await POST(request({ postId: 'p1', approve: false, note: '不合适' }));
+      await POST(request({ postId: 'p1', expectedUpdatedAt, approve: false, note: '不合适' }));
       expect(revalidated).toHaveLength(0);
     });
 
     it('审核人被记录下来，留痕可追溯', async () => {
-      await POST(request({ postId: 'p1', approve: true }));
-      expect(reviewCalls[0]).toMatchObject({ reviewerId: 'U-admin', postId: 'p1' });
+      await POST(request({ postId: 'p1', expectedUpdatedAt, approve: true }));
+      expect(reviewCalls[0]).toMatchObject({ reviewerId: 'U-admin', postId: 'p1', expectedUpdatedAt });
+      expect(auditActions).toHaveLength(1);
     });
   });
 });

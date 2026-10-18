@@ -153,20 +153,21 @@ export async function createCaptchaChallenge(): Promise<CaptchaChallenge> {
   return { token, targetY, ...images };
 }
 
-async function readChallengeTarget(token: string): Promise<number | null> {
+async function consumeChallengeTarget(token: string): Promise<number | null> {
   const redis = getRedis();
   if (redis) {
     try {
-      const value = await redis.get<string | number>(`captcha:challenge:${token}`);
+      const value = await redis.getdel<string | number>(`captcha:challenge:${token}`);
       const targetX = Number(value);
       return value === null || !Number.isFinite(targetX) ? null : targetX;
     } catch (error) {
-      console.error('captcha challenge read failed (Redis):', error);
+      console.error('captcha challenge consume failed (Redis):', error);
       return null;
     }
   }
 
   const challenge = localChallenges.get(token);
+  localChallenges.delete(token);
   if (!challenge) return null;
   if (challenge.expiresAt <= Date.now()) {
     localChallenges.delete(token);
@@ -175,31 +176,11 @@ async function readChallengeTarget(token: string): Promise<number | null> {
   return challenge.targetX;
 }
 
-async function claimChallenge(token: string, expectedTargetX: number): Promise<boolean> {
-  const redis = getRedis();
-  if (redis) {
-    try {
-      const value = await redis.getdel<string | number>(`captcha:challenge:${token}`);
-      return value !== null && Number(value) === expectedTargetX;
-    } catch (error) {
-      console.error('captcha challenge consume failed (Redis):', error);
-      return false;
-    }
-  }
-
-  const challenge = localChallenges.get(token);
-  if (!challenge || challenge.expiresAt <= Date.now() || challenge.targetX !== expectedTargetX) {
-    return false;
-  }
-  localChallenges.delete(token);
-  return true;
-}
-
 export async function verifyCaptchaChallenge(token: string, userX: number): Promise<boolean> {
   if (!token || !Number.isFinite(userX)) return false;
-  const targetX = await readChallengeTarget(token);
-  if (targetX === null || Math.abs(userX - targetX) > TOLERANCE) return false;
-  return claimChallenge(token, targetX);
+  // 每次尝试都原子消费，错误答案也不能继续枚举同一道题。
+  const targetX = await consumeChallengeTarget(token);
+  return targetX !== null && Math.abs(userX - targetX) <= TOLERANCE;
 }
 
 export async function createCaptchaProof(): Promise<string> {

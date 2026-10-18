@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchEntriesWithBlogPosts, type BlogPostSearchData } from '@/lib/search-index';
+import { getClientIp, rateLimit } from '@/lib/rate-limit';
+import { MAX_SEARCH_QUERY_LENGTH, searchEntriesWithBlogPosts, type BlogPostSearchData } from '@/lib/search-index';
 import { getFeedPosts } from '@/data/blog-feed';
 import type { Locale } from '@/i18n/routing';
 
@@ -20,6 +21,16 @@ export async function GET(req: NextRequest) {
   }
 
   // 获取全部公开博客文章（文件 + 数据库投稿）
+  if (query.length > MAX_SEARCH_QUERY_LENGTH) {
+    return NextResponse.json({ error: 'Search query is too long' }, { status: 400 });
+  }
+  const { limited } = await rateLimit(`spotlight:ip:${getClientIp(req)}`, 60, 60_000, {
+    fallback: 'memory',
+  });
+  if (limited) {
+    return NextResponse.json({ error: 'Too many search requests' }, { status: 429 });
+  }
+
   const feedPosts = await getFeedPosts(locale);
 
   // 转为搜索数据（只传搜索所需的字段）

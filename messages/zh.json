@@ -1289,6 +1289,7 @@
     "approveAndPublish": "通过并发布",
     "reject": "驳回",
     "rejectReasonRequired": "驳回要写明理由，作者会看到",
+    "versionConflict": "稿件已变更或已处理，请重新加载页面后审核",
     "operationFailed": "操作失败"
   },
   "AdminInviteCodesPage": {
@@ -1653,6 +1654,9 @@
     "registerFailed": "注册失败"
   },
   "Paywall": {
+    "freeLockedTitle": "先获取此应用",
+    "freeLockedDesc": "登录后在产品页免费入库，即可在这里使用。",
+    "getFree": "免费获取",
     "lockedTitle": "该功能需要购买",
     "lockedDesc": "登录后购买相应方案，即可解锁使用。",
     "buyNow": "去购买",

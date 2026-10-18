@@ -426,16 +426,17 @@ export async function getPublishedUserPostsByIds(ids: string[]): Promise<UserPos
 }
 
 /**
- * 审核。只有 pending 的文章能被审——用条件更新而不是先查后写，
- * 避免两个管理员同时点造成重复处理。
+ * 审核只处理管理员看到的 pending 版本；状态与版本都在最终 UPDATE 中校验，
+ * 避免重复审核，也避免撤回改稿再提交后误审新正文。
  */
 export async function reviewPost(input: {
   postId: string;
+  expectedUpdatedAt: string;
   reviewerId: string;
   approve: boolean;
   note?: string;
 }): Promise<boolean> {
-  const now = new Date().toISOString();
+  const now = nextUpdatedAt(input.expectedUpdatedAt);
 
   const result = await db
     .update(posts)
@@ -451,7 +452,11 @@ export async function reviewPost(input: {
         : undefined,
       updatedAt: now,
     })
-    .where(and(eq(posts.id, input.postId), eq(posts.status, 'pending')));
+    .where(and(
+      eq(posts.id, input.postId),
+      eq(posts.status, 'pending'),
+      eq(posts.updatedAt, input.expectedUpdatedAt),
+    ));
 
   return ((result as { rowCount?: number }).rowCount ?? 0) > 0;
 }
@@ -748,15 +753,22 @@ export async function withdrawPost(input: {
   authorId: string;
 }): Promise<WithdrawPostResult> {
   const now = new Date().toISOString();
-  const result = await db
+  // 撤回也必须推进版本；同毫秒或时钟回拨时不能让重投稿恢复成旧审核版本。
+  const updatedAt = sql<string>`to_char(
+    greatest(${now}::timestamptz, "updated_at"::timestamptz + interval '1 millisecond')
+      AT TIME ZONE 'UTC',
+    'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
+  )`;
+  const [updated] = await db
     .update(posts)
-    .set({ status: 'draft', updatedAt: now, reviewNote: null, reviewerId: null, reviewedAt: null })
+    .set({ status: 'draft', updatedAt, reviewNote: null, reviewerId: null, reviewedAt: null })
     .where(
       and(eq(posts.id, input.postId), eq(posts.authorId, input.authorId), eq(posts.status, 'pending')),
-    );
+    )
+    .returning({ updatedAt: posts.updatedAt });
 
-  if (((result as { rowCount?: number }).rowCount ?? 0) > 0) {
-    return { ok: true, updatedAt: now };
+  if (updated) {
+    return { ok: true, updatedAt: updated.updatedAt };
   }
 
   const [row] = await db

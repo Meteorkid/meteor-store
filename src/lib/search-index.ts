@@ -9,6 +9,8 @@ import { localizeHelpArticles } from '@/data/help-articles';
 import type { Locale } from '@/i18n/routing';
 import { pinyin } from 'pinyin-pro';
 
+export const MAX_SEARCH_QUERY_LENGTH = 160;
+
 export type SearchGroup = '产品' | '页面' | '帮助' | '博客' | '彩蛋';
 
 export interface SearchEntry {
@@ -395,7 +397,9 @@ function fuzzySearch(index: SearchEntry[], query: string, limit: number): Search
   const scored = index
     .map(entry => {
       const title = entry.title.toLowerCase();
-      const d = levenshtein(q, title.slice(0, Math.max(q.length + 3, title.length)));
+      // 长度差已经超过允许距离时，不必执行二次复杂度的编辑距离计算。
+      if (Math.abs(q.length - title.length) > 2) return null;
+      const d = levenshtein(q, title);
       if (d > 2) return null;
       return { entry, total: Math.max(0, 10 - d * 3) };
     })

@@ -1289,6 +1289,7 @@
     "approveAndPublish": "Approve and publish",
     "reject": "Reject",
     "rejectReasonRequired": "A rejection reason is required — the author will see it",
+    "versionConflict": "This post has changed or already been reviewed. Reload the page before reviewing it.",
     "operationFailed": "Operation failed"
   },
   "AdminInviteCodesPage": {
@@ -1653,6 +1654,9 @@
     "registerFailed": "Registration failed"
   },
   "Paywall": {
+    "freeLockedTitle": "Add this app to your library",
+    "freeLockedDesc": "Sign in, then add a free plan from the product page to use this app.",
+    "getFree": "Get it free",
     "lockedTitle": "This feature requires a paid plan",
     "lockedDesc": "Sign in and purchase a plan to unlock it.",
     "buyNow": "Buy now",

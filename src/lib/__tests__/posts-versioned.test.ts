@@ -190,6 +190,7 @@ describe('reviewPost', () => {
     vi.clearAllMocks();
     dbState.updateResult = { rowCount: 1 };
     dbState.updateValues = [];
+    dbState.updateWhereQueries = [];
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-08-10T09:00:00.000Z'));
   });
@@ -199,12 +200,30 @@ describe('reviewPost', () => {
   });
 
   it('审核通过即发布：事件时间用 coalesce 回填为发布日期，覆盖历史空值', async () => {
-    const ok = await reviewPost({ postId: 'P1', reviewerId: 'U-admin', approve: true });
+    const ok = await reviewPost({
+      postId: 'P1',
+      expectedUpdatedAt: '2026-08-10T08:00:00.000Z',
+      reviewerId: 'U-admin',
+      approve: true,
+    });
     expect(ok).toBe(true);
     const values = dbState.updateValues[0];
     const raw = JSON.stringify(values.eventDate);
     expect(raw).toContain('coalesce');
     expect(raw).toContain('2026-08-10');
+  });
+
+  it.each([true, false])('approve=%s 的最终 UPDATE 同时绑定 id、pending 与所见版本', async (approve) => {
+    const expectedUpdatedAt = '2026-08-10T08:00:00.000Z';
+    await reviewPost({ postId: 'P1', expectedUpdatedAt, reviewerId: 'U-admin', approve });
+
+    expect(dbMock.select).not.toHaveBeenCalled();
+    expect(dbMock.update).toHaveBeenCalledOnce();
+    const where = compiledQuery(dbState.updateWhereQueries[0]);
+    expect(where.sql).toContain('"posts"."id" =');
+    expect(where.sql).toContain('"posts"."status" =');
+    expect(where.sql).toContain('"posts"."updated_at" =');
+    expect(where.params).toEqual(['P1', 'pending', expectedUpdatedAt]);
   });
 });
 

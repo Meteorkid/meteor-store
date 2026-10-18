@@ -91,7 +91,7 @@ export default function AuthForm({
   const router = useRouter();
 
   const handleCaptchaVerify = useCallback((data: { token: string }) => {
-    setCaptcha(data);
+    setCaptcha(data.token ? data : null);
   }, []);
 
   const handleResend = async () => {

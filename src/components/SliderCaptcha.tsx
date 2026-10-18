@@ -52,6 +52,8 @@ export default function SliderCaptcha({ onVerify }: Props) {
   // 事件处理器用：刷新按钮 / 验证失败后重新拉取
   const fetchChallenge = useCallback(async () => {
     setLoading(true);
+    setToken('');
+    onVerify({ token: '' });
     setVerified(false);
     setFailed(false);
     setSliderX(0);
@@ -69,7 +71,7 @@ export default function SliderCaptcha({ onVerify }: Props) {
     } finally {
       setLoading(false);
     }
-  }, [drawCaptcha, t]);
+  }, [drawCaptcha, onVerify, t]);
 
   // 首次挂载拉一次挑战：内联 fetch + .then()，setState 都在异步回调里
   useEffect(() => {
@@ -97,7 +99,7 @@ export default function SliderCaptcha({ onVerify }: Props) {
   };
 
   const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
-    if (verified || loading) return;
+    if (verified || loading || !token) return;
     e.preventDefault();
     setDragging(true);
     setFailed(false);
@@ -128,11 +130,8 @@ export default function SliderCaptcha({ onVerify }: Props) {
         setVerified(true);
         onVerify({ token: data.proof });
       } catch {
+        await fetchChallenge();
         setFailed(true);
-        setTimeout(() => {
-          setSliderX(0);
-          setFailed(false);
-        }, 600);
       } finally {
         setLoading(false);
       }
@@ -148,7 +147,7 @@ export default function SliderCaptcha({ onVerify }: Props) {
       document.removeEventListener('touchmove', handleMove);
       document.removeEventListener('touchend', handleEnd);
     };
-  }, [dragging, sliderX, token, onVerify]);
+  }, [dragging, sliderX, token, onVerify, fetchChallenge]);
 
   const trackMaxX = W - 40;
 

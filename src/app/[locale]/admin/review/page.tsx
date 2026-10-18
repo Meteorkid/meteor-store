@@ -52,6 +52,7 @@ export default async function ReviewPage({
     sectionLabel: getSectionById(p.sectionId)?.label[locale as Locale] ?? p.sectionId,
     tags: p.tags,
     createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
     // 审核时看到的就是发布后的样子：同一条 sanitize 管线
     html: markdownToHtml(p.content),
   }));
