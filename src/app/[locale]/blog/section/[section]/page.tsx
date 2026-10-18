@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: SectionPageProps): Promise<Me
         title: `${section.label[locale as Locale]} - ${t('blogSuffix')}`,
         description: section.description[locale as Locale],
         alternates: {
-          types: { 'application/rss+xml': `/blog/section/${section.slug}/feed.xml` },
+          types: { 'application/rss+xml': `/${locale}/blog/section/${section.slug}/feed.xml` },
         },
       }
     : { title: t('notFound') };
@@ -107,7 +107,7 @@ export default async function BlogSectionPage({ params, searchParams }: SectionP
               )}
             </div>
             <a
-              href={`/blog/section/${section.slug}/feed.xml`}
+              href={`/${locale}/blog/section/${section.slug}/feed.xml`}
               className="t-footnote shrink-0 text-white/60 transition-colors duration-200 hover:text-white/70"
             >
               <span aria-hidden>◉</span> {t('subscribe')}

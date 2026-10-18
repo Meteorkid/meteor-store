@@ -10,28 +10,29 @@ If this is your first time on the site, this article will walk you through what 
 
 The homepage is the front window of the shop. From top to bottom:
 
-- **Brand and navigation bar** — A sticky navigation bar at the top. On the left is the "Meteor Store" wordmark with a meteor icon; on the right are links to Products, Help, Blog, Open Source, and Pathfinder. A search button sits next to them — press `⌘K` (or `Ctrl+K` on Windows) to open site-wide search.
+- **Brand and navigation bar** — The "Meteor Store" logo takes you home. Five groups organize the links: Products, Daily, Learn & explore, Writing, and Help. Open a group to choose a destination. Use the search button, `/` when you are not typing, or `⌘K` (`Ctrl+K` on Windows) to search the site.
 - **Hero section** — The first screen you see, with a one-line summary of what the maker does.
 - **Partners and product showcase** — Scroll down and you will find product cards, each showing the product name, a short description, and the lowest available price.
-- **Pricing section** — Further down is the Meteor Pass pricing block. Meteor Pass is the all-access membership: monthly, annual, or lifetime. One Pass covers every product in the store.
+- **Pricing section** — When sales are enabled, Meteor Pass offers monthly, annual, and lifetime plans for the main product line. Check the pricing page for the current coverage.
 - **FAQ** — Below pricing, a set of common questions new visitors ask — refund policy, how to get products after purchase, and macOS security warnings.
-- **Footer** — At the very bottom: links to every product, resource links (Help, Blog, Story), company links (Contact, Feedback), and legal pages (Privacy Policy, Terms of Service, Refund Policy).
+- **Footer** — At the bottom are links to the main product line, resources such as Help, Blog, and Story, contact and feedback pages, and policies.
 
 ## Where to start
 
 Pick a path based on what you want to do:
 
-- **Browse what is available** — Click "Products" in the top navigation or scroll to the product showcase. Each product has its own detail page with features, pricing, and download instructions.
-- **Try something for free** — Some products have a ¥0 tier. Click "Claim Free" on the product page and it will be added to your account. Products that support in-browser trial also have a "Free Trial" button — you can try them without logging in.
-- **Get the all-access membership** — If several products catch your eye, Meteor Pass is often cheaper than buying each one separately. It covers every product in the store, including future releases.
-- **Read or submit articles** — The "Blog" link leads to articles by the store owner and readers, organized into themed sections with RSS feeds. After signing up and logging in, you can submit your own posts. Published posts go live after review.
-- **Get help or contact the maker** — The "Help" link opens the help center with categorized answers to common questions. The "Feedback" link in the footer lets you send a question directly to the store owner.
+- **Browse what is available** — Open Products and choose "Explore all products." The page includes the main tools and lab projects. Each product explains its features and how to get it.
+- **Try something for free** — Some products have a ¥0 tier that you can claim after signing in. The anatomy, gesture, and fluid demos are public; Tollow requires sign-in to sync your progress. Follow the requirements shown at each entry.
+- **Explore Meteor Pass** — Open "Meteor Pass & pricing" under Products. Pass covers the main product line. Lab projects are already free, so you do not need Pass for them. Check the product-line and entitlement details for coverage of future products.
+- **Read a little every day** — Open Daily for English, papers, AI, events, open source, contests, or internships. The year-round master’s application calendar is under Learn & explore.
+- **Read or submit articles** — Open Writing to browse all articles or a section, with RSS available. Your account menu provides the submission entry after sign-in. Posts become public after review.
+- **Get help or contact the maker** — Open Help for the help center, contact details, or feedback.
 
 ## A few concepts to know first
 
 ### Products vs. Meteor Pass
 
-There are two kinds of things you can pay for: **individual products** and **Meteor Pass**. A single product is a one-time purchase — you pay once and keep it. Meteor Pass is the all-access membership: once you have it, every product is available to you, paid monthly, annually, or once for a lifetime. Pass subscriptions expire (except lifetime); individual products do not.
+There are two kinds of things you can pay for: **individual products** and **Meteor Pass**. An individual purchase has no expiry date. Pass covers the main product line through a monthly, annual, or lifetime plan. Monthly and annual access expires; lifetime access does not. A separately purchased product remains available when your Pass expires.
 
 ### Web apps vs. downloadable apps vs. license keys
 
@@ -43,4 +44,4 @@ Browsing products, reading the blog, and viewing the help center do not require 
 
 ### Open source
 
-The "Open Source" link in the navigation lists the maker's MIT-licensed projects. They work differently from paid products — source code is freely available, no login or store payment is required.
+"Open-source projects" under Products lists the maker’s MIT-licensed work. You can get those projects’ source code free of charge, without a store payment.

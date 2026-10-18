@@ -1,22 +1,22 @@
 ## Top navigation bar
 
-A sticky navigation bar sits at the top of every page. On the left, the "Meteor Store" wordmark and meteor icon link back to the homepage.
+The navigation bar is at the top of the page. The "Meteor Store" wordmark and meteor icon link back to the homepage.
 
-The links on the right cover the main areas of the site:
+Five groups organize the site. Each group has an overview link and specific destinations:
 
-- **Home** — Back to the homepage.
-- **Products** — The product listing page with every available product.
-- **Pricing** — Jumps to the Meteor Pass pricing section on the homepage (only visible when the storefront is active).
-- **Help** — The help center at `/docs`, with tutorials and FAQs organized by category.
-- **Blog** — The blog listing page, with articles grouped by section and RSS subscription support.
-- **Open Source** — The maker's MIT-licensed open-source projects.
-- **Pathfinder** — An online tool that helps you build an action plan.
+- **Products** — Featured products, free tools, the lab, browser experiences, and open-source projects. When sales are enabled, "Meteor Pass & pricing" opens `/pricing`.
+- **Daily** — English, papers, AI, events, open source, contests, and internships. A channel link temporarily opens all channels and jumps to that section without changing what you follow.
+- **Learn & explore** — Pathfinder’s learning directions, planner, opportunity catalog, topics, and saved items, plus the separate year-round master’s application calendar.
+- **Writing** — All blog articles, six sections, tags, and the publishing API guide. Article listings also offer RSS feeds.
+- **Help** — The help center at `/docs`, the site’s story, support for the creator, contact details, and feedback.
 
-On mobile, the navigation collapses into a hamburger menu button. Tapping it opens a full-screen panel with the same links as desktop, plus a login / sign-up entry and the user menu at the bottom.
+On desktop, hover over a group or click it to open the panel. With the group focused, press `↓` to enter the panel, use `Tab` to move between links, and press `Esc` to close it and return focus to the group.
+
+On mobile, tap the menu button and expand the group you need. The panel can scroll; closing it restores page scrolling. Sign-in and account links remain at the bottom.
 
 ## Site-wide search (Spotlight)
 
-Next to the navigation links is a search button (magnifying glass icon). Click it or press `⌘K` (`Ctrl+K` on Windows) to open the Spotlight search panel.
+Next to the navigation links is a search button (magnifying glass icon). Click it, press `/` when you are not typing, or use `⌘K` (`Ctrl+K` on Windows) to open Spotlight. Any open navigation panel closes first.
 
 Type a keyword into the search box and Spotlight searches across product names, blog post titles, and help center content simultaneously. Results are ranked by relevance. Use the arrow keys to move between results and press Enter to jump to the selected page.
 
@@ -26,7 +26,7 @@ Press `Esc` or click outside the panel to close it.
 
 The rightmost item in the navigation bar is a language switcher showing the current language icon. Click it and a dropdown lets you switch between Chinese and English.
 
-When you switch languages, the site tries to load the equivalent page in your chosen language. If a page is only available in one language, you will stay on the current page instead of hitting a 404.
+Switching languages opens the Chinese or English version of the current path. The interface changes language; article text depends on what the author provided and is not translated automatically.
 
 ## User menu
 
@@ -34,6 +34,7 @@ After logging in, your avatar button appears in the navigation bar. The dropdown
 
 - **Account** — Edit your nickname, avatar, bio, and password; view license keys and order history.
 - **My Products** — See every product you own, have claimed, or have access to through Meteor Pass.
+- **Orders, invitation codes, and student verification** — Open the corresponding account feature.
 - **Submit Article** — Go to the blog submission page.
 - **My Posts** — View your submitted posts and their review status.
 - **My Favorites** — View bookmarked blog posts.
@@ -43,10 +44,10 @@ If you are an admin, an "Admin Dashboard" link also appears in the menu.
 
 ## Footer
 
-Scroll to the very bottom of any page and you will find the footer. It is organized into four columns on wide screens and two columns on mobile:
+The footer adapts to the screen width and includes:
 
 - **Brand** — The Meteor Store logo with a one-line tagline and the maker's contact email.
-- **Products** — Links to every individual product detail page.
+- **Products** — Links to the main product line. The lab is available from the Products menu.
 - **Resources** — Help center, blog, and the maker's story.
 - **Company & Legal** — Contact page, feedback, privacy policy, terms of service, refund policy, and EULA.
 

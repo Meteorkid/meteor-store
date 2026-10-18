@@ -1,4 +1,5 @@
 import { getProductTrack } from '@/data/product-tracks';
+import { appIds } from '@/data/app-manifest';
 
 const ALLOWED_LOGIN_RETURNS = new Set([
   '/daily',
@@ -6,6 +7,7 @@ const ALLOWED_LOGIN_RETURNS = new Set([
   '/apps',
   '/apps/ex-memory',
   '/apps/tollow/trial',
+  ...appIds.map(id => `/apps/${id}`),
   '/account',
   '/orders',
   '/redeem',

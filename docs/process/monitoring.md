@@ -4,11 +4,11 @@
 
 | 层次 | 工具 | 检查内容 | 频率 |
 |------|------|----------|------|
-| 可用性 | `scripts/health-check.sh` + cron | 服务可达、DB/Redis 连通 | 每 5 分钟 |
+| 可用性 | `/api/health`、`scripts/health-check.sh` | 服务可达、DB/Redis 连通 | 当前由每日巡检验证；5分钟服务器调度需另行安装并实测 |
 | 错误 | Sentry | 服务端/客户端异常 | 实时 |
-| 性能 | Neon Dashboard | 慢查询、连接数 | 每日 |
+| 性能 | 本机 PostgreSQL / PM2 指标 | 慢查询、连接数、内存 | 每日巡检，独立告警需实际配置 |
 | 限流 | Upstash Dashboard | Redis 用量、限流命中 | 每周 |
-| 业务 | `verify-apps-headless.mjs` | 站内应用可用性 | 每日 |
+| 业务 | Codex `meteor-store` 心跳；`verify-apps-headless.mjs` 可手动辅助 | 公开入口、日刊与应用交互 | 每日北京时间10:00；脚本存在不代表已加入cron |
 
 ## 告警配置
 
@@ -21,11 +21,13 @@ Sentry 已集成，建议配置以下 Alert Rules：
 | 关键错误激增 | 5 分钟内 error 超过 10 个 | 飞书 / 邮件 |
 | 支付相关错误 | 含 `payment` / `order` tag 的 error | 飞书 |
 | API 500 错误 | `status_code:500` | 飞书 |
-| 数据库连接失败 | `NeonDbError` / `connection` | 飞书 |
+| 数据库连接失败 | `PostgresError` / `connection` | 飞书 |
 
 配置路径：Sentry → Alerts → Create Alert Rule
 
 ### 2. 健康检查告警
+
+以下是建议安装方式。2026-10-18只读核查未发现5分钟健康检查调度，不能把此示例当作已运行的监控；安装后还需验证故障分支和通知送达。
 
 ```bash
 # 服务器上配置 crontab
@@ -71,13 +73,13 @@ HEALTH_ALERT_WEBHOOK=https://open.feishu.cn/open-apis/bot/v2/hook/xxx \
 2. `pm2 list` 检查进程状态
 3. `pm2 logs meteor-store --lines 50` 查看日志
 4. `pm2 restart meteor-store` 尝试重启
-5. 如果重启失败，回滚：`mv .next.rollback .next && pm2 restart meteor-store`
+5. 如果重启失败，按该次发布记录的固定备份同时恢复匹配的源码版本与 `.next` 产物。先停止应用，将当前 `.next` 重命名保留为带时间戳的失败现场，确认目标 `.next` 不存在后再恢复备份，最后重启并复验。不要直接在 `.next` 仍存在时执行 `mv .next.rollback .next`，否则会变成目录嵌套。不要用旧数据库备份覆盖发布后新增的业务数据。
 
 ### 数据库问题
 
-1. 检查 Neon Console：https://console.neon.tech
-2. 查看连接池状态
-3. 必要时重启数据库实例
+1. 检查广州服务器本机 PostgreSQL 服务、磁盘与数据库日志；当前运行库已不是 Neon
+2. 查看 `pg_stat_activity` 与连接上限，核对应用连接池及是否有长事务
+3. 先定位原因再决定恢复动作；重启不是默认处理，数据恢复按备份流程执行
 
 ### 支付问题
 

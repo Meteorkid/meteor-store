@@ -42,7 +42,7 @@ export async function generateMetadata({
     title: `${post.title} | ${t('blogSuffix')}`,
     description: post.excerpt,
     alternates: section
-      ? { types: { 'application/rss+xml': `/blog/section/${section.slug}/feed.xml` } }
+      ? { types: { 'application/rss+xml': `/${locale}/blog/section/${section.slug}/feed.xml` } }
       : undefined,
   };
 }

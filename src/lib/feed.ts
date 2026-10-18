@@ -23,7 +23,7 @@ export interface FeedOptions {
   description: string;
   /** 该 feed 对应的页面路径，如 /blog 或 /blog/section/debate */
   path: string;
-  /** feed 内容对应的语言，用于选取分区标签的本地化文本 */
+  /** feed 内容与站内链接的语言 */
   locale: Locale;
 }
 
@@ -42,6 +42,7 @@ export interface GenericFeedOptions {
   description: string;
   /** 该 feed 对应的页面路径 */
   path: string;
+  locale: Locale;
 }
 
 /**
@@ -82,7 +83,7 @@ export function buildGenericRssFeed(
     <title>${escapeXml(options.title)}</title>
     <link>${escapeXml(`${SITE_URL}${options.path}`)}</link>
     <description>${escapeXml(options.description)}</description>
-    <language>zh-CN</language>
+    <language>${options.locale === 'zh' ? 'zh-CN' : 'en'}</language>
     <atom:link href="${escapeXml(selfUrl)}" rel="self" type="application/rss+xml" />
 ${entries}
   </channel>
@@ -92,12 +93,13 @@ ${entries}
 
 export function buildRssFeed(posts: FeedPostSummary[], options: FeedOptions): string {
   const sorted = [...posts].sort((a, b) => b.date.localeCompare(a.date));
-  const selfUrl = `${SITE_URL}${options.path}/feed.xml`;
+  const pageUrl = `${SITE_URL}/${options.locale}${options.path}`;
+  const selfUrl = `${pageUrl}/feed.xml`;
 
   const items = sorted
     .map((post) => {
       // 文件文章与读者投稿的地址规则不同，由 href 决定，这里不再拼 slug
-      const url = `${SITE_URL}${post.href}`;
+      const url = `${SITE_URL}/${options.locale}${post.href}`;
       return `    <item>
       <title>${escapeXml(post.title)}</title>
       <link>${escapeXml(url)}</link>
@@ -115,9 +117,9 @@ export function buildRssFeed(posts: FeedPostSummary[], options: FeedOptions): st
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${escapeXml(options.title)}</title>
-    <link>${escapeXml(`${SITE_URL}${options.path}`)}</link>
+    <link>${escapeXml(pageUrl)}</link>
     <description>${escapeXml(options.description)}</description>
-    <language>zh-CN</language>
+    <language>${options.locale === 'zh' ? 'zh-CN' : 'en'}</language>
     <atom:link href="${escapeXml(selfUrl)}" rel="self" type="application/rss+xml" />
 ${items}
   </channel>

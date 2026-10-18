@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
     // 作者预览非 published 文章时不索引
     robots: post.status === 'published' ? undefined : { index: false, follow: false },
     alternates: section
-      ? { types: { 'application/rss+xml': `/blog/section/${section.slug}/feed.xml` } }
+      ? { types: { 'application/rss+xml': `/${locale}/blog/section/${section.slug}/feed.xml` } }
       : undefined,
   };
 }

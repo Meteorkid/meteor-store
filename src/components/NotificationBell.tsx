@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { pickAnnouncementText, type Announcement } from '@/lib/announcement-text';
 import { useAuth } from '@/components/AuthProvider';
 import { Link } from '@/i18n/navigation';
-import { dailyChannels } from '@/lib/daily/types';
+import { dailyChannels } from '@/lib/daily/channels';
 import { EMPTY_REMINDER_STATE, ensureDailyReminder, getReminderState, markDailyReminderRead, subscribeDailyReminder, syncDailyReminderRead } from '@/lib/daily/reminder-client';
 import { EMPTY_MASTERS_NOTICES, ensureMastersNotices, getMastersNoticeState, markMastersRead, subscribeMastersNotices } from '@/lib/masters/notice-client';
 

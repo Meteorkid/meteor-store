@@ -49,6 +49,7 @@ export async function GET(
         ? '面向大学生的竞赛、实习、开源任务与 AI 动态，全部保留官方来源与核验时间。'
         : 'Competitions, internships, open-source tasks, and AI updates for university students, each with its official source and verification date.',
       path: `/${locale}/pathfinder`,
+      locale: pathfinderLocale,
     },
   );
 

@@ -31,6 +31,8 @@ vi.mock('@/components/apps/registry', () => ({
 }));
 
 import AppPage from '../page';
+import { appIds } from '@/data/app-manifest';
+import { findProduct } from '@/lib/products';
 
 describe('旧应用入口与站内应用门控', () => {
   beforeEach(() => {
@@ -62,12 +64,30 @@ describe('旧应用入口与站内应用门控', () => {
     expect(mocks.redirect).not.toHaveBeenCalled();
   });
 
+  it.each(appIds)('%s 游客登录保留原应用入口，并按语言展示产品介绍', async (id) => {
+    mocks.getSession.mockResolvedValue(null);
+    const product = findProduct(id)!;
+    for (const locale of ['zh', 'en'] as const) {
+      const page = await AppPage({ params: Promise.resolve({ locale, id }) });
+      const html = renderToStaticMarkup(page);
+      expect(html).toContain(`href="/login?next=${encodeURIComponent(`/apps/${id}`)}"`);
+      expect(html).toContain(product.name[locale]);
+      expect(html).toContain(product.tagline[locale]);
+      expect(html).toContain('freeLockedDesc');
+      expect(html).not.toContain('>lockedTitle<');
+    }
+    expect(mocks.renderApp).not.toHaveBeenCalled();
+    expect(mocks.getUserEntitlements).not.toHaveBeenCalled();
+    expect(mocks.getTollowAccess).not.toHaveBeenCalled();
+  });
+
   it.each(['webgl-fluid-sim', 'skeleton-anatomy', 'chakra-visualizer'])(
     '%s 只有授权通过才渲染应用',
     async (id) => {
       const params = Promise.resolve({ locale: 'zh', id });
       const lockedPage = await AppPage({ params });
-      expect(renderToStaticMarkup(lockedPage)).toContain('lockedTitle');
+      expect(renderToStaticMarkup(lockedPage)).toContain('freeLockedTitle');
+      expect(renderToStaticMarkup(lockedPage)).toContain('getFree');
       expect(mocks.renderApp).not.toHaveBeenCalled();
 
       mocks.getUserEntitlements.mockResolvedValue([{ productId: id }]);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildLoginHref, normalizeLoginReturn } from '../login-return';
 import { products } from '@/data/products';
+import { appIds } from '@/data/app-manifest';
 
 describe('normalizeLoginReturn', () => {
   it('每日一新登录后回到阅读页，仍拒绝附加的任意跳转', () => {
@@ -14,6 +15,15 @@ describe('normalizeLoginReturn', () => {
     expect(normalizeLoginReturn('/apps/ex-memory')).toBe('/apps/ex-memory');
     expect(normalizeLoginReturn('/apps/tollow/trial')).toBe('/apps/tollow/trial');
     expect(normalizeLoginReturn('/apps')).toBe('/apps');
+  });
+
+  it.each(appIds)('只允许已登记应用的准确挂载路径：%s', (id) => {
+    const path = `/apps/${id}`;
+    expect(normalizeLoginReturn(path)).toBe(path);
+    expect(new URL(buildLoginHref(path), 'https://store.test').searchParams.get('next')).toBe(path);
+    expect(normalizeLoginReturn(`${path}?next=https://evil.example`)).toBe('/');
+    expect(normalizeLoginReturn(`${path}#download`)).toBe('/');
+    expect(normalizeLoginReturn(`${path}/settings`)).toBe('/');
   });
 
   it.each([
@@ -53,6 +63,11 @@ describe('normalizeLoginReturn', () => {
     '/products/xisland\n',
     '/products/unknown-product',
     '/admin',
+    '/apps/unknown-app',
+    '/apps/xisland',
+    '/apps/tollow/../../admin',
+    '/apps/tollow%2f..%2fadmin',
+    '/apps/tollow\n',
     '/blog/submit?admin=1',
     '/blog/submit?id=',
     '/blog/submit?id=abc&admin=0',

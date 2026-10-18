@@ -10,6 +10,8 @@ import { getSession } from '@/lib/auth';
 import { getUserEntitlements } from '@/lib/entitlements';
 import { getTollowAccess } from '@/lib/tollow-access';
 import { TOLLOW_PRODUCT_ID } from '@/lib/tollow-plans';
+import { buildLoginHref } from '@/lib/login-return';
+import type { Locale } from '@/i18n/routing';
 
 interface AppPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -28,6 +30,7 @@ interface AppPageProps {
  */
 export default async function AppPage({ params }: AppPageProps) {
   const { locale, id } = await params;
+  const currentLocale = locale as Locale;
   setRequestLocale(locale);
   const tPaywall = await getTranslations({ locale, namespace: 'Paywall' });
 
@@ -39,6 +42,7 @@ export default async function AppPage({ params }: AppPageProps) {
     redirect({ href: getProductAccess(product).href, locale });
   }
 
+  const hasFreePlan = product.pricing.some(plan => plan.price === 0);
   const session = await getSession();
   const tollowAccess = session && id === TOLLOW_PRODUCT_ID
     ? await getTollowAccess(session.userId, session.email)
@@ -54,8 +58,8 @@ export default async function AppPage({ params }: AppPageProps) {
     <div className="min-h-screen bg-black text-white">
       <Header />
       <main className="container mx-auto px-4 py-12">
-        <h1 className="mb-2 text-3xl font-bold">{product.name.zh}</h1>
-        <p className="mb-10 text-white/50">{product.tagline.zh}</p>
+        <h1 className="mb-2 text-3xl font-bold">{product.name[currentLocale]}</h1>
+        <p className="mb-10 text-white/50">{product.tagline[currentLocale]}</p>
 
         {hasAccess ? (
           renderApp({
@@ -66,13 +70,13 @@ export default async function AppPage({ params }: AppPageProps) {
         ) : (
           <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
             <div className="mb-4 text-4xl">🔒</div>
-            <h2 className="mb-2 text-xl font-bold text-white">{tPaywall('lockedTitle')}</h2>
-            <p className="mb-6 text-sm text-white/50">{tPaywall('lockedDesc')}</p>
+            <h2 className="mb-2 text-xl font-bold text-white">{tPaywall(hasFreePlan ? 'freeLockedTitle' : 'lockedTitle')}</h2>
+            <p className="mb-6 text-sm text-white/50">{tPaywall(hasFreePlan ? 'freeLockedDesc' : 'lockedDesc')}</p>
             <Link
-              href={session ? `/products/${id}` : '/login'}
+              href={session ? `/products/${id}` : buildLoginHref(`/apps/${id}`)}
               className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-gray-200"
             >
-              {session ? tPaywall('buyNow') : tPaywall('loginToContinue')}
+              {session ? tPaywall(hasFreePlan ? 'getFree' : 'buyNow') : tPaywall('loginToContinue')}
             </Link>
           </div>
         )}

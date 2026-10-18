@@ -19,7 +19,7 @@ export async function generateMetadata({
     title: t('title'),
     description: t('description'),
     alternates: {
-      types: { 'application/rss+xml': '/blog/feed.xml' },
+      types: { 'application/rss+xml': `/${locale}/blog/feed.xml` },
     },
   };
 }
@@ -53,7 +53,7 @@ export default async function BlogPage({
               {t('description')}
             </p>
             <a
-              href="/blog/feed.xml"
+              href={`/${locale}/blog/feed.xml`}
               className="t-footnote shrink-0 text-white/60 transition-colors duration-200 hover:text-white/70"
             >
               <span aria-hidden>◉</span> RSS
