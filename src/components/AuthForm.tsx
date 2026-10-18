@@ -87,6 +87,7 @@ export default function AuthForm({
   const [rememberDevice, setRememberDevice] = useState(false);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
+  const [captchaAttempt, setCaptchaAttempt] = useState(0);
   const { login, register, resendVerification, verifyMfa, user } = useAuth();
   const router = useRouter();
 
@@ -290,6 +291,10 @@ export default function AuthForm({
       setError('');
     } else if (result.error) {
       setError(result.error);
+      if (mode === 'register') {
+        setCaptcha(null);
+        setCaptchaAttempt(attempt => attempt + 1);
+      }
     } else {
       router.push(next);
     }
@@ -435,7 +440,7 @@ export default function AuthForm({
         {mode === 'register' && (
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-300">{t('captchaLabel')}</label>
-            <SliderCaptcha onVerify={handleCaptchaVerify} />
+            <SliderCaptcha key={captchaAttempt} onVerify={handleCaptchaVerify} />
           </div>
         )}
 

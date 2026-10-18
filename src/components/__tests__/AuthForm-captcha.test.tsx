@@ -7,7 +7,7 @@ vi.mock('react', async original => ({
   useState: (initial: unknown) => {
     const index = hooks.index++;
     if (!(index in hooks.states)) hooks.states[index] = initial;
-    return [hooks.states[index], (value: unknown) => { hooks.states[index] = value; }];
+    return [hooks.states[index], (value: unknown) => { hooks.states[index] = typeof value === 'function' ? value(hooks.states[index]) : value; }];
   },
   useCallback: (callback: unknown) => callback,
 }));
@@ -48,4 +48,16 @@ it('换题清空proof后按钮禁用，直接提交也不会发注册请求；�
   expect(hooks.register).not.toHaveBeenCalled();
   verify({ token: 'fresh-proof' });
   expect(find(render(), node => node.props.type === 'submit')?.props.disabled).toBe(false);
+});
+
+it('注册返回错误后丢弃已消费或过期proof，并重新挂载挑战', async () => {
+  hooks.register.mockResolvedValue({ error: 'Registration failed' });
+  let tree = render();
+  const previousKey = find(tree, node => typeof node.props.onVerify === 'function')!.key;
+  const submit = find(tree, node => node.type === 'form')!.props.onSubmit as (event: { preventDefault: () => void }) => Promise<void>;
+  await submit({ preventDefault: vi.fn() });
+  tree = render();
+  expect(find(tree, node => node.props.type === 'submit')?.props.disabled).toBe(true);
+  expect(find(tree, node => typeof node.props.onVerify === 'function')!.key).not.toBe(previousKey);
+  expect(hooks.register).toHaveBeenCalledOnce();
 });

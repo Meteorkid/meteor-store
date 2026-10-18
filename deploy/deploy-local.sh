@@ -183,8 +183,11 @@ for remote in gitee gitlab; do
   # 于是 GitLab 连续四次失败都只显示「推送失败」四个字——真实原因是
   # non-fast-forward（受保护分支上有一个本地没有的 merge commit），
   # git 的 hint 里写得清清楚楚，却一次都没露出来。
-  push_log=$(git push "$remote" main 2>&1)
-  push_status=$?
+  if push_log=$(git push "$remote" main 2>&1); then
+    push_status=0
+  else
+    push_status=$?
+  fi
   # GitLab 的受保护分支钩子偶尔在引用已更新的情况下仍返回
   # 「incorrect old value provided」，所以不只信退出码，再核一次远端指向。
   if [[ $push_status -eq 0 ]] || [[ "$(git ls-remote "$remote" refs/heads/main 2>/dev/null | cut -f1)" == "$(git rev-parse HEAD)" ]]; then
