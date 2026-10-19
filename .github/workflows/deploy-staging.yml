@@ -36,7 +36,7 @@ jobs:
           echo "产物 $(du -h /tmp/meteor-store-staging-next.tar.gz | cut -f1)"
 
       - name: Upload & restart staging
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
