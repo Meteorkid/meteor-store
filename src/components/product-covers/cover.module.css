@@ -1,0 +1,17 @@
+.cover { isolation: isolate; contain: paint; }
+.stage { position: absolute; inset: 0; background: #080b11; }
+.poster { object-fit: contain; }
+.movie {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+.movie[data-ready='true'] { opacity: 1; }
+.movie[data-failed='true'] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .movie { display: none; transition: none; transform: none; }
+}

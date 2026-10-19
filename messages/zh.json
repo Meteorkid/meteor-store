@@ -863,6 +863,7 @@
     "zoomAriaDemo": "放大查看：{name} 动态演示",
     "zoomAriaScreenshot": "放大查看：{alt}",
     "productInterface": "{name} 产品界面",
+    "coverAlt": "{name} 原型操作动画：{description}",
     "onlinePlayTitle": "在线试玩",
     "openInNewWindow": "在新窗口打开 ↗",
     "demoTitle": "{name} 在线演示",

@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
+import ProductVisual from '@/components/ProductVisual';
 import type { LocalizedProduct } from '@/data/products';
 
 /**
  * 产品详情页在线演示嵌入：点击后才加载 iframe（避免拖慢首屏），
- * 封面截图做占位；加载失败时用户可通过右上角链接在新窗口打开。
+ * 真实界面封面做占位；加载失败时用户可通过右上角链接在新窗口打开。
  */
 export default function ProductDemoEmbed({ product }: { product: LocalizedProduct }) {
   const t = useTranslations('ProductDetailPage');
@@ -48,16 +48,9 @@ export default function ProductDemoEmbed({ product }: { product: LocalizedProduc
             className="group absolute inset-0 flex flex-col items-center justify-center"
             aria-label={t('loadDemoAria', { name: product.name })}
           >
-            {product.media && (
-              <Image
-                src={product.media.cover}
-                alt=""
-                fill
-                sizes="100vw"
-                className="object-cover opacity-40 transition-opacity group-hover:opacity-30"
-                aria-hidden="true"
-              />
-            )}
+            <div className="absolute inset-0 opacity-40" aria-hidden="true">
+              <ProductVisual product={product} showDemo={false} className="border-0" />
+            </div>
             <span className="relative flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-md transition-transform group-hover:scale-110">
               <span className="ml-1 text-2xl text-white" aria-hidden="true">▶</span>
             </span>

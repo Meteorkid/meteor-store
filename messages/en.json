@@ -863,6 +863,7 @@
     "zoomAriaDemo": "Zoom in: {name} Live Demo",
     "zoomAriaScreenshot": "Zoom in: {alt}",
     "productInterface": "{name} Interface",
+    "coverAlt": "{name} product interaction animation: {description}",
     "onlinePlayTitle": "Online Playground",
     "openInNewWindow": "Open in new window ↗",
     "demoTitle": "{name} Live Demo",
