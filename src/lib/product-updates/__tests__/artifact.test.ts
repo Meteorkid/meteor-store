@@ -14,7 +14,34 @@ function store(retrieved = body, existing = false) {
   });
   return { send, client: { send } as unknown as Pick<S3Client, 'send'> };
 }
-afterEach(() => { vi.unstubAllGlobals(); });
+function slowDownload(duration: number) {
+  vi.useFakeTimers();
+  // 原生 AbortSignal.timeout 不受 fake timers 控制，保留真实信号传递并替换计时来源。
+  vi.spyOn(AbortSignal, 'timeout').mockImplementation(delay => {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(new DOMException('fixture download timeout', 'TimeoutError')), delay);
+    return controller.signal;
+  });
+  let requestSignal: AbortSignal | undefined;
+  vi.stubGlobal('fetch', vi.fn((_url: string, options: RequestInit) => new Promise<Response>((resolve, reject) => {
+    const signal = options.signal!;
+    requestSignal = signal;
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', abort);
+      resolve(new Response(body));
+    }, duration);
+    const abort = () => { clearTimeout(timer); reject(signal.reason); };
+    if (signal.aborted) abort();
+    else signal.addEventListener('abort', abort, { once: true });
+  })));
+  return () => requestSignal;
+}
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+  vi.clearAllTimers();
+  vi.useRealTimers();
+});
 describe('安装包边界与私有存储校验', () => {
   it('新对象条件写入、完整读取并对照 SHA', async () => {
     const { send, client } = store(); await putAndVerify(client, 'private', 'releases/key', body, asset);
@@ -51,5 +78,21 @@ describe('安装包边界与私有存储校验', () => {
   it('流式下载超出已声明大小时立即停止', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(Buffer.alloc(2048))));
     await expect(downloadArtifact(asset)).rejects.toThrow('超出');
+  });
+  it('合法安装包下载超过5分钟但未到10分钟时可以完成', async () => {
+    const requestSignal = slowDownload(6 * 60_000);
+    const result = downloadArtifact(asset).then(value => ({ value }), error => ({ error }));
+    await vi.advanceTimersByTimeAsync(6 * 60_000);
+    expect(await result).toEqual({ value: body });
+    expect(requestSignal()?.aborted).toBe(false);
+  });
+  it('下载超过10分钟时通过合并后的请求信号中止', async () => {
+    const requestSignal = slowDownload(11 * 60_000);
+    const result = downloadArtifact(asset, new AbortController().signal).then(value => ({ value }), error => ({ error }));
+    await vi.advanceTimersByTimeAsync(10 * 60_000 - 1);
+    expect(requestSignal()?.aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(2);
+    expect(requestSignal()?.aborted).toBe(true);
+    expect(await result).toMatchObject({ error: { name: 'TimeoutError' } });
   });
 });

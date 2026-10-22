@@ -16,7 +16,7 @@ export async function runProductUpdateJob(id: string, dependencies: Partial<Work
   if (!record || record.job.id !== id || record.job.status !== 'queued') return;
   const { job, check } = record;
   const deps = { verifyRow: verifyInspectedRow, download: downloadArtifact, upload: uploadVerifiedArtifact, ...dependencies };
-  const signal = AbortSignal.timeout(15 * 60_000);
+  const signal = AbortSignal.timeout(30 * 60_000);
   async function save() {
     const latest = await readStateFile<JobRecord>('job');
     if (latest?.job.id !== id) throw new Error('同步任务已被替换');

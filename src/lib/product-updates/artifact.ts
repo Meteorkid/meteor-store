@@ -24,7 +24,7 @@ export function assertArtifact(body: Uint8Array, asset: ReleaseAsset): void {
 
 export async function downloadArtifact(asset: ReleaseAsset, signal?: AbortSignal): Promise<Buffer> {
   if (!Number.isSafeInteger(asset.bytes) || asset.bytes < 1 || asset.bytes > MAX_BYTES) throw new Error('安装包超出大小限制');
-  const timeout = AbortSignal.timeout(300_000);
+  const timeout = AbortSignal.timeout(600_000);
   const abortSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
   let url = asset.url;
   for (let redirect = 0; redirect < 5; redirect++) {

@@ -28,7 +28,7 @@ Statux npm、Web/Docker、Ex-Memory helper Beta、Windows 测试包不是这些�
 
 - 现有单个 PM2 fork、Node 22.18+；生产通过 Linux `flock`，macOS 隔离验收用系统 Python `fcntl`。Node 原生剥离 TS 类型运行 worker，不依赖构建缓存。
 - `R2_ACCOUNT_ID`、`R2_ACCESS_KEY_ID`、`R2_SECRET_ACCESS_KEY`、`R2_RELEASE_BUCKET`、`R2_BUCKET` 从现有服务环境继承。安装包桶必须独立且保持私有。凭据不写入状态文件、API 或日志。
-- 二进制上限 128 MiB；每次网络下载/存储操作限时 5 分钟，任务上限 15 分钟。仅访问固定官方发布地址及官方资产 CDN，不执行安装包。
+- 二进制上限 128 MiB；单包下载限时 10 分钟、存储操作限时 5 分钟，任务上限 30 分钟。仅访问固定官方发布地址及官方资产 CDN，不执行安装包。
 - `PutObject IfNoneMatch: '*'` 禁止覆盖已有对象，412 时只允许完整回读确认内容相同的幂等复用。新写入对象同样完整回读 SHA 验证，之后才切换目录。
 - 价格、权限、fileId 从 `products.ts` 读取；动态目录只允许版本、SHA、固定私有对象路径或固定 PyPI URL。产品详情页与下载 API 共用读取层。
 - 默认私有目录 `data/product-updates/`（目录 700、文件 600），可通过仅服务端的 `PRODUCT_UPDATES_DIR` 配置。`catalog.json` 是生效目录；`check.json` 是上次检查；`job.json` 是任务状态；`worker.log` 是最近一次启动日志；`history/` 保留最多 20 份旧目录。旧 R2 安装包不删除。
