@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: TrialPageProps): Promise<Meta
   return {
     title: locale === 'zh' ? `${name} · 在线体验` : `${name} · Live Demo`,
     description: locale === 'zh' ? product.tagline.zh : product.tagline.en,
+    ...(id === 'tollow' ? { robots: { index: false, follow: true } } : {}),
   };
 }
 

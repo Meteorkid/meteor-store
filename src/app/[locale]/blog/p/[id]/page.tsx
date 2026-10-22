@@ -1,3 +1,4 @@
+import SourceLanguageNote from '@/components/SourceLanguageNote';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -123,6 +124,7 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
       )}
       <main className="relative container mx-auto px-4 py-8 md:py-10">
         <article className="mx-auto max-w-2xl">
+          <SourceLanguageNote locale={locale} sourceLanguage={post.locale} />
           <Link
             href={section ? `/blog/section/${section.slug}` : '/blog'}
             className="t-footnote group mb-8 inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white"

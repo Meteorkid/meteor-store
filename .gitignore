@@ -82,3 +82,6 @@ docs/技术文档-md/
 # 迁移账本对账脚本的备份（scripts/reconcile-migration-ledger.mjs --apply 生成）
 drizzle-ledger-backup-*.json
 .playwright-mcp/
+
+# 私有运行监控状态
+/data/monitoring/

@@ -1,0 +1,4 @@
+# 安装前创建 /var/www/meteor-store/data/monitoring（700），保证应用进程和cron使用同一私有目录。
+# 这是待安装模板，不是已安装证明。HEALTH_CHECK_STATE_FILE如改动，锁文件路径也须同步。
+# 与现有root crontab合并，勿覆盖其它任务；此任务不使用/发送webhook。
+* * * * * cd /var/www/meteor-store && flock -n /var/www/meteor-store/data/monitoring/health.json.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production scripts/health-check.mjs 2>&1 | logger -t meteor-health

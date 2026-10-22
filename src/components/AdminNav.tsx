@@ -65,6 +65,7 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
       title: t('groupSite'),
       items: [
         { href: '/admin/announcements', label: t('announcements') },
+        { href: '/admin/monitoring', label: locale === 'en' ? 'Service monitoring' : '运行监控' },
         { href: '/admin/pathfinder', label: 'Pathfinder', badge: counts?.pendingPathfinder },
       ],
     },

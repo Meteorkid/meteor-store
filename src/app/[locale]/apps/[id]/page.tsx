@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
@@ -15,6 +16,18 @@ import type { Locale } from '@/i18n/routing';
 
 interface AppPageProps {
   params: Promise<{ locale: string; id: string }>;
+}
+
+export async function generateMetadata({ params }: AppPageProps): Promise<Metadata> {
+  const { locale, id } = await params;
+  const product = findProduct(id);
+  if (!product) return { robots: { index: false, follow: false } };
+  const currentLocale = locale === 'en' ? 'en' : 'zh';
+  return {
+    title: `${product.name[currentLocale]} · ${currentLocale === 'zh' ? '在线应用' : 'Web app'}`,
+    description: product.tagline[currentLocale],
+    robots: { index: false, follow: true },
+  };
 }
 
 /**

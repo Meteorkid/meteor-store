@@ -30,7 +30,7 @@ vi.mock('@/components/apps/registry', () => ({
   },
 }));
 
-import AppPage from '../page';
+import AppPage, { generateMetadata } from '../page';
 import { appIds } from '@/data/app-manifest';
 import { findProduct } from '@/lib/products';
 
@@ -111,5 +111,18 @@ describe('旧应用入口与站内应用门控', () => {
       locale: 'en', userId: 'user-1', tollowAccessLevel: 'free',
     });
     expect(mocks.getUserEntitlements).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('站内应用搜索元信息', () => {
+  it.each(appIds)('%s 使用本地化产品标题并排除私人应用页面索引', async id => {
+    const product = findProduct(id)!;
+    for (const locale of ['zh', 'en'] as const) {
+      const metadata = await generateMetadata({ params: Promise.resolve({ locale, id }) });
+      expect(metadata.title).toContain(product.name[locale]);
+      expect(metadata.description).toBe(product.tagline[locale]);
+      expect(metadata.robots).toEqual({ index: false, follow: true });
+    }
   });
 });

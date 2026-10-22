@@ -37,6 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     { url: BASE_URL, lastModified: now, changeFrequency: 'weekly' as const, priority: 1 },
     { url: `${BASE_URL}/products`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.9 },
+    ...['/playground', '/open-source', '/student', '/blog/api-guide'].map(path => ({
+      url: `${BASE_URL}${path}`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.6,
+    })),
     ...(SHOW_PRICING
       ? [{ url: `${BASE_URL}/pricing`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.8 }]
       : []),

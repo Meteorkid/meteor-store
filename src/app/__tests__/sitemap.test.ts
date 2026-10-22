@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+vi.mock('@/data/blog-feed', () => ({ getFeedPosts: async () => [], getFeedTags: async () => [] }));
+vi.mock('@/lib/pathfinder/catalog', () => ({ listCatalogItems: async () => [] }));
 import { helpArticles } from '@/data/help-articles';
 import { SITE_URL } from '@/lib/constants';
-import { getHelpSitemapEntries } from '../sitemap';
+import sitemap, { getHelpSitemapEntries } from '../sitemap';
 
 describe('getHelpSitemapEntries', () => {
   it('为每篇帮助文章生成中英文地址', () => {
@@ -23,4 +25,17 @@ describe('getHelpSitemapEntries', () => {
       expect(en?.alternates?.languages).toEqual(zh?.alternates?.languages);
     }
   });
+});
+
+
+it('公开发现入口双语进入sitemap，私有应用和账号不加入', async () => {
+  const entries = await sitemap();
+  for (const path of ['/playground', '/open-source', '/student', '/blog/api-guide']) {
+    for (const locale of ['zh', 'en']) {
+      const entry = entries.find(item => item.url === `${SITE_URL}/${locale}${path}`);
+      expect(entry).toBeDefined();
+      expect(entry?.alternates?.languages).toEqual({ zh: `${SITE_URL}/zh${path}`, en: `${SITE_URL}/en${path}` });
+    }
+  }
+  expect(entries.some(item => /\/(?:apps|account|admin)(?:\/|$)/.test(new URL(item.url).pathname))).toBe(false);
 });

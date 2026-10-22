@@ -8,6 +8,8 @@ import { Link } from '@/i18n/navigation';
 import { dailyChannels } from '@/lib/daily/channels';
 import { EMPTY_REMINDER_STATE, ensureDailyReminder, getReminderState, markDailyReminderRead, subscribeDailyReminder, syncDailyReminderRead } from '@/lib/daily/reminder-client';
 import { EMPTY_MASTERS_NOTICES, ensureMastersNotices, getMastersNoticeState, markMastersRead, subscribeMastersNotices } from '@/lib/masters/notice-client';
+import { EMPTY_MONITORING_STATE, getMonitoringState, hasUnreadMonitoring, markMonitoringRead, subscribeMonitoring, watchMonitoring } from '@/lib/monitoring-client';
+import { monitoringText } from '@/lib/monitoring-types';
 
 /**
  * 上次打开铃铛的时间（ISO 字符串）。存一个分界点而不是已读 id 数组——
@@ -102,6 +104,9 @@ export default function NotificationBell() {
   const locale = useLocale();
   const { user } = useAuth();
   const userId = user?.id ?? null;
+  const adminUserId = user?.isAdmin ? userId : null;
+  const monitoring = useSyncExternalStore(subscribeMonitoring, () => getMonitoringState(adminUserId), () => EMPTY_MONITORING_STATE);
+  const monitoringCopy = monitoringText[locale === 'en' ? 'en' : 'zh'];
   const daily = useSyncExternalStore(subscribeDailyReminder, () => getReminderState(userId), () => EMPTY_REMINDER_STATE);
   const masters = useSyncExternalStore(subscribeMastersNotices, () => getMastersNoticeState(userId), () => EMPTY_MASTERS_NOTICES);
   const items = useSyncExternalStore(subscribe, getItems, () => SERVER_ITEMS);
@@ -112,6 +117,8 @@ export default function NotificationBell() {
   useEffect(() => {
     ensureAnnouncements();
   }, []);
+
+  useEffect(() => adminUserId ? watchMonitoring(adminUserId) : undefined, [adminUserId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -166,7 +173,7 @@ export default function NotificationBell() {
   }, [open, userId, daily.reminder, daily.readDate]);
 
   // ISO 时间戳按字典序比较即等于按时间比较；readAt 为空串时全部算未读
-  const unread = (items !== null && items.some((a) => announcedAt(a) > readAt)) || Boolean(daily.reminder && daily.reminder.date > daily.readDate) || masters.notices.some(notice => !notice.readAt);
+  const unread = (items !== null && items.some((a) => announcedAt(a) > readAt)) || Boolean(daily.reminder && daily.reminder.date > daily.readDate) || masters.notices.some(notice => !notice.readAt) || hasUnreadMonitoring(adminUserId);
 
   const togglePanel = () => {
     if (!open && items) markAllRead();
@@ -205,6 +212,16 @@ export default function NotificationBell() {
             <p className="text-sm font-medium text-white">{t('title')}</p>
           </div>
           <div className="max-h-[min(24rem,calc(100dvh-136px))] overflow-y-auto overscroll-contain">
+            {adminUserId && <section className="border-b border-white/10 px-4 py-3" aria-label={monitoringCopy.title}>
+              <Link href="/admin/monitoring" onClick={() => markMonitoringRead(adminUserId)} className="inline-flex min-h-10 items-center t-title-4 text-violet-200 underline-offset-4 hover:underline">{monitoringCopy.detail} →</Link>
+              {monitoring.failed && <p className="mt-1 t-footnote text-amber-200">{monitoringCopy.failed}</p>}
+              {monitoring.snapshot && <>
+                <p className="mt-1 t-footnote text-white/70">{monitoringCopy.status[monitoring.snapshot.status]}</p>
+                {monitoring.snapshot.events.slice(0, 3).map(event => <p key={event.id} className="mt-2 t-footnote text-white/70">
+                  {monitoringCopy[event.kind]} · {formatDate(event.at, locale)}
+                </p>)}
+              </>}
+            </section>}
             {(masters.notices.length > 0 || masters.failed) && <section className="border-b border-white/10 px-4 py-3" aria-label={locale === 'en' ? 'Application reminders' : '硕士申请提醒'}>
               <p className="t-title-4 text-white">{locale === 'en' ? 'Application reminders' : '硕士申请提醒'}</p>
               {masters.failed && <p className="mt-2 t-footnote text-amber-200">{locale === 'en' ? 'Could not refresh application reminders.' : '申请提醒暂时读取失败，请稍后重试。'}</p>}

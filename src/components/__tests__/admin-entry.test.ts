@@ -34,6 +34,13 @@ function adminRoutes(): string[] {
 }
 
 describe('后台导航覆盖所有后台页面', () => {
+  it('运行监控同时有后台入口和仅管理员可见的铃铛入口', () => {
+    const bell = readFileSync(path.join(root, 'components', 'NotificationBell.tsx'), 'utf-8');
+    expect(adminNav).toContain("href: '/admin/monitoring'");
+    expect(bell).toMatch(/adminUserId\s*&&[\s\S]{0,250}href="\/admin\/monitoring"/);
+    expect(bell).toMatch(/adminUserId \? watchMonitoring\(adminUserId\) : undefined/);
+  });
+
   it('每个 /admin/* 页面都能从 AdminNav 到达', () => {
     for (const route of adminRoutes()) {
       // 漏掉的页面不会报错，只是永远没人点得到
