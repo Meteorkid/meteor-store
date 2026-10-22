@@ -1,4 +1,4 @@
-import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { createHash } from 'crypto';
 import { readR2Config, isR2Configured, getClient } from './r2-client';
 
@@ -10,8 +10,8 @@ export { isR2Configured };
  * 设计：
  * - 客户端不直接持有 R2 写凭证。客户端先把 base64 上传到我们的 API，
  *   API 校验 + 缩放后再写到 R2，返回公开 URL 写入 users.avatarUrl。
- * - 对象 key 用 userId + 内容哈希，更换头像时新 key 与旧 key 不同，
- *   方便删除旧对象避免堆积。
+ * - 对象 key 用 userId + 内容哈希，相同图片复用同一个对象。
+ *   资料提交后只清理已不再引用的不同旧 key。
  * - 未配置 R2 时 isR2Configured() 返回 false，调用方按 data URL 旧逻辑降级。
  */
 
@@ -20,6 +20,22 @@ export interface UploadResult {
   url: string;
   /** 对象在 bucket 内的 key，删除时用 */
   key: string;
+}
+
+/** 保存资料前核对对象仍存在，防止旧表单重新引用已被并发请求清理的头像。 */
+export async function avatarExists(key: string): Promise<boolean> {
+  const cfg = readR2Config();
+  if (!cfg) throw new Error('R2 not configured');
+  try {
+    await getClient(cfg).send(
+      new HeadObjectCommand({ Bucket: cfg.bucket, Key: key }),
+      { abortSignal: AbortSignal.timeout(5_000) },
+    );
+    return true;
+  } catch (err) {
+    if ((err as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode === 404) return false;
+    throw err;
+  }
 }
 
 /**
@@ -71,6 +87,7 @@ export async function deleteAvatar(key: string): Promise<void> {
         Bucket: cfg.bucket,
         Key: key,
       }),
+      { abortSignal: AbortSignal.timeout(5_000) },
     );
   } catch (err) {
     console.error('deleteAvatar failed (orphan will need cleanup):', err);

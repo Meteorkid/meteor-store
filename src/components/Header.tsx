@@ -196,6 +196,22 @@ export default function Header() {
   }, [closeDesktop, closeMobile]);
 
   useEffect(() => {
+    if (!desktopOpen) return;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented
+        || headerRef.current?.querySelector('[data-header-popover-open]')) return;
+      const trigger = triggerRefs.current[desktopOpen];
+      const focusInGroup = trigger?.parentElement?.contains(document.activeElement);
+      event.preventDefault();
+      closeDesktop();
+      // 悬停不移动正文焦点；键盘进入菜单后再把焦点交回对应触发器。
+      if (focusInGroup) trigger?.focus();
+    };
+    document.addEventListener('keydown', onEscape);
+    return () => document.removeEventListener('keydown', onEscape);
+  }, [desktopOpen, closeDesktop]);
+
+  useEffect(() => {
     if (!mobileOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -248,13 +264,6 @@ export default function Header() {
         onBlurCapture={event => {
           if (!event.currentTarget.contains(event.relatedTarget)) {
             setFocusWithin(false);
-            closeDesktop();
-          }
-        }}
-        onKeyDown={event => {
-          if (event.key === 'Escape' && desktopOpen) {
-            event.preventDefault();
-            triggerRefs.current[desktopOpen]?.focus();
             closeDesktop();
           }
         }}

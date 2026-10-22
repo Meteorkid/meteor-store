@@ -183,18 +183,40 @@ function parseCity(html: string, url: string, now: Date) {
 function parseNus(html: string, url: string, now: Date) {
   const text = pageText(html);
   if (!/Master of Computing\s*\(with Specialisations\)/i.test(text) || !/Infocomm Security/i.test(text)) throw new Error('programme_scope_mismatch');
+  const columnNames = ['intake', 'opening date', 'closing date'];
   const tables = [...html.matchAll(/<table\b[^>]*>[\s\S]*?<\/table>/gi)]
-    .map(match => pageText(match[0])).filter(value => /Opening Date.*Closing Date.*August intake/i.test(value));
+    .map(table => [...table[0].matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)].map(row =>
+      [...row[1].matchAll(/<(th|td)\b([^>]*)>([\s\S]*?)<\/\1>/gi)].map(cell => ({
+        text: pageText(cell[3]), colspan: cell[2].match(/\bcolspan\s*=\s*["']?(\d+)\b/i)?.[1] ?? '1',
+        rowspan: /\browspan\b/i.test(cell[2]),
+      }))))
+    .filter(rows => rows.some(row => columnNames.every(name => row.some(cell => cell.text.toLowerCase() === name))));
   if (tables.length !== 1) throw new Error('application_table_ambiguous');
-  const match = required(tables[0].match(new RegExp(`August intake\\s+${WORD_DATE}\\s+${WORD_DATE}`, 'i')));
-  const opensOn = wordDate(match[1], match[2], match[3]);
-  const deadlineOn = wordDate(match[4], match[5], match[6]);
-  const year = intakeYear(match[6]);
-  if (deadlineOn >= `${year}-08-01` || opensOn > deadlineOn) throw new Error('intake_mismatch');
+  const headers = tables[0].filter(row => columnNames.every(name => row.some(cell => cell.text.toLowerCase() === name)));
+  if (headers.length !== 1 || columnNames.some(name => headers[0].filter(cell => cell.text.toLowerCase() === name).length !== 1)) {
+    throw new Error('application_table_ambiguous');
+  }
+  const header = headers[0];
+  const [intakeColumn, openingColumn, closingColumn] = columnNames.map(name => header.findIndex(cell => cell.text.toLowerCase() === name));
+  const rows = tables[0].slice(tables[0].indexOf(header) + 1).filter(row => /^August\b/i.test(row[intakeColumn]?.text ?? ''));
+  if (rows.length !== 1 || rows[0].length !== header.length
+    || header.some((cell, index) => cell.rowspan || rows[0][index].rowspan || cell.colspan !== rows[0][index].colspan)) {
+    throw new Error('application_table_ambiguous');
+  }
+  const row = rows[0];
+  const intake = required(row[intakeColumn].text.match(/^August\s+(?:intake|(\d{4}))$/i));
+  const opening = required(row[openingColumn].text.match(new RegExp(`^${WORD_DATE}$`, 'i')));
+  const closing = required(row[closingColumn].text.match(new RegExp(`^${WORD_DATE}$`, 'i')));
+  const opensOn = wordDate(opening[1], opening[2], opening[3]);
+  const deadlineOn = wordDate(closing[1], closing[2], closing[3]);
+  // 旧表只有August intake，用该行截止年；新表给出入学年时必须与截止年一致。
+  const year = intakeYear(intake[1] ?? closing[3]);
+  if (Number(closing[3]) !== year || deadlineOn >= `${year}-08-01`
+    || opensOn < `${year - 1}-01-01` || opensOn > deadlineOn) throw new Error('intake_mismatch');
   return [makeRound('nus-mcomp-infosec-2027-august', year, {
     intakeLabel: `${year}年8月入学`, opensOn, openingState: 'scheduled', openingNote: `官方申请表开放日：${opensOn}。`,
     deadlineOn, deadlineAt: null, deadlineTimeZone: null, deadlineText: `${deadlineOn}（仅日期，未披露截止时刻和时区）`,
-    sourceNote: `自动核验MComp with Specialisations申请表：${match[0]}；页面列出Infocomm Security方向。仅采用Opening Date与Closing Date列，不采用申请结果公布日期。`,
+    sourceNote: `自动核验MComp with Specialisations申请表：${intake[0]}；Opening Date：${opening[0]}；Closing Date：${closing[0]}；页面列出Infocomm Security方向。仅采用Opening Date与Closing Date列，不采用申请结果公布日期。`,
   }, url, now)];
 }
 

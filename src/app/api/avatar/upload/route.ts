@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
-import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
-import { uploadAvatar, isR2Configured, keyFromUrl, deleteAvatar } from '@/lib/avatar-storage';
+import { uploadAvatar, isR2Configured } from '@/lib/avatar-storage';
 
 const MAX_DATAURL_BYTES = 200_000; // base64 后约 200KB，对应原图 ~150KB
 
@@ -12,7 +9,7 @@ const MAX_DATAURL_BYTES = 200_000; // base64 后约 200KB，对应原图 ~150KB
  * 把客户端缩放后的头像 data URL 上传到 R2。
  * 仅在 R2 已配置时启用；未配置时调用方应继续走 data URL 入库（见 profile 路由）。
  *
- * 写完新对象后，会把当前 users.avatarUrl 指向的旧对象删掉，避免孤儿堆积。
+ * 这里只暂存新对象；用户保存资料成功后，profile 路由才清理旧对象。
  */
 export async function POST(req: NextRequest) {
   if (!isR2Configured()) {
@@ -59,18 +56,6 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('avatar upload failed:', err);
     return NextResponse.json({ error: '头像上传失败，请稍后重试' }, { status: 500 });
-  }
-
-  // 删除旧头像对象（如果有）
-  const [row] = await db
-    .select({ avatarUrl: users.avatarUrl })
-    .from(users)
-    .where(eq(users.id, session.userId))
-    .limit(1);
-  if (row?.avatarUrl) {
-    // 只删本人前缀下的对象；历史遗留的外链/他人 URL 不动
-    const oldKey = keyFromUrl(row.avatarUrl, session.userId);
-    if (oldKey) await deleteAvatar(oldKey);
   }
 
   return NextResponse.json({ url: result.url });

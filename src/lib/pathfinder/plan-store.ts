@@ -80,7 +80,8 @@ export async function getUserPlan(userId: string): Promise<StoredPlanState | nul
 export async function saveUserPlan(
   userId: string,
   input: { plan: unknown; completedTaskIds: unknown; pinnedTaskIds: unknown; profile?: unknown },
-): Promise<{ ok: true; state: StoredPlanState } | { ok: false; reason: string }> {
+  importOnly = false,
+): Promise<{ ok: true; state: StoredPlanState } | { ok: false; reason: string; conflict?: true }> {
   const parsed = PathfinderPlanSchema.safeParse(input.plan);
   if (!parsed.success) {
     return { ok: false, reason: parsed.error.issues[0]?.message ?? '路径结构不合法' };
@@ -96,7 +97,7 @@ export async function saveUserPlan(
   // 这里只负责原样存回去供重新生成时使用
   const profile = input.profile === undefined ? null : JSON.stringify(input.profile);
   const now = new Date().toISOString();
-  await db
+  const insert = db
     .insert(pathfinderPlans)
     .values({
       userId,
@@ -106,8 +107,11 @@ export async function saveUserPlan(
       profile,
       createdAt: now,
       updatedAt: now,
-    })
-    .onConflictDoUpdate({
+    });
+  // 旧草稿导入只能新建：另一个标签已保存时，不能用过时的空列表判断覆盖它。
+  const rows = importOnly
+    ? await insert.onConflictDoNothing({ target: pathfinderPlans.userId }).returning({ userId: pathfinderPlans.userId })
+    : await insert.onConflictDoUpdate({
       target: pathfinderPlans.userId,
       set: {
         plan: JSON.stringify(parsed.data),
@@ -117,7 +121,8 @@ export async function saveUserPlan(
         ...(profile === null ? {} : { profile }),
         updatedAt: now,
       },
-    });
+    }).returning({ userId: pathfinderPlans.userId });
+  if (!rows.length) return { ok: false, conflict: true, reason: '账号已有学习路径，请刷新后查看' };
 
   return {
     ok: true,

@@ -81,6 +81,44 @@ describe('官方硕士页面解析', () => {
     expect(() => parseMastersPage('nus', fixture('nus').replace('31 January 2027', '31 February 2027'), sourceUrl('nus'), now)).toThrow();
   });
 
+  it.each(['nus', 'nus-20261022'])('NUS兼容August intake与真实August 2027表格：%s', id => {
+    const [round] = parseMastersPage('nus', fixture(id), sourceUrl('nus'), now);
+    expect(round).toMatchObject({
+      id: 'nus-mcomp-infosec-2027-august', intakeYear: 2027,
+      details: { opensOn: '2026-10-01', deadlineOn: '2027-01-31', deadlineAt: null, deadlineTimeZone: null },
+    });
+  });
+
+  it('NUS按表头定位列，重排和结果公布列不改变申请日期', () => {
+    const table = '<table><tr><th>Application results</th><th>Closing Date</th><th>Intake</th><th>Opening Date</th></tr>'
+      + '<tr><td>31 May 2027</td><td>31 January 2027</td><td>August 2027</td><td>1 October 2026</td></tr></table>';
+    const html = fixture('nus-20261022').replace(/<table\b[^>]*>[\s\S]*?<\/table>/i, table);
+    const [round] = parseMastersPage('nus', html, sourceUrl('nus'), now);
+    expect(round.details).toMatchObject({ opensOn: '2026-10-01', deadlineOn: '2027-01-31' });
+  });
+
+  it('NUS显式入学年与日期一起滚动时创建新年份ID', () => {
+    const html = fixture('nus-20261022').replace(/\b20\d{2}\b/g, year => String(Number(year) + 1));
+    const [round] = parseMastersPage('nus', html, sourceUrl('nus'), now);
+    expect(round).toMatchObject({ id: 'nus-mcomp-infosec-2028-august', intakeYear: 2028 });
+    expect(round.details).toMatchObject({ opensOn: '2027-10-01', deadlineOn: '2028-01-31' });
+  });
+
+  it.each([
+    ['入学年与截止年不同', (html: string) => html.replace('August 2027', 'August 2028')],
+    ['开放日期早于入学前一年', (html: string) => html.replace('1 October 2026', '1 October 2025')],
+    ['开放日期晚于截止日期', (html: string) => html.replace('1 October 2026', '1 February 2027')],
+    ['截止日期不早于八月入学', (html: string) => html.replace('31 January 2027', '1 August 2027')],
+    ['缺少Intake表头', (html: string) => html.replace('>Intake<', '>Cohort<')],
+    ['缺少Opening Date表头', (html: string) => html.replace('Opening Date', 'Application results')],
+    ['重复表头', (html: string) => html.replace('<th style="width: 27.6712%">', '<th>Intake</th><th style="width: 27.6712%">')],
+    ['重复申请表格', (html: string) => html + html],
+    ['多个八月入学行', (html: string) => html.replace('</tbody>', '<tr><td>August 2028</td><td>1 October 2027</td><td colspan="2">31 January 2028</td></tr></tbody>')],
+    ['日期列缺失', (html: string) => html.replace('<td style="width: 37.5342%">1 October 2026</td>', '')],
+  ] as const)('NUS拒绝歧义或错年证据：%s', (_label, mutate) => {
+    expect(() => parseMastersPage('nus', mutate(fixture('nus-20261022')), sourceUrl('nus'), now)).toThrow();
+  });
+
   it('Oxford只读取最终申请截止区块，不采用页面其他奖学金日期', () => {
     const html = '<p>Scholarships: 12:00 midday UK time on Monday 16 November 2026</p>' + fixture('oxford');
     const [round] = parseMastersPage('oxford', html, sourceUrl('oxford'), now);
@@ -141,6 +179,18 @@ describe('自动同步隔离与已有记录保护', () => {
     expect(result).toMatchObject({ checked: 6, published: 10, failed: 1, errors: [{ source: 'oxford', reason: 'fetch_failed' }] });
     expect(JSON.stringify(result)).not.toContain('secret');
     expect(mocks.saveMastersRound.mock.calls.some(call => call[0].id.startsWith('oxford'))).toBe(false);
+  });
+
+  it('NUS真实新表格通过当前证据同步，错年证据不能用seed兜底发布', async () => {
+    let html = fixture('nus-20261022');
+    vi.stubGlobal('fetch', vi.fn((url: string) => url === sourceUrl('nus') ? Promise.resolve(htmlResponse(html)) : fixtureFetch(url)));
+    expect(await syncMastersSources(now)).toMatchObject({ checked: 6, published: 11, failed: 0 });
+    expect(mocks.saveMastersRound.mock.calls.find(call => call[0].id.startsWith('nus'))?.[0].details)
+      .toMatchObject({ opensOn: '2026-10-01', deadlineOn: '2027-01-31' });
+    mocks.saveMastersRound.mockClear();
+    html = html.replace('August 2027', 'August 2028');
+    expect(await syncMastersSources(now)).toMatchObject({ checked: 6, published: 10, failed: 1, errors: [{ source: 'nus', reason: 'parse_failed' }] });
+    expect(mocks.saveMastersRound.mock.calls.some(call => call[0].id.startsWith('nus'))).toBe(false);
   });
 
   it('显式暂停和被人工改写的初始draft均不自动覆盖', async () => {

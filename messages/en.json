@@ -2263,7 +2263,18 @@
       "trustTitle": "Explainable and traceable",
       "trustDescription": "The path does not call an external AI model. Recommendations come only from Pathfinder's verified catalog, with original sources available on every item.",
       "loading": "Matching eligible items and arranging weekly tasks…",
-      "stalePlan": "This saved path includes an expired, withdrawn, or no-longer-eligible item. You can keep the record, but regenerating from the current catalog is recommended."
+      "stalePlan": "This saved path includes an expired, withdrawn, or no-longer-eligible item. You can keep the record, but regenerating from the current catalog is recommended.",
+      "loadingSaved": "Checking your account and loading the saved path…",
+      "loadFailed": "Your path could not be synced. Existing cloud data will be kept.",
+      "retry": "Retry",
+      "importHint": "This browser has an older draft that may belong to another account. Import only if it is yours. An existing cloud path will not be overwritten.",
+      "importToAccount": "Import into the currently signed-in account.",
+      "importToGuest": "Import as a guest draft in this browser.",
+      "confirmImport": "This is my draft — import",
+      "saving": "Saving…",
+      "saved": "Saved to the current account",
+      "saveFailed": "Save failed. Your changes remain on this page. Retry, or reload if the account changed.",
+      "localFailed": "The browser could not save a local copy. Confirm cloud sync before closing this page."
     },
     "planResult": {
       "safetyEyebrow": "Take care of the present first",

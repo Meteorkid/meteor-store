@@ -139,6 +139,51 @@ afterEach(() => {
 });
 
 describe('Header 导航交接', () => {
+  it('正文持焦时 Escape 关闭悬停菜单，不抢回触发器焦点', () => {
+    const focus = vi.fn();
+    const trigger = findElement(props => props.id === 'header-trigger-products');
+    (trigger?.props.ref as (value: unknown) => void)({ focus, parentElement: { contains: () => false } });
+    invoke(productGroup(), 'onPointerEnter', { pointerType: 'mouse' });
+    vi.advanceTimersByTime(120);
+    renderHeader();
+
+    document.dispatchEvent(Object.assign(new Event('keydown', { cancelable: true }), { key: 'Escape' }));
+    renderHeader();
+
+    expect(Boolean(productPanel())).toBe(false);
+    expect(focus).not.toHaveBeenCalled();
+  });
+
+  it('键盘进入菜单后 Escape 关闭并将焦点交回当前组触发器', () => {
+    const focus = vi.fn();
+    const trigger = findElement(props => props.id === 'header-trigger-products');
+    (trigger?.props.ref as (value: unknown) => void)({ focus, parentElement: { contains: () => true } });
+    invoke(trigger, 'onKeyDown', { key: 'ArrowDown', preventDefault: vi.fn() });
+
+    document.dispatchEvent(Object.assign(new Event('keydown', { cancelable: true }), { key: 'Escape' }));
+    renderHeader();
+
+    expect(Boolean(productPanel())).toBe(false);
+    expect(focus).toHaveBeenCalledOnce();
+  });
+
+  it('已经被浮层接管的 Escape 不关闭桌面菜单', () => {
+    invoke(productGroup(), 'onPointerEnter', { pointerType: 'mouse' });
+    vi.advanceTimersByTime(120);
+    renderHeader();
+    const escape = Object.assign(new Event('keydown', { cancelable: true }), { key: 'Escape' });
+    escape.preventDefault();
+    document.dispatchEvent(escape);
+    renderHeader();
+    expect(Boolean(productPanel())).toBe(true);
+
+    const header = findElement(props => typeof props.onFocusCapture === 'function' && typeof props.onBlurCapture === 'function');
+    (header?.props.ref as { current: unknown }).current = { querySelector: () => ({}) };
+    document.dispatchEvent(Object.assign(new Event('keydown', { cancelable: true }), { key: 'Escape' }));
+    renderHeader();
+    expect(Boolean(productPanel())).toBe(true);
+  });
+
   it('手机通知内同路径 query 链接点击后关闭菜单、浮层并恢复滚动', () => {
     invoke(hamburger(), 'onClick', { detail: 1 });
     expect(mobilePanel()).toBeDefined();

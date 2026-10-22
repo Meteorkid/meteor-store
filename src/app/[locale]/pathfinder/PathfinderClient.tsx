@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useAuth } from '@/components/AuthProvider';
+import { assertPlanOwner, parseOwnedPlan, parseRemotePlan, planStorageKey, type OwnedPathfinderPlan } from '@/lib/pathfinder/plan-session';
 import PathfinderForm, {
   type PathfinderFormValue,
   type PathfinderProfile,
@@ -12,7 +14,6 @@ import {
   pathfinderScrollBehavior,
   parseStoredPathfinderPlan,
   type PathfinderApiResponse,
-  type StoredPathfinderPlan,
   withToggledTask,
 } from '@/lib/pathfinder/plan-view';
 import {
@@ -26,19 +27,42 @@ import {
 } from '@/lib/pathfinder/plan-edit';
 import type { PathfinderPlan } from '@/lib/pathfinder/schema';
 
-export default function PathfinderClient({
-  preferredItemId,
-  preferredItemTitle,
-  initialDirection,
-  initialGoalType,
-  locale,
-}: {
+interface PathfinderClientProps {
   preferredItemId?: string;
   preferredItemTitle?: string;
   initialDirection?: PathfinderProfile['direction'];
   initialGoalType?: PathfinderProfile['goalType'];
   locale: 'zh' | 'en';
-}) {
+}
+
+export default function PathfinderClient(props: PathfinderClientProps) {
+  const { user, loading, refresh } = useAuth();
+  const t = useTranslations('PathfinderHub.planClient');
+  const [checkingIdentity, setCheckingIdentity] = useState(false);
+  useEffect(() => {
+    let active = true;
+    let pending = false;
+    const check = () => {
+      if (document.visibilityState === 'hidden' || pending) return;
+      pending = true;
+      setCheckingIdentity(true);
+      void refresh().finally(() => { pending = false; if (active) setCheckingIdentity(false); });
+    };
+    window.addEventListener('focus', check);
+    document.addEventListener('visibilitychange', check);
+    return () => { active = false; window.removeEventListener('focus', check); document.removeEventListener('visibilitychange', check); };
+  }, [refresh]);
+  if (loading) return <p role="status" className="text-white/70">{t('loadingSaved')}</p>;
+  const userId = user?.id ?? null;
+  return <>
+    {checkingIdentity && <p role="status" className="text-white/70">{t('loadingSaved')}</p>}
+    <div hidden={checkingIdentity}>
+      <PathfinderForIdentity key={userId === null ? 'guest' : `user:${userId}`} {...props} userId={userId} />
+    </div>
+  </>;
+}
+
+function PathfinderForIdentity({ preferredItemId, preferredItemTitle, initialDirection, initialGoalType, locale, userId }: PathfinderClientProps & { userId: string | null }) {
   const t = useTranslations('PathfinderHub.planClient');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,73 +76,66 @@ export default function PathfinderClient({
    * 而 React 19 禁止在渲染期读 ref，ref 变化也不会触发重渲染。
    */
   const [profile, setProfile] = useState<PathfinderFormValue | null>(null);
-  // 登录用户以服务端为准；未登录退回浏览器本地存储
-  const signedInRef = useRef(false);
+  const lifetime = useRef({ active: true, generation: 0 });
+  const queue = useRef<Promise<void>>(Promise.resolve());
+  const pendingWrite = useRef<{ method: 'PUT' | 'DELETE'; draft: OwnedPathfinderPlan | null; importOnly: boolean } | null>(null);
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'failed'>('loading');
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
+  const [importDraft, setImportDraft] = useState<OwnedPathfinderPlan | null>(null);
+  const [localFailed, setLocalFailed] = useState(false);
   const [planValidation, setPlanValidation] = useState<{
     generatedAt: string;
     stale: boolean;
   } | null>(null);
 
   useEffect(() => {
-    const controller = new AbortController();
-    let localStored: StoredPathfinderPlan | null = null;
-    try {
-      localStored = parseStoredPathfinderPlan(
-        window.localStorage.getItem(PATHFINDER_PLAN_STORAGE_KEY),
-      );
-    } catch {
-      localStored = null;
-    }
-
-    /*
-     * 路径跟账号走，但未登录用户仍要能用，所以两处存储都保留：
-     * 服务端有就以服务端为准；服务端没有而本地有（老用户第一次登录），
-     * 把本地那份迁上去——直接丢掉等于让人凭空少一份已经在用的路径。
-     */
-    fetch('/api/pathfinder/plan/saved', { cache: 'no-store', signal: controller.signal })
-      .then((result) => (result.ok ? result.json() : null))
-      .then(async (payload) => {
-        const remote = payload?.plan ?? null;
-        signedInRef.current = payload !== null && payload !== undefined;
-
-        if (remote?.plan) {
-          setResponse({ kind: 'plan', source: 'deterministic', plan: remote.plan });
-          setCompletedTaskIds(remote.completedTaskIds ?? []);
-          setPinnedTaskIds(remote.pinnedTaskIds ?? []);
-          if (remote.profile) setProfile(remote.profile as PathfinderFormValue);
-          return;
-        }
-
-        if (localStored?.response.kind === 'plan') {
-          setResponse(localStored.response);
-          setCompletedTaskIds(localStored.completedTaskIds);
-          // 登录了但云端为空：把本地这份迁上去
-          if (signedInRef.current) {
-            await fetch('/api/pathfinder/plan/saved', {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                plan: localStored.response.plan,
-                completedTaskIds: localStored.completedTaskIds,
-                pinnedTaskIds: [],
-              }),
-            }).catch(() => undefined);
-          }
-        } else if (localStored) {
-          setResponse(localStored.response);
-          setCompletedTaskIds(localStored.completedTaskIds);
-        }
-      })
-      .catch(() => {
-        // 服务端不可用时不该让本地已有的路径也打不开
-        if (localStored) {
-          setResponse(localStored.response);
-          setCompletedTaskIds(localStored.completedTaskIds);
-        }
-      });
-
-    return () => controller.abort();
+    const state = lifetime.current;
+    state.active = true;
+    return () => { state.active = false; state.generation += 1; };
   }, []);
+
+  const applyDraft = useCallback((draft: OwnedPathfinderPlan | null) => {
+    setResponse(draft?.response ?? null);
+    setCompletedTaskIds(draft?.completedTaskIds ?? []);
+    setPinnedTaskIds(draft?.pinnedTaskIds ?? []);
+    setProfile(draft?.profile ?? null);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
+    const read = (key: string) => { try { return window.localStorage.getItem(key); } catch { return null; } };
+    const local = parseOwnedPlan(read(planStorageKey(userId)), userId);
+    const guest = userId ? parseOwnedPlan(read(planStorageKey(null)), null) : null;
+    const legacy = parseStoredPathfinderPlan(read(PATHFINDER_PLAN_STORAGE_KEY));
+    const candidate = guest ?? (legacy ? { ...legacy, version: 3 as const, userId: null, pinnedTaskIds: [], profile: null } : null);
+    const initialize = async () => {
+      await Promise.resolve();
+      try {
+        if (userId === null) {
+          if (cancelled) return;
+          applyDraft(local);
+          if (!local) setImportDraft(candidate);
+        } else {
+          const result = await fetch('/api/pathfinder/plan/saved', { cache: 'no-store', signal: controller.signal });
+          if (!result.ok) throw new Error('Saved plan unavailable');
+          const remote = parseRemotePlan(await result.json(), userId);
+          if (cancelled) return;
+          applyDraft(remote);
+          // 没有云端计划也不自动认领其他身份的草稿。
+          if (!remote) setImportDraft(local ?? candidate);
+        }
+        setLoadState('ready');
+      } catch {
+        if (cancelled) return;
+        applyDraft(local);
+        setLoadState('failed');
+      }
+    };
+    void initialize();
+    return () => { cancelled = true; controller.abort(); };
+  }, [userId, loadAttempt, applyDraft]);
 
   useEffect(() => {
     if (response?.kind !== 'plan') return;
@@ -135,7 +152,7 @@ export default function PathfinderClient({
     fetch(`/api/pathfinder/items?${params}`, { cache: 'no-store', signal: controller.signal })
       .then(async (result) => result.ok ? result.json() : null)
       .then((payload) => {
-        if (!payload || !Array.isArray(payload.items)) return;
+        if (controller.signal.aborted || !payload || !Array.isArray(payload.items)) return;
         const currentIds = new Set(payload.items.map((item: { id?: unknown }) => item.id));
         setPlanValidation({
           generatedAt,
@@ -146,40 +163,71 @@ export default function PathfinderClient({
     return () => controller.abort();
   }, [response]);
 
+  const writeCloud = useCallback((operation: NonNullable<typeof pendingWrite.current>) => {
+    if (!userId || !lifetime.current.active) return Promise.resolve(false);
+    pendingWrite.current = operation;
+    setSaveState('saving');
+    let success = false;
+    const work = queue.current.then(async () => {
+      if (!lifetime.current.active) return;
+      try {
+        const draft = operation.draft;
+        const result = await fetch('/api/pathfinder/plan/saved', {
+          method: operation.method,
+          headers: { 'Content-Type': 'application/json', 'X-Pathfinder-User': userId },
+          ...(draft?.response.kind === 'plan' ? { body: JSON.stringify({
+            plan: draft.response.plan, completedTaskIds: draft.completedTaskIds,
+            pinnedTaskIds: draft.pinnedTaskIds, profile: draft.profile, importOnly: operation.importOnly,
+          }) } : {}),
+        });
+        if (!result.ok) throw new Error('Save failed');
+        const data: unknown = await result.json();
+        assertPlanOwner(data, userId);
+        if (operation.method === 'DELETE' && data.ok !== true) throw new Error('Delete failed');
+        if (operation.method === 'PUT') parseRemotePlan(data, userId);
+        success = true;
+        if (!lifetime.current.active) return;
+        if (pendingWrite.current === operation) { pendingWrite.current = null; setSaveState('saved'); }
+      } catch {
+        if (lifetime.current.active && pendingWrite.current === operation) setSaveState('failed');
+      }
+    });
+    queue.current = work;
+    return work.then(() => success);
+  }, [userId]);
+
+  const storeLocal = useCallback((draft: OwnedPathfinderPlan) => {
+    try { window.localStorage.setItem(planStorageKey(userId), JSON.stringify(draft)); setLocalFailed(false); }
+    catch { setLocalFailed(true); }
+  }, [userId]);
+
   const persist = useCallback((
     nextResponse: PathfinderApiResponse,
     nextCompleted: string[],
     nextPinned: string[] = pinnedTaskIds,
+    nextProfile = profile,
   ) => {
-    // 本地始终写一份：未登录用户靠它，登录用户则在服务端不可用时仍能继续用
-    const stored: StoredPathfinderPlan = {
-      version: 2,
-      savedAt: new Date().toISOString(),
-      response: nextResponse,
-      completedTaskIds: nextCompleted,
-    };
-    try {
-      window.localStorage.setItem(PATHFINDER_PLAN_STORAGE_KEY, JSON.stringify(stored));
-    } catch {
-      // 隐私模式或存储配额不足时仍可在当前页面使用路径。
-    }
+    if (!lifetime.current.active || loadState !== 'ready') return;
+    const draft: OwnedPathfinderPlan = { version: 3, userId, savedAt: new Date().toISOString(),
+      response: nextResponse, completedTaskIds: nextCompleted, pinnedTaskIds: nextPinned, profile: nextProfile };
+    storeLocal(draft);
+    if (userId && nextResponse.kind === 'plan') void writeCloud({ method: 'PUT', draft, importOnly: false });
+  }, [userId, pinnedTaskIds, profile, loadState, storeLocal, writeCloud]);
 
-    if (!signedInRef.current || nextResponse.kind !== 'plan') return;
-    fetch('/api/pathfinder/plan/saved', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        plan: nextResponse.plan,
-        completedTaskIds: nextCompleted,
-        pinnedTaskIds: nextPinned,
-        // 画像只在有值时带上，服务端据此避免把已存的画像抹掉
-        ...(profile ? { profile } : {}),
-      }),
-    }).catch(() => undefined);
-  }, [pinnedTaskIds, profile]);
+  const importPrevious = async () => {
+    if (!importDraft || loadState !== 'ready' || saveState === 'saving' || loading || busyWeek !== null) return;
+    const operation = ++lifetime.current.generation;
+    const draft = { ...importDraft, userId, savedAt: new Date().toISOString() };
+    if (userId && draft.response.kind === 'plan' && !await writeCloud({ method: 'PUT', draft, importOnly: true })) return;
+    if (!lifetime.current.active || operation !== lifetime.current.generation) return;
+    storeLocal(draft);
+    applyDraft(draft);
+    setImportDraft(null);
+  };
 
   /** 用编辑后的路径整体替换当前状态，并清掉指向已消失任务的 id。 */
   const applyPlan = useCallback((nextPlan: PathfinderPlan) => {
+    if (!lifetime.current.active || loadState !== 'ready') return;
     const nextResponse: PathfinderApiResponse = {
       kind: 'plan', source: 'deterministic', plan: nextPlan,
     };
@@ -189,7 +237,7 @@ export default function PathfinderClient({
     setCompletedTaskIds(nextCompleted);
     setPinnedTaskIds(nextPinned);
     persist(nextResponse, nextCompleted, nextPinned);
-  }, [completedTaskIds, pinnedTaskIds, persist]);
+  }, [completedTaskIds, pinnedTaskIds, persist, loadState]);
 
   const currentPlan = response?.kind === 'plan' ? response.plan : null;
 
@@ -208,7 +256,7 @@ export default function PathfinderClient({
   };
 
   const editTogglePin = (taskId: string) => {
-    if (!response) return;
+    if (!response || loadState !== 'ready') return;
     setPinnedTaskIds((current) => {
       const next = withToggledPin(current, taskId);
       persist(response, completedTaskIds, next);
@@ -223,7 +271,8 @@ export default function PathfinderClient({
    * 没有画像时（老数据或未登录且没生成过）无法重跑，按钮会被禁用。
    */
   const regenerateWeek = async (weekNumber: number) => {
-    if (!currentPlan || !profile || busyWeek !== null) return;
+    if (!currentPlan || !profile || busyWeek !== null || loading || saveState === 'saving' || loadState !== 'ready') return;
+    const operation = ++lifetime.current.generation;
     setBusyWeek(weekNumber);
     setError(null);
     try {
@@ -233,6 +282,7 @@ export default function PathfinderClient({
         body: JSON.stringify({ ...profile, locale }),
       });
       const data = await result.json();
+      if (!lifetime.current.active || operation !== lifetime.current.generation) return;
       if (!result.ok || data?.kind !== 'plan') {
         setError(data?.error?.message ?? data?.error ?? t('requestError', { status: result.status }));
         return;
@@ -242,13 +292,15 @@ export default function PathfinderClient({
       if (!freshWeek) return;
       applyPlan(replaceWeekTasks(currentPlan, weekNumber, freshWeek.tasks, pinnedTaskIds));
     } catch {
-      setError(t('networkError'));
+      if (lifetime.current.active && operation === lifetime.current.generation) setError(t('networkError'));
     } finally {
-      setBusyWeek(null);
+      if (lifetime.current.active && operation === lifetime.current.generation) setBusyWeek(null);
     }
   };
 
   const submit = async (value: PathfinderFormValue) => {
+    if (loadState !== 'ready' || loading || busyWeek !== null || saveState === 'saving') return;
+    const operation = ++lifetime.current.generation;
     setLoading(true);
     setError(null);
     setResponse(null);
@@ -261,6 +313,7 @@ export default function PathfinderClient({
         body: JSON.stringify({ ...value, locale }),
       });
       const data = await result.json();
+      if (!lifetime.current.active || operation !== lifetime.current.generation) return;
       if (!result.ok) {
         setError(data?.error?.message ?? data?.error ?? t('requestError', { status: result.status }));
         return;
@@ -270,8 +323,10 @@ export default function PathfinderClient({
       setResponse(nextResponse);
       setCompletedTaskIds([]);
       setPinnedTaskIds([]);
-      persist(nextResponse, [], []);
+      persist(nextResponse, [], [], value);
+      setImportDraft(null);
       window.setTimeout(() => {
+        if (!lifetime.current.active || operation !== lifetime.current.generation) return;
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         document.getElementById('pathfinder-result')?.scrollIntoView({
           behavior: pathfinderScrollBehavior(reducedMotion),
@@ -279,14 +334,14 @@ export default function PathfinderClient({
         });
       }, 80);
     } catch {
-      setError(t('networkError'));
+      if (lifetime.current.active && operation === lifetime.current.generation) setError(t('networkError'));
     } finally {
-      setLoading(false);
+      if (lifetime.current.active && operation === lifetime.current.generation) setLoading(false);
     }
   };
 
   const toggleTask = (taskId: string) => {
-    if (!response) return;
+    if (!response || loadState !== 'ready') return;
     setCompletedTaskIds((current) => {
       const next = withToggledTask(current, taskId);
       persist(response, next, pinnedTaskIds);
@@ -295,15 +350,16 @@ export default function PathfinderClient({
   };
 
   const reset = () => {
+    if (loadState !== 'ready') return;
+    lifetime.current.generation += 1;
+    setLoading(false);
+    setBusyWeek(null);
     try {
-      window.localStorage.removeItem(PATHFINDER_PLAN_STORAGE_KEY);
+      window.localStorage.removeItem(planStorageKey(userId));
     } catch {
       // 当前页面状态仍可正常清空。
     }
-    if (signedInRef.current) {
-      // 本地清了而云端还留着的话，刷新一下路径又回来了
-      fetch('/api/pathfinder/plan/saved', { method: 'DELETE' }).catch(() => undefined);
-    }
+    if (userId) void writeCloud({ method: 'DELETE', draft: null, importOnly: false });
     setProfile(null);
     setResponse(null);
     setCompletedTaskIds([]);
@@ -316,13 +372,25 @@ export default function PathfinderClient({
 
   return (
     <div>
+      {loadState !== 'ready' && <div role="status" className="mb-5 rounded-xl border border-white/15 p-4 text-white/80">
+        {t(loadState === 'loading' ? 'loadingSaved' : 'loadFailed')}
+        {loadState === 'failed' && <button type="button" className="ml-3 min-h-11 underline" onClick={() => { setLoadState('loading'); setLoadAttempt(value => value + 1); }}>{t('retry')}</button>}
+      </div>}
+      {!response && importDraft && loadState === 'ready' && <div className="mb-5 rounded-xl border border-amber-300/20 p-4 text-white/80">
+        <p>{t('importHint')}</p><p className="mt-1 text-sm text-white/60">{t(userId ? 'importToAccount' : 'importToGuest')}</p>
+        <button type="button" disabled={saveState === 'saving' || loading || busyWeek !== null} onClick={() => void importPrevious()} className="mt-2 min-h-11 rounded-lg border border-white/20 px-4">{t('confirmImport')}</button>
+      </div>}
+      {saveState !== 'idle' && <p role="status" className="mb-4 text-sm text-white/70">{t(saveState === 'saving' ? 'saving' : saveState === 'saved' ? 'saved' : 'saveFailed')}
+        {saveState === 'failed' && <button type="button" className="ml-3 min-h-11 underline" onClick={() => { const operation = pendingWrite.current; if (operation) { if (operation.importOnly) void importPrevious(); else void writeCloud(operation); } }}>{t('retry')}</button>}
+      </p>}
+      {localFailed && <p role="status" className="mb-4 text-sm text-amber-200">{t('localFailed')}</p>}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
         <PathfinderForm
           preferredItemId={preferredItemId}
           preferredItemTitle={preferredItemTitle}
           initialDirection={initialDirection}
           initialGoalType={initialGoalType}
-          loading={loading}
+          loading={loading || busyWeek !== null || loadState !== 'ready' || saveState === 'saving'}
           onSubmit={submit}
         />
         <aside className="space-y-5">
@@ -365,7 +433,7 @@ export default function PathfinderClient({
             response={response}
             completedTaskIds={completedTaskIds}
             pinnedTaskIds={pinnedTaskIds}
-            canRegenerate={profile !== null}
+            canRegenerate={profile !== null && loadState === 'ready'}
             busyWeek={busyWeek}
             onToggleTask={toggleTask}
             onTogglePin={editTogglePin}

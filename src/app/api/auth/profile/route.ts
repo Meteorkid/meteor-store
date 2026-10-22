@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession, getSession } from '@/lib/auth';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
-import { isR2Configured, keyFromUrl, deleteAvatar } from '@/lib/avatar-storage';
+import { isR2Configured, keyFromUrl, deleteAvatar, avatarExists } from '@/lib/avatar-storage';
 
 const MAX_DATAURL_BYTES = 200_000;
 
@@ -80,22 +80,46 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: '没有要修改的内容' }, { status: 400 });
   }
 
-  // 头像被清空时，把当前指向的旧 R2 对象删掉避免堆积。
-  // 头像被替换的清理在 /api/avatar/upload 写新对象时已经做了。
-  if (updates.avatarUrl === null && isR2Configured()) {
-    const [row] = await db
-      .select({ avatarUrl: users.avatarUrl })
-      .from(users)
-      .where(eq(users.id, session.userId))
-      .limit(1);
-    if (row?.avatarUrl) {
-      // 只删本人前缀下的对象；历史遗留的外链/他人 URL 不动
-      const oldKey = keyFromUrl(row.avatarUrl, session.userId);
-      if (oldKey) await deleteAvatar(oldKey);
+  if ('avatarUrl' in updates && isR2Configured()) {
+    const newKey = updates.avatarUrl ? keyFromUrl(updates.avatarUrl, session.userId) : null;
+    let oldKey: string | null;
+    try {
+      const saved = await db.transaction(async tx => {
+        const [row] = await tx.select({ avatarUrl: users.avatarUrl }).from(users)
+          .where(eq(users.id, session.userId)).limit(1).for('update');
+        if (!row) return { error: 'account_missing' as const };
+        // 与清理共用用户行锁：旧表单须在清理完成后重新确认对象仍可用。
+        if (newKey && !await avatarExists(newKey)) return { error: 'avatar_missing' as const };
+        await tx.update(users).set(updates).where(eq(users.id, session.userId));
+        return { oldKey: row.avatarUrl ? keyFromUrl(row.avatarUrl, session.userId) : null };
+      });
+      if ('error' in saved) {
+        return NextResponse.json({ error: saved.error === 'avatar_missing' ? '头像已失效，请重新上传' : '请重新登录' },
+          { status: saved.error === 'avatar_missing' ? 409 : 401 });
+      }
+      oldKey = saved.oldKey;
+    } catch (err) {
+      console.error('profile save failed:', err);
+      return NextResponse.json({ error: '资料保存失败，请稍后重试' }, { status: 500 });
     }
-  }
 
-  await db.update(users).set(updates).where(eq(users.id, session.userId));
+    // 必须等资料事务提交后再删；重新加锁复查，保留被另一请求重新选中的旧头像。
+    if (oldKey && oldKey !== newKey) {
+      try {
+        await db.transaction(async tx => {
+          const [current] = await tx.select({ avatarUrl: users.avatarUrl }).from(users)
+            .where(eq(users.id, session.userId)).limit(1).for('update');
+          if (current && (!current.avatarUrl || keyFromUrl(current.avatarUrl, session.userId) !== oldKey)) {
+            await deleteAvatar(oldKey);
+          }
+        });
+      } catch (err) {
+        console.error('avatar cleanup skipped after profile save:', err);
+      }
+    }
+  } else {
+    await db.update(users).set(updates).where(eq(users.id, session.userId));
+  }
 
   // 重签会话时带上当前 tokenVersion，避免 getSession 误判为过期。
   // 改昵称不应踢掉其他设备，所以这里不递增 tokenVersion。

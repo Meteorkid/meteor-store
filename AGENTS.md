@@ -75,6 +75,7 @@
 - 搜索按钮、`/` 与 Cmd/Ctrl+K 打开搜索统一广播 `spotlight:open`，让手机导航先释放滚动锁和焦点；不要直接从新入口打开第二个焦点陷阱。
 - 日刊直达使用 `/daily?view=all#栏目`，只临时显示所有栏目，不写个人关注；“我关注的”移除 `view` 并保留日期。硕士日历仍是独立全年入口。
 - 私有页登录跳转使用本地化 `redirect` 和 `buildLoginHref`，保留目的地及语言。回跳白名单在 `login-return.ts`，不得放开任意 URL。
+- 学习路径游客/账号缓存分键并记录 owner；旧 v2 草稿只可显式导入。`/api/pathfinder/plan/saved` 返回 userId，PUT/DELETE核对 `X-Pathfinder-User`，所有响应 no-store；导入用原子仅新增，不能静默覆盖另一标签页保存的计划。
 - 开发静态产物不使用 immutable 缓存：文件名可复用，否则浏览器刷新仍运行旧代码。生产内容哈希资源继续长期缓存。
 - 每日 10:00 北京时间的巡检由 Codex 线程心跳负责（ID `meteor-store`），不是服务器 cron；正常静默。日刊、硕士同步、备份等服务器任务保持独立。
 
@@ -696,14 +697,14 @@ xcrun stapler validate X.dmg
 
 - **客户端不直接持有 R2 写凭证**：客户端先把 base64 上传到我们的 API，API 校验后再写 R2，
   返回公开 URL 写入 `users.avatar_url`
-- 对象 key 是 `avatars/{userId}/{内容哈希}.{ext}`，更换头像时新 key 与旧 key 不同，
-  上传成功后由 API 删除旧对象避免孤儿堆积
+- 对象 key 是 `avatars/{userId}/{内容哈希}.{ext}`；相同内容会复用同一 key。上传只暂存，不能删除当前头像。
+  资料提交在用户行锁内校验新对象存在；提交后再次锁定并复查引用，只清理不同且未被重新引用的旧 key。
 - 未配置 R2 时（`isR2Configured()` 返回 false）整体降级为 data URL 入库，开发环境可用；
   生产环境必须配齐 `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` / `R2_PUBLIC_BASE`
 - **`R2_PUBLIC_BASE` 必须和 bucket 绑定的自定义域名一致**：中间件会读取它注入 CSP `img-src` 白名单，
   profile 接口用它反解 key 来删旧对象；不一致会让头像加载被 CSP 拦截或删除接口静默失效
-- **清空头像**走 `PATCH /api/auth/profile` 传 `avatar: ""`，profile 接口负责删旧对象；
-  **替换头像**走 upload 接口，upload 接口负责删旧对象——两个入口都要管，单改一处会留孤儿
+- **清空与替换头像**都由 `PATCH /api/auth/profile` 提交后清理旧对象；清空传 `avatar: ""`。
+  `/api/avatar/upload` 不删除对象，取消上传允许留下暂存孤儿；失败或同 key 重传不得损坏已保存头像。
 - 历史存量 data URL 头像用 [scripts/migrate-avatars-to-r2.mjs](file:///Users/meteor/github/meteor-store/scripts/migrate-avatars-to-r2.mjs)
   一次性迁移：条件更新防并发覆盖，失败行下次重跑会重试
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
 interface User {
@@ -44,6 +44,8 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const identityVersion = useRef(0);
+  const identityWrites = useRef(0);
   const t = useTranslations('AuthProvider');
   const locale = useLocale();
 
@@ -61,9 +63,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 挂载时拉一次当前用户：setState 都在 .then() 异步回调里
   useEffect(() => {
     let cancelled = false;
+    const version = ++identityVersion.current;
     fetchUser().then((u) => {
       if (cancelled) return;
-      setUser(u);
+      if (version === identityVersion.current) setUser(u);
       setLoading(false);
     });
     return () => { cancelled = true; };
@@ -71,36 +74,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 对外暴露的 refresh：事件处理器可以调用，setState 在 await 之后（异步）
   const refresh = useCallback(async () => {
+    // 查询不能抢占登录/登出；否则登出完成后仍可能显示旧账号。
+    if (identityWrites.current > 0) return;
+    const version = ++identityVersion.current;
     const u = await fetchUser();
+    if (version !== identityVersion.current) return;
     setUser(u);
     setLoading(false);
   }, [fetchUser]);
 
   const login = async (email: string, password: string): Promise<AuthActionResult> => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, locale }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      if (data.code === 'EMAIL_UNVERIFIED' && typeof data.resendTicket === 'string') {
-        return {
-          error: null,
-          verification: {
-            email: email.trim().toLowerCase(),
-            resendTicket: data.resendTicket,
-          },
-        };
+    const version = ++identityVersion.current;
+    identityWrites.current += 1;
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, locale }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.code === 'EMAIL_UNVERIFIED' && typeof data.resendTicket === 'string') {
+          return {
+            error: null,
+            verification: {
+              email: email.trim().toLowerCase(),
+              resendTicket: data.resendTicket,
+            },
+          };
+        }
+        return { error: data.error || t('loginFailed') };
       }
-      return { error: data.error || t('loginFailed') };
-    }
-    // 密码验证通过但启用了 MFA：不设 user，交给表单切到验证码步骤
-    if (data.mfaRequired && typeof data.mfaTicket === 'string') {
-      return { error: null, mfa: { ticket: data.mfaTicket } };
-    }
-    setUser(data.user);
-    return { error: null };
+      // 密码验证通过但启用了 MFA：不设 user，交给表单切到验证码步骤
+      if (data.mfaRequired && typeof data.mfaTicket === 'string') {
+        return { error: null, mfa: { ticket: data.mfaTicket } };
+      }
+      if (version === identityVersion.current) { setUser(data.user); setLoading(false); }
+      return { error: null };
+    } finally { identityWrites.current -= 1; }
   };
 
   const verifyMfa = async (
@@ -108,16 +119,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     code: string,
     rememberDevice = false,
   ): Promise<AuthActionResult> => {
-    const res = await fetch('/api/auth/mfa', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      // mfaTicket 为空串时由服务端从 httpOnly cookie 取票（微信扫码重定向链路）
-      body: JSON.stringify({ mfaTicket, code, locale, rememberDevice }),
-    });
-    const data = await res.json();
-    if (!res.ok) return { error: data.error || t('loginFailed') };
-    setUser(data.user);
-    return { error: null };
+    const version = ++identityVersion.current;
+    identityWrites.current += 1;
+    try {
+      const res = await fetch('/api/auth/mfa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // mfaTicket 为空串时由服务端从 httpOnly cookie 取票（微信扫码重定向链路）
+        body: JSON.stringify({ mfaTicket, code, locale, rememberDevice }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { error: data.error || t('loginFailed') };
+      if (version === identityVersion.current) { setUser(data.user); setLoading(false); }
+      return { error: null };
+    } finally { identityWrites.current -= 1; }
   };
 
   const register = async (email: string, password: string, name?: string, captcha?: { token: string }): Promise<AuthActionResult> => {
@@ -158,8 +173,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    setUser(null);
+    const version = ++identityVersion.current;
+    identityWrites.current += 1;
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      if (version === identityVersion.current) { setUser(null); setLoading(false); }
+    } finally { identityWrites.current -= 1; }
   };
 
   return (

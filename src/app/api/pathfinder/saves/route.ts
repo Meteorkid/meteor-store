@@ -9,6 +9,8 @@ import {
   togglePathfinderSave,
 } from '@/lib/pathfinder/saves';
 
+const privateJson = (data: unknown, init?: { status: number }) => NextResponse.json(data, { ...init, headers: { 'Cache-Control': 'no-store' } });
+
 const ToggleSchema = z.object({
   itemId: z.string().min(1).max(200),
   /** 省略为切换收藏；带上时只改这条收藏的提醒开关 */
@@ -32,30 +34,30 @@ export async function GET(req: NextRequest) {
           .filter((save) => ids.includes(save.itemId))
           .map((save) => save.itemId)
       : [];
-    return NextResponse.json({
+    return privateJson({
       counts: Object.fromEntries(ids.map((id) => [id, counts[id] ?? 0])),
       saved,
     });
   }
 
-  if (!session) return NextResponse.json({ saves: [] });
-  return NextResponse.json({ saves: await listPathfinderSaves(session.userId) });
+  if (!session) return privateJson({ saves: [] });
+  return privateJson({ saves: await listPathfinderSaves(session.userId) });
 }
 
 /** 切换收藏，或改这条收藏的截止提醒开关。 */
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: '请先登录' }, { status: 401 });
+  if (!session) return privateJson({ error: '请先登录' }, { status: 401 });
 
   const ip = getClientIp(req);
   const { limited } = await rateLimit(`pathfinder-save:${session.userId}:${ip}`, 30, 60_000, {
     fallback: 'memory',
   });
-  if (limited) return NextResponse.json({ error: '操作太频繁，稍后再试' }, { status: 429 });
+  if (limited) return privateJson({ error: '操作太频繁，稍后再试' }, { status: 429 });
 
   const parsed = ToggleSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+    return privateJson({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
   if (parsed.data.remindDeadline !== undefined) {
@@ -65,10 +67,10 @@ export async function POST(req: NextRequest) {
       parsed.data.remindDeadline,
     );
     // 未收藏的条目不隐式创建收藏：那会让「关掉提醒」变成「悄悄收藏」
-    if (!updated) return NextResponse.json({ error: '尚未收藏该条目' }, { status: 404 });
-    return NextResponse.json({ saved: true, remindDeadline: parsed.data.remindDeadline });
+    if (!updated) return privateJson({ error: '尚未收藏该条目' }, { status: 404 });
+    return privateJson({ saved: true, remindDeadline: parsed.data.remindDeadline });
   }
 
   const { saved, count } = await togglePathfinderSave(parsed.data.itemId, session.userId);
-  return NextResponse.json({ saved, count });
+  return privateJson({ saved, count });
 }
