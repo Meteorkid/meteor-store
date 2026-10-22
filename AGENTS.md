@@ -591,6 +591,7 @@ bucket 完全隔离。服务层在
 - 同步由 `scripts/product-update-worker.sh` 取得 OS 文件锁后运行 Node 22 worker，逐项复核发布记录、下载校验、R2 `IfNoneMatch: '*'` 写入及完整回读；确认成功后原子切换目录，失败项保留原下载。不要直接从 API 执行大包上传。
 - 状态目录 700、文件 600，保留最近 20 份历史目录和旧 R2 对象。部署前确认没有 queued/running 任务，并备份该目录；回滚代码时同步评估版本目录。操作见 `docs/process/product-update-console.md`。数据库备份不包含这份运行目录。
 - `PRODUCT_UPDATES_DIR` 仅用于服务器路径配置或隔离测试，不能由请求传入。当前服务排队模型适用于现有单 PM2 fork；扩容前改为跨进程统一队列。
+- 进程身份通过运行时 `/proc` 探测，不能用 `process.platform` 或 `os.platform()` 分支：Turbopack 会按本地 Mac 编译目标折叠它们，导致 Linux worker 与后台读到两套身份、误报中断。修改后检查生产构建保留 `/proc`，并在 Linux 对照原生 worker 身份。
 
 #### macOS 签名与公证：**现状是没做**
 

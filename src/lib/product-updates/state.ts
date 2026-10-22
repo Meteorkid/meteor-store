@@ -14,17 +14,22 @@ export interface JobRecord {
 
 const execFileAsync = promisify(execFile);
 export async function processIdentity(pid: number): Promise<string | undefined> {
+  let boot: string;
   try {
-    if (process.platform === 'linux') {
-      const [stat, boot] = await Promise.all([
-        readFile(`/proc/${pid}/stat`, 'utf8'), readFile('/proc/sys/kernel/random/boot_id', 'utf8'),
-      ]);
-      // comm 可能含空格；最后一个右括号后才是第3列，starttime 为第22列。
-      const started = stat.slice(stat.lastIndexOf(')') + 2).split(' ')[19];
-      return started ? `${boot.trim()}:${started}` : undefined;
-    }
-    const { stdout } = await execFileAsync('ps', ['-p', String(pid), '-o', 'lstart='], { timeout: 2000 });
-    return stdout.trim() || undefined;
+    // Turbopack 会按构建机折叠 process.platform 和 os.platform()，直接探测运行时文件。
+    boot = await readFile('/proc/sys/kernel/random/boot_id', 'utf8');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return undefined;
+    try {
+      const { stdout } = await execFileAsync('ps', ['-p', String(pid), '-o', 'lstart='], { timeout: 2000 });
+      return stdout.trim() || undefined;
+    } catch { return undefined; }
+  }
+  try {
+    const stat = await readFile(`/proc/${pid}/stat`, 'utf8');
+    // comm 可能含空格；最后一个右括号后才是第3列，starttime 为第22列。
+    const started = stat.slice(stat.lastIndexOf(')') + 2).split(' ')[19];
+    return started ? `${boot.trim()}:${started}` : undefined;
   } catch { return undefined; }
 }
 
