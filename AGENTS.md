@@ -570,7 +570,7 @@ bucket 完全隔离。服务层在
 - **也不能放 `public/`**：那里完全公开，付费产品的门控就白做了，二进制进 git 还会撑大部署包
 - 对象 key 是 `releases/{productId}/{version}/{文件名}`，**带版本号**：
   已发布的构建产物不该被新版悄悄覆盖
-- **`file` 参数是下载条目 id，不是路径**：对象 key 一律由服务端从 products.ts 查出来，
+- **`file` 参数是下载条目 id，不是路径**：对象 key 一律由服务端从 products.ts 与已校验的版本目录查出来，
   客户端传什么都变不成 bucket 里的任意对象
 - **`gated: true` 必须配 `r2Key`**：挂在 GitHub/Gitee 公开链接上的「门控」是自欺欺人，
   接口宁可返回 503 也不放行。测试钉住了这条
@@ -582,6 +582,15 @@ bucket 完全隔离。服务层在
 - `DownloadCard` 里那段登录/授权判断**只是显示层**，真关卡在接口——
   安装包地址从头到尾没进过页面。这和 `/apps/{id}` 必须服务端门控不矛盾：
   那里渲染的是应用本体，藏在客户端等于没藏
+
+#### 后台检查与同步产品更新
+
+- `/admin/product-updates` 使用两步流程：先检查并保存一小时有效的快照，再点击“一键同步”。不启用定时同步，也不恢复已暂停的每日巡检。
+- 固定来源与平台位于 `src/lib/product-updates/discovery.ts`。仅处理已登记的 XIsland/XNook macOS DMG、Statux macOS 两种独立包、omnicrawl-core PyPI；npm/Web/Docker/helper Beta/Windows 预览不混入。相同版本不同 SHA 一律阻止覆盖。
+- 产品价格、`gated` 和下载 `id` 仍来自 `products.ts`。版本、SHA、私有对象 key 由 `data/product-updates/catalog.json` 严格白名单覆盖；产品页与下载 API 共用 `catalog.ts` 实时读取，无需重建。不要另加静态下载读取路径。
+- 同步由 `scripts/product-update-worker.sh` 取得 OS 文件锁后运行 Node 22 worker，逐项复核发布记录、下载校验、R2 `IfNoneMatch: '*'` 写入及完整回读；确认成功后原子切换目录，失败项保留原下载。不要直接从 API 执行大包上传。
+- 状态目录 700、文件 600，保留最近 20 份历史目录和旧 R2 对象。部署前确认没有 queued/running 任务，并备份该目录；回滚代码时同步评估版本目录。操作见 `docs/process/product-update-console.md`。数据库备份不包含这份运行目录。
+- `PRODUCT_UPDATES_DIR` 仅用于服务器路径配置或隔离测试，不能由请求传入。当前服务排队模型适用于现有单 PM2 fork；扩容前改为跨进程统一队列。
 
 #### macOS 签名与公证：**现状是没做**
 
@@ -1171,7 +1180,7 @@ pnpm build                  # 构建
 | 评论树形查询优化 | 评论量增长后服务端按层级返回,加 `parentId` 索引 |
 | /admin/comments 也加举报联动入口 | 评论量大后,目前仅 /admin/posts 有,且评论侧已有逐条举报按钮 |
 | Pass 续费流程（到期自动续/一键续费） | 当前支付宝/微信都是单次付款不是代扣,到期后是**静默失效**;提醒已上线,续费入口还没做 |
-| 发新版安装包 | 当前已上架：statux 0.4.3（非门控）、xisland 1.13.0 / xnook 1.3.16（门控）。发新版跑 `scripts/upload-release.mjs --product X --version Y --file Z --gated`，把打印的 r2Key/version/sha256 更新进 products.ts 的**现有条目**（保持 id 为 `dmg` 不变，否则产品页会同时冒出两个下载按钮）；本地 `.env.local` 缺 `R2_RELEASE_BUCKET`，跑脚本时要临时 export |
+| 发新版安装包 | 已登记产品使用后台“产品更新”检查并确认同步；实际版本以有效运行目录为准，静态基线仍为 statux 0.4.3、xisland 1.13.0、xnook 1.3.16。新增产品/平台再扩展固定来源与现有下载条目，不按文件名另造 `dmg` ID |
 | 实验室产品恢复收费 | 实验室七款想重新收费时,把 `originalPrice` 挪回 `price` 即可——但先想清楚它是否该回到主线:实验室的定位就是不收钱。`product-tracks.test.ts` 会拦住「留在 lab 却带价格」的组合 |
 
 **已完成的待办**（从上表移除,留作记录）：

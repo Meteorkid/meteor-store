@@ -34,6 +34,11 @@ function adminRoutes(): string[] {
 }
 
 describe('后台导航覆盖所有后台页面', () => {
+  it('产品更新有固定的中英文导航入口', () => {
+    expect(adminNav).toContain("href: '/admin/product-updates'");
+    expect(adminNav).toContain("locale === 'en' ? 'Product updates' : '产品更新'");
+  });
+
   it('运行监控同时有后台入口和仅管理员可见的铃铛入口', () => {
     const bell = readFileSync(path.join(root, 'components', 'NotificationBell.tsx'), 'utf-8');
     expect(adminNav).toContain("href: '/admin/monitoring'");

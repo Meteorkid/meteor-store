@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { findProduct } from '@/lib/products';
+import { getProductWithCurrentDownloads } from '@/lib/product-updates/catalog';
 import { getUserEntitlements } from '@/lib/entitlements';
 import { createSignedReleaseUrl } from '@/lib/release-storage';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
@@ -30,7 +30,7 @@ export async function GET(
 
   const fileId = new URL(request.url).searchParams.get('file') ?? '';
 
-  const product = findProduct(productId);
+  const product = await getProductWithCurrentDownloads(productId);
   const download = product?.downloads?.find((item) => item.id === fileId);
   if (!download) {
     return NextResponse.json({ error: '下载不存在' }, { status: 404 });

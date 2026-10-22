@@ -203,14 +203,14 @@ export const products: Product[] = [
     github: 'https://github.com/Meteorkid/omnicrawl',
     license: 'mit',
     quickstart: {
-      command: 'pip install omnicrawl',
+      command: 'pip install omnicrawl-core',
       note: {
-        zh: '国内可用清华镜像：pip install omnicrawl -i https://pypi.tuna.tsinghua.edu.cn/simple',
-        en: 'In China, use the Tsinghua mirror: pip install omnicrawl -i https://pypi.tuna.tsinghua.edu.cn/simple',
+        zh: '国内可用清华镜像：pip install omnicrawl-core -i https://pypi.tuna.tsinghua.edu.cn/simple',
+        en: 'In China, use the Tsinghua mirror: pip install omnicrawl-core -i https://pypi.tuna.tsinghua.edu.cn/simple',
       },
     },
     downloads: [
-      { id: 'pypi', label: { zh: 'PyPI 安装', en: 'PyPI Install' }, url: 'https://pypi.org/project/omnicrawl/', icon: 'pypi', note: { zh: '推荐，国内镜像源秒装', en: 'Recommended; fast install via China mirror' } },
+      { id: 'pypi', label: { zh: 'PyPI 安装', en: 'PyPI Install' }, url: 'https://pypi.org/project/omnicrawl-core/', icon: 'pypi', note: { zh: 'Python 3.10 及以上', en: 'Python 3.10 or later' } },
     ],
     category: 'developer',
     icon: '🕷️',

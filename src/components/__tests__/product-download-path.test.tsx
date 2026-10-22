@@ -1,9 +1,14 @@
 import type { AnchorHTMLAttributes } from 'react';
+import { mkdtemp, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
-import ProductPage from '@/app/[locale]/products/[id]/page';
+import ProductPage, { dynamic } from '@/app/[locale]/products/[id]/page';
 import LoginPage from '@/app/[locale]/login/page';
 import DownloadCard from '@/components/DownloadCard';
+import type { LocalizedProduct } from '@/data/products';
+import { readCurrentCatalog, writeCatalog } from '@/lib/product-updates/catalog';
 
 vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 vi.mock('next-intl/server', () => ({
@@ -22,7 +27,11 @@ vi.mock('@/components/Footer', () => ({ default: () => null }));
 vi.mock('@/components/ProductGallery', () => ({ default: () => null }));
 vi.mock('@/components/ProductVisual', () => ({ default: () => null }));
 vi.mock('@/components/InstallCommand', () => ({ default: () => null }));
-vi.mock('@/components/DownloadSection', () => ({ default: () => null }));
+vi.mock('@/components/DownloadSection', () => ({
+  default: ({ product }: { product: LocalizedProduct }) => (
+    <section>{product.downloads?.map((file) => <span key={file.id}>{file.version} {file.sha256}</span>)}</section>
+  ),
+}));
 vi.mock('@/components/ProductDemoEmbed', () => ({ default: () => null }));
 vi.mock('@/components/PassOwnedBadge', () => ({ default: () => null }));
 vi.mock('@/components/ProductPricingCards', () => ({ default: () => null }));
@@ -45,6 +54,29 @@ function renderDownload(productId: string, gated: boolean) {
 }
 
 describe('产品下载与登录路径', () => {
+  it('产品页运行时读取当前下载版本，无需重新构建', async () => {
+    expect(dynamic).toBe('force-dynamic');
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'product-page-catalog-'));
+    vi.stubEnv('PRODUCT_UPDATES_DIR', directory);
+    try {
+      const { revision } = await readCurrentCatalog();
+      await writeCatalog({
+        version: 1,
+        updatedAt: '2026-10-22T01:02:03.000Z',
+        downloads: { xnook: { dmg: { version: '1.4.0', sha256: 'a'.repeat(64), r2Key: 'releases/xnook/1.4.0/XNook-1.4.0.dmg' } } },
+      }, revision);
+      const html = renderToStaticMarkup(await ProductPage({
+        params: Promise.resolve({ locale: 'zh', id: 'xnook' }), searchParams: Promise.resolve({}),
+      }));
+      expect(html).toContain('1.4.0');
+      expect(html).toContain('a'.repeat(64));
+      expect(html).not.toContain('releases/');
+    } finally {
+      vi.unstubAllEnvs();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it.each([
     ['xisland', '下载 DMG'],
     ['xnook', '下载 DMG'],

@@ -13,8 +13,11 @@ import PassOwnedBadge from '@/components/PassOwnedBadge';
 import ProductPricingCards from '@/components/ProductPricingCards';
 import { getAppTrialHref } from '@/data/app-manifest';
 import { products, localizeProduct } from '@/data/products';
+import { getProductWithCurrentDownloads } from '@/lib/product-updates/catalog';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 import { routing, type Locale } from '@/i18n/routing';
+
+export const dynamic = 'force-dynamic';
 
 interface ProductPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -29,7 +32,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { locale, id } = await params;
-  const raw = products.find((item) => item.id === id);
+  const raw = await getProductWithCurrentDownloads(id);
   const t = await getTranslations({ locale, namespace: 'ProductDetailPage' });
   if (!raw) return { title: t('notFound') };
   const product = localizeProduct(raw, locale as Locale);
@@ -41,7 +44,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'ProductDetailPage' });
   const { annual } = await searchParams;
-  const raw = products.find((item) => item.id === id);
+  const raw = await getProductWithCurrentDownloads(id);
   if (!raw) notFound();
 
   const product = localizeProduct(raw, locale as Locale);

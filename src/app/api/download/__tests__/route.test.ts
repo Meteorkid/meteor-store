@@ -23,8 +23,10 @@ vi.mock('@/lib/release-storage', () => ({
  * 产品目录用夹具而不是真实数据：门控与否是逐条配置的，
  * 测试不该跟着 products.ts 的商业调整一起红。
  */
-const findProduct = vi.fn();
-vi.mock('@/lib/products', () => ({ findProduct: (id: string) => findProduct(id) }));
+const getProductWithCurrentDownloads = vi.fn();
+vi.mock('@/lib/product-updates/catalog', () => ({
+  getProductWithCurrentDownloads: (id: string) => getProductWithCurrentDownloads(id),
+}));
 
 const gatedProduct = {
   id: 'xnook',
@@ -46,7 +48,7 @@ function get(productId: string, file: string): [NextRequest, { params: Promise<{
 describe('安装包下载', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    findProduct.mockReturnValue(gatedProduct);
+    getProductWithCurrentDownloads.mockResolvedValue(gatedProduct);
     getSession.mockResolvedValue({ userId: 'u1', email: 'a@b.com' });
     getUserEntitlements.mockResolvedValue([{ productId: 'xnook' }]);
     createSignedReleaseUrl.mockResolvedValue('https://r2.example.com/signed?sig=abc');
@@ -119,6 +121,24 @@ describe('安装包下载', () => {
       'releases/xnook/1.0.0/XNook.dmg',
       'XNook.dmg',
     );
+  });
+
+  it('每次下载从动态目录取当前对象，仍按原门控验证授权', async () => {
+    getProductWithCurrentDownloads.mockResolvedValue({
+      ...gatedProduct,
+      downloads: [{ id: 'dmg', gated: true, r2Key: 'releases/xnook/1.4.0/XNook-1.4.0.dmg' }],
+    });
+    const { GET } = await import('../[productId]/route');
+    const response = await GET(...get('xnook', 'dmg'));
+    expect(response.status).toBe(302);
+    expect(getProductWithCurrentDownloads).toHaveBeenCalledWith('xnook');
+    expect(getUserEntitlements).toHaveBeenCalledWith('u1', 'a@b.com');
+    expect(createSignedReleaseUrl).toHaveBeenCalledWith('releases/xnook/1.4.0/XNook-1.4.0.dmg', 'XNook-1.4.0.dmg');
+
+    getSession.mockResolvedValue(null);
+    createSignedReleaseUrl.mockClear();
+    expect((await GET(...get('xnook', 'dmg'))).status).toBe(401);
+    expect(createSignedReleaseUrl).not.toHaveBeenCalled();
   });
 
   it('标了门控却没配 r2Key 时拒绝，不回退到公开地址', async () => {
