@@ -1,5 +1,7 @@
 'use client';
 
+import SourceLanguageNote from '@/components/SourceLanguageNote';
+
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { useLocale } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
@@ -9,7 +11,8 @@ import { defaultMastersYear, type MastersSummary } from '@/lib/masters/types';
 import { dailyChannels, DAILY_CHANNEL_IDS, isDailyHistoryDate, shiftDailyDate, type DailyEdition, type DailyPreferences } from '@/lib/daily/types';
 import EditionContent from './EditionContent';
 import DailyOverview from './DailyOverview';
-import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, dailyReadStorageKey, getDailyEditionEntries, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
+import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, dailyReadStorageKey, getDailyEditionEntries, latestDailyUpdate, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
+import { fetchDailyEditions, subscribeDailyRefresh } from './refresh';
 import { dailyText } from './text';
 
 export interface DailyHubProps {
@@ -63,10 +66,14 @@ export default function DailyHub(props: DailyHubProps) {
   return <DailyHubForIdentity key={`${identity ?? 'guest'}:${props.date}`} {...props} activeUserId={identity} />;
 }
 
-function DailyHubForIdentity({ date, today, editions, userId, activeUserId, initialPreferences, viewAll = false, loadFailed = false, preferencesFailed = false, mastersSummary = null, mastersSummaryFailed = false }: DailyHubProps & { activeUserId: string | null }) {
+function DailyHubForIdentity({ date, today, editions: initialEditions, userId, activeUserId, initialPreferences, viewAll = false, loadFailed: initialLoadFailed = false, preferencesFailed = false, mastersSummary = null, mastersSummaryFailed = false }: DailyHubProps & { activeUserId: string | null }) {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const copy = dailyText[locale];
   const router = useRouter();
+  const [editions, setEditions] = useState(initialEditions);
+  const [loadFailed, setLoadFailed] = useState(initialLoadFailed);
+  const [refreshFailed, setRefreshFailed] = useState(false);
+  const latestUpdate = latestDailyUpdate(editions);
   const needsFetch = activeUserId !== null && activeUserId !== userId;
   const [accountPreferences, setAccountPreferences] = useState<DailyPreferences | null>(needsFetch ? null : initialPreferences);
   const [preferenceStatus, setPreferenceStatus] = useState<'ready' | 'loading' | 'failed'>(needsFetch ? 'loading' : activeUserId && preferencesFailed ? 'failed' : 'ready');
@@ -85,6 +92,18 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
   const [saveError, setSaveError] = useState('');
   const [notice, setNotice] = useState('');
   const [localError, setLocalError] = useState('');
+
+  const acceptEditions = useCallback((next: DailyEdition[]) => {
+    setEditions(next);
+    setLoadFailed(false);
+    setRefreshFailed(false);
+  }, []);
+  useEffect(() => subscribeDailyRefresh(date, acceptEditions, () => setRefreshFailed(true)), [date, acceptEditions]);
+
+  const reloadContent = async () => {
+    try { acceptEditions(await fetchDailyEditions(date)); }
+    catch { setRefreshFailed(true); }
+  };
 
   useEffect(() => {
     if (!needsFetch || !activeUserId) return;
@@ -166,7 +185,10 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
       <header className="border-b border-white/10 pb-6">
         <p className="t-eyebrow text-violet-300">DAILY FRESH</p>
         <h1 className="mt-3 t-title-1 text-white">{copy.title}</h1>
-        <p className="mt-3 max-w-2xl t-body text-white/70">{copy.description}</p>
+        <p className="mt-2 max-w-2xl t-footnote text-white/70">{copy.description}</p>
+        <SourceLanguageNote locale={locale} />
+        <p className="mt-3 t-footnote text-white/60">{latestUpdate ? <>{copy.updated} <time dateTime={latestUpdate}>{new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-GB', { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(latestUpdate))}</time> · {copy.beijingTime}</> : copy.firstEdition}</p>
+        {date === today && <p className="mt-2 t-footnote text-white/60">{latestUpdate && <>{copy.firstEdition} · </>}<Link href={`/daily?date=${previousDate}${viewAll ? '&view=all' : ''}`} className="text-violet-200 underline underline-offset-4">{copy.previousEdition}</Link></p>}
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <button type="button" disabled={!isDailyHistoryDate(previousDate, today)} onClick={() => changeDate(previousDate)} aria-label={copy.previous} className={buttonClass}>←</button>
           <label className="sr-only" htmlFor="daily-date">{copy.dateLabel}</label>
@@ -223,12 +245,13 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
       </section>}
       {notice && <p className="mb-5 t-footnote text-emerald-200" role="status">{notice}</p>}
       {localError && <p className="mb-5 t-footnote text-amber-200" role="alert">{localError}</p>}
+      {refreshFailed && <p className="mb-5 t-footnote text-amber-200" role="status">{copy.refreshFailed} <button type="button" onClick={reloadContent} className="min-h-10 underline underline-offset-4">{copy.retry}</button></p>}
 
       {!loadFailed && <DailyOverview entries={editionEntries} isToday={date === today} showMasters={selectedChannels.includes('masters')} locale={locale} copy={copy} />}
 
       {loadFailed && selectedChannels.some(channel => channel !== 'masters') ? <section className="my-6 rounded-2xl border border-amber-300/20 p-7" role="alert">
         <h2 className="t-title-3 text-white">{copy.loadFailed}</h2><p className="mt-3 t-body text-white/70">{copy.loadFailedHint}</p>
-        <button type="button" onClick={() => router.refresh()} className={`${buttonClass} mt-5`}>{copy.retry}</button>
+        <button type="button" onClick={reloadContent} className={`${buttonClass} mt-5`}>{copy.retry}</button>
       </section> : selectedChannels.length === 0 ? <section className="my-6 rounded-2xl border border-white/10 px-6 py-12 text-center">
         <h2 className="t-title-3 text-white">{copy.noChannels}</h2><p className="mt-3 t-body text-white/70">{copy.noChannelsHint}</p>
         <button type="button" onClick={openSettings} className={`${buttonClass} mt-6`}>{copy.manage}</button>
@@ -245,7 +268,7 @@ function DailyHubForIdentity({ date, today, editions, userId, activeUserId, init
             <h2 id={`daily-${channel.id}-title`} className="t-title-2 text-white">{published && edition ? edition.title : channel[locale]}</h2>
             {published && edition?.summary && <p className="mt-3 t-body text-white/70">{edition.summary}</p>}
             {published && edition?.content ? <>
-              <div className="mt-7"><EditionContent key={`${edition.id}:${edition.updatedAt}`} content={edition.content} copy={copy} locale={locale} /></div>
+              <div className="mt-7"><EditionContent key={edition.id} content={edition.content} copy={copy} locale={locale} /></div>
               <button type="button" onClick={() => toggleRead(editionReadKey)} aria-pressed={isRead} className={`${buttonClass} mt-7`}>
                 {isRead ? `✓ ${copy.read} · ${copy.markUnread}` : copy.markRead}
               </button>

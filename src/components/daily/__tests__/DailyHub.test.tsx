@@ -21,6 +21,21 @@ const baseProps: DailyHubProps = {
 describe('日刊栏目深链', () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it('今日空刊显示首刊时间与保留全部视图的上一期入口', () => {
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} date={baseProps.today} viewAll />);
+    expect(html).toContain('08:40');
+    expect(html).toContain('阅读上一期');
+    expect(html).toContain('href="/daily?date=2026-10-15&amp;view=all"');
+    expect(html).not.toContain('本期内容更新于');
+  });
+
+  it('更新时间只取已发布正文，不把失败尝试当成功更新', () => {
+    const editions: DailyHubProps['editions'] = [{ id: 'papers', date: baseProps.date, channel: 'papers', status: 'published', title: 'Paper', summary: '', content: { kind: 'papers', items: [] }, sourceKey: null, publishedAt: '2026-10-15T00:40:00Z', updatedAt: '2026-10-15T01:40:00Z' }, { id: 'ai', date: baseProps.date, channel: 'ai', status: 'failed', title: '', summary: '', content: null, sourceKey: null, publishedAt: null, updatedAt: '2026-10-15T10:40:00Z' }];
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} editions={editions} viewAll />);
+    expect(html).toContain('dateTime="2026-10-15T01:40:00Z"');
+    expect(html).not.toContain('dateTime="2026-10-15T10:40:00Z"');
+  });
+
   it('全栏目深链的首屏就有每个目标，即使账号明确空选', () => {
     const preferences = { channels: [], reminders: false };
     const html = renderToStaticMarkup(<DailyHub {...baseProps} initialPreferences={preferences} viewAll />);

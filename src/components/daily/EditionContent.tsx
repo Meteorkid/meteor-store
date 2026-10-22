@@ -75,7 +75,10 @@ function formatEventTime(item: DailyLinkItem, locale: string): string | null {
   }
 }
 
-function EnglishReading({ content, copy }: { content: EnglishContent; copy: DailyCopy }) {
+function EnglishReading({ content: latestContent, copy }: { content: EnglishContent; copy: DailyCopy }) {
+  const [startedContent, setStartedContent] = useState<EnglishContent | null>(null);
+  // 作答后保留同一套课文和题目，后台补刊不能改写正在作答的题意或答案。
+  const content = startedContent ?? latestContent;
   return (
     <div className="space-y-9">
       <p className="t-footnote text-white/60">{copy.englishProvenance}</p>
@@ -102,12 +105,12 @@ function EnglishReading({ content, copy }: { content: EnglishContent; copy: Dail
           <p className="mt-3 whitespace-pre-wrap t-body text-white/70">{content.passageTranslation}</p>
         </details>}
       </section>
-      <EnglishPractice questions={content.questions} copy={copy} />
+      <EnglishPractice questions={content.questions} copy={copy} onStart={() => setStartedContent(content)} />
     </div>
   );
 }
 
-function EnglishPractice({ questions, copy }: { questions: EnglishContent['questions']; copy: DailyCopy }) {
+function EnglishPractice({ questions, copy, onStart }: { questions: EnglishContent['questions']; copy: DailyCopy; onStart: () => void }) {
   const formId = useId();
   const [answers, setAnswers] = useState<Array<number | undefined>>([]);
   const [submitted, setSubmitted] = useState<Array<number | undefined> | null>(null);
@@ -126,7 +129,7 @@ function EnglishPractice({ questions, copy }: { questions: EnglishContent['quest
               {question.options.map((option, optionIndex) => (
                 <label key={optionIndex} className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-white/10 px-4 py-3 text-sm leading-6 text-white/80 has-checked:border-violet-400/60 has-checked:bg-violet-400/10">
                   <input type="radio" name={`${formId}-${questionIndex}`} value={optionIndex} checked={answers[questionIndex] === optionIndex}
-                    className="mt-1 shrink-0 accent-violet-400" onChange={() => setAnswers(previous => { const next = [...previous]; next[questionIndex] = optionIndex; return next; })} />
+                    className="mt-1 shrink-0 accent-violet-400" onChange={() => { onStart(); setAnswers(previous => { const next = [...previous]; next[questionIndex] = optionIndex; return next; }); }} />
                   <span>{option}</span>
                 </label>
               ))}

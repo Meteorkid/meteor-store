@@ -2,6 +2,8 @@ export const dailyText = {
   zh: {
     title: '每日一新', description: '英语、论文、AI、活动、开源、竞赛、实习与申请日历，挑选今天需要的内容。',
     dateLabel: '阅读日期', previous: '前一天', next: '后一天', today: '今天', history: '北京时间 · 可回看最近 30 天',
+    updated: '本期内容更新于', beijingTime: '北京时间', firstEdition: '每天 08:40（北京时间）开始首次出刊，随后陆续补齐。', previousEdition: '阅读上一期',
+    refreshFailed: '最新内容暂未取回，当前阅读内容已保留。',
     all: '全部栏目', following: '我关注的', manage: '管理栏目', settingsTitle: '组成你的一天',
     settingsDescription: '勾选想看的栏目，保存后组成你的每日阅读页。',
     allSelected: '全选', clear: '清空', cancel: '取消', save: '保存选择', saving: '保存中…',
@@ -36,6 +38,8 @@ export const dailyText = {
   en: {
     title: 'A little new, every day', description: 'English, papers, AI, events, open source, contests, internships and admissions. Choose what matters today.',
     dateLabel: 'Reading date', previous: 'Previous day', next: 'Next day', today: 'Today', history: 'Beijing time · Last 30 days',
+    updated: 'This edition updated', beijingTime: 'Beijing time', firstEdition: 'First publication starts at 08:40 Beijing time, with more content added later.', previousEdition: 'Read the previous edition',
+    refreshFailed: 'Could not fetch the latest content. Your current reading is preserved.',
     all: 'All channels', following: 'Following', manage: 'Manage channels', settingsTitle: 'Make it your daily read',
     settingsDescription: 'Choose what you want to read, then save your selection.',
     allSelected: 'Select all', clear: 'Clear', cancel: 'Cancel', save: 'Save selection', saving: 'Saving…',

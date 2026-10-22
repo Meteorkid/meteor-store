@@ -8,10 +8,10 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
   const pathname = usePathname();
   const ref = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
-  const isQuiet = /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname) || /^\/(?:zh|en)$/.test(pathname);
+  const isQuiet = /^(?:\/(?:zh|en))?\/(?:daily|masters)(?:\/|$)/.test(pathname) || /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname) || /^\/(?:zh|en)$/.test(pathname);
 
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || isQuiet) return;
     const canvas = ref.current;
     if (!canvas) return;
 
@@ -321,7 +321,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
       window.removeEventListener('resize', resize);
       window.removeEventListener('blur', onLeave);
     };
-  }, [reduced]);
+  }, [reduced, isQuiet]);
 
   if (isQuiet) return null;
   if (reduced) return null;

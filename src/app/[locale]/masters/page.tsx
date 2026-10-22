@@ -40,7 +40,7 @@ export default async function MastersPage({ params, searchParams }: {
 
   return <div className="min-h-screen bg-black text-white">
     <Header />
-    <main className="container mx-auto px-4 pb-12 pt-28 sm:pb-16 sm:pt-32">
+    <main className="container mx-auto px-4 pb-12 pt-10 sm:pb-16 sm:pt-14">
       <MastersHub year={year} nowIso={now.toISOString()} userId={session?.userId ?? null}
         rounds={roundsResult.status === 'fulfilled' ? roundsResult.value : []}
         initialWatches={watches} watchedRounds={watchedRoundsResult.status === 'fulfilled' ? watchedRoundsResult.value : []}

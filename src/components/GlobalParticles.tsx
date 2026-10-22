@@ -2,13 +2,16 @@
 
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from '@/lib/motion';
+import { usePathname } from '@/i18n/navigation';
 
 export default function GlobalParticles() {
   const ref = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
+  const pathname = usePathname();
+  const isQuiet = /^(?:\/(?:zh|en))?\/(?:daily|masters)(?:\/|$)/.test(pathname);
 
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || isQuiet) return;
     const canvas = ref.current;
     if (!canvas) return;
 
@@ -182,9 +185,9 @@ export default function GlobalParticles() {
       window.removeEventListener('resize', resize);
       window.removeEventListener('blur', onLeave);
     };
-  }, [reduced]);
+  }, [reduced, isQuiet]);
 
-  if (reduced) return null;
+  if (reduced || isQuiet) return null;
 
   return (
     <canvas

@@ -42,14 +42,14 @@ export default function MeteorShower() {
   const reducedMotion = useReducedMotion();
   const t = useTranslations('MeteorShower');
   const tRef = useRef(t);
-  const isQuiet = /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname);
+  const isQuiet = /^(?:\/(?:zh|en))?\/(?:daily|masters)(?:\/|$)/.test(pathname) || /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname);
 
   useEffect(() => {
     tRef.current = t;
   }, [t]);
 
   useEffect(() => {
-    if (reducedMotion) return; // 安静模式：只留 CSS 渐变星空（见 return 的 fallback 层）
+    if (reducedMotion || isQuiet) return; // 安静模式：只留 CSS 渐变星空（见 return 的 fallback 层）
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -329,7 +329,7 @@ export default function MeteorShower() {
       window.removeEventListener('meteor:burst', onBurst);
       window.removeEventListener('mousemove', onMouseMove);
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, isQuiet]);
 
   if (isQuiet) return null;
 

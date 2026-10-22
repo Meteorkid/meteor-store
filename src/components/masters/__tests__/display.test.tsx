@@ -2,12 +2,40 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import RoundCard from '../RoundCard';
 import MastersSummaryCard from '../MastersSummaryCard';
+import MastersHub from '../MastersHub';
 import { mastersText } from '../text';
 import { roundFixture, watchFixture } from './fixtures';
 
-vi.mock('@/i18n/navigation', () => ({ Link: 'a' }));
+vi.mock('@/i18n/navigation', () => ({ Link: 'a', useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+vi.mock('next-intl', () => ({ useLocale: () => 'zh' }));
+vi.mock('@/components/AuthProvider', () => ({ useAuth: () => ({ user: null, loading: false }) }));
 
 describe('申请日历展示', () => {
+  it('默认展示近期有效轮次，过期轮次仍可展开并保留官方信息', () => {
+    const base = roundFixture();
+    const past = roundFixture({ id: 'past-round', details: { ...base.details, deadlineOn: '2026-10-01' } });
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[past, base]} userId={null} initialWatches={[]} watchedRounds={[]} />);
+    expect(html.indexOf(`id="round-${base.id}"`)).toBeLessThan(html.indexOf('id="round-past-round"'));
+    const closedDetails = html.match(/<details([^>]*)><summary[^>]*>已过截止或官方关闭的轮次/);
+    expect(closedDetails).not.toBeNull();
+    expect(closedDetails![1]).not.toContain('open');
+    expect(html).toContain('未来 30 天内');
+    expect(html).toContain('未来 60 天内');
+    expect(html).toContain('未来 90 天内');
+    expect(html).toContain('href="https://example.edu/admissions"');
+  });
+
+  it('同项目后续轮次默认折叠，避免挤走其他项目的临近截止', () => {
+    const near = roundFixture();
+    const later = roundFixture({ id: 'later-round', details: { ...near.details, deadlineOn: '2027-02-01' } });
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[later, near]} userId={null} initialWatches={[]} watchedRounds={[]} />);
+    const details = html.match(/<details([^>]*)><summary[^>]*>展开同项目其余 1 个轮次/);
+    expect(details).not.toBeNull();
+    expect(details![1]).not.toContain('open');
+    expect(html.indexOf(`id="round-${near.id}"`)).toBeLessThan(html.indexOf('展开同项目其余 1 个轮次'));
+    expect(html.indexOf('id="round-later-round"')).toBeGreaterThan(html.indexOf('展开同项目其余 1 个轮次'));
+  });
+
   it('rolling与轮次并列，截止已过仍保留官方入口', () => {
     const round = roundFixture();
     const html = renderToStaticMarkup(<RoundCard round={{ ...round, details: { ...round.details, rolling: true, mayCloseEarly: true } }}

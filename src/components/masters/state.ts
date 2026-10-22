@@ -12,15 +12,47 @@ export interface MastersFilters {
   subject: string;
   studyType: string;
   intake: string;
+  deadlineWindow?: 30 | 60 | 90;
 }
 
-export function filterMastersRounds(rounds: MastersRound[], filters: MastersFilters): MastersRound[] {
-  return rounds.filter(round => round.intakeYear === filters.year
+export function filterMastersRounds(rounds: MastersRound[], filters: MastersFilters, now = new Date()): MastersRound[] {
+  return rounds.filter(round => {
+    const matches = round.intakeYear === filters.year
     && (!filters.region || round.region === filters.region)
     && (!filters.school || round.details.university === filters.school)
     && (!filters.subject || round.details.subject === filters.subject)
     && (!filters.studyType || round.details.studyType === filters.studyType)
-    && (!filters.intake || round.details.intakeLabel === filters.intake));
+    && (!filters.intake || round.details.intakeLabel === filters.intake);
+    if (!matches || !filters.deadlineWindow) return matches;
+    const timing = getMastersRoundState(round, now);
+    return canExportMastersRound(round, now) && timing.daysLeft !== null && timing.daysLeft <= filters.deadlineWindow;
+  });
+}
+
+/** 使用既有日期口径排序；日期未核验或开放未知，不凭排序推断申请已开放。 */
+export function organizeMastersRounds(rounds: MastersRound[], now: Date) {
+  const rank = (round: MastersRound) => {
+    const timing = getMastersRoundState(round, now);
+    return canExportMastersRound(round, now) && timing.daysLeft !== null ? timing.daysLeft : Infinity;
+  };
+  const sorted = [...rounds].sort((first, second) => rank(first) - rank(second)
+    || (first.details.deadlineAt && second.details.deadlineAt ? Date.parse(first.details.deadlineAt) - Date.parse(second.details.deadlineAt) : 0)
+    || (first.details.deadlineOn ?? '').localeCompare(second.details.deadlineOn ?? '')
+    || first.id.localeCompare(second.id));
+  const active = sorted.filter(round => getMastersRoundState(round, now).state !== 'closed');
+  const closed = sorted.filter(round => getMastersRoundState(round, now).state === 'closed');
+  return { active: groupMastersRounds(active), closed: groupMastersRounds(closed), activeCount: active.length, closedCount: closed.length };
+}
+
+function groupMastersRounds(rounds: MastersRound[]) {
+  const groups = new Map<string, { key: string; rounds: MastersRound[] }>();
+  for (const round of rounds) {
+    const key = JSON.stringify([round.region, round.details.university, round.details.programme, round.intakeYear, round.details.intakeLabel, round.details.studyType]);
+    const group = groups.get(key) ?? { key, rounds: [] };
+    group.rounds.push(round);
+    groups.set(key, group);
+  }
+  return [...groups.values()];
 }
 
 export function assertMastersOwner(value: unknown, userId: string): asserts value is Record<string, unknown> {

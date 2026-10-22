@@ -5,6 +5,12 @@ export const DAILY_STORAGE_EVENT = 'daily-storage-changed';
 export const DAILY_PREFERENCES_EVENT = 'daily-preferences-changed';
 export const MAX_DAILY_READ_KEYS = DAILY_EDITION_CHANNEL_IDS.length * 30;
 
+export function latestDailyUpdate(editions: readonly DailyEdition[]): string | null {
+  return editions.filter(edition => edition.status === 'published' && edition.content !== null
+    && Number.isFinite(Date.parse(edition.updatedAt)))
+    .reduce<string | null>((latest, edition) => !latest || Date.parse(edition.updatedAt) > Date.parse(latest) ? edition.updatedAt : latest, null);
+}
+
 export function parseGuestPreferences(raw: string | null): DailyPreferences | null {
   if (!raw) return null;
   try {
