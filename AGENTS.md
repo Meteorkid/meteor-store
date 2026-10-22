@@ -1289,6 +1289,7 @@ pnpm build                  # 构建
 
 | 时间 | 任务 | 脚本 | node |
 |------|------|------|------|
+| 每分钟 | 健康检测与站内管理员提醒（flock保护） | `health-check.mjs` | `/usr/local/bin/node` |
 | 每小时 :27 | Pathfinder 抓取同步 | `pathfinder-sync-cron.mjs` | `/usr/local/bin/node` |
 | 每天 03:40 | 数据库备份（+ R2 异地副本） | `backup-db.sh` | — |
 | 每天 04:13 | 回查开源 issue 是否已关闭，归档失效条目 | `recheck-pathfinder-issues.mjs --apply --quiet` | **`/usr/local/bin/node`** |
@@ -1300,6 +1301,7 @@ pnpm build                  # 构建
 | 每天 09:37 | 管理员待办摘要 | `admin-digest-cron.mjs` | `/usr/local/bin/node` |
 | 每天 09:52 | Meteor Pass 到期提醒 | `pass-expiry-cron.mjs` | `/usr/local/bin/node` |
 
+- 2026-10-22 已安装分钟级健康检测；私有状态在 `data/monitoring/health.json`，目录700/文件600。连续3次失败记一次故障、恢复记一次，只有管理员接口/页面/铃铛可见，不外发消息。同机宕机期间站内提醒需恢复后查看；详见 `docs/process/monitoring.md`。
 - 上表时间均为北京时间。2026-10-15 已在广州生产机安装每日一新与硕士申请任务，
   并撤下旧 `pathfinder-digest-cron.mjs` 全站日报广播；原有 Pathfinder 抓取继续运行。
 - **迁机后 Node 调度统一使用 `/usr/local/bin/node`（22.23.2），不要恢复旧 `/usr/bin/node` 写法**。
