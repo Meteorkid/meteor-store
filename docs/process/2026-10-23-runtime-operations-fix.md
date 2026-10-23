@@ -1,6 +1,6 @@
 # 运行进程与日志轮转修复
 
-状态：仓库补丁与隔离验收完成，用户已授权分批提交并部署；生产切换正在执行，结果另补上线记录。此记录只覆盖七项修复中的第4项。
+状态：已于2026-10-23部署并完成即时生产验收，最终Next受管PID1101898；下一次自然轮转仍待观察。此记录只覆盖七项修复中的第4项。
 
 ## 变更与边界
 
@@ -58,7 +58,7 @@
 - 生产logrotate3.14使用匿名内存配置及`-d -s /dev/null`解析完整候选规则，11组日志处理、退出0、默认Nginx规则原样保留；没有落盘配置、修改状态或执行轮转。初次`/dev/stdin`因不是regular file被忽略，不计作验收。
 - 这些不是Linux生产新进程验收。正式上线后仍需执行实际受管PID/Node22/socket/环境/健康检查，查看新日志位置；等下一次自然轮转核对旧文件停止增长、新文件持续写入、PM2/Next PID不变、logrotate无异常退出。不要生产压内存、停库、伪造故障或强制轮转。
 
-本次临时隔离证据与复现脚本：`/tmp/meteor-seven-fixes-20261023/ops/`。未运行生产构建、未修改生产、未提交或推送本批代码。
+实现阶段隔离证据与复现脚本：`/tmp/meteor-seven-fixes-20261023/ops/`；该阶段未修改生产。随后发布结果如下。
 
 定向回归命令：
 
@@ -68,3 +68,11 @@ for script in deploy/preflight-runtime.sh deploy/activate-release.sh deploy/runt
 ```
 
 本批提交文件为`ecosystem.config.cjs`、两个Nginx/logrotate模板、三个部署入口（含Actions）、六个部署辅助脚本、两份ops测试与本文。临时PM2副本/daemon目录不提交；交付验收材料仅取`evidence-checksums.json`列出的脚本和脱敏结果，不打包整个临时目录。
+
+## 生产落地补充
+
+功能提交8635a30已上线。首次运行迁移目录`/var/backups/meteor-store-runtime-6jGuLCR5`保留旧pnpm注册及原日志；最终产物对齐监控release后的二次切换目录为`/var/backups/meteor-store-runtime-DWoQKxo6`，同Next路径restart、日志迁移0文件。完整发布前备份位于`/root/meteor-seven-fixes-release-20261023/`。
+
+20:23:40最终PID1101898直接持有127.0.0.1:3000，Node22.23.2；PM2/OS内存统计一致，健康三项ok、锁释放。30份日志迁移完整且当前写入正常，28份历史记录二次切换未变化；全局logrotate debug为0，默认配置/环境/cron/job/catalog未变。没有执行强制轮转、压内存或故障注入。
+
+后续自然轮转需另核reopen、PID不变和新旧日志增长，当前仍是待验证。首次完整迁移与最终运行态证据分别在上线附件`ops/postdeploy-summary.md`及最终切换报告，不将两次PID混为同一次采样。
