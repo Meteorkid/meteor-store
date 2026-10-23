@@ -33,21 +33,25 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
   const { locale, id } = await params;
   const post = await getPostById(id);
   const t = await getTranslations({ locale, namespace: 'BlogPostPage' });
-  if (!post) return { title: t('notFound') };
+  if (!post) return { title: t('notFound'), robots: { index: false, follow: false } };
 
   const session = await getSession();
   const isAuthor = !!session && session.userId === post.authorId;
-  if (post.status !== 'published' && !isAuthor) return { title: t('notFound') };
+  if (post.status !== 'published' && !isAuthor) return { title: t('notFound'), robots: { index: false, follow: false } };
 
   const section = getSectionById(post.sectionId);
+  const sourceLocale = post.locale === 'en' ? 'en' : 'zh';
+  const canonical = `${SITE_URL}/${sourceLocale}/blog/p/${post.id}`;
   return {
     title: `${post.title} | ${t('blogSuffix')}`,
     description: post.excerpt,
     // 作者预览非 published 文章时不索引
     robots: post.status === 'published' ? undefined : { index: false, follow: false },
-    alternates: section
-      ? { types: { 'application/rss+xml': `/${locale}/blog/section/${section.slug}/feed.xml` } }
-      : undefined,
+    alternates: post.status === 'published' ? {
+      canonical,
+      languages: { [sourceLocale]: canonical, 'x-default': canonical },
+      ...(section ? { types: { 'application/rss+xml': `/${locale}/blog/section/${section.slug}/feed.xml` } } : {}),
+    } : undefined,
   };
 }
 
@@ -62,6 +66,7 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
   if (!post || (post.status !== 'published' && !isAuthor)) notFound();
 
   const isPreview = post.status !== 'published';
+  const sourceLocale = post.locale === 'en' ? 'en' : 'zh';
   const section = getSectionById(post.sectionId);
   const isAdmin = !!session && isAdminSession(session);
   // 管理员或作者本人可编辑；管理员走 admin=1 路径有越权编辑能力
@@ -92,10 +97,10 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
             datePublished: post.publishedAt,
             author: { '@type': 'Person', name: post.authorName || 'Anonymous' },
             articleSection: section?.label[locale as Locale],
-            url: `${SITE_URL}/${locale}/blog/p/${post.id}`,
+            url: `${SITE_URL}/${sourceLocale}/blog/p/${post.id}`,
             mainEntityOfPage: {
               '@type': 'WebPage',
-              '@id': `${SITE_URL}/${locale}/blog/p/${post.id}`,
+              '@id': `${SITE_URL}/${sourceLocale}/blog/p/${post.id}`,
             },
           }),
         }}
@@ -202,6 +207,7 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
                 <Link
                   key={tag}
                   href={tagHref(tag)}
+                  locale={sourceLocale}
                   className="text-white/60 transition-colors duration-200 hover:text-white"
                 >
                   #{tag}

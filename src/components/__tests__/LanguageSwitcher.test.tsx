@@ -48,4 +48,27 @@ describe('语言切换保留当前位置', () => {
 
     expect(navigation.replace).toHaveBeenCalledExactlyOnceWith('/daily?view=all#open-source', { locale: 'zh' });
   });
+
+  it.each([
+    ['https://www.imagentx.top/en/blog/tag/Shared', '/blog/tag/Shared?section=tech#results'],
+    [null, '/blog/tags'],
+    ['https://outside.example/en/blog/tag/Shared', '/blog/tags'],
+    ['https://www.imagentx.top/zh/blog/tag/Shared', '/blog/tags'],
+    ['https://www.imagentx.top/en/account', '/blog/tags'],
+    ['https://user@www.imagentx.top/en/blog/tag/Shared', '/blog/tags'],
+  ])('标签页只接受真实本站目标语言候选：%s', (href, expected) => {
+    navigation.pathname = '/blog/tag/SHARED';
+    vi.stubGlobal('window', { location: { origin: 'https://www.imagentx.top', search: '?section=tech', hash: '#results' } });
+    vi.stubGlobal('document', { querySelector: () => href ? { getAttribute: () => href } : null });
+    LanguageSwitcher().props.onClick();
+    expect(navigation.replace).toHaveBeenCalledExactlyOnceWith(expected, { locale: 'en' });
+  });
+
+  it('英文标签切回真实中文候选，在本地预览也只采用本站规范地址', () => {
+    navigation.locale = 'en'; navigation.pathname = '/blog/tag/Shared';
+    vi.stubGlobal('window', { location: { origin: 'http://127.0.0.1:3000', search: '', hash: '' } });
+    vi.stubGlobal('document', { querySelector: () => ({ getAttribute: () => 'https://www.imagentx.top/zh/blog/tag/SHARED' }) });
+    LanguageSwitcher().props.onClick();
+    expect(navigation.replace).toHaveBeenCalledExactlyOnceWith('/blog/tag/SHARED', { locale: 'zh' });
+  });
 });

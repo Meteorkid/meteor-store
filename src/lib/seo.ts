@@ -25,7 +25,8 @@ export function safeJsonLd(obj: unknown): string {
  */
 export type AlternateUrls = {
   canonical: string;
-  languages: { zh: string; en: string; xDefault: string };
+  /** 内容路由必须由页面按真实文章/标签集合生成语言候选。 */
+  languages: { zh: string; en: string; xDefault: string } | null;
 };
 
 /**
@@ -55,7 +56,7 @@ export function buildAlternateUrls(pathname: string | null | undefined): Alterna
 
   return {
     canonical: `${SITE_URL}${clean}`,
-    languages: {
+    languages: /^\/blog\/(?:p|tag)\/[^/]+$/.test(suffix) ? null : {
       zh: forLocale('zh'),
       en: forLocale('en'),
       xDefault: forLocale(routing.defaultLocale),

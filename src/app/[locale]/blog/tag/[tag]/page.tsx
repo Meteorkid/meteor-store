@@ -8,6 +8,7 @@ import BlogList from '@/components/BlogList';
 import { findFeedTag, getFeedTags } from '@/data/blog-feed';
 import { getSectionBySlug } from '@/data/blog-sections';
 import { routing, type Locale } from '@/i18n/routing';
+import { SITE_URL } from '@/lib/constants';
 
 interface TagPageProps {
   params: Promise<{ locale: string; tag: string }>;
@@ -16,22 +17,29 @@ interface TagPageProps {
 
 // 构建时预渲染已有标签；投稿带来的新标签走按需渲染，审核通过时 revalidate
 export async function generateStaticParams() {
-  const tags = await getFeedTags('zh');
-  return routing.locales.flatMap((locale) =>
-    tags.map((t) => ({ locale, tag: t.label }))
-  );
+  const localizedTags = await Promise.all(routing.locales.map(async locale => {
+    const tags = await getFeedTags(locale);
+    return tags.map(tag => ({ locale, tag: tag.label }));
+  }));
+  return localizedTags.flat();
 }
 
 export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
   const { locale, tag: tagParam } = await params;
-  const tag = await findFeedTag(locale as Locale, decodeURIComponent(tagParam));
+  const localizedTags = await Promise.all(routing.locales.map(async tagLocale => ({
+    locale: tagLocale, tag: await findFeedTag(tagLocale, decodeURIComponent(tagParam)),
+  })));
+  const tag = localizedTags.find(item => item.locale === locale)?.tag;
   const t = await getTranslations({ locale, namespace: 'BlogTagPage' });
-  return tag
-    ? {
-        title: `#${tag.label} - ${t('blogSuffix')}`,
-        description: t('description', { tag: tag.label, count: tag.count }),
-      }
-    : { title: t('notFound') };
+  if (!tag) return { title: t('notFound'), robots: { index: false, follow: false } };
+  const canonical = `${SITE_URL}/${locale}${tag.href}`;
+  const languages = Object.fromEntries(localizedTags.flatMap(item =>
+    item.tag ? [[item.locale, `${SITE_URL}/${item.locale}${item.tag.href}`]] : []));
+  return {
+    title: `#${tag.label} - ${t('blogSuffix')}`,
+    description: t('description', { tag: tag.label, count: tag.count }),
+    alternates: { canonical, languages: { ...languages, 'x-default': languages.zh ?? languages.en ?? canonical } },
+  };
 }
 
 export default async function BlogTagPage({ params, searchParams }: TagPageProps) {

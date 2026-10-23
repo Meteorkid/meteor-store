@@ -28,9 +28,11 @@ export function getHelpSitemapEntries(): MetadataRoute.Sitemap {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
-  const [feedPosts, feedTags, pathfinderItems] = await Promise.all([
-    getFeedPosts('zh'),
-    getFeedTags('zh'),
+  const [localizedFeeds, pathfinderItems] = await Promise.all([
+    Promise.all(LOCALES.map(async locale => {
+      const [posts, tags] = await Promise.all([getFeedPosts(locale), getFeedTags(locale)]);
+      return { locale, posts, tags };
+    })),
     listCatalogItems(),
   ]);
 
@@ -151,19 +153,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
-  // 博客文章页面（暂时只生成中文版本）
-  const blogPostPages = feedPosts.map((post) => ({
-    url: `${BASE_URL}/zh${post.href}`,
+  // 正文语言由来源集合决定，另一种界面语言不代表新增了一篇翻译。
+  const blogPostPages = localizedFeeds.flatMap(({ locale, posts }) => posts.map((post) => ({
+    url: `${BASE_URL}/${locale}${post.href}`,
     lastModified: post.date,
     changeFrequency: 'yearly' as const,
     priority: 0.6,
     alternates: {
       languages: {
-        zh: `${BASE_URL}/zh${post.href}`,
-        en: `${BASE_URL}/en${post.href}`,
+        [locale]: `${BASE_URL}/${locale}${post.href}`,
       },
     },
-  }));
+  })));
+
+  const tagLanguages = new Map<string, Record<string, string>>();
+  for (const { locale, tags } of localizedFeeds) {
+    for (const tag of tags) {
+      const languages = tagLanguages.get(tag.key) ?? {};
+      languages[locale] = `${BASE_URL}/${locale}${tag.href}`;
+      tagLanguages.set(tag.key, languages);
+    }
+  }
 
   // 标签页面双语版本
   const tagPages = [
@@ -179,17 +189,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       },
     })),
-    ...feedTags.flatMap((tag) =>
-      LOCALES.map((locale) => ({
+    ...localizedFeeds.flatMap(({ locale, tags }) =>
+      tags.map((tag) => ({
         url: `${BASE_URL}/${locale}${tag.href}`,
         lastModified: now,
         changeFrequency: 'weekly' as const,
         priority: 0.3,
         alternates: {
-          languages: {
-            zh: `${BASE_URL}/zh${tag.href}`,
-            en: `${BASE_URL}/en${tag.href}`,
-          },
+          languages: tagLanguages.get(tag.key),
         },
       }))
     ),

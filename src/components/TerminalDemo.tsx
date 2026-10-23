@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useReducedMotion } from '@/lib/motion';
 
 interface TerminalLine {
   type: 'command' | 'output' | 'comment';
@@ -20,49 +21,67 @@ export default function TerminalDemo({ title, lines, prompt = '~$' }: TerminalDe
   const [visibleLines, setVisibleLines] = useState<number>(0);
   const [typing, setTyping] = useState('');
   const [started, setStarted] = useState(false);
+  const [run, setRun] = useState(0);
+  const [staticRun, setStaticRun] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+
+  // 本次播放一旦切为静态，偏好恢复后也不自动重播；用户可主动点 Replay。
+  if (started && reducedMotion && !staticRun) setStaticRun(true);
+
+  const start = () => {
+    setVisibleLines(0);
+    setTyping('');
+    setStaticRun(reducedMotion);
+    setStarted(true);
+    setRun((current) => current + 1);
+  };
 
   useEffect(() => {
-    if (!started) return;
+    if (!started || staticRun) return;
 
     let cancelled = false;
-    let lineIdx = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const pause = (ms: number) => new Promise<void>((resolve) => { timer = setTimeout(resolve, ms); });
 
     async function animate() {
-      for (lineIdx = 0; lineIdx < lines.length && !cancelled; lineIdx++) {
+      for (let lineIdx = 0; lineIdx < lines.length && !cancelled; lineIdx++) {
         const line = lines[lineIdx];
         const delay = line.delay ?? (line.type === 'command' ? 40 : 10);
 
         if (line.type === 'command') {
           for (let ci = 0; ci <= line.text.length && !cancelled; ci++) {
             setTyping(line.text.slice(0, ci));
-            await sleep(delay);
+            await pause(delay);
           }
+          if (cancelled) return;
           setTyping('');
         }
 
         setVisibleLines(lineIdx + 1);
 
         if (line.type === 'command') {
-          await sleep(300);
+          await pause(300);
         } else {
-          await sleep(Math.max(delay, 20));
+          await pause(Math.max(delay, 20));
         }
       }
     }
 
-    animate();
-    return () => { cancelled = true; };
-  }, [started, lines]);
+    void animate();
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [started, lines, run, staticRun]);
+
+  const displayedLines = started && staticRun ? lines.length : visibleLines;
 
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-  }, [visibleLines, typing]);
+  }, [displayedLines, typing]);
 
-  const currentLine = lines[visibleLines];
-  const isTypingCommand = started && currentLine?.type === 'command' && typing !== '';
+  const currentLine = lines[displayedLines];
+  const isTypingCommand = started && !staticRun && currentLine?.type === 'command' && typing !== '';
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/90 shadow-2xl">
@@ -76,7 +95,7 @@ export default function TerminalDemo({ title, lines, prompt = '~$' }: TerminalDe
         <span className="font-mono text-xs text-white/40">{title}</span>
         <button
           type="button"
-          onClick={() => { setStarted(false); setVisibleLines(0); setTyping(''); setTimeout(() => setStarted(true), 100); }}
+          onClick={start}
           className="text-xs text-white/30 transition-colors hover:text-white/60"
           aria-label={t('replayAria')}
         >
@@ -89,7 +108,7 @@ export default function TerminalDemo({ title, lines, prompt = '~$' }: TerminalDe
         {!started ? (
           <button
             type="button"
-            onClick={() => setStarted(true)}
+            onClick={start}
             className="flex w-full items-center justify-center gap-2 py-8 text-white/40 transition-colors hover:text-white/70"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5">
@@ -99,7 +118,7 @@ export default function TerminalDemo({ title, lines, prompt = '~$' }: TerminalDe
           </button>
         ) : (
           <>
-            {lines.slice(0, visibleLines).map((line, i) => (
+            {lines.slice(0, displayedLines).map((line, i) => (
               <div key={i} className="whitespace-pre-wrap">
                 {line.type === 'command' && (
                   <span className="text-emerald-400/70">{prompt} </span>
@@ -120,7 +139,7 @@ export default function TerminalDemo({ title, lines, prompt = '~$' }: TerminalDe
                 <span className="animate-pulse text-emerald-400">▌</span>
               </div>
             )}
-            {!isTypingCommand && visibleLines < lines.length && (
+            {!isTypingCommand && displayedLines < lines.length && (
               <div>
                 <span className="text-emerald-400/70">{prompt} </span>
                 <span className="animate-pulse text-emerald-400">▌</span>
@@ -131,8 +150,4 @@ export default function TerminalDemo({ title, lines, prompt = '~$' }: TerminalDe
       </div>
     </div>
   );
-}
-
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
 }

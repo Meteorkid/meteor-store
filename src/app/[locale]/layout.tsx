@@ -13,6 +13,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { HelpPanelProvider } from "@/components/help/HelpPanelContext";
 import { SITE_URL } from "@/lib/constants";
 import { buildAlternateUrls } from "@/lib/seo";
+import RouteAlternateLinks from "@/components/RouteAlternateLinks";
 import "../globals.css";
 
 const geistSans = localFont({
@@ -191,7 +192,6 @@ export default async function LocaleLayout({
   // 从 proxy 注入的请求头取 nonce（让内联脚本通过 CSP）与 pathname（算 canonical）
   const requestHeaders = await headers();
   const nonce = requestHeaders.get("x-nonce") ?? undefined;
-  const alternates = buildAlternateUrls(requestHeaders.get("x-pathname"));
 
   return (
     <html
@@ -200,20 +200,13 @@ export default async function LocaleLayout({
     >
       <head>
         {/*
-          canonical 与 hreflang 直接写在 <head> 里，不走 generateMetadata 的 alternates。
+          通用 canonical 与 hreflang 由客户端路由组件写入 <head>，不走 metadata 的 alternates。
           原因是 Next 的 metadata 按字段浅合并：任何页面只要声明了自己的 `alternates`
           （博客几个页面就用它挂 RSS 的 `types`），就会把布局这一层整个顶掉，
-          canonical 会**静默消失**。写在这里，页面怎么声明都盖不掉，
-          新增页面也不必记得补。
+          canonical 会静默消失。路由组件也避免持久布局保留第一次请求的地址。
+          文章/标签详情由页面按真实来源输出，不机械复制另一语言的路径。
         */}
-        {alternates && (
-          <>
-            <link rel="canonical" href={alternates.canonical} />
-            <link rel="alternate" hrefLang="zh-CN" href={alternates.languages.zh} />
-            <link rel="alternate" hrefLang="en" href={alternates.languages.en} />
-            <link rel="alternate" hrefLang="x-default" href={alternates.languages.xDefault} />
-          </>
-        )}
+        <RouteAlternateLinks initialPathname={requestHeaders.get("x-pathname")} />
         {/* DNS 预解析：提前建立外部资源连接 */}
         <link rel="dns-prefetch" href="//pub-2cd69bb8e53f47a7802ded60c1d358b0.r2.dev" />
         {/* 防闪烁：在 React 渲染前读取本地存储的玻璃透明度偏好 */}

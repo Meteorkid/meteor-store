@@ -60,12 +60,15 @@ export default async function DownloadSection({ product }: { product: LocalizedP
   if (!downloads.length) return null;
 
   const t = await getTranslations('ProductDetailPage');
+  const hintKey = downloads.every((download) => download.icon === 'pypi' || download.icon === 'npm')
+    ? 'downloadHintPackage'
+    : downloads.some((download) => download.gated) ? 'downloadHintGated' : 'downloadHint';
 
   return (
     <section id="download" className="mb-20 scroll-mt-24">
       <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Download</p>
       <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">{t('getTitle', { name: product.name })}</h2>
-      <p className="mb-8 text-gray-400">{t('downloadHint')}</p>
+      <p className="mb-8 text-gray-400">{t(hintKey)}</p>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {downloads.map((dl, i) => {

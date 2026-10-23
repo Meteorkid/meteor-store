@@ -19,12 +19,22 @@ describe('buildAlternateUrls', () => {
   it('深层路径保留后缀并只替换 locale 段', () => {
     const result = buildAlternateUrls('/en/products/statux');
     expect(result?.canonical).toBe(`${SITE_URL}/en/products/statux`);
-    expect(result?.languages.zh).toBe(`${SITE_URL}/zh/products/statux`);
-    expect(result?.languages.en).toBe(`${SITE_URL}/en/products/statux`);
+    expect(result?.languages?.zh).toBe(`${SITE_URL}/zh/products/statux`);
+    expect(result?.languages?.en).toBe(`${SITE_URL}/en/products/statux`);
+  });
+
+  it.each(['/en/blog/p/post-1', '/zh/blog/tag/Chinese', '/en/blog/tag/Three.js/'])('内容路由%s由页面决定真实语言候选', pathname => {
+    const result = buildAlternateUrls(pathname);
+    expect(result?.canonical).toBe(`${SITE_URL}${pathname.replace(/\/+$/, '')}`);
+    expect(result?.languages).toBeNull();
+  });
+
+  it.each(['/en/blog/tags', '/zh/blog/section/tech', '/en/blog/tag/example/extra'])('仅排除确切内容路由，不改变%s', pathname => {
+    expect(buildAlternateUrls(pathname)?.languages).not.toBeNull();
   });
 
   it('x-default 始终指向默认语言 zh', () => {
-    expect(buildAlternateUrls('/en/blog')?.languages.xDefault).toBe(`${SITE_URL}/zh/blog`);
+    expect(buildAlternateUrls('/en/blog')?.languages?.xDefault).toBe(`${SITE_URL}/zh/blog`);
   });
 
   it('末尾斜杠归一，避免 /zh/blog 与 /zh/blog/ 各自成为一份重复内容', () => {
@@ -51,15 +61,15 @@ describe('buildAlternateUrls', () => {
 });
 
 describe('canonical 的下发位置', () => {
-  it('只有 [locale]/layout.tsx 输出 canonical，页面不得自己再声明一份', () => {
-    // 页面级 alternates 会整个顶掉布局层的（Next 的 metadata 是浅合并），
-    // 于是任何一个页面声明 alternates.canonical 都意味着这条规则出现了两个来源。
-    // 这条测试钉住「只有一处」，避免将来两处规则漂移后搜索引擎两条都忽略。
+  it('普通页面由布局输出canonical，内容路由交给页面且不叠加两份', () => {
     const layout = readFileSync(
       join(process.cwd(), 'src/app/[locale]/layout.tsx'),
       'utf8',
     );
-    expect(layout).toContain('rel="canonical"');
-    expect(layout).toContain('hrefLang="x-default"');
+    expect(layout).toContain('<RouteAlternateLinks initialPathname={requestHeaders.get("x-pathname")} />');
+    const links = readFileSync(join(process.cwd(), 'src/components/RouteAlternateLinks.tsx'), 'utf8');
+    expect(links).toContain('rel="canonical"');
+    expect(links).toContain('hrefLang="x-default"');
+    expect(links).toContain('if (!alternates?.languages) return null');
   });
 });

@@ -13,6 +13,7 @@ import { normalizeTag, type TagSummary } from '@/data/blog-tags';
 import type { Locale } from '@/i18n/routing';
 import { useAuth } from './AuthProvider';
 import BlogTimeline from './BlogTimeline';
+import { buildLoginHref } from '@/lib/login-return';
 
 /** 排序维度：按发布时间 date，还是按内容描述的事件时间 eventDate */
 type SortDimension = 'date' | 'eventDate';
@@ -292,7 +293,7 @@ export default function BlogListClient({
           <span aria-hidden className="text-white/15">·</span>
           {/* 读完想写一篇的时候，入口该在这里 */}
           <Link
-            href={user ? '/blog/submit' : '/login'}
+            href={user ? '/blog/submit' : buildLoginHref('/blog/submit')}
             className="text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
           >
             {t('write')}

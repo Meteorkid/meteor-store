@@ -9,7 +9,7 @@ import { useReducedMotion } from '@/lib/motion';
 
 export default function ProductGallery({ product }: { product: LocalizedProduct }) {
   const t = useTranslations('ProductDetailPage');
-  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string; trigger: HTMLButtonElement } | null>(null);
   const reducedMotion = useReducedMotion();
 
   if (!product.media?.screenshots.length && !product.media?.demo) return null;
@@ -28,13 +28,13 @@ export default function ProductGallery({ product }: { product: LocalizedProduct 
         {product.media?.demo && (
           <figure
             className="group mb-5 cursor-zoom-in overflow-hidden rounded-[1.5rem] border border-violet-500/20 bg-white/[0.03] p-2 transition-colors hover:border-violet-500/40"
-            onClick={() => setLightbox({ src: product.media!.demo!, alt: t('demoAlt', { name: product.name }) })}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && setLightbox({ src: product.media!.demo!, alt: t('demoAlt', { name: product.name }) })}
-            aria-label={t('zoomAriaDemo', { name: product.name })}
           >
-            <div className="relative aspect-[16/10] overflow-hidden rounded-[1.1rem] bg-zinc-950">
+            <button
+              type="button"
+              onClick={(event) => setLightbox({ src: product.media!.demo!, alt: t('demoAlt', { name: product.name }), trigger: event.currentTarget })}
+              aria-label={t('zoomAriaDemo', { name: product.name })}
+              className="relative block aspect-[16/10] w-full overflow-hidden rounded-[1.1rem] bg-zinc-950 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
+            >
               <video
                 src={product.media.demo}
                 aria-label={t('demoAlt', { name: product.name })}
@@ -59,7 +59,7 @@ export default function ProductGallery({ product }: { product: LocalizedProduct 
                   </svg>
                 </span>
               </div>
-            </div>
+            </button>
             <figcaption className="px-3 pb-2 pt-3 text-sm text-gray-400">{t('demoAlt', { name: product.name })}</figcaption>
           </figure>
         )}
@@ -71,13 +71,13 @@ export default function ProductGallery({ product }: { product: LocalizedProduct 
               className={`group cursor-zoom-in overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-2 transition-colors hover:border-white/20 ${
                 index === 0 && product.media!.screenshots.length % 2 === 1 ? 'md:col-span-2' : ''
               }`}
-              onClick={() => setLightbox(screenshot)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && setLightbox(screenshot)}
-              aria-label={t('zoomAriaScreenshot', { alt: screenshot.alt })}
             >
-              <div className="relative aspect-[16/10] overflow-hidden rounded-[1.1rem] bg-zinc-950">
+              <button
+                type="button"
+                onClick={(event) => setLightbox({ ...screenshot, trigger: event.currentTarget })}
+                aria-label={t('zoomAriaScreenshot', { alt: screenshot.alt })}
+                className="relative block aspect-[16/10] w-full overflow-hidden rounded-[1.1rem] bg-zinc-950 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
+              >
                 <Image
                   src={screenshot.src}
                   alt={screenshot.alt}
@@ -92,7 +92,7 @@ export default function ProductGallery({ product }: { product: LocalizedProduct 
                     </svg>
                   </span>
                 </div>
-              </div>
+              </button>
               <figcaption className="px-3 pb-2 pt-3 text-sm text-gray-400">{screenshot.alt}</figcaption>
             </figure>
           ))}
@@ -100,7 +100,7 @@ export default function ProductGallery({ product }: { product: LocalizedProduct 
       </section>
 
       {lightbox && (
-        <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />
+        <ImageLightbox src={lightbox.src} alt={lightbox.alt} trigger={lightbox.trigger} onClose={() => setLightbox(null)} />
       )}
     </>
   );
