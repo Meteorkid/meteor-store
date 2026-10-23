@@ -1,0 +1,10 @@
+{
+  "head": "fc8db5e55f8d7fae3a7907a935caae9affbb458d",
+  "buildId": "build-TfctsWXpff2fKS",
+  "cleanSource": true,
+  "productionSite": "https://www.imagentx.top",
+  "fixtureMarkersAbsent": true,
+  "releaseInStaticChunks": 1,
+  "typescriptPassed": true,
+  "cacheExcludedAtPackaging": true
+}

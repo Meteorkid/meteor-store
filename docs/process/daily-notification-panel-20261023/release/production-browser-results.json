@@ -1,0 +1,459 @@
+{
+  "startedAt": "2026-10-23T15:27:57.488Z",
+  "origin": "https://www.imagentx.top",
+  "mode": "Production guest read-only; fresh isolated browser contexts; local browser preferences only",
+  "checks": [
+    {
+      "locale": "zh",
+      "width": 375,
+      "date": "2026-10-23",
+      "updatedAt": "2026-10-23T14:40:02.289Z",
+      "initialPreviewRequests": 1,
+      "totalPreviewRequests": 4,
+      "bounds": {
+        "x": 14,
+        "y": 72,
+        "width": 347,
+        "height": 623
+      },
+      "geometry": {
+        "clientWidth": 345,
+        "scrollWidth": 345
+      },
+      "detailsChecked": true,
+      "scrollable": true,
+      "englishWords": [
+        {
+          "term": "sort out",
+          "meaning": "整理；解决"
+        },
+        {
+          "term": "run out of",
+          "meaning": "用完；耗尽"
+        },
+        {
+          "term": "take turns",
+          "meaning": "轮流"
+        }
+      ],
+      "channels": [
+        {
+          "channel": "english",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22"
+        },
+        {
+          "channel": "papers",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "LongZero: Enhancing Long-Context Reasoning in LLMs from Zero Data"
+        },
+        {
+          "channel": "ai",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "2026-10-23 AI 资讯日报"
+        },
+        {
+          "channel": "events",
+          "status": "empty",
+          "totalCount": 0,
+          "previousDate": "2026-10-15"
+        },
+        {
+          "channel": "open-source",
+          "status": "published",
+          "totalCount": 1,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "Apache Spark"
+        },
+        {
+          "channel": "competitions",
+          "status": "empty",
+          "totalCount": 0,
+          "previousDate": "2026-10-21"
+        },
+        {
+          "channel": "internships",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "数据科学实习生（2027年入职）"
+        }
+      ],
+      "guestSavedOneReloaded": true,
+      "emptyPersisted": true,
+      "defaultsRestored": true,
+      "keyboardAndOutsidePassed": true,
+      "result": "passed"
+    },
+    {
+      "locale": "zh",
+      "width": 1280,
+      "date": "2026-10-23",
+      "updatedAt": "2026-10-23T14:40:02.289Z",
+      "initialPreviewRequests": 1,
+      "totalPreviewRequests": 4,
+      "bounds": {
+        "x": 680.03125,
+        "y": 58,
+        "width": 432,
+        "height": 623
+      },
+      "geometry": {
+        "clientWidth": 430,
+        "scrollWidth": 430
+      },
+      "detailsChecked": true,
+      "scrollable": true,
+      "englishWords": [
+        {
+          "term": "sort out",
+          "meaning": "整理；解决"
+        },
+        {
+          "term": "run out of",
+          "meaning": "用完；耗尽"
+        },
+        {
+          "term": "take turns",
+          "meaning": "轮流"
+        }
+      ],
+      "channels": [
+        {
+          "channel": "english",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22"
+        },
+        {
+          "channel": "papers",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "LongZero: Enhancing Long-Context Reasoning in LLMs from Zero Data"
+        },
+        {
+          "channel": "ai",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "2026-10-23 AI 资讯日报"
+        },
+        {
+          "channel": "events",
+          "status": "empty",
+          "totalCount": 0,
+          "previousDate": "2026-10-15"
+        },
+        {
+          "channel": "open-source",
+          "status": "published",
+          "totalCount": 1,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "Apache Spark"
+        },
+        {
+          "channel": "competitions",
+          "status": "empty",
+          "totalCount": 0,
+          "previousDate": "2026-10-21"
+        },
+        {
+          "channel": "internships",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "数据科学实习生（2027年入职）"
+        }
+      ],
+      "guestSavedOneReloaded": true,
+      "emptyPersisted": true,
+      "defaultsRestored": true,
+      "keyboardAndOutsidePassed": true,
+      "result": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 375,
+      "date": "2026-10-23",
+      "updatedAt": "2026-10-23T14:40:02.289Z",
+      "initialPreviewRequests": 1,
+      "totalPreviewRequests": 4,
+      "bounds": {
+        "x": 14,
+        "y": 72,
+        "width": 347,
+        "height": 623
+      },
+      "geometry": {
+        "clientWidth": 345,
+        "scrollWidth": 345
+      },
+      "detailsChecked": true,
+      "scrollable": true,
+      "englishWords": [
+        {
+          "term": "sort out",
+          "meaning": "整理；解决"
+        },
+        {
+          "term": "run out of",
+          "meaning": "用完；耗尽"
+        },
+        {
+          "term": "take turns",
+          "meaning": "轮流"
+        }
+      ],
+      "channels": [
+        {
+          "channel": "english",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22"
+        },
+        {
+          "channel": "papers",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "LongZero: Enhancing Long-Context Reasoning in LLMs from Zero Data"
+        },
+        {
+          "channel": "ai",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "2026-10-23 AI 资讯日报"
+        },
+        {
+          "channel": "events",
+          "status": "empty",
+          "totalCount": 0,
+          "previousDate": "2026-10-15"
+        },
+        {
+          "channel": "open-source",
+          "status": "published",
+          "totalCount": 1,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "Apache Spark"
+        },
+        {
+          "channel": "competitions",
+          "status": "empty",
+          "totalCount": 0,
+          "previousDate": "2026-10-21"
+        },
+        {
+          "channel": "internships",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "数据科学实习生（2027年入职）"
+        }
+      ],
+      "guestSavedOneReloaded": true,
+      "emptyPersisted": true,
+      "defaultsRestored": true,
+      "keyboardAndOutsidePassed": true,
+      "result": "passed"
+    },
+    {
+      "locale": "en",
+      "width": 1280,
+      "date": "2026-10-23",
+      "updatedAt": "2026-10-23T14:40:02.289Z",
+      "initialPreviewRequests": 1,
+      "totalPreviewRequests": 4,
+      "bounds": {
+        "x": 652.203125,
+        "y": 58,
+        "width": 432,
+        "height": 623
+      },
+      "geometry": {
+        "clientWidth": 430,
+        "scrollWidth": 430
+      },
+      "detailsChecked": true,
+      "scrollable": true,
+      "englishWords": [
+        {
+          "term": "sort out",
+          "meaning": "整理；解决"
+        },
+        {
+          "term": "run out of",
+          "meaning": "用完；耗尽"
+        },
+        {
+          "term": "take turns",
+          "meaning": "轮流"
+        }
+      ],
+      "channels": [
+        {
+          "channel": "english",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22"
+        },
+        {
+          "channel": "papers",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "LongZero: Enhancing Long-Context Reasoning in LLMs from Zero Data"
+        },
+        {
+          "channel": "ai",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "2026-10-23 AI 资讯日报"
+        },
+        {
+          "channel": "events",
+          "status": "empty",
+          "totalCount": 0,
+          "previousDate": "2026-10-15"
+        },
+        {
+          "channel": "open-source",
+          "status": "published",
+          "totalCount": 1,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "Apache Spark"
+        },
+        {
+          "channel": "competitions",
+          "status": "empty",
+          "totalCount": 0,
+          "previousDate": "2026-10-21"
+        },
+        {
+          "channel": "internships",
+          "status": "published",
+          "totalCount": 3,
+          "previousDate": "2026-10-22",
+          "sampleTitle": "数据科学实习生（2027年入职）"
+        }
+      ],
+      "guestSavedOneReloaded": true,
+      "emptyPersisted": true,
+      "defaultsRestored": true,
+      "keyboardAndOutsidePassed": true,
+      "result": "passed"
+    }
+  ],
+  "console": [],
+  "pageErrors": [],
+  "staticFailures": [],
+  "blockedWrites": [],
+  "suppressedTelemetry": [
+    {
+      "locale": "zh",
+      "width": 375,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "zh",
+      "width": 375,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "zh",
+      "width": 375,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "zh",
+      "width": 375,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "zh",
+      "width": 1280,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "zh",
+      "width": 1280,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "zh",
+      "width": 1280,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "zh",
+      "width": 1280,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "en",
+      "width": 375,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "en",
+      "width": 375,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "en",
+      "width": 375,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "en",
+      "width": 375,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "en",
+      "width": 1280,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "en",
+      "width": 1280,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "en",
+      "width": 1280,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "locale": "en",
+      "width": 1280,
+      "method": "POST",
+      "path": "/api/online/heartbeat"
+    }
+  ],
+  "complete": true,
+  "finishedAt": "2026-10-23T15:28:37.387Z"
+}

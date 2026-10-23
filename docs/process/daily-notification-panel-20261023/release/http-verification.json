@@ -1,0 +1,128 @@
+{
+  "at": "2026-10-23T15:23:09.896Z",
+  "checksPassed": 10,
+  "health": "healthy",
+  "date": "2026-10-23",
+  "previewBytes": 6948,
+  "previewMatchesPublicEdition": true,
+  "privateUnauthorizedNoStore": true,
+  "channels": [
+    {
+      "channel": "english",
+      "status": "published",
+      "count": 3
+    },
+    {
+      "channel": "papers",
+      "status": "published",
+      "count": 3
+    },
+    {
+      "channel": "ai",
+      "status": "published",
+      "count": 3
+    },
+    {
+      "channel": "events",
+      "status": "empty",
+      "count": 0
+    },
+    {
+      "channel": "open-source",
+      "status": "published",
+      "count": 1
+    },
+    {
+      "channel": "competitions",
+      "status": "empty",
+      "count": 0
+    },
+    {
+      "channel": "internships",
+      "status": "published",
+      "count": 3
+    }
+  ],
+  "http": [
+    {
+      "path": "/api/health",
+      "status": 200,
+      "headers": {
+        "cache": null,
+        "type": "application/json"
+      }
+    },
+    {
+      "path": "/api/daily/preview",
+      "status": 200,
+      "headers": {
+        "cache": "public, max-age=30, stale-while-revalidate=30",
+        "type": "application/json"
+      }
+    },
+    {
+      "path": "/api/daily",
+      "status": 200,
+      "headers": {
+        "cache": "public, max-age=30, stale-while-revalidate=30",
+        "type": "application/json"
+      }
+    },
+    {
+      "path": "/api/daily/panel-preferences",
+      "status": 401,
+      "headers": {
+        "cache": "no-store",
+        "type": "application/json"
+      }
+    },
+    {
+      "path": "/api/daily/preferences",
+      "status": 401,
+      "headers": {
+        "cache": "no-store",
+        "type": "application/json"
+      }
+    },
+    {
+      "path": "/api/daily/preview?date=2099-01-01",
+      "status": 400,
+      "headers": {
+        "cache": "no-store",
+        "type": "application/json"
+      }
+    },
+    {
+      "path": "/zh",
+      "status": 200,
+      "headers": {
+        "cache": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "type": "text/html; charset=utf-8"
+      }
+    },
+    {
+      "path": "/en",
+      "status": 200,
+      "headers": {
+        "cache": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "type": "text/html; charset=utf-8"
+      }
+    },
+    {
+      "path": "/zh/daily",
+      "status": 200,
+      "headers": {
+        "cache": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "type": "text/html; charset=utf-8"
+      }
+    },
+    {
+      "path": "/en/daily",
+      "status": 200,
+      "headers": {
+        "cache": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "type": "text/html; charset=utf-8"
+      }
+    }
+  ]
+}

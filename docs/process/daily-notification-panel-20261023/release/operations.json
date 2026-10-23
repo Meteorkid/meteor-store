@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-10-23T23:24:30.563873+08:00",
+  "sourceHead": "fc8db5e55f8d7fae3a7907a935caae9affbb458d",
+  "buildId": "build-TfctsWXpff2fKS",
+  "artifactRelease": {
+    "fc8db5e55f8d7fae3a7907a935caae9affbb458d": 1
+  },
+  "apps": [
+    {
+      "name": "meteor-store",
+      "pid": 1115002,
+      "status": "online",
+      "script": "/var/www/meteor-store/node_modules/next/dist/bin/next",
+      "cwd": "/var/www/meteor-store",
+      "interpreter": "/usr/local/bin/node",
+      "exe": "/usr/local/lib/nodejs/node-v22.23.2-linux-x64/bin/node",
+      "args": [
+        "start",
+        "--hostname",
+        "127.0.0.1",
+        "--port",
+        "3000"
+      ],
+      "uptimeMs": 1792768972922,
+      "restarts": 0,
+      "rssFromPm2": 648888320,
+      "rssFromProc": 648888320,
+      "ownsLoopback3000": true
+    }
+  ],
+  "locksReleased": true,
+  "health": {
+    "httpStatus": 200,
+    "status": "healthy",
+    "checks": {
+      "self": "ok",
+      "database": "ok",
+      "redis": "ok"
+    }
+  },
+  "monitoring": {
+    "checkedAt": "2026-10-23T15:24:02.071Z",
+    "status": "healthy",
+    "consecutiveFailures": 0
+  },
+  "rollbackChains": [
+    {
+      "path": "/var/backups/meteor-store-runtime-6jGuLCR5",
+      "mode": "0o700",
+      "oldBuildExists": true,
+      "pm2SnapshotExists": true,
+      "snapshotMode": "0o600"
+    },
+    {
+      "path": "/var/backups/meteor-store-runtime-D34VzFAF",
+      "mode": "0o700",
+      "oldBuildExists": true,
+      "pm2SnapshotExists": true,
+      "snapshotMode": "0o600",
+      "logMigration": {
+        "status": "moved",
+        "fileCount": 0
+      }
+    },
+    {
+      "path": "/var/backups/meteor-store-runtime-DWoQKxo6",
+      "mode": "0o700",
+      "oldBuildExists": true,
+      "pm2SnapshotExists": true,
+      "snapshotMode": "0o600"
+    }
+  ],
+  "rollbackPointer": "/var/backups/meteor-store-runtime-D34VzFAF/next-before",
+  "cronMatchesBackup": true,
+  "envJobCatalogUnchanged": true
+}

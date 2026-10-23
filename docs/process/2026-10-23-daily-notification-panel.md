@@ -1,6 +1,6 @@
 # 2026-10-23 每日内容公告面板
 
-状态：实现及隔离验收完成；**未提交、未部署，0050未在生产执行**。
+状态：**2026-10-23 23:22（北京时间）已部署上线，0050生产迁移完成。** 用户明确授权提交与部署；功能提交`fc8db5e55f8d7fae3a7907a935caae9affbb458d`，BUILD_ID `build-TfctsWXpff2fKS`。
 
 ## 交付行为
 
@@ -45,3 +45,20 @@
 5. 应用异常可切回已备份版本；保留新增两列及用户设置，不做DROP回滚，不恢复整库覆盖新写入。
 
 原始可复现脚本和临时环境保留于`/tmp/meteor-daily-notice-20261023/`，可能随系统清理；稳定结果、源码哈希和截图已归档到本目录；归档日志已移除进度回车、行尾空白与多余末尾空行，原始日志仍在临时目录。
+
+
+## 生产上线与复验
+
+- 只提交本批46个文件，工作区同时进行的Ex-Memory改动未提交、未覆盖。GitHub、Gitee、GitLab功能版本均同步到`fc8db5e`。
+- 从该提交的干净副本，使用生产公开配置重新构建；不复制旧本地.env，不连接历史Neon或测试库。正式构建包含完整TypeScript检查；发布前确认没有夹具词句、3183地址或隔离密钥，Sentry release与提交一致。原工作区.next未覆盖，上传包排除cache/dev。
+- 在既有部署锁与下载worker锁内先备份，再拉取精确提交、安装锁定依赖、事务迁移，最后由项目activate-release切应用。0050的两列和迁移账本在单PG连接的同一事务中完成；锁等待5秒、语句30秒。旧偏好字段在表锁内迁移前后指纹相同，未回填或改写。
+- 生产Drizzle账本51条逐一核对SQL SHA256和journal.when通过。新列jsonb/text均nullable，无默认值；没有改生产用户面板设置。
+- 新备份`/root/meteor-daily-panel-release-20261023/`保留旧源码、产物与数据库。dump为504425字节、38张表数据目录可解析且关键表齐全；R2上传后对象大小回读一致，未执行整库恢复演练。运行回滚目录`/var/backups/meteor-store-runtime-D34VzFAF`，两条更早回滚链也保留。
+- 生产运行PID1115002直接持有127.0.0.1:3000，PM2与/proc内存统计一致。self/database/redis健康，分钟监控healthy、连续失败0；部署锁已释放，env、crontab和下载worker状态指纹不变。
+- **线上10项HTTP/内容检查通过**：预览与完整日刊逐栏核对一致，响应6948字节；英语3词、论文3条、AI3条、开源1条、实习3条已发布，活动/竞赛暂无新内容。未登录设置接口401且no-store，非法日期400；中英首页/日刊可访问。
+- **真实Chrome线上4组交互通过**（中英×375/1280）：今日词组`sort out / run out of / take turns`、释义、例句/翻译，其他标题摘要，游客1条/空选/恢复默认、重载保持、触摸、滚动、Escape与焦点恢复、外点关闭。最终0 pageerror、0 console error/warning、0 JS/CSS加载失败、0业务写请求。
+- 首次浏览器脚本将网站既有在线人数heartbeat也判成业务写入，四组交互实际完成但总判定失败。随后只在验收浏览器中为heartbeat返回模拟成功，继续拦截其他写请求，复验通过；没有修改网站源码或生产在线统计。账号跨设备与冲突保存已在真实Next+独立PG验证，生产复验未写真实账号偏好，实体手机/Safari/Firefox仍未测。
+
+[生产API证据](daily-notification-panel-20261023/release/http-verification.json) · [生产浏览器证据](daily-notification-panel-20261023/release/production-browser-results.json) · [数据库复验](daily-notification-panel-20261023/release/db-final.md) · [运行状态](daily-notification-panel-20261023/release/operations.json) · [线上手机截图](daily-notification-panel-20261023/release/zh-375-content.png)
+
+上线记录后续文档提交不重新构建；功能产物持续对应fc8db5e，避免把文档同步误记为第二次功能发布。
