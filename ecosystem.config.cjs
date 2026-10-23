@@ -2,15 +2,16 @@
 // 用法：pm2 start ecosystem.config.cjs（或由 deploy.sh 自动 reload）
 //
 // 说明：
-// - 用 `pnpm start`（即 next start）而非 standalone，避免 sharp/静态资源拷坑，最省事
+// - 直接管理 next start 的 Node 进程，让内存阈值覆盖实际服务而不是 pnpm 包装进程
 // - cwd 指向项目根，next start 会自动加载根目录的 .env.production（NODE_ENV=production）
 // - 启动命令显式传入 --hostname 127.0.0.1，Next 只监听回环地址，由本机 Nginx 反代
 module.exports = {
   apps: [
     {
       name: 'meteor-store',
-      script: 'pnpm',
-      args: 'start',
+      script: `${__dirname}/node_modules/next/dist/bin/next`,
+      args: ['start', '--hostname', '127.0.0.1', '--port', '3000'],
+      interpreter: '/usr/local/bin/node',
       cwd: __dirname,
       instances: 1,
       exec_mode: 'fork',

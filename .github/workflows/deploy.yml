@@ -37,7 +37,7 @@ jobs:
 
       - name: Package .next
         run: |
-          tar -czf /tmp/meteor-store-next.tar.gz -C . .next
+          tar -czf /tmp/meteor-store-next.tar.gz --exclude='.next/dev' --exclude='.next/cache' -C . .next deploy/preflight-runtime.sh
           echo "产物 $(du -h /tmp/meteor-store-next.tar.gz | cut -f1)"
 
       # scp-action 的 target 是远端「目录」而非文件名：它会把 source 打包后解压进该目录。
@@ -77,6 +77,9 @@ jobs:
             cd /var/www/meteor-store
             # 确认上传的产物已就位
             test -f meteor-store-next.tar.gz
+            PREFLIGHT_SCRIPT=$(tar -xOf meteor-store-next.tar.gz deploy/preflight-runtime.sh)
+            source /dev/stdin <<< "$PREFLIGHT_SCRIPT"
+            unset PREFLIGHT_SCRIPT
             # 直连 GitHub 官方源，不用第三方镜像（可投毒的供应链中间人）
             git remote set-url origin git@github.com:Meteorkid/meteor-store.git 2>/dev/null || true
             pull_succeeded=0
@@ -94,11 +97,4 @@ jobs:
             fi
             # 安装失败必须终止部署——带着旧 node_modules 跑新产物是未定义行为
             pnpm install --frozen-lockfile
-            pm2 stop meteor-store 2>/dev/null || true
-            rm -rf .next.rollback
-            if [[ -d .next ]]; then mv .next .next.rollback; fi
-            tar -xzf meteor-store-next.tar.gz
-            rm -f meteor-store-next.tar.gz
-            pm2 restart meteor-store --update-env
-            pm2 save
-            echo "==> 部署完成，BUILD_ID: $(cat .next/BUILD_ID)"
+            bash deploy/activate-release.sh meteor-store-next.tar.gz

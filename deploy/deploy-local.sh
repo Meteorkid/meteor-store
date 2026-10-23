@@ -65,7 +65,7 @@ rm -f "$TAR"
 #     实测后果：部署后第一次调用日报通知接口返回 no-digest——快照里有数据库
 #     来源的条目（守卫因此不触发）却没有日报。
 #     排除之后服务器冷启动自行从真实库重建，这也正是下面「预热」那步一直假设的状态。
-COPYFILE_DISABLE=1 tar -czf "$TAR" --no-xattrs --exclude='.next/dev' --exclude='.next/cache' -C . .next
+COPYFILE_DISABLE=1 tar -czf "$TAR" --no-xattrs --exclude='.next/dev' --exclude='.next/cache' -C . .next deploy/preflight-runtime.sh
 echo "   产物 $(du -h "$TAR" | cut -f1)"
 
 echo "==> 3. 上传 .next 到服务器"
@@ -75,6 +75,10 @@ echo "==> 4. 服务器同步源码 + 替换 .next + 重启 PM2"
 ssh "${SSH_OPTS[@]}" "$SERVER" bash -s <<'REMOTE'
 set -euo pipefail
 cd /var/www/meteor-store
+# 从已上传包读取守卫，首次升级也在git pull前保护现有worker；不向工作区写bootstrap。
+PREFLIGHT_SCRIPT=$(tar -xOf .next.tar.gz deploy/preflight-runtime.sh)
+source /dev/stdin <<< "$PREFLIGHT_SCRIPT"
+unset PREFLIGHT_SCRIPT
 # 直连 GitHub 官方源，走 SSH。不用第三方镜像（如 ghfast.top）：镜像可投毒，
 # 服务器会执行仓库里的代码与安装脚本，等于把供应链交给陌生中间人。
 #
@@ -99,44 +103,8 @@ if [[ "$pull_succeeded" != "1" ]]; then
 fi
 # 安装失败必须终止部署——带着旧 node_modules 跑新产物是未定义行为
 pnpm install --frozen-lockfile
-# 安装/更新 logrotate 配置（公安备案：日志留存 ≥ 60 天）—— root 权限走 sudo
-# logrotate.conf 指向 /var/log/meteor-store/pm2-*.log，目录不存在的话 PM2 写不进去，
-# missingok 会让 logrotate 静默跳过，于是日志留存这项直接落空。
-sudo mkdir -p /var/log/meteor-store
-sudo cp deploy/logrotate.conf /etc/logrotate.d/imagentx.top
-# 同步 nginx 配置（含日志格式声明）—— root 权限走 sudo
-#
-# **先备份再覆盖**：nginx -t 只能校验「已经装好的整份配置」，没法预检一个游离文件
-# （conf.d 的 include 是 *.conf，改名放进去根本不会被读到）。所以必须先落到位再校验，
-# 那就得自己保证校验失败时能把旧配置放回去——否则线上配置已被覆盖，
-# 下一次 reload 或机器重启时 nginx 直接起不来。
-NGINX_CONF=/etc/nginx/conf.d/imagentx.top.conf
-sudo cp -f "$NGINX_CONF" "$NGINX_CONF.bak" 2>/dev/null || true
-sudo cp deploy/nginx.conf "$NGINX_CONF"
-if sudo nginx -t; then
-  sudo nginx -s reload
-else
-  echo "ERROR: 新的 nginx 配置校验失败，已回滚到上一版" >&2
-  if [[ -f "$NGINX_CONF.bak" ]]; then
-    sudo cp -f "$NGINX_CONF.bak" "$NGINX_CONF"
-    sudo nginx -t && sudo nginx -s reload
-  fi
-  exit 1
-fi
-# 停止 PM2 释放内存，备份旧产物，解压新产物
-pm2 stop meteor-store 2>/dev/null || true
-rm -rf .next.rollback
-if [[ -d .next ]]; then mv .next .next.rollback; fi
-tar -xzf .next.tar.gz
-# 构建机可能使用 umask 077；nginx 需要遍历并读取公开静态目录，否则页面仅剩无交互的服务端正文。
-# 只调整对外资源，server/cache 等非公开产物不放宽权限。
-chmod 755 .next
-find .next/static -type d -exec chmod 755 {} +
-find .next/static -type f -exec chmod 644 {} +
-rm -f .next.tar.gz
-pm2 restart meteor-store --update-env
-pm2 save
-echo "==> 部署完成，BUILD_ID: $(cat .next/BUILD_ID)"
+# 与Actions共用激活：私有备份、日志迁移/全局校验、真实Next进程切换及失败回滚。
+bash deploy/activate-release.sh .next.tar.gz
 REMOTE
 
 echo "==> 验证"

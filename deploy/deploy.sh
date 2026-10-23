@@ -18,10 +18,14 @@ if ! flock -n 9; then
   echo "ERROR: 已有部署在进行，拒绝重叠构建" >&2
   exit 1
 fi
+export METEOR_DEPLOY_LOCK_HELD=1
+source "$APP_DIR/deploy/preflight-runtime.sh"
 
 BUILD_STARTED=0
 ROLLBACK_READY=0
 DEPLOY_FINISHED=0
+PREVIOUS_ROLLBACK=0
+source "$APP_DIR/deploy/runtime-common.sh"
 
 restore_previous_build() {
   local status=$?
@@ -35,10 +39,10 @@ restore_previous_build() {
         mv "$ROLLBACK_DIR" "$APP_DIR/.next"
       fi
     fi
-    pm2 reload "$APP_DIR/ecosystem.config.cjs" --update-env 2>/dev/null \
-      || pm2 start "$APP_DIR/ecosystem.config.cjs" 2>/dev/null \
-      || true
-    pm2 save >/dev/null 2>&1 || true
+    if [[ "$PREVIOUS_ROLLBACK" == "1" ]]; then
+      mv "$METEOR_RUNTIME_BACKUP/previous-next-rollback" "$ROLLBACK_DIR"
+    fi
+    meteor_restore_runtime || status=1
   fi
 
   if [[ "$status" -eq 0 && "$DEPLOY_FINISHED" != "1" ]]; then
@@ -59,6 +63,7 @@ if [[ ! -f "$ENV_FILE" ]]; then
 fi
 
 echo "==> git pull"
+meteor_prepare_runtime
 # 直连 GitHub 官方源（不用第三方镜像——镜像可投毒，服务器会执行仓库代码）
 git remote set-url origin git@github.com:Meteorkid/meteor-store.git 2>/dev/null || true
 pull_succeeded=0
@@ -77,14 +82,18 @@ fi
 
 echo "==> pnpm install"
 pnpm install --frozen-lockfile
+meteor_install_runtime_config
 
 echo "==> 停止 PM2（释放内存给构建）"
-pm2 stop meteor-store 2>/dev/null || true
+meteor_stop_runtime
 sync && echo 3 > /proc/sys/vm/drop_caches
 
 echo "==> pnpm build"
 # 保留上一份完整产物；新构建失败时 EXIT trap 会自动恢复并重启 PM2。
-rm -rf "$ROLLBACK_DIR"
+if [[ -d "$ROLLBACK_DIR" ]]; then
+  mv "$ROLLBACK_DIR" "$METEOR_RUNTIME_BACKUP/previous-next-rollback"
+  PREVIOUS_ROLLBACK=1
+fi
 if [[ -d .next ]]; then
   mv .next "$ROLLBACK_DIR"
   ROLLBACK_READY=1
@@ -97,12 +106,9 @@ export NODE_OPTIONS="--max-old-space-size=1024"
 SKIP_TYPE_CHECK=1 pnpm build
 
 echo "==> 启动 PM2"
-pm2 reload ecosystem.config.cjs --update-env 2>/dev/null || pm2 start ecosystem.config.cjs
+unset NODE_OPTIONS
+meteor_activate_runtime
 
-echo "==> 保存进程表"
-pm2 save
-
-rm -rf "$ROLLBACK_DIR"
 DEPLOY_FINISHED=1
 trap - EXIT INT TERM
 
