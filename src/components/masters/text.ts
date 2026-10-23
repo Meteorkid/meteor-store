@@ -1,5 +1,8 @@
 export const mastersText = {
   zh: {
+    coverage: '本年度已收录 {schools} 所学校 · {programmes} 个项目 · {rounds} 个轮次',
+    coveredRegions: '目前有公开轮次的地区', noCoverage: '暂无公开记录',
+    coverageHint: '按当前公开记录统计，包含已结束轮次；尚未收录不代表学校没有开放申请。',
     title: '硕士申请日历', description: '看清项目、入学季和申请轮次，把准备工作留在截止之前。',
     scope: '持续核验的项目清单，并非五个地区所有学校和专业的完整目录。这里记录公开申请期限，不含个人 offer 接受或留位费截止。',
     year: '入学年份', yearHint: '按入学年份查看：2027 年入学的项目，可能在 2026 年就截止。', applyYear: '查看',
@@ -27,6 +30,9 @@ export const mastersText = {
     daysLeft: '距离截止日期', days: '天', dueToday: '截止日期为今天',
   },
   en: {
+    coverage: 'Listed for this intake year: {schools} universities · {programmes} programmes · {rounds} rounds',
+    coveredRegions: 'Regions with published rounds', noCoverage: 'No published records yet',
+    coverageHint: 'Counts include closed published rounds. An unlisted programme may still be accepting applications.',
     title: 'Master’s application calendar', description: 'Find the programme, intake and application round, with time left to prepare.',
     scope: 'A curated list checked against official sources, not a complete directory of every university or programme. Public application deadlines only; personal offer acceptance and deposit deadlines are excluded.',
     year: 'Intake year', yearHint: 'Browse by intake year: a programme starting in 2027 may close applications in 2026.', applyYear: 'View',

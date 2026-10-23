@@ -78,8 +78,8 @@ export default function DownloadCard({
       </span>
       <div className="min-w-0">
         <p className="font-semibold text-white">{label}</p>
-        {note && <p className="mt-1 text-xs text-gray-500">{note}</p>}
-        {meta && <p className="mt-1 font-mono text-[11px] text-gray-600">{meta}</p>}
+        {note && <p className="mt-1 t-footnote text-white/70">{note}</p>}
+        {meta && <p className="mt-1 break-words font-mono t-footnote text-white/60">{meta}</p>}
       </div>
     </>
   );

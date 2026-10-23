@@ -28,6 +28,8 @@ export const DailyLinkItemSchema = z.object({
   organization: text.max(200).optional(),
   location: text.max(300).optional(),
   eligibility: text.max(2000).optional(),
+  roleType: z.enum(['internship', 'graduate', 'unknown']).optional(),
+  remoteStatus: z.enum(['remote', 'hybrid', 'onsite', 'unknown']).optional(),
   verifiedAt: dateTime.optional(),
   difficulty: z.enum(['introductory', 'intermediate', 'advanced']).optional(),
   version: z.string().max(40).optional(),
@@ -37,6 +39,15 @@ export const DailyLinkItemSchema = z.object({
   phase: z.enum(['upcoming', 'live', 'replay', 'announcement']).optional(),
 });
 export type DailyLinkItem = z.infer<typeof DailyLinkItemSchema>;
+
+/** 只根据岗位标题中的明确用语识别；International/Internal/Campus Recruiter 不是实习或应届标记。 */
+export function inferDailyRoleType(title: string): NonNullable<DailyLinkItem['roleType']> {
+  if (/\b(?:interns?|internships?)\b|实习|實習/i.test(title)) return 'internship';
+  if (/\b(?:new[\s-]?(?:grads?|graduates?)|university[\s-]+graduates?|graduate[\s-]+program(?:me)?)\b|应届|應屆|校招|毕业生|畢業生/i.test(title)) return 'graduate';
+  return 'unknown';
+}
+
+export type PreviousPublishedDailyDates = Partial<Record<DailyEditionChannelId, string>>;
 
 export const EnglishContentSchema = z.object({
   kind: z.literal('english'),

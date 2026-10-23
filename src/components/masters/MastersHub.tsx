@@ -120,6 +120,10 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
   const filtered = filterMastersRounds(source, filters, now);
   const organized = organizeMastersRounds(filtered, now);
   const yearRounds = source.filter(round => round.intakeYear === year);
+  const publicYearRounds = rounds.filter(round => round.intakeYear === year);
+  const coveredSchools = new Set(publicYearRounds.map(round => `${round.region}:${round.details.university.trim().toLowerCase()}`));
+  const coveredProgrammes = new Set(publicYearRounds.map(round => `${round.region}:${round.details.university.trim().toLowerCase()}:${round.details.programme.trim().toLowerCase()}`));
+  const coveredRegions = mastersRegions.filter(region => publicYearRounds.some(round => round.region === region.id));
   const options = (field: 'university' | 'subject' | 'intakeLabel') => [...new Set(yearRounds.map(round => round.details[field]))].sort();
   const unknown = unavailableWatches(watches, ownRounds);
   const exportIds = selected.filter(id => {
@@ -154,6 +158,11 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
           <label className="t-footnote text-white/70" htmlFor="masters-year">{copy.year}<input id="masters-year" type="number" min={2020} max={2100} required value={yearInput} onChange={event => setYearInput(event.target.value)} className={`${selectClass} max-w-36`} /></label>
           <button type="submit" className={buttonClass}>{copy.applyYear}</button>
         </form>
+        {!loadFailed && <aside data-masters-coverage className="mt-4 space-y-1 rounded-xl border border-white/10 px-4 py-3 t-footnote text-white/70">
+          <p>{copy.coverage.replace('{schools}', String(coveredSchools.size)).replace('{programmes}', String(coveredProgrammes.size)).replace('{rounds}', String(publicYearRounds.length))}</p>
+          <p>{copy.coveredRegions}: {coveredRegions.length ? coveredRegions.map(region => region[locale]).join(locale === 'zh' ? '、' : ', ') : copy.noCoverage}</p>
+          <p className="text-white/60">{copy.coverageHint}</p>
+        </aside>}
         <details className="mt-3 t-footnote text-white/60"><summary className="min-h-10 cursor-pointer py-2">{copy.aboutDates}</summary><p>{copy.yearHint}</p><p className="mt-2 max-w-3xl">{copy.scope}</p></details>
       </header>
 

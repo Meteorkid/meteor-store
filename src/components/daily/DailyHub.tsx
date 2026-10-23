@@ -8,7 +8,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import MastersSummaryCard from '@/components/masters/MastersSummaryCard';
 import { defaultMastersYear, type MastersSummary } from '@/lib/masters/types';
-import { dailyChannels, DAILY_CHANNEL_IDS, isDailyHistoryDate, shiftDailyDate, type DailyEdition, type DailyPreferences } from '@/lib/daily/types';
+import { dailyChannels, DAILY_CHANNEL_IDS, isDailyHistoryDate, shiftDailyDate, type DailyEdition, type DailyPreferences, type PreviousPublishedDailyDates } from '@/lib/daily/types';
 import EditionContent from './EditionContent';
 import DailyOverview from './DailyOverview';
 import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, dailyReadStorageKey, getDailyEditionEntries, latestDailyUpdate, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
@@ -26,6 +26,8 @@ export interface DailyHubProps {
   preferencesFailed?: boolean;
   mastersSummary?: MastersSummary | null;
   mastersSummaryFailed?: boolean;
+  previousPublishedDates?: PreviousPublishedDailyDates;
+  previousPublishedDatesFailed?: boolean;
 }
 
 function readStorage(key: string): string | null {
@@ -66,7 +68,7 @@ export default function DailyHub(props: DailyHubProps) {
   return <DailyHubForIdentity key={`${identity ?? 'guest'}:${props.date}`} {...props} activeUserId={identity} />;
 }
 
-function DailyHubForIdentity({ date, today, editions: initialEditions, userId, activeUserId, initialPreferences, viewAll = false, loadFailed: initialLoadFailed = false, preferencesFailed = false, mastersSummary = null, mastersSummaryFailed = false }: DailyHubProps & { activeUserId: string | null }) {
+function DailyHubForIdentity({ date, today, editions: initialEditions, userId, activeUserId, initialPreferences, viewAll = false, loadFailed: initialLoadFailed = false, preferencesFailed = false, mastersSummary = null, mastersSummaryFailed = false, previousPublishedDates = {}, previousPublishedDatesFailed = false }: DailyHubProps & { activeUserId: string | null }) {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const copy = dailyText[locale];
   const router = useRouter();
@@ -258,6 +260,11 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
       </section> : <div className="divide-y divide-white/10">
         {editionEntries.map(({ channel, edition, status, isRead }, index) => {
           const published = status === 'published';
+          const previousPublished = previousPublishedDates[channel.id];
+          const useChannelTitle = channel.id === 'internships' && ['每日实习机会', '实习与应届机会'].includes(edition?.title ?? '');
+          const title = published && edition && !useChannelTitle ? edition.title : channel[locale];
+          const coverage = channel.id === 'events' ? copy.eventsCoverage : channel.id === 'competitions' ? copy.competitionsCoverage
+            : channel.id === 'internships' ? copy.internshipsCoverage : null;
           const editionReadKey = `${date}:${channel.id}`;
           return <article key={channel.id} id={channel.id} className="scroll-mt-24 py-9 sm:py-12" aria-labelledby={`daily-${channel.id}-title`}>
             <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -265,7 +272,8 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
               <p className="t-eyebrow text-violet-300">{channel[locale]}</p>
               <span className="ml-auto t-footnote text-white/60">{copy.issue} {date}{isRead ? ` · ${copy.read}` : ''}</span>
             </div>
-            <h2 id={`daily-${channel.id}-title`} className="t-title-2 text-white">{published && edition ? edition.title : channel[locale]}</h2>
+            <h2 id={`daily-${channel.id}-title`} className="t-title-2 text-white">{title}</h2>
+            {coverage && <p className="mt-3 t-footnote text-white/60">{copy.sourceCoverage}: {coverage}</p>}
             {published && edition?.summary && <p className="mt-3 t-body text-white/70">{edition.summary}</p>}
             {published && edition?.content ? <>
               <div className="mt-7"><EditionContent key={edition.id} content={edition.content} copy={copy} locale={locale} /></div>
@@ -275,6 +283,11 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
             </> : <div className="mt-5 border-l-2 border-white/15 pl-4">
               <p className="text-sm font-semibold text-white/80">{status === 'empty' && channel.id === 'events' ? copy.emptyEvents : copy[status]}</p>
               <p className="mt-2 t-footnote text-white/60">{status === 'empty' ? copy.emptyHint : status === 'failed' ? copy.failedHint : copy.unpublishedHint}</p>
+              {previousPublished && previousPublished < date && isDailyHistoryDate(previousPublished, today) ? <Link
+                href={`/daily?date=${previousPublished}&view=all#${channel.id}`}
+                className="mt-3 inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">
+                {copy.latestPublished} · {previousPublished}
+              </Link> : <p className="mt-3 t-footnote text-white/60">{previousPublishedDatesFailed ? copy.previousPublishedFailed : copy.noPreviousPublished}</p>}
             </div>}
           </article>;
         })}

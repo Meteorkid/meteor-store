@@ -86,7 +86,8 @@ describe('每日竞赛与实习', () => {
     expect(result.content).toMatchObject({ kind: 'internships', items: [{ id: 'pf_1', organization: 'Databricks', verifiedAt: checked }] });
     const item = result.content && 'items' in result.content ? result.content.items[0] : null;
     expect(item?.location).toContain('London');
-    expect(item?.location).toContain('现场');
+    expect(item?.remoteStatus).toBe('onsite');
+    expect(item?.roleType).toBe('internship');
     expect(item?.eligibility).toContain('工作许可');
     expect(result.summary).not.toContain('今日新增');
   });
@@ -180,7 +181,34 @@ describe('今日机会快照的公开读取', () => {
     mocks.sourceRows = [source('databricks-student-jobs')];
     mocks.rows = [internship({ titleZh: '更新后的岗位标题', region: 'Amsterdam, Netherlands' }), internship({ id: 'closed', status: 'expired' })];
     const [result] = await filterAvailableDailyOpportunities([edition('internships', ['pf_1', 'closed'])]);
-    expect(result.content).toMatchObject({ items: [{ title: '更新后的岗位标题', location: 'Amsterdam, Netherlands · 现场 / On-site' }] });
+    expect(result.content).toMatchObject({ items: [{ title: '更新后的岗位标题', location: 'Amsterdam, Netherlands', remoteStatus: 'onsite' }] });
     expect(result.summary).toMatch(/^1 个/);
+  });
+});
+
+
+describe('岗位事实字段', () => {
+  it.each([
+    ['Software Engineer, New Grad', '软件工程实习', 'graduate'],
+    ['University Graduate Engineer', '大学生岗位', 'graduate'],
+    ['Software Intern', '软件岗位', 'internship'],
+    ['International Operations', '国际业务', 'unknown'],
+    ['Internal Tools Engineer', '内部工具工程师', 'unknown'],
+    ['Campus Recruiter', '校园招聘专员', 'unknown'],
+  ])('原始岗位标题 %s （中文 %s）不沿用笼统的实习栏目类型', async (titleEn, titleZh, roleType) => {
+    const { loadDailyOpportunities } = await import('../opportunities');
+    mocks.sourceRows = [source('databricks-student-jobs'), source('scale-ai-student-jobs')];
+    mocks.rows = [internship({ titleEn, titleZh, remoteStatus: 'hybrid' })];
+    const result = await loadDailyOpportunities('internships', '2026-10-15', []);
+    expect(result.title).toBe('实习与应届机会');
+    expect(result.content).toMatchObject({ items: [{ roleType, remoteStatus: 'hybrid', location: 'London, UK' }] });
+  });
+
+  it('未声明办公方式保持 unknown，不默认现场或远程', async () => {
+    const { loadDailyOpportunities } = await import('../opportunities');
+    mocks.sourceRows = [source('databricks-student-jobs'), source('scale-ai-student-jobs')];
+    mocks.rows = [internship({ remoteStatus: 'unspecified' })];
+    const result = await loadDailyOpportunities('internships', '2026-10-15', []);
+    expect(result.content).toMatchObject({ items: [{ remoteStatus: 'unknown' }] });
   });
 });

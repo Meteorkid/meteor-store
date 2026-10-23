@@ -67,3 +67,30 @@ describe('日刊内容展示', () => {
     expect(html).not.toContain('Invalid Date');
   });
 });
+
+
+describe('实习与应届岗位类型', () => {
+  it.each([
+    ['Software Engineer, New Grad', '应届岗位'], ['Software Intern', '实习岗位'], ['International Operations', '类型未标明'],
+  ])('旧刊标题 %s 只按明确词语识别类型', (title, expected) => {
+    const html = renderToStaticMarkup(<EditionContent locale="zh" copy={dailyText.zh} content={{
+      kind: 'internships', items: [{ id: 'old', title, summary: '历史岗位摘要', url: 'https://example.com/job',
+        sourceName: 'Employer', sourceType: 'official', location: 'London' }],
+    }} />);
+    expect(html).toContain(expected);
+    expect(html).toContain('办公方式未标明');
+    expect(html).toContain('London');
+  });
+
+  it('明确事实字段优先于翻译标题，中英分别呈现类型和办公方式', () => {
+    for (const locale of ['zh', 'en'] as const) {
+      const html = renderToStaticMarkup(<EditionContent locale={locale} copy={dailyText[locale]} content={{
+        kind: 'internships', items: [{ id: 'new', title: '软件实习', summary: 'Original title identifies a new graduate role.',
+          roleType: 'graduate', remoteStatus: 'remote', url: 'https://example.com/job', sourceName: 'Employer', sourceType: 'official', location: 'UK' }],
+      }} />);
+      expect(html).toContain(locale === 'zh' ? '应届岗位' : 'Graduate role');
+      expect(html).toContain(locale === 'zh' ? '远程' : 'Remote');
+      expect(html).toContain('UK');
+    }
+  });
+});

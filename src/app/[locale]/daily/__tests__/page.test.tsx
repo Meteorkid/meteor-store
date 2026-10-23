@@ -1,9 +1,9 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ getSession: vi.fn(), getDailyEditions: vi.fn(), getDailyPreferences: vi.fn(), getMastersSummary: vi.fn() }));
+const mocks = vi.hoisted(() => ({ getSession: vi.fn(), getDailyEditions: vi.fn(), getDailyPreferences: vi.fn(), getLatestPublishedDailyDates: vi.fn(), getMastersSummary: vi.fn() }));
 vi.mock('@/lib/auth', () => ({ getSession: mocks.getSession }));
-vi.mock('@/lib/daily/service', () => ({ getDailyEditions: mocks.getDailyEditions, getDailyPreferences: mocks.getDailyPreferences }));
+vi.mock('@/lib/daily/service', () => ({ getDailyEditions: mocks.getDailyEditions, getDailyPreferences: mocks.getDailyPreferences, getLatestPublishedDailyDates: mocks.getLatestPublishedDailyDates }));
 vi.mock('@/lib/masters/service', () => ({ getMastersSummary: mocks.getMastersSummary }));
 vi.mock('next/navigation', () => ({ notFound: () => { throw new Error('NOT_FOUND'); } }));
 vi.mock('next-intl/server', () => ({ setRequestLocale: vi.fn() }));
@@ -23,6 +23,7 @@ describe('每日阅读服务端页面', () => {
     mocks.getSession.mockResolvedValue(null);
     mocks.getDailyEditions.mockResolvedValue([]);
     mocks.getDailyPreferences.mockResolvedValue(null);
+    mocks.getLatestPublishedDailyDates.mockResolvedValue({ events: '2026-10-07' });
     mocks.getMastersSummary.mockResolvedValue({ intakeYear: 2027, total: 0, opening: 0, closingSoon: 0, changed: 0 });
   });
   afterEach(() => vi.useRealTimers());
@@ -73,5 +74,19 @@ describe('每日阅读服务端页面', () => {
     expect(mocks.getDailyEditions).toHaveBeenCalledWith('2026-10-01');
     expect(mocks.getMastersSummary).toHaveBeenCalledWith();
     expect(renderToStaticMarkup(page)).toContain('&quot;intakeYear&quot;:2027');
+  });
+
+  it('历史期次映射按所选日期读取，失败不影响本期正文', async () => {
+    mocks.getSession.mockResolvedValue(null);
+    mocks.getDailyEditions.mockResolvedValue([]);
+    mocks.getLatestPublishedDailyDates.mockResolvedValue({ events: '2026-10-07' });
+    const selected = '2026-10-12';
+    const page = await DailyPage({ params: Promise.resolve({ locale: 'zh' }), searchParams: Promise.resolve({ date: selected }) });
+    expect(mocks.getLatestPublishedDailyDates).toHaveBeenCalledWith(selected);
+    expect(renderToStaticMarkup(page)).toContain('&quot;previousPublishedDates&quot;:{&quot;events&quot;:&quot;2026-10-07&quot;}');
+    mocks.getLatestPublishedDailyDates.mockRejectedValue(new Error('history unavailable'));
+    const failed = await DailyPage({ params: Promise.resolve({ locale: 'en' }), searchParams: Promise.resolve({ date: selected }) });
+    expect(renderToStaticMarkup(failed)).toContain('&quot;previousPublishedDatesFailed&quot;:true');
+    expect(renderToStaticMarkup(failed)).toContain('&quot;loadFailed&quot;:false');
   });
 });

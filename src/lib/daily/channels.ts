@@ -9,7 +9,7 @@ export const dailyChannels = [
   { id: 'events', zh: '发布会日历', en: 'Events', descriptionZh: '近期预告、当天活动与官方回放。', descriptionEn: 'Upcoming events, live sessions and replays.' },
   { id: 'open-source', zh: '每日开源项目', en: 'Open-source Pick', descriptionZh: '每天探索一个经过实时核验的开源项目。', descriptionEn: 'Explore one live-checked open-source project each day.' },
   { id: 'competitions', zh: '每日竞赛', en: 'Contest Watch', descriptionZh: '官方编程赛事、开赛时间与参与要求。', descriptionEn: 'Official programming contests, start times and requirements.' },
-  { id: 'internships', zh: '每日实习', en: 'Internship Watch', descriptionZh: '仍在招聘的具体岗位，注明地点和申请要求。', descriptionEn: 'Active student roles with locations and eligibility details.' },
+  { id: 'internships', zh: '实习与应届机会', en: 'Internships & Graduate Roles', descriptionZh: '仍在招聘的实习与应届岗位，注明类型、地点与办公方式。', descriptionEn: 'Active internship and graduate roles, with role type, location and work mode.' },
   { id: 'masters', zh: '硕士申请', en: 'Master’s applications', descriptionZh: '全年申请日历，关注项目与提交截止。', descriptionEn: 'Year-round application rounds and deadlines.' },
 ] as const;
 

@@ -5,7 +5,7 @@ import { pathfinderItems, pathfinderSources } from '@/lib/db/schema';
 import { cleanExternalText, normalizeIngestionUrl, toIsoDate } from '@/lib/pathfinder/ingestion/normalize';
 import { parseGreenhouseMembershipCursor } from '@/lib/pathfinder/ingestion/parse';
 import { PATHFINDER_SYNC_SOURCE_MAP } from '@/lib/pathfinder/ingestion/sources';
-import { DailyDateSchema, DailyLinkItemSchema, dailyDate, type DailyEdition, type DailyLinkItem } from './types';
+import { DailyDateSchema, DailyLinkItemSchema, dailyDate, inferDailyRoleType, type DailyEdition, type DailyLinkItem } from './types';
 import type { DailyContentResult } from './content';
 
 type Channel = 'competitions' | 'internships';
@@ -58,7 +58,7 @@ export async function loadDailyOpportunities(channel: Channel, date: string, use
     if (seen.has(item.id) || seen.has(item.url)) return false;
     seen.add(item.id); seen.add(item.url); return true;
   }).slice(0, 3);
-  const title = channel === 'competitions' ? '每日编程竞赛' : '每日实习机会';
+  const title = channel === 'competitions' ? '每日编程竞赛' : '实习与应届机会';
   if (!items.length) {
     if (unavailable) throw new Error('部分机会来源暂不可用，当前可用来源暂无候选');
     return { status: 'empty', title, summary: channel === 'competitions'
@@ -143,9 +143,10 @@ function currentOpportunity(row: ItemRow, source: SourceRow, channel: Channel, n
     const deadline = toIsoDate(row.deadlineAt);
     if (deadline && Date.parse(deadline) <= now.getTime()) return null;
     if (row.deadlineDate && row.deadlineDate < new Date(now.getTime() - 12 * 3_600_000).toISOString().slice(0, 10)) return null;
-    const mode = row.remoteStatus === 'remote' ? '远程 / Remote'
-      : row.remoteStatus === 'hybrid' ? '混合 / Hybrid' : row.remoteStatus === 'onsite' ? '现场 / On-site' : '办公方式待核对';
-    data = { ...common, location: `${region} · ${mode}`,
+    const remoteStatus = row.remoteStatus === 'remote' || row.remoteStatus === 'hybrid' || row.remoteStatus === 'onsite'
+      ? row.remoteStatus : 'unknown';
+    data = { ...common, location: region, remoteStatus,
+      roleType: inferDailyRoleType(row.titleEn || row.titleZh),
       summary: `${common.organization} 官方职位板当前仍列出的学生或应届岗位。职责与投递要求请阅读官方详情。`,
       eligibility: `${cleanExternalText(row.eligibilityZh || row.eligibilityEn, 1000)} 年级、所在地与工作许可须逐项核对；本站不判断你是否符合。` };
   }

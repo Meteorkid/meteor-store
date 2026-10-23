@@ -1,4 +1,4 @@
-import { and, eq, gte, inArray, lte, sql } from 'drizzle-orm';
+import { and, eq, gte, inArray, isNotNull, lt, lte, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { dailyEditions, dailyPreferences, dailyReminders } from '@/lib/db/schema';
 import { loadDailyContent } from './content';
@@ -6,7 +6,7 @@ import { filterAvailableDailyOpportunities } from './opportunities';
 import {
   DAILY_CHANNEL_IDS, DAILY_EDITION_CHANNEL_IDS, DailyEditionChannelSchema, DailyContentSchema, DailyDateSchema, DailyPreferencesSchema,
   dailyDate, isDailyHistoryDate, shiftDailyDate,
-  type DailyEditionChannelId, type DailyContent, type DailyEdition, type DailyPreferences, type DailyReminder,
+  type DailyEditionChannelId, type PreviousPublishedDailyDates, type DailyContent, type DailyEdition, type DailyPreferences, type DailyReminder,
 } from './types';
 
 function revisionAfter(previous?: string): string {
@@ -35,6 +35,18 @@ export async function getDailyEditions(date: string): Promise<DailyEdition[]> {
   const editions = (await listDailyEditions(date)).map(publicDailyEdition);
   // 当天的机会列表随官方开放状态收缩，历史期次保留当时的来源快照。
   return date === dailyDate() ? filterAvailableDailyOpportunities(editions) : editions;
+}
+
+/** 只取每栏最近公开期次的日期；不搬历史正文，也不返回当前回看窗口之外的链接。 */
+export async function getLatestPublishedDailyDates(date: string): Promise<PreviousPublishedDailyDates> {
+  if (!isDailyHistoryDate(date)) throw new Error('Date outside daily history');
+  const rows = await db.select({ channel: dailyEditions.channel, date: sql<string>`max(${dailyEditions.date})` })
+    .from(dailyEditions).where(and(
+      eq(dailyEditions.status, 'published'), isNotNull(dailyEditions.content),
+      gte(dailyEditions.date, shiftDailyDate(dailyDate(), -29)), lt(dailyEditions.date, date),
+      inArray(dailyEditions.channel, DAILY_EDITION_CHANNEL_IDS),
+    )).groupBy(dailyEditions.channel);
+  return Object.fromEntries(rows.map(row => [row.channel, row.date]));
 }
 
 export async function getDailyPreferences(userId: string): Promise<DailyPreferences | null> {

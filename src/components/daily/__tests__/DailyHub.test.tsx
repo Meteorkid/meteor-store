@@ -76,3 +76,45 @@ describe('日刊栏目深链', () => {
     expect(html).not.toContain('0/0');
   });
 });
+
+
+describe('空栏目回看与覆盖范围', () => {
+  it('空栏目直达最近有内容期次，临时全部视图不写关注设置', () => {
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} viewAll previousPublishedDates={{ events: '2026-10-10' }} editions={[{
+      id: 'empty-events', date: baseProps.date, channel: 'events', status: 'empty', title: '', summary: '', content: null,
+      sourceKey: null, publishedAt: null, updatedAt: '2026-10-15T00:00:00Z',
+    }]} />);
+    expect(html).toContain('href="/daily?date=2026-10-10&amp;view=all#events"');
+    expect(html).toContain('阅读最近有内容的一期');
+    expect(html).toContain('已核验的接入来源中暂无未入选的新内容');
+    expect(html).toContain('Codeforces');
+    expect(html).toContain('Databricks');
+    expect(html).toContain('Scale AI');
+    expect(html).toContain('主要覆盖海外');
+    expect(html).toContain('OpenAI');
+  });
+
+  it('旧刊的通用实习标题也按新栏目名称呈现，不改写历史记录', () => {
+    const edition: DailyHubProps['editions'][number] = {
+      id: 'old-internships', date: baseProps.date, channel: 'internships', status: 'published', title: '每日实习机会', summary: '',
+      content: { kind: 'internships', items: [{ id: 'role', title: 'New Grad Engineer', summary: '岗位摘要', url: 'https://example.com/job', sourceName: 'Employer', sourceType: 'official' }] },
+      sourceKey: null, publishedAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z',
+    };
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} viewAll editions={[edition]} />);
+    expect(html).not.toContain('每日实习机会');
+    expect(html).toContain('实习与应届机会');
+    expect(edition.title).toBe('每日实习机会');
+  });
+
+  it('没有历史、历史读取失败和本期更新失败保留不同状态', () => {
+    const empty = renderToStaticMarkup(<DailyHub {...baseProps} viewAll />);
+    expect(empty).toContain('可回看范围内没有更早的已发布期次');
+    const failed = renderToStaticMarkup(<DailyHub {...baseProps} viewAll previousPublishedDatesFailed editions={[{
+      id: 'failed-events', date: baseProps.date, channel: 'events', status: 'failed', title: '', summary: '', content: null,
+      sourceKey: null, publishedAt: null, updatedAt: '2026-10-15T00:00:00Z',
+    }]} />);
+    expect(failed).toContain('历史期次暂时无法读取');
+    expect(failed).toContain('内容获取遇到问题');
+    expect(failed).not.toContain('已核验的接入来源中暂无未入选的新内容');
+  });
+});

@@ -8,6 +8,8 @@ import { englishLessons } from '../english-lessons';
 type Operation = {
   kind: 'select' | 'insert' | 'update';
   table?: unknown;
+  selection?: Record<string, unknown>;
+  groupBy?: unknown[];
   where?: SQL;
   values?: Record<string, unknown>;
   conflict?: 'nothing' | 'update';
@@ -22,13 +24,14 @@ const state = vi.hoisted(() => ({
 vi.mock('@/lib/daily/content', () => ({ loadDailyContent: state.loadContent }));
 vi.mock('@/lib/daily/opportunities', () => ({ filterAvailableDailyOpportunities: state.filterOpportunities }));
 vi.mock('@/lib/db', () => {
-  function query(kind: Operation['kind'], table?: unknown) {
-    const operation: Operation = { kind, table };
+  function query(kind: Operation['kind'], table?: unknown, selection?: Record<string, unknown>) {
+    const operation: Operation = { kind, table, selection };
     state.operations.push(operation);
     const builder = {
       from(value: unknown) { operation.table = value; return builder; },
       where(value: SQL) { operation.where = value; return builder; },
       limit() { return builder; },
+      groupBy(...columns: unknown[]) { operation.groupBy = columns; return builder; },
       values(value: Record<string, unknown>) { operation.values = value; return builder; },
       set(value: Record<string, unknown>) { operation.values = value; return builder; },
       returning() { return builder; },
@@ -43,7 +46,7 @@ vi.mock('@/lib/db', () => {
     return builder;
   }
   return { db: {
-    select: () => query('select'),
+    select: (selection?: Record<string, unknown>) => query('select', undefined, selection),
     insert: (table: unknown) => query('insert', table),
     update: (table: unknown) => query('update', table),
   } };
@@ -51,7 +54,7 @@ vi.mock('@/lib/db', () => {
 
 import {
   freezeDailyReminder, generateDailyEditions, getDailyEditions, getDailyPreferences,
-  getDailyReminder, publicDailyEdition, retireDailyEdition, saveDailyEdition, saveDailyPreferences,
+  getDailyReminder, getLatestPublishedDailyDates, publicDailyEdition, retireDailyEdition, saveDailyEdition, saveDailyPreferences,
 } from '../service';
 
 const date = '2026-10-14';
@@ -379,5 +382,33 @@ describe('09:30 日刊提醒快照', () => {
     expect(await getDailyReminder('user-1')).toBeNull();
     expect(state.operations.every((operation) => operation.kind === 'select')).toBe(true);
     expect(whereSql(state.operations[2]).params).toContain('published');
+  });
+});
+
+
+describe('最近有内容日刊日期', () => {
+  it('只聚合公开期次日期，在可回看30天内查找所选日期之前的正文', async () => {
+    state.responses.push([{ channel: 'events', date: '2026-10-07' }, { channel: 'competitions', date: '2026-10-09' }]);
+    expect(await getLatestPublishedDailyDates('2026-10-12')).toEqual({ events: '2026-10-07', competitions: '2026-10-09' });
+    expect(state.operations).toHaveLength(1);
+    const operation = state.operations[0];
+    expect(Object.keys(operation.selection!)).toEqual(['channel', 'date']);
+    expect(operation.groupBy).toEqual([dailyEditions.channel]);
+    const query = whereSql(operation);
+    expect(query.sql).toContain('"daily_editions"."status" =');
+    expect(query.sql).toContain('"daily_editions"."content" is not null');
+    expect(query.sql).toContain('"daily_editions"."date" <');
+    expect(query.params).toEqual(expect.arrayContaining(['published', '2026-09-15', '2026-10-12']));
+    expect(new PgDialect().sqlToQuery(operation.selection!.date as SQL).sql).toContain('max("daily_editions"."date")');
+  });
+
+  it('没有旧期时返回空映射', async () => {
+    state.responses.push([]);
+    expect(await getLatestPublishedDailyDates(date)).toEqual({});
+  });
+
+  it.each(['2026-10-15', '2026-09-14', '2026-02-30'])('非法或不可回看的 %s 不查询数据库', async value => {
+    await expect(getLatestPublishedDailyDates(value)).rejects.toThrow('Date outside daily history');
+    expect(state.operations).toHaveLength(0);
   });
 });

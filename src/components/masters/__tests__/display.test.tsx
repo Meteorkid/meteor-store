@@ -11,6 +11,20 @@ vi.mock('next-intl', () => ({ useLocale: () => 'zh' }));
 vi.mock('@/components/AuthProvider', () => ({ useAuth: () => ({ user: null, loading: false }) }));
 
 describe('申请日历展示', () => {
+  it('收录范围按公开年份去重，不把筛选或私人关注计入学校项目数', () => {
+    const base = roundFixture();
+    const second = roundFixture({ id: 'second-round' });
+    const otherYear = roundFixture({ id: 'other-year', intakeYear: 2028 });
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[base, second, otherYear]} userId={null} initialWatches={[]} watchedRounds={[]} />);
+    expect(html).toContain('本年度已收录 1 所学校 · 1 个项目 · 2 个轮次');
+    expect(html).toContain('目前有公开轮次的地区');
+    expect(html).toContain('尚未收录不代表学校没有开放申请');
+  });
+
+  it('读取失败不把空数组误称为零覆盖', () => {
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[]} userId={null} initialWatches={[]} watchedRounds={[]} loadFailed />);
+    expect(html).not.toContain('data-masters-coverage');
+  });
   it('默认展示近期有效轮次，过期轮次仍可展开并保留官方信息', () => {
     const base = roundFixture();
     const past = roundFixture({ id: 'past-round', details: { ...base.details, deadlineOn: '2026-10-01' } });

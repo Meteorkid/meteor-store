@@ -1,9 +1,12 @@
 'use client';
 
 import { useId, useState } from 'react';
-import type { DailyContent, DailyLinkItem, EnglishContent } from '@/lib/daily/types';
+import { inferDailyRoleType, type DailyContent, type DailyLinkItem, type EnglishContent } from '@/lib/daily/types';
 import { gradeAnswers } from './state';
 import type { DailyCopy } from './text';
+
+const roleLabels = { internship: 'internshipRole', graduate: 'graduateRole', unknown: 'unknownRole' } as const;
+const workModeLabels = { remote: 'remote', hybrid: 'hybrid', onsite: 'onsite', unknown: 'unknownWorkMode' } as const;
 
 const announcementLabels = { new: 'newPaper', cross: 'crossListed', replace: 'revised', 'replace-cross': 'revisedCross' } as const;
 
@@ -16,6 +19,9 @@ export default function EditionContent({ content, copy, locale }: { content: Dai
         <li key={item.id} className="py-7 first:pt-0 last:pb-0">
           <div className="mb-3 flex flex-wrap items-center gap-2 t-footnote text-white/60">
             <span className="font-mono text-violet-200">{String(index + 1).padStart(2, '0')}</span>
+            {content.kind === 'internships' && <span className="rounded-full border border-violet-300/20 px-2.5 py-0.5 text-violet-200">
+              {copy.roleType}: {copy[roleLabels[item.roleType ?? inferDailyRoleType(item.title)]]}
+            </span>}
             {item.category && <span>{item.category}</span>}
             {item.difficulty && <span>· {copy[item.difficulty]}</span>}
             {item.version && <span>· {item.version}</span>}
@@ -28,9 +34,10 @@ export default function EditionContent({ content, copy, locale }: { content: Dai
           {content.kind === 'events' && <p className="mt-3 t-footnote text-violet-200">{copy.eventTime}: {formatEventTime(item, locale) ?? copy.timePending}</p>}
           {content.kind === 'competitions' && <p className="mt-3 t-footnote text-violet-200">{copy.contestStart}: {formatEventTime(item, locale) ?? copy.timePending}</p>}
           <p className="mt-4 whitespace-pre-wrap break-words t-body text-white/80">{item.summary}</p>
-          {(item.organization || item.location || item.eligibility) && <dl className="mt-4 space-y-2 text-sm leading-7 text-white/70">
+          {(content.kind === 'internships' || item.organization || item.location || item.eligibility) && <dl className="mt-4 space-y-2 text-sm leading-7 text-white/70">
             {item.organization && <div><dt className="inline text-white/60">{copy.organization}: </dt><dd className="inline">{item.organization}</dd></div>}
             {item.location && <div><dt className="inline text-white/60">{copy.location}: </dt><dd className="inline">{item.location}</dd></div>}
+            {content.kind === 'internships' && <div><dt className="inline text-white/60">{copy.workMode}: </dt><dd className="inline">{copy[workModeLabels[item.remoteStatus ?? 'unknown']]}</dd></div>}
             {item.eligibility && <div><dt className="inline text-white/60">{copy.eligibility}: </dt><dd className="inline">{item.eligibility}</dd></div>}
           </dl>}
           {content.kind === 'papers' && item.originalAbstract && <details className="mt-4 border-l-2 border-violet-400/40 pl-4">

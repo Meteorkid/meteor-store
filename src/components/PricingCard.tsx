@@ -205,7 +205,7 @@ export default function PricingCard({
             
             // 已拥有同档或更高档
             if (currentRank >= cardRank) {
-              return currentPassPlan === cardPlan ? t('renew') : t('owned');
+              return currentPassPlan === cardPlan ? t(cardPlan === 'lifetime' ? 'lifetimeOwned' : 'currentPlan') : t('owned');
             }
             // 升级场景
             return t('upgrade');
