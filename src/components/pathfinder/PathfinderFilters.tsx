@@ -61,6 +61,7 @@ export default function PathfinderFilters({ hasDeadlines }: { hasDeadlines: bool
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
     else params.delete(key);
+    params.delete('page');
     const next = params.toString();
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
   };
@@ -68,6 +69,7 @@ export default function PathfinderFilters({ hasDeadlines }: { hasDeadlines: bool
   const clear = () => {
     const params = new URLSearchParams(searchParams.toString());
     FILTER_KEYS.forEach((key) => params.delete(key));
+    params.delete('page');
     const next = params.toString();
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
   };

@@ -874,7 +874,7 @@
     "loadTrial": "Click to try it free",
     "trialHint": "Experience the full app without purchasing. Buy to keep using it.",
     "loadTrialAria": "Load {name} free trial",
-    "passPrompt": "Want every app in the store?",
+    "passPrompt": "Want every tool in the XIsland product line?",
     "passCta": "See Meteor Pass →",
     "downloadChecking": "Checking…",
     "downloadLoginHint": "Sign in to download",
@@ -1050,7 +1050,7 @@
     "singleAppCta": "See per-app pricing →",
     "enterprisePrompt": "Using it with a team?",
     "enterpriseCta": "Contact us for custom solutions →",
-    "scopeNote": "Meteor Pass is a personal-use license covering the individual tier of every app. Team seats, self-hosting and SLA are quoted separately."
+    "scopeNote": "Pass covers personal-use plans in the XIsland product line. Contact us separately for team seats, private deployments and SLAs."
   },
   "CTASection": {
     "browseProducts": "Browse All Products"
@@ -1457,20 +1457,38 @@
   },
   "SpotlightSearch": {
     "dialogAriaLabel": "Site-wide search",
-    "placeholder": "Find products and help — supports pinyin · try typing meteor",
+    "placeholder": "Search products, daily updates, master’s and learning tools",
     "inputAriaLabel": "Search",
     "resultsAriaLabel": "Search results",
     "recentLabel": "Recently visited",
     "clear": "Clear",
     "popularLabel": "Popular",
-    "hint": "⌘K anytime · ↑↓ to navigate · Enter to open · pinyin supported",
+    "hint": "⌘K to open · ↑↓ to select · Enter to open",
     "empty": "Nothing found — but you can try your luck at the terminal →",
     "terminalLink": "Owner's Terminal",
     "groupProduct": "Products",
     "groupPage": "Pages",
     "groupHelp": "Help",
     "groupEasterEgg": "Easter eggs",
-    "groupBlog": "Blog"
+    "groupBlog": "Blog",
+    "copied": "Copied",
+    "copyResult": "↵ Copy",
+    "searching": "Searching…",
+    "resultHint": "↵ Open · ⌘↵ New tab · ⌘C Copy · {filterHint}⌘⌫ Clear",
+    "filterHint": "blog: help: @ to filter · ",
+    "mathHint": "↵ Copy result · ⌘⌫ Clear",
+    "closeHint": "Esc Close · ⌘⌫ Clear",
+    "filteredPlaceholder": "Search {group}…",
+    "resultCount": "{count, plural, one {# result found} other {# results found}}",
+    "noResults": "No results found",
+    "historyLabel": "Recent searches",
+    "removeHistory": "Remove search: {query}",
+    "feedback": "Send feedback",
+    "webSearch": "Search this site",
+    "fuzzyHint": "Did you mean…",
+    "filteredCount": "{group} only · {count, plural, one {# result} other {# results}}",
+    "clearFilter": "Clear filter",
+    "showMore": "Show more ({count} total)…"
   },
   "PlaygroundTabs": {
     "descOmnicrawl": "Three-engine crawler framework: one command, auto-selects the best engine.",
@@ -1627,7 +1645,9 @@
     "discount": "Sale",
     "renew": "Renew",
     "upgrade": "Upgrade",
-    "owned": "Owned"
+    "owned": "Owned",
+    "currentPlan": "Current plan",
+    "lifetimeOwned": "Lifetime access"
   },
   "StoryLetter": {
     "headerTitle": "A Letter from the Store Owner",
@@ -2171,7 +2191,14 @@
       "noteWhatHappened": "What happened",
       "noteWhyItMatters": "Why it matters",
       "noteSkills": "Skills affected",
-      "noteSuggestedAction": "What to do"
+      "noteSuggestedAction": "What to do",
+      "digestUnavailableTitle": "Full text temporarily unavailable",
+      "digestUnavailableDescription": "The saved summary is shown below. Verification of the source entry does not mean its full text is available. Read the original source while we retry later.",
+      "digestStatusLabel": "Full-text status",
+      "digestAvailable": "Full text available",
+      "entryVerifiedAt": "Entry last verified",
+      "savedHistoryNotice": "This saved opportunity has closed and is available for your reference.",
+      "backToSaved": "Back to saved items"
     },
     "planPage": {
       "metaTitle": "My learning path · Meteor Pathfinder",
@@ -2332,6 +2359,8 @@
     "saves": {
       "metaTitle": "Saved · Meteor Pathfinder",
       "metaDescription": "Competitions, internships, open-source tasks, and AI updates you saved, with deadline reminders.",
+      "loadFailed": "Saved items are temporarily unavailable. Please try again shortly.",
+      "retry": "Reload",
       "eyebrow": "Pick up where you left off",
       "title": "Saved",
       "description": "Saving leaves a thread for your future self. Items with a deadline trigger one reminder email three days before, and each can be turned off.",
@@ -2344,7 +2373,12 @@
       "saved": "Saved",
       "remindMe": "Remind me before the deadline",
       "loginRequired": "Please sign in first",
-      "failed": "Something went wrong, try again"
+      "failed": "Something went wrong, try again",
+      "noActive": "You have no active saved items. Review your closed items below.",
+      "expiredDescription": "Summaries and sources are kept here for reference after the opportunity closes.",
+      "loginAction": "Sign in to save",
+      "sessionChanged": "Your account changed. Refresh before trying again.",
+      "refreshAction": "Refresh page"
     },
     "directory": {
       "breadcrumb": "Breadcrumb",
@@ -2368,7 +2402,10 @@
       "follow": "Follow",
       "following": "Following",
       "loginRequired": "Please sign in first",
-      "failed": "Something went wrong, try again"
+      "failed": "Something went wrong, try again",
+      "loginAction": "Sign in to follow",
+      "sessionChanged": "Your account changed. Refresh before trying again.",
+      "refreshAction": "Refresh page"
     },
     "weekly": {
       "metaTitle": "This week · Meteor Pathfinder",

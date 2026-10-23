@@ -4,7 +4,8 @@
 import { localizeProducts } from '@/data/products';
 import { localizeFaqs } from '@/data/faqs';
 import { SHOW_PRICING, categoryLabels } from '@/lib/constants';
-import { blogSections } from '@/data/blog-sections';
+import { blogSections, type LocalizedText } from '@/data/blog-sections';
+import { getHeaderNavigation } from '@/data/header-navigation';
 import { localizeHelpArticles } from '@/data/help-articles';
 import type { Locale } from '@/i18n/routing';
 import { pinyin } from 'pinyin-pro';
@@ -60,15 +61,65 @@ const STATIC_PAGES: Array<Omit<SearchEntry, 'keywords' | 'initials' | 'fullPinyi
     : []),
 ];
 
+const PAGE_ENGLISH: Record<string, { title: string; subtitle?: string }> = {
+  'page-home': { title: 'Home' },
+  'page-products': { title: 'All products' },
+  'anchor-lab': { title: 'The lab', subtitle: 'Products · Free projects to explore' },
+  'page-docs': { title: 'Help Center' },
+  'page-blog': { title: 'Blog' },
+  'page-story': { title: 'A letter from the creator', subtitle: 'A student, a small store and tuition' },
+  'page-feedback': { title: 'Send feedback', subtitle: 'Ideas, questions and bug reports' },
+  'page-contact': { title: 'Contact' },
+  'page-student': { title: 'Free student plan', subtitle: 'Verify your education email for free access' },
+  'page-open-source': { title: 'Open-source projects', subtitle: 'Projects released under the MIT license' },
+  'page-playground': { title: 'Playground', subtitle: 'Try it online without installing' },
+  'page-login': { title: 'Sign in / Register', subtitle: 'Sign in with email or create an account' },
+  'anchor-products': { title: 'Product showcase', subtitle: 'Home · Explore the products' },
+  'anchor-faq': { title: 'Frequently asked questions', subtitle: 'Home · FAQ' },
+  'anchor-terminal': { title: 'Creator’s terminal', subtitle: 'Home · Explore the available commands' },
+  'anchor-pricing': { title: 'Pricing', subtitle: 'Meteor Pass · XIsland product line' },
+};
+
+// 导航也含私人入口；只将已确认公开的路径纳入索引，新增私人页不会意外被收录。
+const PUBLIC_NAV_PATHS = new Set([
+  '/daily', '/masters', '/pathfinder', '/pathfinder/directions/ai', '/pathfinder/plan',
+  '/pathfinder/opportunities', '/pathfinder/topics', '/pathfinder/weekly',
+  '/blog/tags', '/blog/api-guide', '/support',
+]);
+const NAV_SEARCH_ALIASES: Record<string, string> = {
+  'daily-overview': '每日一新 日刊 日报 daily reading digest',
+  masters: '硕士 研究生 申请 日历 留学 masters master graduate admissions calendar',
+  pathfinder: '学习路径 学习工具 学习机会 learning path tools opportunities',
+  directions: '学习路径 学习方向 learning path roadmap directions',
+  plan: '学习路径 学习计划 规划 learning path study planner plan',
+  opportunities: '实习 应届 开源 比赛 竞赛 internship graduate open source competition opportunities',
+};
+
+function navigationPageEntries(locale: Locale): SearchEntry[] {
+  return getHeaderNavigation(SHOW_PRICING).flatMap(group =>
+    [group.overview, ...group.sections.flatMap(section => section.links)]
+      .filter(link => PUBLIC_NAV_PATHS.has(link.href.split(/[?#]/)[0]))
+      .map(link => withPinyin(link.id === 'daily-overview' ? group.label[locale] : link.label[locale], {
+        id: `page-${link.id}`,
+        title: link.id === 'daily-overview' ? group.label[locale] : link.label[locale],
+        subtitle: link.description?.[locale] ?? group.description[locale],
+        group: '页面',
+        href: link.href,
+        keywords: [link.label.zh, link.label.en, link.description?.[locale], group.label.zh, group.label.en,
+          link.href, NAV_SEARCH_ALIASES[link.id] ?? ''].join(' ').toLowerCase(),
+      })),
+  );
+}
+
 /** 值得被"发现"的终端彩蛋命令（搜索也是彩蛋地图） */
-const EGG_COMMANDS: Array<{ cmd: string; hint: string; extra?: string }> = [
-  { cmd: 'story', hint: '打开店主的一封信' },
-  { cmd: '白嫖', hint: '真的可以，但求个星星', extra: 'free star 免费 github 星星' },
-  { cmd: 'meteor', hint: '召唤一场流星雨', extra: '流星 流星雨' },
-  { cmd: 'hug', hint: '需要的时候用', extra: '抱抱 拥抱' },
-  { cmd: '晚安', hint: '深夜专用', extra: 'goodnight' },
-  { cmd: 'emo', hint: '也是给你的', extra: '难受 迷茫 emo' },
-  { cmd: 'coffee', hint: '本店动力来源', extra: '奶茶 咖啡' },
+const EGG_COMMANDS: Array<{ cmd: string; titleEn?: string; hint: LocalizedText; extra?: string }> = [
+  { cmd: 'story', hint: { zh: '打开店主的一封信', en: 'Read a letter from the creator' } },
+  { cmd: '白嫖', titleEn: 'Free access', hint: { zh: '真的可以，但求个星星', en: 'Free access, with a GitHub star welcome' }, extra: 'free star 免费 github 星星' },
+  { cmd: 'meteor', hint: { zh: '召唤一场流星雨', en: 'Summon a meteor shower' }, extra: '流星 流星雨' },
+  { cmd: 'hug', hint: { zh: '需要的时候用', en: 'A hug when you need one' }, extra: '抱抱 拥抱' },
+  { cmd: '晚安', titleEn: 'Good night', hint: { zh: '深夜专用', en: 'For late nights' }, extra: 'goodnight' },
+  { cmd: 'emo', hint: { zh: '也是给你的', en: 'A little encouragement for you' }, extra: '难受 迷茫 emo' },
+  { cmd: 'coffee', hint: { zh: '本店动力来源', en: 'What keeps the store running' }, extra: '奶茶 咖啡' },
 ];
 
 function withPinyin(title: string, entry: Omit<SearchEntry, 'initials' | 'fullPinyin'>): SearchEntry {
@@ -115,15 +166,11 @@ export function buildIndex(locale: Locale): SearchEntry[] {
   );
 
   const pageEntries: SearchEntry[] = STATIC_PAGES.map(({ extra, ...page }) => {
-    const title = page.id === 'page-docs' && locale === 'en' ? 'Help Center' : page.title;
-    const localizedExtra = page.id === 'page-docs' && locale === 'en'
-      ? 'help docs questions answers installation licensing'
-      : extra;
-
-    return withPinyin(title, {
+    const localized = locale === 'en' ? PAGE_ENGLISH[page.id] : page;
+    return withPinyin(localized.title, {
       ...page,
-      title,
-      keywords: [title, page.subtitle || '', localizedExtra || ''].join(' ').toLowerCase(),
+      ...localized,
+      keywords: [page.title, localized.title, localized.subtitle || '', extra || ''].join(' ').toLowerCase(),
     });
   });
 
@@ -132,7 +179,7 @@ export function buildIndex(locale: Locale): SearchEntry[] {
       withPinyin(f.question, {
         id: `faq-${i}`,
         title: f.question,
-        subtitle: '常见问题',
+        subtitle: locale === 'zh' ? '常见问题' : 'Frequently asked questions',
         group: '帮助',
         href: '/#faq',
         keywords: `${f.question} ${f.answer}`.toLowerCase(),
@@ -154,7 +201,7 @@ export function buildIndex(locale: Locale): SearchEntry[] {
     withPinyin(s.label[locale], {
       id: `blog-section-${s.id}`,
       title: s.label[locale],
-      subtitle: `博客分区 · ${s.description[locale]}`,
+      subtitle: `${locale === 'zh' ? '博客分区' : 'Blog section'} · ${s.description[locale]}`,
       group: '页面',
       href: `/blog/section/${s.slug}`,
       keywords: [s.id, s.slug, s.label[locale], s.description[locale], '博客 分区 blog'].join(' ').toLowerCase(),
@@ -162,19 +209,20 @@ export function buildIndex(locale: Locale): SearchEntry[] {
   );
 
   const eggEntries: SearchEntry[] = EGG_COMMANDS.map(e =>
-    withPinyin(e.cmd, {
+    withPinyin(locale === 'en' ? e.titleEn ?? e.cmd : e.cmd, {
       id: `egg-${e.cmd}`,
-      title: e.cmd,
-      subtitle: `终端命令 · ${e.hint}`,
+      title: locale === 'en' ? e.titleEn ?? e.cmd : e.cmd,
+      subtitle: `${locale === 'zh' ? '终端命令' : 'Terminal command'} · ${e.hint[locale]}`,
       group: '彩蛋',
       href: '/#terminal',
-      keywords: `${e.cmd} ${e.hint} ${e.extra || ''} 命令 彩蛋`.toLowerCase(),
+      keywords: `${e.cmd} ${e.hint[locale]} ${e.extra || ''} 命令 彩蛋`.toLowerCase(),
     }),
   );
 
   return [
     ...productEntries,
     ...pageEntries,
+    ...navigationPageEntries(locale),
     ...sectionEntries,
     ...helpArticleEntries,
     ...faqEntries,
@@ -411,12 +459,12 @@ function fuzzySearch(index: SearchEntry[], query: string, limit: number): Search
 
 // ── 路径面包屑 ────────────────────────────────────────
 
-const GROUP_BREADCRUMB: Record<SearchGroup, string> = {
-  '产品': '全部产品',
-  '页面': '',
-  '帮助': '帮助中心',
-  '博客': '博客',
-  '彩蛋': '店主的终端',
+const GROUP_BREADCRUMB: Record<SearchGroup, LocalizedText> = {
+  '产品': { zh: '全部产品', en: 'All products' },
+  '页面': { zh: '', en: '' },
+  '帮助': { zh: '帮助中心', en: 'Help Center' },
+  '博客': { zh: '博客', en: 'Blog' },
+  '彩蛋': { zh: '店主的终端', en: 'Creator’s terminal' },
 };
 
 const GROUP_ROOT: Record<SearchGroup, string> = {
@@ -428,8 +476,8 @@ const GROUP_ROOT: Record<SearchGroup, string> = {
 };
 
 /** 获取条目的路径面包屑，用于显示"所属分类 > 条目名" */
-export function getBreadcrumb(entry: SearchEntry): { label: string; href: string } | null {
-  const rootLabel = GROUP_BREADCRUMB[entry.group];
+export function getBreadcrumb(entry: SearchEntry, locale: Locale = 'zh'): { label: string; href: string } | null {
+  const rootLabel = GROUP_BREADCRUMB[entry.group]?.[locale];
   if (rootLabel == null) return null;
   return { label: rootLabel, href: GROUP_ROOT[entry.group] };
 }

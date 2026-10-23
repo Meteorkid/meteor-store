@@ -874,7 +874,7 @@
     "loadTrial": "点击免费体验",
     "trialHint": "无需购买即可体验完整功能，购买后解锁持续使用。",
     "loadTrialAria": "加载 {name} 免费试用",
-    "passPrompt": "想把站内应用全部拿下？",
+    "passPrompt": "想获得 XIsland 产品线的全部工具？",
     "passCta": "看 Meteor Pass 产品线通行证 →",
     "downloadChecking": "校验中…",
     "downloadLoginHint": "登录后可下载",
@@ -1050,7 +1050,7 @@
     "singleAppCta": "看单个应用的定价 →",
     "enterprisePrompt": "团队或企业使用？",
     "enterpriseCta": "联系我们获取定制方案 →",
-    "scopeNote": "Pass 为个人使用授权，覆盖站内应用的个人档；团队席位、私有部署与 SLA 请单独联系。"
+    "scopeNote": "Pass 为个人使用授权，覆盖 XIsland 产品线的个人档；团队席位、私有部署与 SLA 请单独联系。"
   },
   "CTASection": {
     "browseProducts": "浏览全部产品"
@@ -1457,20 +1457,38 @@
   },
   "SpotlightSearch": {
     "dialogAriaLabel": "全站搜索",
-    "placeholder": "找产品、找帮助，支持拼音 · 输入 meteor 试试",
+    "placeholder": "搜索产品、日刊、硕士申请与学习工具",
     "inputAriaLabel": "搜索",
     "resultsAriaLabel": "搜索结果",
     "recentLabel": "最近访问",
     "clear": "清除",
     "popularLabel": "热门",
-    "hint": "⌘K 随时唤起 · ↑↓ 选择 · Enter 直达 · 支持拼音",
+    "hint": "⌘K 打开 · ↑↓ 选择 · Enter 直达 · 支持拼音",
     "empty": "什么都没找到，但你可以去终端碰碰运气 →",
     "terminalLink": "店主的终端",
     "groupProduct": "产品",
     "groupPage": "页面",
     "groupHelp": "帮助",
     "groupEasterEgg": "彩蛋",
-    "groupBlog": "博客"
+    "groupBlog": "博客",
+    "copied": "已复制",
+    "copyResult": "↵ 复制",
+    "searching": "搜索中…",
+    "resultHint": "↵ 打开 · ⌘↵ 新标签 · ⌘C 复制 · {filterHint}⌘⌫ 清空",
+    "filterHint": "blog: help: @ 过滤 · ",
+    "mathHint": "↵ 复制结果 · ⌘⌫ 清空",
+    "closeHint": "Esc 关闭 · ⌘⌫ 清空",
+    "filteredPlaceholder": "在{group}中搜索…",
+    "resultCount": "找到 {count} 条结果",
+    "noResults": "未找到结果",
+    "historyLabel": "最近搜索",
+    "removeHistory": "删除搜索记录：{query}",
+    "feedback": "反馈建议",
+    "webSearch": "站内搜索",
+    "fuzzyHint": "你是不是想搜…",
+    "filteredCount": "仅显示{group} · {count} 条",
+    "clearFilter": "清除过滤",
+    "showMore": "显示更多（共 {count} 条）…"
   },
   "PlaygroundTabs": {
     "descOmnicrawl": "三引擎爬虫框架：一行命令，自动选择最优引擎。",
@@ -1627,7 +1645,9 @@
     "discount": "折扣",
     "renew": "续订",
     "upgrade": "升级",
-    "owned": "已拥有"
+    "owned": "已拥有",
+    "currentPlan": "当前套餐",
+    "lifetimeOwned": "已买断"
   },
   "StoryLetter": {
     "headerTitle": "一封来自店主的信",
@@ -2171,7 +2191,14 @@
       "noteWhatHappened": "发生了什么",
       "noteWhyItMatters": "为什么值得关注",
       "noteSkills": "影响哪些技能",
-      "noteSuggestedAction": "建议做什么"
+      "noteSuggestedAction": "建议做什么",
+      "digestUnavailableTitle": "全文暂不可用",
+      "digestUnavailableDescription": "当前显示已收录的摘要。条目的来源核验不代表全文已获取；你可以前往原站阅读，本站会稍后自动重试。",
+      "digestStatusLabel": "全文状态",
+      "digestAvailable": "已获取全文",
+      "entryVerifiedAt": "条目最近核验",
+      "savedHistoryNotice": "这条收藏已截止，现仅供你回看历史信息。",
+      "backToSaved": "返回我的收藏"
     },
     "planPage": {
       "metaTitle": "我的学习路径 · Meteor Pathfinder",
@@ -2332,6 +2359,8 @@
     "saves": {
       "metaTitle": "我的收藏 · Meteor Pathfinder",
       "metaDescription": "你收藏的竞赛、实习、开源任务与 AI 动态，截止前会收到提醒。",
+      "loadFailed": "收藏暂时无法读取，请稍后重试。",
+      "retry": "重新加载",
       "eyebrow": "回来继续",
       "title": "我的收藏",
       "description": "收藏是给未来的自己留的线索。带截止时间的条目会在到期前三天发一封提醒邮件，可以逐条关闭。",
@@ -2344,7 +2373,12 @@
       "saved": "已收藏",
       "remindMe": "截止前提醒我",
       "loginRequired": "请先登录",
-      "failed": "操作失败，请重试"
+      "failed": "操作失败，请重试",
+      "noActive": "当前没有进行中的收藏，下方可以回看已结束条目。",
+      "expiredDescription": "保留已结束条目的摘要与来源，方便回看。",
+      "loginAction": "登录后收藏",
+      "sessionChanged": "账号已变化，请刷新后重试。",
+      "refreshAction": "刷新页面"
     },
     "directory": {
       "breadcrumb": "面包屑导航",
@@ -2368,7 +2402,10 @@
       "follow": "关注",
       "following": "已关注",
       "loginRequired": "请先登录",
-      "failed": "操作失败，请重试"
+      "failed": "操作失败，请重试",
+      "loginAction": "登录后关注",
+      "sessionChanged": "账号已变化，请刷新后重试。",
+      "refreshAction": "刷新页面"
     },
     "weekly": {
       "metaTitle": "本周 · Meteor Pathfinder",

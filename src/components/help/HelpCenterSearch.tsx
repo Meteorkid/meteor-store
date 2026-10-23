@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { searchHelpEntries, type HelpSearchEntry } from '@/data/help-search';
@@ -44,6 +44,13 @@ export default function HelpCenterSearch({
     },
     [router],
   );
+
+  const activeSlug = results[activeIndex]?.slug;
+  useEffect(() => {
+    if (open && activeSlug) {
+      listRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [open, activeSlug]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.nativeEvent.isComposing) return;

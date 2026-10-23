@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const hooks = vi.hoisted(() => ({
   open: false,
+  trigger: { current: null as unknown },
   cleanups: [] as Array<() => void>,
 }));
 
@@ -12,6 +13,7 @@ vi.mock('react', async importOriginal => ({
     hooks.open = typeof next === 'function' ? next(hooks.open) : next;
   }],
   useCallback: (callback: () => void) => callback,
+  useRef: () => hooks.trigger,
   useEffect: (effect: () => void | (() => void)) => {
     const cleanup = effect();
     if (cleanup) hooks.cleanups.push(cleanup);
@@ -22,6 +24,9 @@ vi.mock('next/dynamic', () => ({ default: () => () => null }));
 
 import SpotlightSearch from '../SpotlightSearch';
 
+class FocusTarget { isConnected = true; visible = true; getClientRects = () => this.visible ? [{}] : []; focus = vi.fn(); }
+let trigger: FocusTarget;
+let fallbackTrigger: FocusTarget;
 let browserWindow: EventTarget;
 let openEvents = vi.fn<(event: Event) => void>();
 
@@ -52,6 +57,12 @@ function pressKey(
 
 beforeEach(() => {
   hooks.open = false;
+  trigger = new FocusTarget();
+  fallbackTrigger = new FocusTarget();
+  hooks.trigger.current = null;
+  vi.stubGlobal('HTMLElement', FocusTarget);
+  vi.stubGlobal('document', { activeElement: trigger, body: new FocusTarget(), querySelector: vi.fn(() => fallbackTrigger) });
+  vi.stubGlobal('requestAnimationFrame', (callback: () => void) => { callback(); return 1; });
   browserWindow = new EventTarget();
   openEvents = vi.fn<(event: Event) => void>();
   browserWindow.addEventListener('spotlight:open', openEvents);
@@ -102,6 +113,38 @@ describe('Spotlight 搜索快捷键与导航交接', () => {
     expect(event.defaultPrevented).toBe(true);
     expect(openEvents).not.toHaveBeenCalled();
     expect(renderSearch()).toBeNull();
+  });
+
+  it('取消后恢复原触发器，路由导航关闭不抢走新页面焦点', () => {
+    browserWindow.dispatchEvent(new CustomEvent('spotlight:open'));
+    let panel = renderSearch()!;
+    panel.props.onClose();
+    expect(trigger.focus).toHaveBeenCalledWith({ preventScroll: true });
+    renderSearch();
+    trigger.focus.mockClear();
+    browserWindow.dispatchEvent(new CustomEvent('spotlight:open'));
+    panel = renderSearch()!;
+    panel.props.onClose(false);
+    expect(trigger.focus).not.toHaveBeenCalled();
+    expect(fallbackTrigger.focus).not.toHaveBeenCalled();
+  });
+
+  it.each(['detached', 'hidden'])('菜单触发链接 %s 时回到常驻搜索按钮', state => {
+    browserWindow.dispatchEvent(new CustomEvent('spotlight:open'));
+    const panel = renderSearch()!;
+    if (state === 'detached') trigger.isConnected = false;
+    else trigger.visible = false;
+    panel.props.onClose();
+    expect(trigger.focus).not.toHaveBeenCalled();
+    expect(document.querySelector).toHaveBeenCalledWith('[data-spotlight-trigger]');
+    expect(fallbackTrigger.focus).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  it('从正文默认焦点打开时，取消也返回可操作的搜索入口', () => {
+    Object.defineProperty(document, 'activeElement', { value: document.body });
+    browserWindow.dispatchEvent(new CustomEvent('spotlight:open'));
+    renderSearch()!.props.onClose();
+    expect(fallbackTrigger.focus).toHaveBeenCalledWith({ preventScroll: true });
   });
 
   it('卸载后释放快捷键和打开事件监听', () => {

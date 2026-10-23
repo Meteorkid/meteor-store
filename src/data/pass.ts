@@ -54,7 +54,7 @@ export const passPlans: PassPlan[] = [
     durationMonths: 1,
     features: [
       { zh: 'XIsland 产品线全部工具的使用授权', en: 'Every tool on the XIsland line, licensed to you' },
-      { zh: 'macOS 应用发放授权码，站内应用直接打开', en: 'macOS apps ship as license keys; in-browser apps open directly' },
+      { zh: '下载桌面工具，按各产品说明使用授权', en: 'Download the desktop tools and activate them as described for each product' },
       { zh: '这条线以后新增的工具自动包含', en: 'Future tools on this line included automatically' },
       { zh: '邮件支持', en: 'Email support' },
     ],

@@ -342,7 +342,7 @@ export default function Header() {
               }
             }}
             onPointerDownCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }} onFocusCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }}>
-            <button type="button" className={styles.iconButton} onClick={openSearch} aria-label={t('search')} title={t('searchShortcutTitle')}><SearchIcon /></button>
+            <button type="button" className={styles.iconButton} onClick={openSearch} data-spotlight-trigger aria-label={t('search')} title={t('searchShortcutTitle')}><SearchIcon /></button>
             <NotificationBell />
             <LanguageSwitcher />
             <div className={styles.desktopAccount}><UserMenu /></div>

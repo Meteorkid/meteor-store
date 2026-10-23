@@ -28,7 +28,8 @@ describe('normalizeLoginReturn', () => {
 
   it.each([
     '/account', '/orders', '/redeem', '/blog/submit', '/blog/my-posts',
-    '/blog/favorites', '/pathfinder/saved',
+    '/blog/favorites', '/pathfinder/saved', '/student', '/pathfinder/opportunities',
+    '/pathfinder/topics', '/pathfinder/organizations',
   ])('保留需要登录的站内目的地：%s', (path) => {
     expect(normalizeLoginReturn(path)).toBe(path);
     expect(new URL(buildLoginHref(path), 'https://store.test').searchParams.get('next')).toBe(path);
@@ -52,6 +53,11 @@ describe('normalizeLoginReturn', () => {
     }
   });
 
+  it.each(['/pathfinder/items/pf_06fd62c7c93de63798c85674', '/pathfinder/topics/ai', '/pathfinder/organizations/Hugging%20Face'])('收藏或关注登录后返回准确对象：%s', (value) => {
+    expect(normalizeLoginReturn(value)).toBe(value);
+    expect(new URL(buildLoginHref(value), 'https://store.test').searchParams.get('next')).toBe(value);
+  });
+
   it.each([
     'https://evil.example',
     '//evil.example',
@@ -63,6 +69,16 @@ describe('normalizeLoginReturn', () => {
     '/products/xisland\n',
     '/products/unknown-product',
     '/admin',
+    '/student?next=https://evil.example',
+    '/pathfinder/items/../admin',
+    '/pathfinder/items/a?next=https://evil.example',
+    '/pathfinder/items/pf_test\n',
+    '/pathfinder/topics/%2e%2e',
+    '/pathfinder/topics/a%2fb',
+    '/pathfinder/topics/a%5cb',
+    '/pathfinder/topics/a%3fb',
+    '/pathfinder/topics/%252fadmin',
+    '/pathfinder/organizations/%0aevil',
     '/apps/unknown-app',
     '/apps/xisland',
     '/apps/tollow/../../admin',

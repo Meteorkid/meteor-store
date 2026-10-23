@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { getHeaderNavigation } from '@/data/header-navigation';
+import { SHOW_PRICING } from '@/lib/constants';
 import { localizeHelpArticles } from '@/data/help-articles';
 import {
   buildIndex,
@@ -247,5 +249,45 @@ describe('getBreadcrumb', () => {
     const bc = getBreadcrumb({ group: '博客' } as unknown as SearchEntry);
     expect(bc?.label).toBe('博客');
     expect(bc?.href).toBe('/blog');
+  });
+});
+
+
+describe('公开功能页搜索与本地化', () => {
+  it.each([
+    ['zh', '每日一新', '/daily'], ['en', 'daily', '/daily'],
+    ['zh', '硕士', '/masters'], ['en', 'masters', '/masters'],
+    ['zh', '学习路径', '/pathfinder'], ['en', 'learning path', '/pathfinder/plan'],
+    ['zh', '学习计划', '/pathfinder/plan'], ['en', 'opportunities', '/pathfinder/opportunities'],
+  ] as const)('%s 搜索 %s 可直达 %s', (locale, query, href) => {
+    expect(searchEntries(query, locale).map(entry => entry.href)).toContain(href);
+  });
+
+  it.each(['zh', 'en'] as const)('%s 日刊栏目沿用导航深链和说明', locale => {
+    const daily = getHeaderNavigation(SHOW_PRICING).find(group => group.id === 'daily')!;
+    const index = buildIndex(locale);
+    for (const link of daily.sections.flatMap(section => section.links)) {
+      expect(index.find(entry => entry.href === link.href)).toMatchObject({
+        title: link.label[locale], subtitle: link.description?.[locale],
+      });
+    }
+  });
+
+  it('私人收藏、账号、后台及草稿页面不进入公共索引', () => {
+    for (const locale of ['zh', 'en'] as const) {
+      const hrefs = buildIndex(locale).map(entry => entry.href);
+      expect(hrefs).not.toContain('/pathfinder/saved');
+      expect(hrefs.some(href => /^\/(account|admin|apps)(?:\/|$)/.test(href))).toBe(false);
+      expect(hrefs).not.toContain('/blog/my-posts');
+      expect(hrefs).not.toContain('/blog/favorites');
+    }
+  });
+
+  it('英文页面标题、说明与面包屑不残留中文界面文案', () => {
+    for (const entry of buildIndex('en').filter(entry => entry.group === '页面')) {
+      expect(entry.title + (entry.subtitle ?? '')).not.toMatch(/[\u4e00-\u9fff]/);
+    }
+    expect(getBreadcrumb({ group: '帮助' } as SearchEntry, 'en')?.label).toBe('Help Center');
+    expect(getBreadcrumb({ group: '产品' } as SearchEntry, 'en')?.label).toBe('All products');
   });
 });

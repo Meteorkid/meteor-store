@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   getIndex,
@@ -108,7 +108,7 @@ interface SearchAPIResponse {
 
 // ── 主组件 ────────────────────────────────────────────
 
-export default function SpotlightSearchPanel({ onClose }: { onClose: () => void }) {
+export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFocus?: boolean) => void }) {
   const router = useRouter();
   const locale = useLocale() as Locale;
   const t = useTranslations('SpotlightSearch');
@@ -127,6 +127,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // 解析前缀过滤
@@ -163,7 +164,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
 
     const timer = setTimeout(async () => {
       try {
-        const url = `/api/spotlight/search?q=${encodeURIComponent(displayQuery)}&locale=${locale}`;
+        const url = `/api/spotlight/search?q=${encodeURIComponent(query.trim())}&locale=${locale}`;
         const res = await fetch(url, { signal: controller.signal });
         if (!res.ok) { setResults([]); return; }
         const data: SearchAPIResponse = await res.json();
@@ -185,7 +186,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
     }, DEBOUNCE_MS);
 
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [displayQuery, locale, parsedQuery.groupFilter]);
+  }, [query, displayQuery, locale, parsedQuery.groupFilter]);
 
   // 重置选中项
   const [prevQuery, setPrevQuery] = useState(query);
@@ -204,19 +205,19 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
 
   const isEmpty = query.trim() === '';
   const allDefault = useMemo(() => [...defaultEntries.recent, ...defaultEntries.popular], [defaultEntries]);
-  const visibleResults = useMemo(() => results.slice(0, visibleLimit), [results, visibleLimit]);
+  const visibleResults = useMemo(() => {
+    const visible = results.slice(0, visibleLimit);
+    return GROUP_ORDER.flatMap(group => visible.filter(entry => entry.group === group));
+  }, [results, visibleLimit]);
   const hasMore = results.length > visibleLimit;
 
-  // 活动条目
-  const activeEntries = useMemo((): Array<SearchEntry | { __math: QuickMathResult }> => {
-    if (isEmpty) return allDefault;
-    const list: Array<SearchEntry | { __math: QuickMathResult }> = [...visibleResults];
-    if (quickMath) list.unshift({ __math: quickMath } as unknown as SearchEntry);
-    return list;
-  }, [isEmpty, allDefault, visibleResults, quickMath]);
-
-  const activeItems = activeEntries;
+  // 同一数组同时定义视觉与键盘顺序，包括历史记录和计算结果。
+  const activeItems = useMemo((): Array<SearchEntry | { __math: QuickMathResult } | { __history: string }> => {
+    if (isEmpty) return [...searchHistory.map(__history => ({ __history })), ...allDefault];
+    return [...(quickMath ? [{ __math: quickMath }] : []), ...visibleResults];
+  }, [isEmpty, searchHistory, allDefault, visibleResults, quickMath]);
   const totalItems = activeItems.length;
+  if (activeIndex >= Math.max(totalItems, 1)) setActiveIndex(Math.max(totalItems - 1, 0));
 
   // 结果统计
   const resultStats = useMemo(() => {
@@ -228,7 +229,6 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
     return GROUP_ORDER.filter(g => counts[g]).map(g => `${counts[g]}`).join(' · ');
   }, [isEmpty, results]);
 
-  const panelAlpha = Math.min(0.45 + query.length * 0.05, 0.92);
 
   // ── 光晕色调 ────────────────────────────────────────
   const glowHue = useMemo(() => {
@@ -240,18 +240,21 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
   }, [parsedQuery.groupFilter, quickMath]);
 
   // ── 导航 ────────────────────────────────────────────
-  const close = useCallback(() => {
+  const close = useCallback((restoreFocus = true) => {
+    if (closeTimerRef.current) return;
     setIsClosing(true);
-    setTimeout(() => {
-      setQuery(''); setActiveIndex(0); setResults([]);
-      setVisibleLimit(INITIAL_LIMIT); setIsClosing(false); onClose();
-    }, 180);
+    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180;
+    closeTimerRef.current = setTimeout(() => onClose(restoreFocus), delay);
   }, [onClose]);
+
+  useEffect(() => () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+  }, []);
 
   const navigate = useCallback((entry: SearchEntry) => {
     saveRecentId(entry.id);
     if (query.trim()) saveSearchHistory(query);
-    close();
+    close(false);
     router.push(entry.href);
   }, [close, router, query]);
 
@@ -259,8 +262,8 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
     saveRecentId(entry.id);
     if (query.trim()) saveSearchHistory(query);
     close();
-    window.open(entry.href, '_blank');
-  }, [close, query]);
+    window.open(`/${locale}${entry.href}`, '_blank', 'noopener,noreferrer');
+  }, [close, query, locale]);
 
   const handleClearRecent = useCallback((e: React.MouseEvent) => {
     e.stopPropagation(); removeAllRecent(); setRecentIds([]);
@@ -305,13 +308,15 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
 
   useEffect(() => {
     listRef.current?.querySelector(`[data-index="${activeIndex}"]`)?.scrollIntoView({ block: 'nearest' });
-  }, [activeIndex]);
+  }, [activeIndex, visibleResults, isEmpty]);
 
-  const activeItem = activeItems[activeIndex] as SearchEntry | undefined;
+  const activeItem = activeItems[activeIndex];
 
   // ── 键盘 ────────────────────────────────────────────
   const onPanelKeyDown = (e: React.KeyboardEvent) => {
+    if (e.nativeEvent.isComposing) return;
     const { key, metaKey, ctrlKey } = e;
+    if (key !== 'Escape' && e.target !== inputRef.current) return;
 
     // ⌘Delete / ⌘Backspace → 清空输入
     if ((metaKey || ctrlKey) && (key === 'Backspace' || key === 'Delete')) {
@@ -325,7 +330,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
     if ((metaKey || ctrlKey) && key.toLowerCase() === 'c') {
       if (activeItem && 'href' in activeItem) {
         e.preventDefault();
-        copyToClipboard(window.location.origin + activeItem.href);
+        copyToClipboard(window.location.origin + `/${locale}${activeItem.href}`);
         setCopiedId(activeItem.id);
         setTimeout(() => setCopiedId(null), 1500);
       }
@@ -336,12 +341,16 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
       case 'Escape':
         e.preventDefault(); close(); break;
       case 'ArrowDown':
-        e.preventDefault(); setActiveIndex(i => Math.min(i + 1, totalItems - 1)); break;
+        e.preventDefault(); setActiveIndex(i => Math.min(i + 1, Math.max(totalItems - 1, 0))); break;
       case 'ArrowUp':
         e.preventDefault(); setActiveIndex(i => Math.max(i - 1, 0)); break;
       case 'Enter': {
         e.preventDefault();
         if (!activeItem) break;
+        if ('__history' in activeItem) {
+          setQuery(activeItem.__history);
+          return;
+        }
         if (metaKey || ctrlKey) {
           if ('href' in activeItem) navigateNewTab(activeItem as SearchEntry);
           return;
@@ -397,21 +406,21 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
               <span className="text-sm text-white font-mono font-semibold">{math.result}</span>
             </span>
           </span>
-          <span className="shrink-0 text-[10px] text-white/25">{copiedId === '__math' ? '已复制 ✓' : '↵ 复制'}</span>
+          <span className="shrink-0 text-[10px] text-white/60">{copiedId === '__math' ? t('copied') : t('copyResult')}</span>
         </div>
       );
     }
 
     const entry = entryLike as SearchEntry;
     const active = globalIdx === activeIndex;
-    const breadcrumb = getBreadcrumb(entry);
+    const breadcrumb = getBreadcrumb(entry, locale);
 
     return (
       <button key={entry.id} data-index={globalIdx} role="option" aria-selected={active}
         onClick={() => navigate(entry)} onMouseEnter={() => setActiveIndex(globalIdx)}
         style={{ animationDelay: `${globalIdx * 30}ms` }}
         className={`w-full flex items-center justify-between gap-4 px-5 py-2.5 text-left
-          transition-all duration-150 ease-out
+          transition-colors duration-150 ease-out motion-reduce:transition-none
           ${active ? 'bg-purple-500/20 border-l-2 border-purple-400 pl-[18px]' : 'border-l-2 border-transparent hover:bg-white/[0.04]'}
           ${!isEmpty ? 'animate-search-result-in' : ''}`}>
         <span className="min-w-0 flex items-center gap-3">
@@ -425,20 +434,20 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
               )}
             </span>
             {breadcrumb && breadcrumb.label && (
-              <span className="text-[10px] text-white/25 truncate">{breadcrumb.label} › {entry.title}</span>
+              <span className="text-[10px] text-white/60 truncate">{breadcrumb.label} › {entry.title}</span>
             )}
             {entry.subtitle && !breadcrumb?.label && (
               isEmpty ? (
-                <span className="block text-xs text-white/35 truncate">{entry.subtitle}</span>
+                <span className="block text-xs text-white/60 truncate">{entry.subtitle}</span>
               ) : (
                 <HighlightedText text={entry.subtitle} query={displayQuery}
-                  className="block text-xs text-white/35 truncate" />
+                  className="block text-xs text-white/60 truncate" />
               )
             )}
           </span>
         </span>
         <span className="shrink-0 flex items-center gap-1.5">
-          {copiedId === entry.id && <span className="text-[10px] text-green-300/80">已复制</span>}
+          {copiedId === entry.id && <span className="text-[10px] text-green-300/80">{t('copied')}</span>}
           {active && <span className="text-[10px] text-purple-300/80 font-mono" aria-hidden="true">↵</span>}
         </span>
       </button>
@@ -448,13 +457,17 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
   // ── 页脚 ────────────────────────────────────────────
   const footerHint = useMemo(() => {
     if (isEmpty) return t('hint');
-    if (isSearching) return '搜索中…';
+    if (isSearching) return t('searching');
     if (activeItem && 'href' in activeItem)
-      return `↵ 打开  ⌘↵ 新标签  ⌘C 复制  ${hasActiveFilter ? '' : '提示: blog: help: @ 过滤  '}⌘⌫ 清空`;
-    if (activeItem && '__math' in activeItem) return '↵ 复制结果  ⌘⌫ 清空';
-    return 'Esc 关闭  ⌘⌫ 清空';
+      return t('resultHint', { filterHint: hasActiveFilter ? '' : t('filterHint') });
+    if (activeItem && '__math' in activeItem) return t('mathHint');
+    return t('closeHint');
   }, [isEmpty, isSearching, activeItem, hasActiveFilter, t]);
 
+  const groupLabel = (group: SearchGroup) => t(
+    group === '产品' ? 'groupProduct' : group === '页面' ? 'groupPage' :
+    group === '帮助' ? 'groupHelp' : group === '博客' ? 'groupBlog' : 'groupEasterEgg',
+  );
   const handleMaskClick = useCallback(() => close(), [close]);
 
   return (
@@ -485,12 +498,12 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
       {/* 玻璃面板 */}
       <div
         className={`glass-lg relative w-full max-w-xl rounded-2xl overflow-hidden ${isClosing ? 'animate-spotlight-panel-out' : 'animate-spotlight-panel-in'}`}
-        style={{ backgroundColor: `rgba(18, 14, 32, ${panelAlpha})`, transition: 'background-color 150ms ease' }}
+        style={{ backgroundColor: 'rgb(18, 14, 32)' }}
       >
         {/* 输入行 */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.08]">
           <svg
-            className={`w-5 h-5 shrink-0 transition-colors duration-200 ${isSearching ? 'text-purple-400 animate-spin' : 'text-white/40'}`}
+            className={`w-5 h-5 shrink-0 transition-colors duration-200 ${isSearching ? 'text-purple-400 animate-spin' : 'text-white/60'}`}
             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
           </svg>
@@ -508,26 +521,25 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
             type="text" value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder={hasActiveFilter
-              ? `在${parsedQuery.groupFilter}中搜索…`
+              ? t('filteredPlaceholder', { group: groupLabel(parsedQuery.groupFilter!) })
               : t('placeholder')}
             aria-label={t('inputAriaLabel')}
             autoComplete="off" spellCheck={false} maxLength={60}
-            className="flex-1 bg-transparent outline-none text-white text-base placeholder:text-white/30 caret-purple-400"
+            className="min-w-0 flex-1 bg-transparent outline-none text-white text-base placeholder:text-white/60 caret-purple-400"
           />
-          <kbd className="hidden sm:block text-[10px] text-white/30 border border-white/15 rounded px-1.5 py-0.5 font-mono">ESC</kbd>
+          <kbd className="hidden sm:block text-[10px] text-white/60 border border-white/15 rounded px-1.5 py-0.5 font-mono">ESC</kbd>
         </div>
 
         {/* 结果区 */}
         <div ref={listRef} className="max-h-[46vh] overflow-y-auto overscroll-contain py-2"
           role="listbox" aria-label={t('resultsAriaLabel')}
-          style={{ scrollBehavior: 'smooth' }}
         >
           {/* 屏幕阅读器播报 */}
           <div className="sr-only" aria-live="polite" aria-atomic="true">
             {!isEmpty && !isSearching && results.length > 0
-              ? `找到 ${results.length} 条结果`
+              ? t('resultCount', { count: results.length })
               : !isEmpty && !isSearching && results.length === 0
-                ? '未找到结果'
+                ? t('noResults')
                 : ''}
           </div>
 
@@ -536,77 +548,75 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
               {searchHistory.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between px-5 pt-3 pb-1.5">
-                    <p className="text-[11px] text-white/30 uppercase tracking-widest">最近搜索</p>
+                    <p className="text-[11px] text-white/60 uppercase tracking-widest">{t('historyLabel')}</p>
                     <button type="button"
                       onClick={() => { setSearchHistory([]); localStorage.removeItem(HISTORY_KEY); }}
-                      className="text-[11px] text-white/20 hover:text-white/40 transition-colors">清除</button>
+                      className="text-[11px] text-white/60 hover:text-white/80 transition-colors">{t('clear')}</button>
                   </div>
                   {searchHistory.map((h, i) => (
-                    <button key={h} data-index={i} role="option" aria-selected={i === activeIndex}
+                    <div key={h} data-index={i} role="option" aria-selected={i === activeIndex}
                       onMouseEnter={() => setActiveIndex(i)}
-                      onClick={() => { setQuery(h); inputRef.current?.focus(); }}
                       className={`w-full flex items-center justify-between gap-4 px-5 py-2 text-left transition-colors ${i === activeIndex ? 'bg-purple-500/20' : 'hover:bg-white/[0.04]'}`}>
-                      <span className="flex items-center gap-3 min-w-0">
-                        
-                        <span className="text-sm text-white/60 truncate">{h}</span>
-                      </span>
+                      <button type="button" onClick={() => { setQuery(h); inputRef.current?.focus(); }}
+                        className="min-w-0 flex-1 text-left text-sm text-white/60 truncate">{h}</button>
                       <button onClick={(e) => { e.stopPropagation(); removeSearchHistory(h); setSearchHistory(getSearchHistory()); }}
-                        className="text-[10px] text-white/20 hover:text-white/50 transition-colors shrink-0" aria-label={`删除 ${h}`}>✕</button>
-                    </button>
+                        className="text-[10px] text-white/60 hover:text-white/80 transition-colors shrink-0" aria-label={t('removeHistory', { query: h })}>✕</button>
+                    </div>
                   ))}
                 </div>
               )}
               {defaultEntries.recent.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between px-5 pt-3 pb-1.5">
-                    <p className="text-[11px] text-white/30 uppercase tracking-widest">{t('recentLabel')}</p>
+                    <p className="text-[11px] text-white/60 uppercase tracking-widest">{t('recentLabel')}</p>
                     <button type="button" onClick={handleClearRecent}
-                      className="text-[11px] text-white/20 hover:text-white/40 transition-colors">{t('clear')}</button>
+                      className="text-[11px] text-white/60 hover:text-white/80 transition-colors">{t('clear')}</button>
                   </div>
                   {defaultEntries.recent.map(entry => renderItem(entry, searchHistory.length + allDefault.indexOf(entry)))}
                 </div>
               )}
               <div>
-                <p className="px-5 pt-3 pb-1.5 text-[11px] text-white/30 uppercase tracking-widest">{t('popularLabel')}</p>
+                <p className="px-5 pt-3 pb-1.5 text-[11px] text-white/60 uppercase tracking-widest">{t('popularLabel')}</p>
                 {defaultEntries.popular.map(entry => renderItem(entry, searchHistory.length + allDefault.indexOf(entry)))}
               </div>
             </>
-          ) : isSearching && visibleResults.length === 0 ? (
+          ) : isSearching && visibleResults.length === 0 && !quickMath ? (
             <div>{Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} index={i} />)}</div>
           ) : !isSearching && activeItems.length === 0 ? (
             <div className="px-5 py-6 space-y-3">
-              <p className="text-sm text-white/40 text-center">
+              <p className="text-sm text-white/60 text-center">
                 {t('empty')}{' '}
                 <button className="text-purple-300 hover:text-purple-200 underline underline-offset-2"
-                  onClick={() => { close(); router.push('/#terminal'); }}>{t('terminalLink')}</button>
+                  onClick={() => { close(false); router.push('/#terminal'); }}>{t('terminalLink')}</button>
               </p>
               <div className="flex justify-center gap-2">
-                <button className="text-xs text-white/30 hover:text-white/50 transition-colors underline underline-offset-2"
-                  onClick={() => { close(); router.push('/feedback'); }}>反馈建议</button>
-                <span className="text-white/15">·</span>
-                <button className="text-xs text-white/30 hover:text-white/50 transition-colors underline underline-offset-2"
+                <button className="text-xs text-white/60 hover:text-white/80 transition-colors underline underline-offset-2"
+                  onClick={() => { close(false); router.push('/feedback'); }}>{t('feedback')}</button>
+                <span className="text-white/60" aria-hidden="true">·</span>
+                <button className="text-xs text-white/60 hover:text-white/80 transition-colors underline underline-offset-2"
                   onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(displayQuery + ' site:' + new URL(SITE_URL).hostname)}`, '_blank')}>
-                  站内搜索</button>
+                  {t('webSearch')}</button>
               </div>
             </div>
           ) : (
             <>
               {/* "你是想搜…？"模糊提示 */}
               {hasFuzzy && !isSearching && (
-                <div className="px-5 py-1.5 text-[11px] text-amber-300/50">
-                  你是不是想搜…
+                <div className="px-5 py-1.5 text-[11px] text-amber-200">
+                  {t('fuzzyHint')}
                 </div>
               )}
 
               {/* 过滤指示 */}
               {hasActiveFilter && !isSearching && (
-                <div className="px-5 py-1.5 text-[11px] text-purple-300/50 flex items-center gap-1">
-                  仅显示{parsedQuery.groupFilter} · {results.length} 条
+                <div className="px-5 py-1.5 text-[11px] text-purple-200 flex items-center gap-1">
+                  {t('filteredCount', { group: groupLabel(parsedQuery.groupFilter!), count: results.length })}
                   <button className="underline underline-offset-2 hover:text-purple-200 ml-1"
-                    onClick={() => setQuery(displayQuery)}>清除过滤</button>
+                    onClick={() => setQuery(displayQuery)}>{t('clearFilter')}</button>
                 </div>
               )}
 
+              {quickMath && renderItem({ __math: quickMath }, 0)}
               {GROUP_ORDER.map(group => {
                 const groupResults = visibleResults.filter(r => r.group === group);
                 if (groupResults.length === 0) return null;
@@ -617,7 +627,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
                   : t('groupEasterEgg');
                 return (
                   <div key={group}>
-                    <p className="px-5 pt-3 pb-1.5 text-[11px] text-white/30 uppercase tracking-widest flex items-center gap-1.5">
+                    <p className="px-5 pt-3 pb-1.5 text-[11px] text-white/60 uppercase tracking-widest flex items-center gap-1.5">
                       <span aria-hidden="true">{''}</span> {label}
                     </p>
                     {groupResults.map(entry =>
@@ -628,8 +638,8 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
 
               {hasMore && (
                 <button onClick={() => setVisibleLimit(prev => prev + INITIAL_LIMIT)}
-                  className="w-full px-5 py-2.5 text-center text-xs text-white/35 hover:text-white/60 transition-colors border-t border-white/[0.06] mt-1">
-                  显示更多（共 {results.length} 条）…
+                  className="w-full px-5 py-2.5 text-center text-xs text-white/60 hover:text-white/80 transition-colors border-t border-white/[0.06] mt-1">
+                  {t('showMore', { count: results.length })}
                 </button>
               )}
             </>
@@ -637,8 +647,8 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: () => void 
         </div>
 
         {/* 页脚 */}
-        <div className="px-5 py-2 border-t border-white/[0.06] text-[10px] text-white/25 text-center font-mono flex items-center justify-between">
-          <span className="text-white/15">{resultStats}</span>
+        <div className="px-5 py-2 border-t border-white/[0.06] text-[10px] text-white/60 text-center font-mono flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <span className="text-white/60">{resultStats}</span>
           <span>{footerHint}</span>
         </div>
       </div>

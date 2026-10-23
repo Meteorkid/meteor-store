@@ -10,6 +10,7 @@ const hooks = vi.hoisted(() => ({
   dirty: false,
   locale: 'zh',
   push: vi.fn(),
+  effects: [] as Array<() => void>,
 }));
 
 // Node 环境只替换 hooks 调度和焦点边界，执行组件真实事件；不代替浏览器焦点与命中测试。
@@ -26,6 +27,7 @@ vi.mock('react', async importOriginal => ({
   },
   useRef: (initial: unknown) => hooks.refs[hooks.refIndex++] ??= { current: initial },
   useCallback: (callback: unknown) => callback,
+  useEffect: (effect: () => void) => hooks.effects.push(effect),
 }));
 vi.mock('next-intl', () => ({ useLocale: () => hooks.locale }));
 vi.mock('@/i18n/navigation', () => ({ Link: 'a', useRouter: () => ({ push: hooks.push }) }));
@@ -38,6 +40,8 @@ const entries: HelpSearchEntry[] = [
   { slug: 'account-help', category: 'account', categoryOrder: 2, order: 1, commercial: false, title: '账户帮助', excerpt: '登录与账户指南', keywords: '账户', initials: '', fullPinyin: '' },
 ];
 let tree: ElementNode;
+const scrollIntoView = vi.fn();
+const listNode = { querySelector: vi.fn(() => ({ scrollIntoView })) };
 const inputNode = { focus: vi.fn(), blur: vi.fn() };
 
 function renderSearch() {
@@ -50,6 +54,9 @@ function renderSearch() {
   } while (hooks.dirty);
   const ref = input().props.ref as { current: unknown };
   ref.current = inputNode;
+  const listRef = find(props => props.role === 'listbox')?.props.ref as { current: unknown } | undefined;
+  if (listRef) listRef.current = listNode;
+  hooks.effects.splice(0).forEach(effect => effect());
 }
 
 function find(predicate: (props: Record<string, unknown>) => boolean, node: unknown = tree): ElementNode | undefined {
@@ -81,6 +88,9 @@ function keyDown(key: string, target: unknown = inputNode) {
 
 beforeEach(() => {
   hooks.states = [];
+  hooks.effects = [];
+  scrollIntoView.mockClear();
+  listNode.querySelector.mockClear();
   hooks.refs = [];
   hooks.locale = 'zh';
   hooks.push.mockClear();
@@ -170,6 +180,15 @@ describe('帮助搜索键盘与空结果恢复', () => {
     keyDown('Escape');
     expect(input().props['aria-expanded']).toBe(false);
     expect(inputNode.blur).not.toHaveBeenCalled();
+  });
+
+  it('方向键改变活动项时就近滚入列表，不平滑移动整个页面', () => {
+    typeQuery('指南');
+    scrollIntoView.mockClear();
+    keyDown('ArrowDown');
+    expect(input().props['aria-activedescendant']).toBe('help-result-account-help');
+    expect(listNode.querySelector).toHaveBeenLastCalledWith('[aria-selected="true"]');
+    expect(scrollIntoView).toHaveBeenLastCalledWith({ block: 'nearest' });
   });
 
   it('点击结果继续打开对应帮助文章', () => {

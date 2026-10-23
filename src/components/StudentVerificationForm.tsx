@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
+import { buildLoginHref } from '@/lib/login-return';
 
 type Status = 'checking' | 'ready' | 'requesting' | 'sent' | 'success' | 'error';
 
@@ -105,7 +106,7 @@ export default function StudentVerificationForm() {
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
         <h2 className="text-lg font-semibold text-white">{t('loginTitle')}</h2>
         <p className="mt-2 text-sm leading-relaxed text-gray-400">{t('loginDescription')}</p>
-        <Link href="/login" className="mt-5 inline-block rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500">
+        <Link href={buildLoginHref('/student')} className="mt-5 inline-block rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500">
           {t('goToLogin')}
         </Link>
       </div>
