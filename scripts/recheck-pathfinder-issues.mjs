@@ -19,118 +19,144 @@
  * （抓取阶段的判定只作用于新条目），所以不定期跑这个，已关闭的 issue
  * 会一直挂在「可直接上手」里越积越多。
  */
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createSql } from './lib/pg-sql.mjs';
+import { beginRecheck, finishRecheck, InvalidRecheckStateError, quarantineRecheckState, readRecheckState, saveRecheckState } from './lib/recheck-state.mjs';
 import { notActionableReason } from '../src/lib/pathfinder/ingestion/actionable.ts';
 
-const apply = process.argv.includes('--apply');
-const quiet = process.argv.includes('--quiet');
-/** 逐条进度：cron 下静默，交互下照常打印 */
-const say = (...args) => { if (!quiet) console.log(...args); };
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) { console.error('缺少 DATABASE_URL'); process.exit(1); }
-const token = process.env.GITHUB_TOKEN;
-if (!token) {
-  console.error('缺少 GITHUB_TOKEN：未授权配额只有 60 次/小时，不足以回查全部条目');
-  process.exit(1);
-}
-const sql = createSql(databaseUrl);
-
-/** 从 issue 页面地址反推 REST 接口地址。 */
+/** 从公开 issue 地址反推固定 GitHub REST 地址，不接受 URL 凭据或其它主机。 */
 function apiUrlOf(canonicalUrl) {
-  const m = canonicalUrl.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/);
-  return m ? `https://api.github.com/repos/${m[1]}/${m[2]}/issues/${m[3]}` : null;
+  const match = canonicalUrl.match(/^https:\/\/github\.com\/([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)\/issues\/(\d+)(?:[/?#]|$)/);
+  return match ? `https://api.github.com/repos/${match[1]}/${match[2]}/issues/${match[3]}` : null;
 }
 
-const rows = await sql`
-  select id, canonical_url, title_en from pathfinder_items
-  where item_type = 'open-source' and status = 'published'
-  order by published_at asc
-`;
-say(`公开的开源条目 ${rows.length} 条，开始回查 GitHub…\n`);
-
-const doomed = [];
-let skipped = 0;
-let failed = 0;
-for (const row of rows) {
-  const api = apiUrlOf(row.canonical_url);
-  // 仓库入口（不是具体 issue）不适用这套判据，跳过
-  if (!api) { skipped += 1; continue; }
-
-  const response = await fetch(api, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'Meteor-Pathfinder/1.0',
-    },
-  });
-  if (!response.ok) {
-    // 404 通常意味着 issue 被删或转移；保守起见不动它，只报出来
-    failed += 1;
-    say(`  ?  HTTP ${response.status}  ${(row.title_en ?? '').slice(0, 55)}`);
-    continue;
+/** 依赖参数仅供隔离夹具注入；CLI 不接受可改写 GitHub 主机的参数。 */
+export async function main(options = {}) {
+  const args = options.args ?? process.argv.slice(2);
+  const env = options.env ?? process.env;
+  const apply = args.includes('--apply');
+  const quiet = args.includes('--quiet');
+  const output = options.output ?? console;
+  const say = (...values) => { if (!quiet) output.log(...values); };
+  const now = options.now ?? (() => new Date().toISOString());
+  const fetchIssue = options.fetch ?? fetch;
+  const saveState = options.saveState ?? saveRecheckState;
+  const stateFile = env.PATHFINDER_RECHECK_STATE_FILE ?? join(
+    env.HEALTH_CHECK_STATE_FILE ? dirname(env.HEALTH_CHECK_STATE_FILE) : fileURLToPath(new URL('../data/monitoring', import.meta.url)),
+    'pathfinder-recheck.json',
+  );
+  let started = beginRecheck(null, now());
+  let stateError = null;
+  let canRecordState = apply;
+  let stateRecorded = false;
+  // dry-run 不会覆盖现有正式任务状态，也不会把模拟结果当成已应用的完整成功。
+  if (apply) {
+    try {
+      started = beginRecheck(await readRecheckState(stateFile), started.lastAttemptAt);
+    } catch (error) {
+      if (error instanceof InvalidRecheckStateError) {
+        try { await quarantineRecheckState(stateFile); stateError = 'task-state-reset'; }
+        catch { stateError = 'task-state-unavailable'; canRecordState = false; }
+      } else {
+        // 读不到旧记录时不覆盖未知历史；附属状态不能挡住原有回查。
+        stateError = 'task-state-unavailable'; canRecordState = false;
+      }
+    }
+    if (canRecordState) {
+      try { await saveState(stateFile, started); }
+      catch { stateError = 'task-state-unavailable'; }
+    }
   }
-  const raw = await response.json();
-  const reason = notActionableReason({
-    createdAt: raw.created_at ?? null,
-    updatedAt: raw.updated_at ?? null,
-    comments: typeof raw.comments === 'number' ? raw.comments : 0,
-    isPullRequest: raw.pull_request !== undefined,
-    hasAssignee: Boolean(raw.assignee) || (Array.isArray(raw.assignees) && raw.assignees.length > 0),
-  });
-  // issue 已关闭同样不该再推荐
-  const closed = raw.state === 'closed';
-  const verdict = closed ? 'closed' : reason;
-  if (verdict) {
-    doomed.push({ id: row.id, title: row.title_en, verdict });
-    say(`  ✗ [${verdict}] ${(row.title_en ?? '').slice(0, 55)}`);
+
+  const result = { checked: 0, skipped: 0, verified: 0, failed: 0, doomed: 0, archived: 0, reason: null, failures: [] };
+  let sql;
+  const doomed = [];
+  const recordFailure = (row, reason, httpStatus = null) => {
+    result.failed += 1;
+    // 不保存标题、响应正文、URL、异常信息或凭据；无效 ID 不进入日志。
+    if (result.failures.length < 5 && /^[a-zA-Z0-9_-]{1,100}$/.test(row.id)) result.failures.push({ id: row.id, reason, httpStatus });
+    say(`  ?  ${row.id.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100)}  ${reason}${httpStatus ? ` ${httpStatus}` : ''}`);
+  };
+  try {
+    if (!env.DATABASE_URL || !env.GITHUB_TOKEN) {
+      result.reason = 'configuration';
+    } else {
+      sql = (options.createSql ?? createSql)(env.DATABASE_URL);
+      const rows = await sql`
+        select id, canonical_url, title_en from pathfinder_items
+        where item_type = 'open-source' and status = 'published'
+        order by published_at asc
+      `;
+      result.checked = rows.length;
+      say(`公开的开源条目 ${rows.length} 条，开始回查 GitHub…`);
+      for (const row of rows) {
+        const api = apiUrlOf(row.canonical_url);
+        if (!api) { result.skipped += 1; continue; }
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10_000);
+        let httpStatus = null;
+        try {
+          const response = await fetchIssue(api, {
+            headers: {
+              Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'Meteor-Pathfinder/1.0',
+            },
+            redirect: 'error', signal: controller.signal,
+          });
+          httpStatus = response.status;
+          if (!response.ok) {
+            await response.body?.cancel();
+            recordFailure(row, 'http', httpStatus);
+            continue;
+          }
+          let raw;
+          try { raw = await response.json(); } catch { recordFailure(row, 'invalid-response', httpStatus); continue; }
+          if (!raw || typeof raw !== 'object' || !['open', 'closed'].includes(raw.state)) {
+            recordFailure(row, 'invalid-response', httpStatus); continue;
+          }
+          const reason = notActionableReason({
+            createdAt: raw.created_at ?? null, updatedAt: raw.updated_at ?? null,
+            comments: typeof raw.comments === 'number' ? raw.comments : 0,
+            isPullRequest: raw.pull_request !== undefined,
+            hasAssignee: Boolean(raw.assignee) || (Array.isArray(raw.assignees) && raw.assignees.length > 0),
+          });
+          result.verified += 1;
+          const verdict = raw.state === 'closed' ? 'closed' : reason;
+          if (verdict) { doomed.push(row.id); say(`  ✗ [${verdict}] ${row.id}`); }
+        } catch {
+          recordFailure(row, 'network', httpStatus);
+        } finally { clearTimeout(timeout); }
+      }
+      result.doomed = doomed.length;
+      if (apply && doomed.length > 0) {
+        const at = now();
+        // 条件更新，保留同步任务或管理员刚修改的状态。
+        const updated = await sql`
+          update pathfinder_items set status = 'archived', reviewed_at = ${at}, updated_at = ${at}
+          where id = any(${doomed}) and status = 'published'
+          returning id
+        `;
+        result.archived = updated.length;
+      }
+      if (!apply) say('[dry-run] 未写库；加 --apply 才会归档并记录正式任务状态。');
+    }
+  } catch {
+    result.reason = 'database';
+  } finally {
+    try { await sql?.end(); } catch { result.reason = 'database'; }
   }
-}
-
-say(`\n回查完成：${rows.length} 条中 ${doomed.length} 条不再符合「可直接上手」，跳过 ${skipped} 条仓库入口`);
-const byReason = new Map();
-for (const d of doomed) byReason.set(d.verdict, (byReason.get(d.verdict) ?? 0) + 1);
-say('原因分布:', [...byReason].map(([k, v]) => `${k}=${v}`).join('  ') || '无');
-
-/**
- * 收尾。`--quiet` 下只打一行 JSON，形状与另外四个 cron 脚本一致。
- *
- * **每条退出路径都要经过这里**：早先「没有要归档的」直接 process.exit(0) 不打任何东西，
- * 在 cron 里就分不清「今天确实没有」和「脚本根本没跑起来」。
- */
-function finish(archived) {
-  if (quiet) {
-    const line = JSON.stringify({
-      event: 'pathfinder_recheck_cron',
-      timestamp: new Date().toISOString(),
-      success: true,
-      checked: rows.length,
-      doomed: doomed.length,
-      archived,
-      skipped,
-      failed,
-      applied: apply,
-    });
-    // GitHub 整体不可达时 doomed 会是 0，看起来和「今天没有要归档的」一样，
-    // 所以 failed 占多数时按失败报出来，让 cron 日志里能看见
-    if (failed > 0 && failed >= rows.length - skipped) console.error(line);
-    else console.log(line);
+  const finished = finishRecheck(started, result, now());
+  if (canRecordState) {
+    try { await saveState(stateFile, finished); stateRecorded = true; }
+    catch { stateError = 'task-state-unavailable'; }
   }
-  process.exit(0);
+  const success = finished.status === 'ok' && stateError === null;
+  const line = JSON.stringify({ event: 'pathfinder_recheck_cron', timestamp: finished.finishedAt,
+    status: finished.status, success, applied: apply, ...result, stateRecorded,
+    ...(stateError ? { error: stateError } : {}) });
+  if (success) output.log(line); else output.error(line);
+  return stateError || result.reason === 'configuration' ? 2 : finished.status === 'ok' ? 0 : 1;
 }
 
-if (!apply) {
-  say('\n[dry-run] 未写库。加 --apply 才会把这些条目置为 archived。');
-  finish(0);
-}
-if (doomed.length === 0) finish(0);
-
-const now = new Date().toISOString();
-// 条件更新：只动仍是 published 的行，与同步任务并发时不会盖掉别的状态
-const updated = await sql`
-  update pathfinder_items set status = 'archived', reviewed_at = ${now}, updated_at = ${now}
-  where id = any(${doomed.map((d) => d.id)}) and status = 'published'
-  returning id
-`;
-say(`\n已归档 ${updated.length} 条`);
-finish(updated.length);
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exitCode = await main();

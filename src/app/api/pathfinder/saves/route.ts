@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
+import { assertMatchingOrigin } from '@/lib/csrf';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 import {
   getPathfinderSaveCounts,
@@ -48,6 +49,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return privateJson({ error: '请先登录' }, { status: 401 });
+  if (assertMatchingOrigin(req)) return privateJson({ error: 'Forbidden' }, { status: 403 });
+  if (req.headers.get('x-pathfinder-user') !== session.userId) {
+    return privateJson({ code: 'ACCOUNT_CHANGED', error: '账号已变化，请刷新页面' }, { status: 409 });
+  }
 
   const ip = getClientIp(req);
   const { limited } = await rateLimit(`pathfinder-save:${session.userId}:${ip}`, 30, 60_000, {
@@ -71,6 +76,7 @@ export async function POST(req: NextRequest) {
     return privateJson({ saved: true, remindDeadline: parsed.data.remindDeadline });
   }
 
-  const { saved, count } = await togglePathfinderSave(parsed.data.itemId, session.userId);
-  return privateJson({ saved, count });
+  const result = await togglePathfinderSave(parsed.data.itemId, session.userId);
+  if (!result) return privateJson({ error: '条目已结束或暂不可用' }, { status: 404 });
+  return privateJson(result);
 }

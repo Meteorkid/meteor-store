@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { getAdminPageSession } from '@/lib/admin-session';
 import { isAdminSession } from '@/lib/admin';
 import { readMonitoringSnapshot } from '@/lib/monitoring';
+import { readRecheckSnapshot } from '@/lib/task-monitoring';
 import { monitoringText } from '@/lib/monitoring-types';
 import MonitoringPanel from './MonitoringPanel';
 
@@ -23,6 +24,6 @@ export default async function AdminMonitoringPage({ params }: { params: Promise<
   setRequestLocale(locale);
   const session = await getAdminPageSession();
   if (!session || !isAdminSession(session)) notFound();
-  const snapshot = await readMonitoringSnapshot();
-  return <MonitoringPanel userId={session.userId} initialSnapshot={snapshot} />;
+  const [snapshot, task] = await Promise.all([readMonitoringSnapshot(), readRecheckSnapshot()]);
+  return <MonitoringPanel userId={session.userId} initialSnapshot={snapshot} initialTask={task} />;
 }

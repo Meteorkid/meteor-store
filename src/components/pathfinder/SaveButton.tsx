@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
+import { buildLoginHref } from '@/lib/login-return';
+import { usePathfinderToggle } from './usePathfinderToggle';
 
 /**
  * 收藏按钮。
@@ -15,55 +17,27 @@ import { useTranslations } from 'next-intl';
 export default function SaveButton({
   itemId,
   initialSaved,
-  signedIn,
+  initialOwnerId,
   className = '',
 }: {
   itemId: string;
   initialSaved: boolean;
-  signedIn: boolean;
+  initialOwnerId: string | null;
   className?: string;
 }) {
   const t = useTranslations('PathfinderHub.saves');
-  const [saved, setSaved] = useState(initialSaved);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const toggle = () => {
-    if (pending) return;
-    if (!signedIn) {
-      setError(t('loginRequired'));
-      return;
-    }
-    setPending(true);
-    setError(null);
-    // 乐观更新：收藏是可逆的低风险操作，失败时回滚即可
-    const next = !saved;
-    setSaved(next);
-
-    fetch('/api/pathfinder/saves', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ itemId }),
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(String(response.status));
-        const data = await response.json();
-        setSaved(Boolean(data.saved));
-      })
-      .catch(() => {
-        setSaved(!next);
-        setError(t('failed'));
-      })
-      .finally(() => setPending(false));
-  };
+  const { value: saved, disabled, error, toggle, refreshState } = usePathfinderToggle({
+    initialOwnerId, initialValue: initialSaved, targetKey: itemId,
+    endpoint: 'saves', responseField: 'saved', payload: () => ({ itemId }),
+  });
 
   return (
-    <span className={`inline-flex items-center gap-2 ${className}`}>
+    <span className={`inline-flex flex-wrap items-center gap-2 ${className}`}>
       <button
         type="button"
         onClick={toggle}
         aria-pressed={saved}
-        disabled={pending}
+        disabled={disabled}
         className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-60 ${
           saved
             ? 'border-violet-400/40 bg-violet-500/15 text-violet-100'
@@ -73,7 +47,10 @@ export default function SaveButton({
         <span aria-hidden="true">{saved ? '★' : '☆'}</span>
         {saved ? t('saved') : t('save')}
       </button>
-      {error && <span className="t-footnote text-amber-200">{error}</span>}
+      {error && <span className="t-footnote text-amber-200" role="status">{error === 'login'
+        ? <Link href={buildLoginHref(`/pathfinder/items/${itemId}`)} className="inline-flex min-h-10 items-center underline underline-offset-4">{t('loginAction')}</Link>
+        : error === 'changed' ? <>{t('sessionChanged')} <button type="button" onClick={refreshState} className="inline-flex min-h-10 items-center underline underline-offset-4">{t('refreshAction')}</button></>
+          : t('failed')}</span>}
     </span>
   );
 }

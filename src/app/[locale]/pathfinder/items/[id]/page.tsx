@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import CatalogItemCard from '@/components/pathfinder/CatalogItemCard';
@@ -12,7 +13,7 @@ import { fetchDigestContent } from '@/lib/pathfinder/digest-content';
 import { articleSummaryUrl } from '@/lib/pathfinder/ingestion/article-summary';
 import { PATHFINDER_SYNC_SOURCE_MAP } from '@/lib/pathfinder/ingestion/sources';
 import { findRelatedItems } from '@/lib/pathfinder/related';
-import { listPathfinderSaves } from '@/lib/pathfinder/saves';
+import { getSavedPathfinderItem, listPathfinderSaves } from '@/lib/pathfinder/saves';
 import { CATALOG_FACT_KEYS } from '@/lib/pathfinder/catalog-fields';
 import {
   formatCatalogCost,
@@ -27,17 +28,28 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+// 只在一次渲染请求内去重；metadata 和正文必须经过相同的本人收藏检查。
+const getItemPageContext = cache(async (id: string) => {
+  const [publicItem, session] = await Promise.all([getCatalogItem(id), getSession()]);
+  const item = publicItem ?? (session ? await getSavedPathfinderItem(session.userId, id) : null);
+  return { item, session, savedHistory: !publicItem && Boolean(item) };
+});
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
   const { locale, id } = await params;
-  const item = await getCatalogItem(id);
+  const { item, savedHistory } = await getItemPageContext(id);
   if (!item) return {};
-  return { title: localizedText(item.title, locale), description: localizedText(item.summary, locale) };
+  return {
+    title: localizedText(item.title, locale),
+    description: localizedText(item.summary, locale),
+    ...(savedHistory ? { robots: { index: false, follow: false } } : {}),
+  };
 }
 
 export default async function PathfinderItemPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const item = await getCatalogItem(id);
+  const { item, session, savedHistory } = await getItemPageContext(id);
   if (!item) notFound();
   const typedLocale = locale as Locale;
   const t = await getTranslations({ locale, namespace: 'PathfinderHub.itemPage' });
@@ -59,10 +71,9 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
   const editorialNote = item.itemType === 'ai-update'
     ? await getApprovedEditorialNote(item.id)
     : null;
-  const session = await getSession();
-  const saved = session
+  const saved = savedHistory || (session
     ? (await listPathfinderSaves(session.userId)).some((save) => save.itemId === item.id)
-    : false;
+    : false);
   const sameDirection = await listCatalogItems({ direction: item.direction });
   // 同一条线索的条目：靠标题里的专名重叠判定，见 lib/pathfinder/related.ts。
   // 这与下面「同方向的其它条目」是两回事——前者说的是同一件事的后续，
@@ -108,6 +119,12 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
         </nav>
 
         <header className="border-b border-white/10 pb-10">
+          {savedHistory && (
+            <div className="mb-6 rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-amber-100">
+              <p>{t('savedHistoryNotice')}</p>
+              <Link href="/pathfinder/saved" className="mt-2 inline-block underline underline-offset-4">{t('backToSaved')}</Link>
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-violet-400/25 bg-violet-500/10 px-2.5 py-1 text-[11px] font-semibold text-violet-200">{t(`types.${item.itemType}`)}</span>
             <span className="t-footnote text-white/60">{item.directions.map((direction) => t(`directions.${direction}`)).join(' · ')}</span>
@@ -119,6 +136,15 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
             )}
           </div>
           <h1 lang={title.fallback ? 'en' : undefined} className="mt-5 max-w-5xl t-title-1 text-white">{title.text}</h1>
+          {isDigestItem(item) && !digest && (
+            <section aria-labelledby="digest-status-title" className="mt-5 rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-4">
+              <h2 id="digest-status-title" className="t-title-4 text-amber-100">{t('digestUnavailableTitle')}</h2>
+              <p className="mt-2 text-sm leading-6 text-white/70">{t('digestUnavailableDescription')}</p>
+              <a href={item.canonicalUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-semibold text-violet-200 underline underline-offset-4">
+                {t('openOriginal')} ↗
+              </a>
+            </section>
+          )}
           {/*
             拿到全文时不再重复摘要。
             日报的卡片摘要取自「今日总结」的首段，而全文里那一段照样会渲染出来——
@@ -272,13 +298,14 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
                 <FactRow label={t('sourceName')} value={`${localizedText(item.source.name, locale)} · ${t(`trust.${item.source.trustLevel}`)}`} />
                 <FactRow label={t('publishedAt')} value={formatDate(item.publishedAt, typedLocale) ?? t('unknown')} />
                 <FactRow label={t('discoveredAt')} value={formatDate(item.discoveredAt, typedLocale) ?? t('unknown')} />
-                <FactRow label={t('verifiedAt')} value={formatDate(item.verifiedAt, typedLocale) ?? t('unknown')} />
+                <FactRow label={t(isDigestItem(item) ? 'entryVerifiedAt' : 'verifiedAt')} value={formatDate(item.verifiedAt, typedLocale) ?? t('unknown')} />
+                {isDigestItem(item) && <FactRow label={t('digestStatusLabel')} value={t(digest ? 'digestAvailable' : 'digestUnavailableTitle')} />}
               </div>
               <div className="mt-5 flex flex-wrap items-center gap-3">
                 <SaveButton
                   itemId={item.id}
                   initialSaved={saved}
-                  signedIn={Boolean(session)}
+                  initialOwnerId={session?.userId ?? null}
                 />
               </div>
               <div className="mt-3 flex flex-col gap-3 sm:flex-row">
@@ -301,7 +328,7 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
               {deadline.state === 'expired' && <p className="mt-4 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs text-red-200">{t('expired')}</p>}
             </section>
 
-            {item.learningEligible && !item.requiresManualEligibilityCheck ? (
+            {!savedHistory && item.learningEligible && !item.requiresManualEligibilityCheck ? (
               <section className="rounded-2xl border border-violet-400/20 bg-violet-500/[0.08] p-5">
                 <p className="t-eyebrow text-violet-300">{t('planEyebrow')}</p>
                 <h2 className="mt-2 t-title-3 text-white">{t('planTitle')}</h2>
@@ -310,12 +337,12 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
                   {t('addToPlan')}
                 </Link>
               </section>
-            ) : (
+            ) : !savedHistory ? (
               <section className="rounded-2xl border border-white/10 p-5">
                 <p className="text-sm font-semibold text-white">{item.requiresManualEligibilityCheck ? t('manualOnlyTitle') : t('contextOnlyTitle')}</p>
                 <p className="mt-2 text-sm leading-6 text-white/60">{item.requiresManualEligibilityCheck ? t('manualOnlyDescription') : t('contextOnlyDescription')}</p>
               </section>
-            )}
+            ) : null}
           </aside>
         </div>
 

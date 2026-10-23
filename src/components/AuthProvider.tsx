@@ -176,7 +176,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const version = ++identityVersion.current;
     identityWrites.current += 1;
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (!response.ok) throw new Error('Logout failed');
       if (version === identityVersion.current) { setUser(null); setLoading(false); }
     } finally { identityWrites.current -= 1; }
   };

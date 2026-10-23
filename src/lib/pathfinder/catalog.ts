@@ -20,6 +20,7 @@ const STATIC_URL_HASHES = STATIC_PATHFINDER_ITEMS.map((item) => (
   crypto.createHash('sha256').update(normalizeCatalogUrl(item.canonicalUrl)).digest('hex')
 ));
 export const PATHFINDER_CATALOG_CACHE_TAG = 'pathfinder-catalog-v2';
+export const SAVED_CONTENT_UNAVAILABLE_MESSAGE = 'Saved Pathfinder content is temporarily unavailable';
 
 interface CatalogSnapshot {
   databaseItems: PathfinderCatalogItem[];
@@ -28,9 +29,11 @@ interface CatalogSnapshot {
   tombstoneStoreAvailable: boolean;
 }
 
-async function loadCatalogSnapshot(): Promise<CatalogSnapshot> {
+async function loadCatalogSnapshot(savedItemIds?: readonly string[]): Promise<CatalogSnapshot> {
   const [databaseResult, tombstoneResult] = await Promise.allSettled([
-    listDatabaseCatalogItems(STATIC_URL_HASHES),
+    savedItemIds === undefined
+      ? listDatabaseCatalogItems(STATIC_URL_HASHES)
+      : listDatabaseCatalogItems(STATIC_URL_HASHES, savedItemIds),
     readStaticPathfinderTombstones(),
   ]);
   if (databaseResult.status === 'rejected') {
@@ -65,6 +68,17 @@ export async function listCatalogItems(
   const snapshot = process.env.NODE_ENV === 'test'
     ? await loadCatalogSnapshot()
     : await loadCachedCatalogSnapshot();
+  const filtered = catalogSnapshotItems(snapshot)
+    .filter((item) => isCatalogItemPublicAt(item))
+    .filter((item) => matchesOptions(item, options))
+    .sort(compareCatalogItems);
+
+  if (options.limit === undefined) return filtered;
+  const limit = Math.trunc(options.limit);
+  return limit > 0 ? filtered.slice(0, limit) : [];
+}
+
+function catalogSnapshotItems(snapshot: CatalogSnapshot): PathfinderCatalogItem[] {
   // 两个独立存储同时不可用时，生产环境宁可暂时不展示，也不能让已下架种子复活。
   if (process.env.NODE_ENV === 'production'
     && !snapshot.databaseAvailable
@@ -76,14 +90,23 @@ export async function listCatalogItems(
     return !tombstones.has(item.id) && !tombstones.has(`url:${urlHash}`);
   });
 
-  const filtered = mergeCatalogItems(staticItems, snapshot.databaseItems)
-    .filter((item) => isCatalogItemPublicAt(item))
-    .filter((item) => matchesOptions(item, options))
-    .sort(compareCatalogItems);
+  return mergeCatalogItems(staticItems, snapshot.databaseItems);
+}
 
-  if (options.limit === undefined) return filtered;
-  const limit = Math.trunc(options.limit);
-  return limit > 0 ? filtered.slice(0, limit) : [];
+/**
+ * 私人收藏服务专用：ID 必须先从当前用户的收藏表取得，禁止由公开查询参数直接传入。
+ * 不缓存此读取，确保下架和 tombstone 变更立即生效；截止仅影响公开发现，不删除收藏历史。
+ */
+export async function listPublishedSavedCatalogItems(
+  savedItemIds: readonly string[],
+): Promise<PathfinderCatalogItem[]> {
+  if (savedItemIds.length === 0) return [];
+  const snapshot = await loadCatalogSnapshot(savedItemIds);
+  if (!snapshot.databaseAvailable || !snapshot.tombstoneStoreAvailable) {
+    throw new Error(SAVED_CONTENT_UNAVAILABLE_MESSAGE);
+  }
+  const ids = new Set(savedItemIds);
+  return catalogSnapshotItems(snapshot).filter((item) => item.status === 'published' && ids.has(item.id));
 }
 
 /**

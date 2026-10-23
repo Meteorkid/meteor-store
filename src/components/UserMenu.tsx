@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import AdminPendingBadge, { AdminPendingCount } from './AdminPendingBadge';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
 
 interface PassStatus {
@@ -14,8 +14,12 @@ interface PassStatus {
 
 export default function UserMenu() {
   const t = useTranslations('Header');
+  const common = useTranslations('common');
+  const router = useRouter();
   const { user, loading, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [logoutPending, setLogoutPending] = useState(false);
+  const [logoutFailed, setLogoutFailed] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [passStatus, setPassStatus] = useState<PassStatus | null>(null);
 
@@ -207,11 +211,25 @@ export default function UserMenu() {
           <div className="border-t border-white/[0.06] py-1">
             <button
               type="button"
-              onClick={() => { logout(); setOpen(false); }}
+              disabled={logoutPending}
+              onClick={async () => {
+                if (logoutPending) return;
+                setLogoutPending(true);
+                setLogoutFailed(false);
+                try {
+                  await logout();
+                  setOpen(false);
+                  // 等注销Cookie生效后重取RSC，私有收藏与历史详情不能留在退出后的页面。
+                  router.refresh();
+                } catch {
+                  setLogoutFailed(true);
+                } finally { setLogoutPending(false); }
+              }}
               className="block w-full px-4 py-2 text-left text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-red-400"
             >
               {t('logout')}
             </button>
+            {logoutFailed && <p role="status" className="px-4 py-2 text-sm text-amber-200">{common('error')}</p>}
           </div>
         </div>
       )}

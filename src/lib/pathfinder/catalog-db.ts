@@ -26,16 +26,22 @@ import {
  */
 export async function listDatabaseCatalogItems(
   staticUrlHashes: readonly string[] = [],
+  savedItemIds?: readonly string[],
 ): Promise<PathfinderCatalogItem[]> {
   const selectRows = () => db
     .select({ item: pathfinderItems, source: pathfinderSources })
     .from(pathfinderItems)
     .innerJoin(pathfinderSources, eq(pathfinderItems.sourceId, pathfinderSources.id));
   const [publishedRows, overlayRows] = await Promise.all([
-    selectRows()
-      .where(eq(pathfinderItems.status, 'published'))
-      .orderBy(desc(pathfinderItems.verifiedAt))
-      .limit(500),
+    // 私人历史按已核对归属的收藏 ID 读取，不受公开目录最近 500 条的窗口限制。
+    savedItemIds !== undefined
+      ? savedItemIds.length > 0
+        ? selectRows().where(inArray(pathfinderItems.id, [...savedItemIds]))
+        : Promise.resolve([])
+      : selectRows()
+          .where(eq(pathfinderItems.status, 'published'))
+          .orderBy(desc(pathfinderItems.verifiedAt))
+          .limit(500),
     staticUrlHashes.length > 0
       ? selectRows().where(inArray(pathfinderItems.urlHash, [...staticUrlHashes]))
       : Promise.resolve([]),

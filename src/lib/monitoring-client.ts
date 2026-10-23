@@ -1,9 +1,10 @@
 'use client';
 
 import { parseMonitoringResponse, type MonitoringSnapshot } from './monitoring-types';
+import { parseTaskMonitoringResponse, type RecheckSnapshot } from './task-monitoring-types';
 
-interface MonitoringState { snapshot: MonitoringSnapshot | null; readEventId: string; failed: boolean }
-export const EMPTY_MONITORING_STATE: MonitoringState = { snapshot: null, readEventId: '', failed: false };
+interface MonitoringState { snapshot: MonitoringSnapshot | null; task: RecheckSnapshot | null; readEventId: string; failed: boolean }
+export const EMPTY_MONITORING_STATE: MonitoringState = { snapshot: null, task: null, readEventId: '', failed: false };
 const states = new Map<string, MonitoringState>();
 const listeners = new Set<() => void>();
 const active = new Map<string, {
@@ -44,11 +45,13 @@ export function ensureMonitoring(userId: string) {
   void fetch('/api/admin/monitoring', { cache: 'no-store', signal: controller.signal })
     .then(async response => {
       if (!response.ok) throw new Error('Monitoring unavailable');
-      const snapshot = parseMonitoringResponse(await response.json(), userId);
+      const payload: unknown = await response.json();
+      const snapshot = parseMonitoringResponse(payload, userId);
+      const task = parseTaskMonitoringResponse(payload, userId);
       if (!current() || controller.signal.aborted) return;
-      update(userId, { snapshot, readEventId: readEventId(userId), failed: false });
+      update(userId, { snapshot, task, readEventId: readEventId(userId), failed: false });
     }).catch(() => {
-      if (current()) update(userId, { snapshot: null, readEventId: readEventId(userId), failed: true });
+      if (current()) update(userId, { snapshot: null, task: null, readEventId: readEventId(userId), failed: true });
     }).finally(() => {
       window.clearTimeout(timeout);
       if (current()) watcher.pending = null;

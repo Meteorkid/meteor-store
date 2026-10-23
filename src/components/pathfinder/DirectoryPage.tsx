@@ -69,7 +69,7 @@ export default async function DirectoryPage({
               kind={kind}
               value={normalized}
               initialFollowing={follows[kind].includes(normalized)}
-              signedIn={Boolean(session)}
+              initialOwnerId={session?.userId ?? null}
             />
           </div>
         </header>
@@ -80,7 +80,7 @@ export default async function DirectoryPage({
               key={item.id}
               item={item}
               locale={locale as Locale}
-              saveState={{ signedIn: Boolean(session), saved: savedIds.has(item.id) }}
+              saveState={{ ownerId: session?.userId ?? null, saved: savedIds.has(item.id) }}
             />
           ))}
         </div>

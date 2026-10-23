@@ -110,7 +110,7 @@ export default async function PathfinderOpportunitiesPage({
                     item={item}
                     locale={locale as Locale}
                     compact={filters.compact}
-                    saveState={{ signedIn: Boolean(session), saved: savedIds.has(item.id) }}
+                    saveState={{ ownerId: session?.userId ?? null, saved: savedIds.has(item.id) }}
                   />
                 ))}
                 <CatalogPagination locale={locale} searchParams={rawParams} page={page} />

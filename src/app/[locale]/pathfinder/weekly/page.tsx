@@ -41,7 +41,7 @@ export default async function PathfinderWeeklyPage({
   const savedIds = new Set(session
     ? (await listPathfinderSaves(session.userId)).map((save) => save.itemId)
     : []);
-  const saveState = (id: string) => ({ signedIn: Boolean(session), saved: savedIds.has(id) });
+  const saveState = (id: string) => ({ ownerId: session?.userId ?? null, saved: savedIds.has(id) });
 
   const since = formatDate(weekly.since, pathfinderLocale);
   const until = formatDate(weekly.until, pathfinderLocale);

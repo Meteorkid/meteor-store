@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { pathfinderFollows, pathfinderSaves } from '@/lib/db/schema';
-import { listCatalogItems } from './catalog';
+import { getCatalogItem, listPublishedSavedCatalogItems, SAVED_CONTENT_UNAVAILABLE_MESSAGE } from './catalog';
 import type { PathfinderCatalogItem } from './catalog-types';
 
 /**
@@ -33,11 +33,11 @@ export function normalizeFollowValue(value: string): string {
   return value.trim().toLocaleLowerCase().replace(/\s+/g, ' ').slice(0, 120);
 }
 
-/** 切换收藏。返回操作后的状态与该条目的收藏总数。 */
+/** 切换收藏。新收藏仅限公开条目；不可新增时返回 null，已有历史收藏仍可取消。 */
 export async function togglePathfinderSave(
   itemId: string,
   userId: string,
-): Promise<{ saved: boolean; count: number }> {
+): Promise<{ saved: boolean; count: number } | null> {
   const [existing] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(pathfinderSaves)
@@ -50,6 +50,8 @@ export async function togglePathfinderSave(
       .delete(pathfinderSaves)
       .where(and(eq(pathfinderSaves.itemId, itemId), eq(pathfinderSaves.userId, userId)));
   } else {
+    // 不能先收藏任意过期 ID，再借私人历史入口读取原本未收藏的内容。
+    if (!await getCatalogItem(itemId)) return null;
     // Neon HTTP 不支持事务；复合主键兜底并发重复收藏，冲突时视作已收藏
     await db
       .insert(pathfinderSaves)
@@ -92,6 +94,15 @@ export async function listPathfinderSaves(userId: string): Promise<PathfinderSav
     .orderBy(desc(pathfinderSaves.createdAt));
 }
 
+async function listSavesForHistory(userId: string): Promise<PathfinderSaveRow[]> {
+  try {
+    return await listPathfinderSaves(userId);
+  } catch {
+    // 详情和metadata使用同一安全错误，数据库细节不进入渲染错误。
+    throw new Error(SAVED_CONTENT_UNAVAILABLE_MESSAGE);
+  }
+}
+
 /**
  * 当前用户收藏的条目，按收藏时间倒序。
  *
@@ -102,11 +113,11 @@ export async function getSavedPathfinderItems(userId: string): Promise<Array<{
   savedAt: string;
   remindDeadline: boolean;
 }>> {
-  const saves = await listPathfinderSaves(userId);
+  const saves = await listSavesForHistory(userId);
   if (saves.length === 0) return [];
 
   const byId = new Map(saves.map((save) => [save.itemId, save]));
-  const catalog = await listCatalogItems();
+  const catalog = await listPublishedSavedCatalogItems([...byId.keys()]);
   return catalog
     .filter((item) => item.status === 'published' && byId.has(item.id))
     .map((item) => ({
@@ -115,6 +126,16 @@ export async function getSavedPathfinderItems(userId: string): Promise<Array<{
       remindDeadline: byId.get(item.id)!.remindDeadline,
     }))
     .sort((a, b) => b.savedAt.localeCompare(a.savedAt));
+}
+
+/** 详情回看与收藏页共用归属及发布状态检查，不接受客户端的“包含过期”开关。 */
+export async function getSavedPathfinderItem(
+  userId: string,
+  itemId: string,
+): Promise<PathfinderCatalogItem | null> {
+  const saves = await listSavesForHistory(userId);
+  if (!saves.some((save) => save.itemId === itemId)) return null;
+  return (await listPublishedSavedCatalogItems([itemId]))[0] ?? null;
 }
 
 /**

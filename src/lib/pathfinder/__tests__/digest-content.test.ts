@@ -107,12 +107,8 @@ describe('日报全文抓取', () => {
   });
 
   it('正常响应解析成章节', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      headers: new Headers(),
-      text: async () => SAMPLE,
-    }));
-    const content = await fetchDigestContent('https://agihunt.info/daily/x.md', 'agihunt.info');
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(SAMPLE)));
+    const content = await fetchDigestContent('https://agihunt.info/daily/success.md', 'agihunt.info');
     expect(content?.sections.map((s) => s.heading)).toEqual(['今日总结', '分频道观察']);
   });
 });
@@ -130,9 +126,7 @@ describe('全文失效告警', () => {
      * 其余失败多半会自愈，这一种不会，而且表现是页面安静退回只显示摘要。
      */
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true, headers: new Headers(), text: async () => '没有任何二级标题的一段散文。',
-    }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('没有任何二级标题的一段散文。')));
     expect(await fetchDigestContent(freshUrl(), 'agihunt.info')).toBeNull();
     expect(error).toHaveBeenCalledWith(expect.objectContaining({
       event: 'pathfinder_digest_unavailable',
@@ -155,8 +149,7 @@ describe('全文失效告警', () => {
 
   it('同一地址一小时内只报一次', async () => {
     /*
-     * 失败不进缓存，所以上游挂掉时每次请求都会走失败分支。爬虫扫一遍
-     * 180 天窗口就是几百行日志，会把 syslog 里真正的信号淹掉。
+     * 负缓存减少失败请求；告警窗口仍独立控制，避免重试产生重复噪声。
      */
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('down')));

@@ -25,12 +25,22 @@ const DIGEST_REVALIDATE_SECONDS = 86_400;
 /**
  * 告警节流：同一个地址一小时最多报一次。
  *
- * 失败不进缓存（见 `loadDigest`），所以上游一旦挂掉，**每一次请求**都会走到
- * 失败分支。爬虫扫一遍 180 天窗口就是几百行日志，把 syslog 里真正的信号淹掉。
- * 进程内 Map、重启即清空——这是日志降噪，不承担正确性。
+ * 抓取失败有独立的短期负缓存，告警窗口更长，避免反复重试淹没日志。
+ * 进程内 Map、重启即清空；三种状态均有容量上限。
  */
 const ALERT_WINDOW_MS = 3_600_000;
+const FAILURE_RETRY_MS = 5 * 60_000;
+const MAX_FAILURE_ENTRIES = 512;
+const MAX_IN_FLIGHT = 32;
 const lastAlertAt = new Map<string, number>();
+const retryAfter = new Map<string, number>();
+const inFlight = new Map<string, Promise<DigestContent | null>>();
+
+function rememberBounded(map: Map<string, number>, url: string, value: number) {
+  map.delete(url);
+  if (map.size >= MAX_FAILURE_ENTRIES) map.delete(map.keys().next().value!);
+  map.set(url, value);
+}
 
 type DigestFailure = 'request-failed' | 'http-error' | 'too-large' | 'parse-empty';
 
@@ -49,7 +59,7 @@ function reportDigestFailure(url: string, reason: DigestFailure, detail?: Record
   const now = Date.now();
   const previous = lastAlertAt.get(url);
   if (previous !== undefined && now - previous < ALERT_WINDOW_MS) return;
-  lastAlertAt.set(url, now);
+  rememberBounded(lastAlertAt, url, now);
   console.error({ event: 'pathfinder_digest_unavailable', reason, url, ...detail });
 }
 
@@ -210,7 +220,7 @@ export function parseDigestMarkdown(markdown: string): DigestContent {
  * AI 动态有 180 天公开窗口，爬虫扫一遍就是上百个这样的页面。
  *
  * **失败时抛异常而不是返回 null**：`unstable_cache` 不缓存被拒绝的 Promise，
- * 这样上游一次抽风不会被钉住一整天，下次请求就会重试。
+ * 这样上游一次抽风不会被钉住一整天；重试由外层五分钟负缓存控制。
  */
 const loadDigest = unstable_cache(
   // 缓存键就是 url：主机校验已在调用前做过，再传一遍不增加区分度
@@ -234,13 +244,26 @@ export async function fetchDigestContent(
   } catch {
     return null;
   }
-  if (parsed.protocol !== 'https:' || parsed.hostname !== allowedHost) return null;
+  if (parsed.protocol !== 'https:' || parsed.hostname !== allowedHost
+    || parsed.port || parsed.username || parsed.password) return null;
+  parsed.hash = '';
+  const key = parsed.toString();
+  const retryAt = retryAfter.get(key);
+  if (retryAt !== undefined && retryAt > Date.now()) return null;
+  retryAfter.delete(key);
+  const pending = inFlight.get(key);
+  if (pending) return pending;
+  // 容量已满时仍可展示摘要，不让并发扫描无限积累超时中的连接。
+  if (inFlight.size >= MAX_IN_FLIGHT) return null;
 
-  try {
-    return await loadDigest(url);
-  } catch {
-    return null;
-  }
+  const request = loadDigest(key)
+    .catch(() => {
+      rememberBounded(retryAfter, key, Date.now() + FAILURE_RETRY_MS);
+      return null;
+    })
+    .finally(() => inFlight.delete(key));
+  inFlight.set(key, request);
+  return request;
 }
 
 /**
@@ -255,23 +278,44 @@ async function requestDigest(url: string): Promise<DigestContent | null> {
     const response = await fetch(url, {
       signal: AbortSignal.timeout(DIGEST_TIMEOUT_MS),
       headers: { 'User-Agent': 'Meteor-Pathfinder/1.0' },
-      next: { revalidate: DIGEST_REVALIDATE_SECONDS },
+      // 只缓存成功解析的全文；禁止重定向离开已校验的主机。
+      cache: 'no-store',
+      redirect: 'error',
     });
     if (!response.ok) {
+      await response.body?.cancel();
       reportDigestFailure(url, 'http-error', { status: response.status });
       return null;
     }
 
     const declared = Number(response.headers.get('content-length'));
     if (Number.isFinite(declared) && declared > MAX_DIGEST_BYTES) {
+      await response.body?.cancel();
       reportDigestFailure(url, 'too-large', { bytes: declared });
       return null;
     }
 
-    const text = await response.text();
-    if (text.length > MAX_DIGEST_BYTES) {
-      reportDigestFailure(url, 'too-large', { bytes: text.length });
-      return null;
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let text = '';
+    let bytes = 0;
+    if (reader) {
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          bytes += value.byteLength;
+          if (bytes > MAX_DIGEST_BYTES) {
+            await reader.cancel();
+            reportDigestFailure(url, 'too-large', { bytes });
+            return null;
+          }
+          text += decoder.decode(value, { stream: true });
+        }
+        text += decoder.decode();
+      } finally {
+        reader.releaseLock();
+      }
     }
 
     const content = parseDigestMarkdown(text);

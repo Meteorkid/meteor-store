@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
+import { buildLoginHref } from '@/lib/login-return';
+import { usePathfinderToggle } from './usePathfinderToggle';
 
 /**
  * 单条收藏的截止提醒开关。
@@ -12,42 +14,34 @@ import { useTranslations } from 'next-intl';
 export default function ReminderToggle({
   itemId,
   initialEnabled,
+  initialOwnerId,
 }: {
   itemId: string;
   initialEnabled: boolean;
+  initialOwnerId: string;
 }) {
   const t = useTranslations('PathfinderHub.saves');
-  const [enabled, setEnabled] = useState(initialEnabled);
-  const [pending, setPending] = useState(false);
-
-  const toggle = () => {
-    if (pending) return;
-    const next = !enabled;
-    setEnabled(next);
-    setPending(true);
-
-    fetch('/api/pathfinder/saves', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ itemId, remindDeadline: next }),
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error(String(response.status));
-      })
-      .catch(() => setEnabled(!next))
-      .finally(() => setPending(false));
-  };
+  const { value: enabled, disabled, error, toggle, refreshState } = usePathfinderToggle({
+    initialOwnerId, initialValue: initialEnabled, targetKey: itemId,
+    endpoint: 'saves', responseField: 'remindDeadline', payload: next => ({ itemId, remindDeadline: next }),
+  });
 
   return (
-    <label className="inline-flex items-center gap-2 t-footnote text-white/60">
-      <input
-        type="checkbox"
-        checked={enabled}
-        onChange={toggle}
-        disabled={pending}
-        className="h-4 w-4 accent-violet-500"
-      />
-      {t('remindMe')}
-    </label>
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <label className="inline-flex items-center gap-2 t-footnote text-white/60">
+        <input
+          type="checkbox"
+          checked={enabled}
+          onChange={toggle}
+          disabled={disabled}
+          className="h-4 w-4 accent-violet-500"
+        />
+        {t('remindMe')}
+      </label>
+      {error && <span className="t-footnote text-amber-200" role="status">{error === 'login'
+        ? <Link href={buildLoginHref('/pathfinder/saved')} className="inline-flex min-h-10 items-center underline underline-offset-4">{t('loginAction')}</Link>
+        : error === 'changed' ? <>{t('sessionChanged')} <button type="button" onClick={refreshState} className="inline-flex min-h-10 items-center underline underline-offset-4">{t('refreshAction')}</button></>
+          : t('failed')}</span>}
+    </span>
   );
 }

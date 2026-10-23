@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
+import { assertMatchingOrigin } from '@/lib/csrf';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 import { listPathfinderFollows, togglePathfinderFollow } from '@/lib/pathfinder/saves';
 
@@ -22,6 +23,10 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return privateJson({ error: '请先登录' }, { status: 401 });
+  if (assertMatchingOrigin(req)) return privateJson({ error: 'Forbidden' }, { status: 403 });
+  if (req.headers.get('x-pathfinder-user') !== session.userId) {
+    return privateJson({ code: 'ACCOUNT_CHANGED', error: '账号已变化，请刷新页面' }, { status: 409 });
+  }
 
   const ip = getClientIp(req);
   const { limited } = await rateLimit(`pathfinder-follow:${session.userId}:${ip}`, 30, 60_000, {

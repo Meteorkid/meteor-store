@@ -5,8 +5,10 @@ import { useLocale } from 'next-intl';
 import { useAuth } from '@/components/AuthProvider';
 import { EMPTY_MONITORING_STATE, getMonitoringState, hasUnreadMonitoring, markMonitoringRead, subscribeMonitoring, watchMonitoring } from '@/lib/monitoring-client';
 import { monitoringText, type MonitoringSnapshot } from '@/lib/monitoring-types';
+import type { RecheckSnapshot } from '@/lib/task-monitoring-types';
+import RecheckTaskPanel from './RecheckTaskPanel';
 
-export default function MonitoringPanel({ userId, initialSnapshot }: { userId: string; initialSnapshot: MonitoringSnapshot }) {
+export default function MonitoringPanel({ userId, initialSnapshot, initialTask }: { userId: string; initialSnapshot: MonitoringSnapshot; initialTask: RecheckSnapshot }) {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const copy = monitoringText[locale];
   const { user, loading } = useAuth();
@@ -14,6 +16,7 @@ export default function MonitoringPanel({ userId, initialSnapshot }: { userId: s
   const state = useSyncExternalStore(subscribeMonitoring, () => getMonitoringState(activeId), () => EMPTY_MONITORING_STATE);
   useEffect(() => activeId ? watchMonitoring(activeId) : undefined, [activeId]);
   const snapshot = state.snapshot ?? (activeId === userId && !state.failed ? initialSnapshot : null);
+  const task = state.task ?? (activeId === userId && !state.failed && !state.snapshot ? initialTask : null);
   const formatTime = (value: string | null) => value ? new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', {
     dateStyle: 'medium', timeStyle: 'medium', timeZone: 'Asia/Shanghai',
   }).format(new Date(value)) : '—';
@@ -53,5 +56,6 @@ export default function MonitoringPanel({ userId, initialSnapshot }: { userId: s
         </ol>}
       </section>
     </>}
+    {task && <RecheckTaskPanel task={task} locale={locale} />}
   </>;
 }

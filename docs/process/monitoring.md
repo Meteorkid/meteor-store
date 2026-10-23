@@ -62,10 +62,36 @@ shell 入口使用 `flock`；macOS 无该命令时使用现有 Python 3 标准�
 
 默认检测覆盖应用、数据库、Redis，不证明公网 DNS、TLS、nginx、支付回调、后台任务或业务结果全部正常。
 
+## 开源回查任务状态
+
+`scripts/recheck-pathfinder-issues.mjs --apply --quiet` 在现有每日任务执行时自行记录运行状态，不新增调度、不发消息。正式应用前写入 `running`，完成后写入 `ok` / `partial` / `failed`；模拟运行只输出结果，不覆盖正式记录。没有候选条目、或全是无需检查 issue 的仓库入口，均为正常完成，计数可区分这两种情况。
+
+- `ok`：全部适用条目核验完成、需要的归档写入成功；附属记录也正常时 `success=true`，退出 0。
+- `partial`：部分条目核验失败，其余核验完成，`success=false`，退出 1；只归档已核验且不再适用的条目。
+- `failed`：全部适用条目核验失败，或数据库读写失败，`success=false`，退出 1；配置错误退出 2。
+- 网络请求最多等待 10 秒；HTTP、网络和无效 JSON/issue 响应逐条记录。quiet 摘要保留最多 5 条公开 ID、错误类别和 HTTP 状态，不保留标题、原始响应、连接串、令牌或异常正文。
+
+私有文件默认是 `data/monitoring/pathfinder-recheck.json`；若配置 `HEALTH_CHECK_STATE_FILE`，则默认放在该文件同目录。独立覆盖变量为 `PATHFINDER_RECHECK_STATE_FILE`，脚本和应用必须指向同一个文件。目录 700、文件 600，同目录临时文件写入并同步后原子替换。损坏的普通状态文件在可写时先改名保留为 `pathfinder-recheck.json.<uuid>.corrupt`（同样 600），再从空历史重新记录；不从损坏内容恢复历史成功时间，本次真正完整成功后才写入当前时间。无法读取、隔离或写入时仍继续原 HTTP/SQL 回查；读不到或无法隔离的旧文件保持原样，不跟随符号链接修改其它数据。
+
+任一记录故障都会在最终单条摘要中保留固定 `error`（`task-state-reset` 或 `task-state-unavailable`），并退出 2；即使随后重新写入成功也不会吞掉该次故障。此时 `success=false`，`status` 和计数仍反映实际业务结果，`stateRecorded` 单独说明最终记录是否写入。quiet 不增加额外错误行，不输出原始异常、路径或损坏内容。下一轮业务与记录均正常时恢复退出 0。现有调度按单实例运行，不要手工并发执行相同状态文件的回查。
+
+任务记录独立于 `health.json`，不会改变其 schema、连续故障计数或铃铛事件。`GET /api/admin/monitoring` 在既有 `userId`、`monitoring` 旁增加 `task`：
+
+- `lastAttemptAt` / `finishedAt`：最近开始与完成时间；未完成的 `running` 也可见。
+- `lastSuccessAt`：最近完整成功时间；部分/全部失败保留前一次成功时间。
+- `dataUpdatedAt`：最近实际归档写入时间；无变化时保留旧值。
+- `consecutiveAnomalies`：连续部分/全部失败次数，完整成功归零；上一轮异常退出留下的未完成运行在下一次尝试时计入。
+- `result`：候选、跳过、已核验、失败、待归档、实际归档计数及有界失败样本。
+
+监控页单独显示任务状态；超过 30 小时没有新尝试、运行超过 1 小时或未来时间异常显示过期。缺失和损坏分别显示未收到记录、记录不可用。页面/API仍只对管理员开放，响应 no-store，任务与健康数据共用按账号隔离的请求和清理生命周期。该视图目前只覆盖开源回查；日刊、硕士和其它任务尚未接入，不能据此推断它们成功。
+
+部署代码后等待现有每日回查正常执行，再核对私有权限、时间、计数与管理员页面；不需要安装新 cron。回滚代码即可，保留独立任务文件用于排查，不影响服务健康检测。
+
 ## 本地验证
 
 ```sh
 pnpm exec vitest run src/lib/__tests__/health-check-script.test.ts src/lib/__tests__/monitoring.test.ts src/lib/__tests__/monitoring-client.test.ts src/app/api/admin/monitoring/__tests__/route.test.ts src/components/__tests__/admin-entry.test.ts src/lib/__tests__/admin-authz.test.ts
+pnpm exec vitest run src/lib/__tests__/pathfinder-recheck-script.test.ts src/lib/__tests__/task-monitoring.test.ts src/components/__tests__/task-monitoring-panel.test.tsx
 bash -n scripts/health-check.sh
 node --check scripts/health-check.mjs
 ```

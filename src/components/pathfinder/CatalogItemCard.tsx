@@ -37,7 +37,7 @@ export default async function CatalogItemCard({
    * 收藏状态。由页面一次性批量查好后传进来——每张卡片自己 fetch 一次的话，
    * 机会库一页 24 张卡就是 24 个请求。不传则不渲染收藏按钮。
    */
-  saveState?: { signedIn: boolean; saved: boolean };
+  saveState?: { ownerId: string | null; saved: boolean };
 }) {
   const t = await getTranslations({ locale, namespace: 'PathfinderHub.catalog' });
   const pathfinderLocale = locale === 'en' ? 'en' : 'zh';
@@ -189,7 +189,7 @@ export default async function CatalogItemCard({
             <SaveButton
               itemId={item.id}
               initialSaved={saveState.saved}
-              signedIn={saveState.signedIn}
+              initialOwnerId={saveState.ownerId}
             />
           )}
           {item.learningEligible && !item.requiresManualEligibilityCheck && (

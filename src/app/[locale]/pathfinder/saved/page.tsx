@@ -36,9 +36,14 @@ export default async function PathfinderSavedPage({
     redirect({ href: { pathname: '/login', query: { next: '/pathfinder/saved' } }, locale });
   }
 
-  const saved = await getSavedPathfinderItems(session!.userId);
-  const active = saved.filter(({ item }) => getDeadlineState(item).state !== 'expired');
-  const expired = saved.filter(({ item }) => getDeadlineState(item).state === 'expired');
+  let saved: Awaited<ReturnType<typeof getSavedPathfinderItems>> | null = null;
+  try {
+    saved = await getSavedPathfinderItems(session!.userId);
+  } catch {
+    console.error('[pathfinder] saved items unavailable');
+  }
+  const active = saved?.filter(({ item }) => getDeadlineState(item).state !== 'expired') ?? [];
+  const expired = saved?.filter(({ item }) => getDeadlineState(item).state === 'expired') ?? [];
 
   return (
     <main className="container mx-auto px-4 py-10 sm:py-14 lg:py-16">
@@ -49,7 +54,14 @@ export default async function PathfinderSavedPage({
           <p className="mt-4 max-w-3xl t-body text-white/60">{t('description')}</p>
         </header>
 
-        {saved.length === 0 ? (
+        {saved === null ? (
+          <div role="status" className="rounded-2xl border border-amber-400/25 bg-amber-500/10 px-5 py-10 text-center">
+            <h2 className="t-title-3 text-amber-100">{t('loadFailed')}</h2>
+            <a href={`/${locale}/pathfinder/saved`} className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-white/20 px-4 text-sm font-semibold text-white hover:bg-white/[0.05]">
+              {t('retry')}
+            </a>
+          </div>
+        ) : saved.length === 0 ? (
           <div className="rounded-2xl border border-white/10 px-5 py-12 text-center">
             <h2 className="t-title-3 text-white">{t('emptyTitle')}</h2>
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/60">{t('emptyDescription')}</p>
@@ -64,12 +76,13 @@ export default async function PathfinderSavedPage({
           <>
             <section>
               <h2 className="t-title-3 text-white">{t('activeTitle', { count: active.length })}</h2>
+              {active.length === 0 && <p className="mt-3 text-sm leading-6 text-white/60">{t('noActive')}</p>}
               <div className="mt-3">
                 {active.map(({ item, remindDeadline }) => (
                   <div key={item.id}>
                     <CatalogItemCard item={item} locale={locale as Locale} />
                     <div className="pb-4">
-                      <ReminderToggle itemId={item.id} initialEnabled={remindDeadline} />
+                      <ReminderToggle itemId={item.id} initialEnabled={remindDeadline} initialOwnerId={session!.userId} />
                     </div>
                   </div>
                 ))}
@@ -80,9 +93,10 @@ export default async function PathfinderSavedPage({
               <section className="mt-12">
                 {/* 过期的收藏不直接删掉：用户可能想回看自己当时关注过什么 */}
                 <h2 className="t-title-3 text-white/60">{t('expiredTitle', { count: expired.length })}</h2>
-                <div className="mt-3 opacity-60">
+                <p className="mt-3 text-sm leading-6 text-white/60">{t('expiredDescription')}</p>
+                <div className="mt-3">
                   {expired.map(({ item }) => (
-                    <CatalogItemCard key={item.id} item={item} locale={locale as Locale} compact />
+                    <CatalogItemCard key={item.id} item={item} locale={locale as Locale} />
                   ))}
                 </div>
               </section>
