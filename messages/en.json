@@ -849,7 +849,7 @@
     "periodYearly": "yr",
     "periodLifetime": "lifetime",
     "getTitle": "Get {name}",
-    "downloadHint": "Users in China: Gitee mirror or package manager install is recommended for faster and more stable downloads.",
+    "downloadHint": "Choose the download for your device. Version and checksum details are listed below.",
     "recommended": "Recommended",
     "runIn30s": "Get running in 30 seconds",
     "copied": "Copied ✓",
@@ -878,7 +878,14 @@
     "passCta": "See Meteor Pass →",
     "downloadChecking": "Checking…",
     "downloadLoginHint": "Sign in to download",
-    "downloadLockedHint": "Unlock to download"
+    "downloadLockedHint": "Unlock to download",
+    "downloadUnavailable": "Download access could not be checked. Please try again.",
+    "downloadRetry": "Check again",
+    "downloadSessionExpired": "Your session has expired. Sign in to continue the download.",
+    "downloadAccountChanged": "Your account has changed. Refresh your account to check access.",
+    "downloadRefresh": "Refresh account",
+    "downloadHintGated": "Sign in to download. If you have not unlocked this product, choose a plan below.",
+    "downloadHintPackage": "Open the package page below for installation instructions."
   },
   "ExMemoryExperiencePage": {
     "title": "Try Ex-Memory Online",
@@ -1496,7 +1503,47 @@
     "descStatux": "AI Agent monitoring panel in the iTerm2 status bar.",
     "descTollow": "Immersive long-form typing practice — pick a book to start.",
     "viewDetails": "View details →",
-    "readDocs": "View help"
+    "readDocs": "View help",
+    "demos": {
+      "omnicrawl": {
+        "install": "# Install OmniCrawl",
+        "auto": "# Fetch a page with the auto engine",
+        "protected": "# Fetch a site protected by a WAF"
+      },
+      "exMemory": {
+        "import": "# Import a chat history",
+        "parsing": "[Import] Parsing... Found 12,847 messages",
+        "chunked": "[Import] Created 2,156 semantic chunks",
+        "vectorizing": "[Vector] Generating embeddings... ████████████████ 100%",
+        "stored": "[Vector] Saved to local ChromaDB",
+        "persona": "# Generate a persona profile",
+        "analyzing": "[Persona] Analyzing language style...",
+        "mbti": "[Persona] MBTI tendency: INFP",
+        "phrases": "[Persona] Common phrases: \"hahaha\", \"yay\", \"amazing\"",
+        "emotion": "[Persona] Emotional style: warm, empathetic, enjoys emoji",
+        "saved": "[Persona] Saved to persona.md",
+        "chat": "# Start a conversation",
+        "question": "> I am so tired today",
+        "answer": "Haha, go get some rest! No need to push yourself 🫶 Tomorrow is a new day~"
+      },
+      "statux": {
+        "detected": "[Statux] Detected iTerm2 v3.5.2 ✓",
+        "registered": "[Statux] Status bar component registered",
+        "config": "[Statux] Config: ~/.config/statux/config.toml",
+        "watching": "[Statux] Updating live... (Ctrl+C to exit)"
+      },
+      "tollow": {
+        "choose": "# Choose a book in the browser...",
+        "books": "  📚 Available books:",
+        "book1": "  1. Hackers & Painters - Paul Graham",
+        "book2": "  2. Code Complete - Steve McConnell",
+        "book3": "  3. The Mythical Man-Month - Frederick Brooks",
+        "chapter": "  Current passage (Chapter 3):",
+        "quote1": "  \"Good design is simple. From mathematics to painting,",
+        "quote2": "   you hear this again and again. In mathematics, it means",
+        "quote3": "   shorter proofs are often better proofs...\""
+      }
+    }
   },
   "TopicProposal": {
     "validationError": "Title needs at least 4 characters, reason at least 10",
@@ -2425,5 +2472,13 @@
       "addedFeaturedNote": "Ranked by how actionable they are — {shown} shown, {rest} more available.",
       "addedMore": "Show the other {rest}"
     }
+  },
+  "PassStatus": {
+    "checking": "Checking membership",
+    "unavailable": "Membership status unavailable",
+    "failed": "Membership status could not be loaded. Retry before purchasing.",
+    "changed": "Your signed-in account has changed. Refresh to confirm your membership.",
+    "retry": "Retry",
+    "reload": "Refresh page"
   }
 }

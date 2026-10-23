@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "./AuthProvider";
 import PricingCard from "./PricingCard";
-import type { PassPlanId } from "@/data/pass";
+import { usePassStatus } from "./usePassStatus";
+import PassStatusNotice from "./PassStatusNotice";
 
 interface ProductPricingCardsProps {
   plans: Array<{
@@ -22,34 +21,12 @@ interface ProductPricingCardsProps {
 }
 
 export default function ProductPricingCards({ plans, productId, productName, isAnnual }: ProductPricingCardsProps) {
-  const { user } = useAuth();
-  const [currentPassPlan, setCurrentPassPlan] = useState<PassPlanId | null>(null);
-
-  // 渲染期调整：user 由有变无时重置 Pass 档位（React Compiler：不在 effect 里同步 setState）
-  // 比 id 不比对象引用：同一个用户被 setUser 成新对象时，比引用会每次渲染都 setState
-  const userId = user?.id ?? null;
-  const [prevUserId, setPrevUserId] = useState(userId);
-  if (userId !== prevUserId) {
-    setPrevUserId(userId);
-    if (!userId) setCurrentPassPlan(null);
-  }
-
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-    fetch("/api/pass/status")
-      .then((r) => r.json())
-      .then((d) => {
-        if (!cancelled) setCurrentPassPlan(d.hasPass ? d.currentPlan : null);
-      })
-      .catch(() => {
-        if (!cancelled) setCurrentPassPlan(null);
-      });
-    return () => { cancelled = true; };
-  }, [user]);
+  const pass = usePassStatus();
 
   return (
-    <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
+    <div className="mx-auto max-w-5xl">
+      <PassStatusNotice error={pass.error} onRetry={pass.retry} />
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       {plans.map((plan, index) => (
         <PricingCard
           key={plan.name}
@@ -64,9 +41,11 @@ export default function ProductPricingCards({ plans, productId, productName, isA
           productName={productName}
           planId={plan.id}
           isAnnual={isAnnual}
-          currentPassPlan={currentPassPlan}
+          currentPassPlan={pass.status?.currentPlan}
+          passStatusState={pass.error ? 'error' : pass.loading ? 'loading' : 'ready'}
         />
       ))}
+      </div>
     </div>
   );
 }

@@ -6,11 +6,8 @@ import AdminPendingBadge, { AdminPendingCount } from './AdminPendingBadge';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
-
-interface PassStatus {
-  hasPass: boolean;
-  currentPlan: string | null;
-}
+import { usePassStatus } from './usePassStatus';
+import PassStatusNotice from './PassStatusNotice';
 
 export default function UserMenu() {
   const t = useTranslations('Header');
@@ -21,28 +18,8 @@ export default function UserMenu() {
   const [logoutPending, setLogoutPending] = useState(false);
   const [logoutFailed, setLogoutFailed] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const [passStatus, setPassStatus] = useState<PassStatus | null>(null);
-
-  // 渲染期调整：user 由有变无时重置 Pass 状态（React Compiler：不在 effect 里同步 setState）
-  // 比 id 不比对象引用：同一个用户被 setUser 成新对象时，比引用会每次渲染都 setState
-  const userId = user?.id ?? null;
-  const [prevUserId, setPrevUserId] = useState(userId);
-  if (userId !== prevUserId) {
-    setPrevUserId(userId);
-    if (!userId) setPassStatus(null);
-  }
-
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-    fetch('/api/pass/status')
-      .then((r) => r.json())
-      .then((d) => {
-        if (!cancelled) setPassStatus(d);
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [user]);
+  const pass = usePassStatus();
+  const passStatus = pass.status;
 
   useEffect(() => {
     const handleClick = (e: PointerEvent) => {
@@ -132,6 +109,7 @@ export default function UserMenu() {
               )}
             </p>
             <p className="text-xs text-gray-500">{user.email}</p>
+            <PassStatusNotice error={pass.error} onRetry={pass.retry} />
           </div>
           <div className="py-1">
             <Link

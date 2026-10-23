@@ -1,33 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useAuth } from './AuthProvider';
+import { usePassStatus } from './usePassStatus';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
 export default function PassOwnedBadge() {
-  const { user } = useAuth();
+  const { status } = usePassStatus();
   const t = useTranslations('PassOwnedBadge');
-  const [hasPass, setHasPass] = useState(false);
-  const [planName, setPlanName] = useState('');
-
-  useEffect(() => {
-    if (!user) return;
-    fetch('/api/pass/status')
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.hasPass) {
-          setHasPass(true);
-          setPlanName(d.currentPlan === 'monthly' ? t('monthly')
-            : d.currentPlan === 'annual' ? t('annual')
-            : d.currentPlan === 'lifetime' ? t('lifetime')
-            : '');
-        }
-      })
-      .catch(() => {});
-  }, [user, t]);
-
-  if (!hasPass) return null;
+  if (!status?.hasPass) return null;
+  const planName = status.currentPlan ? t(status.currentPlan) : '';
 
   return (
     <div className="mx-auto mb-8 max-w-5xl rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] px-6 py-4 text-center">

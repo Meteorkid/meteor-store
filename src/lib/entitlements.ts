@@ -58,6 +58,8 @@ export type Entitlement = {
 
 export type EntitlementSummary = {
   entitlements: Entitlement[];
+  /** 真实 Pass 身份独立于产品授权；单品优先或管理员放行不能遮住它。 */
+  activePass: { planId: PassPlanId | null; expiresAt: string | null } | null;
   /**
    * 曾经有过 Pass 但已经过期，值为到期时间；否则为 null。
    * 支付宝走的是单次付款不是代扣，到期是静默失效，
@@ -107,9 +109,9 @@ export function accumulatePass(grants: Grant[]): AccumulatedPass | null {
   const last = sorted[sorted.length - 1];
 
   for (const grant of sorted) {
+    if (lifetime) continue;
     const plan = findPassPlan(grant.passPlanKey);
     if (plan) planId = plan.id;
-    if (lifetime) continue;
 
     const grantedAt = grant.grantedAt ?? '';
     const base = expiresAt !== null && grantedAt < expiresAt ? expiresAt : grant.grantedAt;
@@ -134,27 +136,25 @@ export function accumulatePass(grants: Grant[]): AccumulatedPass | null {
   };
 }
 
+function getAdminEntitlements(): Entitlement[] {
+  return products.map((product) => ({
+    productId: product.id,
+    productName: product.name.zh,
+    planName: '管理员',
+    planId: product.id === TOLLOW_PRODUCT_ID ? 'pro' : null,
+    billingPeriod: 'lifetime',
+    paidAt: null,
+    expiresAt: null,
+    viaPass: false,
+    passPlanId: null,
+  }));
+}
+
 export async function getUserEntitlementSummary(
   userId: string,
   email: string,
 ): Promise<EntitlementSummary> {
-  // 管理员：所有产品全部放行，不需要购买
-  if (isAdminEmail(email)) {
-    return {
-      entitlements: products.map((p) => ({
-        productId: p.id,
-        productName: p.name.zh,
-        planName: '管理员',
-        planId: p.id === TOLLOW_PRODUCT_ID ? 'pro' : null,
-        billingPeriod: 'lifetime',
-        paidAt: null,
-        expiresAt: null,
-        viaPass: false,
-        passPlanId: null,
-      })),
-      passExpiredAt: null,
-    };
-  }
+  const admin = isAdminEmail(email);
 
   const [orderRows, inviteRows] = await Promise.all([
     db
@@ -288,12 +288,16 @@ export async function getUserEntitlementSummary(
   }
 
   return {
-    entitlements: Array.from(owned.values()),
-    passExpiredAt: pass && !passActive ? pass.expiresAt : null,
+    // 管理员仍拥有全部产品，真实 Pass 单独返回，不把内部放行伪装成购买。
+    entitlements: admin ? getAdminEntitlements() : Array.from(owned.values()),
+    activePass: pass && passActive ? { planId: pass.planId, expiresAt: pass.expiresAt } : null,
+    passExpiredAt: !admin && pass && !passActive ? pass.expiresAt : null,
   };
 }
 
 export async function getUserEntitlements(userId: string, email: string): Promise<Entitlement[]> {
+  // 产品放行不依赖商业查询；真实会员身份只由 summary 读取订单和邀请码判断。
+  if (isAdminEmail(email)) return getAdminEntitlements();
   const { entitlements } = await getUserEntitlementSummary(userId, email);
   return entitlements;
 }

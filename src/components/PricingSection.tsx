@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import PricingCard from './PricingCard';
 import RedeemDialog from './RedeemDialog';
-import { useAuth } from './AuthProvider';
-import { PASS_NAME, PASS_PRODUCT_ID, passPlans, type PassPlanId } from '@/data/pass';
+import { usePassStatus } from './usePassStatus';
+import PassStatusNotice from './PassStatusNotice';
+import { PASS_NAME, PASS_PRODUCT_ID, passPlans } from '@/data/pass';
 import type { Locale } from '@/i18n/routing';
 
 interface PricingSectionProps {
@@ -46,32 +47,7 @@ export default function PricingSection({
   const t = useTranslations('PricingSection');
   const locale = useLocale() as Locale;
   const [redeemOpen, setRedeemOpen] = useState(false);
-  const { user } = useAuth();
-  const [currentPassPlan, setCurrentPassPlan] = useState<PassPlanId | null>(null);
-
-  // 渲染期调整：user 由有变无时重置 Pass 档位（React Compiler：不在 effect 里同步 setState）
-  // 比 id 不比对象引用：AuthProvider 只要把同一个用户 setUser 成一个新对象
-  // （refresh() / /api/auth/me 轮询），比引用就会每次渲染都 setState → Too many re-renders 白屏
-  const userId = user?.id ?? null;
-  const [prevUserId, setPrevUserId] = useState(userId);
-  if (userId !== prevUserId) {
-    setPrevUserId(userId);
-    if (!userId) setCurrentPassPlan(null);
-  }
-
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-    fetch('/api/pass/status')
-      .then((r) => r.json())
-      .then((d) => {
-        if (!cancelled) setCurrentPassPlan(d.hasPass ? d.currentPlan : null);
-      })
-      .catch(() => {
-        if (!cancelled) setCurrentPassPlan(null);
-      });
-    return () => { cancelled = true; };
-  }, [user]);
+  const pass = usePassStatus();
 
   return (
     <section id="pricing" className="py-20">
@@ -94,6 +70,7 @@ export default function PricingSection({
             连线是纯装饰，不承载交互，prefers-reduced-motion 下不播动画。 */}
         <div className="relative max-w-5xl mx-auto">
           {cosmic && <ConstellationField />}
+          <PassStatusNotice error={pass.error} onRetry={pass.retry} />
 
           <div className={`grid grid-cols-1 gap-8 md:grid-cols-3 ${cosmic ? 'pl-4 md:pl-0' : ''}`}>
             {passPlans.map((plan, index) => (
@@ -120,7 +97,8 @@ export default function PricingSection({
                   productId={PASS_PRODUCT_ID}
                   productName={PASS_NAME[locale]}
                   planId={plan.id}
-                  currentPassPlan={currentPassPlan}
+                  currentPassPlan={pass.status?.currentPlan}
+                  passStatusState={pass.error ? 'error' : pass.loading ? 'loading' : 'ready'}
                 />
               </div>
             ))}

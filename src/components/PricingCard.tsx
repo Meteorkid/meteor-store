@@ -28,6 +28,7 @@ interface PricingCardProps {
   isAnnual?: boolean;
   /** 用户当前持有的 Pass 档位，用于智能 CTA 文案 */
   currentPassPlan?: PassPlanId | null;
+  passStatusState?: 'ready' | 'loading' | 'error';
 }
 
 export default function PricingCard({
@@ -45,11 +46,13 @@ export default function PricingCard({
   href,
   isAnnual,
   currentPassPlan,
+  passStatusState = 'ready',
 }: PricingCardProps) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [claimError, setClaimError] = useState('');
   const t = useTranslations('PricingCard');
+  const passText = useTranslations('PassStatus');
   const locale = useLocale();
   const router = useRouter();
   const { user } = useAuth();
@@ -88,6 +91,8 @@ export default function PricingCard({
       handleClaim();
       return;
     }
+
+    if (passStatusState !== 'ready') return;
 
     if (href) {
       const url = isAnnual ? `${href}?annual=true` : href;
@@ -186,6 +191,7 @@ export default function PricingCard({
           // 智能 CTA：根据用户当前 Pass 档位显示不同文案
           const getCtaText = () => {
             if (price === 0) return claiming ? t('claiming') : t('claimFree');
+            if (passStatusState !== 'ready') return passText(passStatusState === 'loading' ? 'checking' : 'unavailable');
             if (!currentPassPlan) return t('buyNow');
             
             // 从产品名推断卡片的档位（PricingSection 传的是 Pass plan）
@@ -228,7 +234,7 @@ export default function PricingCard({
           return (
             <button
               onClick={handlePurchase}
-              disabled={claiming || !!isOwned}
+              disabled={claiming || !!isOwned || (price > 0 && passStatusState !== 'ready')}
               className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-300 disabled:opacity-50 ${
                 isPopular
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 shadow-lg shadow-primary/20'

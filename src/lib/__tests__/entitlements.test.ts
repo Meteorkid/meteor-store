@@ -182,6 +182,16 @@ describe('getUserEntitlements', () => {
       expect(result[0].passPlanId).toBe('lifetime');
     });
 
+    it.each(['monthly', 'annual'])('买断后新增%s授权仍显示买断', async plan => {
+      selectQueue.push([
+        passOrder('lifetime', '2026-09-01T00:00:00.000Z'),
+        passOrder(plan, '2026-10-01T00:00:00.000Z'),
+      ]);
+      const summary = await getUserEntitlementSummary('u1', 'a@b.com');
+      expect(summary.entitlements.every(item => item.passPlanId === 'lifetime' && item.expiresAt === null)).toBe(true);
+      expect(summary.activePass).toEqual({ planId: 'lifetime', expiresAt: null });
+    });
+
     it('单品授权优先于 Pass：自己买断的产品不显示成靠会员在用', async () => {
       selectQueue.push([
         { ...baseRow },

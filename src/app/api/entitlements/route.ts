@@ -7,12 +7,14 @@ import { getUserEntitlements } from '@/lib/entitlements';
  * 供「我的产品」页与付费门控组件使用。数据只对本人可见，无需限流。
  */
 export async function GET() {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: '请先登录' }, { status: 401 });
+  const headers = { 'Cache-Control': 'no-store' };
+  try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: '请先登录' }, { status: 401, headers });
+
+    const entitlements = await getUserEntitlements(session.userId, session.email);
+    return NextResponse.json({ userId: session.userId, entitlements }, { headers });
+  } catch {
+    return NextResponse.json({ error: 'Entitlements unavailable' }, { status: 503, headers });
   }
-
-  const entitlements = await getUserEntitlements(session.userId, session.email);
-
-  return NextResponse.json({ entitlements });
 }

@@ -4,8 +4,9 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
-import type { Entitlement } from '@/lib/entitlements';
 import { buildLoginHref } from '@/lib/login-return';
+
+type AccessStatus = 'checking' | 'owned' | 'unowned' | 'login' | 'error' | 'changed';
 
 interface DownloadCardProps {
   productId: string;
@@ -42,19 +43,43 @@ export default function DownloadCard({
   sha256,
 }: DownloadCardProps) {
   const t = useTranslations('ProductDetailPage');
-  const { user } = useAuth();
-  const [entitled, setEntitled] = useState<boolean | null>(null);
+  const { user, loading, refresh } = useAuth();
+  const ownerId = user?.id ?? null;
+  const key = JSON.stringify([gated, loading, ownerId, productId]);
+  const [access, setAccess] = useState<{ key: string; status: AccessStatus }>({ key, status: 'checking' });
+  const [attempt, setAttempt] = useState(0);
+  // 身份或产品变化时立即撤下上一轮的入口，不能等迟到的请求完成。
+  if (access.key !== key) setAccess({ key, status: 'checking' });
 
   useEffect(() => {
-    if (!gated || !user) return;
-    // setState 全部走 .then 回调，避免 react-hooks/set-state-in-effect
-    fetch('/api/entitlements')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { entitlements?: Entitlement[] } | null) => {
-        setEntitled(Boolean(data?.entitlements?.some((e) => e.productId === productId)));
-      })
-      .catch(() => setEntitled(false));
-  }, [gated, user, productId]);
+    if (!gated || loading || !ownerId) return;
+    const controller = new AbortController();
+    const update = (status: AccessStatus) => {
+      if (!controller.signal.aborted) setAccess(current => current.key === key ? { key, status } : current);
+    };
+    const timeout = setTimeout(() => { update('error'); controller.abort(); }, 15_000);
+    void (async () => {
+      try {
+        const response = await fetch('/api/entitlements', { cache: 'no-store', signal: controller.signal });
+        if (response.status === 401) { update('login'); return; }
+        if (!response.ok) throw new Error('Entitlements unavailable');
+        const data = await response.json();
+        if (!data || typeof data.userId !== 'string' || !Array.isArray(data.entitlements)
+          || !data.entitlements.every((item: unknown) => item && typeof item === 'object' && 'productId' in item && typeof item.productId === 'string')) {
+          throw new Error('Invalid entitlements');
+        }
+        if (data.userId !== ownerId) { update('changed'); return; }
+        update(data.entitlements.some((item: { productId: string }) => item.productId === productId) ? 'owned' : 'unowned');
+      } catch { update('error'); }
+      finally { clearTimeout(timeout); }
+    })();
+    return () => { controller.abort(); clearTimeout(timeout); };
+  }, [gated, loading, ownerId, productId, key, attempt]);
+
+  const retry = () => {
+    setAccess({ key, status: 'checking' });
+    setAttempt(value => value + 1);
+  };
 
   const cardClass = `glass-card glass-card-badge-safe group relative flex items-start gap-4 rounded-2xl p-5 transition-all duration-200 ${
     recommended
@@ -115,27 +140,48 @@ export default function DownloadCard({
     );
   }
 
-  // 门控下载：未登录 / 未授权时给引导，不给链接
-  if (!user) {
+  if (loading || (user && ownerId && access.status === 'checking')) {
     return (
-      <Link href={buildLoginHref(`/products/${productId}#download`)} className={cardClass}>
+      <div className={`${cardClass} opacity-60`} aria-busy="true">
         {body}
-        {lockIcon}
-        <span className="sr-only">{t('downloadLoginHint')}</span>
-      </Link>
-    );
-  }
-
-  if (entitled === null) {
-    return (
-      <div className={`${cardClass} opacity-60`}>
-        {body}
-        <span className="ml-auto mt-1 shrink-0 text-[11px] text-gray-500">{t('downloadChecking')}</span>
+        <span className="ml-auto mt-1 shrink-0 t-footnote text-white/60">{t('downloadChecking')}</span>
       </div>
     );
   }
 
-  if (!entitled) {
+  // 会话过期时保留产品及下载锚点，不能把读取失败解释成尚未购买。
+  if (!user || access.status === 'login') {
+    return (
+      <Link href={buildLoginHref(`/products/${productId}#download`)} className={`${cardClass} flex-wrap`}>
+        {body}
+        {lockIcon}
+        <span className={access.status === 'login' ? 'basis-full t-footnote text-white/70' : 'sr-only'}>
+          {t(access.status === 'login' ? 'downloadSessionExpired' : 'downloadLoginHint')}
+        </span>
+      </Link>
+    );
+  }
+
+  if (!ownerId || access.status === 'error' || access.status === 'changed') {
+    const changed = !ownerId || access.status === 'changed';
+    return (
+      <div className={`${cardClass} flex-wrap`}>
+        {body}
+        <div className="basis-full">
+          <p role="alert" className="t-footnote text-white/70">{t(changed ? 'downloadAccountChanged' : 'downloadUnavailable')}</p>
+          <button
+            type="button"
+            onClick={changed ? async () => { await refresh(); retry(); } : retry}
+            className="mt-3 rounded-lg border border-white/20 px-3 py-2 text-sm text-white focus-visible:outline-2 focus-visible:outline-violet-300"
+          >
+            {t(changed ? 'downloadRefresh' : 'downloadRetry')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (access.status === 'unowned') {
     return (
       <Link href={`/products/${productId}#pricing`} className={cardClass}>
         {body}
