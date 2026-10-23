@@ -1,31 +1,11 @@
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { db } from '@/lib/db';
 import { topicProposals } from '@/lib/db/schema';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { sendAdminAlert } from '@/lib/email';
-import { blogSections } from '@/data/blog-sections';
+import { TopicProposalSchema } from '@/lib/topic-validation';
 import { sanitizeUserInput } from '@/lib/sanitize';
-
-/** 只有开放提议的分区能收提议，白名单从分区配置推导 */
-const PROPOSABLE_SECTION_IDS = blogSections
-  .filter((s) => s.allowProposals)
-  .map((s) => s.id) as [string, ...string[]];
-
-export const TopicProposalSchema = z.object({
-  sectionId: z.enum(PROPOSABLE_SECTION_IDS),
-  title: z.string().trim().min(4, '话题标题太短了').max(80, '话题标题不要超过 80 字'),
-  pitch: z.string().trim().min(10, '再多写几句为什么值得写').max(1000, '先写个梗概就好，不要超过 1000 字'),
-  email: z.string().email('邮箱格式不对').max(254).optional(),
-});
-
-/**
- * @deprecated 改用 src/lib/sanitize.ts 的 sanitizeUserInput。
- * 保留 re-export 是为了让既有测试 (`__tests__/route.test.ts`) 在重构过渡期不红,
- * 逻辑实际由共享函数提供,见 AGENTS.md「输入净化统一」一节。
- */
-export const sanitizeInput = sanitizeUserInput;
 
 export async function POST(request: NextRequest) {
   // 速率限制：每 IP 每 10 分钟最多 3 条提议。

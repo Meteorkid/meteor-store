@@ -7,8 +7,6 @@ import { createPost, getPostsByAuthor } from '@/lib/posts';
 import { PostSubmissionSchema } from '@/lib/post-validation';
 import { revalidatePublishedPaths } from '@/lib/revalidate';
 
-export { PostSubmissionSchema } from '@/lib/post-validation';
-
 export async function GET() {
   const session = await getSession();
   if (!session) {

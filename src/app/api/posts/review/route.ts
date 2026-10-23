@@ -7,7 +7,7 @@ import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { reviewPost } from '@/lib/posts';
 import { revalidatePublishedPaths } from '@/lib/revalidate';
 
-export const ReviewSchema = z.object({
+const ReviewSchema = z.object({
   postId: z.string().min(1),
   expectedUpdatedAt: z.string().datetime({ precision: 3 }),
   approve: z.boolean(),

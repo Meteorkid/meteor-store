@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { TopicProposalSchema, sanitizeInput } from '../route';
+import { TopicProposalSchema } from '@/lib/topic-validation';
+import { sanitizeUserInput as sanitizeInput } from '@/lib/sanitize';
 
 const valid = {
   sectionId: 'debate',

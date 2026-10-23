@@ -13,13 +13,6 @@ const FeedbackSchema = z.object({
   content: z.string().min(1).max(5000),
 });
 
-/**
- * @deprecated 改用 src/lib/sanitize.ts 的 sanitizeUserInput。
- * 保留 re-export 是为了让既有测试 (`__tests__/route.test.ts`) 在重构过渡期不红,
- * 逻辑实际由共享函数提供,见 AGENTS.md「输入净化统一」一节。
- */
-export const sanitizeInput = sanitizeUserInput;
-
 export async function POST(request: NextRequest) {
   // 速率限制：每 IP 每分钟最多 5 次
   const ip = getClientIp(request);

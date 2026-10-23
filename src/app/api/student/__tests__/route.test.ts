@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isEduEmail } from '../route';
+import { isEduEmail } from '@/lib/student-email';
 
 describe('isEduEmail', () => {
   it('accepts .edu emails', () => {

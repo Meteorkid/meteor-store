@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeInput } from '../route';
+import { sanitizeUserInput as sanitizeInput } from '@/lib/sanitize';
 
 describe('sanitizeInput', () => {
   it('strips literal HTML tags', () => {
