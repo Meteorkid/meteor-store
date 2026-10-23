@@ -1,0 +1,295 @@
+{
+  "run": "acceptance_718eb1b643",
+  "synthetic_only": true,
+  "network": "loopback",
+  "checks": [
+    {
+      "name": "import_configuration",
+      "passed": true,
+      "evidence": {
+        "allowed_extensions": [
+          ".json",
+          ".jsonl",
+          ".txt",
+          ".mht",
+          ".mhtml"
+        ],
+        "max_upload_bytes": 104857600,
+        "third_party_data_policy_version": "v1",
+        "llm_configured": true,
+        "embedding_configured": true
+      }
+    },
+    {
+      "name": "draft_creation",
+      "passed": true,
+      "evidence": {
+        "ok": true,
+        "message": "镜像 [acceptance_718eb1b643] 草稿已保存，请导入聊天记录"
+      }
+    },
+    {
+      "name": "draft_waiting_for_import",
+      "passed": true,
+      "evidence": {
+        "slug": "acceptance_718eb1b643",
+        "name": "验收代号",
+        "state": "awaiting_import",
+        "created_at": "2026-10-23T22:25:09.620617",
+        "updated_at": "2026-10-23T22:25:09.620627"
+      }
+    },
+    {
+      "name": "missing_consent_rejected",
+      "passed": true,
+      "evidence": {
+        "detail": "导入前需确认你对这份聊天记录拥有合法处理基础。请先提交 third_party_data 协议（版本 v1）的同意。"
+      }
+    },
+    {
+      "name": "synthetic_explicit_consent",
+      "passed": true,
+      "evidence": {
+        "ok": true,
+        "message": "已记录"
+      }
+    },
+    {
+      "name": "task_read_owned",
+      "passed": true,
+      "evidence": 200
+    },
+    {
+      "name": "empty.json_rejected",
+      "passed": true,
+      "evidence": {
+        "task_id": "7c268dd0347a497e9e6ccd5c1bd2fbf0",
+        "type": "import_chat",
+        "slug": "acceptance_718eb1b643",
+        "status": "failed",
+        "progress": 20,
+        "detail": "解析聊天记录",
+        "result": null,
+        "error": "未找到目标人物的有效消息，请核对记录中的说话人名称或导出格式",
+        "attempts": 1,
+        "created_at": "2026-10-23 14:25:09",
+        "finished_at": "2026-10-23T14:25:09.712957+00:00"
+      }
+    },
+    {
+      "name": "empty.json_no_model_calls",
+      "passed": true,
+      "evidence": 0
+    },
+    {
+      "name": "task_read_owned",
+      "passed": true,
+      "evidence": 200
+    },
+    {
+      "name": "invalid.json_rejected",
+      "passed": true,
+      "evidence": {
+        "task_id": "42dd8a1b89c04b919ad900084e0999b9",
+        "type": "import_chat",
+        "slug": "acceptance_718eb1b643",
+        "status": "failed",
+        "progress": 20,
+        "detail": "解析聊天记录",
+        "result": null,
+        "error": "文件内容或编码无效，请重新导出 UTF-8 聊天记录后上传",
+        "attempts": 1,
+        "created_at": "2026-10-23 14:25:09",
+        "finished_at": "2026-10-23T14:25:09.788755+00:00"
+      }
+    },
+    {
+      "name": "invalid.json_no_model_calls",
+      "passed": true,
+      "evidence": 0
+    },
+    {
+      "name": "task_read_owned",
+      "passed": true,
+      "evidence": 200
+    },
+    {
+      "name": "speaker_mismatch_rejected",
+      "passed": true,
+      "evidence": {
+        "task_id": "6235466b4a7a4dad9f6d767475e5f7fa",
+        "type": "import_chat",
+        "slug": "acceptance_718eb1b643",
+        "status": "failed",
+        "progress": 20,
+        "detail": "解析聊天记录",
+        "result": null,
+        "error": "未找到目标人物的有效消息，请核对记录中的说话人名称或导出格式",
+        "attempts": 1,
+        "created_at": "2026-10-23 14:25:09",
+        "finished_at": "2026-10-23T14:25:09.810918+00:00"
+      }
+    },
+    {
+      "name": "retry_requests_reupload",
+      "passed": true,
+      "evidence": {
+        "detail": "原始上传文件已清理，请重新选择文件上传；已导入语料不会重复保存"
+      }
+    },
+    {
+      "name": "valid_upload_accepted",
+      "passed": true,
+      "evidence": {
+        "task_id": "f3e4cc6da33d4d1ba5b737d7cfde9910",
+        "message": "导入已开始，可通过任务接口查看进度",
+        "status": "queued"
+      }
+    },
+    {
+      "name": "task_read_owned",
+      "passed": true,
+      "evidence": 200
+    },
+    {
+      "name": "valid_upload_completed",
+      "passed": true,
+      "evidence": {
+        "task_id": "f3e4cc6da33d4d1ba5b737d7cfde9910",
+        "type": "import_chat",
+        "slug": "acceptance_718eb1b643",
+        "status": "succeeded",
+        "progress": 100,
+        "detail": "镜像已就绪",
+        "result": {
+          "messages": 24,
+          "chunks": 12,
+          "state": "completed",
+          "message": "聊天记录导入完成，记忆与人物画像已生成，可以开始模拟对话"
+        },
+        "error": null,
+        "attempts": 1,
+        "created_at": "2026-10-23 14:25:09",
+        "finished_at": "2026-10-23T14:25:09.866331+00:00"
+      }
+    },
+    {
+      "name": "positive_import_statistics",
+      "passed": true,
+      "evidence": {
+        "messages": 24,
+        "chunks": 12,
+        "state": "completed",
+        "message": "聊天记录导入完成，记忆与人物画像已生成，可以开始模拟对话"
+      }
+    },
+    {
+      "name": "ready_mirror",
+      "passed": true,
+      "evidence": [
+        {
+          "slug": "acceptance_718eb1b643",
+          "name": "验收代号",
+          "state": "completed",
+          "created_at": "2026-10-23T22:25:09.620617",
+          "updated_at": "2026-10-23T22:25:09.864653"
+        }
+      ]
+    },
+    {
+      "name": "corpus_has_correct_speakers",
+      "passed": true,
+      "evidence": {
+        "messages": 24,
+        "target": 12
+      }
+    },
+    {
+      "name": "generated_files_exist",
+      "passed": true,
+      "evidence": "/private/tmp/ex-memory-final-empty-20261023/runtime/exes/1/acceptance_718eb1b643"
+    },
+    {
+      "name": "generated_memory_uses_import",
+      "passed": true,
+      "evidence": "synthetic_fact_in_memory"
+    },
+    {
+      "name": "import_starts_with_source_stage",
+      "passed": true,
+      "evidence": {
+        "stage": "source"
+      }
+    },
+    {
+      "name": "import_identifies_ai_simulation",
+      "passed": true,
+      "evidence": "source_grounded_skill_rules"
+    },
+    {
+      "name": "task_read_owned",
+      "passed": true,
+      "evidence": 200
+    },
+    {
+      "name": "same_file_retry_is_idempotent",
+      "passed": true,
+      "evidence": {
+        "task_id": "e585cdf58d5745f1b18be8523f50ab1c",
+        "type": "import_chat",
+        "slug": "acceptance_718eb1b643",
+        "status": "succeeded",
+        "progress": 100,
+        "detail": "入库完成",
+        "result": {
+          "messages": 24,
+          "chunks": 12,
+          "state": "completed",
+          "message": "导入完成：解析 24 条消息，入库 12 个切片"
+        },
+        "error": null,
+        "attempts": 1,
+        "created_at": "2026-10-23 14:25:09",
+        "finished_at": "2026-10-23T14:25:09.954128+00:00"
+      }
+    },
+    {
+      "name": "cross_user_task_hidden",
+      "passed": true,
+      "evidence": {
+        "detail": "任务不存在"
+      }
+    },
+    {
+      "name": "cross_user_import_denied",
+      "passed": true,
+      "evidence": {
+        "detail": "镜像 [acceptance_718eb1b643] 不存在"
+      }
+    },
+    {
+      "name": "same_slug_separate_users",
+      "passed": true,
+      "evidence": {
+        "ok": true,
+        "message": "镜像 [acceptance_718eb1b643] 草稿已保存，请导入聊天记录"
+      }
+    },
+    {
+      "name": "anonymous_denied",
+      "passed": true,
+      "evidence": {
+        "detail": "需要 Meteor Store 登录"
+      }
+    },
+    {
+      "name": "first_chat_stream",
+      "passed": true,
+      "evidence": {
+        "status": 200,
+        "reply": "离线验收回复：合成记录里的小雨喜欢冰美式。此回复仅用于流程测试。"
+      }
+    }
+  ],
+  "passed": true
+}

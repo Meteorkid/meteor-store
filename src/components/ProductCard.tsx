@@ -67,7 +67,7 @@ export default async function ProductCard({ product, priority = false, mansion, 
             {product.status === 'coming_soon' ? (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/15 px-3 py-1 text-xs font-semibold text-violet-300">
                 <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400" />
-                {t('comingSoon')}
+                {t(product.experienceUrl ? 'trialAvailable' : 'comingSoon')}
               </span>
             ) : minPrice === 0 ? (
               <span className="text-success font-semibold">{t('free')}</span>

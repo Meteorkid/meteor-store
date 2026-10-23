@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import ExMemoryExperienceFrame from '@/components/ExMemoryExperienceFrame';
 import { redirect } from '@/i18n/navigation';
 import { getSession } from '@/lib/auth';
+import { buildLoginHref } from '@/lib/login-return';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +29,7 @@ export default async function ExMemoryExperiencePage({
 
   if (!session) {
     redirect({
-      href: { pathname: '/login', query: { next: '/apps/ex-memory' } },
+      href: buildLoginHref('/apps/ex-memory'),
       locale,
     });
   }
@@ -40,6 +41,7 @@ export default async function ExMemoryExperiencePage({
         title={t('frameTitle')}
         unavailableLabel={t('unavailable')}
         retryLabel={t('retry')}
+        backLabel={t('backToProduct')}
       />
     </main>
   );

@@ -41,7 +41,7 @@ describe('Ex-Memory 全屏体验页', () => {
     await ExMemoryExperiencePage({ params: Promise.resolve({ locale: 'zh' }) });
 
     expect(mocks.redirect).toHaveBeenCalledWith({
-      href: { pathname: '/login', query: { next: '/apps/ex-memory' } },
+      href: '/login?next=%2Fapps%2Fex-memory',
       locale: 'zh',
     });
   });

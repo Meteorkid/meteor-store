@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 const demos = [
   {
@@ -28,18 +28,7 @@ console.log(\`爬取 \${results.length} 条数据\`);`,
     name: 'Ex-Memory',
     taglineKey: 'demo2Tagline',
     descKey: 'demo2Desc',
-    code: `import { Memory } from 'ex-memory';
-
-const memory = new Memory({
-  provider: 'openai',
-  persistence: 'local',
-});
-
-await memory.store('讨论了产品路线图');
-await memory.store('确定了 v2.0 发布日期');
-
-const context = await memory.retrieve('路线图');
-// → 返回相关的对话片段`,
+    workflowKeys: ['demo2Step1', 'demo2Step2', 'demo2Step3'],
     featureKeys: ['demo2Feature1', 'demo2Feature2', 'demo2Feature3', 'demo2Feature4'],
   },
   {
@@ -65,18 +54,19 @@ viewer.measure('tibia', 'fibula');`,
 export default function ProductDemo() {
   const t = useTranslations('ProductDemo');
   const [activeDemo, setActiveDemo] = useState(0);
+  const isExMemory = demos[activeDemo].id === 'ex-memory';
 
   return (
     <section className="py-24">
       <div className="container mx-auto px-4">
         {/* Section header */}
         <div className="text-center mb-16 scroll-animate">
-          <p className="text-sm text-primary uppercase tracking-widest font-medium mb-4">{t('eyebrow')}</p>
+          <p className="text-sm text-primary uppercase tracking-widest font-medium mb-4">{t(isExMemory ? 'memoryEyebrow' : 'eyebrow')}</p>
           <h2 className="t-title-1 text-foreground mb-4">
-            {t('title')}
+            {t(isExMemory ? 'memoryTitle' : 'title')}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            {t('subtitle')}
+            {t(isExMemory ? 'memorySubtitle' : 'subtitle')}
           </p>
         </div>
 
@@ -109,30 +99,43 @@ export default function ProductDemo() {
                   <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
                   <div className="w-3 h-3 rounded-full bg-[#28c840]" />
                 </div>
-                <span className="text-xs text-white/30 ml-2 font-mono">{demos[activeDemo].id}.ts</span>
+                <span className="text-xs text-white/60 ml-2 font-mono">{demos[activeDemo].workflowKeys ? t('demo2WorkflowTitle') : `${demos[activeDemo].id}.ts`}</span>
               </div>
 
-              {/* Code */}
-              <pre className="p-5 overflow-x-auto text-sm leading-relaxed">
-                <code className="text-white/80 font-mono">
-                  {demos[activeDemo].code.split('\n').map((line, i) => (
-                    <div key={i} className="flex">
-                      <span className="text-white/15 w-8 text-right mr-4 select-none">{i + 1}</span>
-                      <span
-                        className={
-                          line.startsWith('import') || line.startsWith('const ')
-                            ? 'text-[#7ee787]'
-                            : line.includes('//')
-                            ? 'text-white/30'
-                            : 'text-white/70'
-                        }
-                      >
-                        {line || ' '}
-                      </span>
-                    </div>
+              {demos[activeDemo].workflowKeys ? (
+                <ol className="space-y-6 p-5">
+                  {demos[activeDemo].workflowKeys.map((key, index) => (
+                    <li key={key} className="flex gap-4">
+                      <span className="text-violet-300" aria-hidden>{String(index + 1).padStart(2, '0')}</span>
+                      <div>
+                        <h4 className="font-semibold text-white">{t(`${key}Title`)}</h4>
+                        <p className="mt-1 text-sm leading-relaxed text-white/70">{t(`${key}Body`)}</p>
+                      </div>
+                    </li>
                   ))}
-                </code>
-              </pre>
+                </ol>
+              ) : (
+                <pre className="p-5 overflow-x-auto text-sm leading-relaxed">
+                  <code className="text-white/80 font-mono">
+                    {demos[activeDemo].code?.split('\n').map((line, i) => (
+                      <div key={i} className="flex">
+                        <span className="text-white/15 w-8 text-right mr-4 select-none">{i + 1}</span>
+                        <span
+                          className={
+                            line.startsWith('import') || line.startsWith('const ')
+                              ? 'text-[#7ee787]'
+                              : line.includes('//')
+                              ? 'text-white/30'
+                              : 'text-white/70'
+                          }
+                        >
+                          {line || ' '}
+                        </span>
+                      </div>
+                    ))}
+                  </code>
+                </pre>
+              )}
             </div>
           </div>
 

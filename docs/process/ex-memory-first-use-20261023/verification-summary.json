@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-23",
+  "status": "local_verified_not_deployed",
+  "exmemory_pytest": {
+    "passed": 914,
+    "skipped": 29,
+    "deselected": 1,
+    "excluded_untracked_file": "tests/test_error_analysis.py",
+    "excluded_test": "tests/test_eval_holdout.py::TestRunHoldoutEvalOffline::test_structure",
+    "fresh_workspace": "/tmp/ex-memory-final-empty-20261023",
+    "note": "empty sandbox initializes isolated SQLite schema before direct engine tests"
+  },
+  "frontend_node": {
+    "passed": 16,
+    "command": "node --test tests/test_web_import_flow.cjs tests/test_web_session_isolation.cjs"
+  },
+  "http": {
+    "passed": 31,
+    "real_components": [
+      "FastAPI",
+      "SQLite",
+      "ChromaDB",
+      "parsers",
+      "owner isolation",
+      "generated files",
+      "SSE"
+    ],
+    "model": "deterministic offline stub",
+    "new_import_stage": "source"
+  },
+  "website": {
+    "full_vitest_passed_before_final_demo_heading": 3122,
+    "full_vitest_files_passed": 301,
+    "subsequent_demo_tests_passed": 9,
+    "tsc_no_emit": "passed_in_working_checkout",
+    "public_pages": 8,
+    "preview_build": "passed_with_existing_SKIP_TYPE_CHECK=1",
+    "standard_build": "blocked_by_five_unchanged_baseline_route_exports"
+  },
+  "browser": {
+    "desktop": [
+      "unchecked consent blocks write",
+      "32 fictional messages imported",
+      "AI-labelled first SSE reply"
+    ],
+    "mobile_375": [
+      "no horizontal overflow",
+      "invalid JSON has actionable error",
+      "inputs retained",
+      "same draft succeeds with corrected file"
+    ],
+    "site": [
+      "zh product positioning and privacy",
+      "homepage Ex-Memory tab and source-flow heading"
+    ]
+  },
+  "not_verified": [
+    "production SSO and deployed runtime",
+    "real provider generation quality and latency",
+    "real user retention or payment",
+    "optional pgvector backend",
+    "native Windows runtime"
+  ],
+  "preservation": [
+    "existing ex-memory evaluation work",
+    "parallel meteor-store daily panel work",
+    "private user records and production data"
+  ],
+  "cleanup": {
+    "task_processes_stopped": [
+      22957,
+      21400,
+      61439
+    ],
+    "ports": [
+      8765,
+      8767,
+      3097
+    ],
+    "source_and_evidence_preserved": true
+  }
+}

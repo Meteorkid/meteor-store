@@ -1,17 +1,20 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Link } from '@/i18n/navigation';
 
 export default function ExMemoryExperienceFrame({
   loadingLabel,
   title,
   unavailableLabel,
   retryLabel,
+  backLabel,
 }: {
   loadingLabel: string;
   title: string;
   unavailableLabel: string;
   retryLabel: string;
+  backLabel: string;
 }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
@@ -59,6 +62,9 @@ export default function ExMemoryExperienceFrame({
           >
             {retryLabel}
           </button>
+          <Link href="/products/ex-memory" className="mt-4 text-sm text-violet-300 underline underline-offset-4">
+            {backLabel}
+          </Link>
         </div>
       )}
       <iframe

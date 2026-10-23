@@ -109,6 +109,15 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                 </Link>
               )}
             </div>
+            {product.id === 'ex-memory' && (
+              <div className="mt-5 text-sm leading-relaxed text-white/70">
+                <p>{t('exMemoryPrivacy')}</p>
+                <div className="mt-3 flex flex-wrap gap-4">
+                  <Link href="/docs/ex-memory-first-import" className="text-violet-300 underline underline-offset-4">{t('exMemoryGuide')}</Link>
+                  <Link href="/privacy#ex-memory" className="text-violet-300 underline underline-offset-4">{t('privacyPolicy')}</Link>
+                </div>
+              </div>
+            )}
           </div>
           <ProductVisual product={product} priority className="shadow-[0_35px_100px_rgba(76,29,149,0.28)]" transitionName={`product-visual-${product.id}`} />
         </section>
@@ -153,9 +162,9 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             <h2 className="mb-6 text-center text-2xl font-bold text-white">{t('pricing')}</h2>
             {product.status === 'coming_soon' ? (
               <div className="glass-card mx-auto max-w-2xl rounded-3xl px-8 py-12 text-center">
-                <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">{t('comingSoon')}</p>
+                <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">{t(product.experienceUrl ? 'trialAvailable' : 'comingSoon')}</p>
                 <p className="text-lg text-gray-300">
-                  {t('comingSoonDesc', { name: product.name })}
+                  {t(product.experienceUrl ? 'trialAvailableDesc' : 'comingSoonDesc', { name: product.name })}
                 </p>
               </div>
             ) : (
@@ -204,9 +213,14 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Get started</p>
           <h2 className="mb-4 text-2xl font-bold text-white md:text-3xl">{t('readyTitle')}</h2>
           <p className="mx-auto mb-8 max-w-lg text-gray-400">
-            {t('readyDesc', { name: product.name })}
+            {t(product.experienceUrl ? 'experienceReadyDesc' : 'readyDesc', { name: product.name })}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
+            {product.experienceUrl && (
+              <Link href={product.experienceUrl} target="_blank" rel="noopener noreferrer" className="rounded-full bg-violet-600 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500">
+                {t('onlineExperience')}
+              </Link>
+            )}
             <a
               href="mailto:meteor@stu.gpnu.edu.cn"
               className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-black transition-colors hover:bg-gray-200"

@@ -22,7 +22,7 @@ Once the page loads, you will see the "Playground" title with a short descriptio
 Each product that participates in Playground is presented as a tab. Click any tab to switch to that product's demo. The current lineup includes:
 
 - **OmniCrawl** — A multi-engine web scraping library. The demo walks through installation, basic fetching, and bypassing WAF-protected sites.
-- **Ex-Memory** — A chat-history vectorization and persona-generation tool. The demo shows importing chat logs, generating an MBTI profile, and simulating conversational replies.
+- **Ex-Memory** — A personal memory mirror from real chat records. The demo illustrates choosing a file, confirming data processing, creating a mirror, AI-simulated conversations, and correcting memories.
 - **Statux** — A terminal status-bar utility. The demo displays a real-time status bar inside iTerm2 that monitors a running AI agent.
 - **Tollow** — A typing practice app. The demo shows how Tollow picks passages from classic books for English typing drills.
 
@@ -60,7 +60,9 @@ Playground is built for quick discovery, not full usage. Keep these limits in mi
 - Demos **do not save any data** — switching tabs starts the animation from the beginning.
 - Demos **do not require an API key** — no AI service is called behind the scenes.
 
-To get the full product experience, choose the free tier on the product page (if one exists) or purchase the product, then open it from the "My Products" page.
+To try Ex-Memory online, open its [product page](/products/ex-memory) and sign in. No purchase or free claim is required. See the [first-import guide](/docs/ex-memory-first-import).
+
+For other products, follow the entry points on their product pages: choose the free tier on the product page (if one exists) or purchase the product, then open it from the "My Products" page.
 
 ## Which products appear in Playground
 

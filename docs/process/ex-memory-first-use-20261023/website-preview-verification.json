@@ -1,0 +1,73 @@
+{
+  "base_commit": "8635a3069e5ac1560a87b9319796fe6caa795e42",
+  "source_manifest_sha256": "decb831256df5e8da934d4b7ab04360996fd9bf82ce2f7a50fad63b2b48382c6",
+  "full_build": "failed_existing_route_export_types",
+  "preview_build": "passed_with_existing_SKIP_TYPE_CHECK=1",
+  "preview_url": "http://127.0.0.1:3097",
+  "network": "Node outbound restricted to loopback; inherited environment cleared; no .env copied",
+  "database": "not configured; existing public-data fallbacks used",
+  "http_checks": [
+    {
+      "path": "/zh",
+      "status": 200,
+      "bytes": 224905,
+      "title": "Meteor Store — 开发者工具与 AI 应用",
+      "sha256": "f967dcbe2c4b04bd182ec88714c9fb84bb2643bd31d28a8aca5d8db4848c000d"
+    },
+    {
+      "path": "/zh/products/ex-memory",
+      "status": 200,
+      "bytes": 193347,
+      "title": "Ex-Memory - 基于真实聊天的个人记忆镜像 | Meteor Store | Meteor Store",
+      "sha256": "6187e58c0483cbb4e2f922f20462f7a75c69481eee095e4f31c28314714c5d04"
+    },
+    {
+      "path": "/zh/docs/ex-memory-first-import",
+      "status": 200,
+      "bytes": 202688,
+      "title": "Ex-Memory：首次导入与个人记忆镜像 | Meteor Store",
+      "sha256": "fc2a3aadd3254ba8cde92b5193a86daaed30d865c35575a71fcd5670a1006a5c"
+    },
+    {
+      "path": "/zh/privacy",
+      "status": 200,
+      "bytes": 189565,
+      "title": "隐私政策 | Meteor Store",
+      "sha256": "52172f65284c8efce26195d37e9c40540261f251571e34b37540008a6b42fe05"
+    },
+    {
+      "path": "/en",
+      "status": 200,
+      "bytes": 233042,
+      "title": "Meteor Store — Developer Tools &amp; AI Apps",
+      "sha256": "0f9533f10e3ded1208ff16ac0e4f6a1096134a90045746309573ce8ab027a7fc"
+    },
+    {
+      "path": "/en/products/ex-memory",
+      "status": 200,
+      "bytes": 201613,
+      "title": "Ex-Memory - A personal memory mirror from real chats | Meteor Store | Meteor Store",
+      "sha256": "5f126b82d3b680f96938cbe03207fd6b97ce07bc2eb7c5354c722a1ce803c5e5"
+    },
+    {
+      "path": "/en/docs/ex-memory-first-import",
+      "status": 200,
+      "bytes": 211655,
+      "title": "Ex-Memory: First Import and Personal Memory Mirror | Meteor Store",
+      "sha256": "5fd289df75270738ba8f12ba1e89c3378f5e99f99a6f5c50c9a20cb906dc504c"
+    },
+    {
+      "path": "/en/privacy",
+      "status": 200,
+      "bytes": 199339,
+      "title": "Privacy Policy | Meteor Store",
+      "sha256": "4e95048f07343d916c6f238d924a0f2db44e73237777a92e6447b95749fc3c80"
+    }
+  ],
+  "source_drift_after_build": [],
+  "next_build_id": "build-TfctsWXpff2fKS",
+  "latest_overlay_count": 19,
+  "final_preview_log": "preview-build-final.log",
+  "browser_home_tab_checked": true,
+  "browser_home_tab_text": "首次体验 / 从聊天记录开始"
+}

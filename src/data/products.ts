@@ -54,7 +54,7 @@ export interface Product {
   /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用，
      产品页会渲染「免费试用」内嵌区块，购买入口对应 /apps/{id} 付费门控 */
   appUrl?: string;
-  /** 产品状态。'coming_soon' 表示暂不出售：卡片与详情页显示「即将上架」，不渲染定价/购买入口 */
+  /** 产品状态。'coming_soon' 表示暂不出售，不渲染定价/购买入口；已有 experienceUrl 时仍可在线试用 */
   status?: 'coming_soon';
   /** 快速上手：终端安装命令（可复制）或应用下载页 */
   quickstart?: {
@@ -114,7 +114,7 @@ export interface LocalizedProduct {
   experienceUrl?: string;
   /** 站内集成的在线应用地址（如 /apps/tollow）。有该字段说明产品是纯 Web 应用 */
   appUrl?: string;
-  /** 产品状态。'coming_soon' 表示暂不出售：卡片与详情页显示「即将上架」，不渲染定价/购买入口 */
+  /** 产品状态。'coming_soon' 表示暂不出售，不渲染定价/购买入口；已有 experienceUrl 时仍可在线试用 */
   status?: 'coming_soon';
   quickstart?: {
     command?: string;
@@ -230,18 +230,18 @@ export const products: Product[] = [
     status: 'coming_soon',
     experienceUrl: '/apps/ex-memory',
     name: { zh: 'Ex-Memory', en: 'Ex-Memory' },
-    tagline: { zh: '前任记忆智能体', en: 'Ex-Partner Memory Agent' },
+    tagline: { zh: '基于真实聊天的个人记忆镜像', en: 'A personal memory mirror from real chats' },
     description: {
-      zh: 'LLM + RAG 技术还原 ta 的语气，让聊天像跟真人对话。基于你的聊天记录，AI 学习并模仿特定人的说话风格。',
-      en: "LLM + RAG technology recreates their tone of voice, making chats feel like talking to a real person. Based on your chat history, the AI learns and mimics a specific person's speaking style.",
+      zh: '导入本人或已获授权的聊天记录，整理人物记忆，参考记录中的表达方式进行 AI 模拟对话，并通过纠正逐步调整镜像。生成的回复可能出错，不代表本人说过的话或真实想法。',
+      en: "Import your own or authorized chat records to organize personal memories, simulate conversations using patterns in those records, and refine the mirror with corrections. AI replies can be wrong and do not represent the person's actual words or thoughts.",
     },
     features: [
-      { zh: '聊天记录分析与学习', en: 'Chat history analysis and learning' },
-      { zh: '语气风格还原', en: 'Tone and style reproduction' },
-      { zh: '多轮对话生成', en: 'Multi-turn dialogue generation' },
-      { zh: '情感分析与理解', en: 'Sentiment analysis and understanding' },
-      { zh: '隐私保护：数据本地处理', en: 'Privacy-first: data processed locally' },
-      { zh: '支持多种 LLM 模型', en: 'Supports multiple LLM models' },
+      { zh: '导入聊天文件，建立人物记忆镜像', en: 'Import chat files to create a personal memory mirror' },
+      { zh: '检索聊天片段，为回复提供上下文', en: 'Retrieve chat excerpts as context for replies' },
+      { zh: '参考表达方式生成 AI 模拟对话', en: 'Simulate conversations using speaking patterns in the records' },
+      { zh: '纠正人物信息与记忆', en: 'Correct persona details and memories' },
+      { zh: '在线数据保存在服务器，必要内容发送至所配置的模型服务', en: 'Online data is stored on the server; necessary content is sent to configured model services' },
+      { zh: '先用虚构示例了解导入流程', en: 'Try the import flow with a fictional example first' },
     ],
     pricing: [
       {
@@ -252,10 +252,7 @@ export const products: Product[] = [
         originalPrice: 9,
         period: '月',
         features: [
-          { zh: '100 条消息/月', en: '100 messages/month' },
-          { zh: '基础语气分析', en: 'Basic tone analysis' },
-          { zh: '单一聊天记录', en: 'Single chat history' },
-          { zh: '社区支持', en: 'Community support' },
+          { zh: '方案尚未开放；在线试用无需购买', en: 'Plans are not available; no purchase is needed for the online trial' },
         ],
       },
       {
@@ -266,11 +263,7 @@ export const products: Product[] = [
         originalPrice: 19,
         period: '月',
         features: [
-          { zh: '500 条消息/月', en: '500 messages/month' },
-          { zh: '高级语气还原', en: 'Advanced tone reproduction' },
-          { zh: '多聊天记录', en: 'Multiple chat histories' },
-          { zh: '优先支持', en: 'Priority support' },
-          { zh: '情感分析', en: 'Sentiment analysis' },
+          { zh: '方案尚未开放；在线试用无需购买', en: 'Plans are not available; no purchase is needed for the online trial' },
         ],
       },
       {
@@ -281,27 +274,18 @@ export const products: Product[] = [
         originalPrice: 39,
         period: '月',
         features: [
-          { zh: '无限消息', en: 'Unlimited messages' },
-          { zh: '完美语气还原', en: 'Perfect tone reproduction' },
-          { zh: '无限聊天记录', en: 'Unlimited chat histories' },
-          { zh: '专属支持', en: 'Dedicated support' },
-          { zh: '自定义训练', en: 'Custom training' },
-          { zh: 'API 接入', en: 'API access' },
+          { zh: '方案尚未开放；在线试用无需购买', en: 'Plans are not available; no purchase is needed for the online trial' },
         ],
       },
     ],
     github: 'https://github.com/Meteorkid/ex-memory',
     category: 'ai',
-    icon: '💔',
+    icon: '🪞',
     gradient: 'from-red-500 to-orange-500',
-    platforms: ['Web', 'Mobile', 'API'],
+    platforms: ['Web'],
     media: {
-      cover: '/products/ex-memory/cover.webp',
-      demo: '/products/ex-memory/demo.mp4',
-      screenshots: [
-        { src: '/products/ex-memory/screenshot-1.webp', alt: { zh: 'Ex-Memory 记忆镜像对话界面', en: 'Ex-Memory memory-mirror chat interface' } },
-        { src: '/products/ex-memory/screenshot-2.webp', alt: { zh: 'Ex-Memory 模型配置界面', en: 'Ex-Memory model configuration interface' } },
-      ],
+      cover: '/products/ex-memory/cover-motion.webp',
+      screenshots: [],
     },
   },
   {

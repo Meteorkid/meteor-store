@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import ExMemoryExperienceFrame from '../ExMemoryExperienceFrame';
+
+vi.mock('@/i18n/navigation', () => ({ Link: 'a' }));
 
 describe('ExMemoryExperienceFrame', () => {
   it('iframe 无装饰地占满整个动态视口', () => {
@@ -12,6 +14,7 @@ describe('ExMemoryExperienceFrame', () => {
         title="Ex-Memory"
         unavailableLabel="unavailable"
         retryLabel="retry"
+        backLabel="back"
       />,
     );
 
@@ -28,6 +31,7 @@ describe('ExMemoryExperienceFrame', () => {
         title="Ex-Memory"
         unavailableLabel="unavailable"
         retryLabel="retry"
+        backLabel="back"
       />,
     );
 

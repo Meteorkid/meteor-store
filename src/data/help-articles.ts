@@ -60,6 +60,25 @@ export const helpCategories: HelpCategoryMeta[] = [
 ];
 
 export const helpArticles: HelpArticleMeta[] = [
+  {
+    slug: 'ex-memory-first-import',
+    category: 'tools',
+    kind: 'tutorial',
+    order: 30,
+    readingMinutes: 4,
+    updatedAt: '2026-10-23',
+    commercial: false,
+    relatedSlugs: ['use-playground'],
+    title: { zh: 'Ex-Memory：首次导入与个人记忆镜像', en: 'Ex-Memory: First Import and Personal Memory Mirror' },
+    excerpt: {
+      zh: '从虚构示例开始，导入聊天、创建镜像、纠正记忆，并了解在线数据处理方式。',
+      en: 'Start with a fictional example, import chats, create a mirror, correct memories, and understand online data processing.',
+    },
+    keywords: {
+      zh: ['Ex-Memory', '聊天记录', '导入', '记忆镜像', '隐私', '示例'],
+      en: ['Ex-Memory', 'chat records', 'import', 'memory mirror', 'privacy', 'example'],
+    },
+  },
   // ========== 初识与导航 (4) ==========
   {
     slug: 'start-here',
@@ -640,7 +659,7 @@ export const EXPECTED_SLUGS: readonly string[] = [
   // 博客与社区
   'browse-blog-tags-and-rss', 'interact-with-blog-posts', 'submit-and-manage-blog-posts', 'blog-publishing-api',
   // 在线工具
-  'use-playground', 'use-pathfinder',
+  'use-playground', 'use-pathfinder', 'ex-memory-first-import',
   // 售后与支持
   'refund-policy', 'technical-support',
 ];

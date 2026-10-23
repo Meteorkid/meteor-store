@@ -46,28 +46,19 @@ const demos: DemoConfig[] = [
   {
     id: 'ex-memory',
     name: 'Ex-Memory',
-    icon: '💖',
+    icon: '🪞',
     descriptionKey: 'descExMemory',
     terminal: {
       title: 'ex-memory-demo',
       lines: [
-        { type: 'comment', textKey: 'demos.exMemory.import' },
-        { type: 'command', text: 'python -m exmemory import --source wechat --file chat_export.json' },
-        { type: 'output', textKey: 'demos.exMemory.parsing' },
-        { type: 'output', textKey: 'demos.exMemory.chunked' },
-        { type: 'output', textKey: 'demos.exMemory.vectorizing' },
-        { type: 'output', textKey: 'demos.exMemory.stored' },
-        { type: 'comment', textKey: 'demos.exMemory.persona' },
-        { type: 'command', text: 'python -m exmemory persona --generate' },
-        { type: 'output', textKey: 'demos.exMemory.analyzing' },
-        { type: 'output', textKey: 'demos.exMemory.mbti' },
-        { type: 'output', textKey: 'demos.exMemory.phrases' },
-        { type: 'output', textKey: 'demos.exMemory.emotion' },
-        { type: 'output', textKey: 'demos.exMemory.saved' },
-        { type: 'comment', textKey: 'demos.exMemory.chat' },
-        { type: 'command', text: 'python -m exmemory chat' },
+        { type: 'output', textKey: 'demos.exMemory.import' },
+        { type: 'output', textKey: 'demos.exMemory.consent' },
+        { type: 'output', textKey: 'demos.exMemory.persona' },
+        { type: 'output', textKey: 'demos.exMemory.create' },
+        { type: 'output', textKey: 'demos.exMemory.chat' },
         { type: 'output', textKey: 'demos.exMemory.question' },
         { type: 'output', textKey: 'demos.exMemory.answer' },
+        { type: 'output', textKey: 'demos.exMemory.correct' },
       ],
     },
   },
@@ -174,7 +165,7 @@ export default function PlaygroundTabs() {
           {t('viewDetails')}
         </Link>
         <Link
-          href="/docs"
+          href={activeDemo.id === 'ex-memory' ? '/docs/ex-memory-first-import' : '/docs'}
           className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-gray-400 transition-colors hover:border-white/20 hover:text-white"
         >
           {t('readDocs')}
