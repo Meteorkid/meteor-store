@@ -1,15 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslations, useLocale } from 'next-intl';
 import { pickAnnouncementText, type Announcement } from '@/lib/announcement-text';
 import { useAuth } from '@/components/AuthProvider';
 import { Link } from '@/i18n/navigation';
-import { dailyChannels } from '@/lib/daily/channels';
 import { EMPTY_REMINDER_STATE, ensureDailyReminder, getReminderState, markDailyReminderRead, subscribeDailyReminder, syncDailyReminderRead } from '@/lib/daily/reminder-client';
 import { EMPTY_MASTERS_NOTICES, ensureMastersNotices, getMastersNoticeState, markMastersRead, subscribeMastersNotices } from '@/lib/masters/notice-client';
 import { EMPTY_MONITORING_STATE, getMonitoringState, hasUnreadMonitoring, markMonitoringRead, subscribeMonitoring, watchMonitoring } from '@/lib/monitoring-client';
 import { monitoringText } from '@/lib/monitoring-types';
+
+const DailyNotificationPanel = dynamic(() => import('@/components/daily/DailyNotificationPanel'), {
+  loading: () => <div className="px-4 py-6" aria-busy="true"><span className="block h-3 w-32 rounded bg-white/10" /></div>,
+});
 
 /**
  * 上次打开铃铛的时间（ISO 字符串）。存一个分界点而不是已读 id 数组——
@@ -112,6 +116,7 @@ export default function NotificationBell() {
   const items = useSyncExternalStore(subscribe, getItems, () => SERVER_ITEMS);
   const readAt = useSyncExternalStore(subscribe, getReadAt, () => SERVER_READ_AT);
   const [open, setOpen] = useState(false);
+  const panelId = useId();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -151,7 +156,7 @@ export default function NotificationBell() {
       if (!(except instanceof Node) || !ref.current?.contains(except)) setOpen(false);
     };
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || !ref.current?.hasAttribute('data-header-popover-open')) return;
+      if (event.key !== 'Escape' || event.defaultPrevented || !ref.current?.hasAttribute('data-header-popover-open')) return;
       event.preventDefault();
       setOpen(false);
       ref.current.querySelector('button')?.focus();
@@ -183,12 +188,16 @@ export default function NotificationBell() {
 
   return (
     <div ref={ref} className="relative" data-header-popover-open={open ? '' : undefined}
-      onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
+      onBlur={event => {
+        // 点击正文或浏览器暂时移走焦点时 relatedTarget 为 null；外点由 pointerdown 关闭。
+        if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}>
       <button
         type="button"
         onClick={togglePanel}
         aria-label={t('ariaLabel')}
         aria-expanded={open}
+        aria-controls={open ? panelId : undefined}
         className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -207,11 +216,11 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 md:w-96 overflow-hidden rounded-xl border border-white/10 bg-zinc-950/95 shadow-2xl backdrop-blur-xl">
+        <div id={panelId} role="region" aria-label={t('title')} className="absolute right-0 top-full mt-2 w-[27rem] max-w-[calc(100vw-28px)] overflow-hidden rounded-xl border border-white/10 bg-zinc-950/95 shadow-2xl backdrop-blur-xl">
           <div className="border-b border-white/[0.06] px-4 py-3">
             <p className="text-sm font-medium text-white">{t('title')}</p>
           </div>
-          <div className="max-h-[min(24rem,calc(100dvh-136px))] overflow-y-auto overscroll-contain">
+          <div className="max-h-[min(36rem,calc(100dvh-136px))] overflow-y-auto overscroll-contain">
             {adminUserId && <section className="border-b border-white/10 px-4 py-3" aria-label={monitoringCopy.title}>
               <Link href="/admin/monitoring" onClick={() => markMonitoringRead(adminUserId)} className="inline-flex min-h-10 items-center t-title-4 text-violet-200 underline-offset-4 hover:underline">{monitoringCopy.detail} →</Link>
               {monitoring.failed && <p className="mt-1 t-footnote text-amber-200">{monitoringCopy.failed}</p>}
@@ -243,15 +252,7 @@ export default function NotificationBell() {
                 {locale === 'en' ? 'Mark these reminders as read' : '将这些申请提醒标为已读'}
               </button>}
             </section>}
-            <div className="border-b border-white/10 px-4 py-3">
-              <Link href={daily.reminder ? `/daily?date=${daily.reminder.date}` : '/daily'} className="t-title-4 text-violet-200 underline-offset-4 hover:underline">
-                {locale === 'en' ? 'Daily Fresh' : '每日一新'} →
-              </Link>
-              {daily.reminder && <p className="mt-1 t-footnote text-white/70">
-                {daily.reminder.date} · {dailyChannels.filter(channel => daily.reminder?.channels.includes(channel.id)).map(channel => locale === 'en' ? channel.en : channel.zh).join(' · ')}
-              </p>}
-              {daily.failed && <p className="mt-1 t-footnote text-white/60">{locale === 'en' ? 'Daily updates are temporarily unavailable.' : '每日更新暂时读取失败，可进入页面查看。'}</p>}
-            </div>
+            <DailyNotificationPanel key={userId ?? 'guest'} userId={userId} locale={locale === 'en' ? 'en' : 'zh'} />
             {items === null ? (
               <p className="t-footnote px-4 py-6 text-center text-white/60">{t('loading')}</p>
             ) : items.length === 0 ? (

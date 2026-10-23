@@ -1,0 +1,341 @@
+
+> meteor-store@0.1.0 build /private/tmp/meteor-daily-notice-20261023/checkout
+> next build
+
+▲ Next.js 16.3.8 (Turbopack)
+✓ Running next.config.ts took 5.0s
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+- Experiments (use with caution):
+  · clientTraceMetadata
+  · cpus: 1
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 24.6s
+  Running next.config.js provided runAfterProductionCompile ...
+✓ Completed runAfterProductionCompile in 418ms
+  Running TypeScript ...
+  Finished TypeScript in 13.0s ...
+  Collecting page data using 1 worker ...
+  Generating static pages using 1 worker (0/339) ...
+  Generating static pages using 1 worker (84/339)
+  Generating static pages using 1 worker (169/339)
+  Generating static pages using 1 worker (254/339)
+✓ Generating static pages using 1 worker (339/339) in 767ms
+Turbopack build encountered 3 warnings:
+./src/lib/monitoring.ts:17:18
+Warning: Dynamic filesystem access causes tracing of the whole project
+  [90m15 |[0m   [36mlet[0m file;
+  [90m16 |[0m   [36mtry[0m {
+[33m[1m>[0m [90m17 |[0m     file = [36mawait[0m open(stateFile, [32m'r'[0m);
+  [90m   |[0m                  [33m[1m^^^^^^^^^^^^^^^^^^^^[0m
+  [90m18 |[0m     [36mconst[0m stat = [36mawait[0m file.stat();
+  [90m19 |[0m     [36mif[0m (!stat.isFile() || stat.size > [33mMAX_STATE_BYTES[0m) [36mreturn[0m emptySnapshot([32m'unavailable'[0m);
+  [90m20 |[0m     [36mconst[0m parsed = [33mMonitoringFileSchema[0m.safeParse([33mJSON[0m.parse([36mawait[0m file.readFile([32m'utf8'[0m)));
+
+Static analysis determined that this filesystem access causes the whole project to be traced and included in the output.
+This is usually unintentional and leads to all source files (including the public folder) to be deployed as part of the server code.
+This can slow down deployments or lead to failures when size limits are exceeded.
+To resolve this, you can
+- make sure the path is statically scoped to some subfolder, for example path.join(process.cwd(), 'data', bar), or
+- only use them in development, or
+- opt out by adding an ignore comment to the highlighted call: fs.open(/*turbopackIgnore: true*/ ...), or
+- remove them.
+
+Import traces:
+  App Route:
+    ./src/lib/monitoring.ts
+    ./src/app/api/admin/monitoring/route.ts
+
+  Server Component:
+    ./src/lib/monitoring.ts
+    ./src/app/[locale]/admin/monitoring/page.tsx
+
+
+./src/lib/product-updates/catalog.ts:25:10
+Warning: Dynamic filesystem access causes tracing of the whole project
+  [90m23 |[0m ...
+  [90m24 |[0m ...(options: [33mCatalogOptions[0m): string {
+[33m[1m>[0m [90m25 |[0m ...ions.directory || process.env.[33mPRODUCT_UPDATES_DIR[0m || path.join(process.cwd(), [32m'data/pro...[0m
+  [90m   |[0m    [33m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m26 |[0m ...
+  [90m27 |[0m ...
+  [90m28 |[0m ...unknown): value is [33mRecord[0m<string, unknown> {
+
+Static analysis determined that this filesystem access causes the whole project to be traced and included in the output.
+This is usually unintentional and leads to all source files (including the public folder) to be deployed as part of the server code.
+This can slow down deployments or lead to failures when size limits are exceeded.
+To resolve this, you can
+- make sure the path is statically scoped to some subfolder, for example path.join(process.cwd(), 'data', bar), or
+- only use them in development, or
+- opt out by adding an ignore comment to the highlighted call: path.resolve(/*turbopackIgnore: true*/ ...), or
+- remove them.
+
+Import traces:
+  #1 [App Route]:
+    ./src/lib/product-updates/catalog.ts
+    ./src/app/api/download/[productId]/route.ts
+
+  #2 [Server Component]:
+    ./src/lib/product-updates/catalog.ts
+    ./src/app/[locale]/products/[id]/page.tsx
+
+  #3 [App Route]:
+    ./src/lib/product-updates/catalog.ts
+    ./src/lib/monitoring.ts
+    ./src/app/api/admin/monitoring/route.ts
+
+
+./src/lib/task-monitoring.ts:15:18
+Warning: Dynamic filesystem access causes tracing of the whole project
+  [90m13 |[0m   [36mlet[0m file;
+  [90m14 |[0m   [36mtry[0m {
+[33m[1m>[0m [90m15 |[0m     file = [36mawait[0m open(stateFile, [32m'r'[0m);
+  [90m   |[0m                  [33m[1m^^^^^^^^^^^^^^^^^^^^[0m
+  [90m16 |[0m     [36mconst[0m stat = [36mawait[0m file.stat();
+  [90m17 |[0m     [36mif[0m (!stat.isFile() || stat.size > [35m128[0m * [35m1024[0m) [36mreturn[0m { ...[33mEMPTY[0m, status: [32m'unavailable'[0m };
+  [90m18 |[0m     [36mconst[0m parsed = [33mRecheckFileSchema[0m.safeParse([33mJSON[0m.parse([36mawait[0m file.readFile([32m'utf8'[0m)));
+
+Static analysis determined that this filesystem access causes the whole project to be traced and included in the output.
+This is usually unintentional and leads to all source files (including the public folder) to be deployed as part of the server code.
+This can slow down deployments or lead to failures when size limits are exceeded.
+To resolve this, you can
+- make sure the path is statically scoped to some subfolder, for example path.join(process.cwd(), 'data', bar), or
+- only use them in development, or
+- opt out by adding an ignore comment to the highlighted call: fs.open(/*turbopackIgnore: true*/ ...), or
+- remove them.
+
+Import traces:
+  #1 [App Route]:
+    ./src/lib/task-monitoring.ts
+    ./src/app/api/admin/monitoring/route.ts
+
+  #2 [Server Component]:
+    ./src/lib/task-monitoring.ts
+    ./src/app/[locale]/admin/monitoring/page.tsx
+
+  #3 [App Route]:
+    ./src/lib/task-monitoring.ts
+    ./src/lib/monitoring.ts
+    ./src/app/api/admin/monitoring/route.ts
+
+
+  Finalizing page optimization ...
+
+Route (app)                                    Revalidate  Expire
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/[...rest]
+├ ƒ /[locale]/account
+├ ƒ /[locale]/admin
+├ ƒ /[locale]/admin/announcements
+├ ƒ /[locale]/admin/audit-logs
+├ ƒ /[locale]/admin/comments
+├ ƒ /[locale]/admin/commerce
+├ ƒ /[locale]/admin/daily
+├ ƒ /[locale]/admin/feedback
+├ ƒ /[locale]/admin/invite-codes
+├ ƒ /[locale]/admin/masters
+├ ƒ /[locale]/admin/mfa
+├ ƒ /[locale]/admin/monitoring
+├ ƒ /[locale]/admin/pathfinder
+├ ƒ /[locale]/admin/posts
+├ ƒ /[locale]/admin/product-updates
+├ ƒ /[locale]/admin/reports
+├ ƒ /[locale]/admin/review
+├ ƒ /[locale]/admin/users
+├ ƒ /[locale]/apps
+├ ƒ /[locale]/apps/[id]
+├ ƒ /[locale]/apps/[id]/trial
+├ ƒ /[locale]/apps/ex-memory
+├ ƒ /[locale]/blog
+├ ● /[locale]/blog/[slug]
+├ ƒ /[locale]/blog/api-guide
+├ ƒ /[locale]/blog/favorites
+├ ○ /[locale]/blog/feed.xml
+├ ƒ /[locale]/blog/my-posts
+├ ƒ /[locale]/blog/p/[id]
+├ ƒ /[locale]/blog/section/[section]
+├   /[locale]/blog/section/[section]/feed.xml
+│ ├ ● /zh/blog/section/product/feed.xml
+│ ├ ● /zh/blog/section/tech/feed.xml
+│ ├ ● /zh/blog/section/story/feed.xml
+│ └ ● [+9 more paths]
+├ ƒ /[locale]/blog/stars
+├ ƒ /[locale]/blog/submit
+├ ● /[locale]/blog/tag/[tag]
+├ ƒ /[locale]/blog/tags
+├ ƒ /[locale]/contact
+├ ƒ /[locale]/daily
+├ ƒ /[locale]/docs
+├ ƒ /[locale]/docs/[slug]
+├ ƒ /[locale]/eula
+├ ƒ /[locale]/feedback
+├ ƒ /[locale]/forgot-password
+├ ƒ /[locale]/login
+├ ƒ /[locale]/masters
+├ ƒ /[locale]/newsletter/unsubscribe
+├ ƒ /[locale]/open-source
+├ ƒ /[locale]/orders
+├ ƒ /[locale]/orders/[orderId]
+├ ƒ /[locale]/pathfinder
+├ ƒ /[locale]/pathfinder/directions/[slug]
+├ ƒ /[locale]/pathfinder/feed.xml
+├ ƒ /[locale]/pathfinder/items/[id]
+├ ƒ /[locale]/pathfinder/opportunities
+├ ƒ /[locale]/pathfinder/organizations
+├ ƒ /[locale]/pathfinder/organizations/[slug]
+├ ƒ /[locale]/pathfinder/plan
+├ ƒ /[locale]/pathfinder/saved
+├ ƒ /[locale]/pathfinder/topics
+├ ƒ /[locale]/pathfinder/topics/[topic]
+├ ƒ /[locale]/pathfinder/weekly
+├ ƒ /[locale]/playground
+├ ƒ /[locale]/pricing
+├ ƒ /[locale]/privacy
+├ ƒ /[locale]/products
+├ ƒ /[locale]/products/[id]
+├ ƒ /[locale]/profile/[id]
+├ ƒ /[locale]/redeem
+├ ƒ /[locale]/refund
+├ ƒ /[locale]/reset-password
+├ ƒ /[locale]/story
+├ ƒ /[locale]/student
+├ ƒ /[locale]/success
+├ ƒ /[locale]/support
+├ ƒ /[locale]/terms
+├ ƒ /[locale]/verify-email
+├ ƒ /[locale]/wechat-bind
+├ ƒ /api/admin/announcements
+├ ƒ /api/admin/comments
+├ ƒ /api/admin/commerce
+├ ƒ /api/admin/daily
+├ ƒ /api/admin/feedback
+├ ƒ /api/admin/invite-codes
+├ ƒ /api/admin/masters
+├ ƒ /api/admin/mfa
+├ ƒ /api/admin/monitoring
+├ ƒ /api/admin/pathfinder
+├ ƒ /api/admin/pathfinder/notes
+├ ƒ /api/admin/pending
+├ ƒ /api/admin/posts
+├ ƒ /api/admin/product-updates
+├ ƒ /api/admin/product-updates/check
+├ ƒ /api/admin/product-updates/sync
+├ ƒ /api/admin/reports
+├ ƒ /api/admin/stats
+├ ƒ /api/admin/users
+├ ƒ /api/announcements
+├ ƒ /api/auth/account
+├ ƒ /api/auth/email
+├ ƒ /api/auth/export
+├ ƒ /api/auth/forgot-password
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/me
+├ ƒ /api/auth/mfa
+├ ƒ /api/auth/password
+├ ƒ /api/auth/profile
+├ ƒ /api/auth/register
+├ ƒ /api/auth/resend-verification
+├ ƒ /api/auth/reset-password
+├ ƒ /api/auth/verify-email
+├ ƒ /api/auth/wechat
+├ ƒ /api/auth/wechat/bind
+├ ƒ /api/auth/wechat/callback
+├ ƒ /api/auth/wechat/unbind
+├ ƒ /api/avatar/upload
+├ ƒ /api/blog/favorites
+├ ƒ /api/blog/tokens
+├ ƒ /api/blog/tokens/[id]
+├ ƒ /api/blog/upload-image
+├ ƒ /api/captcha/challenge
+├ ƒ /api/captcha/verify
+├ ƒ /api/claim
+├ ƒ /api/comments
+├ ƒ /api/cron/admin-digest
+├ ƒ /api/cron/daily
+├ ƒ /api/cron/masters-deadlines
+├ ƒ /api/cron/masters-sync
+├ ƒ /api/cron/pass-expiry
+├ ƒ /api/cron/pathfinder-deadlines
+├ ƒ /api/cron/pathfinder-digest
+├ ƒ /api/cron/pathfinder-notes
+├ ƒ /api/cron/pathfinder-sync
+├ ƒ /api/daily
+├ ƒ /api/daily/panel-preferences
+├ ƒ /api/daily/preferences
+├ ƒ /api/daily/preview
+├ ƒ /api/daily/reminder
+├ ƒ /api/download/[productId]
+├ ƒ /api/entitlements
+├ ƒ /api/feedback
+├ ƒ /api/guide
+├ ƒ /api/health
+├ ƒ /api/help-panel
+├ ƒ /api/internal/ex-memory-auth
+├ ƒ /api/invite/redeem
+├ ƒ /api/likes
+├ ƒ /api/masters
+├ ƒ /api/masters/calendar
+├ ƒ /api/masters/notices
+├ ƒ /api/masters/watches
+├ ƒ /api/newsletter
+├ ƒ /api/newsletter/unsubscribe/confirm
+├ ƒ /api/newsletter/unsubscribe/request
+├ ƒ /api/online
+├ ƒ /api/online/heartbeat
+├ ƒ /api/pass/status
+├ ƒ /api/pathfinder
+├ ƒ /api/pathfinder/follows
+├ ƒ /api/pathfinder/items
+├ ƒ /api/pathfinder/plan
+├ ƒ /api/pathfinder/plan/saved
+├ ƒ /api/pathfinder/saves
+├ ƒ /api/payment
+├ ƒ /api/payment/alipay/notify
+├ ƒ /api/payment/alipay/return
+├ ƒ /api/payment/delivery-retry
+├ ƒ /api/payment/wechat/notify
+├ ƒ /api/post-stats
+├ ƒ /api/posts
+├ ƒ /api/posts/[id]
+├ ƒ /api/posts/review
+├ ƒ /api/reports
+├ ƒ /api/spotlight/sb3/search
+├ ƒ /api/spotlight/search
+├ ƒ /api/student
+├ ƒ /api/student/verify
+├ ƒ /api/tollow/analytics
+├ ƒ /api/tollow/export/sessions.csv
+├ ƒ /api/tollow/favorites
+├ ƒ /api/tollow/favorites/[id]
+├ ƒ /api/tollow/import
+├ ƒ /api/tollow/progress
+├ ƒ /api/tollow/sessions
+├ ƒ /api/topics/propose
+├ ƒ /api/v1/blog/images
+├ ƒ /api/v1/blog/openapi.json
+├ ƒ /api/v1/blog/posts
+├ ƒ /api/v1/blog/posts/[id]
+├ ƒ /api/v1/blog/posts/[id]/preview
+├ ƒ /api/v1/blog/posts/[id]/submit
+├ ƒ /api/v1/blog/posts/[id]/withdraw
+├ ƒ /api/v1/blog/sections
+├ ƒ /api/v1/pathfinder/items
+├ ○ /api/v1/pathfinder/openapi.json
+├ ƒ /api/views
+├ ƒ /indexnow-key.txt
+├ ○ /manifest.webmanifest
+├ ○ /robots.txt
+└ ○ /sitemap.xml                                       1m      1y
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand

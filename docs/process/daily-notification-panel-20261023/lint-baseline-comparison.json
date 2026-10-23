@@ -1,0 +1,32 @@
+[
+  {
+    "file": "public/meteor-runner.js",
+    "errors": 3,
+    "matchesBase": true
+  },
+  {
+    "file": "public/vendor/mediapipe/camera_utils/camera_utils.js",
+    "errors": 6,
+    "matchesBase": true
+  },
+  {
+    "file": "public/vendor/mediapipe/hands/hands.js",
+    "errors": 12,
+    "matchesBase": true
+  },
+  {
+    "file": "public/vendor/mediapipe/hands/hands_solution_packed_assets_loader.js",
+    "errors": 2,
+    "matchesBase": true
+  },
+  {
+    "file": "public/vendor/mediapipe/hands/hands_solution_simd_wasm_bin.js",
+    "errors": 6,
+    "matchesBase": true
+  },
+  {
+    "file": "public/vendor/mediapipe/hands/hands_solution_wasm_bin.js",
+    "errors": 6,
+    "matchesBase": true
+  }
+]

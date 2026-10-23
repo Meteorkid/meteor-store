@@ -351,6 +351,13 @@
       "when": 1792073697439,
       "tag": "0049_flawless_brother_voodoo",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1792760480288,
+      "tag": "0050_daily_panel_settings",
+      "breakpoints": true
     }
   ]
 }

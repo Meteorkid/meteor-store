@@ -1,0 +1,31 @@
+{
+  "base": "723b4d7b9bcc338c7a0d32e3d34e0af4f63c23f6",
+  "files": {
+    "src/components/NotificationBell.tsx": "1de9991c6c8781897e8020fc77a2397e8e6d06c72c2413d1106c82b72fec0ffb",
+    "src/lib/db/schema.ts": "7aa44bb6548a65cc87201cea015398ee13770136065ab8f1a23a4be41a743a13",
+    "src/lib/user-data-export.ts": "8de46bc1a4add02159bb6df06e6efe2dcbd700d5d5426cb06d212e8bbeb6489a",
+    "src/lib/__tests__/user-data-export.test.ts": "dc8bae2e05efa1bcff96bd798183186fc298c70b3e40f70bc867c95e4562d384",
+    "drizzle/meta/_journal.json": "0397c9e8c930b9c361ad4c54c286c18269710bce07ec02e4238e5266b6a6fbea",
+    "drizzle/0050_daily_panel_settings.sql": "c7c9e5fe0c8db7955b95bc9b1c73441eb1e386e527b3feecb22f19b5386cc25c",
+    "drizzle/meta/0050_snapshot.json": "bf9b1475d58d10a610beda5a0800ea4a9e2e6de117632bbf211201c925f6cc46",
+    "docs/superpowers/specs/2026-10-23-daily-notification-panel-design.md": "0a6e2f94859b3758cfd21fdecfc02ca3ba4a71ff08fb4712d68d9e4b86dc9ef3",
+    "src/lib/daily/panel-client.ts": "6da1abefdb850dd6d0f68feb82ac02498621d40e39f751f6194b38bb0741a4ff",
+    "src/lib/daily/panel-service.ts": "57def685505fd682b8f7148184c6b3e5265034ee9980107f7aca9589ed21beb4",
+    "src/lib/daily/panel-types.ts": "da75cd7d8fc5bdbbe97fe7cb91598dda2f59d35d9734015838ef1a189304fca6",
+    "src/lib/daily/preview.ts": "2099e85a8483cc0a1ee875f5392533b1e185bc5e126c1276ef8930666b37dc44",
+    "src/lib/daily/__tests__/panel-client.test.ts": "91ebc2d130c020cfc9bbe9a736e8db32b0c3a5a141b5786dff2147ebcd054873",
+    "src/lib/daily/__tests__/panel-service.test.ts": "5d400910067cc30a6b6ee1e64b6a5058ff9e477a183050c45865de672109158a",
+    "src/lib/daily/__tests__/panel-types.test.ts": "e01c88a335e42a8196aa29685206cca63218979b438db8985c04225d84991870",
+    "src/lib/daily/__tests__/preview.test.ts": "7fee00a6d50ec379cac913aea65289efe6db0725b0f728a2f46bf503df6a6f77",
+    "src/app/api/daily/preview/route.ts": "8c10431562ee9ba93275478442b6d6c5d915112d622d7195ccb645fea62f1a21",
+    "src/app/api/daily/panel-preferences/route.ts": "917de836f08cee665b8ae49f4d0753854c7362e7f4d9d485fb8488733870ff9a",
+    "src/app/api/daily/__tests__/panel-routes.test.ts": "82aa893ca8d2e078f6fad914390353d132693a824c5fbf4ead178e251612b19d",
+    "src/components/daily/DailyNotificationPanel.tsx": "a6fade712d1262ed05d29c19a3f3af50cb60cc702fb959b4aa6e22399f4af365",
+    "src/components/daily/DailyPanelSettings.tsx": "b3046fe0c0205bc8c29547acb72c07effcf49ae1a2ee9f436aec043fe0f7130d",
+    "src/components/daily/DailyNotificationPanel.module.css": "fb2336e575f89638fe787a7720c1908277c4deeccd7a2a19dc8dcbf96497b0d6",
+    "src/components/daily/panel-text.ts": "4dbe3de02f773b29035be41e6179f3eba1595ce137d226bc5b5ddecf20380ea9",
+    "src/components/daily/__tests__/DailyNotificationPanel.test.tsx": "fa64aae652ea6707eedac98662ad03b478a8d8a68cf8591326d749924945a566",
+    "src/components/daily/__tests__/DailyPanelSettings.test.tsx": "3a44e291160c0e7450448269d856d8af448b65dc86a22527a6237165b7e0fca5",
+    "src/components/daily/__tests__/DailyNotificationPanel-session.test.tsx": "1ebb8947de3faf53010466dba5d14c3a7aff65c88437bf9a94492cb44b6e5236"
+  }
+}

@@ -1,0 +1,16 @@
+
+> meteor-store@0.1.0 test /private/tmp/meteor-daily-notice-20261023/checkout
+> vitest run
+
+
+ RUN  v4.1.9 /private/tmp/meteor-daily-notice-20261023/checkout
+
+(node:95212) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/meteor-daily-notice-20261023/checkout/src/lib/product-updates/discovery.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /private/tmp/meteor-daily-notice-20261023/checkout/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  307 passed | 1 skipped (308)
+      Tests  3195 passed | 9 skipped (3204)
+   Start at  22:15:06
+   Duration  14.48s (transform 31.22s, setup 0ms, import 76.80s, tests 59.15s, environment 18ms)

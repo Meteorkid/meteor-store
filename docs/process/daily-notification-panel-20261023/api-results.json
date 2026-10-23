@@ -1,0 +1,64 @@
+{
+  "environment": "isolated Next production build + local PostgreSQL 18",
+  "checks": [
+    {
+      "name": "private-unauthorized-no-store",
+      "passed": true
+    },
+    {
+      "name": "existing-user-inherits-followed",
+      "passed": true
+    },
+    {
+      "name": "new-user-default-null",
+      "passed": true
+    },
+    {
+      "name": "owner-and-origin-rejected",
+      "passed": true
+    },
+    {
+      "name": "invalid-and-oversize-rejected",
+      "passed": true
+    },
+    {
+      "name": "real-postgres-null-revision-cas",
+      "passed": true
+    },
+    {
+      "name": "old-followed-reminders-unchanged",
+      "passed": true
+    },
+    {
+      "name": "explicit-empty-persists",
+      "passed": true
+    },
+    {
+      "name": "legacy-api-preserves-panel",
+      "passed": true
+    },
+    {
+      "name": "reset-restores-followed-with-version",
+      "passed": true
+    },
+    {
+      "name": "account-isolation-and-first-insert",
+      "passed": true
+    },
+    {
+      "name": "public-preview-whitelist-seven-channels",
+      "detail": {
+        "bytes": 3084
+      },
+      "passed": true
+    },
+    {
+      "name": "late-content-independent-of-frozen-reminder",
+      "passed": true
+    },
+    {
+      "name": "date-window-validation",
+      "passed": true
+    }
+  ]
+}

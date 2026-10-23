@@ -1,0 +1,192 @@
+{
+  "startedAt": "2026-10-23T14:20:20.146Z",
+  "base": "http://127.0.0.1:3183",
+  "snapshot": "/tmp/meteor-daily-notice-20261023/checkout",
+  "scope": "Real Next production build + isolated PostgreSQL fixture accounts; seeded content, not production content",
+  "checks": [
+    {
+      "name": "responsive-keyboard-touch",
+      "locale": "zh",
+      "width": 375,
+      "bounds": {
+        "x": 14,
+        "y": 72,
+        "width": 347,
+        "height": 623
+      },
+      "geometry": {
+        "width": 345,
+        "scrollWidth": 345,
+        "height": 621
+      },
+      "previewRequests": 1,
+      "result": "passed"
+    },
+    {
+      "name": "responsive-keyboard-touch",
+      "locale": "zh",
+      "width": 768,
+      "bounds": {
+        "x": 14,
+        "y": 72,
+        "width": 740,
+        "height": 623
+      },
+      "geometry": {
+        "width": 738,
+        "scrollWidth": 738,
+        "height": 621
+      },
+      "previewRequests": 1,
+      "result": "passed"
+    },
+    {
+      "name": "responsive-keyboard-touch",
+      "locale": "zh",
+      "width": 1280,
+      "bounds": {
+        "x": 680.03125,
+        "y": 58,
+        "width": 432,
+        "height": 623
+      },
+      "geometry": {
+        "width": 430,
+        "scrollWidth": 430,
+        "height": 621
+      },
+      "previewRequests": 1,
+      "result": "passed"
+    },
+    {
+      "name": "responsive-keyboard-touch",
+      "locale": "en",
+      "width": 375,
+      "bounds": {
+        "x": 14,
+        "y": 72,
+        "width": 347,
+        "height": 623
+      },
+      "geometry": {
+        "width": 345,
+        "scrollWidth": 345,
+        "height": 621
+      },
+      "previewRequests": 1,
+      "result": "passed"
+    },
+    {
+      "name": "responsive-keyboard-touch",
+      "locale": "en",
+      "width": 768,
+      "bounds": {
+        "x": 14,
+        "y": 72,
+        "width": 740,
+        "height": 623
+      },
+      "geometry": {
+        "width": 738,
+        "scrollWidth": 738,
+        "height": 621
+      },
+      "previewRequests": 1,
+      "result": "passed"
+    },
+    {
+      "name": "responsive-keyboard-touch",
+      "locale": "en",
+      "width": 1280,
+      "bounds": {
+        "x": 652.203125,
+        "y": 58,
+        "width": 432,
+        "height": 623
+      },
+      "geometry": {
+        "width": 430,
+        "scrollWidth": 430,
+        "height": 621
+      },
+      "previewRequests": 1,
+      "result": "passed"
+    },
+    {
+      "name": "real-account-save-cross-context-1-3-5-order",
+      "result": "passed"
+    },
+    {
+      "name": "real-409-preserves-draft-explicit-reload",
+      "result": "passed"
+    },
+    {
+      "name": "explicit-empty-cross-context-and-reset-null",
+      "result": "passed"
+    },
+    {
+      "name": "account-B-and-daily-follow-reminder-isolation",
+      "result": "passed"
+    },
+    {
+      "name": "guest-local-settings-survive-login-without-account-overwrite",
+      "result": "passed"
+    }
+  ],
+  "browserErrors": [],
+  "api": [],
+  "complete": true,
+  "initial": {
+    "A": {
+      "userId": "A",
+      "settings": null,
+      "revision": "2026-10-23T14:17:12.758Z",
+      "followedChannels": [
+        "english",
+        "papers"
+      ]
+    },
+    "B": {
+      "userId": "B",
+      "settings": null,
+      "revision": "2026-10-23T14:14:15.303Z",
+      "followedChannels": [
+        "english",
+        "papers",
+        "ai",
+        "events",
+        "open-source",
+        "competitions",
+        "internships",
+        "masters"
+      ]
+    },
+    "legacyA": {
+      "userId": "A",
+      "preferences": {
+        "channels": [
+          "english",
+          "papers"
+        ],
+        "reminders": true
+      }
+    }
+  },
+  "finalA": {
+    "userId": "A",
+    "settings": null,
+    "revision": "2026-10-23T14:20:34.828Z",
+    "followedChannels": [
+      "english",
+      "papers"
+    ]
+  },
+  "restoredA": {
+    "settings": null,
+    "followedChannels": [
+      "english",
+      "papers"
+    ]
+  },
+  "finishedAt": "2026-10-23T14:21:07.550Z"
+}

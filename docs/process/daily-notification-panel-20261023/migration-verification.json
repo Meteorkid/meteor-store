@@ -1,0 +1,26 @@
+{
+  "before": [
+    {
+      "user_id": "A",
+      "channels": [
+        "english",
+        "papers"
+      ],
+      "reminders": true,
+      "updated_at": "2026-10-23T13:24:27.944Z"
+    }
+  ],
+  "after": [
+    {
+      "user_id": "A",
+      "channels": [
+        "english",
+        "papers"
+      ],
+      "reminders": true,
+      "updated_at": "2026-10-23T13:24:27.944Z",
+      "panel_settings": null,
+      "panel_updated_at": null
+    }
+  ]
+}

@@ -199,7 +199,8 @@ export async function exportUserData(userId: string, email: string) {
       createdAt: tollowTextFavorites.createdAt,
       updatedAt: tollowTextFavorites.updatedAt,
     }).from(tollowTextFavorites).where(eq(tollowTextFavorites.userId, userId)),
-    db.select({ channels: dailyPreferences.channels, reminders: dailyPreferences.reminders, updatedAt: dailyPreferences.updatedAt })
+    db.select({ channels: dailyPreferences.channels, reminders: dailyPreferences.reminders, updatedAt: dailyPreferences.updatedAt,
+      panelSettings: dailyPreferences.panelSettings, panelUpdatedAt: dailyPreferences.panelUpdatedAt })
       .from(dailyPreferences).where(eq(dailyPreferences.userId, userId)),
     db.select({ roundId: mastersWatches.roundId, status: mastersWatches.status, reminders: mastersWatches.reminders,
       createdAt: mastersWatches.createdAt, updatedAt: mastersWatches.updatedAt }).from(mastersWatches).where(eq(mastersWatches.userId, userId)),

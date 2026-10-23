@@ -1,0 +1,18 @@
+{
+  "src/lib/daily/panel-types.ts": "da75cd7d8fc5bdbbe97fe7cb91598dda2f59d35d9734015838ef1a189304fca6",
+  "src/lib/daily/panel-service.ts": "57def685505fd682b8f7148184c6b3e5265034ee9980107f7aca9589ed21beb4",
+  "src/lib/daily/preview.ts": "2099e85a8483cc0a1ee875f5392533b1e185bc5e126c1276ef8930666b37dc44",
+  "src/lib/daily/panel-client.ts": "6da1abefdb850dd6d0f68feb82ac02498621d40e39f751f6194b38bb0741a4ff",
+  "src/app/api/daily/panel-preferences/route.ts": "917de836f08cee665b8ae49f4d0753854c7362e7f4d9d485fb8488733870ff9a",
+  "src/app/api/daily/preview/route.ts": "8c10431562ee9ba93275478442b6d6c5d915112d622d7195ccb645fea62f1a21",
+  "src/components/daily/DailyNotificationPanel.tsx": "a6fade712d1262ed05d29c19a3f3af50cb60cc702fb959b4aa6e22399f4af365",
+  "src/components/daily/DailyPanelSettings.tsx": "b3046fe0c0205bc8c29547acb72c07effcf49ae1a2ee9f436aec043fe0f7130d",
+  "src/components/daily/panel-text.ts": "4dbe3de02f773b29035be41e6179f3eba1595ce137d226bc5b5ddecf20380ea9",
+  "src/components/daily/DailyNotificationPanel.module.css": "fb2336e575f89638fe787a7720c1908277c4deeccd7a2a19dc8dcbf96497b0d6",
+  "src/components/NotificationBell.tsx": "1de9991c6c8781897e8020fc77a2397e8e6d06c72c2413d1106c82b72fec0ffb",
+  "src/lib/db/schema.ts": "7aa44bb6548a65cc87201cea015398ee13770136065ab8f1a23a4be41a743a13",
+  "src/lib/user-data-export.ts": "8de46bc1a4add02159bb6df06e6efe2dcbd700d5d5426cb06d212e8bbeb6489a",
+  "drizzle/0050_daily_panel_settings.sql": "c7c9e5fe0c8db7955b95bc9b1c73441eb1e386e527b3feecb22f19b5386cc25c",
+  "drizzle/meta/0050_snapshot.json": "bf9b1475d58d10a610beda5a0800ea4a9e2e6de117632bbf211201c925f6cc46",
+  "drizzle/meta/_journal.json": "0397c9e8c930b9c361ad4c54c286c18269710bce07ec02e4238e5266b6a6fbea"
+}

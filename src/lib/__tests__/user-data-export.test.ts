@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { defaultDailyPanelSettings } from '../daily/panel-types';
 import {
   blogImages,
   dailyPreferences,
@@ -109,7 +110,7 @@ const tollowFavoriteRows = [{
 
 vi.mock('../db', () => ({
   db: {
-    select: () => ({
+    select: (selection?: Record<string, unknown>) => ({
       from: (table: unknown) => ({
         where: async () => {
           if (table === users) return accountRows;
@@ -120,7 +121,11 @@ vi.mock('../db', () => ({
           if (table === tollowBookProgress) return tollowProgressRows;
           if (table === tollowPracticeSessions) return tollowSessionRows;
           if (table === tollowTextFavorites) return tollowFavoriteRows;
-          if (table === dailyPreferences) return [{ channels: ['english'], reminders: false, updatedAt: '2026-10-14T00:00:00Z' }];
+          if (table === dailyPreferences) {
+            const row = { channels: ['english'], reminders: false, updatedAt: '2026-10-14T00:00:00Z',
+              panelSettings: defaultDailyPanelSettings(['papers', 'english']), panelUpdatedAt: '2026-10-23T01:00:00.000Z' };
+            return [Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection))];
+          }
           if (table === mastersWatches) return [{ roundId: 'round-1', status: 'preparing', reminders: true }];
           return [];
         },
@@ -181,6 +186,8 @@ describe('用户数据导出', () => {
     });
     expect(exported.account).not.toHaveProperty('blogImageBytes');
     expect(exported.daily.preferences?.channels).toEqual(['english']);
+    expect(exported.daily.preferences?.panelSettings).toEqual(defaultDailyPanelSettings(['papers', 'english']));
+    expect(exported.daily.preferences?.panelUpdatedAt).toBe('2026-10-23T01:00:00.000Z');
     expect(exported.daily.preferences).not.toHaveProperty('userId');
     expect(exported.masters.applications).toEqual([{ roundId: 'round-1', status: 'preparing', reminders: true }]);
     expect(exported.tollow).toEqual({

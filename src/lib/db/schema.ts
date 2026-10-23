@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { pgTable, text, integer, bigint, boolean, numeric, primaryKey, index, uniqueIndex, check, jsonb } from 'drizzle-orm/pg-core';
 import type { DailyChannelId, DailyEditionChannelId, DailyContent, DailyStatus } from '../daily/types';
+import type { DailyPanelSettings } from '../daily/panel-types';
 import type { MastersRegion, MastersRoundDetails, MastersWatchInput } from '../masters/types';
 
 export const mastersRounds = pgTable('masters_rounds', {
@@ -78,6 +79,8 @@ export const dailyPreferences = pgTable('daily_preferences', {
   channels: jsonb('channels').$type<DailyChannelId[]>().notNull(),
   reminders: boolean('reminders').notNull().default(false),
   updatedAt: text('updated_at').notNull(),
+  panelSettings: jsonb('panel_settings').$type<DailyPanelSettings>(),
+  panelUpdatedAt: text('panel_updated_at'),
 });
 
 // 空快照也保存：09:30 后的补发不能让当天第二次重跑产生新提醒。
