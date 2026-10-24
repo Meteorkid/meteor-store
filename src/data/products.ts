@@ -240,8 +240,8 @@ export const products: Product[] = [
       { zh: '检索聊天片段，为回复提供上下文', en: 'Retrieve chat excerpts as context for replies' },
       { zh: '参考表达方式生成 AI 模拟对话', en: 'Simulate conversations using speaking patterns in the records' },
       { zh: '纠正人物信息与记忆', en: 'Correct persona details and memories' },
-      { zh: '在线数据保存在服务器，必要内容发送至所配置的模型服务', en: 'Online data is stored on the server; necessary content is sent to configured model services' },
-      { zh: '先用虚构示例了解导入流程', en: 'Try the import flow with a fictional example first' },
+      { zh: '使用自己的对话与文本向量 API Key，按账号保存模型设置', en: 'Use your own chat and embedding API keys with model settings saved to your account' },
+      { zh: '配置模型后，先用虚构示例了解导入流程', en: 'Configure your models, then try importing a fictional example' },
     ],
     pricing: [
       {

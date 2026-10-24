@@ -1,12 +1,22 @@
-## Start with the example
+## Sign in and configure your own models
 
 Ex-Memory builds a personal memory mirror from chat records, uses expressions in those records for AI-simulated conversations, and lets you correct persona details and memories. Generated replies can be wrong and do not represent the person's actual words or thoughts.
 
-Select **Try online** on the [product page](/products/ex-memory), then sign in with Meteor Store. The online trial requires no purchase or free claim. Plan purchases are not available yet. Available trial credits are shown in the app.
+For your first use, follow this order: **Sign in → Account model settings → Import an example or records → Chat**.
 
-For your first import, download the **fictional chat example** inside the app. It contains no real user's chat records.
+1. Select **Try online** on the [product page](/products/ex-memory) and sign in with Meteor Store.
+2. Open **Model settings** in the app. Configure a **chat model** and an **embedding model** for this account: choose each provider, enter the model name, and supply your own API key. The chat model generates profiles and replies; the embedding model converts text into vectors for retrieval. Complete both configurations.
+3. Save the settings before importing. Built-in chat providers include DeepSeek, SiliconFlow, and OpenAI; built-in embedding providers include SiliconFlow and OpenAI. You can also select a **custom OpenAI-compatible service** and enter its public HTTPS API URL, model name, and your own key. Follow the settings screen and your provider account's model permissions. Regional availability depends on the provider's policies.
+
+A custom service must provide the relevant chat or embedding endpoint. Localhost, private-network addresses, and endpoints that redirect to another address are not supported. Necessary text is sent to your chosen providers, including custom services. Each API key is sent only to its corresponding address. Check the URL and the provider's data-processing policy before saving.
+
+Online access requires no purchase or free claim; plan purchases are not available. **Your selected providers bill model usage to your accounts. This site does not supply model credits.** Importing the example also calls your configured models, so check provider balances, permissions, and pricing first.
+
+Settings are saved per signed-in account. API keys are encrypted on the server, and settings show only the last four characters. You can update or delete keys. A different Meteor Store account needs its own settings. Existing indexes lock the embedding provider and model to keep retrieval consistent; you can still replace a key for the same provider and model.
 
 ## Import and create a mirror
+
+Once your models are configured, download the **fictional chat example** inside the app for your first import. It contains no real user's chat records.
 
 1. Choose a chat file. Start with the fictional example, or use your own or authorized records after removing unrelated sensitive content. Follow the import screen's supported formats and size limits.
 2. Enter a mirror name and the **target speaker's name as it appears in the chat records**. The mirror name helps you distinguish people; the target speaker identifies whose expressions to use. Do not enter a name that is absent from the records.
@@ -24,13 +34,14 @@ Use the mirror's correction control to fix persona details or memories, then con
 ## Continue after a failed import
 
 - **No messages parsed or target speaker not found:** Check the file format, contents, and speaker name, then import again.
-- **Persona generation failed:** Check the model configuration as prompted, or try again later. If the app retains an unfinished mirror, continue importing into that mirror instead of repeatedly creating new ones.
+- **Models are not configured or a key is unavailable:** Open **Model settings**, check both configurations for this account, and verify the keys, model permissions, and balances in your provider accounts. Then retry as prompted.
+- **Persona generation failed:** Check the chat-model configuration as prompted, or try again later. If the app retains an unfinished mirror, continue importing into that mirror instead of repeatedly creating new ones.
 - **The experience does not respond:** Select **Reload**. If it still fails, return to the product page and [report the issue](/feedback?type=question). Include steps and error messages, but no complete private chats or API keys.
 
 ## Where data is processed
 
-The online trial stores uploaded chat records, persona details and memories, simulated conversations, and corrections on the website server, associated with your Meteor Store user ID. Necessary content is sent to the configured embedding and chat-model services to build retrieval indexes and generate profiles and replies.
+The online experience stores uploaded chat records, persona details and memories, simulated conversations, and corrections on the website server, associated with your Meteor Store user ID. Necessary content is sent to the embedding and chat-model providers you choose in **Model settings**, including custom services you enter, to build retrieval indexes and generate profiles and replies.
 
 Local export and online processing are separate stages. Exporting with the local helper does not mean later uploads, retrieval, and conversations run entirely on your computer. Providers and processing locations depend on the current model configuration. Before uploading, read the notice in the app and the [privacy policy](/privacy#ex-memory).
 
-You can delete mirrors in the app. Use the contact details in the privacy policy for other retained-data or authorization-withdrawal requests. Deleting a mirror does not recall requests already sent to model providers.
+You can delete mirrors and saved API keys separately in the app. Deleting a key does not delete mirrors. Use the contact details in the privacy policy for other retained-data or authorization-withdrawal requests. Deleting a mirror or key does not recall requests already sent to model providers.

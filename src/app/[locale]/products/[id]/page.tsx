@@ -111,7 +111,8 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             </div>
             {product.id === 'ex-memory' && (
               <div className="mt-5 text-sm leading-relaxed text-white/70">
-                <p>{t('exMemoryPrivacy')}</p>
+                <p>{t('exMemorySetup')}</p>
+                <p className="mt-3">{t('exMemoryPrivacy')}</p>
                 <div className="mt-3 flex flex-wrap gap-4">
                   <Link href="/docs/ex-memory-first-import" className="text-violet-300 underline underline-offset-4">{t('exMemoryGuide')}</Link>
                   <Link href="/privacy#ex-memory" className="text-violet-300 underline underline-offset-4">{t('privacyPolicy')}</Link>
@@ -164,7 +165,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
               <div className="glass-card mx-auto max-w-2xl rounded-3xl px-8 py-12 text-center">
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">{t(product.experienceUrl ? 'trialAvailable' : 'comingSoon')}</p>
                 <p className="text-lg text-gray-300">
-                  {t(product.experienceUrl ? 'trialAvailableDesc' : 'comingSoonDesc', { name: product.name })}
+                  {t(product.id === 'ex-memory' ? 'exMemoryTrialAvailableDesc' : product.experienceUrl ? 'trialAvailableDesc' : 'comingSoonDesc', { name: product.name })}
                 </p>
               </div>
             ) : (
@@ -213,7 +214,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Get started</p>
           <h2 className="mb-4 text-2xl font-bold text-white md:text-3xl">{t('readyTitle')}</h2>
           <p className="mx-auto mb-8 max-w-lg text-gray-400">
-            {t(product.experienceUrl ? 'experienceReadyDesc' : 'readyDesc', { name: product.name })}
+            {t(product.id === 'ex-memory' ? 'exMemoryStartDesc' : product.experienceUrl ? 'experienceReadyDesc' : 'readyDesc', { name: product.name })}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             {product.experienceUrl && (

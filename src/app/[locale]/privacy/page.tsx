@@ -72,6 +72,7 @@ export default async function PrivacyPage({
           <section id="ex-memory" className="mb-8 scroll-mt-24">
             <h2 className="text-2xl font-semibold mb-4">{t('exMemoryTitle')}</h2>
             <p className="text-gray-300 leading-relaxed">{t('exMemoryContent')}</p>
+            <p className="text-gray-300 leading-relaxed mt-3">{t('exMemoryKeys')}</p>
             <p className="text-gray-300 leading-relaxed mt-3">{t('exMemoryLocal')}</p>
             <p className="text-gray-300 leading-relaxed mt-3">{t('exMemoryDelete')}</p>
           </section>

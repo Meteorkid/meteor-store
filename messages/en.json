@@ -718,7 +718,7 @@
   "PrivacyPage": {
     "title": "Privacy Policy",
     "lastUpdated": "Last Updated",
-    "lastUpdatedDate": "October 23, 2026",
+    "lastUpdatedDate": "October 24, 2026",
     "description": "Meteor Store Privacy Policy and Data Processing Statement",
     "email": "Email",
     "controllerTitle": "1. Personal Information Handler",
@@ -786,9 +786,10 @@
     "contactTitle": "13. Contact Us",
     "contactContent": "For any privacy questions, complaints, or requests to exercise the rights above, please contact us:",
     "exMemoryTitle": "Data processing in the Ex-Memory online experience",
-    "exMemoryContent": "Chat records you upload, generated persona details and memories, simulated conversations, and corrections are stored on the website server and associated with your Meteor Store user ID. To build retrieval indexes and generate profiles and replies, the service sends necessary chat excerpts, persona details, questions, or context to the configured embedding and chat-model services. Providers and processing locations depend on the current model configuration. The online experience does not run entirely on your device.",
+    "exMemoryContent": "Chat records you upload, generated persona details and memories, simulated conversations, and corrections are stored on the website server and associated with your Meteor Store user ID. To build retrieval indexes and generate profiles and replies, the service sends necessary chat excerpts, persona details, questions, or context to the embedding and chat-model providers you choose in Model settings, including custom services. Providers and processing locations depend on your model configuration.",
     "exMemoryLocal": "The local helper performs the export step on your computer. Selected content enters the online processing flow after you confirm the upload. Upload only your own or authorized records, and read the data-processing notice in the app before importing.",
-    "exMemoryDelete": "You can delete mirrors in Ex-Memory. Contact the email on this page to address other retained data or withdraw authorization. Deleting a mirror does not recall requests already sent to model providers or guarantee immediate removal from their retention systems or backups."
+    "exMemoryDelete": "You can delete mirrors and saved API keys separately in Ex-Memory. Deleting a key does not delete mirrors. Contact the email on this page to address other retained data or withdraw authorization. Deleting a mirror or key does not recall requests already sent to model providers or guarantee immediate removal from their retention systems or backups.",
+    "exMemoryKeys": "Each account saves separate API keys, providers, models, and custom API URLs for chat and embedding services. API keys are encrypted on the website server. Settings show only the last four characters, and you can update or delete the keys. Each key is sent only to its corresponding service address. Requests use your own keys and are billed to your accounts by the selected providers; this site does not supply model credits."
   },
   "BlogPostPage": {
     "blogSuffix": "Meteor Store Blog",
@@ -894,20 +895,23 @@
     "trialAvailable": "Online trial · Beta",
     "trialAvailableDesc": "{name} is open for an online trial after sign-in. Plan purchases and free claims are not available yet. Available trial credits are shown in the app.",
     "experienceReadyDesc": "Start with a fictional example or your own or authorized chat file to try importing, simulated conversations, and memory corrections.",
-    "exMemoryPrivacy": "The online trial stores uploaded chats, persona details, and conversations on the website server, and sends necessary content to the configured embedding and chat-model services. The local helper exports on your computer; selected content enters the online service after you confirm the upload.",
-    "exMemoryGuide": "First-import guide",
-    "privacyPolicy": "Privacy and data processing"
+    "exMemoryPrivacy": "API keys are encrypted on the website server. Settings show only the last four characters, and you can update or delete them. Each key is sent only to its corresponding service address. Uploaded chats, persona details, and conversations are also stored on the server; necessary content is sent to your selected model providers, including custom services. You confirm the upload after the local helper exports your records.",
+    "exMemoryGuide": "Model setup and first import",
+    "privacyPolicy": "Privacy and data processing",
+    "exMemorySetup": "After signing in, open Model settings to save your own chat and embedding API keys, providers, and models for this account. Then import an example or chat records. Custom OpenAI-compatible services are also supported through a public HTTPS API URL. Model requests are billed to your accounts by the selected providers; this site does not supply model credits.",
+    "exMemoryTrialAvailableDesc": "Ex-Memory is free to access online with your own model API keys after sign-in. Plan purchases and free claims are not available. Model usage is billed to your accounts by the selected providers.",
+    "exMemoryStartDesc": "Sign in → Configure account model settings → Import a fictional example or your own or authorized records → Start chatting and correcting memories."
   },
   "ExMemoryExperiencePage": {
     "title": "Try Ex-Memory Online",
-    "description": "Import chat records to create a personal memory mirror, try AI-simulated conversations, and correct memories.",
+    "description": "Sign in and configure your own chat and embedding API keys, then import chat records to create a personal memory mirror, try AI-simulated conversations, and correct memories.",
     "eyebrow": "ONLINE EXPERIENCE · BETA",
-    "subtitle": "Sign in with Meteor Store and start with a fictional example or your own or authorized chat records.",
+    "subtitle": "Sign in with Meteor Store, configure your own model API keys, then start with a fictional example or your own or authorized chat records.",
     "backToProduct": "Back to product",
     "loginTitle": "Sign in to start",
     "loginDescription": "Ex-Memory shares your Meteor Store sign-in, so no separate account is needed.",
     "loginButton": "Sign in to Meteor Store",
-    "privacyHint": "Online data is stored on the website server. Necessary chat content is sent to the configured embedding and chat-model services. Review and confirm the data-processing notice before uploading.",
+    "privacyHint": "API keys are encrypted on the server. Online records are also stored there, and necessary content is sent to your selected model providers. Providers bill model usage to your accounts; this site does not supply model credits. Review and confirm the data-processing notice before uploading.",
     "loading": "Starting Ex-Memory…",
     "frameTitle": "Ex-Memory online experience app",
     "unavailable": "The experience service is not responding. Please try again.",

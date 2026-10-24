@@ -60,7 +60,7 @@ Playground is built for quick discovery, not full usage. Keep these limits in mi
 - Demos **do not save any data** — switching tabs starts the animation from the beginning.
 - Demos **do not require an API key** — no AI service is called behind the scenes.
 
-To try Ex-Memory online, open its [product page](/products/ex-memory) and sign in. No purchase or free claim is required. See the [first-import guide](/docs/ex-memory-first-import).
+To try Ex-Memory online, open its [product page](/products/ex-memory) and sign in. Configure your own chat and embedding API keys in **Model settings**, then import an example or records. Site access requires no purchase or free claim; selected providers bill model usage to your accounts. See the [model setup and first-import guide](/docs/ex-memory-first-import).
 
 For other products, follow the entry points on their product pages: choose the free tier on the product page (if one exists) or purchase the product, then open it from the "My Products" page.
 

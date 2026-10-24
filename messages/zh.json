@@ -718,7 +718,7 @@
   "PrivacyPage": {
     "title": "隐私政策",
     "lastUpdated": "最后更新",
-    "lastUpdatedDate": "2026 年 10 月 23 日",
+    "lastUpdatedDate": "2026 年 10 月 24 日",
     "description": "Meteor Store 隐私政策与数据处理说明",
     "email": "邮箱",
     "controllerTitle": "1. 个人信息处理者",
@@ -786,9 +786,10 @@
     "contactTitle": "13. 联系我们",
     "contactContent": "如有任何隐私相关问题、投诉或行使上述权利的请求，请通过以下方式联系我们：",
     "exMemoryTitle": "Ex-Memory 在线体验的数据处理",
-    "exMemoryContent": "您选择上传的聊天记录、生成的人物资料和记忆、模拟对话及纠正内容会保存在网站服务器，并关联到您的 Meteor Store 用户 ID。为建立检索索引、生成画像和回复，服务会向所配置的文本向量（embedding）与对话模型服务发送必要的聊天片段、人物资料、问题或上下文。服务商与处理位置取决于当前模型配置；在线体验并非全部在您的设备上处理。",
+    "exMemoryContent": "您选择上传的聊天记录、生成的人物资料和记忆、模拟对话及纠正内容会保存在网站服务器，并关联到您的 Meteor Store 用户 ID。为建立检索索引、生成画像和回复，服务会向您在「模型设置」中选择的文本向量（embedding）与对话模型服务（包括自定义服务）发送必要的聊天片段、人物资料、问题或上下文。服务商与处理位置取决于您的模型配置。",
     "exMemoryLocal": "本机助手在您的电脑上执行导出步骤。您确认上传后，所选内容才进入上述在线处理流程。请只上传本人或已获授权的记录，并在导入前阅读应用中的数据处理说明。",
-    "exMemoryDelete": "镜像可在 Ex-Memory 内删除；如需处理其他留存资料或撤回授权，请通过本页邮箱联系我们。删除镜像不会自动撤回已经发送给模型服务商的请求，也不等于承诺即时清除服务商留存或备份。"
+    "exMemoryDelete": "镜像和已保存的 API Key 可在 Ex-Memory 内分别删除；删除 Key 不会删除镜像。如需处理其他留存资料或撤回授权，请通过本页邮箱联系我们。删除镜像或 Key 不会自动撤回已经发送给模型服务商的请求，也不等于承诺即时清除服务商留存或备份。",
+    "exMemoryKeys": "每个账号分别保存对话与文本向量服务的 API Key、服务商、模型及自定义 API 地址。API Key 在网站服务器上加密保存，设置页只显示末 4 位，可由您更新或删除；每个 Key 只发送给其对应的服务地址。请求使用您自己的 Key，由所选服务商按您的账户计费；本站不代供模型额度。"
   },
   "BlogPostPage": {
     "blogSuffix": "Meteor Store 博客",
@@ -894,20 +895,23 @@
     "trialAvailable": "在线试用 · Beta",
     "trialAvailableDesc": "{name} 已开放在线试用，登录即可进入。方案购买与免费入库暂未开放。 试用可用额度以应用内显示为准。",
     "experienceReadyDesc": "从虚构示例或本人、已获授权的聊天文件开始，了解导入、模拟对话与纠正记忆。",
-    "exMemoryPrivacy": "在线试用会把上传的聊天、人物资料与对话记录保存在网站服务器，并将必要内容发送至所配置的文本向量与对话模型服务。本机助手的导出步骤在你的电脑上完成；确认上传后才进入在线服务。",
-    "exMemoryGuide": "首次导入指引",
-    "privacyPolicy": "隐私与数据处理"
+    "exMemoryPrivacy": "API Key 在网站服务器上加密保存，设置页只显示末 4 位，可更新或删除，且只发给对应服务地址。上传的聊天、人物资料与对话记录也保存在服务器，必要内容会发送至你选择的模型服务（含自定义服务）。本机助手完成导出后，由你确认上传。",
+    "exMemoryGuide": "模型设置与首次导入",
+    "privacyPolicy": "隐私与数据处理",
+    "exMemorySetup": "登录后，先在「模型设置」中为本账号配置自己的对话与文本向量 API Key、服务商和模型，再导入示例或聊天资料。也支持填写公网 HTTPS API 地址的自定义 OpenAI 兼容服务。模型调用由所选服务商按你的账户计费，本站不代供模型额度。",
+    "exMemoryTrialAvailableDesc": "Ex-Memory 免费开放在线体验，登录后使用自己的模型 API Key。方案购买与免费入库暂未开放；模型费用由所选服务商按你的账户计费。",
+    "exMemoryStartDesc": "登录 → 配置账号模型设置 → 导入虚构示例或本人、已获授权的资料 → 开始对话与纠正记忆。"
   },
   "ExMemoryExperiencePage": {
     "title": "Ex-Memory 在线体验",
-    "description": "导入聊天记录，创建个人记忆镜像，体验 AI 模拟对话与记忆纠正。",
+    "description": "登录后配置自己的对话与文本向量 API Key，导入聊天记录，创建个人记忆镜像，体验 AI 模拟对话与记忆纠正。",
     "eyebrow": "在线体验 · Beta",
-    "subtitle": "用 Meteor Store 账号登录，从虚构示例或本人、已获授权的聊天记录开始。",
+    "subtitle": "用 Meteor Store 账号登录，先配置自己的模型 API Key，再从虚构示例或本人、已获授权的聊天记录开始。",
     "backToProduct": "返回产品介绍",
     "loginTitle": "登录后开始体验",
     "loginDescription": "Ex-Memory 使用 Meteor Store 账号同步登录，无需重复注册。",
     "loginButton": "登录 Meteor Store",
-    "privacyHint": "在线数据保存在网站服务器；必要的聊天内容会发送至所配置的文本向量与对话模型服务。上传前请阅读并确认数据处理说明。",
+    "privacyHint": "API Key 在服务器上加密保存；在线资料也保存在服务器，必要内容会发送至你选择的模型服务。模型调用由服务商按你的账户计费，本站不代供模型额度。上传前请阅读并确认数据处理说明。",
     "loading": "正在启动 Ex-Memory…",
     "frameTitle": "Ex-Memory 在线体验应用",
     "unavailable": "体验服务暂时没有响应，请稍后重试。",
