@@ -6,13 +6,20 @@ Ex-Memory 根据聊天记录建立个人记忆镜像，参考记录中的表达�
 
 1. 在 [产品页](/products/ex-memory) 点击「在线体验」，登录 Meteor Store。
 2. 打开应用内的**模型设置**，分别配置本账号的**对话模型**与**文本向量（embedding）模型**：选择服务商、填写模型名称和你自己的 API Key。前者生成画像与回复，后者将文本转换为可检索的向量；两套设置都要完成。
-3. 保存设置，再开始导入。内置对话服务支持 DeepSeek、SiliconFlow 和 OpenAI；内置文本向量服务支持 SiliconFlow 和 OpenAI。也可选择**自定义 OpenAI 兼容服务**，填写公网 HTTPS API 地址、模型名称和自己的 Key。具体模型以设置页提示和服务商账户权限为准，地区可用性以服务商政策为准。
+3. 保存设置，再开始导入。内置对话服务支持 DeepSeek、SiliconFlow、OpenAI、Anthropic 和 Google Gemini；内置文本向量服务支持 SiliconFlow、OpenAI 和 Google Gemini。具体模型以设置页提示和服务商账户权限为准，地区可用性以服务商政策为准。
+
+对话接口支持 OpenAI 兼容、Anthropic Messages 和 Gemini generateContent；文本向量接口支持 OpenAI 兼容及 Gemini embedContent / batchEmbedContents。Anthropic 不提供文本向量服务。这些接口用于生成文本和建立文本检索向量。
+
+- Anthropic：请使用已绑定具体工作区（workspace）的 API Key，可按[官方说明](https://platform.claude.com/docs/en/manage-claude/authentication#select-a-workspace)创建。
+- Gemini 原生文本向量：Ex-Memory 固定请求 1024 维输出，并将向量归一化。请选择支持 1024 维输出的模型，维度设置可查阅[官方文档](https://ai.google.dev/gemini-api/docs/embeddings#controlling-embedding-size)。
+
+使用自定义服务时，按服务商的接口格式选择**自定义 OpenAI 兼容服务**、**自定义 Anthropic 服务**或**自定义 Gemini 服务**，填写公网 HTTPS API 基础地址、模型名称和自己的 Key。
 
 自定义服务需要提供相应的对话或文本向量接口。地址不能使用 localhost、内网地址或会跳转到其他地址的入口。必要文本会发送至你选择的服务商（含自定义服务），API Key 只发送给对应地址；保存前请核对地址和服务商的数据处理政策。
 
-在线体验无需购买或免费入库；方案购买尚未开放。**模型调用由你选择的服务商按你的账户计费，本站不代供模型额度。**导入示例也会调用你配置的模型，请先检查服务商账户的余额、权限与费用。
+在线体验无需购买或免费入库；方案购买尚未开放。模型调用由你选择的服务商按你的账户计费，本站不代供模型额度。导入示例也会调用你配置的模型，请先检查服务商账户的余额、权限与费用。
 
-设置按登录账号保存，API Key 在服务器上加密保存，设置页只显示末 4 位。你可以更新或删除 Key；更换 Meteor Store 账号后，需要为新账号单独配置。已有索引会锁定文本向量服务与模型，以保持检索一致；同一服务、同一模型仍可更换 Key。
+设置按登录账号保存，API Key 在服务器上加密保存，设置页只显示末 4 位。你可以更新或删除 Key；更换 Meteor Store 账号后，需要为新账号单独配置。已有索引会锁定文本向量服务、接口格式与模型，以保持检索一致；同一服务、同一模型仍可更换 Key。
 
 ## 导入并创建镜像
 

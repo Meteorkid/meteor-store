@@ -898,7 +898,7 @@
     "exMemoryPrivacy": "API Key 在网站服务器上加密保存，设置页只显示末 4 位，可更新或删除，且只发给对应服务地址。上传的聊天、人物资料与对话记录也保存在服务器，必要内容会发送至你选择的模型服务（含自定义服务）。本机助手完成导出后，由你确认上传。",
     "exMemoryGuide": "模型设置与首次导入",
     "privacyPolicy": "隐私与数据处理",
-    "exMemorySetup": "登录后，先在「模型设置」中为本账号配置自己的对话与文本向量 API Key、服务商和模型，再导入示例或聊天资料。也支持填写公网 HTTPS API 地址的自定义 OpenAI 兼容服务。模型调用由所选服务商按你的账户计费，本站不代供模型额度。",
+    "exMemorySetup": "登录后，先在「模型设置」中为本账号配置自己的对话与文本向量 API Key、服务商和模型，再导入示例或聊天资料。对话支持 OpenAI 兼容、Anthropic Messages 和 Google Gemini 接口；文本向量支持 OpenAI 兼容和 Google Gemini 接口。各接口格式均可配置自定义公网 HTTPS API 基础地址。模型调用由所选服务商按你的账户计费，本站不代供模型额度。",
     "exMemoryTrialAvailableDesc": "Ex-Memory 免费开放在线体验，登录后使用自己的模型 API Key。方案购买与免费入库暂未开放；模型费用由所选服务商按你的账户计费。",
     "exMemoryStartDesc": "登录 → 配置账号模型设置 → 导入虚构示例或本人、已获授权的资料 → 开始对话与纠正记忆。"
   },

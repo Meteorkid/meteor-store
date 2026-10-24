@@ -75,8 +75,8 @@ export const helpArticles: HelpArticleMeta[] = [
       en: 'Sign in, configure your own chat and embedding API keys, then import an example and create a mirror. Learn how model billing and online data processing work.',
     },
     keywords: {
-      zh: ['Ex-Memory', '聊天记录', '导入', '记忆镜像', '隐私', '示例', '模型设置', 'API Key', '自定义服务', 'OpenAI 兼容'],
-      en: ['Ex-Memory', 'chat records', 'import', 'memory mirror', 'privacy', 'example', 'model settings', 'API key', 'custom provider', 'OpenAI-compatible'],
+      zh: ['Ex-Memory', '聊天记录', '导入', '记忆镜像', '隐私', '示例', '模型设置', 'API Key', '自定义服务', 'OpenAI 兼容', 'Anthropic', 'Claude', 'Google Gemini'],
+      en: ['Ex-Memory', 'chat records', 'import', 'memory mirror', 'privacy', 'example', 'model settings', 'API key', 'custom provider', 'OpenAI-compatible', 'Anthropic', 'Claude', 'Google Gemini'],
     },
   },
   // ========== 初识与导航 (4) ==========

@@ -88,11 +88,13 @@ describe('Ex-Memory 试用、商业状态与数据处理说明', () => {
       sequence: '登录 → 账号模型设置 → 导入示例或资料 → 对话',
       accountBilling: '服务商按你的账户计费，本站不代供模型额度',
       keyStorage: 'API Key 在服务器上加密保存，设置页只显示末 4 位',
-      embeddingProviders: '内置文本向量服务支持 SiliconFlow 和 OpenAI',
-      customProvider: '自定义 OpenAI 兼容服务',
-      customAddress: '公网 HTTPS API 地址',
+      chatProviders: '内置对话服务支持 DeepSeek、SiliconFlow、OpenAI、Anthropic 和 Google Gemini',
+      embeddingProviders: '内置文本向量服务支持 SiliconFlow、OpenAI 和 Google Gemini',
+      anthropicScope: 'Anthropic 不提供文本向量服务',
+      customProviders: ['自定义 OpenAI 兼容服务', '自定义 Anthropic 服务', '自定义 Gemini 服务'],
+      customAddress: '公网 HTTPS API 基础地址',
       customKeyScope: 'API Key 只发送给对应地址',
-      indexLock: '已有索引会锁定文本向量服务与模型',
+      indexLock: '已有索引会锁定文本向量服务、接口格式与模型',
       outdatedCredits: '试用可用额度以应用内显示为准',
     },
     {
@@ -100,20 +102,27 @@ describe('Ex-Memory 试用、商业状态与数据处理说明', () => {
       sequence: 'Sign in → Account model settings → Import an example or records → Chat',
       accountBilling: 'Your selected providers bill model usage to your accounts. This site does not supply model credits.',
       keyStorage: 'API keys are encrypted on the server, and settings show only the last four characters',
-      embeddingProviders: 'built-in embedding providers include SiliconFlow and OpenAI',
-      customProvider: 'custom OpenAI-compatible service',
-      customAddress: 'public HTTPS API URL',
+      chatProviders: 'Built-in chat providers include DeepSeek, SiliconFlow, OpenAI, Anthropic, and Google Gemini',
+      embeddingProviders: 'built-in embedding providers include SiliconFlow, OpenAI, and Google Gemini',
+      anthropicScope: 'Anthropic does not provide embeddings',
+      customProviders: ['custom OpenAI-compatible service', 'custom Anthropic service', 'custom Gemini service'],
+      customAddress: 'public HTTPS API base URL',
       customKeyScope: 'Each API key is sent only to its corresponding address',
-      indexLock: 'Existing indexes lock the embedding provider and model',
+      indexLock: 'Existing indexes lock the embedding provider, API format, and model',
       outdatedCredits: 'Available trial credits are shown in the app',
     },
-  ])('$locale 首用帮助说明账号自有模型、费用、密钥保存与索引限制', ({ locale, sequence, accountBilling, keyStorage, embeddingProviders, customProvider, customAddress, customKeyScope, indexLock, outdatedCredits }) => {
+  ])('$locale 首用帮助说明账号自有模型、协议能力、费用、密钥保存与索引限制', ({ locale, sequence, accountBilling, keyStorage, chatProviders, embeddingProviders, anthropicScope, customProviders, customAddress, customKeyScope, indexLock, outdatedCredits }) => {
     const content = getHelpArticle(locale, 'ex-memory-first-import')!.content;
     expect(content).toContain(sequence);
     expect(content).toContain(accountBilling);
     expect(content).toContain(keyStorage);
+    expect(content).toContain(chatProviders);
     expect(content).toContain(embeddingProviders);
-    expect(content).toContain(customProvider);
+    expect(content).toContain(anthropicScope);
+    for (const provider of customProviders) expect(content).toContain(provider);
+    for (const protocol of ['Anthropic Messages', 'Gemini generateContent', 'Gemini embedContent / batchEmbedContents']) {
+      expect(content).toContain(protocol);
+    }
     expect(content).toContain(customAddress);
     expect(content).toContain(customKeyScope);
     expect(content).toContain(indexLock);

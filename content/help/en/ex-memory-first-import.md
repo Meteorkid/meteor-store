@@ -6,13 +6,20 @@ For your first use, follow this order: **Sign in → Account model settings → 
 
 1. Select **Try online** on the [product page](/products/ex-memory) and sign in with Meteor Store.
 2. Open **Model settings** in the app. Configure a **chat model** and an **embedding model** for this account: choose each provider, enter the model name, and supply your own API key. The chat model generates profiles and replies; the embedding model converts text into vectors for retrieval. Complete both configurations.
-3. Save the settings before importing. Built-in chat providers include DeepSeek, SiliconFlow, and OpenAI; built-in embedding providers include SiliconFlow and OpenAI. You can also select a **custom OpenAI-compatible service** and enter its public HTTPS API URL, model name, and your own key. Follow the settings screen and your provider account's model permissions. Regional availability depends on the provider's policies.
+3. Save the settings before importing. Built-in chat providers include DeepSeek, SiliconFlow, OpenAI, Anthropic, and Google Gemini; built-in embedding providers include SiliconFlow, OpenAI, and Google Gemini. Follow the settings screen and your provider account's model permissions. Regional availability depends on the provider's policies.
+
+Chat supports OpenAI-compatible APIs, Anthropic Messages, and Gemini generateContent. Embedding supports OpenAI-compatible APIs and Gemini embedContent / batchEmbedContents. Anthropic does not provide embeddings. These integrations generate text and build text-retrieval vectors.
+
+- Anthropic: Use an API key scoped to a specific workspace. Follow the [official instructions](https://platform.claude.com/docs/en/manage-claude/authentication#select-a-workspace) to create one.
+- Gemini native embeddings: Ex-Memory requests 1024-dimensional output and normalizes the vectors. Choose a model that supports 1024-dimensional output; see the [official dimensionality guide](https://ai.google.dev/gemini-api/docs/embeddings#controlling-embedding-size).
+
+For a custom service, select a **custom OpenAI-compatible service**, **custom Anthropic service**, or **custom Gemini service** to match the provider's API format. Enter its public HTTPS API base URL, model name, and your own key.
 
 A custom service must provide the relevant chat or embedding endpoint. Localhost, private-network addresses, and endpoints that redirect to another address are not supported. Necessary text is sent to your chosen providers, including custom services. Each API key is sent only to its corresponding address. Check the URL and the provider's data-processing policy before saving.
 
 Online access requires no purchase or free claim; plan purchases are not available. **Your selected providers bill model usage to your accounts. This site does not supply model credits.** Importing the example also calls your configured models, so check provider balances, permissions, and pricing first.
 
-Settings are saved per signed-in account. API keys are encrypted on the server, and settings show only the last four characters. You can update or delete keys. A different Meteor Store account needs its own settings. Existing indexes lock the embedding provider and model to keep retrieval consistent; you can still replace a key for the same provider and model.
+Settings are saved per signed-in account. API keys are encrypted on the server, and settings show only the last four characters. You can update or delete keys. A different Meteor Store account needs its own settings. Existing indexes lock the embedding provider, API format, and model to keep retrieval consistent; you can still replace a key for the same provider and model.
 
 ## Import and create a mirror
 
