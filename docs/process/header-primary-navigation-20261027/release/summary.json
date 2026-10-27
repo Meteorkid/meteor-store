@@ -1,0 +1,74 @@
+{
+  "release": "9bb7b9e3ae70244d6b48009a51d0bd4efe3c3919",
+  "base": "https://www.imagentx.top",
+  "browser": "156.0.8078.48",
+  "startedAt": "2026-10-27T11:50:36.107Z",
+  "finishedAt": "2026-10-27T11:52:44.269Z",
+  "navigationCases": {
+    "passed": 9,
+    "failed": 0
+  },
+  "stationaryTrials": {
+    "passed": 5,
+    "failed": 0,
+    "samples": 220,
+    "headerRemountObserved": true
+  },
+  "staticResponses": 468,
+  "staticUniqueURLs": 27,
+  "staticAll200AndMimeValid": true,
+  "staticMimeCounts": {
+    "text/css": 66,
+    "application/javascript": 402
+  },
+  "apiResponses": 36,
+  "apiAll200": true,
+  "apiPathCounts": {
+    "/api/auth/me": 18,
+    "/api/announcements": 18
+  },
+  "realAnonymousAuthChecks": 18,
+  "pageErrors": 0,
+  "httpErrors": 0,
+  "failedGetOtherThanNavigationAbort": 0,
+  "blockedWrites": 209,
+  "blockedWritePathCounts": {
+    "/api/4511817346318336/envelope/": 145,
+    "/api/online/heartbeat": 64
+  },
+  "navigationAbortedGet": {
+    "navigationSuite": 337,
+    "stationarySuite": 68,
+    "total": 405,
+    "allRSCFetchWithErrAborted": true,
+    "apiRequests": 0,
+    "staticRequests": 0
+  },
+  "reviewedScreenshots": [
+    "stable-desktop-en-1024.png",
+    "stable-mobile-zh-375.png",
+    "stationary-final.png",
+    "mobile-final-zh-375.png"
+  ],
+  "browserClosed": true,
+  "productionWritesAllowed": false,
+  "notCovered": [
+    "真实登录账号",
+    "实体手机",
+    "Safari/Firefox",
+    "付款或管理员写入",
+    "业务API写入",
+    "浏览器心跳与Sentry投递（主动阻断）"
+  ],
+  "screenshotOnlyRun": {
+    "screenshots": 2,
+    "staticResponses": 42,
+    "apiResponses": 4,
+    "blockedWrites": 8,
+    "navigationAbortedGet": 47,
+    "abortedAllRSCFetchWithErrAborted": true,
+    "errors": 0,
+    "arrowsSettled": true,
+    "browserClosed": true
+  }
+}

@@ -1,0 +1,790 @@
+{
+  "base": "https://www.imagentx.top",
+  "release": "9bb7b9e3ae70244d6b48009a51d0bd4efe3c3919",
+  "startedAt": "2026-10-27T11:54:48.244Z",
+  "purpose": "Two stable expanded-menu screenshots only; no test rerun",
+  "events": [
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/turbopack-14gq-bc1d_zt1.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1k5jxdl9f1n1c.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://www.imagentx.top/api/online/heartbeat"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/auth/me",
+      "contentType": "application/json"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/announcements",
+      "contentType": "application/json"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "anonymous-auth",
+      "status": 200,
+      "anonymous": true,
+      "noStore": true
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/login?_rsc=oWOzJcqfO7ElGPlV",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/docs?_rsc=oWOzJcqfO7ElGPlV",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/login?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/products/xnook?_rsc=oWOzJcqfO7ElGPlV",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/products?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/daily?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/pathfinder?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/blog?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/products/xisland?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/docs?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/products/xnook?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/products/xisland?_rsc=oWOzJcqfO7ElGPlV",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/pricing?_rsc=oWOzJcqfO7ElGPlV",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/products/xnook?_rsc=oWOzJcqfO7ElGPlV",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/open-source?_rsc=oWOzJcqfO7ElGPlV",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/pricing?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/products/claude-phone-control?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/products/statux?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/products/cursor-source-analyzer?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/playground?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-desktop-en-1024",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/en/open-source?_rsc=wnKipSm_GJ8PSQUJ",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1k5jxdl9f1n1c.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/turbopack-14gq-bc1d_zt1.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://www.imagentx.top/api/online/heartbeat"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/auth/me",
+      "contentType": "application/json"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "anonymous-auth",
+      "status": 200,
+      "anonymous": true,
+      "noStore": true
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/announcements",
+      "contentType": "application/json"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/daily?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/pathfinder?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/blog?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/docs?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/login?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/daily?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/pathfinder?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/blog?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/docs?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/login?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/xisland?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/xnook?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/pricing?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/statux?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/playground?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/open-source?_rsc=7HBGUdtzyeRzE9Pp",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/xnook?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/pricing?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/statux?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/claude-phone-control?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/open-source?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/cursor-source-analyzer?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/playground?_rsc=Hhr6oRFPVBf_034P",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "screenshots": [
+    {
+      "label": "stable-desktop-en-1024",
+      "path": "/tmp/meteor-header-production-20261027/stable-desktop-en-1024.png",
+      "settled": {
+        "transform": "matrix(-1, 0, 0, -1, 0, 0)",
+        "transition": "transform 0.16s",
+        "activeAnimations": 0
+      }
+    },
+    {
+      "label": "stable-mobile-zh-375",
+      "path": "/tmp/meteor-header-production-20261027/stable-mobile-zh-375.png",
+      "settled": {
+        "transform": "matrix(-1, 0, 0, -1, 0, 0)",
+        "transition": "transform 0.16s",
+        "activeAnimations": 0
+      }
+    }
+  ],
+  "browser": "156.0.8078.48",
+  "finishedAt": "2026-10-27T11:55:01.822Z",
+  "browserClosed": true
+}

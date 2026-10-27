@@ -1,0 +1,10 @@
+{
+  "sha": "9bb7b9e3ae70244d6b48009a51d0bd4efe3c3919",
+  "buildId": "build-TfctsWXpff2fKS",
+  "archiveSha256": "c87cf8e8b205ff5cd37148c504a91a2817febc635a66bbfeee18885e2289b7b4",
+  "archiveBytes": 22574917,
+  "typecheck": "passed",
+  "build": "passed",
+  "databaseReadOnly": true,
+  "cacheExcluded": true
+}
