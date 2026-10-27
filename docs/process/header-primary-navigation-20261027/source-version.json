@@ -1,0 +1,13 @@
+{
+  "baseline": "513a5c850dcb3813dfbae4c809498e6674365059",
+  "sourceFiles": {
+    "src/components/Header.tsx": "0d3baab8be49bf917d3207094dd5df60b84cc7b98d3a408627868b7748c3c98d",
+    "src/components/Header.module.css": "488efb8404c3e9861aef480dc9a477818a5c8120ffae805c982ec435be2d1e66",
+    "src/components/__tests__/header-navigation-render.test.tsx": "4034bfcbdca690dc7a49b603557e7424d321f9ee58b69373950c1962b47fbdb2",
+    "src/components/__tests__/header-navigation-interaction.test.tsx": "9b9bd4898dd4fd08ec51639e5832eb8974bd07d5bef017aff1f31a2f725c7a07"
+  },
+  "manifest": "/tmp/meteor-header-primary-20261027/manifest.json",
+  "manifestMatches": true,
+  "base": "http://127.0.0.1:3185",
+  "browser": "156.0.8078.48"
+}

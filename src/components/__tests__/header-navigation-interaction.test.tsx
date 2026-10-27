@@ -139,6 +139,79 @@ afterEach(() => {
 });
 
 describe('Header 导航交接', () => {
+  it('一级名称点击关闭下拉但不阻止原生跳转或修饰键打开新页', () => {
+    invoke(productGroup(), 'onPointerEnter', { pointerType: 'mouse' });
+    vi.advanceTimersByTime(120); renderHeader();
+    expect(productPanel()).toBeDefined();
+    const overview = findElement(props => props.id === 'header-overview-products');
+    expect(overview?.props.href).toBe('/products');
+    const preventDefault = vi.fn();
+    invoke(overview, 'onClick', { metaKey: true, preventDefault });
+    expect(productPanel()).toBeUndefined();
+    expect(preventDefault).not.toHaveBeenCalled();
+  });
+
+  it('一级名称ArrowDown打开菜单，Escape回到原名称而非旁边箭头', () => {
+    const arrowFocus = vi.fn(), linkFocus = vi.fn();
+    const trigger = findElement(props => props.id === 'header-trigger-products');
+    (trigger?.props.ref as (value: unknown) => void)({ focus: arrowFocus, parentElement: { contains: () => true } });
+    invoke(findElement(props => props.id === 'header-overview-products'), 'onKeyDown', {
+      key: 'ArrowDown', preventDefault: vi.fn(), currentTarget: { focus: linkFocus },
+    });
+    document.dispatchEvent(Object.assign(new Event('keydown', { cancelable: true }), { key: 'Escape' }));
+    renderHeader();
+    expect(productPanel()).toBeUndefined();
+    expect(linkFocus).toHaveBeenCalledOnce();
+    expect(arrowFocus).not.toHaveBeenCalled();
+  });
+
+  it('手机名称直达总览并释放滚动锁，独立箭头只展开子项', () => {
+    invoke(hamburger(), 'onClick', { detail: 1 });
+    const toggle = findElement(props => props['aria-controls'] === 'header-mobile-products');
+    invoke(toggle, 'onClick');
+    expect(findElement(props => props.id === 'header-mobile-products')).toBeDefined();
+    expect(body.style.overflow).toBe('hidden');
+    const overview = findElement(props => props.id === 'header-mobile-overview-products');
+    expect(overview?.props.href).toBe('/products');
+    invoke(overview, 'onClick');
+    expect(mobilePanel()).toBeUndefined();
+    expect(body.style.overflow).toBe('auto');
+  });
+
+  it('名称移焦到同组箭头或子菜单时保持展开', () => {
+    invoke(findElement(props => props.id === 'header-trigger-products'), 'onClick', { detail: 1 });
+    invoke(productGroup(), 'onBlur', { currentTarget: { contains: () => true }, relatedTarget: {} });
+    expect(productPanel()).toBeDefined();
+  });
+
+  it('旧分组失焦不能关闭刚打开的新分组', () => {
+    invoke(findElement(props => props.id === 'header-trigger-products'), 'onClick', { detail: 1 });
+    invoke(findElement(props => props.id === 'header-trigger-daily'), 'onClick', { detail: 1 });
+    invoke(productGroup(), 'onBlur', { currentTarget: { contains: () => false }, relatedTarget: {} });
+    expect(productPanel()).toBeUndefined();
+    expect(findElement(props => props.id === 'header-panel-daily')).toBeDefined();
+  });
+
+  it('总览跳转重挂载后不把静止指针当成新悬停，移动后正常展开', () => {
+    invoke(findElement(props => props.id === 'header-overview-products'), 'onClick', { button: 0, detail: 1, clientX: 100, clientY: 20 });
+    hooks.effects.forEach(effect => effect.cleanup?.());
+    hooks.states = []; hooks.refs = []; hooks.callbacks = []; hooks.effects = []; hooks.pending = [];
+    renderHeader();
+    invoke(productGroup(), 'onPointerEnter', { pointerType: 'mouse', clientX: 100, clientY: 20 });
+    vi.advanceTimersByTime(150); renderHeader();
+    expect(productPanel()).toBeUndefined();
+    invoke(productGroup(), 'onPointerMove', { pointerType: 'mouse', clientX: 102, clientY: 20 });
+    vi.advanceTimersByTime(150); renderHeader();
+    expect(productPanel()).toBeDefined();
+  });
+
+  it('离开到正文再回原点击坐标也会恢复悬停', () => {
+    invoke(findElement(props => props.id === 'header-overview-products'), 'onClick', { button: 0, detail: 1, clientX: 100, clientY: 20 });
+    document.dispatchEvent(Object.assign(new Event('pointermove'), { clientX: 200, clientY: 200 }));
+    invoke(productGroup(), 'onPointerEnter', { pointerType: 'mouse', clientX: 100, clientY: 20 });
+    vi.advanceTimersByTime(150); renderHeader();
+    expect(productPanel()).toBeDefined();
+  });
   it('正文持焦时 Escape 关闭悬停菜单，不抢回触发器焦点', () => {
     const focus = vi.fn();
     const trigger = findElement(props => props.id === 'header-trigger-products');

@@ -32,7 +32,7 @@
 .desktopNav { gap: 3px; }
 .utilities { gap: 5px; }
 
-.navTrigger, .iconButton {
+.navLink, .navTrigger, .iconButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -41,8 +41,11 @@
   transition: background-color 160ms ease, color 160ms ease;
 }
 
-.navTrigger { min-height: 42px; gap: 6px; padding: 8px 11px; font-size: 14px; font-weight: 500; line-height: 1.5; letter-spacing: 0; white-space: nowrap; }
-.navTrigger[aria-expanded="true"], .navTrigger[data-active] { color: #fff; background: rgb(255 255 255 / 7%); }
+.navGroup { display: flex; align-items: center; border-radius: 8px; }
+.navGroup[data-active], .navGroup[data-expanded] { background: rgb(255 255 255 / 7%); }
+.navGroup[data-active] > a, .navGroup[data-expanded] > a, .navGroup[data-expanded] > button { color: #fff; }
+.navLink { min-height: 42px; padding: 8px 2px 8px 11px; font-size: 14px; font-weight: 500; line-height: 1.5; letter-spacing: 0; white-space: nowrap; }
+.navTrigger { width: 32px; min-height: 42px; padding: 8px 9px; flex-shrink: 0; }
 .iconButton { width: 38px; height: 40px; flex-shrink: 0; }
 .chevron { width: 14px; height: 14px; flex-shrink: 0; transition: transform 160ms ease; }
 [aria-expanded="true"] > .chevron { transform: rotate(180deg); }
@@ -78,7 +81,7 @@
 .header a:focus-visible, .header button:focus-visible, .mobilePanel a:focus-visible, .mobilePanel button:focus-visible { outline: 2px solid rgb(196 181 253); outline-offset: 3px; }
 
 @media (hover: hover) and (pointer: fine) {
-  .navTrigger:hover, .iconButton:hover, .panelLink:hover, .accountLink:hover, .logout:hover { background: rgb(255 255 255 / 8%); color: #fff; }
+  .navLink:hover, .navTrigger:hover, .iconButton:hover, .panelLink:hover, .accountLink:hover, .logout:hover { background: rgb(255 255 255 / 8%); color: #fff; }
   .overviewLink:hover { color: #fff; }
   .login:hover { background: rgb(255 255 255 / 15%); }
 }
@@ -98,8 +101,10 @@
   }
   .mobileContent { padding: 12px 24px max(32px, env(safe-area-inset-bottom)); }
   .mobileGroup { border-bottom: 1px solid rgb(255 255 255 / 12%); }
-  .mobileTrigger { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 18px 0; color: #fff; text-align: left; }
-  .mobileTrigger[data-active] { color: rgb(220 206 255); }
+  .mobileHeading { display: flex; align-items: center; gap: 8px; }
+  .mobileLink { display: flex; align-items: center; flex: 1; min-width: 0; min-height: 64px; padding-block: 18px; border-radius: 6px; color: #fff; }
+  .mobileLink[data-active] { color: rgb(220 206 255); }
+  .mobileTrigger { display: flex; align-items: center; justify-content: center; width: 44px; min-height: 64px; flex-shrink: 0; border-radius: 6px; color: #fff; }
   .mobileTrigger .chevron { width: 18px; height: 18px; color: rgb(255 255 255 / 70%); }
   .mobileLinks { display: grid; gap: 22px; padding: 0 8px 24px; }
   .mobileLinks > .overviewLink { padding-block: 4px; }
@@ -110,6 +115,12 @@
   .login { display: flex; justify-content: center; padding: 12px 20px; border: 1px solid rgb(255 255 255 / 20%); border-radius: 10px; background: rgb(255 255 255 / 9%); color: #fff; font-size: 15px; font-weight: 500; line-height: 1.6; transition: background-color 160ms ease; }
   /* 铃铛位于手机顶栏中部，面板使用整行宽度，避免向左伸出视口。 */
   .utilities > [data-header-popover-open] > div { position: fixed; inset: 72px 14px auto; width: auto; margin-top: 0; }
+}
+
+@media (min-width: 1024px) and (pointer: coarse) {
+  .desktopNav { gap: 0; }
+  .navLink { padding-left: 8px; }
+  .navTrigger { width: 44px; min-height: 44px; }
 }
 
 @media (max-width: 420px) {

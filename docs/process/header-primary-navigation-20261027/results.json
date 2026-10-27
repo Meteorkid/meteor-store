@@ -1,0 +1,2693 @@
+{
+  "startedAt": "2026-10-27T11:21:15.807Z",
+  "base": "http://127.0.0.1:3185",
+  "baseline": "513a5c850dcb3813dfbae4c809498e6674365059",
+  "guestStub": true,
+  "cases": [
+    {
+      "label": "desktop-zh-1280",
+      "status": "passed",
+      "width": 1280,
+      "locale": "zh",
+      "actions": [
+        "click products → /products",
+        "click daily → /daily",
+        "click learn → /pathfinder",
+        "click content → /blog",
+        "click help → /docs",
+        "hover A→B while A focused; first submenu click",
+        "Link Enter navigates",
+        "Link ArrowDown/Escape restores Link",
+        "arrow ArrowDown/Escape/Enter/Space stays on route",
+        "arrow pointer toggle",
+        "Meta click new tab, original route unchanged"
+      ],
+      "bounds": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "right": 1256
+      },
+      "screenshots": [
+        "/tmp/meteor-header-primary-20261027/browser/desktop-zh-1280.png",
+        "/tmp/meteor-header-primary-20261027/browser/submenu-zh-1280.png"
+      ]
+    },
+    {
+      "label": "desktop-en-1280",
+      "status": "passed",
+      "width": 1280,
+      "locale": "en",
+      "actions": [
+        "click products → /products",
+        "click daily → /daily",
+        "click learn → /pathfinder",
+        "click content → /blog",
+        "click help → /docs",
+        "hover A→B while A focused; first submenu click",
+        "Link Enter navigates",
+        "Link ArrowDown/Escape restores Link",
+        "arrow ArrowDown/Escape/Enter/Space stays on route",
+        "arrow pointer toggle",
+        "Meta click new tab, original route unchanged"
+      ],
+      "bounds": {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "right": 1256
+      },
+      "screenshots": [
+        "/tmp/meteor-header-primary-20261027/browser/desktop-en-1280.png",
+        "/tmp/meteor-header-primary-20261027/browser/submenu-en-1280.png"
+      ]
+    },
+    {
+      "label": "desktop-zh-1024",
+      "status": "passed",
+      "width": 1024,
+      "locale": "zh",
+      "actions": [
+        "click products → /products",
+        "click daily → /daily",
+        "click learn → /pathfinder",
+        "click content → /blog",
+        "click help → /docs",
+        "hover A→B while A focused; first submenu click",
+        "Link Enter navigates",
+        "Link ArrowDown/Escape restores Link",
+        "arrow ArrowDown/Escape/Enter/Space stays on route",
+        "arrow pointer toggle",
+        "Meta click new tab, original route unchanged"
+      ],
+      "bounds": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "right": 1000
+      },
+      "screenshots": [
+        "/tmp/meteor-header-primary-20261027/browser/desktop-zh-1024.png",
+        "/tmp/meteor-header-primary-20261027/browser/submenu-zh-1024.png"
+      ]
+    },
+    {
+      "label": "desktop-en-1024",
+      "status": "passed",
+      "width": 1024,
+      "locale": "en",
+      "actions": [
+        "click products → /products",
+        "click daily → /daily",
+        "click learn → /pathfinder",
+        "click content → /blog",
+        "click help → /docs",
+        "hover A→B while A focused; first submenu click",
+        "Link Enter navigates",
+        "Link ArrowDown/Escape restores Link",
+        "arrow ArrowDown/Escape/Enter/Space stays on route",
+        "arrow pointer toggle",
+        "Meta click new tab, original route unchanged"
+      ],
+      "bounds": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "right": 1000
+      },
+      "screenshots": [
+        "/tmp/meteor-header-primary-20261027/browser/desktop-en-1024.png",
+        "/tmp/meteor-header-primary-20261027/browser/submenu-en-1024.png"
+      ]
+    },
+    {
+      "label": "touch-zh-375",
+      "status": "passed",
+      "width": 375,
+      "locale": "zh",
+      "actions": [
+        "arrow touch expands/collapses without navigation",
+        "tap products → /products; unlocked",
+        "same-route menu close restores actual touch scrolling",
+        "tap daily → /daily; unlocked",
+        "tap learn → /pathfinder; unlocked",
+        "tap content → /blog; unlocked",
+        "tap help → /docs; unlocked",
+        "mobile Escape returns hamburger"
+      ],
+      "bounds": {
+        "width": 375,
+        "scrollWidth": 375,
+        "right": 361
+      },
+      "arrowTarget": {
+        "x": 307,
+        "y": 76,
+        "width": 44,
+        "height": 64
+      },
+      "screenshots": [
+        "/tmp/meteor-header-primary-20261027/browser/mobile-expanded-zh-375.png",
+        "/tmp/meteor-header-primary-20261027/browser/mobile-final-zh-375.png"
+      ]
+    },
+    {
+      "label": "touch-en-375",
+      "status": "passed",
+      "width": 375,
+      "locale": "en",
+      "actions": [
+        "arrow touch expands/collapses without navigation",
+        "tap products → /products; unlocked",
+        "same-route menu close restores actual touch scrolling",
+        "tap daily → /daily; unlocked",
+        "tap learn → /pathfinder; unlocked",
+        "tap content → /blog; unlocked",
+        "tap help → /docs; unlocked",
+        "mobile Escape returns hamburger"
+      ],
+      "bounds": {
+        "width": 375,
+        "scrollWidth": 375,
+        "right": 361
+      },
+      "arrowTarget": {
+        "x": 307,
+        "y": 76,
+        "width": 44,
+        "height": 64
+      },
+      "screenshots": [
+        "/tmp/meteor-header-primary-20261027/browser/mobile-expanded-en-375.png",
+        "/tmp/meteor-header-primary-20261027/browser/mobile-final-en-375.png"
+      ]
+    },
+    {
+      "label": "touch-zh-768",
+      "status": "passed",
+      "width": 768,
+      "locale": "zh",
+      "actions": [
+        "arrow touch expands/collapses without navigation",
+        "tap products → /products; unlocked",
+        "same-route menu close restores actual touch scrolling",
+        "tap daily → /daily; unlocked",
+        "tap learn → /pathfinder; unlocked",
+        "tap content → /blog; unlocked",
+        "tap help → /docs; unlocked",
+        "mobile Escape returns hamburger"
+      ],
+      "bounds": {
+        "width": 768,
+        "scrollWidth": 768,
+        "right": 748
+      },
+      "arrowTarget": {
+        "x": 700,
+        "y": 72.57329559326172,
+        "width": 44,
+        "height": 64.00000762939453
+      },
+      "screenshots": [
+        "/tmp/meteor-header-primary-20261027/browser/mobile-expanded-zh-768.png",
+        "/tmp/meteor-header-primary-20261027/browser/mobile-final-zh-768.png"
+      ]
+    },
+    {
+      "label": "touch-en-768",
+      "status": "passed",
+      "width": 768,
+      "locale": "en",
+      "actions": [
+        "arrow touch expands/collapses without navigation",
+        "tap products → /products; unlocked",
+        "same-route menu close restores actual touch scrolling",
+        "tap daily → /daily; unlocked",
+        "tap learn → /pathfinder; unlocked",
+        "tap content → /blog; unlocked",
+        "tap help → /docs; unlocked",
+        "mobile Escape returns hamburger"
+      ],
+      "bounds": {
+        "width": 768,
+        "scrollWidth": 768,
+        "right": 748
+      },
+      "arrowTarget": {
+        "x": 700,
+        "y": 72.56843566894531,
+        "width": 44,
+        "height": 64
+      },
+      "screenshots": [
+        "/tmp/meteor-header-primary-20261027/browser/mobile-expanded-en-768.png",
+        "/tmp/meteor-header-primary-20261027/browser/mobile-final-en-768.png"
+      ]
+    },
+    {
+      "label": "coarse-en-1024",
+      "status": "passed",
+      "media": {
+        "coarse": true,
+        "hover": false
+      },
+      "bounds": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "right": 1000
+      },
+      "arrowTarget": {
+        "x": 496.796875,
+        "y": 10,
+        "width": 44,
+        "height": 44
+      },
+      "screenshot": "/tmp/meteor-header-primary-20261027/browser/coarse-en-1024.png"
+    }
+  ],
+  "events": [
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3ar1lyxx8u9pv.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3qkbxih3618cl.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/05i10q5wjqd9c.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3ar1lyxx8u9pv.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3qkbxih3618cl.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/05i10q5wjqd9c.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3qkbxih3618cl.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3ar1lyxx8u9pv.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/05i10q5wjqd9c.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3qkbxih3618cl.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3ar1lyxx8u9pv.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/05i10q5wjqd9c.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3ar1lyxx8u9pv.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3qkbxih3618cl.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/05i10q5wjqd9c.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3ar1lyxx8u9pv.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3qkbxih3618cl.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/05i10q5wjqd9c.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3qkbxih3618cl.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3ar1lyxx8u9pv.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/05i10q5wjqd9c.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1g3vdbijb46xm.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1_ld2fnc304o8.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3ar1lyxx8u9pv.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3qkbxih3618cl.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/05i10q5wjqd9c.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1kds8tmzlku3w.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0zm0dkb5yrc2t.css?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/turbopack-2j3zrfjetwfpd.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2zwqucxkewd7n.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3i7whbhgth7zk.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0kxfg6-scndwq.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/0ns_u2byfq2n3.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "url": "http://127.0.0.1:3185/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "static",
+      "status": 200,
+      "url": "http://127.0.0.1:3185/_next/static/chunks/3s7od-xzk-n4p.js?dpl=static-recovery-20261016"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "url": "http://127.0.0.1:3185/api/online/heartbeat"
+    }
+  ],
+  "sourceFiles": {
+    "src/components/Header.tsx": "0d3baab8be49bf917d3207094dd5df60b84cc7b98d3a408627868b7748c3c98d",
+    "src/components/Header.module.css": "488efb8404c3e9861aef480dc9a477818a5c8120ffae805c982ec435be2d1e66",
+    "src/components/__tests__/header-navigation-render.test.tsx": "4034bfcbdca690dc7a49b603557e7424d321f9ee58b69373950c1962b47fbdb2",
+    "src/components/__tests__/header-navigation-interaction.test.tsx": "9b9bd4898dd4fd08ec51639e5832eb8974bd07d5bef017aff1f31a2f725c7a07"
+  },
+  "browser": "156.0.8078.48",
+  "finishedAt": "2026-10-27T11:22:17.576Z"
+}

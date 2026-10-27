@@ -1,0 +1,72 @@
+{
+  "startedAt": "2026-10-27T11:21:15.807Z",
+  "trials": [
+    {
+      "trial": 0,
+      "status": "passed",
+      "point": {
+        "x": 330.2734375,
+        "y": 32
+      },
+      "stationarySamples": 44,
+      "oldHeaderDetached": true,
+      "groupMoveRestoresHover": true,
+      "leaveAndReturnSamePoint": true,
+      "arrowKeyboardAndPointer": true
+    },
+    {
+      "trial": 1,
+      "status": "passed",
+      "point": {
+        "x": 330.2734375,
+        "y": 32
+      },
+      "stationarySamples": 45,
+      "oldHeaderDetached": true,
+      "groupMoveRestoresHover": true,
+      "leaveAndReturnSamePoint": true,
+      "arrowKeyboardAndPointer": true
+    },
+    {
+      "trial": 2,
+      "status": "passed",
+      "point": {
+        "x": 330.2734375,
+        "y": 32
+      },
+      "stationarySamples": 44,
+      "oldHeaderDetached": true,
+      "groupMoveRestoresHover": true,
+      "leaveAndReturnSamePoint": true,
+      "arrowKeyboardAndPointer": true
+    },
+    {
+      "trial": 3,
+      "status": "passed",
+      "point": {
+        "x": 330.2734375,
+        "y": 32
+      },
+      "stationarySamples": 44,
+      "oldHeaderDetached": true,
+      "groupMoveRestoresHover": true,
+      "leaveAndReturnSamePoint": true,
+      "arrowKeyboardAndPointer": true
+    },
+    {
+      "trial": 4,
+      "status": "passed",
+      "point": {
+        "x": 330.2734375,
+        "y": 32
+      },
+      "stationarySamples": 44,
+      "oldHeaderDetached": true,
+      "groupMoveRestoresHover": true,
+      "leaveAndReturnSamePoint": true,
+      "arrowKeyboardAndPointer": true
+    }
+  ],
+  "errors": [],
+  "finishedAt": "2026-10-27T11:22:05.415Z"
+}

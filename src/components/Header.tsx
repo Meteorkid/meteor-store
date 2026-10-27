@@ -14,6 +14,16 @@ import NotificationBell from './NotificationBell';
 import styles from './Header.module.css';
 
 const navigation = getHeaderNavigation(SHOW_PRICING);
+// 跳转可能重挂载Header；新页面不能把仍停在点击位置的指针当成新的悬停意图。
+let navigationPointer: { x: number; y: number } | null = null;
+function rememberNavigationPointer(x: number, y: number) { navigationPointer = { x, y }; }
+function isStationaryNavigationPointer(x?: number, y?: number) {
+  if (!navigationPointer) return false;
+  if (x !== undefined && y !== undefined
+    && Math.abs(navigationPointer.x - x) < 1 && Math.abs(navigationPointer.y - y) < 1) return true;
+  navigationPointer = null;
+  return false;
+}
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex="0"]';
 const accountLinks = [
   { href: '/account', key: 'account' },
@@ -61,6 +71,7 @@ export default function Header() {
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const desktopFocusTarget = useRef<HTMLElement | null>(null);
   const desktopKeyboard = useRef(false);
   const openTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -97,16 +108,23 @@ export default function Header() {
     closeMobile();
   };
 
-  const openDesktop = (id: string, keyboard = false) => {
+  const openDesktop = (id: string, keyboard = false, trigger?: HTMLElement) => {
     clearTimers();
     closeUtilityMenus();
     desktopKeyboard.current = keyboard;
+    desktopFocusTarget.current = trigger ?? triggerRefs.current[id];
     setAnimateDesktop(!keyboard && !desktopOpen);
     setDesktopOpen(id);
   };
 
-  const hoverGroup = (id: string, pointerType: string) => {
+  const enterDesktopPanel = (id: string, trigger: HTMLElement) => {
+    openDesktop(id, true, trigger);
+    requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>('a[href]')?.focus());
+  };
+
+  const hoverGroup = (id: string, pointerType: string, clientX?: number, clientY?: number) => {
     if (pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    if (isStationaryNavigationPointer(clientX, clientY)) return;
     clearTimers();
     if (desktopOpen === id) return;
     if (desktopOpen) openDesktop(id);
@@ -177,6 +195,9 @@ export default function Header() {
     const onOutsidePointer = (event: PointerEvent) => {
       if (!headerRef.current?.contains(event.target as Node)) closeDesktop();
     };
+    const onPointerMove = (event: PointerEvent) => {
+      if (navigationPointer) isStationaryNavigationPointer(event.clientX, event.clientY);
+    };
     const desktopMedia = window.matchMedia('(min-width: 1024px)');
     const onResize = () => {
       closeDesktop();
@@ -184,11 +205,13 @@ export default function Header() {
       closeUtilityMenus();
     };
     document.addEventListener('pointerdown', onOutsidePointer);
+    document.addEventListener('pointermove', onPointerMove, { passive: true });
     desktopMedia.addEventListener('change', onResize);
     window.addEventListener('popstate', onResize);
     window.addEventListener('hashchange', onResize);
     return () => {
       document.removeEventListener('pointerdown', onOutsidePointer);
+      document.removeEventListener('pointermove', onPointerMove);
       desktopMedia.removeEventListener('change', onResize);
       window.removeEventListener('popstate', onResize);
       window.removeEventListener('hashchange', onResize);
@@ -205,7 +228,7 @@ export default function Header() {
       event.preventDefault();
       closeDesktop();
       // 悬停不移动正文焦点；键盘进入菜单后再把焦点交回对应触发器。
-      if (focusInGroup) trigger?.focus();
+      if (focusInGroup) (desktopFocusTarget.current ?? trigger)?.focus();
     };
     document.addEventListener('keydown', onEscape);
     return () => document.removeEventListener('keydown', onEscape);
@@ -280,29 +303,45 @@ export default function Header() {
               const expanded = desktopOpen === group.id;
               const active = isGroupActive(group, pathname);
               return (
-                <div key={group.id} onPointerEnter={event => hoverGroup(group.id, event.pointerType)} onPointerLeave={leaveGroup}
+                <div key={group.id} className={styles.navGroup} data-active={active || undefined} data-expanded={expanded || undefined}
+                  onPointerEnter={event => hoverGroup(group.id, event.pointerType, event.clientX, event.clientY)} onPointerLeave={leaveGroup}
+                  onPointerMove={event => { if (navigationPointer) hoverGroup(group.id, event.pointerType, event.clientX, event.clientY); }}
                   onBlur={event => { if (desktopOpen === group.id && !event.currentTarget.contains(event.relatedTarget)) closeDesktop(); }}>
+                  <Link href={group.overview.href} id={`header-overview-${group.id}`} className={styles.navLink}
+                    onClick={event => {
+                      if (event.button === 0 && event.detail > 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+                        rememberNavigationPointer(event.clientX, event.clientY);
+                      }
+                      closeNavigation();
+                    }} aria-current={isHeaderLinkActive(group.overview.href, pathname) ? 'page' : undefined}
+                    onKeyDown={event => {
+                      if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        enterDesktopPanel(group.id, event.currentTarget);
+                      }
+                    }}>
+                    {group.label[locale]}
+                  </Link>
                   <button
                     type="button"
                     ref={element => { triggerRefs.current[group.id] = element; }}
                     id={`header-trigger-${group.id}`}
+                    aria-label={locale === 'en' ? `${group.label.en} submenu` : `${group.label.zh}二级菜单`}
                     aria-expanded={expanded}
                     aria-controls={`header-panel-${group.id}`}
-                    data-active={active || undefined}
                     className={styles.navTrigger}
-                    onClick={event => expanded ? closeDesktop() : openDesktop(group.id, event.detail === 0)}
+                    onClick={event => expanded ? closeDesktop() : openDesktop(group.id, event.detail === 0, event.currentTarget)}
                     onKeyDown={event => {
                       if (event.key === 'ArrowDown') {
                         event.preventDefault();
-                        openDesktop(group.id, true);
-                        requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>('a[href]')?.focus());
+                        enterDesktopPanel(group.id, event.currentTarget);
                       }
                     }}
                   >
-                    {group.label[locale]}<Chevron />
+                    <Chevron />
                   </button>
                   {expanded && (
-                    <div ref={panelRef} id={`header-panel-${group.id}`} aria-labelledby={`header-trigger-${group.id}`} data-animate={animateDesktop || undefined} className={styles.desktopPanel} onPointerEnter={clearTimers}>
+                    <div ref={panelRef} id={`header-panel-${group.id}`} aria-labelledby={`header-overview-${group.id}`} data-animate={animateDesktop || undefined} className={styles.desktopPanel} onPointerEnter={clearTimers}>
                       <div className={`container mx-auto ${styles.panelContent}`}>
                         <div className={styles.panelIntro}>
                           <p className="t-eyebrow">{group.label[locale]}</p>
@@ -378,9 +417,18 @@ export default function Header() {
               const expanded = mobileGroup === group.id;
               return (
                 <div className={styles.mobileGroup} key={group.id}>
-                  <button type="button" className={styles.mobileTrigger} data-active={isGroupActive(group, pathname) || undefined} aria-expanded={expanded} aria-controls={`header-mobile-${group.id}`} onClick={() => setMobileGroup(expanded ? null : group.id)}>
-                    <span className="t-title-3">{group.label[locale]}</span><Chevron />
-                  </button>
+                  <div className={styles.mobileHeading}>
+                    <Link href={group.overview.href} id={`header-mobile-overview-${group.id}`} className={styles.mobileLink}
+                      data-active={isGroupActive(group, pathname) || undefined} onClick={closeNavigation}
+                      aria-current={isHeaderLinkActive(group.overview.href, pathname) ? 'page' : undefined}>
+                      <span className="t-title-3">{group.label[locale]}</span>
+                    </Link>
+                    <button type="button" className={styles.mobileTrigger}
+                      aria-label={locale === 'en' ? `${group.label.en} submenu` : `${group.label.zh}二级菜单`}
+                      aria-expanded={expanded} aria-controls={`header-mobile-${group.id}`} onClick={() => setMobileGroup(expanded ? null : group.id)}>
+                      <Chevron />
+                    </button>
+                  </div>
                   {expanded && (
                     <div id={`header-mobile-${group.id}`} className={styles.mobileLinks}>
                       <Link href={group.overview.href} className={styles.overviewLink} onClick={closeNavigation} aria-current={isHeaderLinkActive(group.overview.href, pathname) ? 'page' : undefined}>{group.overview.label[locale]}<span aria-hidden="true">↗</span></Link>

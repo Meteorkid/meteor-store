@@ -24,6 +24,15 @@ import Header from '../Header';
 beforeEach(() => { state.locale = 'zh'; state.pathname = '/'; });
 
 describe('主导航初始呈现', () => {
+  it.each(['zh', 'en'])('%s 一级名称是独立总览链接，旁边按钮只负责展开', locale => {
+    state.locale = locale;
+    const html = renderToStaticMarkup(<Header />);
+    for (const [id, href] of Object.entries({ products: '/products', daily: '/daily', learn: '/pathfinder', content: '/blog', help: '/docs' })) {
+      expect(html).toMatch(new RegExp(`<a(?=[^>]*id="header-overview-${id}")(?=[^>]*href="${href}")[^>]*>`));
+      expect(html).toMatch(new RegExp(`<button(?=[^>]*id="header-trigger-${id}")(?=[^>]*aria-expanded="false")[^>]*>`));
+    }
+    expect(html).not.toMatch(/<a[^>]*>[^<]*<button/);
+  });
   it('五个展开按钮有独立关系，不把隐藏面板链接留在键盘顺序内', () => {
     const html = renderToStaticMarkup(<Header />);
     for (const id of ['products', 'daily', 'learn', 'content', 'help']) {
