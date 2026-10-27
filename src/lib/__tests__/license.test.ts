@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
  */
 const selectQueue: Record<string, unknown>[][] = [];
 const inserted: Record<string, unknown>[] = [];
+const conflicts: boolean[] = [];
 
 vi.mock('../db', () => ({
   db: {
@@ -19,9 +20,11 @@ vi.mock('../db', () => ({
       }),
     }),
     insert: () => ({
-      values: async (row: Record<string, unknown>) => {
+      values: (row: Record<string, unknown>) => ({ onConflictDoNothing: () => ({ returning: async () => {
+        if (conflicts.shift()) return [];
         inserted.push(row);
-      },
+        return [{ key: row.key }];
+      } }) }),
     }),
   },
 }));
@@ -41,6 +44,7 @@ describe('createLicenseKey', () => {
   beforeEach(() => {
     selectQueue.length = 0;
     inserted.length = 0;
+    conflicts.length = 0;
   });
 
   it('同一订单已有 key 时直接返回，不重复插入（幂等）', async () => {
@@ -80,7 +84,8 @@ describe('createLicenseKey', () => {
   });
 
   it('碰撞后换一个 key 重试，最终成功', async () => {
-    selectQueue.push([], [{ key: 'dup' }], []); // 第一次碰撞，第二次通过
+    selectQueue.push([], []);
+    conflicts.push(true, false);
 
     const key = await createLicenseKey(order);
 
@@ -89,9 +94,17 @@ describe('createLicenseKey', () => {
   });
 
   it('连续碰撞 5 次后抛错，不会插入半成品', async () => {
-    selectQueue.push([], ...Array.from({ length: 5 }, () => [{ key: 'dup' }]));
+    selectQueue.push([], ...Array.from({ length: 5 }, () => []));
+    conflicts.push(true, true, true, true, true);
 
     await expect(createLicenseKey(order)).rejects.toThrow('too many collisions');
+    expect(inserted).toHaveLength(0);
+  });
+
+  it('另一条补码路径先提交同订单时回读赢家，不报唯一约束错误', async () => {
+    selectQueue.push([], [{ key: 'MC-WINNER' }]);
+    conflicts.push(true);
+    expect(await createLicenseKey(order)).toBe('MC-WINNER');
     expect(inserted).toHaveLength(0);
   });
 

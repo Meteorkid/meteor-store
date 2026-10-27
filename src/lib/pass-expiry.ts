@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { and, eq, ne } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from './db';
 import {
   inviteCodes,
@@ -9,7 +9,8 @@ import {
   passReminders,
   users,
 } from './db/schema';
-import { PASS_PRODUCT_ID, getPassCoverage } from '@/data/pass';
+import { PASS_PRODUCT_ID } from '@/data/pass';
+import { accumulatePass, type Grant } from './entitlements';
 import { sendPassExpiryReminder } from './email';
 
 /**
@@ -39,10 +40,12 @@ async function findPendingCandidates(
 ): Promise<{ ordersChecked: number; candidates: Array<{ email: string; expiresAt: string }> }> {
   const passOrders = await db
     .select({
+      id: orders.id,
       email: orders.email,
       grantedAt: orders.paidAt,
       billingPeriod: orders.billingPeriod,
       licenseStatus: licenseKeys.status,
+      deliveryStatus: orders.deliveryStatus,
     })
     .from(orders)
     .leftJoin(licenseKeys, eq(licenseKeys.orderId, orders.id))
@@ -53,6 +56,7 @@ async function findPendingCandidates(
   // 到期就会静默失效、没有任何提醒。档位在 invite_codes.plan_id，起算时间用 redeemedAt。
   const passInvites = await db
     .select({
+      id: inviteRedemptions.id,
       email: users.email,
       grantedAt: inviteRedemptions.redeemedAt,
       planId: inviteCodes.planId,
@@ -62,36 +66,38 @@ async function findPendingCandidates(
     .innerJoin(inviteCodes, eq(inviteRedemptions.inviteCodeId, inviteCodes.id))
     .innerJoin(users, eq(inviteRedemptions.userId, users.id))
     .innerJoin(licenseKeys, eq(licenseKeys.key, inviteRedemptions.licenseKey))
-    .where(and(eq(inviteCodes.productId, PASS_PRODUCT_ID), ne(licenseKeys.status, 'revoked')));
+    .where(and(eq(inviteCodes.productId, PASS_PRODUCT_ID), eq(licenseKeys.status, 'active')));
 
-  const byKey = new Map<string, { email: string; expiresAt: string }>();
+  const byEmail = new Map<string, Map<string, Grant>>();
   const nowTime = now.getTime();
 
-  const collect = (email: string, planKey: string | null, grantedAt: string | null) => {
-    const coverage = getPassCoverage(planKey, grantedAt);
-    if (coverage.kind !== 'until') return; // lifetime 不过期，unknown 算不出
-    const expiresAt = new Date(coverage.expiresAt).getTime();
-    if (expiresAt <= nowTime || expiresAt > nowTime + windowMs) return;
-
-    // 同一用户的多条授权对同一个到期日只算一次
-    byKey.set(`${email.toLowerCase()}::${coverage.expiresAt}`, {
-      email,
-      expiresAt: coverage.expiresAt,
-    });
+  const collect = (id: string, email: string, planKey: string | null, grantedAt: string | null) => {
+    const owner = email.trim().toLowerCase();
+    const grants = byEmail.get(owner) ?? new Map<string, Grant>();
+    grants.set(id, { productId: PASS_PRODUCT_ID, planName: planKey ?? '', planId: planKey,
+      billingPeriod: planKey ?? '', grantedAt, passPlanKey: planKey });
+    byEmail.set(owner, grants);
   };
 
   for (const order of passOrders) {
-    // 已交付但授权码被撤销 = 已退款，跳过
-    if (order.licenseStatus === 'revoked') continue;
-    collect(order.email, order.billingPeriod, order.grantedAt);
+    // 与 entitlements 保持相同的交付窗口规则。
+    if (order.deliveryStatus === 'emailed' && order.licenseStatus !== 'active') continue;
+    collect(`order:${order.id}`, order.email, order.billingPeriod, order.grantedAt);
   }
 
   for (const invite of passInvites) {
-    if (invite.licenseStatus === 'revoked') continue;
-    collect(invite.email, invite.planId, invite.grantedAt);
+    if (invite.licenseStatus !== 'active') continue;
+    collect(`invite:${invite.id}`, invite.email, invite.planId, invite.grantedAt);
   }
 
-  return { ordersChecked: passOrders.length + passInvites.length, candidates: Array.from(byKey.values()) };
+  const candidates: Array<{ email: string; expiresAt: string }> = [];
+  for (const [email, grants] of byEmail) {
+    const coverage = accumulatePass([...grants.values()]);
+    if (!coverage || coverage.lifetime || !coverage.expiresAt) continue;
+    const expiresAt = new Date(coverage.expiresAt).getTime();
+    if (expiresAt > nowTime && expiresAt <= nowTime + windowMs) candidates.push({ email, expiresAt: coverage.expiresAt });
+  }
+  return { ordersChecked: passOrders.length + passInvites.length, candidates };
 }
 
 /**

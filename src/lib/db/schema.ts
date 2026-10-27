@@ -252,6 +252,29 @@ export const topicProposals = pgTable('topic_proposals', {
   createdAt: text('created_at').notNull(),
 });
 
+/** 每次支付退款独立落账；SUCCESS 不能被另一笔迟到的失败通知覆盖。 */
+export const paymentRefundAttempts = pgTable('payment_refund_attempts', {
+  requestNo: text('request_no').primaryKey(),
+  paymentMethod: text('payment_method').notNull(),
+  orderId: text('order_id').notNull().references(() => orders.id),
+  status: text('status').notNull(),
+  source: text('source').notNull(),
+  lastRequestedAt: text('last_requested_at'),
+  lastQueriedAt: text('last_queried_at'),
+  refundAmount: integer('refund_amount').notNull(),
+  totalAmount: integer('total_amount').notNull(),
+  refundId: text('refund_id'),
+  needsReview: boolean('needs_review').notNull().default(false),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (t) => [
+  index('payment_refund_order_created_idx').on(t.orderId, t.createdAt),
+  check('payment_refund_status_check', sql`${t.status} IN ('REQUESTING', 'PROCESSING', 'ABNORMAL', 'UNKNOWN', 'SUCCESS', 'CLOSED', 'REJECTED')`),
+  check('payment_refund_source_check', sql`${t.source} IN ('api', 'merchant', 'legacy')`),
+  check('payment_refund_method_check', sql`${t.paymentMethod} IN ('alipay', 'wechat')`),
+  check('payment_refund_amount_check', sql`${t.refundAmount} > 0 AND ${t.refundAmount} <= ${t.totalAmount}`),
+]);
+
 /** 桌面软件的逐产品激活码；父授权继续保持一笔订单一条，避免重复累计 Pass。 */
 export const softwareLicenseCodes = pgTable('software_license_codes', {
   id: text('id').primaryKey(),

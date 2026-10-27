@@ -12,10 +12,12 @@ vi.mock('@/lib/email', () => ({
 
 // 可控的订单数据：即将到期的月付、买断(lifetime)、已撤销、已过期
 let passOrders: Array<{
+  id?: string;
   email: string;
   grantedAt: string | null;
   billingPeriod: string;
   licenseStatus: string | null;
+  deliveryStatus?: string;
 }> = [];
 
 // 已存在的提醒记录（模拟幂等去重）
@@ -23,6 +25,7 @@ let existingReminders: Array<{ email: string; expiresAt: string }> = [];
 
 // 邀请码兑换的 Pass 数据（默认无）
 let passInvites: Array<{
+  id?: string;
   email: string;
   grantedAt: string | null;
   planId: string;
@@ -48,13 +51,13 @@ vi.mock('@/lib/db', () => ({
           return {
             innerJoin: () => ({
               innerJoin: () => ({
-                innerJoin: () => ({ where: async () => passInvites }),
+                innerJoin: () => ({ where: async () => passInvites.map((row, index) => ({ id: `invite-${index}`, ...row })) }),
               }),
             }),
           };
         }
         return {
-          leftJoin: () => ({ where: async () => passOrders }),
+          leftJoin: () => ({ where: async () => passOrders.map((row, index) => ({ id: `order-${index}`, deliveryStatus: 'emailed', ...row })) }),
         };
       },
     }),
@@ -82,6 +85,7 @@ describe('Meteor Pass 到期提醒服务', () => {
     inserted.length = 0;
     existingReminders = [];
     passInvites = [];
+    passOrders = [];
   });
 
   it('只提醒即将到期的 Pass，跳过买断、已撤销与已过期', async () => {
@@ -135,8 +139,8 @@ describe('Meteor Pass 到期提醒服务', () => {
     const now = new Date('2026-08-07T00:00:00Z');
     // 同一用户两条月付订单，到期日相同 → 只提醒一次
     passOrders = [
-      { email: 'x@example.com', grantedAt: '2026-07-09T00:00:00Z', billingPeriod: 'monthly', licenseStatus: 'active' },
-      { email: 'x@example.com', grantedAt: '2026-07-09T00:00:00Z', billingPeriod: 'monthly', licenseStatus: 'active' },
+      { id: 'same-source', email: 'x@example.com', grantedAt: '2026-07-09T00:00:00Z', billingPeriod: 'monthly', licenseStatus: 'active' },
+      { id: 'same-source', email: 'x@example.com', grantedAt: '2026-07-09T00:00:00Z', billingPeriod: 'monthly', licenseStatus: 'active' },
     ];
 
     const result = await notifyExpiringPasses(now);
@@ -200,5 +204,39 @@ describe('Meteor Pass 到期提醒服务', () => {
     expect(sentMails).toHaveLength(1);
     expect(sentMails[0].email).toBe('invite@example.com');
     expect(inserted).toHaveLength(1);
+  });
+
+  it('年付提前续月后不按旧月订单错误提醒，实际累计到期才提醒一次', async () => {
+    const { notifyExpiringPasses } = await import('@/lib/pass-expiry');
+    passOrders = [
+      { id: 'year', email: 'renew@example.com', grantedAt: '2026-01-01T00:00:00Z', billingPeriod: 'annual', licenseStatus: 'active' },
+      { id: 'month', email: 'renew@example.com', grantedAt: '2026-10-01T00:00:00Z', billingPeriod: 'monthly', licenseStatus: 'active' },
+    ];
+    expect((await notifyExpiringPasses(new Date('2026-10-27T00:00:00Z'))).reminded).toBe(0);
+    expect(sentMails).toHaveLength(0);
+    expect((await notifyExpiringPasses(new Date('2027-01-27T00:00:00Z'))).reminded).toBe(1);
+    expect(sentMails).toEqual([{ email: 'renew@example.com', expiresAt: '2027-02-01T00:00:00.000Z' }]);
+  });
+
+  it('已有永久授权时旧月付订单不再产生到期邮件', async () => {
+    const { notifyExpiringPasses } = await import('@/lib/pass-expiry');
+    passOrders = [
+      { id: 'permanent', email: 'forever@example.com', grantedAt: '2025-01-01T00:00:00Z', billingPeriod: 'lifetime', licenseStatus: 'active' },
+      { id: 'old-month', email: 'forever@example.com', grantedAt: '2026-10-01T00:00:00Z', billingPeriod: 'monthly', licenseStatus: 'active' },
+    ];
+    expect((await notifyExpiringPasses(new Date('2026-10-27T00:00:00Z'))).reminded).toBe(0);
+    expect(sentMails).toHaveLength(0);
+  });
+
+  it('付费订单与INV合并累计，已撤销来源不增加期限', async () => {
+    const { notifyExpiringPasses } = await import('@/lib/pass-expiry');
+    passOrders = [{ id: 'year', email: 'Buyer@Example.com', grantedAt: '2026-01-01T00:00:00Z', billingPeriod: 'annual', licenseStatus: 'active' }];
+    passInvites = [
+      { id: 'invite-month', email: 'buyer@example.com', grantedAt: '2026-10-01T00:00:00Z', planId: 'monthly', licenseStatus: 'active' },
+      { id: 'revoked-lifetime', email: 'buyer@example.com', grantedAt: '2026-11-01T00:00:00Z', planId: 'lifetime', licenseStatus: 'revoked' },
+    ];
+    expect((await notifyExpiringPasses(new Date('2026-10-27T00:00:00Z'))).reminded).toBe(0);
+    expect((await notifyExpiringPasses(new Date('2027-01-27T00:00:00Z'))).reminded).toBe(1);
+    expect(sentMails).toEqual([{ email: 'buyer@example.com', expiresAt: '2027-02-01T00:00:00.000Z' }]);
   });
 });

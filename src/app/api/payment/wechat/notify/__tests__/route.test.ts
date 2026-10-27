@@ -11,6 +11,8 @@ vi.mock('@/lib/order-fulfillment', () => ({
 
 const parseWechatNotify = vi.fn();
 const parseWechatRefundNotify = vi.fn();
+const applyRefund = vi.fn();
+vi.mock('@/lib/payment-refunds', () => ({ applyWechatRefundSnapshot: (...args: unknown[]) => applyRefund(...args) }));
 vi.mock('@/lib/wechat', () => ({
   parseWechatNotify: (...args: unknown[]) => parseWechatNotify(...args),
   parseWechatRefundNotify: (...args: unknown[]) => parseWechatRefundNotify(...args),
@@ -96,143 +98,49 @@ describe('微信支付回调接口', () => {
   });
 });
 describe('微信退款结果回调', () => {
+  const snapshot = { outTradeNo: 'order-r1', outRefundNo: 'order-r1-R1', transactionId: 'wx-r1', refundId: 'wx-refund-r1', refundStatus: 'SUCCESS', refundAmount: 3900, totalAmount: 3900 };
   beforeEach(() => {
     vi.clearAllMocks();
     parseWechatNotify.mockReturnValue(null);
-    parseWechatRefundNotify.mockReturnValue(null);
+    parseWechatRefundNotify.mockReturnValue(snapshot);
+    applyRefund.mockImplementation(async refund => ({ attempt: { orderId: refund.outTradeNo, requestNo: refund.outRefundNo, status: refund.refundStatus,
+      needsReview: refund.refundAmount !== refund.totalAmount || refund.refundStatus === 'ABNORMAL' }, changed: true }));
   });
 
-  it('REFUND.SUCCESS：paid 订单回写 refunded 并撤销授权码', async () => {
-    parseWechatRefundNotify.mockReturnValue({
-      outTradeNo: 'order-r1',
-      outRefundNo: 'order-r1-R1',
-      refundStatus: 'SUCCESS',
-      refundAmount: 3900,
-      totalAmount: 3900,
-    });
-    mockSelectChain([{ id: 'order-r1', status: 'paid', amountCny: 39 }]);
-    mockUpdateChain({ rowCount: 1 });
-
+  it('完整保留退款号与交易号，交给共享持久状态机处理', async () => {
     const { POST } = await import('../route');
-    const response = await POST(refundRequest('REFUND.SUCCESS'));
-
-    expect(response.status).toBe(200);
-    // 两次更新：orders（paid→refunded）+ licenseKeys（revoked）
-    expect(dbUpdate).toHaveBeenCalledTimes(2);
-  });
-
-  it('REFUND.SUCCESS：已 refunded 订单幂等，只补撤销授权码', async () => {
-    parseWechatRefundNotify.mockReturnValue({
-      outTradeNo: 'order-r2',
-      outRefundNo: 'order-r2-R1',
-      refundStatus: 'SUCCESS',
-      refundAmount: 3900,
-      totalAmount: 3900,
-    });
-    mockSelectChain([{ id: 'order-r2', status: 'refunded', amountCny: 39 }]);
-    mockUpdateChain({ rowCount: 0 });
-
-    const { POST } = await import('../route');
-    const response = await POST(refundRequest('REFUND.SUCCESS'));
-
-    expect(response.status).toBe(200);
-    // 只更新 licenseKeys，不动 orders
-    expect(dbUpdate).toHaveBeenCalledTimes(1);
-  });
-
-  it('REFUND.SUCCESS：部分退款不动订单状态，发管理员告警', async () => {
-    parseWechatRefundNotify.mockReturnValue({
-      outTradeNo: 'order-r3',
-      outRefundNo: 'order-r3-R1',
-      refundStatus: 'SUCCESS',
-      refundAmount: 1900,
-      totalAmount: 3900,
-    });
-    mockSelectChain([{ id: 'order-r3', status: 'paid', amountCny: 39 }]);
-
-    const { POST } = await import('../route');
-    const response = await POST(refundRequest('REFUND.SUCCESS'));
-
-    expect(response.status).toBe(200);
+    expect((await POST(refundRequest('REFUND.SUCCESS'))).status).toBe(200);
+    expect(applyRefund).toHaveBeenCalledWith(snapshot);
     expect(dbUpdate).not.toHaveBeenCalled();
   });
 
-  it('REFUND.ABNORMAL：refunded 订单回滚 paid 并恢复授权码', async () => {
-    parseWechatRefundNotify.mockReturnValue({
-      outTradeNo: 'order-r4',
-      outRefundNo: 'order-r4-R1',
-      refundStatus: 'ABNORMAL',
-      refundAmount: 3900,
-      totalAmount: 3900,
-    });
-    mockSelectChain([{ id: 'order-r4', status: 'refunded', amountCny: 39 }]);
-    mockUpdateChain({ rowCount: 1 });
-
+  it('ABNORMAL保持独立退款状态，不走失败恢复订单的旧路径', async () => {
+    parseWechatRefundNotify.mockReturnValue({ ...snapshot, refundStatus: 'ABNORMAL' });
     const { POST } = await import('../route');
-    const response = await POST(refundRequest('REFUND.ABNORMAL'));
-
-    expect(response.status).toBe(200);
-    // 两次更新：orders（refunded→paid）+ licenseKeys（active）
-    expect(dbUpdate).toHaveBeenCalledTimes(2);
-  });
-
-  it('REFUND.CLOSED：paid 订单不动状态，只发告警', async () => {
-    parseWechatRefundNotify.mockReturnValue({
-      outTradeNo: 'order-r5',
-      outRefundNo: 'order-r5-R1',
-      refundStatus: 'CLOSED',
-      refundAmount: 0,
-      totalAmount: 3900,
-    });
-    mockSelectChain([{ id: 'order-r5', status: 'paid', amountCny: 39 }]);
-
-    const { POST } = await import('../route');
-    const response = await POST(refundRequest('REFUND.CLOSED'));
-
-    expect(response.status).toBe(200);
+    expect((await POST(refundRequest('REFUND.ABNORMAL'))).status).toBe(200);
+    expect(applyRefund).toHaveBeenCalledWith(expect.objectContaining({ outRefundNo: snapshot.outRefundNo, refundStatus: 'ABNORMAL' }));
     expect(dbUpdate).not.toHaveBeenCalled();
   });
 
-  it('退款回调验签失败返回 500 让微信重试', async () => {
-    parseWechatRefundNotify.mockReturnValue(null);
-
+  it('部分退款也进入持久状态机，由其决定人工核验', async () => {
+    parseWechatRefundNotify.mockReturnValue({ ...snapshot, refundAmount: 1900 });
     const { POST } = await import('../route');
-    const response = await POST(refundRequest('REFUND.SUCCESS'));
-
-    expect(response.status).toBe(500);
+    expect((await POST(refundRequest('REFUND.SUCCESS'))).status).toBe(200);
+    expect(applyRefund).toHaveBeenCalledWith(expect.objectContaining({ refundAmount: 1900 }));
   });
 
-  it('退款回调订单不存在返回 500', async () => {
-    parseWechatRefundNotify.mockReturnValue({
-      outTradeNo: 'order-missing',
-      outRefundNo: 'order-missing-R1',
-      refundStatus: 'SUCCESS',
-      refundAmount: 3900,
-      totalAmount: 3900,
-    });
-    mockSelectChain([]);
-
+  it('事件类型与已验签内容不一致时拒绝', async () => {
     const { POST } = await import('../route');
-    const response = await POST(refundRequest('REFUND.SUCCESS'));
-
-    expect(response.status).toBe(500);
+    expect((await POST(refundRequest('REFUND.CLOSED'))).status).toBe(500);
+    expect(applyRefund).not.toHaveBeenCalled();
   });
 
-  it('非退款终态事件走原支付流程，退款解析器不被调用', async () => {
-    parseWechatNotify.mockReturnValue({
-      outTradeNo: 'order-1',
-      transactionId: 'wx-txn-1',
-      total: 3900,
-      tradeState: 'SUCCESS',
-    });
-    mockSelectChain([{ id: 'order-1', status: 'pending', amountCny: 39, deliveryStatus: 'pending' }]);
-    mockUpdateChain({ rowCount: 1 });
-
+  it('签名失败或持久处理失败均返回500让渠道重试', async () => {
     const { POST } = await import('../route');
-    const response = await POST(refundRequest('REFUND.PROCESSING'));
-
-    expect(response.status).toBe(200);
-    expect(parseWechatRefundNotify).not.toHaveBeenCalled();
+    parseWechatRefundNotify.mockReturnValueOnce(null);
+    expect((await POST(refundRequest('REFUND.SUCCESS'))).status).toBe(500);
+    expect(applyRefund).not.toHaveBeenCalled();
+    applyRefund.mockRejectedValueOnce(new Error('refund-order-not-found'));
+    expect((await POST(refundRequest('REFUND.SUCCESS'))).status).toBe(500);
   });
 });
-

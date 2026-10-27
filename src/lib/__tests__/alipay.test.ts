@@ -166,6 +166,7 @@ describe('alipay', () => {
         ok: response.ok ?? true,
         status: response.status ?? 200,
         json: async () => response.body,
+        text: async () => JSON.stringify(response.body),
       });
       vi.stubGlobal('fetch', fetchMock);
       return fetchMock;
@@ -179,7 +180,7 @@ describe('alipay', () => {
       mockVerify.mockReturnValue(true);
       const fetchMock = stubFetch({
         body: {
-          alipay_trade_refund_response: { code: '10000', msg: 'Success', fund_change: 'Y' },
+          alipay_trade_refund_response: { code: '10000', msg: 'Success', fund_change: 'Y', out_trade_no: 'order-1', trade_no: 'alipay-trade-1', refund_fee: '39.00' },
           sign: 'refund-signature',
         },
       });

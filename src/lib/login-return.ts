@@ -9,6 +9,7 @@ const ALLOWED_LOGIN_RETURNS = new Set([
   '/apps/tollow/trial',
   ...appIds.map(id => `/apps/${id}`),
   '/account',
+  '/pricing',
   '/student',
   '/orders',
   '/redeem',

@@ -163,9 +163,17 @@ async function postJson(path: string, payload: Record<string, unknown>): Promise
   });
   const rawBody = await response.text();
   if (!response.ok) {
-    throw new Error(`微信支付请求失败：HTTP ${response.status} ${rawBody}`);
+    let errorBody: Record<string, unknown> = {};
+    try { errorBody = JSON.parse(rawBody); } catch { /* 非JSON错误仍保留HTTP状态，不回显响应正文。 */ }
+    throw new WechatApiError(response.status, String(errorBody.code ?? 'HTTP_ERROR'), String(errorBody.message ?? '微信支付请求失败'));
   }
   return { data: JSON.parse(rawBody) as Record<string, unknown>, rawBody, headers: response.headers };
+}
+
+class WechatApiError extends Error {
+  constructor(readonly httpStatus: number, readonly code: string, message: string) {
+    super(`微信支付请求失败：HTTP ${httpStatus} ${code} ${message}`);
+  }
 }
 
 export type WechatOrderResult = { codeUrl: string } | { h5Url: string };
@@ -270,6 +278,8 @@ export type WechatRefundNotify = {
   refundAmount: number;
   /** 原订单总金额（分） */
   totalAmount: number;
+  transactionId: string;
+  refundId: string;
 };
 
 const REFUND_EVENT_TYPES = ['REFUND.SUCCESS', 'REFUND.ABNORMAL', 'REFUND.CLOSED'];
@@ -296,19 +306,30 @@ export function parseWechatRefundNotify(
   if (!REFUND_EVENT_TYPES.includes(String(payload.event_type ?? ''))) return null;
   if (!payload.resource?.ciphertext) return null;
 
-  const resource = decryptResource(payload.resource);
-  const amount = resource.amount as { refund?: number; total?: number } | undefined;
-  return {
-    outTradeNo: String(resource.out_trade_no ?? ''),
-    outRefundNo: String(resource.out_refund_no ?? ''),
-    refundStatus: String(resource.refund_status ?? ''),
-    refundAmount: amount?.refund ?? 0,
-    totalAmount: amount?.total ?? 0,
-  };
+  try {
+    const resource = decryptResource(payload.resource);
+    if (resource.mchid !== getWechatConfig().mchid) return null;
+    const parsed = readRefundResource(resource, 'refund_status');
+    return parsed && payload.event_type === `REFUND.${parsed.refundStatus}` ? parsed : null;
+  } catch { return null; }
+}
+
+function readRefundResource(resource: Record<string, unknown>, statusField: 'status' | 'refund_status'): WechatRefundNotify | null {
+  const amount = resource.amount as { refund?: unknown; total?: unknown } | undefined;
+  const refundAmount = amount?.refund;
+  const totalAmount = amount?.total;
+  const fields = ['out_trade_no', 'out_refund_no', 'transaction_id', 'refund_id'] as const;
+  if (fields.some(field => typeof resource[field] !== 'string' || !resource[field] || (resource[field] as string).length > 64)
+    || typeof refundAmount !== 'number' || !Number.isSafeInteger(refundAmount) || refundAmount <= 0
+    || typeof totalAmount !== 'number' || !Number.isSafeInteger(totalAmount) || refundAmount > totalAmount
+    || !['SUCCESS', 'PROCESSING', 'CLOSED', 'ABNORMAL'].includes(String(resource[statusField]))) return null;
+  return { outTradeNo: resource.out_trade_no as string, outRefundNo: resource.out_refund_no as string,
+    transactionId: resource.transaction_id as string, refundId: resource.refund_id as string,
+    refundStatus: resource[statusField] as string, refundAmount, totalAmount };
 }
 
 export type WechatRefundResult =
-  | { success: true; refundStatus: string }
+  | { success: true; refundStatus: string; refundId: string }
   | { success: false; code: string; msg: string };
 
 /**
@@ -319,30 +340,48 @@ export type WechatRefundResult =
 export async function refundWechatOrder(params: {
   outTradeNo: string;
   transactionId: string;
+  outRefundNo: string;
   refundAmountCny: number;
 }): Promise<WechatRefundResult> {
-  if (!isWechatConfigured()) {
-    throw new Error('Wechat Pay configuration missing');
-  }
-  const { outTradeNo, transactionId, refundAmountCny } = params;
-  const outRefundNo = `${outTradeNo}-R${Date.now()}`;
-
-  const { data } = await postJson('/v3/refund/domestic/refunds', {
-    out_trade_no: outTradeNo,
+  if (!isWechatConfigured()) return { success: false, code: 'CONFIGURATION_MISSING', msg: '微信退款配置未完成' };
+  const { outTradeNo, transactionId, refundAmountCny, outRefundNo } = params;
+  let response: Awaited<ReturnType<typeof postJson>>;
+  try { response = await postJson('/v3/refund/domestic/refunds', {
     out_refund_no: outRefundNo,
     transaction_id: transactionId,
+    notify_url: getWechatConfig().notifyUrl,
     reason: '用户退款',
     amount: {
       refund: Math.round(refundAmountCny * 100),
       total: Math.round(refundAmountCny * 100),
       currency: 'CNY',
     },
-  });
-
-  const code = String(data.code ?? '');
-  if (code !== '') {
-    const msg = String(data.message ?? '未知错误');
-    return { success: false, code, msg };
+  }); } catch (error) {
+    if (error instanceof WechatApiError && [400, 401, 403, 404].includes(error.httpStatus) && error.code !== 'SYSTEM_ERROR') {
+      return { success: false, code: error.code, msg: error.message };
+    }
+    throw error;
   }
-  return { success: true, refundStatus: String(data.status ?? 'PROCESSING') };
+  if (!verifyPlatformSignature(response.rawBody, response.headers)) throw new Error('微信退款响应签名无效');
+  const result = readRefundResource(response.data, 'status');
+  if (!result || result.outRefundNo !== outRefundNo || result.outTradeNo !== outTradeNo || result.transactionId !== transactionId
+    || result.refundAmount !== Math.round(refundAmountCny * 100) || result.totalAmount !== Math.round(refundAmountCny * 100)) throw new Error('微信退款响应与申请不匹配');
+  return { success: true, refundStatus: result.refundStatus, refundId: result.refundId };
+}
+
+/** 查询必须沿用已落账的商户退款号；未知结果不得另起退款号重试。 */
+export async function queryWechatRefund(outRefundNo: string): Promise<{ found: false } | { found: true; refund: WechatRefundNotify }> {
+  if (!isWechatConfigured()) throw new Error('Wechat Pay configuration missing');
+  const path = `/v3/refund/domestic/refunds/${encodeURIComponent(outRefundNo)}`;
+  const { authorization } = buildAuthHeader('GET', path, '');
+  const response = await fetch(`${BASE_URL}${path}`, { headers: { Accept: 'application/json', Authorization: authorization }, signal: AbortSignal.timeout(10000) });
+  const rawBody = await response.text();
+  let data: Record<string, unknown>;
+  try { data = JSON.parse(rawBody); } catch { throw new Error('微信查单响应格式无效'); }
+  if (response.status === 404 && data.code === 'RESOURCE_NOT_EXISTS') return { found: false };
+  if (!response.ok) throw new WechatApiError(response.status, String(data.code ?? 'HTTP_ERROR'), '退款状态暂不可确认');
+  if (!verifyPlatformSignature(rawBody, response.headers)) throw new Error('微信退款查询签名无效');
+  const refund = readRefundResource(data, 'status');
+  if (!refund || refund.outRefundNo !== outRefundNo) throw new Error('微信退款查询与申请不匹配');
+  return { found: true, refund };
 }

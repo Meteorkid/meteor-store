@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import QRCode from 'qrcode';
 import { ANNUAL_DISCOUNT } from '@/lib/constants';
 import { showToast } from './EasterEggs';
+import { useAuth } from './AuthProvider';
+import { SOFTWARE_PRODUCT_IDS } from '@/lib/software-licenses/types';
+import { PASS_PRODUCT_ID } from '@/data/pass';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -36,7 +39,14 @@ export default function PaymentModal({
   isAnnual,
 }: PaymentModalProps) {
   const t = useTranslations('PaymentModal');
+  const locale = useLocale();
+  const { user } = useAuth();
+  const requiresAccount = productId === PASS_PRODUCT_ID || SOFTWARE_PRODUCT_IDS.some(id => id === productId);
+  const ownerId = requiresAccount ? user?.id ?? null : null;
+  const verifiedAccount = !!user?.id && user.emailVerified === true;
+  const purchaseIdentity = requiresAccount ? JSON.stringify([ownerId, user?.email.trim().toLowerCase() ?? null, verifiedAccount]) : '';
   const [email, setEmail] = useState('');
+  const purchaseEmail = requiresAccount ? (verifiedAccount ? user!.email.trim() : '') : email.trim();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('alipay');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -44,18 +54,32 @@ export default function PaymentModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const requestEpoch = useRef({ value: 0 });
+  const paymentRequest = useRef<AbortController | null>(null);
   const onCloseRef = useRef(onClose);
   useEffect(() => { onCloseRef.current = onClose; });
 
   // 打开弹窗时重置为初始状态（渲染期调整派生状态，避免上次二维码残留）
   const [prevOpen, setPrevOpen] = useState(isOpen);
-  if (isOpen !== prevOpen) {
+  const [previousIdentity, setPreviousIdentity] = useState(purchaseIdentity);
+  if (isOpen !== prevOpen || purchaseIdentity !== previousIdentity) {
     setPrevOpen(isOpen);
-    if (isOpen) {
-      setQrDataUrl('');
-      setError('');
-    }
+    setPreviousIdentity(purchaseIdentity);
+    setQrDataUrl('');
+    setError('');
+    setLoading(false);
   }
+
+  // 关闭、换号或切换商品时，迟到的付款响应不能跳转或重挂轮询。
+  useLayoutEffect(() => {
+    const epoch = requestEpoch.current;
+    return () => {
+      epoch.value += 1;
+      paymentRequest.current?.abort();
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
+    };
+  }, [isOpen, purchaseIdentity, productId, planId]);
 
   // Focus trap + Escape key
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -105,7 +129,7 @@ export default function PaymentModal({
   };
 
   // 微信 Native 扫码后轮询订单状态，支付成功跳转订单页
-  const startPolling = (orderIdToPoll: string, token: string) => {
+  const startPolling = (orderIdToPoll: string, token: string, epoch: number) => {
     stopPolling();
     pollTimerRef.current = setInterval(async () => {
       try {
@@ -113,9 +137,10 @@ export default function PaymentModal({
           `/api/payment?orderId=${encodeURIComponent(orderIdToPoll)}&token=${encodeURIComponent(token)}`
         );
         const data = await response.json();
+        if (epoch !== requestEpoch.current.value) return;
         if (data.status === 'paid') {
           stopPolling();
-          window.location.href = `/orders/${orderIdToPoll}`;
+          window.location.href = `/${locale}/orders/${orderIdToPoll}`;
         } else if (data.status === 'failed') {
           stopPolling();
           setLoading(false);
@@ -128,12 +153,21 @@ export default function PaymentModal({
   };
 
   const handlePayment = async () => {
-    if (!email) {
+    if (requiresAccount && !verifiedAccount) {
+      setError(t('verifiedAccountRequired'));
+      return;
+    }
+    if (!purchaseEmail) {
       setError(t('emailRequired'));
       return;
     }
     setError('');
     setLoading(true);
+    paymentRequest.current?.abort();
+    const controller = new AbortController();
+    paymentRequest.current = controller;
+    const epoch = ++requestEpoch.current.value;
+    const timeout = setTimeout(() => controller.abort(), 20_000);
 
     try {
       const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -141,18 +175,20 @@ export default function PaymentModal({
       const response = await fetch('/api/payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           productName: productId,
           planId,
           planName,
           paymentMethod,
-          email,
+          email: purchaseEmail,
           isMobile,
           isAnnual,
         }),
       });
 
       const data = await response.json();
+      if (epoch !== requestEpoch.current.value || controller.signal.aborted) return;
 
       if (!data.success) {
         setError(t('paymentFailed', { error: data.error }));
@@ -169,9 +205,10 @@ export default function PaymentModal({
         if (data.codeUrl) {
           // 桌面：渲染二维码 + 轮询
           const dataUrl = await QRCode.toDataURL(data.codeUrl, { margin: 1, width: 240 });
+          if (epoch !== requestEpoch.current.value || controller.signal.aborted) return;
           setQrDataUrl(dataUrl);
           setLoading(false);
-          startPolling(data.orderId, data.accessToken);
+          startPolling(data.orderId, data.accessToken, epoch);
           return;
         }
       }
@@ -183,13 +220,16 @@ export default function PaymentModal({
       }
       setError(t('paymentFailed', { error: t('noPaymentUrl') }));
     } catch {
-      setError(t('networkError'));
+      if (epoch === requestEpoch.current.value) setError(t('networkError'));
     } finally {
-      setLoading(false);
+      clearTimeout(timeout);
+      if (epoch === requestEpoch.current.value) setLoading(false);
     }
   };
 
   const handleClose = () => {
+    requestEpoch.current.value += 1;
+    paymentRequest.current?.abort();
     stopPolling();
     setEmail('');
     setError('');
@@ -315,11 +355,13 @@ export default function PaymentModal({
               ref={emailInputRef}
               type="email"
               id="email"
-              value={email}
+              readOnly={requiresAccount}
+              value={purchaseEmail}
               onChange={(e) => { setEmail(e.target.value); setError(''); }}
               placeholder="your@email.com"
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
             />
+            {requiresAccount && <p className="mt-2 text-sm text-white/70">{t(verifiedAccount ? 'accountEmailHint' : 'verifiedAccountRequired')}</p>}
             {error && (
               <p className="text-red-400 text-sm mt-2">{error}</p>
             )}
@@ -328,7 +370,7 @@ export default function PaymentModal({
           {/* Submit Button */}
           <button
             onClick={handlePayment}
-            disabled={loading || !email || !!qrDataUrl}
+            disabled={loading || !purchaseEmail || !!qrDataUrl || (requiresAccount && !verifiedAccount)}
             className="w-full py-3 rounded-lg font-medium transition-all bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? t('processing') : paymentMethod === 'wechat' ? t('payWithWechat') : t('payWithAlipay')}

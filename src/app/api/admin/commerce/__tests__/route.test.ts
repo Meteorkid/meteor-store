@@ -8,6 +8,7 @@ vi.mock('@/lib/auth', () => ({
 vi.mock('@/lib/admin', () => ({
   isAdminSession: () => true,
 }));
+vi.mock('@/lib/admin-audit', () => ({ logAdminAction: vi.fn() }));
 
 vi.mock('@/lib/rate-limit', () => ({
   getClientIp: () => '203.0.113.1',
@@ -85,6 +86,14 @@ describe('商业运维接口', () => {
 
     expect(response.status).toBe(200);
     expect(refund).toHaveBeenCalledWith(orderId);
+  });
+
+  it('微信退款仅受理时返回processing，不伪装成已退款', async () => {
+    const { PATCH } = await import('../route');
+    refund.mockResolvedValueOnce('processing');
+    const response = await PATCH(request({ action: 'refund-order', orderId: 'b3f1c2d4-0000-4000-8000-000000000002' }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ success: true, status: 'processing' });
   });
 
   it('订单已不是已支付状态时退款返回 409', async () => {

@@ -14,6 +14,8 @@ interface CommerceOrder {
   alipayTradeNo: string | null;
   paidAt: string | null;
   createdAt: string;
+  refundStatus?: string | null;
+  outRefundNo?: string | null;
 }
 
 interface CommerceLicense {
@@ -39,6 +41,8 @@ export default function CommerceManager({
   const [licenses, setLicenses] = useState(initialLicenses);
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const unresolvedRefund = (status?: string | null) => Boolean(status && ['REQUESTING', 'PROCESSING', 'ABNORMAL', 'UNKNOWN', 'MANUAL_REVIEW'].includes(status));
   const paymentLabels: Record<string, string> = {
     paid: t('status_paid'),
     pending: t('status_pending'),
@@ -55,12 +59,18 @@ export default function CommerceManager({
     active: t('license_active'),
     revoked: t('license_revoked'),
   };
+  const refundLabels: Record<string, string> = {
+    REQUESTING: t('refund_REQUESTING'), PROCESSING: t('refund_PROCESSING'), UNKNOWN: t('refund_UNKNOWN'),
+    ABNORMAL: t('refund_ABNORMAL'), SUCCESS: t('refund_SUCCESS'), CLOSED: t('refund_CLOSED'),
+    REJECTED: t('refund_REJECTED'), MANUAL_REVIEW: t('refund_MANUAL_REVIEW'),
+  };
 
   const patch = async (body: Record<string, unknown>) => {
     const response = await fetch('/api/admin/commerce', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(30_000),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || t('operationFailed'));
@@ -98,14 +108,24 @@ export default function CommerceManager({
   };
 
   const refundOrder = async (orderId: string) => {
-    if (!window.confirm(t('refundConfirm'))) return;
+    const current = orders.find(order => order.id === orderId);
+    if (!unresolvedRefund(current?.refundStatus) && !window.confirm(t('refundConfirm'))) return;
     setBusy(`refund:${orderId}`);
     setError('');
+    setNotice('');
     try {
-      await patch({ action: 'refund-order', orderId });
+      const result = await patch({ action: 'refund-order', orderId });
       setOrders((current) => current.map((order) => (
-        order.id === orderId ? { ...order, status: 'refunded' } : order
+        order.id === orderId ? { ...order, status: result.status === 'refunded' ? 'refunded' : order.status,
+          refundStatus: result.status === 'refunded' ? 'SUCCESS' : 'PROCESSING' } : order
       )));
+      if (result.status === 'refunded') setLicenses(current => current.map(license => license.orderId === orderId ? { ...license, status: 'revoked' } : license));
+      else setNotice(t('refundProcessingNotice'));
+      const refreshed = await fetch('/api/admin/commerce', { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+      if (!refreshed.ok) throw new Error(t('operationFailed'));
+      const data = await refreshed.json();
+      setOrders(data.orders); setLicenses(data.licenses);
+      if (data.orders.some((order: CommerceOrder) => order.id === orderId && order.refundStatus === 'MANUAL_REVIEW')) setNotice(t('refundManualNotice'));
     } catch (operationError) {
       setError(operationError instanceof Error ? operationError.message : t('operationFailed'));
     } finally {
@@ -118,6 +138,7 @@ export default function CommerceManager({
       {error && (
         <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-400" role="alert">{error}</p>
       )}
+      {notice && <p role="status" className="rounded-xl border border-white/10 px-4 py-3 text-sm text-white/70">{notice}</p>}
 
       <section>
         <h2 className="t-title-3 mb-4">{t('ordersTitle')}</h2>
@@ -127,7 +148,8 @@ export default function CommerceManager({
           <div className="space-y-3">
             {orders.map((order) => {
               const canRetry = order.status === 'paid' && ['pending', 'failed'].includes(order.deliveryStatus);
-              const canRefund = order.status === 'paid';
+              const refundPending = unresolvedRefund(order.refundStatus);
+              const canRefund = order.status === 'paid' || refundPending;
               return (
                 <article key={order.id} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -142,6 +164,8 @@ export default function CommerceManager({
                     <span>{t('payment')}: {paymentLabels[order.status] ?? order.status}</span>
                     <span>{t('delivery')}: {deliveryLabels[order.deliveryStatus] ?? order.deliveryStatus}</span>
                     <span>{new Date(order.createdAt).toLocaleString()}</span>
+                    {order.refundStatus && <span className="text-amber-200">{t('refundState')}: {refundLabels[order.refundStatus] ?? order.refundStatus}</span>}
+                    {order.outRefundNo && <span className="break-all font-mono">{order.outRefundNo}</span>}
                     {canRetry && (
                       <button
                         type="button"
@@ -159,7 +183,7 @@ export default function CommerceManager({
                         onClick={() => refundOrder(order.id)}
                         className="ml-auto rounded-lg border border-red-500/30 px-3 py-1.5 font-medium text-red-300 transition-colors hover:bg-red-500/10 disabled:opacity-50"
                       >
-                        {busy === `refund:${order.id}` ? t('refunding') : t('refundOrder')}
+                        {busy === `refund:${order.id}` ? t('refunding') : refundPending ? t('checkRefund') : t('refundOrder')}
                       </button>
                     )}
                   </div>

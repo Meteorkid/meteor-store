@@ -26,31 +26,17 @@ export async function createLicenseKey(data: {
   const existing = await db.select().from(licenseKeys).where(eq(licenseKeys.orderId, data.orderId)).limit(1);
   if (existing.length > 0) return existing[0].key;
 
-  let key = generateKey();
-  let attempts = 0;
-
-  // 碰撞重试（极小概率）
-  while (attempts < 5) {
-    const dup = await db.select().from(licenseKeys).where(eq(licenseKeys.key, key)).limit(1);
-    if (dup.length === 0) break;
-    key = generateKey();
-    attempts++;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const [created] = await db.insert(licenseKeys).values({
+      id: randomUUID(), ...data, key: generateKey(), status: 'active', createdAt: new Date().toISOString(),
+    }).onConflictDoNothing().returning({ key: licenseKeys.key });
+    if (created) return created.key;
+    // 付款回调和账户补码可能同时创建同一父授权；唯一约束决定赢家，重读其码即可。
+    const [winner] = await db.select({ key: licenseKeys.key }).from(licenseKeys).where(eq(licenseKeys.orderId, data.orderId)).limit(1);
+    if (winner) return winner.key;
+    // 没有同订单记录说明只是随机码/主键碰撞，重新生成，不能覆盖既有授权。
   }
-  if (attempts >= 5) throw new Error('License key generation failed: too many collisions');
-
-  const id = randomUUID();
-  await db.insert(licenseKeys).values({
-    id,
-    orderId: data.orderId,
-    productId: data.productId,
-    planName: data.planName,
-    email: data.email,
-    key,
-    status: 'active',
-    createdAt: new Date().toISOString(),
-  });
-
-  return key;
+  throw new Error('License key generation failed: too many collisions');
 }
 
 /** 通过订单 ID 查询 License Key */

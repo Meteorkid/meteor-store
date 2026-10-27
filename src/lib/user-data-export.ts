@@ -13,6 +13,7 @@ import {
   licenseKeys,
   likes,
   orders,
+  paymentRefundAttempts,
   personalAccessTokens,
   postFavorites,
   postSections,
@@ -237,6 +238,20 @@ export async function exportUserData(userId: string, email: string) {
     createdAt: account.createdAt,
   } : null;
   const software = await exportSoftwareLicenseData(normalizedEmail);
+  const refundAttempts = orderRows.length > 0 ? await db.select({
+    requestNo: paymentRefundAttempts.requestNo,
+    orderId: paymentRefundAttempts.orderId,
+    paymentMethod: paymentRefundAttempts.paymentMethod,
+    status: paymentRefundAttempts.status,
+    source: paymentRefundAttempts.source,
+    refundAmount: paymentRefundAttempts.refundAmount,
+    totalAmount: paymentRefundAttempts.totalAmount,
+    needsReview: paymentRefundAttempts.needsReview,
+    createdAt: paymentRefundAttempts.createdAt,
+    updatedAt: paymentRefundAttempts.updatedAt,
+    lastRequestedAt: paymentRefundAttempts.lastRequestedAt,
+    lastQueriedAt: paymentRefundAttempts.lastQueriedAt,
+  }).from(paymentRefundAttempts).where(inArray(paymentRefundAttempts.orderId, orderRows.map(order => order.id))) : [];
 
   return {
     exportedAt: new Date().toISOString(),
@@ -247,6 +262,7 @@ export async function exportUserData(userId: string, email: string) {
       inviteRedemptions: redemptionRows,
       softwareLicenses: software.licenses,
       softwareDevices: software.devices,
+      refundAttempts,
     },
     content: {
       posts: postRows,

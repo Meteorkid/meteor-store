@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defaultDailyPanelSettings } from '../daily/panel-types';
+import { PgDialect } from 'drizzle-orm/pg-core';
+import type { SQL } from 'drizzle-orm';
 import {
   blogImages,
   dailyPreferences,
@@ -11,7 +13,16 @@ import {
   tollowPracticeSessions,
   tollowTextFavorites,
   users,
+  orders,
+  paymentRefundAttempts,
 } from '../db/schema';
+
+let ownedOrderRows: Array<{ id: string }> = [];
+const refundQueries: Array<{ sql: string; params: unknown[] }> = [];
+const refundRows = [
+  { requestNo: 'owned-request', orderId: 'owned-order', paymentMethod: 'alipay', status: 'UNKNOWN', source: 'api', refundAmount: 3900, totalAmount: 3900, needsReview: false, createdAt: '2026-10-27T00:00:00Z', updatedAt: '2026-10-27T00:00:00Z', lastRequestedAt: '2026-10-27T00:00:00Z', lastQueriedAt: null, privateMetadata: 'must-not-export' },
+  { requestNo: 'other-request', orderId: 'other-order', paymentMethod: 'alipay', status: 'SUCCESS' },
+];
 
 vi.mock('../software-licenses/service', () => ({
   exportSoftwareLicenseData: async () => ({ licenses: [], devices: [] }),
@@ -116,8 +127,15 @@ vi.mock('../db', () => ({
   db: {
     select: (selection?: Record<string, unknown>) => ({
       from: (table: unknown) => ({
-        where: async () => {
+        where: async (condition?: SQL) => {
           if (table === users) return accountRows;
+          if (table === orders) return ownedOrderRows;
+          if (table === paymentRefundAttempts) {
+            const query = new PgDialect().sqlToQuery(condition!);
+            refundQueries.push(query);
+            return refundRows.filter(row => query.params.includes(row.orderId))
+              .map(row => Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection)));
+          }
           if (table === blogImages) return imageRows;
           if (table === personalAccessTokens) return tokenRows;
           if (table === posts) return postRows;
@@ -140,6 +158,8 @@ vi.mock('../db', () => ({
 
 describe('用户数据导出', () => {
   beforeEach(() => {
+    ownedOrderRows = [];
+    refundQueries.length = 0;
     accountRows = [{
       id: 'U1',
       email: 'user@example.com',
@@ -217,5 +237,22 @@ describe('用户数据导出', () => {
     accountRows = [{ ...accountRows[0], emailVerified: false }];
     const unverifiedExport = await exportUserData('U1', 'admin@example.com');
     expect(unverifiedExport.content.blogImages.quota.limitBytes).toBe(200 * 1024 * 1024);
+  });
+
+  it('退款尝试仅按本人已导出的订单关联，使用字段白名单', async () => {
+    ownedOrderRows = [{ id: 'owned-order' }];
+    const { exportUserData } = await import('../user-data-export');
+    const exported = await exportUserData('U1', 'user@example.com');
+    expect(exported.commerce.refundAttempts).toEqual([expect.objectContaining({ requestNo: 'owned-request', orderId: 'owned-order', status: 'UNKNOWN' })]);
+    expect(refundQueries[0].params).toEqual(['owned-order']);
+    expect(JSON.stringify(exported.commerce.refundAttempts)).not.toContain('other-request');
+    expect(JSON.stringify(exported.commerce.refundAttempts)).not.toContain('must-not-export');
+  });
+
+  it('没有本人订单时不查询全站退款记录', async () => {
+    const { exportUserData } = await import('../user-data-export');
+    const exported = await exportUserData('U1', 'user@example.com');
+    expect(exported.commerce.refundAttempts).toEqual([]);
+    expect(refundQueries).toHaveLength(0);
   });
 });

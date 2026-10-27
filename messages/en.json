@@ -1295,9 +1295,21 @@
     "revoke": "Revoke",
     "refundOrder": "Refund",
     "refunding": "Refunding…",
-    "refundConfirm": "Refund this order? It will be marked refunded and the license revoked, immediately revoking access. Actually returning the money happens in the Alipay merchant console.",
+    "refundConfirm": "Request a full refund? Access is revoked only after the payment provider confirms success.",
     "updating": "Updating…",
-    "operationFailed": "Operation failed"
+    "operationFailed": "Operation failed",
+    "refundState": "Refund status",
+    "refund_REQUESTING": "Requesting",
+    "refund_PROCESSING": "Processing",
+    "refund_UNKNOWN": "Confirmation pending",
+    "refund_ABNORMAL": "Needs manual handling",
+    "refund_SUCCESS": "Refunded",
+    "refund_CLOSED": "Closed",
+    "refund_REJECTED": "Rejected",
+    "refund_MANUAL_REVIEW": "Manual review required",
+    "checkRefund": "Check refund status",
+    "refundProcessingNotice": "Refund success is not confirmed. Existing paid access remains available.",
+    "refundManualNotice": "Check the refund in the payment provider merchant dashboard. No new refund request will be created automatically."
   },
   "AdminFeedbackPage": {
     "metaTitle": "Feedback Management - Meteor Store",
@@ -1646,7 +1658,9 @@
     "paymentFailed": "Payment creation failed: {error}",
     "networkError": "Network error, please retry",
     "wechatInDevelopment": "WeChat Pay is under development. Please use Alipay for now.",
-    "wechatComingSoon": "Coming soon"
+    "wechatComingSoon": "Coming soon",
+    "accountEmailHint": "Activation codes go to your verified account email and are also available in your account.",
+    "verifiedAccountRequired": "Sign in and verify your email before buying software activation codes."
   },
   "Comment": {
     "title": "Comments",

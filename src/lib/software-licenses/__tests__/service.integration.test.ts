@@ -8,7 +8,18 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import * as service from '../service';
 import { redeemInviteCode, revokeInviteCode } from '@/lib/invite';
 import { getUserEntitlements } from '@/lib/entitlements';
+import { fulfillOrder } from '@/lib/order-fulfillment';
 import type { SoftwareLeasePayload } from '../types';
+
+const sendOrder = vi.hoisted(() => vi.fn());
+const testPools = vi.hoisted(() => [] as Array<{ end(): Promise<void> }>);
+vi.mock('pg', async () => {
+  const actual = await vi.importActual<typeof import('pg')>('pg');
+  return { ...actual, Pool: class extends actual.Pool {
+    constructor(...args: ConstructorParameters<typeof actual.Pool>) { super(...args); testPools.push(this); }
+  } };
+});
+vi.mock('@/lib/email', () => ({ sendOrderConfirmation: sendOrder }));
 
 // 明确启用才启动隔离数据库，绝不使用已有 DATABASE_URL 或生产连接。
 describe.skipIf(process.env.SOFTWARE_LICENSE_INTEGRATION !== '1')('软件授权真实 PostgreSQL', () => {
@@ -40,10 +51,12 @@ describe.skipIf(process.env.SOFTWARE_LICENSE_INTEGRATION !== '1')('软件授权�
   }, 30_000);
 
   beforeEach(async () => {
+    sendOrder.mockReset();
+    sendOrder.mockResolvedValue(undefined);
     await pool.query('TRUNCATE software_license_devices, software_license_trials, software_license_codes, invite_redemptions, invite_codes, license_keys, orders CASCADE');
   });
   afterAll(async () => {
-    await pool?.end();
+    await Promise.all(testPools.map(connectionPool => connectionPool.end()));
     if (started) execFileSync('pg_ctl', ['-D', join(root, 'data'), '-m', 'immediate', '-w', 'stop'], { stdio: 'pipe' });
     if (root) rmSync(root, { recursive: true, force: true });
     vi.unstubAllEnvs();
@@ -64,6 +77,44 @@ describe.skipIf(process.env.SOFTWARE_LICENSE_INTEGRATION !== '1')('软件授权�
     expect(results[0].every((row) => row.expiresAt === '2027-02-28T00:00:00.000Z')).toBe(true);
     expect(Number((await pool.query('SELECT count(*) FROM license_keys')).rows[0].count)).toBe(1);
   });
+
+  it('付款发码查空后与页面补码确定性交错，交付仍成功且只保留一个父码', async () => {
+    const id = await order('meteor-pass', 'monthly');
+    const barrier = 183476;
+    const holder = await pool.connect();
+    let delivery: ReturnType<typeof fulfillOrder> | undefined;
+    try {
+      await holder.query('SELECT pg_advisory_lock($1)', [barrier]);
+      // 只暂停旧付款发码的分组MC格式；页面补码的MC紧凑格式可越过并先提交。
+      await pool.query(`CREATE FUNCTION pause_payment_license_insert() RETURNS trigger LANGUAGE plpgsql AS $$
+        BEGIN IF NEW.order_id='${id}' AND NEW.key ~ '^MC-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$' THEN
+          PERFORM pg_advisory_xact_lock(${barrier}); END IF; RETURN NEW; END $$;
+        CREATE TRIGGER pause_payment_license_insert BEFORE INSERT ON license_keys FOR EACH ROW EXECUTE FUNCTION pause_payment_license_insert();`);
+      delivery = fulfillOrder(id);
+      const deadline = Date.now() + 5000;
+      let blocked = false;
+      while (Date.now() < deadline) {
+        blocked = Number((await pool.query("SELECT count(*) n FROM pg_locks WHERE locktype='advisory' AND objid=$1 AND NOT granted", [barrier])).rows[0].n) > 0;
+        if (blocked) break;
+        await new Promise(resolve => setTimeout(resolve, 20));
+      }
+      expect(blocked).toBe(true);
+      const codes = await service.ensureSoftwareCodesForOrder(id);
+      expect(codes).toHaveLength(2);
+      await holder.query('SELECT pg_advisory_unlock($1)', [barrier]);
+      expect(await delivery).toEqual({ status: 'emailed' });
+      expect(sendOrder).toHaveBeenCalledOnce();
+      const parents = (await pool.query('SELECT key FROM license_keys WHERE order_id=$1', [id])).rows;
+      expect(parents).toHaveLength(1);
+      expect(sendOrder).toHaveBeenCalledWith(expect.objectContaining({ licenseKey: parents[0].key }));
+      expect((await pool.query('SELECT count(*) FROM software_license_codes')).rows[0].count).toBe('2');
+    } finally {
+      await holder.query('SELECT pg_advisory_unlock($1)', [barrier]);
+      if (delivery) await delivery;
+      await pool.query('DROP TRIGGER IF EXISTS pause_payment_license_insert ON license_keys; DROP FUNCTION IF EXISTS pause_payment_license_insert();');
+      holder.release();
+    }
+  }, 15000);
 
   it('续费补齐历史来源、保留余期，永久单品不被历史 monthly 字段缩短', async () => {
     await order('meteor-pass', 'monthly', '2027-01-01T00:00:00.000Z');

@@ -6,6 +6,7 @@ import { listCommerceOperations, refundOrder, setLicenseStatus } from '@/lib/adm
 import { getSession } from '@/lib/auth';
 import { fulfillOrder } from '@/lib/order-fulfillment';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
+import { assertMatchingOrigin } from '@/lib/csrf';
 
 const ActionSchema = z.discriminatedUnion('action', [
   z.object({
@@ -30,10 +31,12 @@ function forbidden() {
 export async function GET() {
   const session = await getSession();
   if (!session || !isAdminSession(session)) return forbidden();
-  return NextResponse.json(await listCommerceOperations());
+  return NextResponse.json(await listCommerceOperations(), { headers: { 'Cache-Control': 'no-store' } });
 }
 
 export async function PATCH(req: NextRequest) {
+  const originError = assertMatchingOrigin(req);
+  if (originError) return originError;
   const ip = getClientIp(req);
   const { limited } = await rateLimit(`admin-commerce:ip:${ip}`, 30, 60_000, {
     fallback: 'memory',
@@ -72,7 +75,7 @@ export async function PATCH(req: NextRequest) {
     try {
       result = await refundOrder(parsed.data.orderId);
     } catch (error) {
-      // 支付宝退款被拒 / 网络失败等：钱没退，订单已回滚，向管理员给出明确原因
+      // 明确拒绝会提示核验；网络未知由状态机保留未决记录，不回滚成功事实。
       return NextResponse.json(
         { error: error instanceof Error ? error.message : '退款失败，请稍后重试' },
         { status: 502 },
@@ -88,9 +91,10 @@ export async function PATCH(req: NextRequest) {
       action: 'order.refund',
       targetType: 'order',
       targetId: parsed.data.orderId,
+      detail: { status: result },
       ip,
     });
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, status: result }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
   const updated = await setLicenseStatus(parsed.data.licenseId, parsed.data.status);

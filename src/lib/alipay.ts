@@ -233,90 +233,89 @@ export type RefundAlipayResult =
   | { success: true; fundChange: boolean }
   | { success: false; code: string; msg: string };
 
-/**
- * 主动调用支付宝退款（alipay.trade.refund），把已支付订单的钱原路退回。
- *
- * 与 page.pay/wap.pay 拼跳转 URL 不同，退款是服务端主动 POST 到 gateway 并解析 JSON 响应，
- * 且必须对响应整体验签，确认是支付宝返回的，防止伪造退款结果。
- *
- * 返回值语义：
- * - success=true            退款指令已被支付宝受理（fund_change 表示是否实际发生资金变更）
- * - success=false, code/msg 支付宝业务拒绝（如交易不存在、已全额退款、金额超限等）
- * - throw                   验签失败 / 网络错误 / 响应结构异常（调用方应视为失败并回滚本地状态）
- */
-export async function refundAlipayOrder(params: {
-  outTradeNo: string;
-  tradeNo: string;
-  refundAmount: number;
-}): Promise<RefundAlipayResult> {
+type AlipayRefundInput = { outTradeNo: string; tradeNo: string; outRequestNo?: string; refundAmount: number };
+
+/** 价格字段按分解析，避免浮点比较或把缺失金额当成零。 */
+function priceInCents(value: unknown): number {
+  const text = typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+  if (!/^\d+(?:\.\d{1,2})?$/.test(text)) throw new Error('支付宝退款金额格式无效');
+  const [whole, decimals = ''] = text.split('.');
+  const cents = Number(whole) * 100 + Number(decimals.padEnd(2, '0'));
+  if (!Number.isSafeInteger(cents) || cents <= 0) throw new Error('支付宝退款金额无效');
+  return cents;
+}
+
+/** 保留响应对象的原始字节序列验签，不用JSON.stringify改写空白或转义。 */
+function signedResponseSource(raw: string, key: string, parsed: unknown): string {
+  const pattern = new RegExp('"' + key + '"\\s*:\\s*', 'g');
+  const matches = [...raw.matchAll(pattern)];
+  if (matches.length !== 1) throw new Error('支付宝退款响应结构无效');
+  const start = matches[0].index! + matches[0][0].length;
+  if (raw[start] !== '{') throw new Error('支付宝退款响应结构无效');
+  let depth = 0; let quoted = false; let escaped = false;
+  for (let index = start; index < raw.length; index++) {
+    const character = raw[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (character === '\\') escaped = true;
+      else if (character === '"') quoted = false;
+    } else if (character === '"') quoted = true;
+    else if (character === '{') depth++;
+    else if (character === '}' && --depth === 0) {
+      const source = raw.slice(start, index + 1);
+      if (JSON.stringify(JSON.parse(source)) !== JSON.stringify(parsed)) throw new Error('支付宝退款响应不一致');
+      return source;
+    }
+  }
+  throw new Error('支付宝退款响应结构无效');
+}
+
+async function requestAlipayRefundApi(method: 'alipay.trade.refund' | 'alipay.trade.fastpay.refund.query', bizContent: Record<string, string>) {
   const config = getAlipayConfig();
-  if (!config.appId || !config.privateKey || !config.alipayPublicKey) {
-    throw new Error('Alipay configuration missing: APP_ID / PRIVATE_KEY / PUBLIC_KEY not set');
+  if (!config.appId || !config.privateKey || !config.alipayPublicKey) throw new Error('Alipay configuration missing: APP_ID / PRIVATE_KEY / PUBLIC_KEY not set');
+  const params: Record<string, string> = { app_id: config.appId, method, charset: 'utf-8', sign_type: 'RSA2', timestamp: getAlipayTimestamp(), version: '1.0', biz_content: JSON.stringify(bizContent) };
+  params.sign = sign(params);
+  const response = await fetch(config.gateway, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(params).toString(), signal: AbortSignal.timeout(10000) });
+  if (!response.ok) throw new Error(`支付宝退款请求失败：HTTP ${response.status}`);
+  const raw = await response.text();
+  const data = JSON.parse(raw) as Record<string, unknown>;
+  const key = method.replaceAll('.', '_') + '_response';
+  const result = data[key];
+  if (!result || typeof result !== 'object') throw new Error('支付宝退款响应结构无效');
+  if (!verifyRaw(signedResponseSource(raw, key, result), typeof data.sign === 'string' ? data.sign : '')) throw new Error('支付宝退款响应验签失败');
+  return result as Record<string, unknown>;
+}
+
+function checkAlipayRefundIdentity(result: Record<string, unknown>, input: { outTradeNo: string; tradeNo: string; outRequestNo?: string }, required: boolean) {
+  for (const [field, expected] of [['out_trade_no', input.outTradeNo], ['trade_no', input.tradeNo]] as const) {
+    if ((required || result[field] !== undefined) && result[field] !== expected) throw new Error('支付宝退款交易信息不匹配');
   }
+  const requestNo = input.outRequestNo ?? input.outTradeNo;
+  if (result.out_request_no !== undefined && result.out_request_no !== requestNo) throw new Error('支付宝退款请求号不匹配');
+}
 
-  const { outTradeNo, tradeNo, refundAmount } = params;
-  const bizContent = {
-    out_trade_no: outTradeNo,
-    trade_no: tradeNo,
-    refund_amount: refundAmount.toFixed(2),
-    refund_reason: '用户退款',
-  };
+/** success只代表请求成功；只有fundChange=true且身份/金额通过校验才可确认资金已退。 */
+export async function refundAlipayOrder(input: AlipayRefundInput): Promise<RefundAlipayResult> {
+  const result = await requestAlipayRefundApi('alipay.trade.refund', { out_trade_no: input.outTradeNo, trade_no: input.tradeNo,
+    out_request_no: input.outRequestNo ?? input.outTradeNo, refund_amount: input.refundAmount.toFixed(2), refund_reason: '用户退款' });
+  const code = String(result.code ?? '');
+  if (code === '20000' || String(result.sub_code ?? '').includes('SYSTEM_ERROR')) throw new Error('支付宝退款结果暂不可确认');
+  if (code !== '10000') return { success: false, code, msg: String(result.sub_msg ?? result.msg ?? '支付宝未受理退款') };
+  const changed = result.fund_change === 'Y';
+  checkAlipayRefundIdentity(result, input, changed);
+  if (changed && priceInCents(result.refund_fee) !== Math.round(input.refundAmount * 100)) throw new Error('支付宝退款金额不匹配');
+  return { success: true, fundChange: changed };
+}
 
-  const requestParams: Record<string, string> = {
-    app_id: config.appId,
-    method: 'alipay.trade.refund',
-    charset: 'utf-8',
-    sign_type: 'RSA2',
-    timestamp: getAlipayTimestamp(),
-    version: '1.0',
-    biz_content: JSON.stringify(bizContent),
-  };
-  requestParams.sign = sign(requestParams);
-
-  let response: Response;
-  try {
-    response = await fetch(config.gateway, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(requestParams).toString(),
-      // 退款不涉及用户跳转，超时即视为失败，避免一直挂着
-      signal: AbortSignal.timeout(10_000),
-    });
-  } catch (error) {
-    throw new Error(`支付宝退款请求失败：无法连接网关（${error instanceof Error ? error.message : '未知错误'}）`);
-  }
-
-  if (!response.ok) {
-    throw new Error(`支付宝退款请求失败：HTTP ${response.status}`);
-  }
-
-  let data: Record<string, unknown>;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error('支付宝退款响应无法解析为 JSON');
-  }
-
-  const resp = data.alipay_trade_refund_response;
-  if (typeof resp !== 'object' || resp === null) {
-    throw new Error('支付宝退款响应缺少 alipay_trade_refund_response');
-  }
-
-  // 验签：源串是 alipay_trade_refund_response 的原始 JSON 字符串
-  const source = JSON.stringify(resp);
-  const signature = typeof data.sign === 'string' ? data.sign : '';
-  if (!verifyRaw(source, signature)) {
-    throw new Error('支付宝退款响应验签失败');
-  }
-
-  const code = String((resp as { code?: unknown }).code ?? '');
-  if (code !== '10000') {
-    const msg =
-      String((resp as { sub_msg?: unknown }).sub_msg ?? '') ||
-      String((resp as { msg?: unknown }).msg ?? '') ||
-      '未知错误';
-    return { success: false, code, msg };
-  }
-
-  return { success: true, fundChange: (resp as { fund_change?: string }).fund_change === 'Y' };
+/** 只有REFUND_SUCCESS是退款成功；历史未传请求号的记录按原orderId查询。 */
+export async function queryAlipayRefund(input: { outTradeNo: string; tradeNo: string; outRequestNo?: string }): Promise<{ found: false } | { found: true; refundAmount: number; totalAmount: number }> {
+  const result = await requestAlipayRefundApi('alipay.trade.fastpay.refund.query', { out_trade_no: input.outTradeNo, trade_no: input.tradeNo, out_request_no: input.outRequestNo ?? input.outTradeNo });
+  if (String(result.code ?? '') !== '10000') throw new Error('支付宝退款查询暂不可确认');
+  const succeeded = result.refund_status === 'REFUND_SUCCESS';
+  checkAlipayRefundIdentity(result, input, succeeded);
+  if (!succeeded) return { found: false };
+  if (result.out_request_no !== (input.outRequestNo ?? input.outTradeNo)) throw new Error('支付宝退款查询请求号不匹配');
+  const refundAmount = priceInCents(result.refund_amount); const totalAmount = priceInCents(result.total_amount);
+  if (refundAmount > totalAmount) throw new Error('支付宝退款查询金额不匹配');
+  return { found: true, refundAmount, totalAmount };
 }

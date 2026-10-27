@@ -1295,9 +1295,21 @@
     "revoke": "撤销授权",
     "refundOrder": "退款",
     "refunding": "退款中…",
-    "refundConfirm": "确认退款？订单将标记为已退款，关联授权码一并撤销，用户访问权限立即收回。实际打款请在支付宝商户后台操作。",
+    "refundConfirm": "确认申请全额退款？以支付渠道最终结果为准，成功后收回授权。",
     "updating": "更新中…",
-    "operationFailed": "操作失败"
+    "operationFailed": "操作失败",
+    "refundState": "退款状态",
+    "refund_REQUESTING": "申请中",
+    "refund_PROCESSING": "处理中",
+    "refund_UNKNOWN": "状态待确认",
+    "refund_ABNORMAL": "异常待人工处理",
+    "refund_SUCCESS": "退款成功",
+    "refund_CLOSED": "已关闭",
+    "refund_REJECTED": "申请被拒绝",
+    "refund_MANUAL_REVIEW": "需人工核验",
+    "checkRefund": "核对退款状态",
+    "refundProcessingNotice": "退款尚未确认成功，原付费权益保持不变。",
+    "refundManualNotice": "请到支付渠道商户平台核验退款，本站不会重复发起新的退款请求。"
   },
   "AdminFeedbackPage": {
     "metaTitle": "反馈管理 - Meteor Store",
@@ -1646,7 +1658,9 @@
     "paymentFailed": "支付创建失败: {error}",
     "networkError": "网络错误，请重试",
     "wechatInDevelopment": "微信支付开发中，暂未开放，请先使用支付宝",
-    "wechatComingSoon": "开发中"
+    "wechatComingSoon": "开发中",
+    "accountEmailHint": "激活码发送到当前已验证账号的邮箱，也可在账户页查看。",
+    "verifiedAccountRequired": "请先登录并验证邮箱，再购买软件激活码。"
   },
   "Comment": {
     "title": "评论",

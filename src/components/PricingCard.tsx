@@ -8,6 +8,7 @@ import { CheckIconSm } from './CheckIcon';
 import PaymentModal from './PaymentModal';
 import { useAuth } from './AuthProvider';
 import { buildLoginHref } from '@/lib/login-return';
+import { SOFTWARE_PRODUCT_IDS } from '@/lib/software-licenses/types';
 
 import { PASS_PRODUCT_ID, type PassPlanId } from '@/data/pass';
 
@@ -93,6 +94,17 @@ export default function PricingCard({
     }
 
     if (passStatusState !== 'ready') return;
+
+    if (productId === PASS_PRODUCT_ID || SOFTWARE_PRODUCT_IDS.some(id => id === productId)) {
+      if (!user?.id) {
+        router.push(buildLoginHref(productId === PASS_PRODUCT_ID ? '/pricing' : `/products/${productId}#pricing`));
+        return;
+      }
+      if (!user.emailVerified) {
+        router.push('/account');
+        return;
+      }
+    }
 
     if (href) {
       const url = isAnnual ? `${href}?annual=true` : href;
