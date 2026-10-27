@@ -40,7 +40,7 @@ Products reach you in three ways: some are web apps you open directly in the bro
 
 ### Login and account
 
-Browsing products, reading the blog, and viewing the help center do not require an account. You only need to sign up when you want to purchase, redeem a code, submit a post, bookmark favorites, or leave a comment. Registration requires email verification; you cannot log in until your email is verified.
+Browsing products, reading the blog, and viewing the help center do not require an account. You only need to sign up when you want to purchase, submit a post, bookmark favorites, or leave a comment. Registration requires email verification; you cannot log in until your email is verified.
 
 ### Open source
 

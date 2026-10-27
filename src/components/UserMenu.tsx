@@ -172,11 +172,11 @@ export default function UserMenu() {
               {t('myOrders')}
             </Link>
             <Link
-              href="/redeem"
+              href="/account#software-licenses"
               onClick={() => setOpen(false)}
               className="block px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
             >
-              {t('redeem')}
+              {t('activationCodes')}
             </Link>
             <Link
               href="/student"

@@ -41,6 +41,10 @@ export default function RedeemForm({ hideHeading }: RedeemFormProps = {}) {
       setError(locale === 'en' ? 'Sign in and verify your email before redeeming.' : '请登录并验证邮箱后再兑换。');
       return;
     }
+    if (code.trim().toUpperCase().startsWith('MS-')) {
+      setError(t('wrongCodeType'));
+      return;
+    }
     setError('');
     setResult(null);
     setLoading(true);
@@ -91,6 +95,7 @@ export default function RedeemForm({ hideHeading }: RedeemFormProps = {}) {
         <p className="text-sm text-gray-400">
           {result.productName?.[locale] ?? result.productId} - {result.planName}
         </p>
+        <p className="text-sm leading-relaxed text-white/70">{t('activationHint')}</p>
 
         {result.softwareLicenses?.length ? <SoftwareLicenseList licenses={result.softwareLicenses} locale={locale} /> : result.softwareDeliveryPending ? (
           <p className="text-sm text-white/70">{locale === 'en' ? 'Your gift was redeemed. Retrieve the software codes from your account.' : '赠送权益已兑换成功，请到账户页领取软件激活码。'}</p>
@@ -132,6 +137,8 @@ export default function RedeemForm({ hideHeading }: RedeemFormProps = {}) {
           </p>
         </>
       )}
+
+      <p className="mb-6 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-relaxed text-white/70">{t('activationHint')}</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

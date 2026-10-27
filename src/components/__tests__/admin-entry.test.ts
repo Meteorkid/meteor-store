@@ -33,7 +33,7 @@ function adminRoutes(): string[] {
     .sort();
 }
 
-describe('后台导航覆盖所有后台页面', () => {
+describe('后台导航覆盖当前后台页面', () => {
   it('产品更新有固定的中英文导航入口', () => {
     expect(adminNav).toContain("href: '/admin/product-updates'");
     expect(adminNav).toContain("locale === 'en' ? 'Product updates' : '产品更新'");
@@ -46,8 +46,12 @@ describe('后台导航覆盖所有后台页面', () => {
     expect(bell).toMatch(/adminUserId \? watchMonitoring\(adminUserId\) : undefined/);
   });
 
-  it('每个 /admin/* 页面都能从 AdminNav 到达', () => {
+  it('当前后台页面可达，旧邀请码页仅保留历史直达兼容', () => {
     for (const route of adminRoutes()) {
+      if (route === '/admin/invite-codes') {
+        expect(adminNav).not.toContain("href: '/admin/invite-codes'");
+        continue;
+      }
       // 漏掉的页面不会报错，只是永远没人点得到
       expect(adminNav, `${route} 不在 AdminNav 里，管理员无法从后台导航到达`)
         .toContain(`'${route}'`);
@@ -64,6 +68,12 @@ describe('后台导航覆盖所有后台页面', () => {
 });
 
 describe('账号区能进入后台', () => {
+  it('桌面、移动端与账户快捷入口统一进入软件激活码，隐藏旧兑换入口', () => {
+    for (const source of [userMenu, header, accountPage]) {
+      expect(source).toContain('/account#software-licenses');
+      expect(source).not.toMatch(/href(?:=|:)\s*["']\/redeem["']/);
+    }
+  });
   it('用户菜单为管理员提供通往后台总入口的链接', () => {
     expect(userMenu).toMatch(/user\.isAdmin[\s\S]{0,300}href="\/admin"/);
   });

@@ -59,7 +59,6 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
       items: [
         { href: '/admin/commerce', label: t('commerce') },
         { href: '/admin/product-updates', label: locale === 'en' ? 'Product updates' : '产品更新' },
-        { href: '/admin/invite-codes', label: t('inviteCodes') },
       ],
     },
     {

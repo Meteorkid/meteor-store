@@ -19,36 +19,12 @@ interface InviteCode {
   createdAt: string;
 }
 
-interface ProductOption {
-  id: string;
-  name: string;
-  plans: { id: string; name: string }[];
-}
-
-export default function InviteCodeManager({ products }: { products: ProductOption[] }) {
+export default function InviteCodeManager() {
   const t = useTranslations('AdminInviteCodesPage');
   const [codes, setCodes] = useState<InviteCode[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-  const [productId, setProductId] = useState(products[0]?.id ?? '');
-  const [planId, setPlanId] = useState(products[0]?.plans[0]?.id ?? '');
-  const [maxUses, setMaxUses] = useState(1);
-  const [memo, setMemo] = useState('');
-  const [expiresAt, setExpiresAt] = useState('');
-
-  const selectedProduct = products.find((p) => p.id === productId);
-
-  // 切换产品时重置套餐为该产品的第一个：渲染期调整状态，避免 effect 里同步 setState
-  const [prevProductId, setPrevProductId] = useState(productId);
-  if (productId !== prevProductId) {
-    setPrevProductId(productId);
-    if (selectedProduct) {
-      setPlanId(selectedProduct.plans[0]?.id ?? '');
-    }
-  }
 
   const fetchCodes = async () => {
     setLoading(true);
@@ -80,36 +56,6 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setCreating(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const res = await fetch('/api/admin/invite-codes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productId,
-          planId,
-          maxUses,
-          memo: memo || undefined,
-          expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setSuccess(t('createSuccess', { code: data.code }));
-      setMemo('');
-      fetchCodes();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('createFailed'));
-    } finally {
-      setCreating(false);
-    }
-  };
-
   const handleRevoke = async (id: string) => {
     setError('');
     try {
@@ -134,9 +80,6 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
     setTimeout(() => setSuccess(''), 2000);
   };
 
-  const inputClass =
-    'w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-violet-500/50';
-
   const statusLabel = (s: string) => {
     if (s === 'active') return <span className="text-emerald-400">{t('statusActive')}</span>;
     if (s === 'exhausted') return <span className="text-amber-400">{t('statusExhausted')}</span>;
@@ -145,78 +88,8 @@ export default function InviteCodeManager({ products }: { products: ProductOptio
 
   return (
     <div className="space-y-8">
-      <form onSubmit={handleCreate} className="space-y-4 rounded-xl border border-white/10 bg-white/[0.02] p-6">
-        <h2 className="t-title-3 mb-4">{t('createTitle')}</h2>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm text-gray-400">{t('product')}</label>
-            <select
-              value={productId}
-              onChange={(e) => setProductId(e.target.value)}
-              className={inputClass}
-            >
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-gray-400">{t('plan')}</label>
-            <select
-              value={planId}
-              onChange={(e) => setPlanId(e.target.value)}
-              className={inputClass}
-            >
-              {(selectedProduct?.plans ?? []).map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-gray-400">{t('maxUses')}</label>
-            <input
-              type="number"
-              min={1}
-              max={1000}
-              value={maxUses}
-              onChange={(e) => setMaxUses(parseInt(e.target.value) || 1)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-gray-400">{t('expiresAt')} <span className="text-gray-600">{t('optional')}</span></label>
-            <input
-              type="datetime-local"
-              value={expiresAt}
-              onChange={(e) => setExpiresAt(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm text-gray-400">{t('memo')} <span className="text-gray-600">{t('optional')}</span></label>
-          <input
-            type="text"
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
-            placeholder={t('memoPlaceholder')}
-            className={inputClass}
-          />
-        </div>
-
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        {success && <p className="text-sm text-emerald-400">{success}</p>}
-
-        <button
-          type="submit"
-          disabled={creating}
-          className="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
-        >
-          {creating ? t('creating') : t('generate')}
-        </button>
-      </form>
+      {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
+      {success && <p className="text-sm text-emerald-400">{success}</p>}
 
       <div>
         <h2 className="t-title-3 mb-4">{t('createdTitle')}</h2>

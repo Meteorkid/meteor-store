@@ -5,6 +5,8 @@ import {
   findLocalizedHelpArticle,
   helpArticles,
   helpCategories,
+  helpJourneys,
+  LEGACY_INVITATION_HELP_SLUG,
   isHelpArticleVisible,
   localizeHelpArticles,
 } from '../help-articles';
@@ -83,7 +85,7 @@ describe('帮助文章元数据', () => {
     expect(zhArticles.map((article) => article.slug)).toEqual(
       expect.arrayContaining(INITIAL_SLUGS),
     );
-    expect(enArticle?.title).toBe('How do I use a license key?');
+    expect(enArticle?.title).toBe('Software activation codes: 1 month, 1 year, and Lifetime');
     expect(findLocalizedHelpArticle('not-a-help-article', 'zh')).toBeUndefined();
   });
 });
@@ -95,10 +97,35 @@ describe('帮助文章可见性', () => {
   });
 
   it('isHelpArticleVisible 正确过滤商业文章', () => {
-    expect(isHelpArticleVisible({ commercial: true }, true)).toBe(true);
-    expect(isHelpArticleVisible({ commercial: true }, false)).toBe(false);
-    expect(isHelpArticleVisible({ commercial: false }, true)).toBe(true);
-    expect(isHelpArticleVisible({ commercial: false }, false)).toBe(true);
+    expect(isHelpArticleVisible({ slug: 'public-guide', commercial: true }, true)).toBe(true);
+    expect(isHelpArticleVisible({ slug: 'public-guide', commercial: true }, false)).toBe(false);
+    expect(isHelpArticleVisible({ slug: 'public-guide', commercial: false }, true)).toBe(true);
+    expect(isHelpArticleVisible({ slug: 'public-guide', commercial: false }, false)).toBe(true);
+  });
+
+  it.each(['zh', 'en'] as const)('%s 历史邀请帮助可直读，但不进入目录、路径或推荐', (locale) => {
+    const legacy = getHelpArticle(locale, LEGACY_INVITATION_HELP_SLUG);
+    expect(legacy?.content).toContain('INV-');
+    for (const showPricing of [true, false]) {
+      const visible = localizeHelpArticles(locale, showPricing);
+      expect(visible.some((article) => article.slug === LEGACY_INVITATION_HELP_SLUG)).toBe(false);
+      expect(visible.some((article) => article.slug === 'use-license-key')).toBe(true);
+      expect(visible.flatMap((article) => article.relatedSlugs)).not.toContain(LEGACY_INVITATION_HELP_SLUG);
+      for (const article of visible) {
+        expect(getRelatedHelpArticles(locale, article).some((related) => related.slug === LEGACY_INVITATION_HELP_SLUG)).toBe(false);
+      }
+    }
+    expect(helpJourneys.flatMap((journey) => journey.slugSequence)).not.toContain(LEGACY_INVITATION_HELP_SLUG);
+  });
+
+  it('公开帮助正文不再提供旧兑换入口，历史政策正文仍保留', () => {
+    for (const article of localizeHelpArticles('zh')) {
+      for (const locale of ['zh', 'en'] as const) {
+        const content = getHelpArticle(locale, article.slug)!.content;
+        expect(content).not.toMatch(/\]\(\/(?:zh|en)\/(?:redeem|docs\/redeem-invitation-code)(?:[)#/?])/);
+      }
+    }
+    expect(getHelpArticle('zh', 'meteor-pass-access-and-renewal')?.content).toContain('另一张 Pass 邀请码');
   });
 });
 

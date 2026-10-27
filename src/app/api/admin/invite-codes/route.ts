@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { isAdminSession } from '@/lib/admin';
 import { logAdminAction } from '@/lib/admin-audit';
-import { createInviteCode, listInviteCodes, revokeInviteCode } from '@/lib/invite';
+import { listInviteCodes, revokeInviteCode } from '@/lib/invite';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
-import { products } from '@/data/products';
-import { PASS_PRODUCT_ID, passPlans } from '@/data/pass';
+import { assertMatchingOrigin } from '@/lib/csrf';
 
 function forbidden() {
   return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -20,6 +19,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const originError = assertMatchingOrigin(req);
+  if (originError) return originError;
   const ip = getClientIp(req);
   const { limited } = await rateLimit(`admin-invite:ip:${ip}`, 30, 60_000, { fallback: 'memory' });
   if (limited) {
@@ -29,52 +30,11 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session || !isAdminSession(session)) return forbidden();
 
-  const body = await req.json().catch(() => null);
-  const productId = typeof body?.productId === 'string' ? body.productId : '';
-  const planId = typeof body?.planId === 'string' ? body.planId : '';
-  const maxUses = typeof body?.maxUses === 'number' ? Math.max(1, Math.floor(body.maxUses)) : 1;
-  const memo = typeof body?.memo === 'string' ? body.memo.trim() : undefined;
-  const expiresAt = typeof body?.expiresAt === 'string' ? body.expiresAt : undefined;
-
-  // 邀请码可以发单个产品，也可以直接发全站会员 Meteor Pass
-  let planName: string;
-  if (productId === PASS_PRODUCT_ID) {
-    const plan = passPlans.find((p) => p.id === planId);
-    if (!plan) {
-      return NextResponse.json({ error: '套餐不存在' }, { status: 400 });
-    }
-    planName = plan.name.en;
-  } else {
-    const product = products.find((p) => p.id === productId);
-    if (!product) {
-      return NextResponse.json({ error: '产品不存在' }, { status: 400 });
-    }
-    const plan = product.pricing.find((p) => p.id === planId);
-    if (!plan) {
-      return NextResponse.json({ error: '套餐不存在' }, { status: 400 });
-    }
-    planName = plan.name.en;
-  }
-
-  const result = await createInviteCode({
-    productId,
-    planId,
-    planName,
-    maxUses,
-    memo,
-    expiresAt,
-    createdBy: session.email,
-  });
-
-  await logAdminAction(session, {
-    action: 'invite.create',
-    targetType: 'invite_code',
-    targetId: result.code,
-    detail: { productId, planId, maxUses, expiresAt },
-    ip,
-  });
-
-  return NextResponse.json(result, { status: 201 });
+  return NextResponse.json({
+    error: '历史邀请码已停止新建，请到账号管理赠送软件激活码。',
+    code: 'legacy_invite_creation_retired',
+    next: '/admin/users',
+  }, { status: 410, headers: { 'Cache-Control': 'no-store' } });
 }
 
 export async function PATCH(req: NextRequest) {

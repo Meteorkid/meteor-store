@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { searchHelpEntries } from '../help-search';
 import type { HelpSearchEntry } from '../help-search';
+import { buildHelpSearchEntries } from '../help-search.server';
+import { LEGACY_INVITATION_HELP_SLUG } from '../help-articles';
 
 const sampleEntries: HelpSearchEntry[] = [
   {
@@ -42,6 +44,13 @@ const sampleEntries: HelpSearchEntry[] = [
 ];
 
 describe('帮助搜索', () => {
+  it.each(['zh', 'en'] as const)('%s 搜索索引显示软件激活指南，不收录历史邀请指南', (locale) => {
+    const entries = buildHelpSearchEntries(locale, true);
+    expect(entries.some((entry) => entry.slug === 'use-license-key')).toBe(true);
+    expect(entries.some((entry) => entry.slug === LEGACY_INVITATION_HELP_SLUG)).toBe(false);
+    expect(searchHelpEntries(entries, 'INV').some((entry) => entry.slug === LEGACY_INVITATION_HELP_SLUG)).toBe(false);
+  });
+
   it('标题精确匹配返回最高分', () => {
     const results = searchHelpEntries(sampleEntries, '注册');
     expect(results).toHaveLength(1);

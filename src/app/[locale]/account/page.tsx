@@ -103,7 +103,7 @@ export default async function AccountPage({
       icon: <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/> },
     { label: t('quickOrders'), desc: t('quickOrdersDesc'), href: '/orders', badge: ordCount,
       icon: <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/> },
-    { label: t('quickRedeem'), desc: t('quickRedeemDesc'), href: '/redeem', badge: null,
+    { label: t('quickLicenses'), desc: t('quickLicensesDesc'), href: '/account#software-licenses', badge: null,
       icon: <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/> },
     /*
      * 管理入口只给管理员看，且只放一条通往总入口的链接。

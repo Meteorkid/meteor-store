@@ -114,7 +114,7 @@ describe('sendOrderConfirmation', () => {
       { id: 'i', sourceLicenseId: 'source', productId: 'xisland', productName: 'XIsland<script>', code: 'MS-ISLAND', kind: 'annual', expiresAt: '2027-10-26T10:00:00Z', status: 'active', createdAt: '2026-10-26T10:00:00Z' },
     ] });
     const html = mockSend.mock.calls[0][0].html;
-    for (const text of ['XNook', 'XIsland&lt;script&gt;', 'MS-NOOK', 'MS-ISLAND', '年度授权', '2027', '3 台设备']) expect(html).toContain(text);
+    for (const text of ['XNook', 'XIsland&lt;script&gt;', 'MS-NOOK', 'MS-ISLAND', '一年激活码', '2027', '3 台设备']) expect(html).toContain(text);
     expect(html).not.toContain('MC-OLD');
     expect(html).not.toContain('<script>');
   });

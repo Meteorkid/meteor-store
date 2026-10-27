@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { products } from '@/data/products';
 import { blogSections } from '@/data/blog-sections';
 import { getFeedPosts, getFeedTags } from '@/data/blog-feed';
-import { helpArticles } from '@/data/help-articles';
+import { helpArticles, isHelpArticleVisible } from '@/data/help-articles';
 import { SHOW_PRICING, SITE_URL } from '@/lib/constants';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
 
@@ -10,7 +10,7 @@ const BASE_URL = SITE_URL;
 const LOCALES = ['zh', 'en'] as const;
 
 export function getHelpSitemapEntries(): MetadataRoute.Sitemap {
-  return helpArticles.flatMap((article) =>
+  return helpArticles.filter((article) => isHelpArticleVisible(article, true)).flatMap((article) =>
     LOCALES.map((locale) => ({
       url: `${BASE_URL}/${locale}/docs/${article.slug}`,
       lastModified: article.updatedAt,

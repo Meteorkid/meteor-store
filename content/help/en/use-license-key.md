@@ -1,29 +1,30 @@
-## License Keys vs. Invitation Codes
+## What a software activation code does
 
-License keys and invitation codes are two different types of codes:
+A software activation code unlocks XNook or XIsland for **1 month, 1 year, or Lifetime**. Purchased codes and codes granted directly by an administrator appear in the designated account. Each code belongs to one app; check your account for its term and expiry date.
 
-- **Invitation codes**: Formatted as `INV-XXXX-XXXX-XXXX`, used to redeem a product license. Enter an invitation code on the [Redeem page](/en/redeem) and the system will automatically generate a corresponding license key.
-- **License keys**: Automatically issued after a purchase or invitation code redemption, used to activate products within applications. Their format differs from invitation codes and they cannot be used on the redeem page.
+## Find your code
 
-If you received a code starting with `INV-`, please [redeem the invitation code](/en/docs/redeem-invitation-code) first before using the license key. Do not enter the invitation code directly into an application's activation field.
+1. Sign in with the email used for the purchase or administrator grant, and verify that email.
+2. Open [Account Center](/en/account) and find the software activation codes section.
+3. Check the app name, term, and status, then copy the matching code.
 
-## Where to Find Your License Key
+Administrator-granted codes are shown here too. A Meteor Pass purchase provides separate codes for XNook and XIsland; use each code in its matching app.
 
-License keys can be found in the following places:
+## Activate the app
 
-1. **Account Center**: Log in and go to [Account Center](/en/account) to view issued license keys in the "My License Keys" section.
-2. **Order History**: Go to [Order History](/en/orders), find the corresponding order, and click to view details and license keys.
-3. **Delivery email**: After a successful purchase or redemption, the license key is sent to the email you used to register or make the purchase.
+- **XNook**: Open **Settings → License**, paste the XNook code, and activate it.
+- **XIsland**: Open **Settings → Software License**, paste the XIsland code, and activate it.
 
-## Which Products Require Manual License Key Entry
+Starting a trial and activating a code require an internet connection. You can start a 14-day trial in the app before buying, or activate an existing code directly.
 
-Not all products require manual license key entry. In-browser apps automatically recognize your account authorization after login without additional input. License keys are primarily used for installable desktop applications: when you first open or access the activation screen, the application will prompt you to enter your license key.
+## Expiry, offline use, and moving devices
 
-Check the product page and the product's own prompts for specific instructions on whether a license key is needed.
+The 1 month and 1 year options need renewal after expiry. Lifetime access does not need renewal. A successful online verification allows up to 7 days of offline use, without extending the trial or paid entitlement beyond its expiry. Lifetime access also needs periodic online verification.
 
-## What to Do If You Cannot Find Your License Key
+XNook and XIsland each support up to 3 devices. View and unlink devices in your account's software activation codes section, or unlink the current device in the app's license settings before activating another one. Unlinking requires an internet connection.
 
-1. Make sure you are logged into the correct account and your email has been verified.
-2. Check your [Account Center](/en/account) and [Order History](/en/orders).
-3. If more than 30 minutes have passed since purchase or redemption without receiving the key, check your email's spam and promotions folders.
-4. If you still cannot find it, [contact technical support](/en/docs/technical-support) with your order number or redemption details.
+## If a code is missing or does not work
+
+Check the account email and app name first. For purchases, confirm the payment status in [Order History](/en/orders). For administrator grants, check which account received the code. If you have reached the device limit, unlink a device you no longer use.
+
+If you still need help, [contact technical support](/en/docs/technical-support) with the app name, account email, order number if available, and full error message. Do not post your activation code publicly.

@@ -5,8 +5,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import {
   helpCategories,
+  helpArticles,
+  LEGACY_INVITATION_HELP_SLUG,
   findLocalizedHelpArticle,
-  localizeHelpArticles,
 } from '@/data/help-articles';
 import { getHelpArticle, getRelatedHelpArticles } from '@/data/help';
 import { renderHelpMarkdown } from '@/lib/help-markdown';
@@ -24,7 +25,7 @@ interface HelpArticlePageProps {
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
-    localizeHelpArticles(locale).map((article) => ({ locale, slug: article.slug }))
+    helpArticles.map((article) => ({ locale, slug: article.slug }))
   );
 }
 
@@ -47,6 +48,7 @@ export async function generateMetadata({
     title: article.title,
     description: article.excerpt,
     keywords: article.keywords,
+    robots: article.slug === LEGACY_INVITATION_HELP_SLUG ? { index: false, follow: false } : undefined,
   };
 }
 

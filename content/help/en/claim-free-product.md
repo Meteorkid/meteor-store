@@ -39,6 +39,6 @@ Time-limited free products (with an original price crossed out next to ¥0) are 
 
 ## Where to find claimed products
 
-After claiming, click your avatar in the top-right corner and select "My Products" from the dropdown. This page lists every product you have obtained through purchase, claiming, Meteor Pass, or invitation code redemption.
+After claiming, click your avatar in the top-right corner and select "My Products" from the dropdown. This page lists every product you have obtained through purchase, claiming, or Meteor Pass.
 
 For in-browser apps, click the product entry to open it directly. For downloadable products, clicking takes you to the product detail page where you'll find the download area. For license-key products, you can view the license key in your Account page.

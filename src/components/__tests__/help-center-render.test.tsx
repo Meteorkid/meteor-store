@@ -17,6 +17,7 @@ vi.mock('../help/HelpPanelContext', () => ({ useHelpPanel: () => ({ state: state
 vi.mock('@/data/help-search.server', () => ({ buildHelpSearchEntries: () => [] }));
 
 import DocsPage from '@/app/[locale]/docs/page';
+import HelpArticlePage, { generateMetadata, generateStaticParams } from '@/app/[locale]/docs/[slug]/page';
 import { OpenInPanelButton } from '../help/OpenInPanelButton';
 import HelpPanel from '../help/HelpPanel';
 
@@ -29,6 +30,18 @@ async function renderPage() {
 }
 
 describe('帮助中心可访问结构', () => {
+  it.each(['zh', 'en'])('%s 目录隐藏历史邀请码，旧文章直链仍可打开且noindex', async (locale) => {
+    state.locale = locale;
+    const index = await renderPage();
+    expect(index).not.toContain('/docs/redeem-invitation-code');
+    expect(index).toContain('/docs/use-license-key');
+    const params = Promise.resolve({ locale, slug: 'redeem-invitation-code' });
+    expect(generateStaticParams()).toContainEqual({ locale, slug: 'redeem-invitation-code' });
+    expect((await generateMetadata({ params })).robots).toEqual({ index: false, follow: false });
+    expect(renderToStaticMarkup(await HelpArticlePage({ params }))).toContain('INV-');
+    expect((await generateMetadata({ params: Promise.resolve({ locale, slug: 'use-license-key' }) })).robots).toBeUndefined();
+  });
+
   it('文章导航链接不包裹侧栏按钮，标题与按钮独立可聚焦', async () => {
     const html = await renderPage();
     const links = html.match(/<a\b[^>]*>[\s\S]*?<\/a>/g) ?? [];

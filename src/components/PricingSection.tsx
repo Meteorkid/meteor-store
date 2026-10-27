@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import PricingCard from './PricingCard';
-import RedeemDialog from './RedeemDialog';
 import { usePassStatus } from './usePassStatus';
 import PassStatusNotice from './PassStatusNotice';
 import { PASS_NAME, PASS_PRODUCT_ID, passPlans } from '@/data/pass';
@@ -46,7 +44,6 @@ export default function PricingSection({
 }: PricingSectionProps) {
   const t = useTranslations('PricingSection');
   const locale = useLocale() as Locale;
-  const [redeemOpen, setRedeemOpen] = useState(false);
   const pass = usePassStatus();
 
   return (
@@ -80,7 +77,7 @@ export default function PricingSection({
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <PricingCard
-                  name={plan.name[locale]}
+                  name={t(`activation_${plan.id}`)}
                   subtitle={plan.celestialLabel[locale]}
                   price={plan.price}
                   originalPrice={plan.originalPrice}
@@ -105,16 +102,15 @@ export default function PricingSection({
           </div>
         </div>
 
-        {/* 邀请码兑换 —— 与购买并列的第二条获取路径 */}
+        {/* 购买和管理员赠送的激活码统一到账户查看。 */}
         <div className="text-center mt-10 scroll-animate" style={{ animationDelay: '0.3s' }}>
-          <button
-            type="button"
-            onClick={() => setRedeemOpen(true)}
+          <Link
+            href="/account#software-licenses"
             className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 py-2.5 text-sm font-medium text-white/80 transition-colors hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
           >
-            <span aria-hidden>🎟️</span>
-            {t('redeemCta')}
-          </button>
+            {t('activationCodesCta')}
+          </Link>
+          <p className="mt-3 text-sm text-white/70">{t('activationCodesHint')}</p>
         </div>
 
         {/* 其它获取方式 */}
@@ -154,7 +150,6 @@ export default function PricingSection({
         </div>
       </div>
 
-      <RedeemDialog isOpen={redeemOpen} onClose={() => setRedeemOpen(false)} />
     </section>
   );
 }

@@ -4,14 +4,13 @@
 
 !["My Products" page](/help/open-or-download-owned-product/en/step-01-my-products-list.webp "My Products page")Everything you have access to lives on the My Products page. Click your avatar in the top-right corner of the navigation bar and select "My Products" from the dropdown.
 
-Your access can come from four different sources, but they all show up in the same place:
+Your purchased, claimed, and Pass-covered products are listed here:
 
 - **Direct purchase** — you bought a single product on its detail page. Paid products stay on your account permanently.
 - **Free claim** — you claimed a product with a ¥0 pricing tier. Claimed products work the same as purchased ones, minus the license key and confirmation email.
 - **Meteor Pass** — you hold an active Pass subscription (monthly, annual, or lifetime). Every product in the store is covered. Pass-covered items show a "Pass" badge on the My Products card. If your Pass expires, those products become inaccessible until you renew.
-- **Invitation code redemption** — you entered an invitation code on the Redeem page and received the corresponding license key or product access.
 
-If you are signed out, My Products will not show anything. Sign in with the same email address you used when purchasing, claiming, or redeeming.
+If you are signed out, My Products will not show anything. Sign in with the same email address you used when purchasing or claiming.
 
 ## Open a web app in your browser
 
@@ -59,26 +58,20 @@ Once you do this, macOS saves the app as an exception and you can open it normal
 
 If Open Anyway does not appear in Privacy & Security, make sure you have already tried to open the app at least once. On a Mac managed by a school or company, manual exceptions might be blocked — contact your device administrator in that case.
 
-## View license keys in your Account
+## Activate XNook and XIsland
 
-Some products are delivered as license keys. You do not need to open or download anything — you need the key string that was generated for your purchase.
+Purchased codes and codes granted directly by an administrator appear in the software activation codes section of [Account Center](/en/account), with the app name, 1 month / 1 year / Lifetime term, and status.
 
-All your license keys are listed on the Account page. Click your avatar, select "Account" from the dropdown, then scroll to the license keys section. Each entry shows the product name and the full key.
-
-Where and how you use the key depends on the product itself. Some apps show an activation window on first launch, some have a license field in their settings, and some only need the key once during setup. Read the product description or the instructions that came with the key for the specific activation flow.
-
-### License keys and invitation codes are different
-
-A license key is automatically generated when you purchase or redeem a product. An invitation code (in the `INV-XXXX-XXXX-XXXX` format) is a redeemable voucher created by an admin — you enter it on the Redeem page, and the system generates the corresponding license key for you. You never enter an invitation code directly into an application.
+Enter the matching code in **XNook → Settings → License** or **XIsland → Settings → Software License**. First activation requires an internet connection, and each app supports up to 3 devices. See the [software activation code guide](/en/docs/use-license-key) for the steps.
 
 ## What if a product is missing from My Products
 
 If you expected to see a product on My Products but it is not there, check the following in order:
 
-1. **Correct email** — Make sure you are signed into the same account you used for the purchase, claim, or redemption. The store cannot automatically associate an order with a different email address.
+1. **Correct email** — Make sure you are signed into the same account you used for the purchase or claim. The store cannot automatically associate an order with a different email address.
 2. **Email verification** — Your account email must be verified for license keys and entitlements to appear correctly. Check your Account page for the verification status.
 3. **Pass expiration** — If the product was covered by Meteor Pass and your Pass subscription has expired, Pass-covered products disappear from My Products until you renew. Single products you bought separately are unaffected.
 4. **Refund or revocation** — If you requested a refund, the corresponding license key is revoked and the product is removed from your account. Check your order history for the order status.
-5. **Pending redemption** — Invitation codes are redeemed instantly, but if the page showed an error during redemption, the access may not have been granted. Check your order history or try redeeming again.
+5. **Software activation codes** — For XNook or XIsland, also check the software activation codes section in Account Center, including access granted by an administrator.
 
 If none of these apply and you still cannot find a paid product, note the product name, the order number from your confirmation email, and the purchase email address. Contact technical support with these details so the store owner can look into it.

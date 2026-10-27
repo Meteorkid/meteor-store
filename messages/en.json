@@ -46,7 +46,8 @@
     "myOrders": "My Orders",
     "redeem": "Redeem Code",
     "studentDiscount": "Student Discount",
-    "support": "Support Me ☕"
+    "support": "Support Me ☕",
+    "activationCodes": "Software activation codes"
   },
   "Footer": {
     "products": "Products",
@@ -229,7 +230,7 @@
     "verifyNow": "Verify now",
     "verifySuffix": ".",
     "myLicenseKeys": "My License Keys",
-    "licenseKeysDesc": "Product licenses obtained through purchase or invitation code redemption.",
+    "licenseKeysDesc": "Licenses from previous purchases or legacy redemptions.",
     "myOrders": "My Orders",
     "myOrdersDesc": "Review payment status, delivery results, and historical order details.",
     "viewOrders": "View all orders",
@@ -295,7 +296,9 @@
     "wechatLinkedSuccess": "WeChat linked successfully. You can now log in by scanning the QR code.",
     "wechatBoundAs": "Bound account: ",
     "quickAdmin": "Admin",
-    "quickAdminDesc": "Moderation and operations"
+    "quickAdminDesc": "Moderation and operations",
+    "quickLicenses": "Activation codes",
+    "quickLicensesDesc": "View codes and manage devices"
   },
   "BlogApiTokenManager": {
     "title": "Blog API tokens",
@@ -586,17 +589,19 @@
     "deliveryFailed": "Failed"
   },
   "RedeemPage": {
-    "title": "Redeem Invitation Code",
-    "description": "Enter your invitation code to get software authorization",
-    "codeLabel": "Invitation Code",
+    "title": "Redeem a legacy invitation",
+    "description": "This page is for previously issued invitation codes. Enter new software activation codes directly in the app settings.",
+    "codeLabel": "Legacy invitation code (INV-)",
     "redeeming": "Redeeming...",
-    "redeemButton": "Redeem",
+    "redeemButton": "Redeem legacy code",
     "successTitle": "Redeemed Successfully",
-    "yourLicenseKey": "Your License Key",
+    "yourLicenseKey": "Your license",
     "copied": "Copied",
-    "copyButton": "Copy License Key",
-    "continueRedeem": "Redeem Another",
-    "redeemFailed": "Redemption failed"
+    "copyButton": "Copy license key",
+    "continueRedeem": "Redeem another legacy code",
+    "redeemFailed": "Redemption failed",
+    "activationHint": "Enter 1-month, 1-year and lifetime codes in the matching app: XNook Settings → License, or XIsland Settings → Software License.",
+    "wrongCodeType": "This is a software activation code. Enter it in the matching app settings; no website redemption is needed."
   },
   "EulaPage": {
     "title": "End User License Agreement",
@@ -996,11 +1001,11 @@
     "feature2Item2": "SHA-256 published",
     "feature2Item3": "Short-lived download links",
     "feature2Item4": "No public object URLs",
-    "feature3Title": "Pay once",
-    "feature3Desc": "One-time purchase, no auto-renewal; a product you bought stays yours",
-    "feature3Item1": "Lifetime option",
-    "feature3Item2": "No subscription trap",
-    "feature3Item3": "Invite codes accepted",
+    "feature3Title": "Choose your access",
+    "feature3Desc": "Choose 1 month, 1 year or lifetime access, with no automatic charges.",
+    "feature3Item1": "Three license durations",
+    "feature3Item2": "No automatic renewal",
+    "feature3Item3": "Activate directly in the app",
     "feature3Item4": "Free for students",
     "feature4Title": "You are not left hanging",
     "feature4Desc": "Help articles, a bilingual interface, and an offline fallback when the network drops",
@@ -1082,7 +1087,12 @@
     "singleAppCta": "See per-app pricing →",
     "enterprisePrompt": "Using it with a team?",
     "enterpriseCta": "Contact us for custom solutions →",
-    "scopeNote": "Pass covers personal-use plans in the XIsland product line. Contact us separately for team seats, private deployments and SLAs."
+    "scopeNote": "Pass covers personal-use plans in the XIsland product line. Contact us separately for team seats, private deployments and SLAs.",
+    "activation_monthly": "1 month",
+    "activation_annual": "1 year",
+    "activation_lifetime": "Lifetime",
+    "activationCodesCta": "View my activation codes",
+    "activationCodesHint": "After purchase or a gift, find the codes in your account and enter them in the matching app settings."
   },
   "CTASection": {
     "browseProducts": "Browse All Products"
@@ -1156,14 +1166,14 @@
     "statSpent": "Lifetime spend",
     "statPosts": "Posts",
     "statComments": "Comments",
-    "statRedemptions": "Redemptions",
+    "statRedemptions": "Legacy redemptions",
     "statTokens": "Active tokens",
     "joinedAt": "Joined {date}",
     "detailShow": "Show details",
     "detailHide": "Hide details",
     "detailOrders": "Orders",
     "detailLicenses": "Licenses",
-    "detailRedemptions": "Invite redemptions",
+    "detailRedemptions": "Legacy invitation redemptions",
     "detailEmpty": "No records",
     "actionRevoke": "Force sign-out",
     "actionRevokeConfirm": "Invalidate every session, personal access token, and trusted-device token for this account? They will have to sign in again.",
@@ -1326,9 +1336,9 @@
     "operationFailed": "Operation failed"
   },
   "AdminInviteCodesPage": {
-    "title": "Invitation Code Management",
-    "description": "Create invitation codes to distribute to users. Authorization codes are generated automatically upon redemption.",
-    "metaTitle": "Invitation Code Management - Meteor Store",
+    "title": "Legacy invitation codes",
+    "description": "View and manage previously issued invitation codes. New gifts use software activation codes.",
+    "metaTitle": "Legacy invitation codes - Meteor Store",
     "metaNotFound": "Page Not Found - Meteor Store",
     "createTitle": "Create Invitation Code",
     "product": "Product",
@@ -1340,8 +1350,8 @@
     "memoPlaceholder": "Who's it for",
     "creating": "Creating...",
     "generate": "Generate invitation code",
-    "createdTitle": "Created invitation codes",
-    "empty": "No invitation codes yet",
+    "createdTitle": "Previously issued codes",
+    "empty": "No legacy invitation codes",
     "copyHint": "Click to copy",
     "expired": "Expired",
     "expiresOn": "Expires {date}",
@@ -1353,7 +1363,9 @@
     "createSuccess": "Invitation code created: {code}",
     "createFailed": "Creation failed",
     "operationFailed": "Operation failed",
-    "copied": "Copied: {code}"
+    "copied": "Copied: {code}",
+    "legacyHint": "Previously issued valid codes retain their original usage limits and expiry. New invitation codes can no longer be created here.",
+    "manageUsers": "Gift activation codes in account management"
   },
   "BlogSubmitPage": {
     "metaTitle": "Submit - Meteor Store Blog",
@@ -1810,7 +1822,7 @@
     "passMonthly": "Monthly",
     "passAnnual": "Annual",
     "passLifetime": "Lifetime",
-    "inviteRedemptions": "Invite Redemptions"
+    "inviteRedemptions": "Legacy invitation redemptions"
   },
   "AdminPostsPage": {
     "metaTitle": "Post Management - Meteor Store",

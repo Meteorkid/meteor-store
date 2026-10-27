@@ -1,22 +1,21 @@
-## Check These Four Places First
+## Check the order and your account
 
-After a successful payment, check the following in this order:
+Save the order number after payment and open [Order History](/en/orders) to check payment and delivery status. Sign in with the purchase email, verify it, then open [Account Center](/en/account).
 
-1. **Payment success page**: Save the order information on the page before closing it.
-2. **Confirmation email**: Check your inbox, spam folder, and promotions tab for the purchase email.
-3. **Order history**: Log into the account used for purchase and open [Order History](/en/orders) to check your order and delivery status.
-4. **Account center**: Go to [Account Center](/en/account) to view issued license keys; your email must be verified.
+XNook and XIsland codes appear in the software activation codes section, with the app name, 1 month / 1 year / Lifetime term, and status. Codes granted directly by an administrator appear in the designated account too; check the account record for them.
 
-If you purchased without logging in (guest checkout), delivery information is sent to the email you provided, but the order will not be automatically linked to your existing account. If you have questions, [contact technical support](/en/docs/technical-support) with your order number and purchase email for verification.
+If the purchase email differs from your current account, sign in with the matching email or [contact technical support](/en/docs/technical-support) to check the order.
 
-## Accessing Content by Product Type
+## Use the product
 
-- **In-browser apps**: Go to [My Products](/en/apps) and open the app from your licensed product entries.
-- **Installable products**: Go to [Products](/en/products), open the product page, and select the appropriate installer in the download section. Paid downloads will verify your account authorization server-side.
-- **Free claimed products**: No license key or delivery email is sent. After logging in, access them from My Products or the product page.
+- **XNook and XIsland**: Download and install the app from its official product page, then enter its matching code in **XNook → Settings → License** or **XIsland → Settings → Software License**. First activation requires an internet connection.
+- **Other in-browser apps**: Open the licensed product from [My Products](/en/apps).
+- **Free claimed products**: Access them from My Products or the product page after signing in. A free claim does not issue a paid software activation code.
 
-## Payment Successful but Not Yet Delivered
+See the [software activation code guide](/en/docs/use-license-key) for terms, device management, and offline use.
 
-Emails can occasionally be delayed. First check your order status and verify your email spelling and spam folder. If delivery information is still missing after 24 hours, [contact technical support](/en/docs/technical-support) with your order number, purchase email, product name, and payment time.
+## If payment succeeded but your account has no record
 
-If the issue cannot be resolved through re-delivery or other means, also review the [Refund Policy](/en/refund). Refund eligibility and the formal application process are detailed on that page.
+Check the order status, purchase email, and current account. If payment is confirmed but the code is still missing, [contact technical support](/en/docs/technical-support) with the order number, purchase email, app name, payment time, and any on-screen message.
+
+Refund eligibility and the application process are set out in the [Refund Policy](/en/refund).

@@ -1,12 +1,12 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ pass: vi.fn(), locale: 'zh' }));
+const mocks = vi.hoisted(() => ({ pass: vi.fn(), paymentModal: vi.fn(), locale: 'zh' }));
 vi.mock('../usePassStatus', () => ({ usePassStatus: mocks.pass }));
 vi.mock('next-intl', () => ({ useLocale: () => mocks.locale, useTranslations: (namespace: string) => (key: string) => `${namespace}.${key}` }));
 vi.mock('@/i18n/navigation', () => ({ Link: 'a', useRouter: () => ({ push: vi.fn() }) }));
 vi.mock('../AuthProvider', () => ({ useAuth: () => ({ user: { id: 'owner-a' }, loading: false }) }));
-vi.mock('../PaymentModal', () => ({ default: () => null }));
+vi.mock('../PaymentModal', () => ({ default: (props: unknown) => { mocks.paymentModal(props); return null; } }));
 vi.mock('../RedeemDialog', () => ({ default: () => null }));
 
 import PricingSection from '../PricingSection';
@@ -15,11 +15,27 @@ import PassOwnedBadge from '../PassOwnedBadge';
 
 beforeEach(() => {
   mocks.locale = 'zh';
+  mocks.paymentModal.mockClear();
   mocks.pass.mockReturnValue({ status: null, error: null, loading: false, retry: vi.fn() });
 });
 const renderPricing = () => renderToStaticMarkup(<PricingSection productCount={5} />);
 
 describe('真实会员状态驱动购买引导', () => {
+  it('期限展示改名仍通过稳定套餐ID下单，保留历史名称兼容', () => {
+    renderPricing();
+    expect(mocks.paymentModal.mock.calls.map(([props]) => ({ planId: props.planId, planName: props.planName }))).toEqual([
+      { planId: 'monthly', planName: 'PricingSection.activation_monthly' },
+      { planId: 'annual', planName: 'PricingSection.activation_annual' },
+      { planId: 'lifetime', planName: 'PricingSection.activation_lifetime' },
+    ]);
+  });
+  it('只展示三种激活期限，并把领取入口指向账户而非旧邀请码兑换', () => {
+    const html = renderPricing();
+    for (const kind of ['monthly', 'annual', 'lifetime']) expect(html).toContain(`PricingSection.activation_${kind}`);
+    expect(html).toContain('href="/account#software-licenses"');
+    expect(html).not.toContain('PricingSection.redeemCta');
+    expect(html).not.toContain('href="/redeem"');
+  });
   it.each(['zh', 'en'])('%s 年付用户可提前续月/年，买断仍可升级', locale => {
     mocks.locale = locale;
     mocks.pass.mockReturnValue({ status: { hasPass: true, currentPlan: 'annual', expiresAt: '2027-10-01T00:00:00.000Z' }, loading: false, error: null, retry: vi.fn() });

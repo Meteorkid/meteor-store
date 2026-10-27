@@ -32,9 +32,9 @@ Switching languages opens the Chinese or English version of the current path. Th
 
 After logging in, your avatar button appears in the navigation bar. The dropdown menu includes:
 
-- **Account** — Edit your nickname, avatar, bio, and password; view license keys and order history.
+- **Account** — Edit your nickname, avatar, bio, and password; view software activation codes, linked devices, and order history.
 - **My Products** — See every product you own, have claimed, or have access to through Meteor Pass.
-- **Orders, invitation codes, and student verification** — Open the corresponding account feature.
+- **Orders and student verification** — Open the corresponding account feature.
 - **Submit Article** — Go to the blog submission page.
 - **My Posts** — View your submitted posts and their review status.
 - **My Favorites** — View bookmarked blog posts.

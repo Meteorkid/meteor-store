@@ -4,6 +4,8 @@ export type HelpCategory = 'getting-started' | 'account' | 'products' | 'communi
 
 export type HelpArticleKind = 'tutorial' | 'how-to' | 'troubleshooting' | 'policy';
 
+export const LEGACY_INVITATION_HELP_SLUG = 'redeem-invitation-code';
+
 interface LocalizedText {
   zh: string;
   en: string;
@@ -86,7 +88,7 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'tutorial',
     order: 10,
     readingMinutes: 4,
-    updatedAt: '2026-08-10',
+    updatedAt: '2026-10-27',
     commercial: false,
     relatedSlugs: ['navigate-and-search', 'understand-product-types'],
     title: { zh: '第一次使用 Meteor Store', en: 'First Time Using Meteor Store' },
@@ -105,7 +107,7 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'how-to',
     order: 20,
     readingMinutes: 3,
-    updatedAt: '2026-08-10',
+    updatedAt: '2026-10-27',
     commercial: false,
     relatedSlugs: ['start-here'],
     title: { zh: '如何使用导航、语言切换与全站搜索', en: 'How to Navigate, Switch Languages & Search' },
@@ -124,7 +126,7 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'how-to',
     order: 30,
     readingMinutes: 3,
-    updatedAt: '2026-08-10',
+    updatedAt: '2026-10-27',
     commercial: false,
     relatedSlugs: ['online-trial-vs-full-access'],
     title: { zh: '了解网站中的产品类型', en: 'Understanding Product Types on the Site' },
@@ -281,7 +283,7 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'tutorial',
     order: 20,
     readingMinutes: 3,
-    updatedAt: '2026-08-10',
+    updatedAt: '2026-10-27',
     commercial: false,
     relatedSlugs: ['browse-and-compare-products', 'open-or-download-owned-product'],
     title: { zh: '如何免费获取产品', en: 'How to Claim a Free Product' },
@@ -300,17 +302,17 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'tutorial',
     order: 30,
     readingMinutes: 4,
-    updatedAt: '2026-08-10',
+    updatedAt: '2026-10-27',
     commercial: true,
-    relatedSlugs: ['meteor-pass-access-and-renewal', 'get-product-after-purchase'],
-    title: { zh: '如何购买单品或 Meteor Pass', en: 'How to Buy a Product or Meteor Pass' },
+    relatedSlugs: ['use-license-key', 'get-product-after-purchase'],
+    title: { zh: '如何购买软件：一个月、一年、永久', en: 'Buy software: 1 month, 1 year, or Lifetime' },
     excerpt: {
-      zh: '了解单品买断、Meteor Pass 月付/年付/买断档位，以及支付后的交付流程。',
-      en: 'Learn about one-time purchases, Meteor Pass monthly/annual/lifetime plans, and post-payment delivery.',
+      zh: '了解单品永久买断与 Meteor Pass 方案，购买后在账户中查看软件激活码。',
+      en: 'Learn about lifetime app purchases and Meteor Pass plans, then find your software activation codes in your account.',
     },
     keywords: {
-      zh: ['购买', 'Meteor Pass', '支付', '定价', '档位'],
-      en: ['purchase', 'Meteor Pass', 'payment', 'pricing', 'plan'],
+      zh: ['购买', '软件', '月度', '年度', '永久', '支付', '激活码'],
+      en: ['purchase', 'software', 'monthly', 'annual', 'lifetime', 'payment', 'activation code'],
     },
   },
   {
@@ -319,13 +321,13 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'tutorial',
     order: 40,
     readingMinutes: 3,
-    updatedAt: '2026-08-10',
+    updatedAt: '2026-10-27',
     commercial: false,
     relatedSlugs: ['use-license-key', 'claim-free-product'],
-    title: { zh: '如何兑换邀请码', en: 'How to Redeem an Invitation Code' },
+    title: { zh: '历史邀请码兑换说明', en: 'Redeem a previously issued invitation code' },
     excerpt: {
-      zh: '找到邀请码入口，输入 INV-XXXX 格式的邀请码并获取对应产品授权。',
-      en: 'Find the redemption entry, enter your INV-XXXX invitation code, and receive your product license.',
+      zh: '仅供此前已收到 INV 邀请码的用户查看原兑换方式与历史记录。',
+      en: 'For people who already received an INV code and need the original redemption process or records.',
     },
     keywords: {
       zh: ['邀请码', '兑换', 'INV', '授权', '优惠'],
@@ -338,7 +340,7 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'tutorial',
     order: 50,
     readingMinutes: 3,
-    updatedAt: '2026-09-14',
+    updatedAt: '2026-10-27',
     commercial: false,
     relatedSlugs: ['claim-free-product', 'macos-cannot-open-app'],
     title: { zh: '如何打开或下载已经获取的产品', en: 'How to Open or Download Owned Products' },
@@ -396,13 +398,13 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'how-to',
     order: 80,
     readingMinutes: 3,
-    updatedAt: '2026-08-10',
+    updatedAt: '2026-10-27',
     commercial: false,
     relatedSlugs: ['buy-product-or-meteor-pass', 'open-or-download-owned-product'],
     title: { zh: '购买后如何获取产品？', en: 'How do I access a product after purchase?' },
     excerpt: {
-      zh: '从支付成功页、邮件、订单记录和"我的产品"找到购买内容。',
-      en: 'Find your purchase from the payment result, email, order history, or My Products.',
+      zh: '核对支付与订单状态，在账户中查看软件激活码，并找到产品使用入口。',
+      en: 'Check payment and order status, find software activation codes in your account, and access your products.',
     },
     keywords: {
       zh: ['购买', '交付', '下载', '我的产品', '订单', '邮件'],
@@ -415,17 +417,17 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'how-to',
     order: 90,
     readingMinutes: 3,
-    updatedAt: '2026-08-10',
+    updatedAt: '2026-10-27',
     commercial: false,
-    relatedSlugs: ['redeem-invitation-code', 'claim-free-product'],
-    title: { zh: '如何使用授权码？', en: 'How do I use a license key?' },
+    relatedSlugs: ['buy-product-or-meteor-pass', 'open-or-download-owned-product'],
+    title: { zh: '软件激活码：一个月、一年、永久', en: 'Software activation codes: 1 month, 1 year, and Lifetime' },
     excerpt: {
-      zh: '了解在哪里查看授权码（与邀请码不同），以及哪些产品需要手动输入授权码。',
-      en: 'Learn where to find your license key (different from invitation codes) and when a product asks you to enter it.',
+      zh: '购买或由管理员直接赠送后，在账户中查看激活码，并在 XNook 或 XIsland 内激活。',
+      en: 'Find a purchased or administrator-granted code in your account, then activate it in XNook or XIsland.',
     },
     keywords: {
-      zh: ['授权码', '激活码', '账户', '授权', '兑换'],
-      en: ['license key', 'activation', 'account', 'license', 'redeem'],
+      zh: ['软件激活码', '月度', '年度', '永久', 'XNook', 'XIsland', '账户', '设备', '赠送'],
+      en: ['software activation code', 'monthly', 'annual', 'lifetime', 'XNook', 'XIsland', 'account', 'devices', 'grant'],
     },
   },
   {
@@ -610,29 +612,25 @@ export const helpArticles: HelpArticleMeta[] = [
 const categoryOrder = new Map(helpCategories.map((category) => [category.id, category.order]));
 
 export function isHelpArticleVisible(
-  article: Pick<HelpArticleMeta, 'commercial'>,
+  article: Pick<HelpArticleMeta, 'slug' | 'commercial'>,
   showPricing: boolean,
 ): boolean {
-  return showPricing || article.commercial !== true;
+  return article.slug !== LEGACY_INVITATION_HELP_SLUG && (showPricing || article.commercial !== true);
+}
+
+function localizeHelpArticle(article: HelpArticleMeta, locale: Locale): LocalizedHelpArticle {
+  return {
+    ...article,
+    title: article.title[locale],
+    excerpt: article.excerpt[locale],
+    keywords: [...article.keywords[locale]],
+  };
 }
 
 export function localizeHelpArticles(locale: Locale, showPricing = true): LocalizedHelpArticle[] {
   return helpArticles
     .filter((article) => isHelpArticleVisible(article, showPricing))
-    .map((article) => ({
-      slug: article.slug,
-      category: article.category,
-      kind: article.kind,
-      order: article.order,
-      readingMinutes: article.readingMinutes,
-      updatedAt: article.updatedAt,
-      featured: article.featured,
-      commercial: article.commercial,
-      relatedSlugs: article.relatedSlugs,
-      title: article.title[locale],
-      excerpt: article.excerpt[locale],
-      keywords: [...article.keywords[locale]],
-    }))
+    .map((article) => localizeHelpArticle(article, locale))
     .sort((a, b) => (
       (categoryOrder.get(a.category) ?? 0) - (categoryOrder.get(b.category) ?? 0)
       || a.order - b.order
@@ -643,7 +641,9 @@ export function findLocalizedHelpArticle(
   slug: string,
   locale: Locale,
 ): LocalizedHelpArticle | undefined {
-  return localizeHelpArticles(locale).find((article) => article.slug === slug);
+  // 历史文章仍允许通过原链接读取，发现入口只使用 localizeHelpArticles。
+  const article = helpArticles.find((candidate) => candidate.slug === slug);
+  return article ? localizeHelpArticle(article, locale) : undefined;
 }
 
 /** 期望的 26 个稳定 slug，用于测试和验证 */
@@ -715,7 +715,6 @@ export const helpJourneys: HelpJourney[] = [
     slugSequence: [
       'buy-product-or-meteor-pass',
       'get-product-after-purchase',
-      'redeem-invitation-code',
       'open-or-download-owned-product',
       'use-license-key',
     ],

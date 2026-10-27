@@ -4,9 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import InviteCodeManager from '@/components/InviteCodeManager';
 import { getAdminPageSession } from '@/lib/admin-session';
 import { isAdminSession } from '@/lib/admin';
-import { products } from '@/data/products';
-import { PASS_NAME, PASS_PRODUCT_ID, passPlans } from '@/data/pass';
-import type { Locale } from '@/i18n/routing';
+import { Link } from '@/i18n/navigation';
 
 export async function generateMetadata({
   params,
@@ -36,26 +34,6 @@ export default async function InviteCodesPage({
   const session = await getAdminPageSession();
   if (!session || !isAdminSession(session)) notFound();
 
-  // 全站会员排在最前：发 Pass 是最常用的赠码场景，单品发码次之
-  const productOptions = [
-    {
-      id: PASS_PRODUCT_ID,
-      name: PASS_NAME[locale as Locale],
-      plans: passPlans.map((plan) => ({
-        id: plan.id,
-        name: plan.name[locale as Locale],
-      })),
-    },
-    ...products.map((p) => ({
-      id: p.id,
-      name: p.name[locale as Locale],
-      plans: p.pricing.map((pr) => ({
-        id: pr.id,
-        name: pr.name[locale as Locale],
-      })),
-    })),
-  ];
-
   return (
     <>
       <header className="mb-8">
@@ -64,7 +42,11 @@ export default async function InviteCodesPage({
           {t('description')}
         </p>
       </header>
-      <InviteCodeManager products={productOptions} />
+      <aside className="mb-6 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white/70">
+        <p>{t('legacyHint')}</p>
+        <Link href="/admin/users" className="mt-3 inline-block text-violet-300 underline underline-offset-4">{t('manageUsers')}</Link>
+      </aside>
+      <InviteCodeManager />
     </>
   );
 }

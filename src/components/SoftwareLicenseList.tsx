@@ -6,8 +6,8 @@ export default function SoftwareLicenseList({ licenses, locale }: {
 }) {
   const en = locale === 'en';
   const kinds = en
-    ? { monthly: 'Monthly', annual: 'Annual', lifetime: 'Lifetime' }
-    : { monthly: '月度授权', annual: '年度授权', lifetime: '永久授权' };
+    ? { monthly: '1-month activation code', annual: '1-year activation code', lifetime: 'Lifetime activation code' }
+    : { monthly: '一个月激活码', annual: '一年激活码', lifetime: '永久激活码' };
   const statuses = en
     ? { active: 'Active', revoked: 'Revoked', expired: 'Expired' }
     : { active: '有效', revoked: '已撤销', expired: '已到期' };

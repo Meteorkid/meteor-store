@@ -20,18 +20,11 @@ The download endpoint verifies your account authorization on the server side, th
 
 If you see a "cannot be opened because the developer cannot be verified" warning after downloading on macOS, follow Apple's official steps — see [What if a downloaded app will not open on macOS?](/en/docs/macos-cannot-open-app) in the help center. **Do not turn off Gatekeeper or run commands that bypass system security checks.**
 
-## License key products
+## Software activation codes
 
-These products give you a license key after purchase. You enter that key wherever the product asks for it. You can find all your license keys on the [Account](/en/account) page.
+After downloading and installing XNook or XIsland, use a software activation code in the app. Purchased codes and codes granted directly by an administrator appear in [Account Center](/en/account), with the app name, 1 month / 1 year / Lifetime term, and status.
 
-There is no single activation screen that works for every license-key product. Each product decides where and how to ask for the key — some show an activation window on first launch, some have a field in settings, and some only need the key once during setup.
-
-### License keys and invitation codes are not the same thing
-
-- A **license key** is automatically generated when you purchase a product. You use it to activate that specific product.
-- An **invitation code** is a redeemable code created by an admin. It uses the `INV-XXXX-XXXX-XXXX` format. Redeeming it generates the corresponding license key for you.
-
-You enter an invitation code on the [Redeem](/en/redeem) page. You enter a license key inside the application itself.
+Use **XNook → Settings → License** or **XIsland → Settings → Software License**. First activation requires an internet connection. Individual app purchases currently provide lifetime access; the 1 month and 1 year options come from Meteor Pass. See the [purchase guide](/en/docs/buy-product-or-meteor-pass) and [software activation code guide](/en/docs/use-license-key).
 
 ## How to tell which kind a product is
 

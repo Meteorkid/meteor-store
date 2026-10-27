@@ -1,21 +1,12 @@
-## What is an invitation code
+## For previously issued invitation codes only
 
+This page is kept for people who already received an `INV-XXXX-XXXX-XXXX` invitation code and need the original redemption process or historical entitlement information. New software activation codes have 1 month, 1 year, or Lifetime terms. Purchased codes and administrator grants are shown in your account and activated inside the app; see the [software activation code guide](/en/docs/use-license-key).
 
+## Use the original redemption link
 
-![Invitation code redemption page](/help/redeem-invitation-code/en/step-01-redeem-input.webp "Redemption page")An invitation code (invite code) is a redemption voucher created by an admin. It follows the format `INV-XXXX-XXXX-XXXX` — four groups of four uppercase letters and digits, separated by hyphens. Redeeming an invitation code gives you a product license without paying — effectively, the admin covered the cost on your behalf.
+Previously issued INV codes can still be handled on the [original redemption page](/en/redeem). Sign in, verify the email of the original receiving account, and enter the complete code you received. The homepage and account shortcuts no longer offer a new invitation-code entry.
 
-Invitation codes are typically distributed by the store owner through email, community activities, or other channels. If you haven't received one, no code currently applies to your account.
-
-Important: an invitation code and a license key are two different things. An invitation code is what you redeem to *get* a license key. Do not paste an invitation code into an app's activation box — that field only accepts license keys.
-
-## Where to redeem
-
-There are two ways to reach the redemption form:
-
-- On the homepage, below the Meteor Pass pricing section, click the "Have an invitation code? Redeem here" link. This opens a dialog with the redemption form.
-- Visit the `/redeem` page directly — this is the standalone redemption page and also the link included in redemption success emails.
-
-Redemption requires a login. If you don't have an account yet, register and verify your email first.
+Historical invitation codes belong to the original website redemption flow. Do not enter them in the new XNook or XIsland activation field. Existing entitlements continue to follow their original issuance records.
 
 ## Redemption steps
 

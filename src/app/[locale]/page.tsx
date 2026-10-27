@@ -16,7 +16,7 @@ import BackToTop from '@/components/BackToTop';
 import { labProductIds, productLineIds } from '@/data/product-tracks';
 import { products } from '@/data/products';
 import { webAppCount } from '@/data/app-manifest';
-import { helpArticles } from '@/data/help-articles';
+import { localizeHelpArticles } from '@/data/help-articles';
 import { SHOW_PRICING } from '@/lib/constants';
 
 export async function generateMetadata({
@@ -52,7 +52,7 @@ export default async function Home({
         productCount={products.length}
         webAppCount={webAppCount}
         freeCount={labProductIds.length}
-        helpCount={helpArticles.length}
+        helpCount={localizeHelpArticles(locale as 'zh' | 'en').length}
       />
 
       {/* Partners Section */}

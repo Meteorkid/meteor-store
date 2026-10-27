@@ -11,13 +11,13 @@ const codes: SoftwareLicenseCodeView[] = [
 describe('按软件展示激活码', () => {
   it('同一订单展示两款软件、独立码、真实期限与撤销状态', () => {
     const html = renderToStaticMarkup(<SoftwareLicenseList licenses={codes} locale="zh" />);
-    for (const text of ['XNook', 'XIsland', 'MS-NOOK', 'MS-ISLAND', '月度授权', '当前无有效授权期限', '已撤销', '2026', 'UTC+8']) expect(html).toContain(text);
+    for (const text of ['XNook', 'XIsland', 'MS-NOOK', 'MS-ISLAND', '一个月激活码', '当前无有效授权期限', '已撤销', '2026', 'UTC+8']) expect(html).toContain(text);
     expect(html).not.toContain('永久有效');
   });
 
   it('英文展示与HTML转义不会把产品字段作为markup', () => {
     const html = renderToStaticMarkup(<SoftwareLicenseList licenses={[{ ...codes[0], productName: '<script>bad</script>', status: 'expired' }]} locale="en" />);
-    expect(html).toContain('Monthly');
+    expect(html).toContain('1-month activation code');
     expect(html).toContain('Expired');
     expect(html).toContain('&lt;script&gt;');
     expect(html).not.toContain('<script>');

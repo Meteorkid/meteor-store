@@ -6,6 +6,8 @@ import { join } from 'node:path';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as service from '../service';
+import { redeemInviteCode, revokeInviteCode } from '@/lib/invite';
+import { getUserEntitlements } from '@/lib/entitlements';
 import type { SoftwareLeasePayload } from '../types';
 
 // 明确启用才启动隔离数据库，绝不使用已有 DATABASE_URL 或生产连接。
@@ -70,6 +72,31 @@ describe.skipIf(process.env.SOFTWARE_LICENSE_INTEGRATION !== '1')('软件授权�
     expect(codes.every((row) => row.expiresAt === '2028-02-01T00:00:00.000Z')).toBe(true);
     const legacy = await order('xnook', 'monthly', '2020-01-01T00:00:00.000Z');
     expect((await service.ensureSoftwareCodesForOrder(legacy))[0]).toMatchObject({ kind: 'lifetime', expiresAt: null, status: 'active' });
+  });
+
+  it('历史未用INV仍可换MS，重复兑换不增加次数，撤销旧入口不收回已兑换权益', async () => {
+    const inviteId = randomUUID();
+    const code = 'INV-HISTORY-AAAA-BBBB';
+    const userId = 'legacy-buyer';
+    const email = 'legacy-buyer@example.invalid';
+    await pool.query(`INSERT INTO invite_codes(id,code,product_id,plan_id,plan_name,max_uses,used_count,expires_at,created_by,status,created_at)
+      VALUES($1,$2,'meteor-pass','annual','年度授权',2,0,'2099-01-01T00:00:00.000Z','legacy-admin','active','2020-01-01T00:00:00.000Z')`, [inviteId, code]);
+    const result = await redeemInviteCode(code, userId, email);
+    expect(result.success).toBe(true);
+    expect(result.softwareLicenses).toHaveLength(2);
+    expect(result.softwareLicenses!.map(row => row.productId).sort()).toEqual(['xisland', 'xnook']);
+    expect(result.softwareLicenses!.every(row => row.code.startsWith('MS-') && row.kind === 'annual')).toBe(true);
+    const retry = await redeemInviteCode(code, userId, email);
+    expect(retry.success).toBe(false);
+    expect((await pool.query('SELECT used_count,max_uses,expires_at FROM invite_codes WHERE id=$1', [inviteId])).rows[0]).toEqual({ used_count: 1, max_uses: 2, expires_at: '2099-01-01T00:00:00.000Z' });
+    expect((await pool.query('SELECT count(*) FROM invite_redemptions')).rows[0].count).toBe('1');
+    await revokeInviteCode(inviteId);
+    const entitlements = await getUserEntitlements(userId, email);
+    expect(entitlements.map(row => row.productId)).toEqual(expect.arrayContaining(['xnook', 'xisland']));
+    const delivered = await service.listSoftwareLicensesByEmail(email);
+    expect(delivered.every(row => row.status === 'active')).toBe(true);
+    expect(delivered.map(row => row.code).sort()).toEqual(result.softwareLicenses!.map(row => row.code).sort());
+    await expect(service.activateSoftwareLicense({ ...device('historical-invite'), code: delivered.find(row => row.productId === 'xnook')!.code })).resolves.toHaveProperty('lease');
   });
 
   it('无法证明期限的历史来源不授予权益，也不阻断有效买断', async () => {

@@ -46,6 +46,12 @@ describe('buildIndex', () => {
     expect(englishIndex.find(e => e.id === 'page-docs')?.title).toBe('Help Center');
   });
 
+  it.each(['zh', 'en'] as const)('%s Spotlight 不暴露历史邀请码帮助入口', (locale) => {
+    const entries = buildIndex(locale);
+    expect(entries.some((entry) => entry.href === '/docs/use-license-key')).toBe(true);
+    expect(entries.some((entry) => entry.href === '/docs/redeem-invitation-code')).toBe(false);
+  });
+
   it('锚点条目带 hash 路由', () => {
     const faqAnchor = index.find(e => e.id === 'anchor-faq');
     expect(faqAnchor?.href).toBe('/#faq');

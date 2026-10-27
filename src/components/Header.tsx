@@ -22,7 +22,7 @@ const accountLinks = [
   { href: '/blog/submit', key: 'writeArticle' },
   { href: '/blog/my-posts', key: 'myPosts' },
   { href: '/blog/favorites', key: 'myFavorites' },
-  { href: '/redeem', key: 'redeem' },
+  { href: '/account#software-licenses', key: 'activationCodes' },
   { href: '/student', key: 'studentDiscount' },
 ] as const;
 

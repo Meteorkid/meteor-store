@@ -8,7 +8,7 @@ vi.mock('@/data/blog-feed', () => ({
   getFeedTags: async (locale: 'zh' | 'en') => blog.tags[locale],
 }));
 vi.mock('@/lib/pathfinder/catalog', () => ({ listCatalogItems: async () => [] }));
-import { helpArticles } from '@/data/help-articles';
+import { helpArticles, isHelpArticleVisible, LEGACY_INVITATION_HELP_SLUG } from '@/data/help-articles';
 import { SITE_URL } from '@/lib/constants';
 import sitemap, { getHelpSitemapEntries } from '../sitemap';
 
@@ -18,13 +18,15 @@ beforeEach(() => {
 });
 
 describe('getHelpSitemapEntries', () => {
-  it('为每篇帮助文章生成中英文地址', () => {
+  it('为每篇公开帮助文章生成中英文地址，历史邀请帮助不收录', () => {
     const entries = getHelpSitemapEntries();
+    const visible = helpArticles.filter((article) => isHelpArticleVisible(article, true));
 
-    expect(entries).toHaveLength(helpArticles.length * 2);
+    expect(entries).toHaveLength(visible.length * 2);
     expect(new Set(entries.map(entry => entry.url)).size).toBe(entries.length);
+    expect(entries.some((entry) => entry.url.includes(LEGACY_INVITATION_HELP_SLUG))).toBe(false);
 
-    for (const article of helpArticles) {
+    for (const article of visible) {
       const zh = entries.find(entry => entry.url.endsWith(`/zh/docs/${article.slug}`));
       const en = entries.find(entry => entry.url.endsWith(`/en/docs/${article.slug}`));
 
