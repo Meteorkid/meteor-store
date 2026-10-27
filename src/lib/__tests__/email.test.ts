@@ -107,6 +107,18 @@ describe('sendOrderConfirmation', () => {
     expect(call.html).toContain('¥199');
   });
 
+  it('Pass交付列出每款软件与期限，不把旧主授权码冒充客户端激活码', async () => {
+    mockSend.mockResolvedValue({ error: null });
+    await sendOrderConfirmation({ email: 'buyer@test.com', orderId: 'pass-order', productId: 'meteor-pass', planName: '年付', amount: 19, licenseKey: 'MC-OLD', softwareLicenses: [
+      { id: 'n', sourceLicenseId: 'source', productId: 'xnook', productName: 'XNook', code: 'MS-NOOK', kind: 'annual', expiresAt: '2027-10-26T10:00:00Z', status: 'active', createdAt: '2026-10-26T10:00:00Z' },
+      { id: 'i', sourceLicenseId: 'source', productId: 'xisland', productName: 'XIsland<script>', code: 'MS-ISLAND', kind: 'annual', expiresAt: '2027-10-26T10:00:00Z', status: 'active', createdAt: '2026-10-26T10:00:00Z' },
+    ] });
+    const html = mockSend.mock.calls[0][0].html;
+    for (const text of ['XNook', 'XIsland&lt;script&gt;', 'MS-NOOK', 'MS-ISLAND', '年度授权', '2027', '3 台设备']) expect(html).toContain(text);
+    expect(html).not.toContain('MC-OLD');
+    expect(html).not.toContain('<script>');
+  });
+
   it('should throw when Resend returns error', async () => {
     mockSend.mockResolvedValue({ error: { message: 'Rate limited' } });
 

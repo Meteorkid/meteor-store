@@ -20,14 +20,21 @@ beforeEach(() => {
 const renderPricing = () => renderToStaticMarkup(<PricingSection productCount={5} />);
 
 describe('真实会员状态驱动购买引导', () => {
-  it.each(['zh', 'en'])('%s 当前年付标识与升级按钮来自会员状态', locale => {
+  it.each(['zh', 'en'])('%s 年付用户可提前续月/年，买断仍可升级', locale => {
     mocks.locale = locale;
     mocks.pass.mockReturnValue({ status: { hasPass: true, currentPlan: 'annual', expiresAt: '2027-10-01T00:00:00.000Z' }, loading: false, error: null, retry: vi.fn() });
     const html = renderPricing();
-    expect(html).toContain('PricingCard.currentPlan');
+    expect(html).toContain('PricingCard.renew');
     expect(html).toContain('PricingCard.upgrade');
     expect(html).not.toContain('PricingCard.buyNow');
-    expect(html.match(/<button[^>]* disabled=""/g)).toHaveLength(2);
+    expect(html.match(/<button[^>]* disabled=""/g) ?? []).toHaveLength(0);
+  });
+
+  it('永久用户无需再购买月年授权', () => {
+    mocks.pass.mockReturnValue({ status: { hasPass: true, currentPlan: 'lifetime', expiresAt: null }, loading: false, error: null, retry: vi.fn() });
+    const html = renderPricing();
+    expect(html.match(/<button[^>]* disabled=""/g)).toHaveLength(3);
+    expect(html).not.toContain('PricingCard.renew');
   });
 
   it.each(['loading', 'failed'] as const)('%s 时不把未知会员状态渲染成可购买', phase => {

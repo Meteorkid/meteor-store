@@ -5,6 +5,7 @@ import UserManager from '@/components/UserManager';
 import { getAdminPageSession } from '@/lib/admin-session';
 import { isAdminSession } from '@/lib/admin';
 import { getAdminRoster, listAdminUsers } from '@/lib/admin-users';
+import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
 
 export async function generateMetadata({
   params,
@@ -42,7 +43,7 @@ export default async function AdminUsersPage({
         <h1 className="t-title-2">{t('title')}</h1>
         <p className="mt-2 text-sm text-white/55">{t('description')}</p>
       </header>
-      <UserManager initial={initial} roster={roster} />
+      <UserManager initial={initial} roster={roster} ownerId={session.userId} softwareLicensingEnabled={isSoftwareLicensingEnabled()} />
     </>
   );
 }

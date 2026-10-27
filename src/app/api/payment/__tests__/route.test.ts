@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextRequest } from 'next/server';
 
 vi.mock('@/lib/constants', () => ({
@@ -45,7 +45,8 @@ vi.mock('@/lib/wechat', () => ({
 }));
 
 // 下单时会读会话回填 userId；测试按游客下单处理（真实 getSession 依赖请求上下文，测试里取不到）
-vi.mock('@/lib/auth', () => ({ getSession: async () => null }));
+const getSession = vi.fn();
+vi.mock('@/lib/auth', () => ({ getSession: () => getSession() }));
 
 vi.mock('@/lib/license', () => ({ createLicenseKey: vi.fn() }));
 vi.mock('@/lib/email', () => ({ sendOrderConfirmation: vi.fn() }));
@@ -57,6 +58,51 @@ describe('创建支付订单', () => {
     alipayConfigured.mockReturnValue(true);
     createDesktopOrder.mockResolvedValue('https://openapi.alipay.com/pay');
     wechatConfigured.mockReturnValue(true);
+    getSession.mockResolvedValue(null);
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'false');
+  });
+  afterEach(() => vi.unstubAllEnvs());
+
+  it.each(['xnook', 'xisland', 'meteor-pass'])('启用软件授权后 %s 下单必须验证邮箱', async (productName) => {
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    const { POST } = await import('../route');
+    const make = () => new Request('https://www.imagentx.top/api/payment', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ productName, planName: productName === 'meteor-pass' ? 'monthly' : 'Pro', paymentMethod: 'alipay', email: 'buyer@example.com' }) }) as unknown as NextRequest;
+    expect((await POST(make())).status).toBe(401);
+    getSession.mockResolvedValue({ userId: 'user', email: 'buyer@example.com', emailVerified: false });
+    expect((await POST(make())).status).toBe(401);
+    expect(inserted).toHaveLength(0);
+    expect(createDesktopOrder).not.toHaveBeenCalled();
+  });
+
+  it('不能用自己的已验证账号给他人邮箱下单并继承其历史授权', async () => {
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    getSession.mockResolvedValue({ userId: 'user', email: 'attacker@example.com', emailVerified: true });
+    const { POST } = await import('../route');
+    const response = await POST(new Request('https://www.imagentx.top/api/payment', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ productName: 'meteor-pass', planName: 'monthly', paymentMethod: 'alipay', email: 'buyer@example.com' }) }) as unknown as NextRequest);
+    expect(response.status).toBe(403);
+    expect(inserted).toHaveLength(0);
+    expect(createDesktopOrder).not.toHaveBeenCalled();
+  });
+
+  it('匹配的已验证邮箱可购买，大小写不影响身份匹配', async () => {
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    getSession.mockResolvedValue({ userId: 'user', email: 'Buyer@Example.com', emailVerified: true });
+    const { POST } = await import('../route');
+    const response = await POST(new Request('https://www.imagentx.top/api/payment', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ productName: 'meteor-pass', planName: 'monthly', paymentMethod: 'alipay', email: 'buyer@example.com' }) }) as unknown as NextRequest);
+    expect(response.status).toBe(200);
+    expect(inserted[0]).toMatchObject({ userId: 'user', email: 'buyer@example.com' });
+  });
+
+  it('其它产品维持原规则，不被软件邮箱校验提前拦截', async () => {
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    const { POST } = await import('../route');
+    const response = await POST(new Request('https://www.imagentx.top/api/payment', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ productName: 'unknown-product', planName: 'Pro', paymentMethod: 'alipay', email: 'buyer@example.com' }) }) as unknown as NextRequest);
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: '产品不存在' });
   });
 
   it('零价方案不走支付，改由 /api/claim 免费入库', async () => {

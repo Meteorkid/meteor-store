@@ -1,0 +1,12 @@
+{
+  "scope": "真实前端组件+本地模拟HTTP；不是线上/真实支付验收",
+  "gift_retries": 2,
+  "same_idempotency_key": true,
+  "products": [
+    "xnook",
+    "xisland"
+  ],
+  "kind": "annual",
+  "device_unlink": true,
+  "owner_header": true
+}

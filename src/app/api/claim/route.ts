@@ -7,6 +7,7 @@ import { getSession } from '@/lib/auth';
 import { findProduct } from '@/lib/products';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { assertMatchingOrigin } from '@/lib/csrf';
+import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
 
 /**
  * 免费入库 —— 把带 ¥0 档位的产品记进当前账号。
@@ -40,6 +41,10 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json().catch(() => null);
   const productId = typeof body?.productId === 'string' ? body.productId : '';
+
+  if (isSoftwareLicensingEnabled() && (productId === 'xnook' || productId === 'xisland')) {
+    return NextResponse.json({ error: '请直接免费下载并开始 14 天试用；永久授权需要购买激活码。' }, { status: 400 });
+  }
 
   const product = findProduct(productId);
   if (!product) {

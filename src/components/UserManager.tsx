@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import SoftwareLicensePanel from './SoftwareLicensePanel';
 import type {
   AdminRosterEntry,
   AdminUserDetail,
@@ -40,9 +41,13 @@ function formatDateTime(value: string | null, locale: string) {
 export default function UserManager({
   initial,
   roster,
+  ownerId,
+  softwareLicensingEnabled = false,
 }: {
   initial: AdminUserPage;
   roster: AdminRosterEntry[];
+  ownerId?: string;
+  softwareLicensingEnabled?: boolean;
 }) {
   const t = useTranslations('AdminUsersPage');
   const [data, setData] = useState(initial);
@@ -262,6 +267,7 @@ export default function UserManager({
               <UserRow
                 key={user.id}
                 user={user}
+                giftOwnerId={softwareLicensingEnabled ? ownerId : undefined}
                 busy={busy}
                 expanded={expanded === user.id}
                 detail={details[user.id]}
@@ -304,6 +310,7 @@ export default function UserManager({
 
 function UserRow({
   user,
+  giftOwnerId,
   busy,
   expanded,
   detail,
@@ -313,6 +320,7 @@ function UserRow({
   onNotice,
 }: {
   user: AdminUserSummary;
+  giftOwnerId?: string;
   busy: string;
   expanded: boolean;
   detail: AdminUserDetail | undefined;
@@ -327,6 +335,7 @@ function UserRow({
 }) {
   const t = useTranslations('AdminUsersPage');
   const locale = useLocale();
+  const [giftOpen, setGiftOpen] = useState(false);
   const pass = user.pass;
 
   /*
@@ -440,6 +449,15 @@ function UserRow({
           {expanded ? t('detailHide') : t('detailShow')}
         </button>
 
+        {giftOwnerId && <button
+          type="button"
+          onClick={() => setGiftOpen(open => !open)}
+          aria-expanded={giftOpen}
+          className="rounded-lg border border-violet-400/30 px-3 py-1.5 text-xs text-violet-200 transition-colors hover:bg-violet-500/10"
+        >
+          {giftOpen ? (locale === 'en' ? 'Close gift panel' : '关闭赠送面板') : (locale === 'en' ? 'Gift activation codes' : '赠送激活码')}
+        </button>}
+
         <button
           type="button"
           disabled={busy === `revoke:${user.id}`}
@@ -503,6 +521,16 @@ function UserRow({
           </button>
         )}
       </div>
+
+      {giftOpen && giftOwnerId && <div className="mt-5">
+        <SoftwareLicensePanel
+          key={`${giftOwnerId}:${user.id}:${user.email}`}
+          ownerId={giftOwnerId}
+          locale={locale}
+          admin
+          recipient={{ userId: user.id, email: user.email, emailVerified: user.emailVerified }}
+        />
+      </div>}
 
       {expanded && (
         <div className="mt-5 space-y-4 border-t border-white/[0.07] pt-4">

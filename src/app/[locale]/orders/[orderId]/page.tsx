@@ -10,6 +10,9 @@ import { findPurchasable } from '@/lib/products';
 import { getSession } from '@/lib/auth';
 import { getOrderAccess } from '@/lib/order-access';
 import type { Locale } from '@/i18n/routing';
+import SoftwareLicenseList from '@/components/SoftwareLicenseList';
+import { getSoftwareCodesByOrderId } from '@/lib/software-licenses/service';
+import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
 
 interface OrderDetailPageProps {
   params: Promise<{ orderId: string; locale: string }>;
@@ -33,7 +36,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   ]);
   const candidate = rows[0];
   const allowed = candidate && (
-    session?.email.toLowerCase() === candidate.email.toLowerCase() ||
+    (session?.emailVerified && session.email.toLowerCase() === candidate.email.toLowerCase()) ||
     access?.orderId === candidate.id
   );
   const order = allowed ? candidate : null;
@@ -42,6 +45,8 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
   const product = findPurchasable(order.productId);
   const [license] = await db.select().from(licenseKeys).where(eq(licenseKeys.orderId, orderId)).limit(1);
+  const softwareLicenses = await getSoftwareCodesByOrderId(orderId);
+  const softwareOrder = isSoftwareLicensingEnabled() && ['xnook', 'xisland', 'meteor-pass'].includes(order.productId);
 
   const statusMap: Record<string, { label: string; color: string }> = {
     paid: { label: t('statusPaid'), color: 'text-green-400' },
@@ -107,7 +112,9 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           </div>
 
           {/* License Key */}
-          {license && (
+          {softwareLicenses.length > 0 && <div className="mb-6"><SoftwareLicenseList licenses={softwareLicenses} locale={locale} /></div>}
+          {softwareOrder && softwareLicenses.length === 0 && <p className="mb-6 text-sm text-white/70">{locale === 'en' ? 'Software activation codes are unavailable. Check your account or contact support.' : '软件激活码暂不可用，请到账户页查询或联系支持。'}</p>}
+          {license && !softwareOrder && (
             <div className="bg-white/5 rounded-lg p-6 mb-6">
               <h2 className="text-sm font-medium text-gray-400 mb-3">{t('licenseKey')}</h2>
               <div className="bg-gray-900 rounded-lg p-4 text-center">

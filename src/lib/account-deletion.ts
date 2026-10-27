@@ -24,6 +24,7 @@ import {
 import { deleteAvatar, keyFromUrl } from './avatar-storage';
 import { deleteUserBlogImages } from './blog-image-storage';
 import { revalidatePublishedPaths } from './revalidate';
+import { deleteSoftwareDeviceData } from './software-licenses/service';
 
 interface DeleteUserAccountInput {
   userId: string;
@@ -40,6 +41,7 @@ export async function deleteUserAccount(input: DeleteUserAccountInput): Promise<
   const postIds = userPosts.map((post) => post.id);
 
   const cleanup: Promise<unknown>[] = [
+    deleteSoftwareDeviceData(normalizedEmail),
     db.delete(dailyPreferences).where(eq(dailyPreferences.userId, input.userId)),
     db.delete(mastersNotices).where(eq(mastersNotices.userId, input.userId)),
     db.delete(mastersWatches).where(eq(mastersWatches.userId, input.userId)),

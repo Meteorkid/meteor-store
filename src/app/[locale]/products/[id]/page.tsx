@@ -16,6 +16,7 @@ import { products, localizeProduct } from '@/data/products';
 import { getProductWithCurrentDownloads } from '@/lib/product-updates/catalog';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 import { routing, type Locale } from '@/i18n/routing';
+import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,6 +52,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   const isAnnual = annual === 'true';
   const trialHref = getAppTrialHref(product.id);
   const primaryDownload = product.downloads?.find((download) => download.icon !== 'github');
+  const softwareTrial = isSoftwareLicensingEnabled() && (id === 'xnook' || id === 'xisland');
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -161,6 +163,11 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
           <PassOwnedBadge />
           <section id="pricing" className="mb-16">
             <h2 className="mb-6 text-center text-2xl font-bold text-white">{t('pricing')}</h2>
+            {softwareTrial && <div className="mx-auto mb-6 max-w-2xl rounded-2xl border border-violet-400/20 bg-violet-500/5 p-5 text-center">
+              <p className="text-white">{locale === 'en' ? 'Download free and try all features for 14 days.' : '免费下载，完整体验 14 天。'}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/70">{locale === 'en' ? 'Buy a lifetime license below, or choose a monthly or annual Meteor Pass to receive separate XNook and XIsland activation codes. Up to 3 devices per product, with device unlinking.' : '可购买下方单品永久授权，或选择月付、年付 Meteor Pass，分别获得 XNook 和 XIsland 激活码。每款最多激活 3 台设备，支持解绑换机。'}</p>
+              <Link href="/pricing" className="mt-3 inline-block text-violet-300 underline underline-offset-4">{locale === 'en' ? 'Monthly and annual activation' : '查看月付与年付激活方案'}</Link>
+            </div>}
             {product.status === 'coming_soon' ? (
               <div className="glass-card mx-auto max-w-2xl rounded-3xl px-8 py-12 text-center">
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">{t(product.experienceUrl ? 'trialAvailable' : 'comingSoon')}</p>

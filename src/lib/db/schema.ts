@@ -252,6 +252,52 @@ export const topicProposals = pgTable('topic_proposals', {
   createdAt: text('created_at').notNull(),
 });
 
+/** 桌面软件的逐产品激活码；父授权继续保持一笔订单一条，避免重复累计 Pass。 */
+export const softwareLicenseCodes = pgTable('software_license_codes', {
+  id: text('id').primaryKey(),
+  sourceLicenseId: text('source_license_id').notNull().references(() => licenseKeys.id, { onDelete: 'cascade' }),
+  productId: text('product_id').notNull(),
+  email: text('email').notNull(),
+  code: text('code').notNull().unique(),
+  kind: text('kind').notNull(),
+  sourceType: text('source_type').notNull(),
+  grantedAt: text('granted_at').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (t) => [
+  uniqueIndex('software_codes_source_product_idx').on(t.sourceLicenseId, t.productId),
+  index('software_codes_email_product_idx').on(t.email, t.productId),
+  check('software_codes_product_check', sql`${t.productId} IN ('xnook', 'xisland')`),
+  check('software_codes_kind_check', sql`${t.kind} IN ('monthly', 'annual', 'lifetime')`),
+  check('software_codes_source_check', sql`${t.sourceType} IN ('order', 'invite', 'gift')`),
+]);
+
+/** 试用起点独立保存；解绑、删除 App 或换授权都不删除这条记录。 */
+export const softwareLicenseTrials = pgTable('software_license_trials', {
+  id: text('id').primaryKey(),
+  productId: text('product_id').notNull(),
+  deviceId: text('device_id').notNull(),
+  startedAt: text('started_at').notNull(),
+}, (t) => [
+  uniqueIndex('software_trials_product_device_idx').on(t.productId, t.deviceId),
+]);
+
+export const softwareLicenseDevices = pgTable('software_license_devices', {
+  id: text('id').primaryKey(),
+  productId: text('product_id').notNull(),
+  deviceId: text('device_id').notNull(),
+  deviceName: text('device_name').notNull(),
+  email: text('email'),
+  tokenHash: text('token_hash').notNull(),
+  status: text('status').notNull().default('active'),
+  activatedAt: text('activated_at').notNull(),
+  lastSeenAt: text('last_seen_at').notNull(),
+  revokedAt: text('revoked_at'),
+}, (t) => [
+  uniqueIndex('software_devices_product_device_idx').on(t.productId, t.deviceId),
+  index('software_devices_owner_idx').on(t.email, t.productId, t.status),
+  check('software_devices_status_check', sql`${t.status} IN ('active', 'revoked')`),
+]);
+
 /**
  * 用户投稿的文章。
  *

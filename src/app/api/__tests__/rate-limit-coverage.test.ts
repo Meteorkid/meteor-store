@@ -26,6 +26,17 @@ const SHARED_GUARDS: Record<string, { call: RegExp; file: string }> = {
     call: /checkBlogImageUploadRateLimit\(/,
     file: join(process.cwd(), 'src/lib/blog-image-upload-guard.ts'),
   },
+  ...Object.fromEntries([
+    'software-licenses/route.ts',
+    'software-licenses/trial/route.ts',
+    'software-licenses/activate/route.ts',
+    'software-licenses/refresh/route.ts',
+    'software-licenses/deactivate/route.ts',
+    'admin/software-licenses/route.ts',
+  ].map((route) => [route, {
+    call: /softwareRequestGuard\(/,
+    file: join(process.cwd(), 'src/lib/software-licenses/http.ts'),
+  }])),
 };
 
 function findRouteFiles(dir: string, base = ''): string[] {

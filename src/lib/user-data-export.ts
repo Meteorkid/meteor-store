@@ -26,6 +26,7 @@ import {
   users,
 } from './db/schema';
 import { deriveTokenStatus } from './personal-access-tokens';
+import { exportSoftwareLicenseData } from './software-licenses/service';
 
 export async function exportUserData(userId: string, email: string) {
   const normalizedEmail = email.trim().toLowerCase();
@@ -235,6 +236,7 @@ export async function exportUserData(userId: string, email: string) {
     studentVerifiedAt: account.studentVerifiedAt,
     createdAt: account.createdAt,
   } : null;
+  const software = await exportSoftwareLicenseData(normalizedEmail);
 
   return {
     exportedAt: new Date().toISOString(),
@@ -243,6 +245,8 @@ export async function exportUserData(userId: string, email: string) {
       orders: orderRows,
       licenses: licenseRows,
       inviteRedemptions: redemptionRows,
+      softwareLicenses: software.licenses,
+      softwareDevices: software.devices,
     },
     content: {
       posts: postRows,

@@ -20,6 +20,12 @@ export async function POST(req: NextRequest) {
   if (!session) {
     return NextResponse.json({ error: '请先登录' }, { status: 401 });
   }
+  if (session.emailVerified !== true) {
+    return NextResponse.json({ error: '请先验证邮箱后再兑换' }, { status: 403 });
+  }
+  if (req.headers.get('X-Software-License-User') !== session.userId) {
+    return NextResponse.json({ error: '账号已变化，请刷新后重新兑换' }, { status: 409 });
+  }
 
   const body = await req.json().catch(() => null);
   const code = typeof body?.code === 'string' ? body.code.trim() : '';
@@ -40,9 +46,12 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     success: true,
+    userId: session.userId,
     licenseKey: result.licenseKey,
     productId: result.productId,
     productName: purchasable?.name ?? null,
     planName: result.planName,
-  });
+    softwareLicenses: result.softwareLicenses,
+    softwareDeliveryPending: result.softwareDeliveryPending,
+  }, { headers: { 'Cache-Control': 'no-store' } });
 }

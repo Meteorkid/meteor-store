@@ -1,10 +1,10 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { orders, licenseKeys, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags } from './schema';
+import { orders, licenseKeys, softwareLicenseCodes, softwareLicenseDevices, softwareLicenseTrials, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags } from './schema';
 
 type DrizzleDB = ReturnType<typeof drizzle>;
 
-const schema = { orders, licenseKeys, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags };
+const schema = { orders, licenseKeys, softwareLicenseCodes, softwareLicenseDevices, softwareLicenseTrials, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags };
 
 // 延迟初始化，避免 build 时因缺少 DATABASE_URL 而崩溃
 let _db: DrizzleDB | null = null;

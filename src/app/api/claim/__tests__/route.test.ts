@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextRequest } from 'next/server';
 
 vi.mock('@/lib/rate-limit', () => ({
@@ -37,6 +37,15 @@ function post(body: unknown): NextRequest {
 }
 
 describe('免费入库', () => {
+  afterEach(() => vi.unstubAllEnvs());
+  it('授权上线后XIsland不能通过旧免费入库取得永久授权', async () => {
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    const { POST } = await import('../route');
+    const response = await POST(post({ productId: 'xisland' }));
+    expect(response.status).toBe(400);
+    expect(inserted).toHaveLength(0);
+    expect((await response.json()).error).toContain('14 天试用');
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     inserted.length = 0;

@@ -19,6 +19,9 @@ const state = vi.hoisted(() => ({
   deleteCount: 0,
 }));
 
+const deleteSoftwareDevices = vi.fn();
+vi.mock('../software-licenses/service', () => ({ deleteSoftwareDeviceData: (...args: unknown[]) => deleteSoftwareDevices(...args) }));
+
 vi.mock('../db', () => ({
   db: {
     select: () => ({
@@ -68,6 +71,7 @@ describe('账户数据删除顺序', () => {
     state.deleteCount = 0;
     deleteAvatar.mockResolvedValue(undefined);
     deleteImages.mockResolvedValue(undefined);
+    deleteSoftwareDevices.mockResolvedValue(undefined);
   });
 
   it('子数据清理完成后才删除用户并刷新公开内容', async () => {
@@ -98,6 +102,7 @@ describe('账户数据删除顺序', () => {
     expect(revalidate).toHaveBeenCalledOnce();
     expect(deleteAvatar).toHaveBeenCalledWith('avatars/U1/avatar.webp');
     expect(deleteImages).toHaveBeenCalledWith('U1');
+    expect(deleteSoftwareDevices).toHaveBeenCalledWith('user@example.com');
   });
 
   it('子数据清理失败时保留用户行，允许再次尝试', async () => {

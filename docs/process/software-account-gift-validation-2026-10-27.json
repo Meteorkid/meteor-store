@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-27",
+  "feature": "账号管理定向赠送软件激活码",
+  "status": "implemented_verified_not_deployed",
+  "tests": {
+    "passed": 3370,
+    "skipped": 19,
+    "filesPassed": 323,
+    "build": "passed",
+    "typescript": "passed",
+    "targetedLint": "passed"
+  },
+  "browser": {
+    "environment": "真实React组件与本地模拟HTTP，无真实发码",
+    "recipientReadOnly": true,
+    "recipientAtoBIsolation": true,
+    "pendingPostClosedAndReopened": true,
+    "sameRequestIdOnRetry": true,
+    "delayMs": 4000,
+    "doesNotChangeEmailVerification": true
+  },
+  "backend": {
+    "checksRecipientUserId": true,
+    "missingRecipientStatus": 404,
+    "changedEmailStatus": 409,
+    "retainsLegacyEmailOnlyFlow": true
+  },
+  "files": {
+    "src/components/SoftwareLicensePanel.tsx": "672a8c64c41f93651849fe60392d6745b0a3a8539e41e4a1eff41a12e7f98dc3",
+    "src/components/UserManager.tsx": "05a520e7a9268d5ecb39ce0ad10baf895fe5bc87405385ea6378bb6872e7a360",
+    "src/app/[locale]/admin/users/page.tsx": "56be4f35e9c6e5d0d5553e84b1eeda5038489a75a98f9353566dce2efc86d9fd",
+    "src/app/api/admin/software-licenses/route.ts": "7a67dc847be44da8a80ad48af95f4efb107d570ff0fba6fe46816d8863e4a427",
+    "src/lib/software-licenses/__tests__/http.test.ts": "71900d86f5cb4649a63664c26509e608f7abb26b7ebc2fa807be68aad35b0670",
+    "src/components/__tests__/user-manager-gifts.test.tsx": "725037dad250a29a605484b51c4dd74f4b68f5e1bf2f04adb32dde70346c898c"
+  },
+  "committed": false,
+  "deployed": false
+}

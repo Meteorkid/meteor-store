@@ -3,6 +3,7 @@ import { chmod, lstat, mkdir, open, readFile, readdir, rename, rm, writeFile } f
 import path from 'node:path';
 import { products, type Product } from '../../data/products.ts';
 import type { CurrentDownload, CurrentProduct, DownloadOverride, ReleaseCatalog } from './types.ts';
+import { isSoftwareLicensingEnabled } from '../software-licenses/config.ts';
 
 interface CatalogOptions {
   directory?: string;
@@ -101,11 +102,21 @@ function validateCatalog(value: unknown): ReleaseCatalog {
 }
 
 function withDownloads(product: Product, catalog: ReleaseCatalog): Product {
+  const trialDownload = isSoftwareLicensingEnabled() && (product.id === 'xnook' || product.id === 'xisland');
   return {
     ...product,
+    // 下载试用不能经过“零元领取永久权益”的旧入口。
+    ...(trialDownload ? { pricing: product.pricing.filter(plan => plan.price > 0) } : {}),
     downloads: product.downloads?.map((download) => ({
       ...download,
       ...catalog.downloads[product.id]?.[download.id],
+      ...(trialDownload ? {
+        gated: false,
+        note: {
+          zh: '免费下载，完整试用 14 天。首次启用需联网；到期可选月付、年付或永久激活。',
+          en: 'Free download, 14-day full trial. Internet required on first use; then choose monthly, annual or lifetime activation.',
+        },
+      } : {}),
     })),
   };
 }

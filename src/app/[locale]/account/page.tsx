@@ -16,6 +16,8 @@ import { getSession } from '@/lib/auth';
 import { buildLoginHref } from '@/lib/login-return';
 import { findPurchasable } from '@/lib/products';
 import type { Locale } from '@/i18n/routing';
+import SoftwareLicensePanel from '@/components/SoftwareLicensePanel';
+import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -84,6 +86,8 @@ export default async function AccountPage({
   const ordCount = ordRes[0]?.count ?? 0;
   const comp = profileCompleteness(user);
   const displayName = user.name || user.email.split('@')[0];
+  const softwareEnabled = isSoftwareLicensingEnabled();
+  const legacyKeys = softwareEnabled ? keys.filter(key => !['xnook', 'xisland', 'meteor-pass'].includes(key.productId)) : keys;
   const initial = displayName[0]?.toUpperCase() ?? '?';
 
   const isAdmin = isAdminSession(session);
@@ -227,12 +231,13 @@ export default async function AccountPage({
             </section>
           )}
 
-          {keys.length > 0 && (
+          {user.emailVerified && softwareEnabled && <SoftwareLicensePanel ownerId={session.userId} locale={locale} />}
+          {legacyKeys.length > 0 && (
             <section className="mb-8 rounded-3xl border border-white/[0.07] bg-white/[0.02] p-7 md:p-9">
               <h2 className="t-title-3 mb-1.5 text-white/90">{t('myLicenseKeys')}</h2>
               <p className="t-footnote mb-5 text-white/60">{t('licenseKeysDesc')}</p>
               <div className="space-y-3">
-                {keys.map((k) => {
+                {legacyKeys.map((k) => {
                   const product = findPurchasable(k.productId);
                   const st = statusLabel[k.status] ?? statusLabel.active;
                   return (

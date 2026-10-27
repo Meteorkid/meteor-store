@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { getSiteUrl, SENDER_EMAIL } from './constants';
 import { findPurchasable } from './products';
+import type { SoftwareLicenseCodeView } from './software-licenses/types';
 
 let resendClient: Resend | null = null;
 
@@ -32,6 +33,7 @@ interface OrderEmailData {
   planName: string;
   amount: number;
   licenseKey?: string;
+  softwareLicenses?: SoftwareLicenseCodeView[];
   accessToken?: string;
 }
 
@@ -241,7 +243,12 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
           <p><strong>方案：</strong>${planName}</p>
           <p><strong>支付金额：</strong>¥${data.amount}</p>
         </div>
-        ${data.licenseKey ? `
+        ${data.softwareLicenses?.length ? data.softwareLicenses.map(license => `
+        <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
+          <p><strong>${escapeHtml(license.productName)}</strong> · ${license.kind === 'monthly' ? '月度授权' : license.kind === 'annual' ? '年度授权' : '永久授权'}</p>
+          <p style="font-family: monospace; overflow-wrap: anywhere;">${escapeHtml(license.code)}</p>
+          <p>${license.expiresAt ? `有效期至：${escapeHtml(new Date(license.expiresAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }))}（北京时间）` : '永久有效，无需续费'}</p>
+        </div>`).join('') + '<p>在对应软件的「授权」设置中输入激活码。每款软件最多同时激活 3 台设备，可在网站账户页解绑换机。首次激活需要联网，之后最多允许 7 天离线使用，且不超过授权到期时间。</p>' : data.licenseKey ? `
         <div style="background: #1a1a2e; color: #e0e0e0; padding: 20px; border-radius: 8px; margin: 16px 0; text-align: center;">
           <p style="margin: 0 0 8px; font-size: 14px; color: #aaa;">您的激活码</p>
           <p style="margin: 0; font-size: 24px; font-family: monospace; letter-spacing: 2px; color: #10b981;">

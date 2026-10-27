@@ -13,6 +13,10 @@ import {
   users,
 } from '../db/schema';
 
+vi.mock('../software-licenses/service', () => ({
+  exportSoftwareLicenseData: async () => ({ licenses: [], devices: [] }),
+}));
+
 let accountRows = [{
   id: 'U1',
   email: 'user@example.com',

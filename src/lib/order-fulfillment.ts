@@ -3,6 +3,7 @@ import { db } from './db';
 import { orders } from './db/schema';
 import { sendOrderConfirmation } from './email';
 import { createLicenseKey } from './license';
+import { ensureSoftwareCodesForOrder } from './software-licenses/service';
 
 const CLAIM_TIMEOUT_MS = 10 * 60_000;
 
@@ -48,6 +49,7 @@ export async function fulfillOrder(orderId: string): Promise<FulfillmentResult> 
       planName: order.planName,
       email: order.email,
     });
+    const softwareLicenses = await ensureSoftwareCodesForOrder(order.id);
     await sendOrderConfirmation({
       email: order.email,
       orderId: order.id,
@@ -55,6 +57,7 @@ export async function fulfillOrder(orderId: string): Promise<FulfillmentResult> 
       planName: order.planName,
       amount: order.amountCny,
       licenseKey,
+      softwareLicenses,
       accessToken: order.accessToken,
     });
     await db

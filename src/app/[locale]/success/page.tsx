@@ -11,6 +11,9 @@ import { SHOW_PRICING } from '@/lib/constants';
 import { getSession } from '@/lib/auth';
 import { getOrderAccess } from '@/lib/order-access';
 import type { Locale } from '@/i18n/routing';
+import SoftwareLicenseList from '@/components/SoftwareLicenseList';
+import { getSoftwareCodesByOrderId } from '@/lib/software-licenses/service';
+import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
 
 interface SuccessPageProps {
   searchParams: Promise<{ orderId?: string }>;
@@ -50,7 +53,7 @@ export default async function SuccessPage({ searchParams, params }: SuccessPageP
     ]);
     const result = rows[0];
     const allowed = result && (
-      session?.email.toLowerCase() === result.email.toLowerCase() ||
+      (session?.emailVerified && session.email.toLowerCase() === result.email.toLowerCase()) ||
       access?.orderId === result.id
     );
     order = allowed ? result : null;
@@ -61,6 +64,8 @@ export default async function SuccessPage({ searchParams, params }: SuccessPageP
   }
 
   const product = order ? findPurchasable(order.productId) : null;
+  const softwareLicenses = order ? await getSoftwareCodesByOrderId(order.id) : [];
+  const softwareOrder = order && isSoftwareLicensingEnabled() && ['xnook', 'xisland', 'meteor-pass'].includes(order.productId);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -108,7 +113,9 @@ export default async function SuccessPage({ searchParams, params }: SuccessPageP
               </div>
 
               {/* License Key */}
-              {license && (
+              {softwareLicenses.length > 0 && <div className="mb-6"><SoftwareLicenseList licenses={softwareLicenses} locale={locale} /></div>}
+              {softwareOrder && softwareLicenses.length === 0 && <p className="mb-6 text-sm text-white/70">{locale === 'en' ? 'Software activation codes are unavailable. Check your account or contact support.' : '软件激活码暂不可用，请到账户页查询或联系支持。'}</p>}
+              {license && !softwareOrder && (
                 <div className="bg-gray-900 rounded-lg p-4 mb-6">
                   <p className="text-xs text-gray-500 mb-2">{t('licenseKey')}</p>
                   <p className="text-xl font-mono tracking-widest text-green-400 select-all">

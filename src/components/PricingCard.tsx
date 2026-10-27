@@ -9,7 +9,7 @@ import PaymentModal from './PaymentModal';
 import { useAuth } from './AuthProvider';
 import { buildLoginHref } from '@/lib/login-return';
 
-import type { PassPlanId } from '@/data/pass';
+import { PASS_PRODUCT_ID, type PassPlanId } from '@/data/pass';
 
 interface PricingCardProps {
   name: string;
@@ -188,48 +188,21 @@ export default function PricingCard({
 
         {/* CTA Button */}
         {(() => {
+          const cardPlan = productId === PASS_PRODUCT_ID && ['monthly', 'annual', 'lifetime'].includes(planId ?? '') ? planId : null;
+          const isOwned = !!cardPlan && currentPassPlan === 'lifetime';
           // 智能 CTA：根据用户当前 Pass 档位显示不同文案
           const getCtaText = () => {
             if (price === 0) return claiming ? t('claiming') : t('claimFree');
             if (passStatusState !== 'ready') return passText(passStatusState === 'loading' ? 'checking' : 'unavailable');
             if (!currentPassPlan) return t('buyNow');
             
-            // 从产品名推断卡片的档位（PricingSection 传的是 Pass plan）
-            const cardPlan = name.includes('月付') ? 'monthly' 
-              : name.includes('年付') ? 'annual' 
-              : name.includes('买断') ? 'lifetime' 
-              : name.includes('Monthly') ? 'monthly'
-              : name.includes('Annual') ? 'annual'
-              : name.includes('Lifetime') ? 'lifetime'
-              : null;
-            
             if (!cardPlan) return t('buyNow');
-            
-            const rank = { monthly: 1, annual: 2, lifetime: 3 } as Record<string, number>;
-            const currentRank = rank[currentPassPlan] ?? 0;
-            const cardRank = rank[cardPlan] ?? 0;
-            
-            // 已拥有同档或更高档
-            if (currentRank >= cardRank) {
-              return currentPassPlan === cardPlan ? t(cardPlan === 'lifetime' ? 'lifetimeOwned' : 'currentPlan') : t('owned');
-            }
-            // 升级场景
-            return t('upgrade');
+            if (isOwned) return t('lifetimeOwned');
+            // 月/年购买是增加期限，已有该档也必须允许提前续费。
+            return t(cardPlan === 'lifetime' ? 'upgrade' : 'renew');
           };
 
           const ctaText = getCtaText();
-          const isOwned = currentPassPlan && (() => {
-            const rank = { monthly: 1, annual: 2, lifetime: 3 } as Record<string, number>;
-            const cardPlan = name.includes('月付') ? 'monthly' 
-              : name.includes('年付') ? 'annual' 
-              : name.includes('买断') ? 'lifetime' 
-              : name.includes('Monthly') ? 'monthly'
-              : name.includes('Annual') ? 'annual'
-              : name.includes('Lifetime') ? 'lifetime'
-              : null;
-            if (!cardPlan) return false;
-            return (rank[currentPassPlan] ?? 0) >= (rank[cardPlan] ?? 0);
-          })();
 
           return (
             <button

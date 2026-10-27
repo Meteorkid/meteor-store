@@ -5,6 +5,8 @@ import CommerceManager from '@/components/CommerceManager';
 import { isAdminSession } from '@/lib/admin';
 import { listCommerceOperations } from '@/lib/admin-commerce';
 import { getAdminPageSession } from '@/lib/admin-session';
+import SoftwareLicensePanel from '@/components/SoftwareLicensePanel';
+import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +35,7 @@ export default async function AdminCommercePage({ params }: { params: Promise<{ 
         <p className="mt-2 text-sm text-white/55">{t('description')}</p>
       </header>
       <div className="mt-8">
+        {isSoftwareLicensingEnabled() && <SoftwareLicensePanel ownerId={session.userId} locale={locale} admin />}
         <CommerceManager initialOrders={data.orders} initialLicenses={data.licenses} />
       </div>
     </>

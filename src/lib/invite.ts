@@ -3,6 +3,8 @@ import { eq, and, inArray, sql } from 'drizzle-orm';
 import { db } from './db';
 import { inviteCodes, inviteRedemptions } from './db/schema';
 import { createLicenseKey, removeLicenseKey } from './license';
+import { ensureSoftwareCodesForInvite } from './software-licenses/service';
+import type { SoftwareLicenseCodeView } from './software-licenses/types';
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -101,6 +103,8 @@ export async function redeemInviteCode(
   licenseKey?: string;
   productId?: string;
   planName?: string;
+  softwareLicenses?: SoftwareLicenseCodeView[];
+  softwareDeliveryPending?: boolean;
 }> {
   const [invite] = await db
     .select()
@@ -200,10 +204,21 @@ export async function redeemInviteCode(
     return { success: false, error: '你已经使用过该邀请码' };
   }
 
+  let softwareLicenses: SoftwareLicenseCodeView[] = [];
+  let softwareDeliveryPending = false;
+  try {
+    softwareLicenses = await ensureSoftwareCodesForInvite(key);
+  } catch {
+    // 主授权已兑现，账户页可幂等补发子码，不能回退兑换次数让同一码再次使用。
+    softwareDeliveryPending = true;
+    console.error('Software license delivery pending for redeemed invitation');
+  }
   return {
     success: true,
     licenseKey: key,
     productId: invite.productId,
     planName: invite.planName,
+    softwareLicenses,
+    softwareDeliveryPending,
   };
 }

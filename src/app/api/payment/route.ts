@@ -12,6 +12,7 @@ import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { getSession } from '@/lib/auth';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 import { assertMatchingOrigin } from '@/lib/csrf';
+import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
 
 /**
  * 生成唯一订单 ID，带碰撞重试
@@ -72,6 +73,17 @@ export async function POST(request: NextRequest) {
     }
 
     const { productName, planId, planName, email, isMobile, isAnnual, paymentMethod } = parsed.data;
+    const session = await getSession();
+    // 新客户端按邮箱合并续费和设备额度，邮箱必须由下单者证明拥有。
+    // 否则游客填他人邮箱购买短期码后，可能继承该邮箱的历史永久授权。
+    if (isSoftwareLicensingEnabled() && ['xnook', 'xisland', PASS_PRODUCT_ID].includes(productName)) {
+      if (!session?.emailVerified) {
+        return NextResponse.json({ error: '请先登录并验证邮箱后购买激活码' }, { status: 401 });
+      }
+      if (email.toLowerCase() !== session.email.trim().toLowerCase()) {
+        return NextResponse.json({ error: '购买邮箱必须与当前已验证账号一致' }, { status: 403 });
+      }
+    }
 
     // 售卖对象有两种：单个产品，或全站会员 Meteor Pass。
     // Pass 的三档本身就是计费周期（月付/年付/买断），价格是直接定的，
@@ -165,7 +177,6 @@ export async function POST(request: NextRequest) {
 
     // 记录下单用户（登录则回填 userId，游客保持为空）。用于「我的产品」与付费门控。
     // 注意：若下单邮箱与登录邮箱不一致，仍以登录用户为准，避免他人在别人的订单上受益。
-    const session = await getSession();
 
     // 先写数据库（pending 状态），再调支付渠道，避免用户付款后无订单记录
     await db.insert(orders).values({

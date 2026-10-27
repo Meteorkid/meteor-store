@@ -33,6 +33,18 @@ afterEach(async () => {
 });
 
 describe('动态下载目录', () => {
+  it('启用软件授权后只开放XNook/XIsland试用下载，不把试用变成零元永久领取', async () => {
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    for (const id of ['xnook', 'xisland']) {
+      const product = await getProductWithCurrentDownloads(id);
+      expect(product!.downloads!.every(file => file.gated === false)).toBe(true);
+      expect(product!.downloads![0].note!.zh).toContain('14 天');
+      expect(product!.pricing.every(plan => plan.price > 0)).toBe(true);
+      expect(products.find(item => item.id === id)!.downloads![0].gated).toBe(true);
+    }
+    expect(await getProductWithCurrentDownloads('statux')).toEqual(products.find(item => item.id === 'statux'));
+  });
+
   it('无文件时仅列四个静态下载产品，并且不写文件', async () => {
     const state = await readCurrentCatalog({ directory });
     expect(state.catalogError).toBe(false);

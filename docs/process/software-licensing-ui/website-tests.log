@@ -1,0 +1,16 @@
+
+> meteor-store@0.1.0 test /Users/meteor/github/meteor-store
+> vitest run
+
+
+ RUN  v4.1.9 /Users/meteor/github/meteor-store
+
+(node:25985) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/meteor/github/meteor-store/src/lib/product-updates/discovery.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/meteor/github/meteor-store/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  322 passed | 2 skipped (324)
+      Tests  3360 passed | 19 skipped (3379)
+   Start at  23:53:41
+   Duration  11.61s (transform 23.24s, setup 0ms, import 63.97s, tests 40.12s, environment 19ms)
