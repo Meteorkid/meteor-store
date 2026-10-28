@@ -1,0 +1,13 @@
+{
+  "sha": "17b351ea08ba2cbf61e19ba5116d0e8bf58834c5",
+  "buildId": "build-TfctsWXpff2fKS",
+  "archiveSha256": "80b401a21a76b11205e3b7e784debc880ddd70b62b9e54c35411e7f0aabfe252",
+  "archiveBytes": 22706851,
+  "build": "passed",
+  "typecheck": "passed",
+  "databaseReadOnly": true,
+  "cacheExcluded": true,
+  "glassCss": {
+    ".next/static/chunks/25_cr4f57lo2w.css": "9c4bb8b43aecedd2b041364e4a7f2e734c1a37e77ad545dabd572b7bf52fa000"
+  }
+}

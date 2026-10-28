@@ -1,0 +1,107 @@
+{
+  "cases": [
+    {
+      "label": "desktop-zh-1280",
+      "status": "passed"
+    },
+    {
+      "label": "desktop-en-1280",
+      "status": "passed"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "status": "passed"
+    },
+    {
+      "label": "desktop-en-1024",
+      "status": "passed"
+    },
+    {
+      "label": "touch-zh-375",
+      "status": "passed"
+    },
+    {
+      "label": "touch-en-375",
+      "status": "passed"
+    },
+    {
+      "label": "touch-zh-768",
+      "status": "passed"
+    },
+    {
+      "label": "touch-en-768",
+      "status": "passed"
+    },
+    {
+      "label": "coarse-en-1024",
+      "status": "passed"
+    },
+    {
+      "label": "prefers-reduced-motion",
+      "status": "passed"
+    },
+    {
+      "label": "prefers-reduced-transparency",
+      "status": "passed"
+    },
+    {
+      "label": "prefers-contrast",
+      "status": "passed"
+    }
+  ],
+  "passed": 12,
+  "failed": 0,
+  "anonymousAuthReads": 16,
+  "apiReads": 32,
+  "staticResponses": 413,
+  "invalidStatic": 0,
+  "blockedWrites": 185,
+  "blockedWebSockets": 0,
+  "healthIssues": 0,
+  "release": "17b351ea08ba2cbf61e19ba5116d0e8bf58834c5",
+  "browser": "156.0.8078.48",
+  "browserClosed": true,
+  "startedAt": "2026-10-28T13:34:06.511Z",
+  "finishedAt": "2026-10-28T13:35:59.416Z",
+  "uniqueStaticAssets": 27,
+  "staticTypes": {
+    "css": 60,
+    "js": 353
+  },
+  "navigationAbortedGets": 449,
+  "writeBlocksByPath": {
+    "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/": 128,
+    "https://www.imagentx.top/api/online/heartbeat": 57
+  },
+  "deployedCss": {
+    "url": "https://www.imagentx.top/_next/static/chunks/25_cr4f57lo2w.css?dpl=static-recovery-20261016",
+    "sha256": "9c4bb8b43aecedd2b041364e4a7f2e734c1a37e77ad545dabd572b7bf52fa000",
+    "matchesReleaseExpectedHash": true
+  },
+  "sourceFiles": {
+    "src/components/Header.tsx": "0d3baab8be49bf917d3207094dd5df60b84cc7b98d3a408627868b7748c3c98d",
+    "src/components/Header.module.css": "88c7bdcd923c6a35e26ead5a983259a69648f10eb57aaad3d0da7db572fd6255"
+  },
+  "screenshots": [
+    {
+      "file": "selected-zh-1280.png",
+      "sha256": "a170b3ea9b06f63b7d5573be19b7054bfe90b53cd8198b64f52fa9ffb43d9c91",
+      "visuallyInspected": true,
+      "captureWait": "fonts ready and finite animations settled; infinite background animations preserved"
+    },
+    {
+      "file": "mobile-selected-zh-375.png",
+      "sha256": "930c371e70947699c18f038c1265c103c6272be7abdc7177dc3ae581deb6876c",
+      "visuallyInspected": true,
+      "captureWait": "fonts ready and finite animations settled; infinite background animations preserved"
+    }
+  ],
+  "caseCount": 12,
+  "abortedGetResourceTypes": {
+    "fetch": 449
+  },
+  "abortedGetErrors": {
+    "net::ERR_ABORTED": 449
+  },
+  "abortedGetsAllRscFetch": true
+}

@@ -1,6 +1,6 @@
 # 一级导航玻璃高亮
 
-状态：本地候选，未提交或部署；本地浏览器最终验收完成。
+状态：已于 2026-10-28 北京时间 21:33 上线。功能提交 `17b351ea08ba2cbf61e19ba5116d0e8bf58834c5`，生产浏览器验收完成。
 
 ## 改动
 
@@ -21,7 +21,7 @@
 
 基线 `6c1a522`，隔离副本只叠加本轮 CSS。29 项现有导航定向回归通过，完整生产构建和 TypeScript 通过；构建产物保留标准及 WebKit backdrop-filter、三项偏好媒体规则。浏览器验收使用本地候选 3187，旧导航样式对照 3186；两者 Header 源码与导航数据一致。
 
-隔离环境没有连接真实数据库；匿名鉴权使用夹具，非 GET 和外源请求阻断。其内容读取失败不作为内容功能通过。本次不涉及生产上线、真实登录写入、实体手机或 Safari/Firefox 验收。
+隔离环境没有连接真实数据库；匿名鉴权使用夹具，非 GET 和外源请求阻断。其内容读取失败不作为内容功能通过。上述为本地阶段，不代表生产上线、真实登录写入、实体手机或 Safari/Firefox 验收。
 
 设计约定：[导航玻璃高亮方案](../superpowers/specs/2026-10-28-navigation-glass-highlight-design.md)。
 
@@ -32,4 +32,23 @@
 
 [浏览器结果](header-glass-highlight-20261028/results.json)、[摘要](header-glass-highlight-20261028/summary.json)、[构建 CSS 检查](header-glass-highlight-20261028/css-build-check.json)、[稳定桌面截图](header-glass-highlight-20261028/selected-header-zh-1280.png)、[稳定手机截图](header-glass-highlight-20261028/mobile-selected-zh-375.png)。源码与证据使用 SHA-256 核对。
 
-本机预览保留在 `http://127.0.0.1:3187/zh/products`，仅用于视觉验收。旧样式对照服务 3186 已关闭。外观待用户审阅，提交与上线仍需另行确认。
+用户已批准“部署上线”。旧样式对照 3186 和候选 3187 已关闭，效果现可直接在生产站查看。
+
+
+## 正式发布
+
+- 干净副本构建本次已提交源码，使用生产公开配置及 SSH 只读数据库连接，完整 TypeScript 和 415 页静态生成通过；未使用无数据库的本地验收产物。包内排除 cache/dev，SHA-256 核对后固定服务器源码到 `17b351e`，沿用双锁、产品空闲检查和既有激活流程。
+- 发布前完整备份：`/var/backups/meteor-store-glass-20261028-b6xm5DJ5`。数据库备份 `database/meteor-store-20261028-213056.dump` 已上传既有私有 R2 并回读校验。运行回滚目录：`/var/backups/meteor-store-runtime-nFP7dTGy`。
+- PM2 的实际 Next PID `1591474` 自己持有 `127.0.0.1:3000`，应用、PostgreSQL、Redis 健康。生产环境、cron、Nginx/logrotate 配置及产品 catalog/job 内容均未变；无数据库迁移。
+- 已核对服务器和公开返回的 `25_cr4f57lo2w.css` 均匹配构建 SHA-256 `9c4bb8b43aecedd2b041364e4a7f2e734c1a37e77ad545dabd572b7bf52fa000`。没有只凭重复的 BUILD_ID 判断新版本。
+- 36 次封面预热全部成功；功能提交已同步 GitHub/Gitee/GitLab。构建临时连接信息已删除，SSH 数据库隧道已关闭。
+
+## 线上验收
+
+生产独立 Chrome、真实匿名鉴权，12/12 通过：9 组导航 + 3 组媒体偏好。按下仅缩放装饰层，文字不缩放；1024 英文登录入口保持单行，全宽下拉定位、名称直达、箭头和键盘/手机操作均正常。两张稳定截图已实际查看。
+
+413 次 JS/CSS 响应（353 JS、60 CSS）状态和 MIME 全部有效，32 次 API 读取正常；HTTP 错误、pageerror 和其他 GET 失败为 0。185 次非 GET 由测试阻断，449 次 fetch/ERR_ABORTED 作为路由切换取消单独记录；未测试真实账号写入、实体手机、Safari/Firefox 或遥测投递。
+
+[操作摘要](header-glass-highlight-20261028/release/operations.json) · [正式构建](header-glass-highlight-20261028/release/build-verification.json) · [线上统计](header-glass-highlight-20261028/release/summary.json) · [浏览器原始结果](header-glass-highlight-20261028/release/results.json) · [桌面效果](header-glass-highlight-20261028/release/selected-zh-1280.png) · [手机效果](header-glass-highlight-20261028/release/mobile-selected-zh-375.png)。归档遥测 URL 中的 key 已脱敏。
+
+如需回滚，使用本次唯一备份并按[运行回滚流程](2026-10-23-runtime-operations-fix.md)执行；保留发布后新增业务数据，不用旧数据库覆盖。本文及验收附件的补交不改变运行功能版本 `17b351e`。

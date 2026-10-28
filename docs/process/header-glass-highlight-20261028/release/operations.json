@@ -1,0 +1,29 @@
+{
+  "releaseSha": "17b351ea08ba2cbf61e19ba5116d0e8bf58834c5",
+  "previousSha": "6c1a522aac852015dac52d1a3dec8070530142aa",
+  "releasedAt": "2026-10-28T13:33:33Z",
+  "completeBackup": "/var/backups/meteor-store-glass-20261028-b6xm5DJ5",
+  "runtimeRollback": "/var/backups/meteor-store-runtime-nFP7dTGy",
+  "databaseBackup": "/var/backups/meteor-store-glass-20261028-b6xm5DJ5/database/meteor-store-20261028-213056.dump",
+  "databaseRemoteReadBackVerified": true,
+  "schemaMigration": false,
+  "activationExit": 0,
+  "runtimePid": 1591474,
+  "directNextProcess": true,
+  "managedPidOwnsLoopback3000": true,
+  "health": {
+    "self": "ok",
+    "database": "ok",
+    "redis": "ok"
+  },
+  "envUnchanged": true,
+  "cronUnchanged": true,
+  "nginxAndLogrotateConfigsUnchanged": true,
+  "productCatalogAndJobUnchanged": true,
+  "buildUsedProductionPublicConfig": true,
+  "buildDatabaseReadOnly": true,
+  "buildTypecheck": "passed",
+  "productionBuildStaticPages": 415,
+  "privateLocalBuildEnvRemoved": true,
+  "taskBuildTunnelStopped": true
+}

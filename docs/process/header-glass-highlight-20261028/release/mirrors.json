@@ -1,0 +1,14 @@
+[
+  {
+    "remote": "gitee",
+    "pushExit": 0,
+    "head": "17b351ea08ba2cbf61e19ba5116d0e8bf58834c5",
+    "matches": true
+  },
+  {
+    "remote": "gitlab",
+    "pushExit": 0,
+    "head": "17b351ea08ba2cbf61e19ba5116d0e8bf58834c5",
+    "matches": true
+  }
+]
