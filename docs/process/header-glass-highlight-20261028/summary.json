@@ -1,0 +1,17 @@
+{
+  "baseline": "6c1a522aac852015dac52d1a3dec8070530142aa",
+  "navigationPassed": 9,
+  "mediaGroupsPassed": 3,
+  "unitTestsPassed": 29,
+  "buildAndTypecheck": "passed",
+  "pageErrors": 0,
+  "expectedContentFailures": "GET /api/announcements 500; intentionally absent isolated database",
+  "staticResponseCount": "not recorded",
+  "sourceCssSha256": "88c7bdcd923c6a35e26ead5a983259a69648f10eb57aaad3d0da7db572fd6255",
+  "notCovered": [
+    "production",
+    "real account writes",
+    "physical touch device",
+    "Safari/Firefox"
+  ]
+}

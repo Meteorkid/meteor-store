@@ -41,11 +41,42 @@
   transition: background-color 160ms ease, color 160ms ease;
 }
 
-.navGroup { display: flex; align-items: center; border-radius: 8px; }
-.navGroup[data-active], .navGroup[data-expanded] { background: rgb(255 255 255 / 7%); }
-.navGroup[data-active] > a, .navGroup[data-expanded] > a, .navGroup[data-expanded] > button { color: #fff; }
-.navLink { min-height: 42px; padding: 8px 2px 8px 11px; font-size: 14px; font-weight: 500; line-height: 1.5; letter-spacing: 0; white-space: nowrap; }
+.navGroup { display: flex; align-items: center; }
+.navLink { min-height: 42px; padding: 8px 7px; font-size: 14px; font-weight: 500; line-height: 1.5; letter-spacing: 0; white-space: nowrap; }
 .navTrigger { width: 32px; min-height: 42px; padding: 8px 9px; flex-shrink: 0; }
+
+/* 材质只放在交互叶子上，避免改变全宽下拉面板的定位参照。 */
+.navLink, .navTrigger, .mobileLink > span, .mobileTrigger { position: relative; isolation: isolate; border-radius: 999px; }
+.navLink::before, .navTrigger::before, .mobileLink > span::before, .mobileTrigger::before {
+  content: '';
+  position: absolute;
+  inset: 2px 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  border: 1px solid rgb(255 255 255 / 22%);
+  background:
+    radial-gradient(ellipse at 20% 0%, rgb(255 255 255 / 24%), transparent 65%),
+    linear-gradient(135deg, rgb(211 199 255 / 12%), rgb(255 255 255 / 4%) 55%, rgb(255 255 255 / 10%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 25%), inset 0 -1px 0 rgb(255 255 255 / 6%), 0 3px 10px rgb(0 0 0 / 18%);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  backdrop-filter: blur(12px) saturate(1.4);
+  opacity: var(--nav-glass-opacity, 0);
+  transform: scale(1);
+  transition: opacity 160ms ease-out, transform 160ms cubic-bezier(.2, .8, .2, 1);
+}
+.navTrigger::before { inset: 5px 1px; }
+.mobileTrigger::before { inset: 10px 0; }
+.navGroup[data-expanded] > .navLink { --nav-glass-opacity: .45; color: #fff; }
+.navGroup[data-active] > .navLink, .mobileGroup .mobileLink[data-active] { --nav-glass-opacity: 1; color: #fff; }
+.navTrigger[aria-expanded="true"], .mobileTrigger[aria-expanded="true"] { --nav-glass-opacity: .75; color: #fff; }
+.navLink:focus-visible, .navTrigger:focus-visible, .mobileLink:focus-visible, .mobileTrigger:focus-visible { --nav-glass-opacity: .7; color: #fff; }
+.navLink:active::before, .navTrigger:active::before, .mobileLink:active > span::before, .mobileTrigger:active::before {
+  opacity: 1;
+  transform: scale(.96);
+  transition-duration: 70ms;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 45%), inset 0 0 12px rgb(255 255 255 / 10%);
+}
 .iconButton { width: 38px; height: 40px; flex-shrink: 0; }
 .chevron { width: 14px; height: 14px; flex-shrink: 0; transition: transform 160ms ease; }
 [aria-expanded="true"] > .chevron { transform: rotate(180deg); }
@@ -81,7 +112,8 @@
 .header a:focus-visible, .header button:focus-visible, .mobilePanel a:focus-visible, .mobilePanel button:focus-visible { outline: 2px solid rgb(196 181 253); outline-offset: 3px; }
 
 @media (hover: hover) and (pointer: fine) {
-  .navLink:hover, .navTrigger:hover, .iconButton:hover, .panelLink:hover, .accountLink:hover, .logout:hover { background: rgb(255 255 255 / 8%); color: #fff; }
+  .navLink:hover, .navTrigger:hover, .mobileLink:hover, .mobileTrigger:hover { --nav-glass-opacity: .65; color: #fff; }
+  .iconButton:hover, .panelLink:hover, .accountLink:hover, .logout:hover { background: rgb(255 255 255 / 8%); color: #fff; }
   .overviewLink:hover { color: #fff; }
   .login:hover { background: rgb(255 255 255 / 15%); }
 }
@@ -102,9 +134,9 @@
   .mobileContent { padding: 12px 24px max(32px, env(safe-area-inset-bottom)); }
   .mobileGroup { border-bottom: 1px solid rgb(255 255 255 / 12%); }
   .mobileHeading { display: flex; align-items: center; gap: 8px; }
-  .mobileLink { display: flex; align-items: center; flex: 1; min-width: 0; min-height: 64px; padding-block: 18px; border-radius: 6px; color: #fff; }
-  .mobileLink[data-active] { color: rgb(220 206 255); }
-  .mobileTrigger { display: flex; align-items: center; justify-content: center; width: 44px; min-height: 64px; flex-shrink: 0; border-radius: 6px; color: #fff; }
+  .mobileLink { display: flex; align-items: center; flex: 1; min-width: 0; min-height: 64px; padding-block: 8px; border-radius: 8px; color: #fff; }
+  .mobileLink > span { padding: 6px 12px; margin-left: -12px; }
+  .mobileTrigger { display: flex; align-items: center; justify-content: center; width: 44px; min-height: 64px; flex-shrink: 0; color: #fff; }
   .mobileTrigger .chevron { width: 18px; height: 18px; color: rgb(255 255 255 / 70%); }
   .mobileLinks { display: grid; gap: 22px; padding: 0 8px 24px; }
   .mobileLinks > .overviewLink { padding-block: 4px; }
@@ -119,7 +151,7 @@
 
 @media (min-width: 1024px) and (pointer: coarse) {
   .desktopNav { gap: 0; }
-  .navLink { padding-left: 8px; }
+  .navLink { padding-inline: 5px; }
   .navTrigger { width: 44px; min-height: 44px; }
 }
 
@@ -144,8 +176,21 @@
 @media (prefers-reduced-motion: reduce) {
   .header, .headerHidden, .desktopPanel, .mobilePanel, .chevron { animation: none; transform: none !important; transition: none !important; }
   .header *, .mobilePanel * { transition: none !important; }
+  .navLink::before, .navTrigger::before, .mobileLink > span::before, .mobileTrigger::before { transform: none !important; transition: none !important; }
 }
 
 @media (prefers-reduced-transparency: reduce) {
   .headerSurface, .desktopPanel { background: #111017; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .navLink::before, .navTrigger::before, .mobileLink > span::before, .mobileTrigger::before { background: #34313f; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+@media (prefers-contrast: more) {
+  .navLink, .navTrigger { color: #fff; }
+  .navLink::before, .navTrigger::before, .mobileLink > span::before, .mobileTrigger::before {
+    background: #34313f;
+    border-color: #fff;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }

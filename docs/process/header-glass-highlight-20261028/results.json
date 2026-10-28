@@ -1,0 +1,3138 @@
+{
+  "startedAt": "2026-10-28T13:13:52.697Z",
+  "variant": "candidate",
+  "base": "http://127.0.0.1:3187",
+  "visualOnly": false,
+  "guestStub": true,
+  "cases": [
+    {
+      "label": "desktop-zh-1280",
+      "status": "passed",
+      "bounds": {
+        "viewport": 1280,
+        "documentWidth": 1280,
+        "root": {
+          "left": 0,
+          "right": 1280,
+          "top": 0,
+          "bottom": 64,
+          "width": 1280,
+          "height": 64
+        },
+        "scrollWidth": 1280,
+        "right": 1256,
+        "text": [
+          {
+            "text": "Meteor Store",
+            "id": "",
+            "box": {
+              "left": 24,
+              "right": 161.03125,
+              "top": 18,
+              "bottom": 46,
+              "width": 137.03125,
+              "height": 28
+            },
+            "rows": 1,
+            "textWidth": 100.03125,
+            "transform": "none"
+          },
+          {
+            "text": "产品",
+            "id": "header-overview-products",
+            "box": {
+              "left": 371.03125,
+              "right": 413.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 42,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 28,
+            "transform": "none"
+          },
+          {
+            "text": "每日一新",
+            "id": "header-overview-daily",
+            "box": {
+              "left": 448.03125,
+              "right": 518.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 70,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 56,
+            "transform": "none"
+          },
+          {
+            "text": "学习与机会",
+            "id": "header-overview-learn",
+            "box": {
+              "left": 553.03125,
+              "right": 637.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 84,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 70,
+            "transform": "none"
+          },
+          {
+            "text": "内容",
+            "id": "header-overview-content",
+            "box": {
+              "left": 672.03125,
+              "right": 714.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 42,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 28,
+            "transform": "none"
+          },
+          {
+            "text": "帮助",
+            "id": "header-overview-help",
+            "box": {
+              "left": 749.03125,
+              "right": 791.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 42,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 28,
+            "transform": "none"
+          },
+          {
+            "text": "EN",
+            "id": "",
+            "box": {
+              "left": 1117.03125,
+              "right": 1151.296875,
+              "top": 19,
+              "bottom": 45,
+              "width": 34.265625,
+              "height": 26
+            },
+            "rows": 1,
+            "textWidth": 16.265625,
+            "transform": "none"
+          },
+          {
+            "text": "登录 / 注册",
+            "id": "",
+            "box": {
+              "left": 1156.296875,
+              "right": 1256,
+              "top": 16,
+              "bottom": 49,
+              "width": 99.703125,
+              "height": 33
+            },
+            "rows": 1,
+            "textWidth": 67.703125,
+            "transform": "none"
+          }
+        ],
+        "primary": [
+          {
+            "text": "产品",
+            "textWidth": 28,
+            "available": 28,
+            "transform": "none"
+          },
+          {
+            "text": "每日一新",
+            "textWidth": 56,
+            "available": 56,
+            "transform": "none"
+          },
+          {
+            "text": "学习与机会",
+            "textWidth": 70,
+            "available": 70,
+            "transform": "none"
+          },
+          {
+            "text": "内容",
+            "textWidth": 28,
+            "available": 28,
+            "transform": "none"
+          },
+          {
+            "text": "帮助",
+            "textWidth": 28,
+            "available": 28,
+            "transform": "none"
+          }
+        ]
+      },
+      "panel": {
+        "left": 0,
+        "width": 1280,
+        "top": 64,
+        "headerBottom": 64,
+        "viewport": 1280,
+        "groupPosition": "static",
+        "groupTransform": "none",
+        "groupBackdrop": "none"
+      },
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "focusStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "solid",
+        "outlineWidth": "2px",
+        "opacity": 0.117094,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "press": {
+        "style": {
+          "leafTransform": "none",
+          "parentTransform": "none",
+          "outlineStyle": "none",
+          "outlineWidth": "3px",
+          "opacity": 1,
+          "transform": "matrix(0.96, 0, 0, 0.96, 0, 0)",
+          "transition": "0.07s",
+          "backdrop": "blur(12px) saturate(1.4)",
+          "background": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(255, 255, 255, 0.22)",
+          "borderWidth": "1px",
+          "pointerEvents": "none",
+          "zIndex": "-1"
+        },
+        "screenshot": "/tmp/meteor-header-glass-20261028/browser/candidate/pressed-zh-1280.png"
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/selected-zh-1280.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/hover-zh-1280.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/expanded-zh-1280.png"
+      ],
+      "actions": [
+        "name products -> /products",
+        "name daily -> /daily",
+        "name learn -> /pathfinder",
+        "name content -> /blog",
+        "name help -> /docs",
+        "focused group A -> hover group B -> first submenu click",
+        "name Enter navigates; ArrowDown/Escape restores name; focus visible",
+        "arrow ArrowDown/Escape/Enter/Space stays on route",
+        "arrow pointer toggles",
+        "Meta click preserves current page"
+      ]
+    },
+    {
+      "label": "desktop-en-1280",
+      "status": "passed",
+      "bounds": {
+        "viewport": 1280,
+        "documentWidth": 1280,
+        "root": {
+          "left": 0,
+          "right": 1280,
+          "top": 0,
+          "bottom": 64,
+          "width": 1280,
+          "height": 64
+        },
+        "scrollWidth": 1280,
+        "right": 1256,
+        "text": [
+          {
+            "text": "Meteor Store",
+            "id": "",
+            "box": {
+              "left": 24,
+              "right": 161.03125,
+              "top": 18,
+              "bottom": 46,
+              "width": 137.03125,
+              "height": 28
+            },
+            "rows": 1,
+            "textWidth": 100.03125,
+            "transform": "none"
+          },
+          {
+            "text": "Products",
+            "id": "header-overview-products",
+            "box": {
+              "left": 325.328125,
+              "right": 398.953125,
+              "top": 11,
+              "bottom": 53,
+              "width": 73.625,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 59.625,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "id": "header-overview-daily",
+            "box": {
+              "left": 433.953125,
+              "right": 480.59375,
+              "top": 11,
+              "bottom": 53,
+              "width": 46.640625,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 32.640625,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "id": "header-overview-learn",
+            "box": {
+              "left": 515.59375,
+              "right": 632.796875,
+              "top": 11,
+              "bottom": 53,
+              "width": 117.203125,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 103.203125,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "id": "header-overview-content",
+            "box": {
+              "left": 667.796875,
+              "right": 729.328125,
+              "top": 11,
+              "bottom": 53,
+              "width": 61.53125,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 47.53125,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "id": "header-overview-help",
+            "box": {
+              "left": 764.328125,
+              "right": 808.90625,
+              "top": 11,
+              "bottom": 53,
+              "width": 44.578125,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 30.578125,
+            "transform": "none"
+          },
+          {
+            "text": "中",
+            "id": "",
+            "box": {
+              "left": 1089.203125,
+              "right": 1118.71875,
+              "top": 19,
+              "bottom": 45,
+              "width": 29.515625,
+              "height": 26
+            },
+            "rows": 1,
+            "textWidth": 11.515625,
+            "transform": "none"
+          },
+          {
+            "text": "Login / Register",
+            "id": "",
+            "box": {
+              "left": 1123.71875,
+              "right": 1256,
+              "top": 16,
+              "bottom": 49,
+              "width": 132.28125,
+              "height": 33
+            },
+            "rows": 1,
+            "textWidth": 100.28125,
+            "transform": "none"
+          }
+        ],
+        "primary": [
+          {
+            "text": "Products",
+            "textWidth": 59.625,
+            "available": 59.625,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "textWidth": 32.640625,
+            "available": 32.640625,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "textWidth": 103.203125,
+            "available": 103.203125,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "textWidth": 47.53125,
+            "available": 47.53125,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "textWidth": 30.578125,
+            "available": 30.578125,
+            "transform": "none"
+          }
+        ]
+      },
+      "panel": {
+        "left": 0,
+        "width": 1280,
+        "top": 64,
+        "headerBottom": 64,
+        "viewport": 1280,
+        "groupPosition": "static",
+        "groupTransform": "none",
+        "groupBackdrop": "none"
+      },
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "focusStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "solid",
+        "outlineWidth": "2px",
+        "opacity": 0.179418,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "press": {
+        "style": {
+          "leafTransform": "none",
+          "parentTransform": "none",
+          "outlineStyle": "none",
+          "outlineWidth": "3px",
+          "opacity": 1,
+          "transform": "matrix(0.96, 0, 0, 0.96, 0, 0)",
+          "transition": "0.07s",
+          "backdrop": "blur(12px) saturate(1.4)",
+          "background": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(255, 255, 255, 0.22)",
+          "borderWidth": "1px",
+          "pointerEvents": "none",
+          "zIndex": "-1"
+        },
+        "screenshot": "/tmp/meteor-header-glass-20261028/browser/candidate/pressed-en-1280.png"
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/selected-en-1280.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/hover-en-1280.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/expanded-en-1280.png"
+      ],
+      "actions": [
+        "name products -> /products",
+        "name daily -> /daily",
+        "name learn -> /pathfinder",
+        "name content -> /blog",
+        "name help -> /docs",
+        "focused group A -> hover group B -> first submenu click",
+        "name Enter navigates; ArrowDown/Escape restores name; focus visible",
+        "arrow ArrowDown/Escape/Enter/Space stays on route",
+        "arrow pointer toggles",
+        "Meta click preserves current page"
+      ]
+    },
+    {
+      "label": "desktop-zh-1024",
+      "status": "passed",
+      "bounds": {
+        "viewport": 1024,
+        "documentWidth": 1024,
+        "root": {
+          "left": 0,
+          "right": 1024,
+          "top": 0,
+          "bottom": 64,
+          "width": 1024,
+          "height": 64
+        },
+        "scrollWidth": 1024,
+        "right": 1000,
+        "text": [
+          {
+            "text": "Meteor Store",
+            "id": "",
+            "box": {
+              "left": 24,
+              "right": 161.03125,
+              "top": 18,
+              "bottom": 46,
+              "width": 137.03125,
+              "height": 28
+            },
+            "rows": 1,
+            "textWidth": 100.03125,
+            "transform": "none"
+          },
+          {
+            "text": "产品",
+            "id": "header-overview-products",
+            "box": {
+              "left": 243.03125,
+              "right": 285.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 42,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 28,
+            "transform": "none"
+          },
+          {
+            "text": "每日一新",
+            "id": "header-overview-daily",
+            "box": {
+              "left": 320.03125,
+              "right": 390.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 70,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 56,
+            "transform": "none"
+          },
+          {
+            "text": "学习与机会",
+            "id": "header-overview-learn",
+            "box": {
+              "left": 425.03125,
+              "right": 509.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 84,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 70,
+            "transform": "none"
+          },
+          {
+            "text": "内容",
+            "id": "header-overview-content",
+            "box": {
+              "left": 544.03125,
+              "right": 586.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 42,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 28,
+            "transform": "none"
+          },
+          {
+            "text": "帮助",
+            "id": "header-overview-help",
+            "box": {
+              "left": 621.03125,
+              "right": 663.03125,
+              "top": 11,
+              "bottom": 53,
+              "width": 42,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 28,
+            "transform": "none"
+          },
+          {
+            "text": "EN",
+            "id": "",
+            "box": {
+              "left": 861.03125,
+              "right": 895.296875,
+              "top": 19,
+              "bottom": 45,
+              "width": 34.265625,
+              "height": 26
+            },
+            "rows": 1,
+            "textWidth": 16.265625,
+            "transform": "none"
+          },
+          {
+            "text": "登录 / 注册",
+            "id": "",
+            "box": {
+              "left": 900.296875,
+              "right": 1000,
+              "top": 16,
+              "bottom": 49,
+              "width": 99.703125,
+              "height": 33
+            },
+            "rows": 1,
+            "textWidth": 67.703125,
+            "transform": "none"
+          }
+        ],
+        "primary": [
+          {
+            "text": "产品",
+            "textWidth": 28,
+            "available": 28,
+            "transform": "none"
+          },
+          {
+            "text": "每日一新",
+            "textWidth": 56,
+            "available": 56,
+            "transform": "none"
+          },
+          {
+            "text": "学习与机会",
+            "textWidth": 70,
+            "available": 70,
+            "transform": "none"
+          },
+          {
+            "text": "内容",
+            "textWidth": 28,
+            "available": 28,
+            "transform": "none"
+          },
+          {
+            "text": "帮助",
+            "textWidth": 28,
+            "available": 28,
+            "transform": "none"
+          }
+        ]
+      },
+      "panel": {
+        "left": 0,
+        "width": 1024,
+        "top": 64,
+        "headerBottom": 64,
+        "viewport": 1024,
+        "groupPosition": "static",
+        "groupTransform": "none",
+        "groupBackdrop": "none"
+      },
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "focusStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "solid",
+        "outlineWidth": "2px",
+        "opacity": 0,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "press": {
+        "style": {
+          "leafTransform": "none",
+          "parentTransform": "none",
+          "outlineStyle": "none",
+          "outlineWidth": "3px",
+          "opacity": 1,
+          "transform": "matrix(0.96, 0, 0, 0.96, 0, 0)",
+          "transition": "0.07s",
+          "backdrop": "blur(12px) saturate(1.4)",
+          "background": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(255, 255, 255, 0.22)",
+          "borderWidth": "1px",
+          "pointerEvents": "none",
+          "zIndex": "-1"
+        },
+        "screenshot": "/tmp/meteor-header-glass-20261028/browser/candidate/pressed-zh-1024.png"
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/selected-zh-1024.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/hover-zh-1024.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/expanded-zh-1024.png"
+      ],
+      "actions": [
+        "name products -> /products",
+        "name daily -> /daily",
+        "name learn -> /pathfinder",
+        "name content -> /blog",
+        "name help -> /docs",
+        "focused group A -> hover group B -> first submenu click",
+        "name Enter navigates; ArrowDown/Escape restores name; focus visible",
+        "arrow ArrowDown/Escape/Enter/Space stays on route",
+        "arrow pointer toggles",
+        "Meta click preserves current page"
+      ]
+    },
+    {
+      "label": "desktop-en-1024",
+      "status": "passed",
+      "bounds": {
+        "viewport": 1024,
+        "documentWidth": 1024,
+        "root": {
+          "left": 0,
+          "right": 1024,
+          "top": 0,
+          "bottom": 64,
+          "width": 1024,
+          "height": 64
+        },
+        "scrollWidth": 1024,
+        "right": 1000,
+        "text": [
+          {
+            "text": "Meteor Store",
+            "id": "",
+            "box": {
+              "left": 24,
+              "right": 161.03125,
+              "top": 18,
+              "bottom": 46,
+              "width": 137.03125,
+              "height": 28
+            },
+            "rows": 1,
+            "textWidth": 100.03125,
+            "transform": "none"
+          },
+          {
+            "text": "Products",
+            "id": "header-overview-products",
+            "box": {
+              "left": 197.328125,
+              "right": 270.953125,
+              "top": 11,
+              "bottom": 53,
+              "width": 73.625,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 59.625,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "id": "header-overview-daily",
+            "box": {
+              "left": 305.953125,
+              "right": 352.59375,
+              "top": 11,
+              "bottom": 53,
+              "width": 46.640625,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 32.640625,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "id": "header-overview-learn",
+            "box": {
+              "left": 387.59375,
+              "right": 504.796875,
+              "top": 11,
+              "bottom": 53,
+              "width": 117.203125,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 103.203125,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "id": "header-overview-content",
+            "box": {
+              "left": 539.796875,
+              "right": 601.328125,
+              "top": 11,
+              "bottom": 53,
+              "width": 61.53125,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 47.53125,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "id": "header-overview-help",
+            "box": {
+              "left": 636.328125,
+              "right": 680.90625,
+              "top": 11,
+              "bottom": 53,
+              "width": 44.578125,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 30.578125,
+            "transform": "none"
+          },
+          {
+            "text": "中",
+            "id": "",
+            "box": {
+              "left": 833.203125,
+              "right": 862.71875,
+              "top": 19,
+              "bottom": 45,
+              "width": 29.515625,
+              "height": 26
+            },
+            "rows": 1,
+            "textWidth": 11.515625,
+            "transform": "none"
+          },
+          {
+            "text": "Login / Register",
+            "id": "",
+            "box": {
+              "left": 867.71875,
+              "right": 1000,
+              "top": 16,
+              "bottom": 49,
+              "width": 132.28125,
+              "height": 33
+            },
+            "rows": 1,
+            "textWidth": 100.28125,
+            "transform": "none"
+          }
+        ],
+        "primary": [
+          {
+            "text": "Products",
+            "textWidth": 59.625,
+            "available": 59.625,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "textWidth": 32.640625,
+            "available": 32.640625,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "textWidth": 103.203125,
+            "available": 103.203125,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "textWidth": 47.53125,
+            "available": 47.53125,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "textWidth": 30.578125,
+            "available": 30.578125,
+            "transform": "none"
+          }
+        ]
+      },
+      "panel": {
+        "left": 0,
+        "width": 1024,
+        "top": 64,
+        "headerBottom": 64,
+        "viewport": 1024,
+        "groupPosition": "static",
+        "groupTransform": "none",
+        "groupBackdrop": "none"
+      },
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "focusStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "solid",
+        "outlineWidth": "2px",
+        "opacity": 0,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "press": {
+        "style": {
+          "leafTransform": "none",
+          "parentTransform": "none",
+          "outlineStyle": "none",
+          "outlineWidth": "3px",
+          "opacity": 1,
+          "transform": "matrix(0.96, 0, 0, 0.96, 0, 0)",
+          "transition": "0.07s",
+          "backdrop": "blur(12px) saturate(1.4)",
+          "background": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(255, 255, 255, 0.22)",
+          "borderWidth": "1px",
+          "pointerEvents": "none",
+          "zIndex": "-1"
+        },
+        "screenshot": "/tmp/meteor-header-glass-20261028/browser/candidate/pressed-en-1024.png"
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/selected-en-1024.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/hover-en-1024.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/expanded-en-1024.png"
+      ],
+      "actions": [
+        "name products -> /products",
+        "name daily -> /daily",
+        "name learn -> /pathfinder",
+        "name content -> /blog",
+        "name help -> /docs",
+        "focused group A -> hover group B -> first submenu click",
+        "name Enter navigates; ArrowDown/Escape restores name; focus visible",
+        "arrow ArrowDown/Escape/Enter/Space stays on route",
+        "arrow pointer toggles",
+        "Meta click preserves current page"
+      ]
+    },
+    {
+      "label": "coarse-en-1024",
+      "status": "passed",
+      "bounds": {
+        "viewport": 1024,
+        "documentWidth": 1024,
+        "root": {
+          "left": 0,
+          "right": 1024,
+          "top": 0,
+          "bottom": 64,
+          "width": 1024,
+          "height": 64
+        },
+        "scrollWidth": 1024,
+        "right": 1000,
+        "text": [
+          {
+            "text": "Meteor Store",
+            "id": "",
+            "box": {
+              "left": 24,
+              "right": 161.03125,
+              "top": 18,
+              "bottom": 46,
+              "width": 137.03125,
+              "height": 28
+            },
+            "rows": 1,
+            "textWidth": 100.03125,
+            "transform": "none"
+          },
+          {
+            "text": "Products",
+            "id": "header-overview-products",
+            "box": {
+              "left": 183.328125,
+              "right": 252.953125,
+              "top": 11,
+              "bottom": 53,
+              "width": 69.625,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 59.625,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "id": "header-overview-daily",
+            "box": {
+              "left": 296.953125,
+              "right": 339.59375,
+              "top": 11,
+              "bottom": 53,
+              "width": 42.640625,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 32.640625,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "id": "header-overview-learn",
+            "box": {
+              "left": 383.59375,
+              "right": 496.796875,
+              "top": 11,
+              "bottom": 53,
+              "width": 113.203125,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 103.203125,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "id": "header-overview-content",
+            "box": {
+              "left": 540.796875,
+              "right": 598.328125,
+              "top": 11,
+              "bottom": 53,
+              "width": 57.53125,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 47.53125,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "id": "header-overview-help",
+            "box": {
+              "left": 642.328125,
+              "right": 682.90625,
+              "top": 11,
+              "bottom": 53,
+              "width": 40.578125,
+              "height": 42
+            },
+            "rows": 1,
+            "textWidth": 30.578125,
+            "transform": "none"
+          },
+          {
+            "text": "中",
+            "id": "",
+            "box": {
+              "left": 833.203125,
+              "right": 862.71875,
+              "top": 19,
+              "bottom": 45,
+              "width": 29.515625,
+              "height": 26
+            },
+            "rows": 1,
+            "textWidth": 11.515625,
+            "transform": "none"
+          },
+          {
+            "text": "Login / Register",
+            "id": "",
+            "box": {
+              "left": 867.71875,
+              "right": 1000,
+              "top": 16,
+              "bottom": 49,
+              "width": 132.28125,
+              "height": 33
+            },
+            "rows": 1,
+            "textWidth": 100.28125,
+            "transform": "none"
+          }
+        ],
+        "primary": [
+          {
+            "text": "Products",
+            "textWidth": 59.625,
+            "available": 59.625,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "textWidth": 32.640625,
+            "available": 32.640625,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "textWidth": 103.203125,
+            "available": 103.203125,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "textWidth": 47.53125,
+            "available": 47.53125,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "textWidth": 30.578125,
+            "available": 30.578125,
+            "transform": "none"
+          }
+        ]
+      },
+      "target": {
+        "x": 496.796875,
+        "y": 10,
+        "width": 44,
+        "height": 44
+      },
+      "panel": {
+        "left": 0,
+        "width": 1024,
+        "top": 63.11123275756836,
+        "headerBottom": 64,
+        "viewport": 1024,
+        "groupPosition": "static",
+        "groupTransform": "none",
+        "groupBackdrop": "none"
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/coarse-selected-en-1024.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/coarse-expanded-en-1024.png"
+      ]
+    },
+    {
+      "label": "prefers-reduced-motion",
+      "status": "passed",
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "none",
+        "transition": "0s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "arrowStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "solid",
+        "outlineWidth": "2px",
+        "opacity": 0.7,
+        "transform": "none",
+        "transition": "0s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "mobileStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "none",
+        "transition": "0s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "surface": {
+        "backdrop": "blur(24px) saturate(1.5)",
+        "panelBackdrop": "blur(28px) saturate(1.5)"
+      },
+      "panel": {
+        "left": 0,
+        "width": 1280,
+        "top": 64,
+        "headerBottom": 64,
+        "viewport": 1280,
+        "groupPosition": "static",
+        "groupTransform": "none",
+        "groupBackdrop": "none"
+      },
+      "press": {
+        "style": {
+          "leafTransform": "none",
+          "parentTransform": "none",
+          "outlineStyle": "none",
+          "outlineWidth": "3px",
+          "opacity": 1,
+          "transform": "none",
+          "transition": "0s",
+          "backdrop": "blur(12px) saturate(1.4)",
+          "background": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(255, 255, 255, 0.22)",
+          "borderWidth": "1px",
+          "pointerEvents": "none",
+          "zIndex": "-1"
+        },
+        "screenshot": "/tmp/meteor-header-glass-20261028/browser/candidate/prefers-reduced-motion-pressed.png"
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/prefers-reduced-motion.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-prefers-reduced-motion.png"
+      ]
+    },
+    {
+      "label": "prefers-reduced-transparency",
+      "status": "passed",
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "none",
+        "background": "rgb(52, 49, 63)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "arrowStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "solid",
+        "outlineWidth": "2px",
+        "opacity": 0.116304,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "none",
+        "background": "rgb(52, 49, 63)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "mobileStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "none",
+        "background": "rgb(52, 49, 63)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "surface": {
+        "backdrop": "none",
+        "panelBackdrop": "none"
+      },
+      "panel": {
+        "left": 0,
+        "width": 1280,
+        "top": 64,
+        "headerBottom": 64,
+        "viewport": 1280,
+        "groupPosition": "static",
+        "groupTransform": "none",
+        "groupBackdrop": "none"
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/prefers-reduced-transparency.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-prefers-reduced-transparency.png"
+      ]
+    },
+    {
+      "label": "prefers-contrast",
+      "status": "passed",
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "none",
+        "background": "rgb(52, 49, 63)",
+        "borderColor": "rgb(255, 255, 255)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "arrowStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "solid",
+        "outlineWidth": "2px",
+        "opacity": 0,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "none",
+        "background": "rgb(52, 49, 63)",
+        "borderColor": "rgb(255, 255, 255)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "mobileStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "none",
+        "background": "rgb(52, 49, 63)",
+        "borderColor": "rgb(255, 255, 255)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "surface": {
+        "backdrop": "blur(24px) saturate(1.5)",
+        "panelBackdrop": "blur(28px) saturate(1.5)"
+      },
+      "panel": {
+        "left": 0,
+        "width": 1280,
+        "top": 64,
+        "headerBottom": 64,
+        "viewport": 1280,
+        "groupPosition": "static",
+        "groupTransform": "none",
+        "groupBackdrop": "none"
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/prefers-contrast.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-prefers-contrast.png"
+      ]
+    },
+    {
+      "label": "touch-zh-375",
+      "status": "passed",
+      "bounds": {
+        "viewport": 375,
+        "documentWidth": 375,
+        "root": {
+          "left": 0,
+          "right": 375,
+          "top": 0,
+          "bottom": 64,
+          "width": 375,
+          "height": 64
+        },
+        "scrollWidth": 375,
+        "right": 361,
+        "text": [
+          {
+            "text": "Meteor Store",
+            "id": "",
+            "box": {
+              "left": 14,
+              "right": 139.015625,
+              "top": 18,
+              "bottom": 46,
+              "width": 125.015625,
+              "height": 28
+            },
+            "rows": 1,
+            "textWidth": 90.015625,
+            "transform": "none"
+          },
+          {
+            "text": "EN",
+            "id": "",
+            "box": {
+              "left": 291.734375,
+              "right": 326,
+              "top": 19,
+              "bottom": 45,
+              "width": 34.265625,
+              "height": 26
+            },
+            "rows": 1,
+            "textWidth": 16.265625,
+            "transform": "none"
+          }
+        ],
+        "primary": []
+      },
+      "mobileBounds": {
+        "viewport": 375,
+        "documentWidth": 375,
+        "root": {
+          "left": 0,
+          "right": 375,
+          "top": 59,
+          "bottom": 895,
+          "width": 375,
+          "height": 836
+        },
+        "scrollWidth": 375,
+        "right": 351,
+        "text": [
+          {
+            "text": "产品",
+            "id": "header-mobile-overview-products",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 71,
+              "bottom": 135,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "每日一新",
+            "id": "header-mobile-overview-daily",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 136,
+              "bottom": 200,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 70.921875,
+            "transform": "none"
+          },
+          {
+            "text": "学习与机会",
+            "id": "header-mobile-overview-learn",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 201,
+              "bottom": 265,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 88.65625,
+            "transform": "none"
+          },
+          {
+            "text": "内容",
+            "id": "header-mobile-overview-content",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 266,
+              "bottom": 330,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "帮助",
+            "id": "header-mobile-overview-help",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 331,
+              "bottom": 395,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "登录 / 注册",
+            "id": "",
+            "box": {
+              "left": 24,
+              "right": 351,
+              "top": 422,
+              "bottom": 472,
+              "width": 327,
+              "height": 50
+            },
+            "rows": 1,
+            "textWidth": 72.21875,
+            "transform": "none"
+          }
+        ],
+        "primary": [
+          {
+            "text": "产品",
+            "textWidth": 35.46875,
+            "available": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "每日一新",
+            "textWidth": 70.921875,
+            "available": 70.921875,
+            "transform": "none"
+          },
+          {
+            "text": "学习与机会",
+            "textWidth": 88.65625,
+            "available": 88.65625,
+            "transform": "none"
+          },
+          {
+            "text": "内容",
+            "textWidth": 35.46875,
+            "available": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "帮助",
+            "textWidth": 35.46875,
+            "available": 35.46875,
+            "transform": "none"
+          }
+        ]
+      },
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "target": {
+        "x": 307,
+        "y": 76,
+        "width": 44,
+        "height": 64
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-selected-zh-375.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-expanded-zh-375.png"
+      ],
+      "actions": [
+        "mobile name products -> /products; unlocked",
+        "mobile name daily -> /daily; unlocked",
+        "mobile name learn -> /pathfinder; unlocked",
+        "mobile name content -> /blog; unlocked",
+        "mobile name help -> /docs; unlocked",
+        "mobile Escape restores hamburger and scroll"
+      ]
+    },
+    {
+      "label": "touch-en-375",
+      "status": "passed",
+      "bounds": {
+        "viewport": 375,
+        "documentWidth": 375,
+        "root": {
+          "left": 0,
+          "right": 375,
+          "top": 0,
+          "bottom": 64,
+          "width": 375,
+          "height": 64
+        },
+        "scrollWidth": 375,
+        "right": 361,
+        "text": [
+          {
+            "text": "Meteor Store",
+            "id": "",
+            "box": {
+              "left": 14,
+              "right": 139.015625,
+              "top": 18,
+              "bottom": 46,
+              "width": 125.015625,
+              "height": 28
+            },
+            "rows": 1,
+            "textWidth": 90.015625,
+            "transform": "none"
+          },
+          {
+            "text": "中",
+            "id": "",
+            "box": {
+              "left": 296.484375,
+              "right": 326,
+              "top": 19,
+              "bottom": 45,
+              "width": 29.515625,
+              "height": 26
+            },
+            "rows": 1,
+            "textWidth": 11.515625,
+            "transform": "none"
+          }
+        ],
+        "primary": []
+      },
+      "mobileBounds": {
+        "viewport": 375,
+        "documentWidth": 375,
+        "root": {
+          "left": 0,
+          "right": 375,
+          "top": 59,
+          "bottom": 895,
+          "width": 375,
+          "height": 836
+        },
+        "scrollWidth": 375,
+        "right": 351,
+        "text": [
+          {
+            "text": "Products",
+            "id": "header-mobile-overview-products",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 71,
+              "bottom": 135,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 74.109375,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "id": "header-mobile-overview-daily",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 136,
+              "bottom": 200,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 40.328125,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "id": "header-mobile-overview-learn",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 201,
+              "bottom": 265,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 127,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "id": "header-mobile-overview-content",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 266,
+              "bottom": 330,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 59.015625,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "id": "header-mobile-overview-help",
+            "box": {
+              "left": 24,
+              "right": 299,
+              "top": 331,
+              "bottom": 395,
+              "width": 275,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 37.984375,
+            "transform": "none"
+          },
+          {
+            "text": "Login / Register",
+            "id": "",
+            "box": {
+              "left": 24,
+              "right": 351,
+              "top": 422,
+              "bottom": 472,
+              "width": 327,
+              "height": 50
+            },
+            "rows": 1,
+            "textWidth": 108.703125,
+            "transform": "none"
+          }
+        ],
+        "primary": [
+          {
+            "text": "Products",
+            "textWidth": 74.109375,
+            "available": 74.109375,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "textWidth": 40.328125,
+            "available": 40.328125,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "textWidth": 127,
+            "available": 127,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "textWidth": 59.015625,
+            "available": 59.015625,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "textWidth": 37.984375,
+            "available": 37.984375,
+            "transform": "none"
+          }
+        ]
+      },
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "target": {
+        "x": 307,
+        "y": 76,
+        "width": 44,
+        "height": 64
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-selected-en-375.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-expanded-en-375.png"
+      ],
+      "actions": [
+        "mobile name products -> /products; unlocked",
+        "mobile name daily -> /daily; unlocked",
+        "mobile name learn -> /pathfinder; unlocked",
+        "mobile name content -> /blog; unlocked",
+        "mobile name help -> /docs; unlocked",
+        "mobile Escape restores hamburger and scroll"
+      ]
+    },
+    {
+      "label": "touch-zh-768",
+      "status": "passed",
+      "bounds": {
+        "viewport": 768,
+        "documentWidth": 768,
+        "root": {
+          "left": 0,
+          "right": 768,
+          "top": 0,
+          "bottom": 64,
+          "width": 768,
+          "height": 64
+        },
+        "scrollWidth": 768,
+        "right": 748,
+        "text": [
+          {
+            "text": "Meteor Store",
+            "id": "",
+            "box": {
+              "left": 20,
+              "right": 157.03125,
+              "top": 18,
+              "bottom": 46,
+              "width": 137.03125,
+              "height": 28
+            },
+            "rows": 1,
+            "textWidth": 100.03125,
+            "transform": "none"
+          },
+          {
+            "text": "EN",
+            "id": "",
+            "box": {
+              "left": 670.734375,
+              "right": 705,
+              "top": 19,
+              "bottom": 45,
+              "width": 34.265625,
+              "height": 26
+            },
+            "rows": 1,
+            "textWidth": 16.265625,
+            "transform": "none"
+          }
+        ],
+        "primary": []
+      },
+      "mobileBounds": {
+        "viewport": 768,
+        "documentWidth": 768,
+        "root": {
+          "left": 0,
+          "right": 768,
+          "top": 59,
+          "bottom": 895,
+          "width": 768,
+          "height": 836
+        },
+        "scrollWidth": 768,
+        "right": 744,
+        "text": [
+          {
+            "text": "产品",
+            "id": "header-mobile-overview-products",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 71,
+              "bottom": 135,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "每日一新",
+            "id": "header-mobile-overview-daily",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 136,
+              "bottom": 200,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 70.921875,
+            "transform": "none"
+          },
+          {
+            "text": "学习与机会",
+            "id": "header-mobile-overview-learn",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 201,
+              "bottom": 265,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 88.65625,
+            "transform": "none"
+          },
+          {
+            "text": "内容",
+            "id": "header-mobile-overview-content",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 266,
+              "bottom": 330,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "帮助",
+            "id": "header-mobile-overview-help",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 331,
+              "bottom": 395,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "登录 / 注册",
+            "id": "",
+            "box": {
+              "left": 24,
+              "right": 744,
+              "top": 422,
+              "bottom": 472,
+              "width": 720,
+              "height": 50
+            },
+            "rows": 1,
+            "textWidth": 72.21875,
+            "transform": "none"
+          }
+        ],
+        "primary": [
+          {
+            "text": "产品",
+            "textWidth": 35.46875,
+            "available": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "每日一新",
+            "textWidth": 70.921875,
+            "available": 70.921875,
+            "transform": "none"
+          },
+          {
+            "text": "学习与机会",
+            "textWidth": 88.65625,
+            "available": 88.65625,
+            "transform": "none"
+          },
+          {
+            "text": "内容",
+            "textWidth": 35.46875,
+            "available": 35.46875,
+            "transform": "none"
+          },
+          {
+            "text": "帮助",
+            "textWidth": 35.46875,
+            "available": 35.46875,
+            "transform": "none"
+          }
+        ]
+      },
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "target": {
+        "x": 700,
+        "y": 76,
+        "width": 44,
+        "height": 64
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-selected-zh-768.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-expanded-zh-768.png"
+      ],
+      "actions": [
+        "mobile name products -> /products; unlocked",
+        "mobile name daily -> /daily; unlocked",
+        "mobile name learn -> /pathfinder; unlocked",
+        "mobile name content -> /blog; unlocked",
+        "mobile name help -> /docs; unlocked",
+        "mobile Escape restores hamburger and scroll"
+      ]
+    },
+    {
+      "label": "touch-en-768",
+      "status": "passed",
+      "bounds": {
+        "viewport": 768,
+        "documentWidth": 768,
+        "root": {
+          "left": 0,
+          "right": 768,
+          "top": 0,
+          "bottom": 64,
+          "width": 768,
+          "height": 64
+        },
+        "scrollWidth": 768,
+        "right": 748,
+        "text": [
+          {
+            "text": "Meteor Store",
+            "id": "",
+            "box": {
+              "left": 20,
+              "right": 157.03125,
+              "top": 18,
+              "bottom": 46,
+              "width": 137.03125,
+              "height": 28
+            },
+            "rows": 1,
+            "textWidth": 100.03125,
+            "transform": "none"
+          },
+          {
+            "text": "中",
+            "id": "",
+            "box": {
+              "left": 675.484375,
+              "right": 705,
+              "top": 19,
+              "bottom": 45,
+              "width": 29.515625,
+              "height": 26
+            },
+            "rows": 1,
+            "textWidth": 11.515625,
+            "transform": "none"
+          }
+        ],
+        "primary": []
+      },
+      "mobileBounds": {
+        "viewport": 768,
+        "documentWidth": 768,
+        "root": {
+          "left": 0,
+          "right": 768,
+          "top": 59,
+          "bottom": 895,
+          "width": 768,
+          "height": 836
+        },
+        "scrollWidth": 768,
+        "right": 744,
+        "text": [
+          {
+            "text": "Products",
+            "id": "header-mobile-overview-products",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 71,
+              "bottom": 135,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 74.109375,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "id": "header-mobile-overview-daily",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 136,
+              "bottom": 200,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 40.328125,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "id": "header-mobile-overview-learn",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 201,
+              "bottom": 265,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 127,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "id": "header-mobile-overview-content",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 266,
+              "bottom": 330,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 59.015625,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "id": "header-mobile-overview-help",
+            "box": {
+              "left": 24,
+              "right": 692,
+              "top": 331,
+              "bottom": 395,
+              "width": 668,
+              "height": 64
+            },
+            "rows": 1,
+            "textWidth": 37.984375,
+            "transform": "none"
+          },
+          {
+            "text": "Login / Register",
+            "id": "",
+            "box": {
+              "left": 24,
+              "right": 744,
+              "top": 422,
+              "bottom": 472,
+              "width": 720,
+              "height": 50
+            },
+            "rows": 1,
+            "textWidth": 108.703125,
+            "transform": "none"
+          }
+        ],
+        "primary": [
+          {
+            "text": "Products",
+            "textWidth": 74.109375,
+            "available": 74.109375,
+            "transform": "none"
+          },
+          {
+            "text": "Daily",
+            "textWidth": 40.328125,
+            "available": 40.328125,
+            "transform": "none"
+          },
+          {
+            "text": "Learn & explore",
+            "textWidth": 127,
+            "available": 127,
+            "transform": "none"
+          },
+          {
+            "text": "Writing",
+            "textWidth": 59.015625,
+            "available": 59.015625,
+            "transform": "none"
+          },
+          {
+            "text": "Help",
+            "textWidth": 37.984375,
+            "available": 37.984375,
+            "transform": "none"
+          }
+        ]
+      },
+      "selectedStyle": {
+        "leafTransform": "none",
+        "parentTransform": "none",
+        "outlineStyle": "none",
+        "outlineWidth": "3px",
+        "opacity": 1,
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "transition": "0.16s, 0.16s",
+        "backdrop": "blur(12px) saturate(1.4)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.22)",
+        "borderWidth": "1px",
+        "pointerEvents": "none",
+        "zIndex": "-1"
+      },
+      "target": {
+        "x": 700,
+        "y": 76,
+        "width": 44,
+        "height": 64
+      },
+      "screenshots": [
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-selected-en-768.png",
+        "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-expanded-en-768.png"
+      ],
+      "actions": [
+        "mobile name products -> /products; unlocked",
+        "mobile name daily -> /daily; unlocked",
+        "mobile name learn -> /pathfinder; unlocked",
+        "mobile name content -> /blog; unlocked",
+        "mobile name help -> /docs; unlocked",
+        "mobile Escape restores hamburger and scroll"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1280",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "coarse-en-1024",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "prefers-reduced-motion",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "prefers-reduced-motion",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "prefers-reduced-transparency",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "prefers-reduced-transparency",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "prefers-contrast",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "prefers-contrast",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-375",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-zh-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "blocked",
+      "method": "POST",
+      "origin": "http://127.0.0.1:3187",
+      "path": "/api/online/heartbeat"
+    },
+    {
+      "label": "touch-en-768",
+      "type": "http-error",
+      "status": 500,
+      "path": "/api/announcements",
+      "resourceType": "fetch"
+    }
+  ],
+  "sourceFiles": {
+    "src/components/Header.tsx": "0d3baab8be49bf917d3207094dd5df60b84cc7b98d3a408627868b7748c3c98d",
+    "src/components/Header.module.css": "88c7bdcd923c6a35e26ead5a983259a69648f10eb57aaad3d0da7db572fd6255"
+  },
+  "boundaries": [
+    "Only the selected localhost origin may receive GET requests.",
+    "All non-GET and external-origin requests are blocked.",
+    "Anonymous auth is a browser fixture; this does not validate authenticated or database-backed behavior."
+  ],
+  "previousFailures": [
+    {
+      "label": "touch-zh-375",
+      "status": "failed",
+      "error": "产品 must not be compressed\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= -13\nReceived:    0",
+      "url": "http://127.0.0.1:3187/zh/products",
+      "screenshot": "/tmp/meteor-header-glass-20261028/browser/candidate/failure-touch-zh-375.png"
+    },
+    {
+      "label": "touch-en-375",
+      "status": "failed",
+      "error": "Products must not be compressed\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= -13\nReceived:    0",
+      "url": "http://127.0.0.1:3187/en/products",
+      "screenshot": "/tmp/meteor-header-glass-20261028/browser/candidate/failure-touch-en-375.png"
+    },
+    {
+      "label": "touch-zh-768",
+      "status": "failed",
+      "error": "产品 must not be compressed\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= -13\nReceived:    0",
+      "url": "http://127.0.0.1:3187/zh/products",
+      "screenshot": "/tmp/meteor-header-glass-20261028/browser/candidate/failure-touch-zh-768.png"
+    },
+    {
+      "label": "touch-en-768",
+      "status": "failed",
+      "error": "Products must not be compressed\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= -13\nReceived:    0",
+      "url": "http://127.0.0.1:3187/en/products",
+      "screenshot": "/tmp/meteor-header-glass-20261028/browser/candidate/failure-touch-en-768.png"
+    }
+  ],
+  "retryStartedAt": "2026-10-28T13:15:38.563Z",
+  "browser": "156.0.8078.48",
+  "finishedAt": "2026-10-28T13:15:52.103Z"
+}

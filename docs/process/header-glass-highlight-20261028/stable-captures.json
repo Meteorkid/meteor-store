@@ -1,0 +1,46 @@
+{
+  "startedAt": "2026-10-28T13:18:03.801Z",
+  "captures": [
+    {
+      "name": "selected-header-zh-1280",
+      "path": "/tmp/meteor-header-glass-20261028/browser/candidate/selected-header-zh-1280.png",
+      "sha256": "defd17bfb91619942a6131006f442befb066db5a8883c65465c570c5de7c7bae"
+    },
+    {
+      "name": "hover-zh-1280",
+      "path": "/tmp/meteor-header-glass-20261028/browser/candidate/hover-zh-1280.png",
+      "sha256": "dafa967f423c5f4d0a1dc861d02654c816a1c66a090ecae4acd45b5d17b8caf8"
+    },
+    {
+      "name": "pressed-zh-1280",
+      "path": "/tmp/meteor-header-glass-20261028/browser/candidate/pressed-zh-1280.png",
+      "sha256": "8c7e0af01e401c9c4434546ae6afaa7f0910bf28ff088bd77b8cdd95a6ffcda7"
+    },
+    {
+      "name": "mobile-selected-zh-375",
+      "path": "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-selected-zh-375.png",
+      "sha256": "77cb1c57335d05e6cb0ff6fdc0b49a6789d1e67735f53b10cb0aade9a494e16e"
+    },
+    {
+      "name": "mobile-expanded-zh-375",
+      "path": "/tmp/meteor-header-glass-20261028/browser/candidate/mobile-expanded-zh-375.png",
+      "sha256": "c7de235bc28d51f0e6fd8a77f53c1bd860168e7e681f4d6544452c62b66a4c69"
+    }
+  ],
+  "boundaries": "Local anonymous GET-only; screenshots only, no behavior regression repeated.",
+  "press": {
+    "leafTransform": "none",
+    "beforeTransform": "matrix(0.96, 0, 0, 0.96, 0, 0)"
+  },
+  "finishedAt": "2026-10-28T13:18:08.740Z",
+  "baselineCapture": {
+    "path": "/tmp/meteor-header-glass-20261028/browser/baseline-selected-header-zh-1280.png",
+    "sha256": "7f273c134eb97fc0a74b3bc47fb006b936490ed39790b1e5a24e9d61621c293e"
+  },
+  "sourceManifest": {
+    "baseline": "6c1a522aac852015dac52d1a3dec8070530142aa",
+    "files": {
+      "src/components/Header.module.css": "88c7bdcd923c6a35e26ead5a983259a69648f10eb57aaad3d0da7db572fd6255"
+    }
+  }
+}
