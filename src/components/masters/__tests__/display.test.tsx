@@ -29,7 +29,7 @@ describe('申请日历展示', () => {
   it('默认展示近期有效轮次，过期轮次仍可展开并保留官方信息', () => {
     const base = roundFixture();
     const past = roundFixture({ id: 'past-round', details: { ...base.details, deadlineOn: '2026-10-01' } });
-    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[past, base]} userId={null} initialWatches={[]} watchedRounds={[]} />);
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[past, base]} userId={null} initialWatches={[]} watchedRounds={[]} initialMode="list" />);
     expect(html.indexOf(`id="round-${base.id}"`)).toBeLessThan(html.indexOf('id="round-past-round"'));
     const closedDetails = html.match(/<details([^>]*)><summary[^>]*>已过截止或官方关闭的轮次/);
     expect(closedDetails).not.toBeNull();
@@ -43,12 +43,21 @@ describe('申请日历展示', () => {
   it('同项目后续轮次默认折叠，避免挤走其他项目的临近截止', () => {
     const near = roundFixture();
     const later = roundFixture({ id: 'later-round', details: { ...near.details, deadlineOn: '2027-02-01' } });
-    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[later, near]} userId={null} initialWatches={[]} watchedRounds={[]} />);
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[later, near]} userId={null} initialWatches={[]} watchedRounds={[]} initialMode="list" />);
     const details = html.match(/<details([^>]*)><summary[^>]*>展开同项目其余 1 个轮次/);
     expect(details).not.toBeNull();
     expect(details![1]).not.toContain('open');
     expect(html.indexOf(`id="round-${near.id}"`)).toBeLessThan(html.indexOf('展开同项目其余 1 个轮次'));
     expect(html.indexOf('id="round-later-round"')).toBeGreaterThan(html.indexOf('展开同项目其余 1 个轮次'));
+  });
+
+  it('默认进日历视图，列表需显式切换', () => {
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[roundFixture()]} userId={null} initialWatches={[]} watchedRounds={[]} />);
+    expect(html).toContain('aria-label="申请视图"');
+    expect(html).toContain('申请日历');
+    expect(html).toContain('本月 1 个开放 · 0 个截止');
+    // 日历模式不渲染导出选择区：那是列表卡片的操作
+    expect(html).not.toContain('加入日历导出');
   });
 
   it('rolling与轮次并列，截止已过仍保留官方入口', () => {
@@ -123,5 +132,58 @@ describe('可视化日历', () => {
     expect(html).toContain('aria-label="下一个月"');
     expect(html).toContain('图例');
     expect(html).toContain('按北京时间归入当天');
+  });
+
+  it('官方公布开放日时画出确定起点的申请期色带', () => {
+    const base = roundFixture();
+    const html = calendar([base]);
+    // 色带用 hsl 内联色，同校稳定；起点收口、末日收口
+    expect(html).toContain('data-span-lane');
+    expect(html).toContain('hsl(');
+    expect(html).toContain('Example University · MSc Computer Science');
+    expect(html).toContain('本月 1 段申请期');
+  });
+
+  it('起点未公布时从核验日起画并标为未知，不虚构开放日', () => {
+    const base = roundFixture();
+    const openEnded = roundFixture({
+      details: { ...base.details, opensOn: null, openingState: 'open' },
+      verifiedOn: '2026-10-05',
+    });
+    const html = calendar([openEnded]);
+    // 起点未知用斜纹淡出，展开面板写明是持续中
+    expect(html).toContain('repeating-linear-gradient');
+    expect(html).toContain('起止日均已公布');
+    expect(html).toContain('起点未公布，从核验日画起');
+    // 不把核验日说成开放日
+    expect(html).not.toContain('开放 · Example University');
+  });
+
+  it('只有截止日、开放状态未知的轮次不画色带', () => {
+    const base = roundFixture();
+    const deadlineOnly = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'unknown' } });
+    const html = calendar([deadlineOnly]);
+    expect(html).not.toContain('data-span-lane');
+    // 摘要行只在该月有申请期时才出现
+    expect(html).not.toContain('本月 1 段申请期');
+    // 截止节点仍然照常显示
+    expect(html).toContain('本月 0 个开放 · 1 个截止');
+  });
+
+  it('同项目重叠轮次合并成一条色带，各轮截止保留刻度', () => {
+    const base = roundFixture();
+    const later = roundFixture({ id: 'later', details: { ...base.details, deadlineOn: '2027-02-01' } });
+    const html = calendar([base, later]);
+    // 两轮同项目且区间重叠 → 合并为一段，不是两条叠色
+    expect(html).toContain('本月 1 段申请期');
+    expect(html).toContain('2 个节点');
+  });
+
+  it('同校在任何月份用同一色相，颜色不随渲染顺序漂移', () => {
+    const base = roundFixture();
+    const hue = (html: string) => (html.match(/hsl\((\d+)/) ?? [])[1];
+    const forward = hue(calendar([base, roundFixture({ id: 'other', details: { ...base.details, university: '另一所大学' } })]));
+    const reversed = hue(calendar([roundFixture({ id: 'other', details: { ...base.details, university: '另一所大学' } }), base]));
+    expect(forward).toBe(reversed);
   });
 });

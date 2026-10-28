@@ -22,6 +22,8 @@ export interface MastersHubProps {
   watchedRounds: MastersRound[];
   loadFailed?: boolean;
   watchesFailed?: boolean;
+  /** 初始视图。默认日历，列表留给需要逐条精读时切换。 */
+  initialMode?: 'list' | 'calendar';
 }
 
 function subscribeClock(listener: () => void) {
@@ -43,7 +45,7 @@ export default function MastersHub(props: MastersHubProps) {
   return <MastersHubForIdentity key={`${identity === null ? 'guest' : `user:${identity}`}:${props.year}`} {...props} activeUserId={identity} />;
 }
 
-function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, initialWatches, watchedRounds, loadFailed = false, watchesFailed = false }: MastersHubProps & { activeUserId: string | null }) {
+function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, initialWatches, watchedRounds, loadFailed = false, watchesFailed = false, initialMode = 'calendar' }: MastersHubProps & { activeUserId: string | null }) {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const copy = mastersText[locale];
   const router = useRouter();
@@ -53,7 +55,9 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
   const [ownRounds, setOwnRounds] = useState(sameIdentity ? watchedRounds : []);
   const [watchStatus, setWatchStatus] = useState<'ready' | 'loading' | 'failed'>(needsFetch ? 'loading' : sameIdentity && watchesFailed ? 'failed' : 'ready');
   const [view, setView] = useState<'all' | 'mine'>('all');
-  const [mode, setMode] = useState<'list' | 'calendar'>('list');
+  // 默认进日历：一眼看清申请节奏与「还在不在申请期内」是这张页面的主要用途，
+  // 列表留给需要逐条精读和关注轮次时切换。
+  const [mode, setMode] = useState<'list' | 'calendar'>(initialMode);
   const [yearInput, setYearInput] = useState(String(year));
   const [filters, setFilters] = useState<MastersFilters>({ year, region: '', school: '', subject: '', studyType: '', intake: '' });
   const [selected, setSelected] = useState<string[]>([]);

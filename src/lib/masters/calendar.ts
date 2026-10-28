@@ -26,6 +26,8 @@ export interface MastersCalendarCell {
   inMonth: boolean;
   isToday: boolean;
   nodes: MastersCalendarNode[];
+  /** 覆盖这一天的申请期，按学校色相铺成色带。 */
+  spans: MastersCalendarSpan[];
 }
 
 export interface MastersCalendarMonth {
@@ -33,6 +35,8 @@ export interface MastersCalendarMonth {
   weeks: MastersCalendarCell[][];
   opensCount: number;
   deadlineCount: number;
+  /** 本月出现过的申请期数量，用于摘要。 */
+  spanCount: number;
 }
 
 export interface MastersCalendarPending {
@@ -150,10 +154,12 @@ export function collectMastersCalendarPending(rounds: MastersRound[]): MastersCa
   });
 }
 
-/** 可翻月范围取自实际节点，避免让用户翻到一堆空月份。 */
-export function mastersCalendarBounds(rounds: MastersRound[], year: number): MastersCalendarBounds {
-  const months = rounds
-    .flatMap(round => [round.details.opensOn, round.details.deadlineOn])
+/** 可翻月范围取自实际节点与申请期起点，避免让用户翻到一堆空月份。 */
+export function mastersCalendarBounds(rounds: MastersRound[], year: number, spans: MastersCalendarSpan[] = []): MastersCalendarBounds {
+  const months = [
+    ...rounds.flatMap(round => [round.details.opensOn, round.details.deadlineOn]),
+    ...spans.flatMap(span => [span.start, span.end]),
+  ]
     .filter(isCalendarDate)
     .map(monthOf)
     .sort();
@@ -172,9 +178,121 @@ export function initialMastersCalendarMonth(bounds: MastersCalendarBounds, today
   return clampMonth(monthOf(today), bounds);
 }
 
-export function buildMastersCalendarMonth(month: string, nodes: MastersCalendarNode[], today = dailyDate()): MastersCalendarMonth {
+/** 一段申请期：同项目内重叠的轮次已合并，deadlines 保留各轮截止刻度。 */
+export interface MastersCalendarSpan {
+  /** 稳定标识：同项目合并后仍是同一所学校的一个色带。 */
+  key: string;
+  university: string;
+  programme: string;
+  region: MastersRound['region'];
+  start: string;
+  end: string;
+  /** 起点是否由官方公布。false 表示从核验日画起，条形起点淡出。 */
+  startKnown: boolean;
+  /** 合并进来的各轮截止日，用于在条形内标刻度。 */
+  deadlines: string[];
+  rounds: MastersRound[];
+  /** 合并的轮次里最早改期的记录，用于标变更。 */
+  changed: boolean;
+  /** 整段申请期已经结束（末日在今天之前），仅用于条形降透明度。 */
+  past: boolean;
+}
+
+/**
+ * 把轮次投影成申请期长条。只投影区间可知的轮次：
+ * 官方公布开放日 → 起止都确定；官方确认正在开放但未公布开放日 → 从核验日起画，
+ * 起点标为未知。只有截止日、开放状态未知的轮次不画条，避免暗示「这天之前都在开放」。
+ */
+export function collectMastersCalendarSpans(rounds: MastersRound[], now = new Date()): MastersCalendarSpan[] {
+  const today = dailyDate(now);
+  const recent = new Date(`${shiftDailyDate(today, -7)}T00:00:00+08:00`).toISOString();
+  const spans: MastersCalendarSpan[] = [];
+  for (const round of rounds) {
+    const details = round.details;
+    if (!isCalendarDate(details.deadlineOn)) continue;
+    let start: string | null = null;
+    let startKnown = false;
+    if (isCalendarDate(details.opensOn)) {
+      start = details.opensOn; startKnown = true;
+    } else if (details.openingState === 'open' && isCalendarDate(round.verifiedOn) && round.verifiedOn <= details.deadlineOn) {
+      // 官方只说「正在开放」，那就从核验那天开始画，不编造更早的开放日。
+      start = round.verifiedOn;
+    }
+    if (!start) continue;
+    if (start > details.deadlineOn) continue;
+    spans.push({
+      key: `${round.region}:${details.university.trim().toLowerCase()}:${details.programme.trim().toLowerCase()}`,
+      university: details.university, programme: details.programme, region: round.region,
+      start, end: details.deadlineOn, startKnown, deadlines: [details.deadlineOn],
+      rounds: [round], changed: !!round.dateChangedAt && round.dateChangedAt >= recent,
+      past: details.deadlineOn < today,
+    });
+  }
+
+  // 同项目重叠轮次合并成一条，否则港科 MIMT 这类四轮项目会叠出四条同色条，看着像渲染错误。
+  const merged = new Map<string, MastersCalendarSpan>();
+  for (const span of spans) {
+    const current = merged.get(span.key);
+    if (!current) { merged.set(span.key, span); continue; }
+    const overlaps = span.start <= current.end;
+    if (!overlaps) { merged.set(`${span.key}#${span.start}`, span); continue; }
+    current.start = span.start < current.start ? span.start : current.start;
+    current.end = span.end > current.end ? span.end : current.end;
+    // 合并后只要有一段起点未知，整条就按未知处理，不把边界说死。
+    current.startKnown = current.startKnown && span.startKnown;
+    current.deadlines = [...current.deadlines, span.end].sort();
+    current.rounds = [...current.rounds, ...span.rounds];
+    current.changed = current.changed || span.changed;
+    current.past = current.past && span.past;
+  }
+  return [...merged.values()].sort((first, second) =>
+    first.start.localeCompare(second.start)
+    || first.university.localeCompare(second.university)
+    || first.programme.localeCompare(second.programme));
+}
+
+/**
+ * 按学校稳定分配色相：同一所学校在任何月份、任何筛选下都是同一个颜色，
+ * 用户才能靠颜色认出「这条是港科」。色相取自字符串哈希，避免随渲染顺序漂移。
+ */
+export function mastersCalendarHue(span: Pick<MastersCalendarSpan, 'region' | 'university'>): number {
+  const seed = `${span.region}:${span.university.trim().toLowerCase()}`;
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) % 100_000;
+  }
+  // 落在 0–359 的色相环上，跳过偏灰的窄区间会让相邻色相撞色，这里不额外裁剪。
+  return hash % 360;
+}
+
+/** 某一天命中的申请期，供格子判断是否落在区间内。 */
+export function spansOnDate(spans: MastersCalendarSpan[], date: string): MastersCalendarSpan[] {
+  return spans.filter(span => span.start <= date && date <= span.end);
+}
+
+/**
+ * 给每条申请期分配固定车道（行号）。车道在整个月份内不变，同一条长条才会
+ * 在相邻格子里落在同一水平线上，跨格连成一条直线；否则会随渲染顺序上下跳。
+ */
+export function assignMastersCalendarLanes(spans: MastersCalendarSpan[]): Map<string, number> {
+  const laneEnds: string[] = [];
+  const lanes = new Map<string, number>();
+  const ordered = [...spans].sort((first, second) =>
+    first.start.localeCompare(second.start)
+    || first.end.localeCompare(second.end)
+    || first.university.localeCompare(second.university));
+  for (const span of ordered) {
+    let lane = laneEnds.findIndex(end => end < span.start);
+    if (lane === -1) { lane = laneEnds.length; laneEnds.push(span.end); }
+    else laneEnds[lane] = span.end;
+    lanes.set(span.key, lane);
+  }
+  return lanes;
+}
+
+export function buildMastersCalendarMonth(month: string, nodes: MastersCalendarNode[], today = dailyDate(), spans: MastersCalendarSpan[] = []): MastersCalendarMonth {
   const weeks: MastersCalendarCell[][] = [];
-  if (!parseMonth(month)) return { month, weeks, opensCount: 0, deadlineCount: 0 };
+  if (!parseMonth(month)) return { month, weeks, opensCount: 0, deadlineCount: 0, spanCount: 0 };
 
   const byDate = new Map<string, MastersCalendarNode[]>();
   for (const node of nodes) {
@@ -185,17 +303,20 @@ export function buildMastersCalendarMonth(month: string, nodes: MastersCalendarN
   const first = `${month}-01`;
   const total = daysInMonth(month);
   const cells: MastersCalendarCell[] = [];
+  const pushCell = (date: string, inMonth: boolean) => {
+    cells.push({
+      date, day: Number(date.slice(8, 10)), inMonth, isToday: date === today,
+      nodes: byDate.get(date) ?? [], spans: spansOnDate(spans, date),
+    });
+  };
   for (let offset = weekdayIndex(first); offset > 0; offset -= 1) {
-    const date = shiftDailyDate(first, -offset);
-    cells.push({ date, day: Number(date.slice(8, 10)), inMonth: false, isToday: date === today, nodes: [] });
+    pushCell(shiftDailyDate(first, -offset), false);
   }
   for (let day = 1; day <= total; day += 1) {
-    const date = `${month}-${String(day).padStart(2, '0')}`;
-    cells.push({ date, day, inMonth: true, isToday: date === today, nodes: byDate.get(date) ?? [] });
+    pushCell(`${month}-${String(day).padStart(2, '0')}`, true);
   }
   for (let next = 1; cells.length % 7 !== 0; next += 1) {
-    const date = shiftDailyDate(`${month}-${String(total).padStart(2, '0')}`, next);
-    cells.push({ date, day: Number(date.slice(8, 10)), inMonth: false, isToday: date === today, nodes: [] });
+    pushCell(shiftDailyDate(`${month}-${String(total).padStart(2, '0')}`, next), false);
   }
 
   let opensCount = 0;
@@ -206,5 +327,7 @@ export function buildMastersCalendarMonth(month: string, nodes: MastersCalendarN
     }
   }
   for (let index = 0; index < cells.length; index += 7) weeks.push(cells.slice(index, index + 7));
-  return { month, weeks, opensCount, deadlineCount };
+  // 只数在本月网格里出现过的申请期，跨月延续的不会重复计入相邻月。
+  const spanKeys = new Set(cells.flatMap(cell => cell.spans.map(span => span.key)));
+  return { month, weeks, opensCount, deadlineCount, spanCount: spanKeys.size };
 }

@@ -39,6 +39,10 @@ export const mastersText = {
     calendarUnannounced: '截止未公布', calendarUnverified: '日期待核验',
     calendarJump: '在列表中定位', calendarHint: '按北京时间归入当天。官方只公布日期、未公布时刻的，不显示具体钟点。',
     calendarBoundsHint: '只能翻阅有已核验日期的月份。', calendarCollapse: '收起',
+    calendarSpanLegend: '申请期', calendarSpanKnown: '起止日均已公布', calendarSpanOpenEnded: '起点未公布，从核验日画起',
+    calendarSpanHint: '每个学校一种颜色，长条覆盖从开放到截止的整段申请期。起点未公布的轮次用斜纹淡入，不虚构开放日。',
+    calendarSpanActive: '申请期内', calendarSpanCount: '本月 {count} 段申请期', calendarSpanOngoing: '持续中',
+    calendarSpanMap: '本月色带 → 学校', calendarSpanEnded: '已结束',
   },
   en: {
     coverage: 'Listed for this intake year: {schools} universities · {programmes} programmes · {rounds} rounds',
@@ -80,6 +84,10 @@ export const mastersText = {
     calendarUnannounced: 'Deadline not announced', calendarUnverified: 'Date awaiting verification',
     calendarJump: 'Locate in list', calendarHint: 'Grouped by Beijing time. When only a date was published, no exact clock time is shown.',
     calendarBoundsHint: 'Only months with verified dates can be browsed.', calendarCollapse: 'Close',
+    calendarSpanLegend: 'Application window', calendarSpanKnown: 'Opening and deadline both published', calendarSpanOpenEnded: 'Opening not published; drawn from the verification date',
+    calendarSpanHint: 'One colour per university; the bar covers the whole window from opening to deadline. Rounds without a published opening date fade in with hatching instead of inventing a date.',
+    calendarSpanActive: 'Window open', calendarSpanCount: 'This month: {count} application windows', calendarSpanOngoing: 'Ongoing',
+    calendarSpanMap: 'Bars this month → university', calendarSpanEnded: 'Closed',
   },
 } as const;
 

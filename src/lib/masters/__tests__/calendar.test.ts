@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
-  buildMastersCalendarMonth, clampMonth, collectMastersCalendarNodes, collectMastersCalendarPending,
-  daysInMonth, formatMastersCalendarDate, formatMastersMonth, initialMastersCalendarMonth,
-  mastersCalendarBounds, monthOf, shiftMonth, weekdayIndex,
+  assignMastersCalendarLanes, buildMastersCalendarMonth, clampMonth, collectMastersCalendarNodes,
+  collectMastersCalendarPending, collectMastersCalendarSpans, daysInMonth, formatMastersCalendarDate,
+  formatMastersMonth, initialMastersCalendarMonth, mastersCalendarBounds, mastersCalendarHue, monthOf,
+  shiftMonth, spansOnDate, weekdayIndex,
 } from '../calendar';
 import { roundFixture } from '@/components/masters/__tests__/fixtures';
 
@@ -143,5 +144,113 @@ describe('日历文案格式', () => {
     expect(formatMastersCalendarDate('2026-12-01', 'zh')).toBe('2026 年 12 月 1 日 · 周二');
     expect(formatMastersCalendarDate('2026-12-01', 'en')).toBe('Tue, 1 December 2026');
     expect(formatMastersCalendarDate('bad', 'zh')).toBe('bad');
+  });
+});
+
+describe('申请期区间投影', () => {
+  it('官方公布开放日时区间起止都确定', () => {
+    const spans = collectMastersCalendarSpans([roundFixture()], NOW);
+    expect(spans).toHaveLength(1);
+    expect(spans[0]).toMatchObject({ start: '2026-10-01', end: '2026-12-01', startKnown: true });
+  });
+
+  it('官方确认正在开放但未公布开放日时，从核验日起画且标为起点未知', () => {
+    const base = roundFixture();
+    const round = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open' }, verifiedOn: '2026-10-05' });
+    const spans = collectMastersCalendarSpans([round], NOW);
+    expect(spans[0]).toMatchObject({ start: '2026-10-05', startKnown: false });
+    // 不能把核验日说成开放日
+    expect(spans[0].start).not.toBe(round.details.opensOn);
+  });
+
+  it('开放状态未知且无开放日时不画区间，避免暗示此前都在开放', () => {
+    const base = roundFixture();
+    const unknown = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'unknown' } });
+    const closed = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'closed' } });
+    expect(collectMastersCalendarSpans([unknown, closed], NOW)).toHaveLength(0);
+  });
+
+  it('无确认截止日的轮次不画区间', () => {
+    const base = roundFixture();
+    const unannounced = roundFixture({ details: { ...base.details, deadlineStatus: 'unannounced', deadlineOn: null } });
+    expect(collectMastersCalendarSpans([unannounced], NOW)).toHaveLength(0);
+  });
+
+  it('同项目重叠轮次合并成一段，保留各轮截止刻度', () => {
+    const base = roundFixture();
+    const later = roundFixture({ id: 'later', details: { ...base.details, deadlineOn: '2027-02-01' } });
+    const spans = collectMastersCalendarSpans([base, later], NOW);
+    expect(spans).toHaveLength(1);
+    expect(spans[0].end).toBe('2027-02-01');
+    expect(spans[0].deadlines).toEqual(['2026-12-01', '2027-02-01']);
+    expect(spans[0].rounds).toHaveLength(2);
+  });
+
+  it('不重叠的同项目轮次各自成段，不硬拼成一条', () => {
+    const base = roundFixture();
+    const separate = roundFixture({ id: 'sep', details: { ...base.details, opensOn: '2027-03-01', deadlineOn: '2027-04-01' } });
+    expect(collectMastersCalendarSpans([base, separate], NOW)).toHaveLength(2);
+  });
+
+  it('合并后只要有一段起点未知，整条就按起点未知处理', () => {
+    const base = roundFixture();
+    const openEnded = roundFixture({
+      id: 'open-ended', verifiedOn: '2026-10-05',
+      details: { ...base.details, opensOn: null, openingState: 'open', deadlineOn: '2027-02-01' },
+    });
+    const spans = collectMastersCalendarSpans([base, openEnded], NOW);
+    expect(spans).toHaveLength(1);
+    expect(spans[0].startKnown).toBe(false);
+  });
+
+  it('跨月判断包含起止两端', () => {
+    const spans = collectMastersCalendarSpans([roundFixture()], NOW);
+    expect(spansOnDate(spans, '2026-09-30')).toHaveLength(0);
+    expect(spansOnDate(spans, '2026-10-01')).toHaveLength(1);
+    expect(spansOnDate(spans, '2026-11-15')).toHaveLength(1);
+    expect(spansOnDate(spans, '2026-12-01')).toHaveLength(1);
+    expect(spansOnDate(spans, '2026-12-02')).toHaveLength(0);
+  });
+
+  it('同校色相稳定，不同学校色相不同', () => {
+    const base = roundFixture();
+    const other = roundFixture({ id: 'other', details: { ...base.details, university: '另一所大学' } });
+    const first = mastersCalendarHue({ region: base.region, university: base.details.university });
+    const again = mastersCalendarHue({ region: base.region, university: base.details.university });
+    const second = mastersCalendarHue({ region: other.region, university: other.details.university });
+    expect(first).toBe(again);
+    expect(first).not.toBe(second);
+    expect(first).toBeGreaterThanOrEqual(0);
+    expect(first).toBeLessThan(360);
+  });
+
+  it('重叠区间分到不同车道，不重叠的可复用同一车道', () => {
+    const base = roundFixture();
+    const overlapping = roundFixture({ id: 'overlap', details: { ...base.details, university: '重叠大学', deadlineOn: '2027-01-01' } });
+    const later = roundFixture({ id: 'later', details: { ...base.details, university: '后续大学', opensOn: '2027-03-01', deadlineOn: '2027-04-01' } });
+    const spans = collectMastersCalendarSpans([base, overlapping, later], NOW);
+    const lanes = assignMastersCalendarLanes(spans);
+    const key = (university: string) => spans.find(span => span.university === university)!.key;
+    expect(lanes.get(key('Example University'))).not.toBe(lanes.get(key('重叠大学')));
+    expect(lanes.get(key('后续大学'))).toBe(0);
+  });
+
+  it('区间起点纳入翻月范围，起点在核验日时不会翻不到', () => {
+    const base = roundFixture();
+    const round = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open' }, verifiedOn: '2026-10-05' });
+    const spans = collectMastersCalendarSpans([round], NOW);
+    // 无 spans 时范围只有截止月；带上 spans 后应覆盖 2026-10
+    expect(mastersCalendarBounds([round], 2027)).toMatchObject({ min: '2026-12' });
+    expect(mastersCalendarBounds([round], 2027, spans)).toMatchObject({ min: '2026-10', max: '2026-12' });
+  });
+
+  it('月网格把区间铺进格子并统计出现过的申请期', () => {
+    const spans = collectMastersCalendarSpans([roundFixture()], NOW);
+    const view = buildMastersCalendarMonth('2026-10', collectMastersCalendarNodes([roundFixture()], NOW), '2026-10-14', spans);
+    const first = view.weeks.flat().find(cell => cell.date === '2026-10-01');
+    expect(first?.spans).toHaveLength(1);
+    expect(view.spanCount).toBe(1);
+    // 区间跨到 12 月，10 月的网格只算一次，不重复计入
+    expect(buildMastersCalendarMonth('2026-11', [], '2026-10-14', spans).spanCount).toBe(1);
   });
 });
