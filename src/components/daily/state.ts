@@ -1,4 +1,4 @@
-import { dailyEditionChannels, DAILY_CHANNEL_IDS, DAILY_EDITION_CHANNEL_IDS, DailyPreferencesSchema, isDailyHistoryDate, type DailyChannelId, type DailyEdition, type DailyPreferences } from '@/lib/daily/types';
+import { dailyEditionChannels, DAILY_CHANNEL_IDS, DAILY_EDITION_CHANNEL_IDS, DailyPreferencesSchema, DailyPreferencesStateSchema, isDailyHistoryDate, type DailyChannelId, type DailyEdition, type DailyPreferences, type DailyPreferencesState } from '@/lib/daily/types';
 
 export const GUEST_PREFERENCES_KEY = 'ms_daily_preferences_v1:guest';
 export const DAILY_STORAGE_EVENT = 'daily-storage-changed';
@@ -25,11 +25,13 @@ export function pickPreferences(userId: string | null, account: DailyPreferences
   return userId === null ? guest : account;
 }
 
-export function parseAccountPreferences(value: unknown, userId: string): DailyPreferences | null {
+export class DailyPreferencesOwnerChangedError extends Error {}
+
+export function parseAccountPreferences(value: unknown, userId: string): DailyPreferencesState {
   if (!value || typeof value !== 'object' || !('userId' in value) || value.userId !== userId || !('preferences' in value)) {
-    throw new Error('preferences owner changed');
+    throw new DailyPreferencesOwnerChangedError('preferences owner changed');
   }
-  return value.preferences === null ? null : DailyPreferencesSchema.parse(value.preferences);
+  return DailyPreferencesStateSchema.parse({ preferences: value.preferences, revision: 'revision' in value ? value.revision : undefined });
 }
 
 export function visibleChannels(view: 'all' | 'following', preferences: DailyPreferences | null) {

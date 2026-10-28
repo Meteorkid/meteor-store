@@ -5,7 +5,7 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   rateLimit: vi.fn(),
   getDailyEditions: vi.fn(),
-  getDailyPreferences: vi.fn(),
+  getDailyPreferencesState: vi.fn(),
   saveDailyPreferences: vi.fn(),
   getDailyReminder: vi.fn(),
   freezeDailyReminder: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock('@/lib/auth', () => ({ getSession: mocks.getSession }));
 vi.mock('@/lib/rate-limit', () => ({ getClientIp: () => '203.0.113.10', rateLimit: mocks.rateLimit }));
 vi.mock('@/lib/daily/service', () => ({
   getDailyEditions: mocks.getDailyEditions,
-  getDailyPreferences: mocks.getDailyPreferences,
+  getDailyPreferencesState: mocks.getDailyPreferencesState,
   saveDailyPreferences: mocks.saveDailyPreferences,
   getDailyReminder: mocks.getDailyReminder,
   freezeDailyReminder: mocks.freezeDailyReminder,
@@ -33,14 +33,15 @@ import { POST as postCron } from '../../cron/daily/route';
 const SITE = 'http://localhost:3000';
 const TODAY = '2026-10-14';
 const SECRET = 'daily-test-cron-secret-at-least-32-characters';
+const REVISION = '2026-10-14T00:00:00.000Z';
 const PREFERENCES = { channels: ['english', 'papers'], reminders: true };
 
-function preferenceRequest(input: unknown, options: { owner?: string | null; origin?: string; raw?: boolean } = {}) {
+function preferenceRequest(input: unknown, options: { owner?: string | null; origin?: string; raw?: boolean; legacy?: boolean } = {}) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json', Origin: options.origin ?? SITE };
   const owner = options.owner === undefined ? 'user-1' : options.owner;
   if (owner !== null) headers['X-Daily-User'] = owner;
   return new NextRequest(`${SITE}/api/daily/preferences`, {
-    method: 'PUT', headers, body: options.raw ? String(input) : JSON.stringify(input),
+    method: 'PUT', headers, body: options.raw ? String(input) : JSON.stringify(!options.legacy && input && typeof input === 'object' && !Array.isArray(input) ? { expectedRevision: REVISION, ...input } : input),
   });
 }
 
@@ -65,8 +66,8 @@ beforeEach(() => {
   mocks.getSession.mockResolvedValue({ userId: 'user-1', email: 'test@example.com' });
   mocks.rateLimit.mockResolvedValue({ limited: false });
   mocks.getDailyEditions.mockResolvedValue([]);
-  mocks.getDailyPreferences.mockResolvedValue(PREFERENCES);
-  mocks.saveDailyPreferences.mockImplementation(async (_userId: string, input: unknown) => input);
+  mocks.getDailyPreferencesState.mockResolvedValue({ preferences: PREFERENCES, revision: REVISION });
+  mocks.saveDailyPreferences.mockImplementation(async (_userId: string, input: unknown) => ({ preferences: input, revision: REVISION }));
   mocks.getDailyReminder.mockResolvedValue(null);
   mocks.freezeDailyReminder.mockResolvedValue({ status: 'created', date: TODAY });
   mocks.generateDailyEditions.mockResolvedValue([]);
@@ -89,7 +90,7 @@ describe('公共日刊 API', () => {
     expect(await response.json()).toEqual({ date: TODAY, editions });
     expect(mocks.getDailyEditions).toHaveBeenCalledWith(TODAY);
     expect(mocks.getSession).not.toHaveBeenCalled();
-    expect(mocks.getDailyPreferences).not.toHaveBeenCalled();
+    expect(mocks.getDailyPreferencesState).not.toHaveBeenCalled();
     expect(mocks.getDailyReminder).not.toHaveBeenCalled();
   });
 
@@ -118,19 +119,19 @@ describe('个人栏目偏好 API', () => {
     mocks.getSession.mockResolvedValue(null);
     const response = await getPreferences();
     expectPrivate(response, 401);
-    expect(mocks.getDailyPreferences).not.toHaveBeenCalled();
+    expect(mocks.getDailyPreferencesState).not.toHaveBeenCalled();
   });
 
   it.each([PREFERENCES, null, { channels: [], reminders: false }])('读取自己的偏好并保留未设置和空选区别', async preferences => {
-    mocks.getDailyPreferences.mockResolvedValue(preferences);
+    mocks.getDailyPreferencesState.mockResolvedValue({ preferences, revision: preferences ? REVISION : null });
     const response = await getPreferences();
     expectPrivate(response, 200);
-    expect(await response.json()).toEqual({ userId: 'user-1', preferences });
-    expect(mocks.getDailyPreferences).toHaveBeenCalledWith('user-1');
+    expect(await response.json()).toEqual({ userId: 'user-1', preferences, revision: preferences ? REVISION : null });
+    expect(mocks.getDailyPreferencesState).toHaveBeenCalledWith('user-1');
   });
 
   it('读取失败返回503，不把失败当未设置', async () => {
-    mocks.getDailyPreferences.mockRejectedValue(new Error('private database detail'));
+    mocks.getDailyPreferencesState.mockRejectedValue(new Error('private database detail'));
     const response = await getPreferences();
     expectPrivate(response, 503);
     const data = await response.json();
@@ -195,8 +196,8 @@ describe('个人栏目偏好 API', () => {
   it.each([PREFERENCES, { channels: [], reminders: false }])('保存明确选择，包含空列表', async preferences => {
     const response = await putPreferences(preferenceRequest(preferences));
     expectPrivate(response, 200);
-    expect(await response.json()).toEqual({ userId: 'user-1', preferences });
-    expect(mocks.saveDailyPreferences).toHaveBeenCalledWith('user-1', preferences);
+    expect(await response.json()).toEqual({ userId: 'user-1', preferences, revision: REVISION });
+    expect(mocks.saveDailyPreferences).toHaveBeenCalledWith('user-1', preferences, REVISION);
   });
 
   it('保存失败返回503，不回传虚假的已保存偏好', async () => {
@@ -206,6 +207,30 @@ describe('个人栏目偏好 API', () => {
     const data = await response.json();
     expect(data).not.toHaveProperty('preferences');
     expect(JSON.stringify(data)).not.toContain('private write failure');
+  });
+
+  it('旧页面未携带版本时返回409，要求刷新而不静默覆盖', async () => {
+    const response = await putPreferences(preferenceRequest(PREFERENCES, { legacy: true }));
+    expectPrivate(response, 409);
+    expect(await response.json()).toMatchObject({ code: 'revision_required' });
+    expect(mocks.saveDailyPreferences).not.toHaveBeenCalled();
+  });
+
+  it('版本冲突返回409，失败响应不伪造已保存设置', async () => {
+    mocks.saveDailyPreferences.mockResolvedValue(null);
+    const response = await putPreferences(preferenceRequest(PREFERENCES));
+    expectPrivate(response, 409);
+    expect(await response.json()).toMatchObject({ code: 'revision_conflict' });
+  });
+
+  it('首次保存显式发送null版本；非法版本拒绝', async () => {
+    const response = await putPreferences(preferenceRequest({ ...PREFERENCES, expectedRevision: null }));
+    expectPrivate(response, 200);
+    expect(mocks.saveDailyPreferences).toHaveBeenCalledWith('user-1', PREFERENCES, null);
+    mocks.saveDailyPreferences.mockClear();
+    const invalid = await putPreferences(preferenceRequest({ ...PREFERENCES, expectedRevision: 'yesterday' }));
+    expectPrivate(invalid, 400);
+    expect(mocks.saveDailyPreferences).not.toHaveBeenCalled();
   });
 });
 

@@ -10,6 +10,7 @@ type Operation = {
   table?: unknown;
   selection?: Record<string, unknown>;
   groupBy?: unknown[];
+  limit?: number;
   where?: SQL;
   values?: Record<string, unknown>;
   conflict?: 'nothing' | 'update';
@@ -30,7 +31,7 @@ vi.mock('@/lib/db', () => {
     const builder = {
       from(value: unknown) { operation.table = value; return builder; },
       where(value: SQL) { operation.where = value; return builder; },
-      limit() { return builder; },
+      limit(value: number) { operation.limit = value; return builder; },
       groupBy(...columns: unknown[]) { operation.groupBy = columns; return builder; },
       values(value: Record<string, unknown>) { operation.values = value; return builder; },
       set(value: Record<string, unknown>) { operation.values = value; return builder; },
@@ -53,8 +54,8 @@ vi.mock('@/lib/db', () => {
 });
 
 import {
-  freezeDailyReminder, generateDailyEditions, getDailyEditions, getDailyPreferences,
-  getDailyReminder, getLatestPublishedDailyDates, publicDailyEdition, retireDailyEdition, saveDailyEdition, saveDailyPreferences,
+  freezeDailyReminder, generateDailyEditions, getDailyEditions, getDailyPreferences, getDailyPreferencesState,
+  getDailyReminder, getLatestPublishedDailyDates, getPublishedDailyEditionsByDates, publicDailyEdition, retireDailyEdition, saveDailyEdition, saveDailyPreferences,
 } from '../service';
 
 const date = '2026-10-14';
@@ -135,18 +136,53 @@ describe('个人偏好', () => {
     expect(whereSql(state.operations[1]).params).toEqual(['user-empty']);
   });
 
-  it('保存空选按当前账号 upsert，不恢复默认栏目', async () => {
-    expect(await saveDailyPreferences('user-1', { channels: [], reminders: true })).toEqual({ channels: [], reminders: true });
+  it('读取关注版本，面板先建行也保留真实版本和明确空选', async () => {
+    state.responses.push([], [{ channels: [], reminders: false, updatedAt: cutoff }]);
+    expect(await getDailyPreferencesState('user-new')).toEqual({ preferences: null, revision: null });
+    expect(await getDailyPreferencesState('panel-user')).toEqual({ preferences: { channels: [], reminders: false }, revision: cutoff });
+    expect(Object.keys(state.operations[1].selection!)).toEqual(['channels', 'reminders', 'updatedAt']);
+  });
+
+  it('首次保存空选只插入，不覆盖已存在的关注或面板行', async () => {
+    state.responses.push([{ channels: [], reminders: true, updatedAt: cutoff }]);
+    expect(await saveDailyPreferences('user-1', { channels: [], reminders: true }, null)).toEqual({ preferences: { channels: [], reminders: true }, revision: cutoff });
     expect(state.operations).toHaveLength(1);
     expect(state.operations[0]).toMatchObject({
-      kind: 'insert', table: dailyPreferences, conflict: 'update', conflictTarget: dailyPreferences.userId,
+      kind: 'insert', table: dailyPreferences, conflict: 'nothing',
       values: { userId: 'user-1', channels: [], reminders: true },
     });
   });
 
   it('重复栏目被拒绝，不能写入无效偏好', async () => {
-    await expect(saveDailyPreferences('user-1', { channels: ['ai', 'ai'], reminders: false })).rejects.toThrow();
+    await expect(saveDailyPreferences('user-1', { channels: ['ai', 'ai'], reminders: false }, null)).rejects.toThrow();
     expect(state.operations).toHaveLength(0);
+  });
+
+  it('已有版本只条件更新关注列，未匹配不插入也不修改面板列', async () => {
+    expect(await saveDailyPreferences('user-1', { channels: ['papers'], reminders: false }, cutoff)).toBeNull();
+    expect(state.operations).toHaveLength(1);
+    expect(state.operations[0].kind).toBe('update');
+    expect(whereSql(state.operations[0]).params).toEqual(['user-1', cutoff]);
+    expect(whereSql(state.operations[0]).sql).toContain('"daily_preferences"."updated_at" =');
+    expect(Object.keys(state.operations[0].values!).sort()).toEqual(['channels', 'reminders', 'updatedAt']);
+  });
+
+  it('并发首次保存遇到已存在的面板行返回冲突，不做upsert覆盖', async () => {
+    expect(await saveDailyPreferences('panel-user', { channels: ['english'], reminders: true }, null)).toBeNull();
+    expect(state.operations).toHaveLength(1);
+    expect(state.operations[0].conflict).toBe('nothing');
+    expect(Object.keys(state.operations[0].values!).sort()).toEqual(['channels', 'reminders', 'updatedAt', 'userId']);
+  });
+
+  it('同毫秒或时钟回拨时关注版本严格前进', async () => {
+    const future = '2099-10-14T01:30:00.000Z';
+    const next = '2099-10-14T01:30:00.001Z';
+    state.responses.push([{ channels: [], reminders: false, updatedAt: next }]);
+    expect(await saveDailyPreferences('user-1', { channels: [], reminders: false }, future)).toEqual({ preferences: { channels: [], reminders: false }, revision: next });
+    expect(state.operations[0].values?.updatedAt).toBe(next);
+    state.responses.push([{ channels: [], reminders: true, updatedAt: '2026-10-14T01:30:00.001Z' }]);
+    await saveDailyPreferences('user-1', { channels: [], reminders: true }, cutoff);
+    expect(state.operations[1].values?.updatedAt).toBe('2026-10-14T01:30:00.001Z');
   });
 });
 
@@ -387,6 +423,27 @@ describe('09:30 日刊提醒快照', () => {
 
 
 describe('最近有内容日刊日期', () => {
+  it('最近期次正文按栏目日期组合一次批量读取，仅选仍公开且有正文的记录', async () => {
+    state.responses.push([edition({ date: '2026-10-13' })]);
+    const rows = await getPublishedDailyEditionsByDates({ ai: '2026-10-13', events: '2026-10-10' });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].sourceKey).toBeNull();
+    expect(state.operations).toHaveLength(1);
+    expect(state.operations[0].limit).toBe(2);
+    const query = whereSql(state.operations[0]);
+    expect(query.params).toEqual(['published', 'ai', '2026-10-13', 'events', '2026-10-10']);
+    expect(query.sql).toContain('"daily_editions"."content" is not null');
+    expect(query.sql).toContain(' or ');
+  });
+
+  it('没有最近日期时不查正文，越界或非历史日期不能进入批量查询', async () => {
+    expect(await getPublishedDailyEditionsByDates({})).toEqual([]);
+    for (const invalid of ['2026-09-14', date, '2026-10-15', '2026-02-30']) {
+      await expect(getPublishedDailyEditionsByDates({ english: invalid })).rejects.toThrow('Invalid previous edition date');
+    }
+    expect(state.operations).toHaveLength(0);
+  });
+
   it('只聚合公开期次日期，在可回看30天内查找所选日期之前的正文', async () => {
     state.responses.push([{ channel: 'events', date: '2026-10-07' }, { channel: 'competitions', date: '2026-10-09' }]);
     expect(await getLatestPublishedDailyDates('2026-10-12')).toEqual({ events: '2026-10-07', competitions: '2026-10-09' });

@@ -7,7 +7,7 @@ import DailyHub from '@/components/daily/DailyHub';
 import { dailyText } from '@/components/daily/text';
 import { getSession } from '@/lib/auth';
 import { dailyDate, isDailyHistoryDate } from '@/lib/daily/types';
-import { getDailyEditions, getDailyPreferences, getLatestPublishedDailyDates } from '@/lib/daily/service';
+import { getDailyEditions, getDailyPreferencesState, getLatestPublishedDailyDates } from '@/lib/daily/service';
 import { getMastersSummary } from '@/lib/masters/service';
 
 export const dynamic = 'force-dynamic';
@@ -31,7 +31,7 @@ export default async function DailyPage({ params, searchParams }: {
   const session = await getSession();
   const [editionResult, preferencesResult, mastersResult, historyResult] = await Promise.allSettled([
     getDailyEditions(date),
-    session ? getDailyPreferences(session.userId) : Promise.resolve(null),
+    session ? getDailyPreferencesState(session.userId) : Promise.resolve({ preferences: null, revision: null }),
     getMastersSummary(),
     getLatestPublishedDailyDates(date),
   ]);
@@ -42,7 +42,8 @@ export default async function DailyPage({ params, searchParams }: {
       <main className="container mx-auto px-4 pb-12 pt-10 sm:pb-16 sm:pt-14">
         <DailyHub date={date} today={today} viewAll={query.view === 'all'} userId={session?.userId ?? null}
           editions={editionResult.status === 'fulfilled' ? editionResult.value : []}
-          initialPreferences={preferencesResult.status === 'fulfilled' ? preferencesResult.value : null}
+          initialPreferences={preferencesResult.status === 'fulfilled' ? preferencesResult.value.preferences : null}
+          initialPreferencesRevision={preferencesResult.status === 'fulfilled' ? preferencesResult.value.revision : null}
           mastersSummary={mastersResult.status === 'fulfilled' ? mastersResult.value : null}
           previousPublishedDates={historyResult.status === 'fulfilled' ? historyResult.value : {}}
           previousPublishedDatesFailed={historyResult.status === 'rejected'}

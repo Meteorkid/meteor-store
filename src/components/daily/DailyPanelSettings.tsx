@@ -47,8 +47,10 @@ export default function DailyPanelSettings({ locale, userId, settings, defaultSe
     event.preventDefault();
     if (!saving && !['conflict', 'login', 'changed'].includes(error ?? '')) void onSave(reset ? null : draft);
   }}>
+    <div className={styles.settingsBody}>
     <p className="t-footnote text-white/70">{userId ? copy.account : copy.guest}</p>
     <p className="mt-1 t-footnote text-white/60">{copy.independent}</p>
+    <p className="mt-1 t-footnote text-white/60">{copy.draftHint}</p>
     <fieldset disabled={saving} className={styles.fieldset}>
       <legend className={`${styles.legend} t-footnote`}>{copy.selectChannels}</legend>
       <p className="t-footnote text-white/60">{copy.selectionHelp}</p>
@@ -95,10 +97,13 @@ export default function DailyPanelSettings({ locale, userId, settings, defaultSe
         <input type="checkbox" checked={draft[field]} onChange={event => change(previous => ({ ...previous, [field]: event.target.checked }))} />{copy[label]}
       </label>)}</div>
     </fieldset>
-    {reset && <p className={`${styles.notice} t-footnote`} role="status">{copy.resetHint}</p>}
-    {errorText && <p className={`${styles.error} t-footnote`} role="alert">{errorText}</p>}
-    {['conflict', 'login', 'changed', 'failed'].includes(error ?? '') && <button type="button" className={styles.button} onClick={onReload}>{copy.reload}</button>}
+    </div>
     <div className={styles.settingsFooter}>
+      {(reset || errorText) && <div className={styles.settingsFeedback}>
+        {reset && <p className="t-footnote text-white/70" role="status">{copy.resetHint}</p>}
+        {errorText && <p className="t-footnote text-amber-200" role="alert">{errorText}</p>}
+        {['conflict', 'login', 'changed', 'failed'].includes(error ?? '') && <button type="button" className={styles.button} onClick={onReload}>{copy.reload}</button>}
+      </div>}
       <button type="button" disabled={saving} className={styles.button} onClick={() => { setDraft(defaultSettings); setReset(true); }}>{copy.reset}</button>
       <div className={styles.actions}>
         <button type="button" disabled={saving} className={styles.button} onClick={onCancel}>{copy.cancel}</button>

@@ -40,11 +40,42 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
 describe('共享日刊提醒客户端', () => {
+  it('旧标签页不能将另一标签页的较新已读日期写回过去', async () => {
+    fetchMock.mockResolvedValue(response('user-a'));
+    client.ensureDailyReminder('user-a');
+    await flushRequests();
+    storage.set('ms_daily_reminder_read:user-a', '2026-10-15');
+    client.markDailyReminderRead('user-a');
+    expect(storage.get('ms_daily_reminder_read:user-a')).toBe('2026-10-15');
+    expect(client.getReminderState('user-a').readDate).toBe('2026-10-15');
+    storage.set('ms_daily_reminder_read:user-a', '2026-10-13');
+    client.syncDailyReminderRead('user-a');
+    expect(client.getReminderState('user-a').readDate).toBe('2026-10-15');
+  });
+
+  it('15秒超时释放请求占位，重试成功后忽略超时请求的迟到结果', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const stale = deferred<Response>();
+    fetchMock.mockReturnValueOnce(stale.promise).mockResolvedValueOnce(response('user-a', reminder('papers')));
+    client.ensureDailyReminder('user-a');
+    await vi.advanceTimersByTimeAsync(15_000);
+    expect(client.getReminderState('user-a').failed).toBe(true);
+    expect(fetchMock.mock.calls[0][1].signal.aborted).toBe(true);
+    client.ensureDailyReminder('user-a');
+    await flushRequests();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(client.getReminderState('user-a').reminder).toEqual(reminder('papers'));
+    stale.resolve(response('user-a', reminder('ai')));
+    await flushRequests();
+    expect(client.getReminderState('user-a')).toMatchObject({ reminder: reminder('papers'), failed: false });
+  });
+
   it('同一账号的两个铃铛共享在途请求，并在一分钟内复用结果', async () => {
     const pending = deferred<Response>();
     fetchMock.mockReturnValue(pending.promise);
@@ -54,7 +85,7 @@ describe('共享日刊提醒客户端', () => {
     client.ensureDailyReminder('user-a');
     client.ensureDailyReminder('user-a');
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith('/api/daily/reminder', { cache: 'no-store' });
+    expect(fetchMock).toHaveBeenCalledWith('/api/daily/reminder', expect.objectContaining({ cache: 'no-store', signal: expect.any(AbortSignal) }));
     pending.resolve(response('user-a'));
     await flushRequests();
 

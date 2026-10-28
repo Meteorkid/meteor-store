@@ -1,0 +1,8 @@
+
+ RUN  v4.1.9 /tmp/meteor-daily-three-batches-20261024
+
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  13:21:02
+   Duration  925ms (transform 703ms, setup 0ms, import 1.37s, tests 191ms, environment 0ms)

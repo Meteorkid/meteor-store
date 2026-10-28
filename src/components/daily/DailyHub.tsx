@@ -2,18 +2,21 @@
 
 import SourceLanguageNote from '@/components/SourceLanguageNote';
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocale } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import { buildLoginHref } from '@/lib/login-return';
+import { dailyReadingReturn } from '@/lib/daily/navigation';
 import MastersSummaryCard from '@/components/masters/MastersSummaryCard';
 import { defaultMastersYear, type MastersSummary } from '@/lib/masters/types';
-import { dailyChannels, DAILY_CHANNEL_IDS, isDailyHistoryDate, shiftDailyDate, type DailyEdition, type DailyPreferences, type PreviousPublishedDailyDates } from '@/lib/daily/types';
+import { dailyChannels, DAILY_CHANNEL_IDS, isDailyHistoryDate, shiftDailyDate, type DailyEdition, type DailyPreferences, type DailyPreferencesState, type PreviousPublishedDailyDates } from '@/lib/daily/types';
 import EditionContent from './EditionContent';
 import DailyOverview from './DailyOverview';
-import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, dailyReadStorageKey, getDailyEditionEntries, latestDailyUpdate, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
-import { fetchDailyEditions, subscribeDailyRefresh } from './refresh';
+import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, DailyPreferencesOwnerChangedError, dailyReadStorageKey, getDailyEditionEntries, latestDailyUpdate, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
+import { fetchDailyEditions, subscribeDailyDate, subscribeDailyRefresh } from './refresh';
 import { dailyText } from './text';
+import { useDailyEntryNavigation } from './entry-navigation';
 
 export interface DailyHubProps {
   date: string;
@@ -21,6 +24,7 @@ export interface DailyHubProps {
   editions: DailyEdition[];
   userId: string | null;
   initialPreferences: DailyPreferences | null;
+  initialPreferencesRevision: string | null;
   viewAll?: boolean;
   loadFailed?: boolean;
   preferencesFailed?: boolean;
@@ -55,8 +59,9 @@ function defaultPreferences(): DailyPreferences {
   return { channels: [...DAILY_CHANNEL_IDS], reminders: false };
 }
 
-async function fetchPreferences(userId: string): Promise<DailyPreferences | null> {
+async function fetchPreferences(userId: string): Promise<DailyPreferencesState> {
   const response = await fetch('/api/daily/preferences', { cache: 'no-store' });
+  if (response.status === 401) throw new DailyPreferencesOwnerChangedError('preferences session changed');
   if (!response.ok) throw new Error('preferences unavailable');
   return parseAccountPreferences(await response.json(), userId);
 }
@@ -68,16 +73,27 @@ export default function DailyHub(props: DailyHubProps) {
   return <DailyHubForIdentity key={`${identity ?? 'guest'}:${props.date}`} {...props} activeUserId={identity} />;
 }
 
-function DailyHubForIdentity({ date, today, editions: initialEditions, userId, activeUserId, initialPreferences, viewAll = false, loadFailed: initialLoadFailed = false, preferencesFailed = false, mastersSummary = null, mastersSummaryFailed = false, previousPublishedDates = {}, previousPublishedDatesFailed = false }: DailyHubProps & { activeUserId: string | null }) {
+function DailyHubForIdentity({ date, today: initialToday, editions: initialEditions, userId, activeUserId, initialPreferences, initialPreferencesRevision, viewAll = false, loadFailed: initialLoadFailed = false, preferencesFailed = false, mastersSummary = null, mastersSummaryFailed = false, previousPublishedDates = {}, previousPublishedDatesFailed = false }: DailyHubProps & { activeUserId: string | null }) {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const copy = dailyText[locale];
   const router = useRouter();
+  const [today, setToday] = useState(initialToday);
+  useEffect(() => subscribeDailyDate(setToday), []);
   const [editions, setEditions] = useState(initialEditions);
   const [loadFailed, setLoadFailed] = useState(initialLoadFailed);
   const [refreshFailed, setRefreshFailed] = useState(false);
+  const [previousInitialEditions, setPreviousInitialEditions] = useState(initialEditions);
+  if (previousInitialEditions !== initialEditions) {
+    setPreviousInitialEditions(initialEditions);
+    setEditions(initialEditions);
+    setLoadFailed(initialLoadFailed);
+    setRefreshFailed(false);
+  }
+  useDailyEntryNavigation(date, editions);
   const latestUpdate = latestDailyUpdate(editions);
   const needsFetch = activeUserId !== null && activeUserId !== userId;
   const [accountPreferences, setAccountPreferences] = useState<DailyPreferences | null>(needsFetch ? null : initialPreferences);
+  const [accountRevision, setAccountRevision] = useState<string | null>(needsFetch ? null : initialPreferencesRevision);
   const [preferenceStatus, setPreferenceStatus] = useState<'ready' | 'loading' | 'failed'>(needsFetch ? 'loading' : activeUserId && preferencesFailed ? 'failed' : 'ready');
   const guestSnapshot = useSyncExternalStore(subscribeStorage, guestStorage, serverStorage);
   const readKey = dailyReadStorageKey(activeUserId);
@@ -88,12 +104,19 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
   const view = viewAll ? 'all' : chosenView ?? (preferences === null ? 'all' : 'following');
   const selectedChannels = visibleChannels(view, preferences);
   const editionEntries = getDailyEditionEntries(date, selectedChannels, editions, readKeys);
+  const recentDate = selectedChannels.flatMap(channel => channel === 'masters' ? [] : [previousPublishedDates[channel]])
+    .filter((value): value is string => Boolean(value && value < date && isDailyHistoryDate(value, today))).sort().at(-1);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<DailyPreferences>(defaultPreferences);
+  const [draftRevision, setDraftRevision] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [saveIssue, setSaveIssue] = useState<'conflict' | 'changed' | null>(null);
   const [notice, setNotice] = useState('');
   const [localError, setLocalError] = useState('');
+  const [returnHash, setReturnHash] = useState('');
+  const active = useRef(true);
+  useEffect(() => { active.current = true; return () => { active.current = false; }; }, []);
 
   const acceptEditions = useCallback((next: DailyEdition[]) => {
     setEditions(next);
@@ -112,25 +135,46 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
     let cancelled = false;
     fetchPreferences(activeUserId).then(value => {
       if (cancelled) return;
-      setAccountPreferences(value);
+      setAccountPreferences(value.preferences);
+      setAccountRevision(value.revision);
       setPreferenceStatus('ready');
-    }).catch(() => { if (!cancelled) setPreferenceStatus('failed'); });
+    }).catch(error => {
+      if (cancelled) return;
+      if (error instanceof DailyPreferencesOwnerChangedError) setSaveIssue('changed');
+      setPreferenceStatus('failed');
+    });
     return () => { cancelled = true; };
   }, [needsFetch, activeUserId]);
 
   const reloadPreferences = async () => {
     if (!activeUserId) return;
+    if (saveIssue === 'changed') { window.location.reload(); return; }
     setPreferenceStatus('loading');
     try {
-      setAccountPreferences(await fetchPreferences(activeUserId));
+      const value = await fetchPreferences(activeUserId);
+      if (!active.current) return;
+      setAccountPreferences(value.preferences);
+      setAccountRevision(value.revision);
+      setDraft(value.preferences ?? defaultPreferences());
+      setDraftRevision(value.revision);
+      setSaveError('');
+      setSaveIssue(null);
       setPreferenceStatus('ready');
-    } catch { setPreferenceStatus('failed'); }
+    } catch (error) {
+      if (!active.current) return;
+      if (error instanceof DailyPreferencesOwnerChangedError) {
+        setSaveIssue('changed'); setSaveError(copy.preferencesAccountChanged);
+      }
+      setPreferenceStatus('failed');
+    }
   };
 
   const openSettings = () => {
+    setReturnHash(window.location.hash);
     const value = preferences ?? defaultPreferences();
     setDraft({ channels: [...value.channels], reminders: activeUserId ? value.reminders : false });
-    setSaveError('');
+    setDraftRevision(accountRevision);
+    setSaveError(saveIssue === 'conflict' ? copy.preferencesConflict : saveIssue === 'changed' ? copy.preferencesAccountChanged : '');
     setNotice('');
     setEditing(true);
   };
@@ -145,17 +189,29 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
   };
 
   const savePreferences = async () => {
+    if (saving || saveIssue || preferenceStatus !== 'ready') return;
     setSaving(true);
     setSaveError('');
     try {
       if (activeUserId) {
         const response = await fetch('/api/daily/preferences', {
-          method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Daily-User': activeUserId }, body: JSON.stringify(draft),
+          method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Daily-User': activeUserId }, body: JSON.stringify({ ...draft, expectedRevision: draftRevision }),
         });
+        if (!active.current) return;
+        if (response.status === 401 || response.status === 409) {
+          const body = response.status === 409 ? await response.json() : null;
+          if (!active.current) return;
+          const changed = response.status === 401 || body?.code === 'account_changed';
+          setSaveIssue(changed ? 'changed' : 'conflict');
+          setSaveError(changed ? copy.preferencesAccountChanged : copy.preferencesConflict);
+          return;
+        }
         if (!response.ok) throw new Error('save failed');
         const saved = parseAccountPreferences(await response.json(), activeUserId);
-        if (saved === null) throw new Error('preferences were not saved');
-        setAccountPreferences(saved);
+        if (!active.current) return;
+        if (saved.preferences === null) throw new Error('preferences were not saved');
+        setAccountPreferences(saved.preferences);
+        setAccountRevision(saved.revision);
       } else {
         saveStorage(GUEST_PREFERENCES_KEY, { ...draft, reminders: false });
       }
@@ -163,9 +219,12 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
       changeView('following');
       setEditing(false);
       setNotice(copy.saved);
-    } catch {
-      setSaveError(activeUserId ? copy.saveFailed : copy.localFailed);
-    } finally { setSaving(false); }
+    } catch (error) {
+      if (!active.current) return;
+      if (error instanceof DailyPreferencesOwnerChangedError) {
+        setSaveIssue('changed'); setSaveError(copy.preferencesAccountChanged);
+      } else setSaveError(activeUserId ? copy.saveFailed : copy.localFailed);
+    } finally { if (active.current) setSaving(false); }
   };
 
   const toggleRead = (key: string) => {
@@ -189,6 +248,12 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
         <h1 className="mt-3 t-title-1 text-white">{copy.title}</h1>
         <p className="mt-2 max-w-2xl t-footnote text-white/70">{copy.description}</p>
         <SourceLanguageNote locale={locale} />
+        {today !== initialToday && date < today && <p className="mt-3 t-footnote text-violet-200" role="status">
+          {copy.newDay} <Link href={view === 'all' ? '/daily?view=all' : '/daily'} className="underline underline-offset-4">{copy.openToday} {today} →</Link>
+        </p>}
+        {date === today && !loadFailed && recentDate && !editionEntries.some(entry => entry.status === 'published') && <p className="mt-3 t-footnote text-violet-200">
+          {copy.recentEditionNotice} <Link href={`/daily?date=${recentDate}&view=all`} className="underline underline-offset-4">{copy.latestPublished} · {recentDate} →</Link>
+        </p>}
         <p className="mt-3 t-footnote text-white/60">{latestUpdate ? <>{copy.updated} <time dateTime={latestUpdate}>{new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-GB', { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(latestUpdate))}</time> · {copy.beijingTime}</> : copy.firstEdition}</p>
         {date === today && <p className="mt-2 t-footnote text-white/60">{latestUpdate && <>{copy.firstEdition} · </>}<Link href={`/daily?date=${previousDate}${viewAll ? '&view=all' : ''}`} className="text-violet-200 underline underline-offset-4">{copy.previousEdition}</Link></p>}
         <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -211,7 +276,7 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
       </div>
 
       {preferenceStatus !== 'ready' && <div className="mb-5 rounded-xl border border-amber-300/20 px-4 py-3" role="status">
-        <p className="t-footnote text-amber-200">{preferenceStatus === 'failed' ? copy.preferencesFailed : copy.preferencesLoading}</p>
+        <p className="t-footnote text-amber-200">{preferenceStatus === 'failed' ? saveIssue === 'changed' ? copy.preferencesAccountChanged : copy.preferencesFailed : copy.preferencesLoading}</p>
         {preferenceStatus === 'failed' && <button type="button" onClick={reloadPreferences} className="mt-2 min-h-10 text-sm font-semibold text-white underline underline-offset-4">{copy.retry}</button>}
       </div>}
 
@@ -239,10 +304,11 @@ function DailyHubForIdentity({ date, today, editions: initialEditions, userId, a
         </fieldset>
         <p className="mt-5 t-footnote text-white/60">{activeUserId ? copy.accountHint : copy.guestHint}</p>
         {saveError && <p className="mt-3 text-sm text-amber-200" role="alert">{saveError}</p>}
+        {activeUserId && saveError && <button type="button" disabled={saving || preferenceStatus === 'loading'} onClick={reloadPreferences} className="mt-2 min-h-10 t-footnote text-violet-200 underline underline-offset-4">{copy.reloadPreferences}</button>}
         <div className="mt-5 flex flex-wrap gap-3">
-          <button type="button" disabled={saving} onClick={savePreferences} className="min-h-11 rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? copy.saving : copy.save}</button>
+          <button type="button" disabled={saving || Boolean(saveIssue) || preferenceStatus !== 'ready'} onClick={savePreferences} className="min-h-11 rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? copy.saving : copy.save}</button>
           <button type="button" disabled={saving} onClick={() => setEditing(false)} className={buttonClass}>{copy.cancel}</button>
-          {!activeUserId && <Link href={`/login?next=${encodeURIComponent('/daily')}`} className="inline-flex min-h-11 items-center px-2 text-sm text-violet-200 underline underline-offset-4">{copy.login}</Link>}
+          {!activeUserId && <Link href={buildLoginHref(dailyReadingReturn(date, view === 'all', returnHash))} className="inline-flex min-h-11 items-center px-2 text-sm text-violet-200 underline underline-offset-4">{copy.login}</Link>}
         </div>
       </section>}
       {notice && <p className="mb-5 t-footnote text-emerald-200" role="status">{notice}</p>}

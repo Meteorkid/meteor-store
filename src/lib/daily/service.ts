@@ -1,12 +1,13 @@
-import { and, eq, gte, inArray, isNotNull, lt, lte, sql } from 'drizzle-orm';
+import { and, eq, gte, inArray, isNotNull, lt, lte, or, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { dailyEditions, dailyPreferences, dailyReminders } from '@/lib/db/schema';
 import { loadDailyContent } from './content';
 import { filterAvailableDailyOpportunities } from './opportunities';
 import {
   DAILY_CHANNEL_IDS, DAILY_EDITION_CHANNEL_IDS, DailyEditionChannelSchema, DailyContentSchema, DailyDateSchema, DailyPreferencesSchema,
+  DailyPreferencesRevisionSchema, DailyPreferencesStateSchema,
   dailyDate, isDailyHistoryDate, shiftDailyDate,
-  type DailyEditionChannelId, type PreviousPublishedDailyDates, type DailyContent, type DailyEdition, type DailyPreferences, type DailyReminder,
+  type DailyEditionChannelId, type PreviousPublishedDailyDates, type DailyContent, type DailyEdition, type DailyPreferences, type DailyPreferencesState, type DailyReminder,
 } from './types';
 
 function revisionAfter(previous?: string): string {
@@ -49,18 +50,50 @@ export async function getLatestPublishedDailyDates(date: string): Promise<Previo
   return Object.fromEntries(rows.map(row => [row.channel, row.date]));
 }
 
+/** 只读取已确定的各栏最近一期，避免逐栏查询或将30天正文全部搬入预览。 */
+export async function getPublishedDailyEditionsByDates(dates: PreviousPublishedDailyDates): Promise<DailyEdition[]> {
+  const today = dailyDate();
+  const selected = DAILY_EDITION_CHANNEL_IDS.flatMap(channel => {
+    const date = dates[channel];
+    if (date === undefined) return [];
+    if (!isDailyHistoryDate(date, today) || date >= today) throw new Error('Invalid previous edition date');
+    return [and(eq(dailyEditions.channel, channel), eq(dailyEditions.date, date))];
+  });
+  if (!selected.length) return [];
+  const rows = await db.select().from(dailyEditions).where(and(
+    eq(dailyEditions.status, 'published'), isNotNull(dailyEditions.content), or(...selected),
+  )).limit(selected.length);
+  return rows.map(publicDailyEdition);
+}
+
 export async function getDailyPreferences(userId: string): Promise<DailyPreferences | null> {
   const [row] = await db.select({ channels: dailyPreferences.channels, reminders: dailyPreferences.reminders })
     .from(dailyPreferences).where(eq(dailyPreferences.userId, userId)).limit(1);
   return row ? DailyPreferencesSchema.parse(row) : null;
 }
 
-export async function saveDailyPreferences(userId: string, input: DailyPreferences): Promise<DailyPreferences> {
+const preferenceStateColumns = { channels: dailyPreferences.channels, reminders: dailyPreferences.reminders, updatedAt: dailyPreferences.updatedAt };
+function preferenceState(row?: Pick<typeof dailyPreferences.$inferSelect, 'channels' | 'reminders' | 'updatedAt'>): DailyPreferencesState {
+  return DailyPreferencesStateSchema.parse(row
+    ? { preferences: { channels: row.channels, reminders: row.reminders }, revision: row.updatedAt }
+    : { preferences: null, revision: null });
+}
+
+export async function getDailyPreferencesState(userId: string): Promise<DailyPreferencesState> {
+  const [row] = await db.select(preferenceStateColumns).from(dailyPreferences).where(eq(dailyPreferences.userId, userId)).limit(1);
+  return preferenceState(row);
+}
+
+export async function saveDailyPreferences(userId: string, input: DailyPreferences, expectedRevision: string | null): Promise<DailyPreferencesState | null> {
   const preferences = DailyPreferencesSchema.parse(input);
-  const values = { ...preferences, updatedAt: new Date().toISOString() };
-  await db.insert(dailyPreferences).values({ userId, ...values })
-    .onConflictDoUpdate({ target: dailyPreferences.userId, set: values });
-  return preferences;
+  DailyPreferencesRevisionSchema.nullable().parse(expectedRevision);
+  const values = { ...preferences, updatedAt: revisionAfter(expectedRevision ?? undefined) };
+  // 面板可能已先创建偏好行；首次关注保存也不能覆盖一个未读取过的版本。
+  const [row] = expectedRevision === null
+    ? await db.insert(dailyPreferences).values({ userId, ...values }).onConflictDoNothing().returning(preferenceStateColumns)
+    : await db.update(dailyPreferences).set(values)
+      .where(and(eq(dailyPreferences.userId, userId), eq(dailyPreferences.updatedAt, expectedRevision))).returning(preferenceStateColumns);
+  return row ? preferenceState(row) : null;
 }
 
 export interface SaveDailyEditionInput {

@@ -1,0 +1,44 @@
+{
+  "overviewMasters": [
+    {
+      "text": "硕士申请日历 ↓\n全年更新 · 单独查看",
+      "bounds": {
+        "x": 16,
+        "y": 1034.671875,
+        "width": 343,
+        "height": 44,
+        "top": 1034.671875,
+        "right": 359,
+        "bottom": 1078.671875,
+        "left": 16
+      }
+    }
+  ],
+  "geometry": {
+    "clientWidth": 345,
+    "scrollWidth": 384,
+    "overflowX": "auto",
+    "scrollLeft": 0
+  },
+  "linkBounds": {
+    "x": 31,
+    "y": 374.5625,
+    "width": 355.40625,
+    "height": 17
+  },
+  "maxScrollLeft": 39,
+  "paperLinks": [
+    {
+      "title": "LongZero: Enhancing Long-Context Reasoning in LLMs from Zero Data",
+      "href": "/zh/daily?date=2026-10-23&view=all#papers"
+    },
+    {
+      "title": "Think Harder Where It Matters: Item-Level Adaptive Recursion for Sequential Recommendation",
+      "href": "/zh/daily?date=2026-10-23&view=all#papers"
+    },
+    {
+      "title": "PhysiCalWorld: In-Context Physics Calibration for World Models",
+      "href": "/zh/daily?date=2026-10-23&view=all#papers"
+    }
+  ]
+}

@@ -1,0 +1,386 @@
+{
+  "contentCheckedAt": "2026-10-23T23:57:06.775572+08:00",
+  "window": [
+    "2026-10-17",
+    "2026-10-23"
+  ],
+  "dailySummary": [
+    {
+      "channel": "ai",
+      "editions": 7,
+      "published": 7,
+      "empty": 0,
+      "failed": 0,
+      "draft": 0,
+      "first_published_at": "2026-10-17T00:40:08.109Z",
+      "last_published_at": "2026-10-23T00:40:07.523Z",
+      "last_updated_at": "2026-10-23T00:40:07.523Z"
+    },
+    {
+      "channel": "competitions",
+      "editions": 7,
+      "published": 4,
+      "empty": 3,
+      "failed": 0,
+      "draft": 0,
+      "first_published_at": "2026-10-17T12:40:01.778Z",
+      "last_published_at": "2026-10-21T00:40:08.641Z",
+      "last_updated_at": "2026-10-23T15:40:01.452Z"
+    },
+    {
+      "channel": "english",
+      "editions": 7,
+      "published": 7,
+      "empty": 0,
+      "failed": 0,
+      "draft": 0,
+      "first_published_at": "2026-10-17T00:40:07.203Z",
+      "last_published_at": "2026-10-23T00:40:06.535Z",
+      "last_updated_at": "2026-10-23T00:40:06.535Z"
+    },
+    {
+      "channel": "events",
+      "editions": 7,
+      "published": 0,
+      "empty": 7,
+      "failed": 0,
+      "draft": 0,
+      "first_published_at": null,
+      "last_published_at": null,
+      "last_updated_at": "2026-10-23T15:40:01.444Z"
+    },
+    {
+      "channel": "internships",
+      "editions": 7,
+      "published": 7,
+      "empty": 0,
+      "failed": 0,
+      "draft": 0,
+      "first_published_at": "2026-10-17T00:40:09.253Z",
+      "last_published_at": "2026-10-23T00:40:08.603Z",
+      "last_updated_at": "2026-10-23T00:40:08.603Z"
+    },
+    {
+      "channel": "open-source",
+      "editions": 7,
+      "published": 7,
+      "empty": 0,
+      "failed": 0,
+      "draft": 0,
+      "first_published_at": "2026-10-17T00:40:09.234Z",
+      "last_published_at": "2026-10-23T00:40:08.582Z",
+      "last_updated_at": "2026-10-23T00:40:08.582Z"
+    },
+    {
+      "channel": "papers",
+      "editions": 7,
+      "published": 7,
+      "empty": 0,
+      "failed": 0,
+      "draft": 0,
+      "first_published_at": "2026-10-17T00:40:08.100Z",
+      "last_published_at": "2026-10-23T00:40:07.515Z",
+      "last_updated_at": "2026-10-23T00:40:07.515Z"
+    }
+  ],
+  "latestNonempty": [
+    {
+      "channel": "ai",
+      "latest_published_date": "2026-10-23"
+    },
+    {
+      "channel": "competitions",
+      "latest_published_date": "2026-10-21"
+    },
+    {
+      "channel": "english",
+      "latest_published_date": "2026-10-23"
+    },
+    {
+      "channel": "events",
+      "latest_published_date": "2026-10-15"
+    },
+    {
+      "channel": "internships",
+      "latest_published_date": "2026-10-23"
+    },
+    {
+      "channel": "open-source",
+      "latest_published_date": "2026-10-23"
+    },
+    {
+      "channel": "papers",
+      "latest_published_date": "2026-10-23"
+    }
+  ],
+  "dailyReminderSnapshots": [
+    {
+      "date": "2026-10-17",
+      "edition_count": 5,
+      "published_at": "2026-10-17T01:30:00.000Z"
+    },
+    {
+      "date": "2026-10-18",
+      "edition_count": 5,
+      "published_at": "2026-10-18T01:30:00.000Z"
+    },
+    {
+      "date": "2026-10-19",
+      "edition_count": 5,
+      "published_at": "2026-10-19T01:30:00.000Z"
+    },
+    {
+      "date": "2026-10-20",
+      "edition_count": 5,
+      "published_at": "2026-10-20T01:30:00.000Z"
+    },
+    {
+      "date": "2026-10-21",
+      "edition_count": 6,
+      "published_at": "2026-10-21T01:30:00.000Z"
+    },
+    {
+      "date": "2026-10-22",
+      "edition_count": 5,
+      "published_at": "2026-10-22T01:30:00.000Z"
+    },
+    {
+      "date": "2026-10-23",
+      "edition_count": 5,
+      "published_at": "2026-10-23T01:30:00.000Z"
+    }
+  ],
+  "mastersCoverage": [
+    {
+      "intake_year": 2027,
+      "region": "australia",
+      "status": "published",
+      "rounds": 2,
+      "universities": 1,
+      "programmes": 1,
+      "oldest_verification": "2026-10-23",
+      "latest_verification": "2026-10-23"
+    },
+    {
+      "intake_year": 2027,
+      "region": "hong-kong",
+      "status": "published",
+      "rounds": 6,
+      "universities": 2,
+      "programmes": 2,
+      "oldest_verification": "2026-10-23",
+      "latest_verification": "2026-10-23"
+    },
+    {
+      "intake_year": 2027,
+      "region": "macau",
+      "status": "published",
+      "rounds": 1,
+      "universities": 1,
+      "programmes": 1,
+      "oldest_verification": "2026-10-23",
+      "latest_verification": "2026-10-23"
+    },
+    {
+      "intake_year": 2027,
+      "region": "singapore",
+      "status": "published",
+      "rounds": 1,
+      "universities": 1,
+      "programmes": 1,
+      "oldest_verification": "2026-10-23",
+      "latest_verification": "2026-10-23"
+    },
+    {
+      "intake_year": 2027,
+      "region": "uk",
+      "status": "draft",
+      "rounds": 1,
+      "universities": 1,
+      "programmes": 1,
+      "oldest_verification": "2026-10-14",
+      "latest_verification": "2026-10-14"
+    }
+  ],
+  "databaseReadOnly": "on",
+  "activeSources": 26,
+  "sourcesWithFailures": [],
+  "system": {
+    "uptime": "23:57:07 up 15 days, 22:25,  0 users,  load average: 0.71, 0.28, 0.11",
+    "memory": "total        used        free      shared  buff/cache   available\nMem:           1870         960         723          17         352         910\nSwap:          8191         163        8028",
+    "disk": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/vda3        40G   20G   19G  52% /",
+    "logSizes": "65M\t/var/log\n8.4M\t/var/backups/meteor-store"
+  },
+  "monitoring": {
+    "checkedAt": "2026-10-23T15:57:02.404Z",
+    "status": "healthy",
+    "consecutiveFailures": 0
+  },
+  "backupChecks": [
+    {
+      "name": "meteor-store-20261021-034001.dump",
+      "bytes": 474776,
+      "sha256": "608adc0e2835c553b87cffdf096f1c01486caa614a2ef7726a0d5b27e9f2d55d",
+      "tocReadable": true,
+      "tableDataCount": 38,
+      "keyTablesPresent": true
+    },
+    {
+      "name": "meteor-store-20261022-034001.dump",
+      "bytes": 484947,
+      "sha256": "e1e908dc310c836547aaefd5d2321858944afceeabfe672c2e2569ba0c72293d",
+      "tocReadable": true,
+      "tableDataCount": 38,
+      "keyTablesPresent": true
+    },
+    {
+      "name": "meteor-store-20261023-034001.dump",
+      "bytes": 496356,
+      "sha256": "ef489520b237f2f017113c36aebd80b4855a20e4e588e609b6fb9ca407b43615",
+      "tocReadable": true,
+      "tableDataCount": 38,
+      "keyTablesPresent": true
+    }
+  ],
+  "journalSummary": {
+    "meteor-daily-generate": {
+      "records": 119,
+      "last": {
+        "event": "daily_cron",
+        "action": "generate",
+        "success": true,
+        "httpStatus": 200,
+        "timestamp": "2026-10-23T15:40:01.465Z",
+        "journal_at": "2026-10-23T23:40:01.465507+08:00",
+        "editions": [
+          {
+            "channel": "english",
+            "status": "published"
+          },
+          {
+            "channel": "papers",
+            "status": "published"
+          },
+          {
+            "channel": "ai",
+            "status": "published"
+          },
+          {
+            "channel": "events",
+            "status": "empty"
+          },
+          {
+            "channel": "open-source",
+            "status": "published"
+          },
+          {
+            "channel": "competitions",
+            "status": "empty"
+          },
+          {
+            "channel": "internships",
+            "status": "published"
+          }
+        ]
+      },
+      "failureCount": 1,
+      "nonHealthy": null
+    },
+    "meteor-daily-remind": {
+      "records": 105,
+      "last": {
+        "event": "daily_cron",
+        "action": "remind",
+        "success": true,
+        "httpStatus": 200,
+        "status": "duplicate",
+        "timestamp": "2026-10-23T15:30:02.201Z",
+        "journal_at": "2026-10-23T23:30:02.205961+08:00"
+      },
+      "failureCount": 0,
+      "nonHealthy": null
+    },
+    "meteor-masters-sync": {
+      "records": 14,
+      "last": {
+        "event": "masters_sync_cron",
+        "success": false,
+        "httpStatus": 503,
+        "checked": 6,
+        "published": 0,
+        "changed": 0,
+        "failed": 1,
+        "unchanged": 10,
+        "paused": 0,
+        "timestamp": "2026-10-23T06:10:15.252Z",
+        "journal_at": "2026-10-23T14:10:15.253456+08:00",
+        "errors": [
+          {
+            "source": "oxford",
+            "reason": "fetch_failed"
+          }
+        ]
+      },
+      "failureCount": 14,
+      "nonHealthy": null
+    },
+    "meteor-pathfinder-sync": {
+      "records": 168,
+      "last": {
+        "event": "pathfinder_sync_cron",
+        "timestamp": "2026-10-23T15:27:14.832Z",
+        "success": true,
+        "httpStatus": 200,
+        "changed": false,
+        "maintenanceChanged": 0,
+        "sourceCount": 7,
+        "fetched": 52,
+        "inserted": 0,
+        "updated": 0,
+        "skipped": 52,
+        "journal_at": "2026-10-23T23:27:14.837151+08:00",
+        "failedSources": []
+      },
+      "failureCount": 17,
+      "nonHealthy": null
+    },
+    "meteor-pathfinder-recheck": {
+      "records": 7,
+      "last": {
+        "event": "pathfinder_recheck_cron",
+        "timestamp": "2026-10-22T20:13:11.005Z",
+        "success": true,
+        "checked": 15,
+        "doomed": 0,
+        "archived": 0,
+        "skipped": 0,
+        "failed": 1,
+        "applied": true,
+        "journal_at": "2026-10-23T04:13:11.006361+08:00"
+      },
+      "failureCount": 0,
+      "nonHealthy": null
+    },
+    "meteor-health": {
+      "records": 1861,
+      "last": {
+        "status": "healthy",
+        "checkedAt": "2026-10-23T15:57:02.404Z",
+        "consecutiveFailures": 0,
+        "reason": null,
+        "journal_at": "2026-10-23T23:57:02.410427+08:00"
+      },
+      "failureCount": 0,
+      "nonHealthy": 1
+    },
+    "meteor-db-backup": {
+      "records": 28,
+      "last": {
+        "journal_at": "2026-10-23T03:40:05.490423+08:00",
+        "event": "retention"
+      },
+      "failureCount": 0,
+      "nonHealthy": null
+    }
+  }
+}

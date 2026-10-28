@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import type { AnchorHTMLAttributes } from 'react';
 import { defaultDailyPanelSettings, type DailyPreviewResponse } from '@/lib/daily/panel-types';
+import { dailyEntryHref, dailyWordHref } from '@/lib/daily/navigation';
 
 vi.mock('@/i18n/navigation', () => ({ Link: (props: AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} /> }));
 vi.mock('@/lib/daily/panel-client', () => ({ useDailyPanel: vi.fn() }));
@@ -96,5 +97,41 @@ describe('铃铛每日真实内容', () => {
     const html = renderToStaticMarkup(<DailyPanelContent preview={preview} settings={settings} locale="zh" />);
     expect(html).toContain('word-1');
     expect(html).not.toContain('每日论文');
+    expect(html).toContain('本期内容获取失败');
+  });
+
+  it('最近一期始终标注原日期与当日状态，词汇与条目链接使用原期次和精确锚点', () => {
+    const settings = { ...defaultDailyPanelSettings(['english', 'internships']), showDates: false };
+    const recent: DailyPreviewResponse = { ...preview, date: '2026-10-24', editions: preview.editions.map(edition => ({
+      ...edition, contentDate: '2026-10-23', currentStatus: 'unpublished',
+    })) };
+    const html = renderToStaticMarkup(<DailyPanelContent preview={recent} settings={settings} locale="zh" />);
+    expect(html).toContain('最近一期');
+    expect(html).toContain('dateTime="2026-10-23"');
+    expect(html).toContain('2026-10-24 ·');
+    expect(html).toContain('本期尚未发布');
+    expect(html).toContain(dailyWordHref('2026-10-23', 'word-1', 0).replaceAll('&', '&amp;'));
+    expect(html).toContain(dailyEntryHref('2026-10-23', 'internships', 'job').replaceAll('&', '&amp;'));
+  });
+
+  it('隐藏空栏目不会隐藏当日失败，最近一期仍可阅读', () => {
+    const settings = { ...defaultDailyPanelSettings(['english']), hideEmpty: true };
+    const recent: DailyPreviewResponse = { ...preview, date: '2026-10-24', editions: [{
+      ...preview.editions[0], contentDate: '2026-10-23', currentStatus: 'failed',
+    }] };
+    const html = renderToStaticMarkup(<DailyPanelContent preview={recent} settings={settings} locale="zh" />);
+    expect(html).toContain('本期内容获取失败'); expect(html).toContain('word-1');
+    expect(html).not.toContain('无内容栏目已隐藏');
+  });
+
+  it('核验时间排在来源初次日期之前，中文时区显示北京时间', () => {
+    const edition = preview.editions.find(item => item.channel === 'internships')!;
+    const opportunity: DailyPreviewResponse = { ...preview, editions: [{ ...edition, content: {
+      kind: 'internships', items: [{ id: 'job', title: 'Graduate Role', summary: '机会', sourceName: 'Employer', sourceType: 'official',
+        sourcePublishedAt: '2023-01-01T00:00:00Z', verifiedAt: '2026-10-23T01:00:00Z' }],
+    } }] };
+    const html = renderToStaticMarkup(<DailyPanelContent preview={opportunity} settings={defaultDailyPanelSettings(['internships'])} locale="zh" />);
+    expect(html.indexOf('核验时间')).toBeLessThan(html.indexOf('来源日期'));
+    expect(html).toContain('北京时间'); expect(html).not.toContain('Asia/Shanghai');
   });
 });

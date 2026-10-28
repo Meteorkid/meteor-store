@@ -84,6 +84,15 @@ export const DailyPreferencesSchema = z.object({
   reminders: z.boolean(),
 }).strict();
 export type DailyPreferences = z.infer<typeof DailyPreferencesSchema>;
+export const DailyPreferencesRevisionSchema = z.string().datetime({ offset: true });
+export const DailyPreferencesSaveSchema = DailyPreferencesSchema.extend({
+  expectedRevision: DailyPreferencesRevisionSchema.nullable(),
+}).strict();
+export const DailyPreferencesStateSchema = z.union([
+  z.object({ preferences: DailyPreferencesSchema, revision: DailyPreferencesRevisionSchema }).strict(),
+  z.object({ preferences: z.null(), revision: z.null() }).strict(),
+]);
+export type DailyPreferencesState = z.infer<typeof DailyPreferencesStateSchema>;
 export interface DailyReminder { date: string; channels: DailyChannelId[]; publishedAt: string }
 
 export function dailyDate(now = new Date()): string {

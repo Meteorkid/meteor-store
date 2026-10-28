@@ -1,0 +1,96 @@
+{
+  "work": "/tmp/meteor-daily-three-batches-20261024/events-pg-_yiwdmw6",
+  "port": 53874,
+  "sharedRootPort55445Touched": false,
+  "patternFromSource": "(^|[^A-Za-z0-9_])github[[:space:]]+universe([^A-Za-z0-9_]|$)",
+  "cases": [
+    {
+      "source_id": "github-universe-events",
+      "title_zh": "",
+      "title_en": "GitHub Universe 2026",
+      "expected": true,
+      "actual": true
+    },
+    {
+      "source_id": "github-ai-blog",
+      "title_zh": "",
+      "title_en": "github universe session guide",
+      "expected": true,
+      "actual": true
+    },
+    {
+      "source_id": "github-ai-blog",
+      "title_zh": "参加GitHub Universe开发者活动",
+      "title_en": "",
+      "expected": true,
+      "actual": true
+    },
+    {
+      "source_id": "github-ai-blog",
+      "title_zh": "",
+      "title_en": "GitHub\tUniverse",
+      "expected": true,
+      "actual": true
+    },
+    {
+      "source_id": "github-universe-events",
+      "title_zh": "",
+      "title_en": "NotGitHub Universe",
+      "expected": false,
+      "actual": false
+    },
+    {
+      "source_id": "github-universe-events",
+      "title_zh": "",
+      "title_en": "GitHub Universes 2026",
+      "expected": false,
+      "actual": false
+    },
+    {
+      "source_id": "github-universe-events",
+      "title_zh": "",
+      "title_en": "GitHub Universeality",
+      "expected": false,
+      "actual": false
+    },
+    {
+      "source_id": "github-universe-events",
+      "title_zh": "",
+      "title_en": "Universe 2026",
+      "expected": false,
+      "actual": false
+    },
+    {
+      "source_id": "github-universe-events",
+      "title_zh": "",
+      "title_en": "GitHub Build 2026",
+      "expected": false,
+      "actual": false
+    },
+    {
+      "source_id": "github-universe-events",
+      "title_zh": "",
+      "title_en": "github-universe",
+      "expected": false,
+      "actual": false
+    },
+    {
+      "source_id": "openai-news",
+      "title_zh": "",
+      "title_en": "GitHub Universe 2026",
+      "expected": false,
+      "actual": false
+    },
+    {
+      "source_id": "github-universe-events",
+      "title_zh": "GitHub",
+      "title_en": "Universe 2026",
+      "expected": false,
+      "actual": false
+    }
+  ],
+  "passed": true,
+  "serverVersion": "18.6 (Homebrew)",
+  "ownInstanceStopped": true,
+  "ownDataRemoved": true
+}

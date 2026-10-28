@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-24",
+  "updatedAt": null,
+  "editions": [
+    {
+      "channel": "english",
+      "status": "unpublished",
+      "title": "",
+      "updatedAt": null,
+      "previousDate": "2026-10-23",
+      "totalCount": 0,
+      "content": null
+    },
+    {
+      "channel": "papers",
+      "status": "unpublished",
+      "title": "",
+      "updatedAt": null,
+      "previousDate": "2026-10-23",
+      "totalCount": 0,
+      "content": null
+    },
+    {
+      "channel": "ai",
+      "status": "unpublished",
+      "title": "",
+      "updatedAt": null,
+      "previousDate": "2026-10-23",
+      "totalCount": 0,
+      "content": null
+    },
+    {
+      "channel": "events",
+      "status": "unpublished",
+      "title": "",
+      "updatedAt": null,
+      "previousDate": "2026-10-15",
+      "totalCount": 0,
+      "content": null
+    },
+    {
+      "channel": "open-source",
+      "status": "unpublished",
+      "title": "",
+      "updatedAt": null,
+      "previousDate": "2026-10-23",
+      "totalCount": 0,
+      "content": null
+    },
+    {
+      "channel": "competitions",
+      "status": "unpublished",
+      "title": "",
+      "updatedAt": null,
+      "previousDate": "2026-10-21",
+      "totalCount": 0,
+      "content": null
+    },
+    {
+      "channel": "internships",
+      "status": "unpublished",
+      "title": "",
+      "updatedAt": null,
+      "previousDate": "2026-10-23",
+      "totalCount": 0,
+      "content": null
+    }
+  ]
+}

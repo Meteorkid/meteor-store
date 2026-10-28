@@ -4,6 +4,16 @@ import { products } from '@/data/products';
 import { appIds } from '@/data/app-manifest';
 
 describe('normalizeLoginReturn', () => {
+  it('日刊回跳保留合法日期、全部视图和栏目', () => {
+    const href = '/daily?date=2026-10-22&view=all#papers';
+    expect(normalizeLoginReturn(href)).toBe(href);
+    expect(new URL(buildLoginHref(href), 'https://store.test').searchParams.get('next')).toBe(href);
+    expect(normalizeLoginReturn('/daily#masters')).toBe('/daily#masters');
+  });
+  it.each(['/daily?date=2026-02-30', '/daily?date=2026-10-22&date=2026-10-23', '/daily?view=all&view=all',
+    '/daily?view=admin', '/daily?date=2026-10-22&redirect=https://evil.example', '/daily#unknown', '/daily#%ZZ'])('拒绝不合法日刊回跳：%s', value => {
+    expect(normalizeLoginReturn(value)).toBe('/');
+  });
   it('每日一新登录后回到阅读页，仍拒绝附加的任意跳转', () => {
     expect(normalizeLoginReturn('/daily')).toBe('/daily');
     expect(normalizeLoginReturn('/masters')).toBe('/masters');

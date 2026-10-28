@@ -1,0 +1,83 @@
+{
+  "startedAt": "2026-10-23T15:55:30.340Z",
+  "scope": "production guest read-only; local storage and read-only response mocks",
+  "checks": [
+    {
+      "name": "content-date-comparison",
+      "date": "2026-10-23",
+      "previewUpdatedAt": "2026-10-23T15:40:01.452Z",
+      "publishedLatest": "2026-10-23T00:40:08.603Z",
+      "perChannel": [
+        {
+          "channel": "english",
+          "status": "published",
+          "updatedAt": "2026-10-23T00:40:06.535Z"
+        },
+        {
+          "channel": "papers",
+          "status": "published",
+          "updatedAt": "2026-10-23T00:40:07.515Z"
+        },
+        {
+          "channel": "ai",
+          "status": "published",
+          "updatedAt": "2026-10-23T00:40:07.523Z"
+        },
+        {
+          "channel": "events",
+          "status": "empty",
+          "updatedAt": "2026-10-23T15:40:01.444Z"
+        },
+        {
+          "channel": "open-source",
+          "status": "published",
+          "updatedAt": "2026-10-23T00:40:08.582Z"
+        },
+        {
+          "channel": "competitions",
+          "status": "empty",
+          "updatedAt": "2026-10-23T15:40:01.452Z"
+        },
+        {
+          "channel": "internships",
+          "status": "published",
+          "updatedAt": "2026-10-23T00:40:08.603Z"
+        }
+      ]
+    },
+    {
+      "name": "same-route-announcement-to-channel",
+      "passed": true,
+      "href": "/zh/daily?date=2026-10-23&view=all#papers",
+      "url": "https://www.imagentx.top/zh/daily?date=2026-10-23&view=all#papers"
+    },
+    {
+      "name": "login-destination-without-login",
+      "url": "https://www.imagentx.top/en/daily?date=2026-10-22&view=all#papers",
+      "noCredentialsSubmitted": true
+    },
+    {
+      "name": "preview-503-controlled-response",
+      "passed": true,
+      "mode": "browser read-response interception, no production fault injected"
+    }
+  ],
+  "findings": [
+    {
+      "id": "updated-time",
+      "kind": "confirmed-data-contract",
+      "previewUpdatedAt": "2026-10-23T15:40:01.452Z",
+      "publishedLatest": "2026-10-23T00:40:08.603Z"
+    },
+    {
+      "id": "history-login-return",
+      "kind": "confirmed-link-context-loss",
+      "from": "https://www.imagentx.top/en/daily?date=2026-10-22&view=all#papers",
+      "href": "/en/login?next=%2Fdaily"
+    }
+  ],
+  "pageErrors": [],
+  "blockedWrites": [],
+  "complete": true,
+  "finishedAt": "2026-10-23T15:55:37.060Z"
+}

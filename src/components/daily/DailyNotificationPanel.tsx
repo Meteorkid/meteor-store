@@ -1,17 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useAuth } from '@/components/AuthProvider';
+import SourceLanguageNote from '@/components/SourceLanguageNote';
 import { Link } from '@/i18n/navigation';
 import { dailyEditionChannels } from '@/lib/daily/channels';
 import { useDailyPanel } from '@/lib/daily/panel-client';
+import { dailyEntryHref, dailyWordHref } from '@/lib/daily/navigation';
 import type { DailyPanelSettings as PanelSettings, DailyPreviewEdition, DailyPreviewItem, DailyPreviewResponse, DailyPreviewWord } from '@/lib/daily/panel-types';
 import DailyPanelSettings from './DailyPanelSettings';
 import { dailyPanelText, type DailyPanelCopy } from './panel-text';
 import styles from './DailyNotificationPanel.module.css';
 
 type Locale = 'zh' | 'en';
-type Props = { locale: Locale; userId: string | null };
+type Props = { locale: Locale; userId: string | null; active?: boolean };
 type EditorSession = { id: symbol; owner: string | null; revision: string | null; settings: PanelSettings };
 
 export function dailyPanelHref(date: string, channel?: string) {
@@ -26,21 +28,22 @@ function formatTime(value: string, locale: Locale, timeZone = 'Asia/Shanghai', i
     ...(includeTime ? { hour: '2-digit', minute: '2-digit' } as const : {}),
   };
   try {
-    return `${new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', options).format(date)}${includeTime ? ` (${timeZone})` : ''}`;
+    const zoneLabel = locale === 'zh' && timeZone === 'Asia/Shanghai' ? '北京时间' : timeZone;
+    return `${new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', options).format(date)}${includeTime ? ` (${zoneLabel})` : ''}`;
   } catch {
     // 来源时区无效时以明确的 UTC 展示，避免把浏览器时区当成活动地点。
     return `${date.toISOString().slice(0, 16).replace('T', ' ')} (UTC)`;
   }
 }
 
-function Word({ word, settings, copy }: { word: DailyPreviewWord; settings: PanelSettings; copy: DailyPanelCopy }) {
+function Word({ word, index, date, settings, copy }: { word: DailyPreviewWord; index: number; date: string; settings: PanelSettings; copy: DailyPanelCopy }) {
   const showExample = settings.english.example && word.example;
   const showTranslation = settings.english.translation && word.translation;
   const foldedExample = !settings.english.example && word.example;
   const foldedTranslation = !settings.english.translation && word.translation;
   return <li className={styles.item}>
     <div className={styles.word}>
-      <strong className="t-title-4" lang="en">{word.term}</strong>
+      <Link className={`${styles.title} t-title-4`} href={dailyWordHref(date, word.term, index)}><strong lang="en">{word.term}</strong></Link>
       {settings.english.meaning && <span className={`${styles.meaning} t-footnote`}>{word.meaning}</span>}
     </div>
     {showExample && <p className={`${styles.example} t-footnote`} lang="en">{word.example}</p>}
@@ -59,7 +62,7 @@ function PreviewItem({ item, edition, date, settings, locale, copy }: {
   const role = item.roleType === 'internship' ? copy.internship : item.roleType === 'graduate' ? copy.graduate : null;
   const remote = item.remoteStatus && item.remoteStatus !== 'unknown' ? copy[item.remoteStatus] : null;
   return <li className={styles.item}>
-    <Link className={`${styles.title} t-title-4`} href={dailyPanelHref(date, edition.channel)}>{item.title}</Link>
+    <Link className={`${styles.title} t-title-4`} href={dailyEntryHref(date, edition.channel, item.id)}>{item.title}</Link>
     {item.organization && <p className={`${styles.meta} t-footnote`}>{item.organization}{role ? ` · ${role}` : ''}</p>}
     {item.preprint && <p className={`${styles.meta} t-footnote`}>{copy.preprint}</p>}
     {settings.showSummary && item.summary && <p className={`${styles.summary} t-footnote`}>{item.summary}</p>}
@@ -69,8 +72,8 @@ function PreviewItem({ item, edition, date, settings, locale, copy }: {
         {edition.channel === 'competitions' ? copy.competitionStartAt : copy.startAt}: {formatTime(item.startAt, locale, item.timeZone || 'UTC')}
       </p>}
       {edition.channel === 'events' && !item.startAt && <p className={`${styles.meta} t-footnote`}>{copy.timeUnknown}</p>}
+      {item.verifiedAt && <p className={`${styles.meta} t-footnote`}>{copy.verifiedAt}: {formatTime(item.verifiedAt, locale)}</p>}
       {item.sourcePublishedAt && <p className={`${styles.meta} t-footnote`}>{copy.sourceDate}: {formatTime(item.sourcePublishedAt, locale, 'Asia/Shanghai', false)}</p>}
-      {item.verifiedAt && (edition.channel === 'internships' || edition.channel === 'open-source') && <p className={`${styles.meta} t-footnote`}>{copy.verifiedAt}: {formatTime(item.verifiedAt, locale)}</p>}
     </>}
     {settings.showSource && <p className={`${styles.meta} t-footnote`}>
       {copy.sourceLabel}: {item.url ? <a className={styles.link} href={item.url} target="_blank" rel="noopener noreferrer">{item.sourceName} ↗</a> : item.sourceName}
@@ -81,39 +84,56 @@ function PreviewItem({ item, edition, date, settings, locale, copy }: {
 
 export function DailyPanelContent({ preview, settings, locale }: { preview: DailyPreviewResponse; settings: PanelSettings; locale: Locale }) {
   const copy = dailyPanelText[locale];
+  const id = useId();
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   const selected = settings.channels.map(channel => preview.editions.find(edition => edition.channel === channel)).filter((edition): edition is DailyPreviewEdition => Boolean(edition));
-  const visible = settings.hideEmpty ? selected.filter(edition => edition.status === 'published' && edition.content) : selected;
+  const visible = settings.hideEmpty ? selected.filter(edition => (edition.status === 'published' && edition.content) || edition.status === 'failed' || edition.currentStatus === 'failed') : selected;
   if (settings.channels.length === 0) return <p className={`${styles.notice} t-footnote`}>{copy.noChannels}</p>;
   if (visible.length === 0) return <p className={`${styles.notice} t-footnote`}>{copy.allHidden}</p>;
   return <div className={`${styles.channels} ${settings.density === 'compact' ? styles.compact : ''}`}>
     {visible.map(edition => {
       const label = dailyEditionChannels.find(channel => channel.id === edition.channel)![locale];
       const count = settings.itemCounts[edition.channel];
+      const contentDate = edition.contentDate ?? preview.date;
+      const currentStatus = edition.currentStatus ?? edition.status;
+      const closed = collapsed.has(edition.channel);
+      const failed = currentStatus === 'failed' || edition.status === 'failed';
+      const statusText = currentStatus === 'failed' ? copy.channelFailed : currentStatus === 'unpublished' ? copy.unpublished : copy.empty;
       return <section key={edition.channel} className={styles.channel} aria-label={label}>
         <div className={styles.channelHeader}>
-          <h3 className="t-title-4"><Link className={styles.channelName} href={dailyPanelHref(preview.date, edition.channel)}>{label}</Link></h3>
-          {edition.status === 'published' && <Link className={`${styles.link} t-footnote`} href={dailyPanelHref(preview.date, edition.channel)}>{copy.more} →</Link>}
+          <h3 className="t-title-4"><button type="button" className={styles.channelToggle} aria-expanded={!closed} aria-controls={`${id}-${edition.channel}`}
+            onClick={() => setCollapsed(previous => { const next = new Set(previous); if (next.has(edition.channel)) next.delete(edition.channel); else next.add(edition.channel); return next; })}>
+            <span aria-hidden="true">{closed ? '▸' : '▾'}</span>{label}
+          </button></h3>
+          {edition.status === 'published' && <Link className={`${styles.link} t-footnote`} href={dailyPanelHref(contentDate, edition.channel)}>{copy.more} →</Link>}
         </div>
-        {edition.status !== 'published' && <p className={`${edition.status === 'failed' ? styles.error : styles.notice} t-footnote`}>
-          {edition.status === 'failed' ? copy.channelFailed : edition.status === 'unpublished' ? copy.unpublished : copy.empty}
+        {contentDate !== preview.date && <p className={`${styles.editionDate} t-footnote`}>{copy.recentEdition} · <time dateTime={contentDate}>{contentDate}</time></p>}
+        {currentStatus !== 'published' && <p className={`${failed ? styles.error : styles.notice} t-footnote`}>
+          {edition.currentStatus ? `${preview.date} · ` : ''}{statusText}
         </p>}
+        <div id={`${id}-${edition.channel}`} hidden={closed}>
         {edition.content && edition.status === 'published' && <ul className={styles.items}>
           {edition.content.kind === 'english'
-            ? edition.content.vocabulary.slice(0, count).map((word, index) => <Word key={`${word.term}-${index}`} word={word} settings={settings} copy={copy} />)
-            : edition.content.items.slice(0, count).map(item => <PreviewItem key={item.id} item={item} edition={edition} date={preview.date} settings={settings} locale={locale} copy={copy} />)}
+            ? edition.content.vocabulary.slice(0, count).map((word, index) => <Word key={`${word.term}-${index}`} word={word} index={index} date={contentDate} settings={settings} copy={copy} />)
+            : edition.content.items.slice(0, count).map(item => <PreviewItem key={item.id} item={item} edition={edition} date={contentDate} settings={settings} locale={locale} copy={copy} />)}
         </ul>}
         {edition.status !== 'published' && edition.previousDate && <Link className={`${styles.footer} ${styles.link} t-footnote`} href={dailyPanelHref(edition.previousDate, edition.channel)}>
           {copy.previous} {edition.previousDate} {copy.previousSuffix} →
         </Link>}
+        </div>
       </section>;
     })}
   </div>;
 }
 
-export default function DailyNotificationPanel({ locale, userId }: Props) {
+export default function DailyNotificationPanel({ locale, userId, active = true }: Props) {
   const copy = dailyPanelText[locale];
   const { loading } = useAuth();
-  const panel = useDailyPanel(userId, loading);
+  const panel = useDailyPanel(userId, loading, active);
+  const readingDate = panel.preview?.editions
+    .filter(edition => panel.effectiveSettings.channels.includes(edition.channel) && edition.status === 'published' && edition.content)
+    .map(edition => edition.contentDate ?? panel.preview!.date).sort().at(-1) ?? panel.preview?.date;
+  const readingRecent = Boolean(readingDate && panel.preview && readingDate !== panel.preview.date);
   const customizeRef = useRef<HTMLButtonElement>(null);
   const activeEditorRef = useRef<EditorSession | null>(null);
   const [editor, setEditor] = useState<EditorSession | null>(null);
@@ -139,39 +159,41 @@ export default function DailyNotificationPanel({ locale, userId }: Props) {
   };
   return <section className={styles.panel} aria-label={copy.title}>
     <div className={styles.toolbar}>
-      <h2 className="t-title-4">{copy.title}</h2>
+      <h2 className="t-title-4">{editing ? copy.settingsTitle : copy.title}</h2>
       <div className={styles.actions}>
         {!editing && <button type="button" className={styles.button} aria-disabled={panel.contentLoading} onClick={() => { if (!panel.contentLoading) void panel.refresh(); }}>{copy.refresh}</button>}
-        <button ref={customizeRef} type="button" className={styles.button} aria-disabled={!panel.preferencesReady || panel.preferencesLoading || panel.saving} aria-expanded={Boolean(editing)} onClick={() => {
-          if (!panel.preferencesReady || panel.preferencesLoading || panel.saving) return;
-          if (editing) closeEditor();
-          else {
+        <button ref={customizeRef} type="button" className={styles.button} aria-disabled={Boolean(editing) || !panel.preferencesReady || panel.preferencesLoading || panel.saving} aria-expanded={Boolean(editing)} onClick={() => {
+          if (editing || !panel.preferencesReady || panel.preferencesLoading || panel.saving) return;
             panel.clearSaveError();
             const session = { id: Symbol('daily-panel-editor'), owner: userId, revision: panel.revision, settings: panel.effectiveSettings };
             activeEditorRef.current = session;
             setEditor(session);
-          }
         }}>{copy.customize}</button>
       </div>
     </div>
-    {editing ? <DailyPanelSettings locale={locale} userId={userId} settings={editing.settings} defaultSettings={panel.defaultSettings}
+    {editing && <DailyPanelSettings locale={locale} userId={userId} settings={editing.settings} defaultSettings={panel.defaultSettings}
       saving={panel.saving} error={panel.saveError || (panel.preferencesChanged ? 'changed' : null)} onCancel={() => closeEditor()} onReload={() => void reloadSettings()}
       onSave={async settings => {
         const saved = await panel.save(settings, editing.revision);
         if (saved) closeEditor(editing);
         return saved;
-      }} /> : <>
+      }} />}
+    <div className={styles.reading} hidden={Boolean(editing)}>
       {panel.preview && <p className={`${styles.date} t-footnote`}>
         <time dateTime={panel.preview.date}>{panel.preview.date}</time>
         {panel.preview.updatedAt && <span> · {copy.updated} {formatTime(panel.preview.updatedAt, locale)}</span>}
       </p>}
+      <SourceLanguageNote locale={locale} />
       {panel.preferencesLoading && <p className={`${styles.notice} t-footnote`} role="status">{copy.loadingSettings}</p>}
       {panel.preferencesFailed && !panel.preferencesChanged && <p className={`${styles.error} t-footnote`} role="alert">{copy.failedSettings} <button type="button" className={styles.button} onClick={() => void reloadSettings()}>{copy.retry}</button></p>}
       {panel.preferencesChanged && <p className={`${styles.error} t-footnote`} role="alert">{copy.sessionChanged} <button type="button" className={styles.button} onClick={() => void reloadSettings()}>{copy.reload}</button></p>}
       {panel.contentLoading && !panel.preview && <p className={`${styles.notice} t-footnote`} role="status">{copy.loading}</p>}
       {panel.contentFailed && <p className={`${styles.error} t-footnote`} role="alert">{copy.failed} <button type="button" className={styles.button} onClick={() => void panel.refresh()}>{copy.retry}</button></p>}
+      {panel.preview?.historyFailed && <p className={`${styles.error} t-footnote`} role="status">{copy.historyFailed} <button type="button" className={styles.button} onClick={() => void panel.refresh()}>{copy.retry}</button></p>}
       {panel.preview && <DailyPanelContent preview={panel.preview} settings={panel.effectiveSettings} locale={locale} />}
-      <Link className={`${styles.footer} ${styles.link} t-footnote`} href={panel.preview ? dailyPanelHref(panel.preview.date) : '/daily?view=all'}>{copy.readAll} →</Link>
-    </>}
+      <Link className={`${styles.footer} ${styles.link} t-footnote`} href={readingDate ? dailyPanelHref(readingDate) : '/daily?view=all'}>
+        {readingRecent ? `${copy.readRecent} ${readingDate}` : copy.readAll} →
+      </Link>
+    </div>
   </section>;
 }

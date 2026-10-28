@@ -1,0 +1,13 @@
+{
+  "note": "Initial removal of all query strings conflated job IDs; only fragment removal is accepted for repeat assessment",
+  "semantic_url_repeats": [],
+  "internship_query_identity": [
+    {
+      "base_hash": "56415bb09a6880d5bf5ff36b71dc56b1",
+      "occurrences": 13,
+      "unique_ids": 13,
+      "unique_urls": 13,
+      "has_job_id_query": true
+    }
+  ]
+}

@@ -66,6 +66,25 @@ describe('Pathfinder ingestion', () => {
     });
   });
 
+  it('GitHub Universe复用有界官方RSS，保留来源日期和规范链接', () => {
+    const source = PATHFINDER_SYNC_SOURCE_MAP.get('github-universe-events');
+    expect(source).toMatchObject({
+      adapterId: 'rss', fetchUrl: 'https://github.blog/tag/github-universe/feed/',
+      siteUrl: 'https://github.blog/tag/github-universe/', allowedFetchHosts: ['github.blog'], allowedItemHosts: ['github.blog'],
+      trustLevel: 'official', enabled: true, autoPublish: true, maxItemsPerSync: 10, learningEligible: false,
+    });
+    if (!source) throw new Error('Missing GitHub Universe source');
+    const xml = readFileSync(path.resolve('src/lib/pathfinder/__tests__/fixtures/github-universe.xml'), 'utf8');
+    const items = parseRss(source, xml);
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      sourceId: 'github-universe-events', externalId: 'universe-2026-session-guide',
+      titleEn: 'GitHub Universe 2026 session guide', summaryEn: 'Official developer conference session guide.',
+      canonicalUrl: 'https://github.blog/news-insights/company-news/10-technical-talks-im-excited-about-at-github-universe-2026',
+      publishedAt: '2026-10-01T15:07:16.000Z', learningEligible: false,
+    });
+  });
+
   it('中文来源的原文落中文列，不落 *_en', () => {
     /*
      * RSS 适配器默认把标题与摘要写进 titleEn / summaryEn，因为现有来源全是英文站。

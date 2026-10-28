@@ -1,0 +1,54 @@
+{
+  "at": "2026-10-24T12:48:56.349539+08:00",
+  "feeds": [
+    {
+      "id": "github-universe",
+      "url": "https://github.blog/tag/github-universe/feed/",
+      "status": 200,
+      "finalUrl": "https://github.blog/tag/github-universe/feed/",
+      "contentType": "application/rss+xml; charset=UTF-8",
+      "bytes": 142957,
+      "sha256": "3f907c5a14392833032755e25baae2460a48ff09c6ab96eb01a74602ee88d9ed",
+      "itemCount": 10,
+      "hasRssFields": true,
+      "eventSamples": [
+        {
+          "title": "10 technical talks I’m excited about at GitHub Universe 2026",
+          "url": "https://github.blog/news-insights/company-news/10-technical-talks-im-excited-about-at-github-universe-2026/",
+          "pubDate": "Thu, 01 Oct 2026 15:07:16 +0000",
+          "descriptionChars": 399
+        }
+      ],
+      "firstItemDates": [
+        "Thu, 01 Oct 2026 15:07:16 +0000",
+        "Thu, 13 Aug 2026 19:00:00 +0000",
+        "Tue, 11 Aug 2026 18:38:17 +0000"
+      ]
+    },
+    {
+      "id": "openai-news",
+      "url": "https://openai.com/news/rss.xml",
+      "status": 200,
+      "finalUrl": "https://openai.com/news/rss.xml",
+      "contentType": "text/xml; charset=utf-8",
+      "bytes": 803075,
+      "sha256": "c75e91a679b56d8fe5f960e06296423505e1fb041194855725015edf8b5ae906",
+      "itemCount": 1318,
+      "hasRssFields": true,
+      "eventSamples": [
+        {
+          "title": "DevDay 2026 Recap",
+          "url": "https://openai.com/index/devday-2026-recap",
+          "pubDate": "Tue, 29 Sep 2026 10:00:00 GMT",
+          "descriptionChars": 142
+        }
+      ],
+      "firstItemDates": [
+        "Fri, 23 Oct 2026 17:00:00 GMT",
+        "Fri, 23 Oct 2026 10:00:00 GMT",
+        "Fri, 23 Oct 2026 00:00:00 GMT"
+      ]
+    }
+  ],
+  "samplePolicy": "Only latest matching item metadata is retained; no author fields or article bodies"
+}

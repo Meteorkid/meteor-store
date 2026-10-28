@@ -1,0 +1,470 @@
+{
+  "startedAt": "2026-10-24T05:41:10.546Z",
+  "base": "http://127.0.0.1:3184",
+  "fixture": {
+    "today": "2026-10-24",
+    "previous": "2026-10-23",
+    "announcementCount": 20,
+    "englishWords": 5,
+    "currentAiStatus": "failed",
+    "competitionHistoryCount": 2,
+    "competitionCurrentCount": 1
+  },
+  "scope": "Real isolated Next production build and PostgreSQL; synthetic content, isolated accounts A/B",
+  "cases": [
+    {
+      "type": "responsive-real-navigation",
+      "lang": "zh",
+      "width": 375,
+      "height": 667,
+      "redBefore": 1,
+      "actualRead": "2026-10-23T12:00:19.000Z",
+      "expectedRead": "2026-10-23T12:00:19.000Z",
+      "announcementBounds": {
+        "x": 15,
+        "y": 221,
+        "width": 345,
+        "height": 117.75
+      },
+      "overflow": {
+        "client": 345,
+        "scroll": 345
+      },
+      "saveTop": {
+        "x": 299.734375,
+        "y": 596,
+        "width": 44.265625,
+        "height": 44
+      },
+      "saveBottom": {
+        "x": 299.734375,
+        "y": 596,
+        "width": 44.265625,
+        "height": 44
+      },
+      "inactive": {
+        "before": 1,
+        "after": 1
+      },
+      "wordHref": "/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+      "wordBounds": {
+        "x": 16,
+        "y": 93.609375,
+        "width": 343,
+        "height": 157.5
+      },
+      "modifier": {
+        "key": "Meta (macOS)",
+        "before": {
+          "url": "http://127.0.0.1:3184/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1433
+        },
+        "after": {
+          "url": "http://127.0.0.1:3184/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1433,
+          "focusedId": ""
+        },
+        "newTabUrl": "http://127.0.0.1:3184/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDozOmNsYXJpZnk"
+      },
+      "paperHref": "/zh/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "paperBounds": {
+        "x": 16,
+        "y": 95.78125,
+        "width": 343,
+        "height": 250.796875
+      },
+      "loginNext": "/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "result": "passed"
+    },
+    {
+      "type": "responsive-real-navigation",
+      "lang": "zh",
+      "width": 768,
+      "height": 1024,
+      "redBefore": 1,
+      "actualRead": "2026-10-23T12:00:19.000Z",
+      "expectedRead": "2026-10-23T12:00:19.000Z",
+      "announcementBounds": {
+        "x": 15,
+        "y": 221,
+        "width": 738,
+        "height": 72.25
+      },
+      "overflow": {
+        "client": 738,
+        "scroll": 738
+      },
+      "saveTop": {
+        "x": 692.734375,
+        "y": 689,
+        "width": 44.265625,
+        "height": 44
+      },
+      "saveBottom": {
+        "x": 692.734375,
+        "y": 689,
+        "width": 44.265625,
+        "height": 44
+      },
+      "inactive": {
+        "before": 1,
+        "after": 1
+      },
+      "wordHref": "/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+      "wordBounds": {
+        "x": 390,
+        "y": 96.390625,
+        "width": 362,
+        "height": 157.5
+      },
+      "modifier": {
+        "key": "Meta (macOS)",
+        "before": {
+          "url": "http://127.0.0.1:3184/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1368
+        },
+        "after": {
+          "url": "http://127.0.0.1:3184/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1368,
+          "focusedId": ""
+        },
+        "newTabUrl": "http://127.0.0.1:3184/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDozOmNsYXJpZnk"
+      },
+      "paperHref": "/zh/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "paperBounds": {
+        "x": 16,
+        "y": 95.828125,
+        "width": 736,
+        "height": 221.046875
+      },
+      "loginNext": "/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "result": "passed"
+    },
+    {
+      "type": "responsive-real-navigation",
+      "lang": "zh",
+      "width": 1280,
+      "height": 900,
+      "redBefore": 1,
+      "actualRead": "2026-10-23T12:00:19.000Z",
+      "expectedRead": "2026-10-23T12:00:19.000Z",
+      "announcementBounds": {
+        "x": 681.03125,
+        "y": 207,
+        "width": 430,
+        "height": 95
+      },
+      "overflow": {
+        "client": 430,
+        "scroll": 430
+      },
+      "saveTop": {
+        "x": 1050.765625,
+        "y": 675,
+        "width": 44.265625,
+        "height": 44
+      },
+      "saveBottom": {
+        "x": 1050.765625,
+        "y": 675,
+        "width": 44.265625,
+        "height": 44
+      },
+      "inactive": {
+        "before": 1,
+        "after": 1
+      },
+      "wordHref": "/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+      "wordBounds": {
+        "x": 646,
+        "y": 95.796875,
+        "width": 442,
+        "height": 157.5
+      },
+      "modifier": {
+        "key": "Meta (macOS)",
+        "before": {
+          "url": "http://127.0.0.1:3184/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1275
+        },
+        "after": {
+          "url": "http://127.0.0.1:3184/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1275,
+          "focusedId": ""
+        },
+        "newTabUrl": "http://127.0.0.1:3184/zh/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDozOmNsYXJpZnk"
+      },
+      "paperHref": "/zh/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "paperBounds": {
+        "x": 192,
+        "y": 95.59375,
+        "width": 896,
+        "height": 224.390625
+      },
+      "loginNext": "/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "result": "passed"
+    },
+    {
+      "type": "responsive-real-navigation",
+      "lang": "en",
+      "width": 375,
+      "height": 667,
+      "redBefore": 1,
+      "actualRead": "2026-10-23T12:00:19.000Z",
+      "expectedRead": "2026-10-23T12:00:19.000Z",
+      "announcementBounds": {
+        "x": 15,
+        "y": 266.6875,
+        "width": 345,
+        "height": 117.75
+      },
+      "overflow": {
+        "client": 345,
+        "scroll": 345
+      },
+      "saveTop": {
+        "x": 296.359375,
+        "y": 596,
+        "width": 47.640625,
+        "height": 44
+      },
+      "saveBottom": {
+        "x": 296.359375,
+        "y": 596,
+        "width": 47.640625,
+        "height": 44
+      },
+      "inactive": {
+        "before": 1,
+        "after": 1
+      },
+      "wordHref": "/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+      "wordBounds": {
+        "x": 16,
+        "y": 95.609375,
+        "width": 343,
+        "height": 157.5
+      },
+      "modifier": {
+        "key": "Meta (macOS)",
+        "before": {
+          "url": "http://127.0.0.1:3184/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1617
+        },
+        "after": {
+          "url": "http://127.0.0.1:3184/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1617,
+          "focusedId": ""
+        },
+        "newTabUrl": "http://127.0.0.1:3184/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDozOmNsYXJpZnk"
+      },
+      "paperHref": "/en/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "paperBounds": {
+        "x": 16,
+        "y": 93.78125,
+        "width": 343,
+        "height": 250.796875
+      },
+      "loginNext": "/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "result": "passed"
+    },
+    {
+      "type": "responsive-real-navigation",
+      "lang": "en",
+      "width": 768,
+      "height": 1024,
+      "redBefore": 1,
+      "actualRead": "2026-10-23T12:00:19.000Z",
+      "expectedRead": "2026-10-23T12:00:19.000Z",
+      "announcementBounds": {
+        "x": 15,
+        "y": 221,
+        "width": 738,
+        "height": 72.25
+      },
+      "overflow": {
+        "client": 738,
+        "scroll": 738
+      },
+      "saveTop": {
+        "x": 689.359375,
+        "y": 689,
+        "width": 47.640625,
+        "height": 44
+      },
+      "saveBottom": {
+        "x": 689.359375,
+        "y": 689,
+        "width": 47.640625,
+        "height": 44
+      },
+      "inactive": {
+        "before": 1,
+        "after": 1
+      },
+      "wordHref": "/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+      "wordBounds": {
+        "x": 390,
+        "y": 96.390625,
+        "width": 362,
+        "height": 157.5
+      },
+      "modifier": {
+        "key": "Meta (macOS)",
+        "before": {
+          "url": "http://127.0.0.1:3184/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1419
+        },
+        "after": {
+          "url": "http://127.0.0.1:3184/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1419,
+          "focusedId": ""
+        },
+        "newTabUrl": "http://127.0.0.1:3184/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDozOmNsYXJpZnk"
+      },
+      "paperHref": "/en/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "paperBounds": {
+        "x": 16,
+        "y": 95.828125,
+        "width": 736,
+        "height": 221.046875
+      },
+      "loginNext": "/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "result": "passed"
+    },
+    {
+      "type": "responsive-real-navigation",
+      "lang": "en",
+      "width": 1280,
+      "height": 900,
+      "redBefore": 1,
+      "actualRead": "2026-10-23T12:00:19.000Z",
+      "expectedRead": "2026-10-23T12:00:19.000Z",
+      "announcementBounds": {
+        "x": 653.203125,
+        "y": 238.1875,
+        "width": 430,
+        "height": 95
+      },
+      "overflow": {
+        "client": 430,
+        "scroll": 430
+      },
+      "saveTop": {
+        "x": 1019.5625,
+        "y": 675,
+        "width": 47.640625,
+        "height": 44
+      },
+      "saveBottom": {
+        "x": 1019.5625,
+        "y": 675,
+        "width": 47.640625,
+        "height": 44
+      },
+      "inactive": {
+        "before": 1,
+        "after": 1
+      },
+      "wordHref": "/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+      "wordBounds": {
+        "x": 646,
+        "y": 95.796875,
+        "width": 442,
+        "height": 157.5
+      },
+      "modifier": {
+        "key": "Meta (macOS)",
+        "before": {
+          "url": "http://127.0.0.1:3184/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1326
+        },
+        "after": {
+          "url": "http://127.0.0.1:3184/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+          "scrollY": 1326,
+          "focusedId": ""
+        },
+        "newTabUrl": "http://127.0.0.1:3184/en/daily?date=2026-10-23&view=all#daily-entry-english-d29yZDozOmNsYXJpZnk"
+      },
+      "paperHref": "/en/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "paperBounds": {
+        "x": 192,
+        "y": 93.59375,
+        "width": 896,
+        "height": 224.390625
+      },
+      "loginNext": "/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+      "result": "passed"
+    },
+    {
+      "type": "real-account-cross-context-conflict-isolation",
+      "conflictStatus": 409,
+      "alert": {
+        "x": 764.734375,
+        "y": 603.5,
+        "width": 398,
+        "height": 19.5
+      },
+      "popup": {
+        "x": 747.734375,
+        "y": 58,
+        "width": 432,
+        "height": 672
+      },
+      "hiddenAccount": {
+        "before": 5,
+        "after": 5
+      },
+      "result": "passed"
+    }
+  ],
+  "errors": [],
+  "staticFailures": [],
+  "blockedWrites": [],
+  "complete": true,
+  "initial": {
+    "A": {
+      "userId": "A",
+      "settings": null,
+      "revision": "2026-10-24T05:33:11.217Z",
+      "followedChannels": [
+        "english",
+        "papers"
+      ]
+    },
+    "B": {
+      "userId": "B",
+      "settings": null,
+      "revision": "2026-10-23T14:14:15.303Z",
+      "followedChannels": [
+        "english",
+        "papers",
+        "ai",
+        "events",
+        "open-source",
+        "competitions",
+        "internships",
+        "masters"
+      ]
+    },
+    "legacyA": {
+      "userId": "A",
+      "preferences": {
+        "channels": [
+          "english",
+          "papers"
+        ],
+        "reminders": true
+      },
+      "revision": "2026-10-24T05:23:57.837Z"
+    }
+  },
+  "restoredA": {
+    "settings": null,
+    "followedChannels": [
+      "english",
+      "papers"
+    ]
+  },
+  "finishedAt": "2026-10-24T05:41:34.818Z"
+}

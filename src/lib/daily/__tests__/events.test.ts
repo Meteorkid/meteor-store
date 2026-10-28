@@ -18,6 +18,15 @@ function announcement(overrides: Record<string, unknown> = {}) {
   };
 }
 
+const universeUrl = 'https://github.blog/news-insights/company-news/10-technical-talks-im-excited-about-at-github-universe-2026';
+function universeAnnouncement(overrides: Record<string, unknown> = {}) {
+  return announcement({
+    id: 'github-universe-guide', sourceId: 'github-universe-events', sourceName: 'GitHub Universe',
+    titleEn: 'GitHub Universe 2026 session guide', canonicalUrl: universeUrl,
+    publishedAt: '2026-10-01T15:07:16.000Z', ...overrides,
+  });
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   vi.useFakeTimers();
@@ -95,6 +104,70 @@ describe('每日官方活动公告', () => {
     expect(query.sql).toContain('ilike');
     expect(mocks.orderBy).toHaveBeenCalledOnce();
     expect(mocks.limit).toHaveBeenCalledWith(200);
+  });
+
+  it.each(['github-universe-events', 'github-ai-blog'])('完整品牌可由受信GitHub来源识别且不猜活动时间：%s', async sourceId => {
+    const { loadDailyEvents } = await import('../events');
+    vi.setSystemTime(new Date('2026-10-24T04:00:00Z'));
+    mocks.limit.mockResolvedValue([universeAnnouncement({ sourceId })]);
+    const result = await loadDailyEvents('2026-10-24', []);
+    expect(result.status).toBe('published');
+    if (result.content?.kind !== 'events') throw new Error('Expected events');
+    expect(result.content.items[0]).toMatchObject({ url: universeUrl, sourcePublishedAt: '2026-10-01T15:07:16.000Z', phase: 'announcement' });
+    expect(result.content.items[0]).not.toHaveProperty('startAt');
+    expect(result.content.items[0]).not.toHaveProperty('timeZone');
+  });
+
+  it('SQL品牌分支绑定两个GitHub来源并匹配完整词边界', async () => {
+    const { loadDailyEvents } = await import('../events');
+    await loadDailyEvents(date, []);
+    const query = new PgDialect().sqlToQuery(mocks.where.mock.calls[0][0] as SQL);
+    expect(query.params).toContain('github-universe-events');
+    expect(query.params).toContain('github-ai-blog');
+    expect(query.sql).toContain('"pathfinder_items"."source_id" in');
+    expect(query.sql).toContain('"pathfinder_items"."title_zh" ~*');
+    expect(query.sql).toContain('"pathfinder_items"."title_en" ~*');
+    expect(query.params).toContain('(^|[^A-Za-z0-9_])github[[:space:]]+universe([^A-Za-z0-9_]|$)');
+  });
+
+  it.each(['Universe 2026', 'GitHub Build 2026', 'GitHub Universes 2026', 'NotGitHub Universe', 'GitHub Universeality', 'GitHub Universe speech dataset'])('不会泛化品牌或放行研究主题：%s', async titleEn => {
+    const { loadDailyEvents } = await import('../events');
+    mocks.limit.mockResolvedValue([universeAnnouncement({ titleEn })]);
+    expect(await loadDailyEvents(date, [])).toMatchObject({ status: 'empty', content: null });
+  });
+
+  it('品牌分支不接受其它来源，也不把中英两列拼成品牌名', async () => {
+    const { loadDailyEvents } = await import('../events');
+    mocks.limit.mockResolvedValue([
+      universeAnnouncement({ sourceId: 'openai-news', canonicalUrl: 'https://openai.com/index/universe' }),
+      universeAnnouncement({ id: 'split-title', titleZh: 'GitHub', titleEn: 'Universe 2026' }),
+    ]);
+    expect(await loadDailyEvents(date, [])).toMatchObject({ status: 'empty', content: null });
+  });
+
+  it('新旧GitHub来源按规范URL去重，历史已用时保持empty', async () => {
+    const { loadDailyEvents } = await import('../events');
+    mocks.limit.mockResolvedValue([
+      universeAnnouncement({ id: 'existing-owner', sourceId: 'github-ai-blog' }),
+      universeAnnouncement({ id: 'new-source', canonicalUrl: `${universeUrl}/?utm_source=new-feed` }),
+    ]);
+    const result = await loadDailyEvents(date, []);
+    if (result.content?.kind !== 'events') throw new Error('Expected events');
+    expect(result.content.items.map(item => item.id)).toEqual(['existing-owner']);
+    expect(await loadDailyEvents(date, [`${universeUrl}/?utm_campaign=history`])).toMatchObject({ status: 'empty', content: null });
+  });
+
+  it.each([
+    { publishedAt: '2026-08-13T19:00:00Z' }, { publishedAt: null }, { publishedAt: 'invalid' },
+    { publishedAt: '2026-10-25T00:00:00Z' },
+    { canonicalUrl: 'https://github.blog.attacker.test/universe' },
+    { canonicalUrl: 'https://user:pass@github.blog/universe' },
+    { canonicalUrl: 'http://github.blog/universe' }, { canonicalUrl: 'https://github.blog:8443/universe' },
+  ])('品牌条目仍需真实窗口日期和自己的HTTPS主机：%j', async overrides => {
+    const { loadDailyEvents } = await import('../events');
+    vi.setSystemTime(new Date('2026-10-24T04:00:00Z'));
+    mocks.limit.mockResolvedValue([universeAnnouncement(overrides)]);
+    expect(await loadDailyEvents('2026-10-24', [])).toMatchObject({ status: 'empty', content: null });
   });
 
   it('日期边界包含最早一天和当前时刻，剔除早于窗口与尚未发生的来源时间', async () => {

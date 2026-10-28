@@ -34,6 +34,19 @@ describe('公告面板接口隔离', () => {
     expect(mocks.session).not.toHaveBeenCalled(); expect(mocks.get).not.toHaveBeenCalled();
   });
 
+  it('只有recent=1显式启用最近一期模式，旧请求保持原服务合同', async () => {
+    const response = await getPreview(new NextRequest(`${SITE}/api/daily/preview?date=2026-10-23&recent=1`));
+    expect(response.status).toBe(200);
+    expect(mocks.preview).toHaveBeenCalledWith('2026-10-23', { recent: true });
+  });
+
+  it.each(['0', 'true', '', '1&recent=1'])('拒绝未知或重复的recent模式 %s', async value => {
+    const response = await getPreview(new NextRequest(`${SITE}/api/daily/preview?recent=${value}`));
+    expect(response.status).toBe(400);
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
+    expect(mocks.preview).not.toHaveBeenCalled();
+  });
+
   it('私人读取只查会话本人并返回owner和no-store，游客不可读取', async () => {
     const response = await getPreferences();
     expect(response.status).toBe(200);

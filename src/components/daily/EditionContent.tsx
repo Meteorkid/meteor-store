@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import { inferDailyRoleType, type DailyContent, type DailyLinkItem, type EnglishContent } from '@/lib/daily/types';
 import { gradeAnswers } from './state';
+import { dailyEntryAnchor, dailyWordAnchor } from '@/lib/daily/navigation';
 import type { DailyCopy } from './text';
 
 const roleLabels = { internship: 'internshipRole', graduate: 'graduateRole', unknown: 'unknownRole' } as const;
@@ -16,7 +17,7 @@ export default function EditionContent({ content, copy, locale }: { content: Dai
   return (
     <ol className="divide-y divide-white/10">
       {content.items.map((item, index) => (
-        <li key={item.id} className="py-7 first:pt-0 last:pb-0">
+        <li key={item.id} id={dailyEntryAnchor(content.kind, item.id)} tabIndex={-1} className="scroll-mt-24 py-7 first:pt-0 last:pb-0">
           <div className="mb-3 flex flex-wrap items-center gap-2 t-footnote text-white/60">
             <span className="font-mono text-violet-200">{String(index + 1).padStart(2, '0')}</span>
             {content.kind === 'internships' && <span className="rounded-full border border-violet-300/20 px-2.5 py-0.5 text-violet-200">
@@ -46,8 +47,8 @@ export default function EditionContent({ content, copy, locale }: { content: Dai
           </details>}
           <p className="mt-4 t-footnote text-white/60">
             {copy.source}: {item.sourceName} · {item.sourceType === 'official' ? copy.official : copy.aggregator}
-            {item.sourcePublishedAt && <> · {copy.sourceDate}: {formatSourceDate(item.sourcePublishedAt, locale)}</>}
             {item.verifiedAt && <> · {copy.verifiedAt}: {formatEventTime({ ...item, startAt: item.verifiedAt, timeZone: 'Asia/Shanghai' }, locale)}</>}
+            {item.sourcePublishedAt && <> · {copy.sourceDate}: {formatSourceDate(item.sourcePublishedAt, locale)}</>}
           </p>
           <div className="mt-4 flex flex-wrap gap-5 t-footnote font-semibold text-violet-200">
             <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center underline decoration-violet-300/40 underline-offset-4">{copy.original} <span aria-hidden className="ml-1">↗</span></a>
@@ -75,7 +76,7 @@ function formatEventTime(item: DailyLinkItem, locale: string): string | null {
   try {
     return `${new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', {
       timeZone, year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-    }).format(date)} (${timeZone})`;
+    }).format(date)} (${locale === 'zh' && timeZone === 'Asia/Shanghai' ? '北京时间' : timeZone})`;
   } catch {
     // 不将未知时区当作用户本地时区；保留来源给出的绝对时刻。
     return date.toISOString();
@@ -93,7 +94,7 @@ function EnglishReading({ content: latestContent, copy }: { content: EnglishCont
         <h3 className="mb-4 t-title-4 text-white">{copy.vocabulary}</h3>
         <div className="grid gap-3 sm:grid-cols-2">
           {content.vocabulary.map((word, index) => (
-            <details key={`${word.term}-${index}`} className="rounded-xl border border-white/10 p-4">
+            <details key={`${word.term}-${index}`} id={dailyWordAnchor(word.term, index)} tabIndex={-1} className="scroll-mt-24 rounded-xl border border-white/10 p-4">
               <summary className="cursor-pointer text-base font-semibold text-white">
                 <span lang="en">{word.term}</span><span className="ml-3 t-footnote font-normal text-white/60">{copy.meaning}</span>
               </summary>

@@ -1,5 +1,6 @@
 import { getProductTrack } from '@/data/product-tracks';
 import { appIds } from '@/data/app-manifest';
+import { normalizeDailyReturn } from './daily/navigation';
 
 const ALLOWED_LOGIN_RETURNS = new Set([
   '/daily',
@@ -25,6 +26,8 @@ const ALLOWED_LOGIN_RETURNS = new Set([
 export function normalizeLoginReturn(value: string | null | undefined): string {
   if (typeof value !== 'string' || !value) return '/';
   if (ALLOWED_LOGIN_RETURNS.has(value)) return value;
+  const daily = normalizeDailyReturn(value);
+  if (daily) return daily;
 
   // 投稿编辑只接受文章 ID 和入口标记；实际编辑权限仍由页面及 API 校验。
   const submitMatch = /^\/blog\/submit\?id=[A-Za-z0-9_-]{1,64}(?:&admin=1)?$/.exec(value);

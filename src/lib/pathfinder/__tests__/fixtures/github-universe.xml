@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 2026-10-24核验官方RSS字段、链接及pubDate；标题和摘要为合成测试文本，不复制文章正文。 -->
+<rss version="2.0">
+  <channel>
+    <title>GitHub Universe</title>
+    <link>https://github.blog/tag/github-universe/</link>
+    <item>
+      <title>GitHub Universe 2026 session guide</title>
+      <link>https://github.blog/news-insights/company-news/10-technical-talks-im-excited-about-at-github-universe-2026/?utm_source=fixture</link>
+      <guid>universe-2026-session-guide</guid>
+      <pubDate>Thu, 01 Oct 2026 15:07:16 +0000</pubDate>
+      <description><![CDATA[<p>Official developer conference session guide.</p>]]></description>
+    </item>
+    <item>
+      <title>GitHub Universe 2026 session guide</title>
+      <link>https://github.blog.attacker.test/universe</link>
+      <guid>untrusted-host</guid>
+      <pubDate>Thu, 01 Oct 2026 15:07:16 +0000</pubDate>
+      <description>Fixture for rejecting an unrelated host.</description>
+    </item>
+  </channel>
+</rss>

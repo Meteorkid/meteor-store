@@ -1,0 +1,10 @@
+{
+  "mode": "Controlled read-only 503 interception; production unchanged",
+  "actualAnnouncementCount": 20,
+  "emptyMessage": true,
+  "requestsAfterFailure": 1,
+  "requestsAfterReopen": 1,
+  "requestsAfterDailyRefresh": 1,
+  "reproduced": true,
+  "actualLoginDestination": "https://www.imagentx.top/en/login?next=%2Fdaily"
+}

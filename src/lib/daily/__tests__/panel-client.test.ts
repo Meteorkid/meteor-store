@@ -26,7 +26,7 @@ describe('每日面板公开内容缓存', () => {
     await Promise.all([client.ensureDailyPanelPreview(), client.ensureDailyPanelPreview()]);
     await client.ensureDailyPanelPreview();
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock.mock.calls[0][0]).toBe(`/api/daily/preview?date=${dailyDate()}`);
+    expect(fetchMock.mock.calls[0][0]).toBe(`/api/daily/preview?date=${dailyDate()}&recent=1`);
     expect(client.getDailyPanelPreviewState().data?.editions[0].content).toHaveProperty('vocabulary');
   });
   it('同批强制刷新去重，旧响应不能覆盖新内容', async () => {

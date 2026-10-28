@@ -1,0 +1,279 @@
+{
+  "scope": "Independent Chrome, production guest, local-only preference changes; heartbeat mocked, write attempts blocked",
+  "cases": [
+    {
+      "viewport": {
+        "lang": "zh",
+        "width": 375,
+        "height": 667
+      },
+      "announcementCount": 20,
+      "initial": {
+        "bounds": {
+          "x": 14,
+          "y": 72,
+          "width": 347,
+          "height": 578,
+          "top": 72,
+          "right": 361,
+          "bottom": 650,
+          "left": 14
+        },
+        "scrollHeight": 6266,
+        "clientHeight": 531
+      },
+      "settings": {
+        "height": 955,
+        "saveBounds": {
+          "x": 299.734375,
+          "y": 1101,
+          "width": 44.265625,
+          "height": 36
+        },
+        "scrollClient": {
+          "top": 0,
+          "height": 531,
+          "scrollHeight": 5779
+        }
+      },
+      "unsaved": {
+        "oldValue": "3",
+        "draft": "5",
+        "wasClosed": true,
+        "reopenedValue": "3"
+      },
+      "saveAtBottom": {
+        "x": 299.734375,
+        "y": -4147,
+        "width": 44.265625,
+        "height": 36
+      }
+    },
+    {
+      "viewport": {
+        "lang": "zh",
+        "width": 768,
+        "height": 1024
+      },
+      "announcementCount": 20,
+      "initial": {
+        "bounds": {
+          "x": 14,
+          "y": 72,
+          "width": 740,
+          "height": 623,
+          "top": 72,
+          "right": 754,
+          "bottom": 695,
+          "left": 14
+        },
+        "scrollHeight": 4624,
+        "clientHeight": 576
+      },
+      "settings": {
+        "height": 955,
+        "saveBounds": {
+          "x": 692.734375,
+          "y": 1101,
+          "width": 44.265625,
+          "height": 36
+        },
+        "scrollClient": {
+          "top": 0,
+          "height": 576,
+          "scrollHeight": 4277
+        }
+      },
+      "unsaved": {
+        "oldValue": "3",
+        "draft": "5",
+        "wasClosed": true,
+        "reopenedValue": "3"
+      },
+      "saveAtBottom": {
+        "x": 692.734375,
+        "y": -2600,
+        "width": 44.265625,
+        "height": 36
+      }
+    },
+    {
+      "viewport": {
+        "lang": "en",
+        "width": 375,
+        "height": 667
+      },
+      "announcementCount": 20,
+      "initial": {
+        "bounds": {
+          "x": 14,
+          "y": 72,
+          "width": 347,
+          "height": 578,
+          "top": 72,
+          "right": 361,
+          "bottom": 650,
+          "left": 14
+        },
+        "scrollHeight": 6290,
+        "clientHeight": 531
+      },
+      "settings": {
+        "height": 1015,
+        "saveBounds": {
+          "x": 296.359375,
+          "y": 1161,
+          "width": 47.640625,
+          "height": 36
+        },
+        "scrollClient": {
+          "top": 0,
+          "height": 531,
+          "scrollHeight": 5839
+        }
+      },
+      "unsaved": {
+        "oldValue": "3",
+        "draft": "5",
+        "wasClosed": true,
+        "reopenedValue": "3"
+      },
+      "saveAtBottom": {
+        "x": 296.359375,
+        "y": -4147,
+        "width": 47.640625,
+        "height": 36
+      }
+    },
+    {
+      "viewport": {
+        "lang": "en",
+        "width": 640,
+        "height": 450
+      },
+      "announcementCount": 20,
+      "initial": {
+        "bounds": {
+          "x": 14,
+          "y": 72,
+          "width": 612,
+          "height": 361,
+          "top": 72,
+          "right": 626,
+          "bottom": 433,
+          "left": 14
+        },
+        "scrollHeight": 4917,
+        "clientHeight": 314
+      },
+      "settings": {
+        "height": 955,
+        "saveBounds": {
+          "x": 561.359375,
+          "y": 1101,
+          "width": 47.640625,
+          "height": 36
+        },
+        "scrollClient": {
+          "top": 0,
+          "height": 314,
+          "scrollHeight": 4550
+        }
+      },
+      "unsaved": {
+        "oldValue": "3",
+        "draft": "5",
+        "wasClosed": true,
+        "reopenedValue": "3"
+      },
+      "saveAtBottom": {
+        "x": 561.359375,
+        "y": -3135,
+        "width": 47.640625,
+        "height": 36
+      }
+    }
+  ],
+  "announcementRead": [
+    {
+      "width": 375,
+      "announcement": {
+        "before": {
+          "readAt": null,
+          "redDot": 1
+        },
+        "after": {
+          "readAt": "2026-10-23T15:56:56.486Z",
+          "redDot": 0
+        },
+        "bounds": {
+          "x": 31,
+          "y": 1653.3125,
+          "width": 313,
+          "height": 20.5
+        },
+        "panelBounds": {
+          "x": 14,
+          "y": 72,
+          "width": 347,
+          "height": 578
+        }
+      }
+    },
+    {
+      "width": 768,
+      "announcement": {
+        "before": {
+          "readAt": null,
+          "redDot": 1
+        },
+        "after": {
+          "readAt": "2026-10-23T15:56:58.642Z",
+          "redDot": 0
+        },
+        "bounds": {
+          "x": 31,
+          "y": 1513.125,
+          "width": 706,
+          "height": 20.5
+        },
+        "panelBounds": {
+          "x": 14,
+          "y": 72,
+          "width": 740,
+          "height": 623
+        }
+      }
+    }
+  ],
+  "zoom": {
+    "kind": "1280x900 physical / 640x450 CSS reflow equivalent at DPR2; not native browser menu zoom",
+    "metrics": {
+      "innerWidth": 640,
+      "innerHeight": 450,
+      "devicePixelRatio": 2,
+      "visualViewport": {
+        "width": 640,
+        "height": 450,
+        "scale": 1
+      }
+    },
+    "panel": {
+      "x": 14,
+      "y": 72,
+      "width": 612,
+      "height": 361
+    },
+    "overflow": {
+      "clientWidth": 610,
+      "scrollWidth": 610
+    },
+    "save": {
+      "x": 561.359375,
+      "y": 1101,
+      "width": 47.640625,
+      "height": 36
+    }
+  },
+  "pageErrors": []
+}

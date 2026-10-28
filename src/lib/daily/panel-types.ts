@@ -77,10 +77,13 @@ export const DailyPreviewEditionSchema = z.object({
   channel: DailyEditionChannelSchema, status: z.enum(['published', 'empty', 'failed', 'unpublished']),
   title: z.string().max(160), updatedAt: revision.nullable(), previousDate: DailyDateSchema.optional(),
   totalCount: z.number().int().min(0).max(10), content: previewContent.nullable(),
+  contentDate: DailyDateSchema.optional(),
+  currentStatus: z.enum(['published', 'empty', 'failed', 'unpublished']).optional(),
 }).strict();
 export type DailyPreviewEdition = z.infer<typeof DailyPreviewEditionSchema>;
 export const DailyPreviewResponseSchema = z.object({
   date: DailyDateSchema, updatedAt: revision.nullable(),
   editions: z.array(DailyPreviewEditionSchema).max(DAILY_EDITION_CHANNEL_IDS.length),
+  historyFailed: z.boolean().optional(),
 }).strict();
 export type DailyPreviewResponse = z.infer<typeof DailyPreviewResponseSchema>;

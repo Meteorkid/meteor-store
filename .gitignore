@@ -85,3 +85,10 @@ drizzle-ledger-backup-*.json
 
 # 私有运行监控状态
 /data/monitoring/
+
+# 智能体工作区记忆（含个人上下文与工作笔记，且本仓库会同步到公开镜像）
+.workbuddy/
+
+# 品牌宣传片生成产物（AI 生成的中间素材，10M 级，单独分发不入库）
+brand-film.miora
+brand-film_assets/

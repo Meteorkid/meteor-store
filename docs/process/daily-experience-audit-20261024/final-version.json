@@ -1,0 +1,9 @@
+{
+  "head": "fc8db5e55f8d7fae3a7907a935caae9affbb458d",
+  "buildId": "build-TfctsWXpff2fKS",
+  "expectedRelease": "fc8db5e55f8d7fae3a7907a935caae9affbb458d",
+  "matchingStaticChunkCount": 1,
+  "matchingChunkPaths": [
+    ".next/static/chunks/1foepn0_onep7.js"
+  ]
+}

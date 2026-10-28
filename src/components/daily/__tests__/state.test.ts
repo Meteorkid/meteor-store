@@ -5,6 +5,7 @@ import {
 } from '../state';
 
 describe('每日阅读偏好与本地进度', () => {
+  const revision = '2026-10-14T01:00:00.000Z';
   const guest = { channels: ['english'] as const, reminders: false };
 
   it('未设置与明确空选保持不同含义', () => {
@@ -48,9 +49,9 @@ describe('每日阅读偏好与本地进度', () => {
 
   it('旧五栏偏好不自动添加新栏目，已读容量覆盖七栏30天', () => {
     const channels = ['english', 'papers', 'ai', 'events', 'masters'];
-    const old = parseAccountPreferences({ userId: 'user-1', preferences: { channels, reminders: true } }, 'user-1');
-    expect(visibleChannels('following', old)).toEqual(channels);
-    expect(visibleChannels('all', old)).toEqual(expect.arrayContaining(['open-source', 'competitions', 'internships']));
+    const old = parseAccountPreferences({ userId: 'user-1', preferences: { channels, reminders: true }, revision }, 'user-1');
+    expect(visibleChannels('following', old.preferences)).toEqual(channels);
+    expect(visibleChannels('all', old.preferences)).toEqual(expect.arrayContaining(['open-source', 'competitions', 'internships']));
     expect(MAX_DAILY_READ_KEYS).toBe(210);
     const keys = Array.from({ length: 180 }, (_, index) => `saved-${index}`);
     expect(toggleReadKey(keys, '2026-10-15:internships')).toHaveLength(181);
@@ -60,9 +61,15 @@ describe('每日阅读偏好与本地进度', () => {
   it('拒绝账号切换后返回的其他用户偏好', () => {
     expect(() => parseAccountPreferences({ userId: 'user-2', preferences: null }, 'user-1')).toThrow();
     expect(() => parseAccountPreferences({ preferences: null }, 'user-1')).toThrow();
-    expect(parseAccountPreferences({ userId: 'user-1', preferences: null }, 'user-1')).toBeNull();
-    expect(parseAccountPreferences({ userId: 'user-1', preferences: { channels: [], reminders: false } }, 'user-1'))
-      .toEqual({ channels: [], reminders: false });
+    expect(parseAccountPreferences({ userId: 'user-1', preferences: null, revision: null }, 'user-1')).toEqual({ preferences: null, revision: null });
+    expect(parseAccountPreferences({ userId: 'user-1', preferences: { channels: [], reminders: false }, revision }, 'user-1'))
+      .toEqual({ preferences: { channels: [], reminders: false }, revision });
+  });
+
+  it('缺失关注版本或版本与未设置状态不一致时拒绝进入可保存状态', () => {
+    expect(() => parseAccountPreferences({ userId: 'user-1', preferences: { channels: [], reminders: false } }, 'user-1')).toThrow();
+    expect(() => parseAccountPreferences({ userId: 'user-1', preferences: { channels: [], reminders: false }, revision: null }, 'user-1')).toThrow();
+    expect(() => parseAccountPreferences({ userId: 'user-1', preferences: null, revision }, 'user-1')).toThrow();
   });
 
   it('只读取最近30天的有效栏目已读项', () => {

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { DAILY_REFRESH_INTERVAL, fetchDailyEditions, subscribeDailyRefresh } from '../refresh';
+import { DAILY_REFRESH_INTERVAL, fetchDailyEditions, subscribeDailyDate, subscribeDailyRefresh } from '../refresh';
 
 const date = '2026-10-21';
 let visibility = 'visible';
@@ -21,6 +21,19 @@ beforeEach(() => {
 afterEach(() => { dispose?.(); dispose = undefined; vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe('日刊恢复阅读刷新', () => {
+  it('跨北京时间午夜更新日期导航，不请求或替换正在阅读的正文', async () => {
+    const changed = vi.fn();
+    dispose = subscribeDailyDate(changed);
+    expect(changed).toHaveBeenLastCalledWith('2026-10-21');
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(changed).toHaveBeenLastCalledWith('2026-10-22');
+    window.dispatchEvent(new Event('focus'));
+    expect(changed).toHaveBeenCalledTimes(2);
+    expect(fetchMock).not.toHaveBeenCalled();
+    dispose();
+    await vi.advanceTimersByTimeAsync(86_400_000);
+    expect(changed).toHaveBeenCalledTimes(2);
+  });
   it('连续 focus/visibility 只请求一次当前日期，跨午夜也不跳到另一期', async () => {
     dispose = subscribeDailyRefresh(date, accept, fail);
     window.dispatchEvent(new Event('focus'));

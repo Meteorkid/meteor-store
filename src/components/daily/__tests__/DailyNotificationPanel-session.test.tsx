@@ -31,8 +31,9 @@ vi.mock('react', async importOriginal => ({
 vi.mock('@/components/AuthProvider', () => ({ useAuth: () => ({ loading: false }) }));
 vi.mock('@/lib/daily/panel-client', () => ({ useDailyPanel: () => store.current }));
 vi.mock('@/i18n/navigation', () => ({ Link: 'a' }));
-import DailyNotificationPanel from '../DailyNotificationPanel';
+import DailyNotificationPanel, { DailyPanelContent } from '../DailyNotificationPanel';
 import DailyPanelSettings from '../DailyPanelSettings';
+import SourceLanguageNote from '@/components/SourceLanguageNote';
 
 type Node = ReactElement<Record<string, unknown>>;
 function find(node: unknown, predicate: (node: Node) => boolean): Node | undefined {
@@ -40,12 +41,12 @@ function find(node: unknown, predicate: (node: Node) => boolean): Node | undefin
   if (!isValidElement<Record<string, unknown>>(node)) return undefined;
   return predicate(node) ? node : find(node.props.children, predicate);
 }
-function render(userId: string | null = 'a') {
+function render(userId: string | null = 'a', active = true, locale: 'zh' | 'en' = 'zh') {
   let tree: Node;
   do {
     hooks.dirty = false;
     hooks.index = 0;
-    tree = DailyNotificationPanel({ locale: 'zh', userId });
+    tree = DailyNotificationPanel({ locale, userId, active });
   } while (hooks.dirty);
   return tree;
 }
@@ -69,6 +70,39 @@ beforeEach(() => {
 });
 
 describe('每日面板编辑会话', () => {
+  it('仅展示旧期次时底部进入最近一期，有今日正文才回到今日完整日刊', () => {
+    const edition = { status: 'published', title: 'Reading', updatedAt: null, totalCount: 1 };
+    store.current.preview = { date: '2026-10-24', updatedAt: null, editions: [
+      { ...edition, channel: 'english', contentDate: '2026-10-23', currentStatus: 'unpublished', content: { kind: 'english', vocabulary: [] } },
+      { ...edition, channel: 'papers', contentDate: '2026-10-22', currentStatus: 'unpublished', content: { kind: 'papers', items: [] } },
+    ] };
+    let footer = find(render(), node => node.props.href === '/daily?date=2026-10-23&view=all');
+    expect(footer).toBeDefined();
+    expect(JSON.stringify(footer?.props.children)).toContain('打开最近一期 2026-10-23');
+    (store.current.preview as { editions: unknown[] }).editions.push({ ...edition, channel: 'ai', content: { kind: 'ai', items: [] } });
+    footer = find(render(), node => node.props.href === '/daily?date=2026-10-24&view=all');
+    expect(footer).toBeDefined();
+    expect(JSON.stringify(footer?.props.children)).toContain('打开完整日刊');
+  });
+
+  it('最近一期读取故障保留今日正文组件，英文界面有来源语言说明', () => {
+    store.current.preview = { date: '2026-10-24', updatedAt: null, historyFailed: true, editions: [{
+      channel: 'english', status: 'published', title: 'Today', updatedAt: null, totalCount: 1,
+      content: { kind: 'english', vocabulary: [{ term: 'adapt', meaning: '适应', example: 'Adapt.', translation: '适应。' }] },
+    }] };
+    const tree = render('a', true, 'en');
+    expect(find(tree, node => node.type === DailyPanelContent)?.props.preview).toBe(store.current.preview);
+    expect(find(tree, node => node.props.role === 'status' && Array.isArray(node.props.children)
+      && node.props.children.some(child => typeof child === 'string' && child.startsWith('Recent editions could not be loaded.')))).toBeDefined();
+    expect(find(tree, node => node.type === SourceLanguageNote)?.props.locale).toBe('en');
+  });
+
+  it('关闭或切分区仅变为inactive，同账号重开保留同一编辑会话', () => {
+    const editor = open('a');
+    expect(find(render('a', false), node => node.type === DailyPanelSettings)?.props.settings).toBe(editor.props.settings);
+    expect(find(render('a', true), node => node.type === DailyPanelSettings)?.props.settings).toBe(editor.props.settings);
+  });
+
   it('新编辑会话与显式重新加载清除旧保存错误，普通重绘和内容刷新不清', () => {
     store.current.saveError = 'conflict';
     open('a');

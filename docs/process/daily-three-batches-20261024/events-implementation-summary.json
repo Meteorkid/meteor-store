@@ -1,0 +1,27 @@
+{
+  "changedFiles": [
+    "src/lib/pathfinder/ingestion/sources.ts",
+    "src/lib/pathfinder/__tests__/ingestion.test.ts",
+    "src/lib/pathfinder/__tests__/fixtures/github-universe.xml",
+    "src/lib/daily/events.ts",
+    "src/lib/daily/__tests__/events.test.ts",
+    "docs/process/2026-10-24-events-source-coverage.md"
+  ],
+  "targetedTestFiles": 6,
+  "targetedTestsPassed": 201,
+  "lintPassed": true,
+  "sqlFixtureCasesPassed": 12,
+  "sqlTemporaryPort": 53874,
+  "sqlTemporaryInstanceStopped": true,
+  "rootPort55445Untouched": true,
+  "productionJobsRun": false,
+  "committed": false,
+  "sourceSha256": {
+    "src/lib/pathfinder/ingestion/sources.ts": "5c930201c7adb5c0cc7fedfd4c09d6529f5bf32c5a65fe62bc82ad7747fa7957",
+    "src/lib/pathfinder/__tests__/ingestion.test.ts": "cfe87596ae6dadeb365514595cee660d5ed5fa2bfffc58eb1d32c6b147873667",
+    "src/lib/pathfinder/__tests__/fixtures/github-universe.xml": "8ed57bb34d0c2d6d856a42e8da97372d8961efa02be1aaad59ce2f2b860b370e",
+    "src/lib/daily/events.ts": "50ad8024448840faafe207ef87df638ee8b1668d0ef0b252996bfd561c6cde58",
+    "src/lib/daily/__tests__/events.test.ts": "911b0016788c756864783e510c12610eb0150bdd215fd6e31e580a953356916f",
+    "docs/process/2026-10-24-events-source-coverage.md": "81f3b8cec13901837b11b18acd00278488e458d46901656e4a9204d41c1206d4"
+  }
+}

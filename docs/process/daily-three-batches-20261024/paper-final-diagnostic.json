@@ -1,0 +1,105 @@
+{
+  "href": "/zh/daily?date=2026-10-23&view=all#daily-entry-papers-cGFwZXItdHdv",
+  "id": "daily-entry-papers-cGFwZXItdHdv",
+  "wordBefore": {
+    "bbox": {
+      "x": 16,
+      "y": 95.609375,
+      "width": 343,
+      "height": 157.5
+    },
+    "state": {
+      "y": 1281,
+      "hash": "#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+      "reduced": true
+    }
+  },
+  "measures": [
+    {
+      "delay": 0,
+      "bbox": {
+        "x": 16,
+        "y": 95.78125,
+        "width": 343,
+        "height": 250.796875
+      },
+      "state": {
+        "y": 2704,
+        "hash": "#daily-entry-papers-cGFwZXItdHdv",
+        "focus": "daily-entry-papers-cGFwZXItdHdv"
+      }
+    },
+    {
+      "delay": 50,
+      "bbox": {
+        "x": 16,
+        "y": 95.78125,
+        "width": 343,
+        "height": 250.796875
+      },
+      "state": {
+        "y": 2704,
+        "hash": "#daily-entry-papers-cGFwZXItdHdv",
+        "focus": "daily-entry-papers-cGFwZXItdHdv"
+      }
+    },
+    {
+      "delay": 150,
+      "bbox": {
+        "x": 16,
+        "y": 95.78125,
+        "width": 343,
+        "height": 250.796875
+      },
+      "state": {
+        "y": 2704,
+        "hash": "#daily-entry-papers-cGFwZXItdHdv",
+        "focus": "daily-entry-papers-cGFwZXItdHdv"
+      }
+    },
+    {
+      "delay": 500,
+      "bbox": {
+        "x": 16,
+        "y": 95.78125,
+        "width": 343,
+        "height": 250.796875
+      },
+      "state": {
+        "y": 2704,
+        "hash": "#daily-entry-papers-cGFwZXItdHdv",
+        "focus": "daily-entry-papers-cGFwZXItdHdv"
+      }
+    }
+  ],
+  "log": [
+    {
+      "type": "click:true:false",
+      "t": 1612.7999999821186,
+      "hash": "#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+      "focus": "",
+      "y": 1281
+    },
+    {
+      "type": "raf1",
+      "t": 1624.199999988079,
+      "hash": "#daily-entry-english-d29yZDoxOnJlc2lsaWVudA",
+      "focus": "",
+      "y": 1281
+    },
+    {
+      "type": "pushState",
+      "t": 1628.7999999821186,
+      "hash": "#daily-entry-papers-cGFwZXItdHdv",
+      "focus": "",
+      "y": 1281
+    },
+    {
+      "type": "raf2",
+      "t": 1641,
+      "hash": "#daily-entry-papers-cGFwZXItdHdv",
+      "focus": "daily-entry-papers-cGFwZXItdHdv",
+      "y": 2704
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+
+ RUN  v4.1.9 /Users/meteor/github/meteor-store
+
+
+ Test Files  10 passed (10)
+      Tests  180 passed (180)
+   Start at  12:53:04
+   Duration  515ms (transform 1.17s, setup 0ms, import 1.95s, tests 309ms, environment 0ms)

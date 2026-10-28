@@ -64,7 +64,7 @@ export function ensureDailyPanelPreview(force = false): Promise<void> {
       if (previewRead === request && day === dailyDate()) { preview = { ...preview, loading: false, failed: true }; emit(); }
     }, TIMEOUT_MS);
     try {
-      const response = await fetch(`/api/daily/preview?date=${day}`, { cache: 'no-store', signal: request.controller.signal });
+      const response = await fetch(`/api/daily/preview?date=${day}&recent=1`, { cache: 'no-store', signal: request.controller.signal });
       if (!response.ok) throw new Error('Daily preview unavailable');
       const data = DailyPreviewResponseSchema.parse(await response.json());
       if (previewRead !== request || request.controller.signal.aborted || day !== dailyDate()) return;
@@ -196,10 +196,12 @@ export function saveDailyPanelPreferences(owner: string | null, settings: DailyP
   return request;
 }
 
-export function useDailyPanel(userId: string | null, authLoading = false) {
-  const content = useSyncExternalStore(subscribeDailyPanel, getDailyPanelPreviewState, () => EMPTY_PANEL_PREVIEW);
-  const account = useSyncExternalStore(subscribeDailyPanel, useCallback(() => getDailyPanelPreferencesState(userId), [userId]), () => EMPTY_PANEL_PREFERENCES);
+export function useDailyPanel(userId: string | null, authLoading = false, active = true) {
+  const subscribe = useCallback((listener: () => void) => active ? subscribeDailyPanel(listener) : () => {}, [active]);
+  const content = useSyncExternalStore(subscribe, getDailyPanelPreviewState, () => EMPTY_PANEL_PREVIEW);
+  const account = useSyncExternalStore(subscribe, useCallback(() => getDailyPanelPreferencesState(userId), [userId]), () => EMPTY_PANEL_PREFERENCES);
   useEffect(() => {
+    if (!active) return;
     void ensureDailyPanelPreview();
     // 再次打开时确认云端版本，避免另一设备刚保存仍被本机一分钟缓存遮住。
     if (!authLoading) void ensureDailyPanelPreferences(userId, userId !== null);
@@ -232,7 +234,7 @@ export function useDailyPanel(userId: string | null, authLoading = false) {
       window.removeEventListener('storage', storageChanged);
       window.removeEventListener(SETTINGS_EVENT, panelChanged);
     };
-  }, [userId, authLoading]);
+  }, [userId, authLoading, active]);
   const defaultSettings = defaultDailyPanelSettings(account.followedChannels);
   return {
     preview: content.data, contentLoading: content.loading || !content.data && !content.failed, contentFailed: content.failed,

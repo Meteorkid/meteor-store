@@ -1452,6 +1452,15 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - 保存须核对 `X-Daily-User` 和编辑开始时的 `expectedRevision`，首次写入也做条件更新。409要求重新读取，不自动覆盖；后台刷新不能清除冲突提示，换号丢弃旧编辑会话。
 - 0050仅加两列，部署先迁移再切应用；回滚保留列与用户设置。账号导出包含新字段，注销沿用整行删除。验收与上线状态见 `docs/process/2026-10-23-daily-notification-panel.md`。
 
+### 2026-10-24 公告与日刊三批优化（本地完成，待提交部署）
+
+- 公告共享状态在`announcement-client.ts`：失败不变成空列表，15秒超时释放请求，成功结果60秒缓存；系统公告只由显式操作按已加载的服务器发布时间标读。日刊提醒已读日期同样只前进，过期请求不能占住后续刷新。
+- 铃铛分每日内容、系统公告、提醒；每日组件首次打开后保留实例，`active=false`时不发起内容/设置读取或轮询。关闭/切分区保留本账号未保存草稿，显式取消/成功保存/换号清理；设置主体独立滚动，底部操作固定。
+- 旧日刊关注用`getDailyPreferencesState`读取独立`revision`，保存携带编辑开始时的`expectedRevision`。缺版本旧客户端与版本冲突都返回409要求重读；不更改panel两列。原`getDailyPreferences`合同保留给提醒读取。
+- `preview?recent=1`才启用最近一期和新DTO字段，无此参数保留旧响应。只对当前日期回退，`contentDate`标真实期次、`currentStatus`保留当前状态；批量最多读7条历史正文。历史比赛/岗位再次核验当前有效性，历史upcoming/live活动需要未来明确时间，失败提示不被隐藏空栏目开关遮住。
+- 全文与预览共用`daily/navigation.ts`的条目/词汇锚点；登录回跳只放行合法date/view/受限hash。Next同页pushState不发hashchange，定位有界等待提交且不拦修饰键开新页；减少动画时即时定位。午夜只更新日期导航，不替换当前阅读或作答。
+- GitHub Universe专题RSS复用现有采集任务，品牌筛选须在SQL和JS两层一致，并限定两个GitHub来源；不猜活动时间，不因新接源重发已用URL。三批验收见`docs/process/2026-10-24-daily-experience-three-batches.md`。
+
 ## 硕士申请日历（官方来源自动同步）
 
 - `/masters` 与 `/admin/masters`，服务在 `src/lib/masters/`。申请轮次是长期记录，不能塞进 30 天日刊快照，也不能按单一官方 URL 把不同年份合并。

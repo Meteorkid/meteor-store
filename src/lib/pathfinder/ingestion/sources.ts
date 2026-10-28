@@ -341,6 +341,24 @@ export const PATHFINDER_SYNC_SOURCES: readonly PathfinderSyncSource[] = [
     learningEligible: false,
   },
   {
+    // Universe公告主要归Company news，不在已有AI & ML feed；仍由原小时同步采集。
+    id: 'github-universe-events',
+    name: 'GitHub Universe',
+    adapterId: 'rss',
+    fetchUrl: 'https://github.blog/tag/github-universe/feed/',
+    siteUrl: 'https://github.blog/tag/github-universe/',
+    allowedFetchHosts: ['github.blog'],
+    allowedItemHosts: ['github.blog'],
+    maxItemsPerSync: 10,
+    itemType: 'ai-update',
+    direction: 'ai',
+    trustLevel: 'official',
+    enabled: true,
+    autoPublish: true,
+    organization: 'GitHub',
+    learningEligible: false,
+  },
+  {
     /*
      * 唯一的日更中文来源。
      *

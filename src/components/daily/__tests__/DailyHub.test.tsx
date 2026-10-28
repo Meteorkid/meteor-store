@@ -15,7 +15,7 @@ import { DAILY_EDITION_CHANNEL_IDS } from '@/lib/daily/channels';
 
 const baseProps: DailyHubProps = {
   date: '2026-10-15', today: '2026-10-16', editions: [], userId: 'user-1',
-  initialPreferences: { channels: [], reminders: false },
+  initialPreferences: { channels: [], reminders: false }, initialPreferencesRevision: '2026-10-14T01:00:00.000Z',
 };
 
 describe('日刊栏目深链', () => {
@@ -27,6 +27,14 @@ describe('日刊栏目深链', () => {
     expect(html).toContain('阅读上一期');
     expect(html).toContain('href="/daily?date=2026-10-15&amp;view=all"');
     expect(html).not.toContain('本期内容更新于');
+  });
+  it('今日所选栏目空缺时提供最近有稿入口，明确空选时不擅自推荐', () => {
+    const history = { english: '2026-10-14', papers: '2026-10-13' };
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} date={baseProps.today} previousPublishedDates={history} viewAll />);
+    expect(html).toContain('可以先阅读最近一期');
+    expect(html).toContain('href="/daily?date=2026-10-14&amp;view=all"');
+    const empty = renderToStaticMarkup(<DailyHub {...baseProps} date={baseProps.today} previousPublishedDates={history} />);
+    expect(empty).not.toContain('可以先阅读最近一期');
   });
 
   it('更新时间只取已发布正文，不把失败尝试当成功更新', () => {

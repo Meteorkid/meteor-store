@@ -1,97 +1,24 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations, useLocale } from 'next-intl';
-import { pickAnnouncementText, type Announcement } from '@/lib/announcement-text';
+import { pickAnnouncementText } from '@/lib/announcement-text';
+import { EMPTY_ANNOUNCEMENT_STATE, announcementTimestamp, ensureAnnouncements, getAnnouncementState, hasUnreadAnnouncements, markAnnouncementsRead, subscribeAnnouncements, watchAnnouncements } from '@/lib/announcement-client';
 import { useAuth } from '@/components/AuthProvider';
 import { Link } from '@/i18n/navigation';
 import { EMPTY_REMINDER_STATE, ensureDailyReminder, getReminderState, markDailyReminderRead, subscribeDailyReminder, syncDailyReminderRead } from '@/lib/daily/reminder-client';
 import { EMPTY_MASTERS_NOTICES, ensureMastersNotices, getMastersNoticeState, markMastersRead, subscribeMastersNotices } from '@/lib/masters/notice-client';
 import { EMPTY_MONITORING_STATE, getMonitoringState, hasUnreadMonitoring, markMonitoringRead, subscribeMonitoring, watchMonitoring } from '@/lib/monitoring-client';
 import { monitoringText } from '@/lib/monitoring-types';
+import styles from './NotificationBell.module.css';
+
+const TAB_IDS = ['daily', 'announcements', 'reminders'] as const;
+type NotificationTab = typeof TAB_IDS[number];
 
 const DailyNotificationPanel = dynamic(() => import('@/components/daily/DailyNotificationPanel'), {
   loading: () => <div className="px-4 py-6" aria-busy="true"><span className="block h-3 w-32 rounded bg-white/10" /></div>,
 });
-
-/**
- * 上次打开铃铛的时间（ISO 字符串）。存一个分界点而不是已读 id 数组——
- * 公告只增不删，数组会一直涨且每次挂载都要全量 JSON.parse，
- * 而"有没有未读"只需要拿最新公告的时间和它比一下。
- */
-const STORAGE_KEY = 'ms_announcements_read_at';
-
-/**
- * Header 在桌面导航和移动导航各挂一个铃铛，两个实例必须共用同一份数据：
- * 各自持有状态的话，每次页面加载会打两次 /api/announcements，
- * 而且在移动端点开标记已读后，桌面那份的红点还在，要刷新才同步。
- */
-const store = {
-  items: null as Announcement[] | null,
-  /** null = 还没读过 localStorage（SSR 阶段没有 window） */
-  readAt: null as string | null,
-  pending: null as Promise<void> | null,
-  listeners: new Set<() => void>(),
-};
-
-function emit() {
-  store.listeners.forEach((cb) => cb());
-}
-
-function subscribe(cb: () => void) {
-  store.listeners.add(cb);
-  return () => {
-    store.listeners.delete(cb);
-  };
-}
-
-/** 无论挂载几个铃铛，公告只拉一次 */
-function ensureAnnouncements() {
-  store.pending ??= fetch('/api/announcements')
-    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('failed'))))
-    .then((data: { announcements?: Announcement[] }) => {
-      store.items = data.announcements ?? [];
-      emit();
-    })
-    .catch(() => {
-      store.items = [];
-      emit();
-    });
-}
-
-function getItems() {
-  return store.items;
-}
-
-function getReadAt() {
-  if (store.readAt === null) {
-    try {
-      store.readAt = window.localStorage.getItem(STORAGE_KEY) ?? '';
-    } catch {
-      // localStorage 不可用（隐私模式等）时静默降级：红点不持久化，不影响展示
-      store.readAt = '';
-    }
-  }
-  return store.readAt;
-}
-
-const SERVER_ITEMS = null;
-const SERVER_READ_AT = '';
-
-function markAllRead() {
-  store.readAt = new Date().toISOString();
-  try {
-    window.localStorage.setItem(STORAGE_KEY, store.readAt);
-  } catch {
-    // 同上，静默降级
-  }
-  emit();
-}
-
-function announcedAt(a: Announcement) {
-  return a.publishedAt ?? a.createdAt;
-}
 
 function formatDate(value: string, locale: string): string {
   const date = new Date(value);
@@ -113,15 +40,18 @@ export default function NotificationBell() {
   const monitoringCopy = monitoringText[locale === 'en' ? 'en' : 'zh'];
   const daily = useSyncExternalStore(subscribeDailyReminder, () => getReminderState(userId), () => EMPTY_REMINDER_STATE);
   const masters = useSyncExternalStore(subscribeMastersNotices, () => getMastersNoticeState(userId), () => EMPTY_MASTERS_NOTICES);
-  const items = useSyncExternalStore(subscribe, getItems, () => SERVER_ITEMS);
-  const readAt = useSyncExternalStore(subscribe, getReadAt, () => SERVER_READ_AT);
+  const announcements = useSyncExternalStore(subscribeAnnouncements, getAnnouncementState, () => EMPTY_ANNOUNCEMENT_STATE);
+  const items = announcements.items;
   const [open, setOpen] = useState(false);
+  const [hasOpened, setHasOpened] = useState(false);
+  const [activeTab, setActiveTab] = useState<NotificationTab>('daily');
   const panelId = useId();
   const ref = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Partial<Record<NotificationTab, HTMLButtonElement | null>>>({});
 
-  useEffect(() => {
-    ensureAnnouncements();
-  }, []);
+  useEffect(watchAnnouncements, []);
+
+  useEffect(() => { if (open) void ensureAnnouncements(); }, [open]);
 
   useEffect(() => adminUserId ? watchMonitoring(adminUserId) : undefined, [adminUserId]);
 
@@ -172,18 +102,35 @@ export default function NotificationBell() {
   }, []);
 
   useEffect(() => {
-    if (open && userId && daily.reminder && daily.reminder.date > daily.readDate) {
+    if (open && activeTab === 'daily' && userId && daily.reminder && daily.reminder.date > daily.readDate) {
       markDailyReminderRead(userId);
     }
-  }, [open, userId, daily.reminder, daily.readDate]);
+  }, [open, activeTab, userId, daily.reminder, daily.readDate]);
 
-  // ISO 时间戳按字典序比较即等于按时间比较；readAt 为空串时全部算未读
-  const unread = (items !== null && items.some((a) => announcedAt(a) > readAt)) || Boolean(daily.reminder && daily.reminder.date > daily.readDate) || masters.notices.some(notice => !notice.readAt) || hasUnreadMonitoring(adminUserId);
+  const unreadAnnouncements = hasUnreadAnnouncements();
+  const unread = unreadAnnouncements || Boolean(daily.reminder && daily.reminder.date > daily.readDate) || masters.notices.some(notice => !notice.readAt) || hasUnreadMonitoring(adminUserId);
+  const tabLabels = locale === 'en'
+    ? { daily: 'Daily content', announcements: 'Announcements', reminders: 'Reminders' }
+    : { daily: '每日内容', announcements: '系统公告', reminders: '提醒' };
+  const unreadCounts = {
+    daily: daily.reminder && daily.reminder.date > daily.readDate ? 1 : 0,
+    announcements: items?.filter(item => announcementTimestamp(item) > announcements.readAt).length ?? 0,
+    reminders: masters.notices.filter(notice => !notice.readAt).length + (hasUnreadMonitoring(adminUserId) ? 1 : 0),
+  };
 
   const togglePanel = () => {
-    if (!open && items) markAllRead();
-    if (!open && userId) markDailyReminderRead(userId);
+    if (!open) setHasOpened(true);
     setOpen(!open);
+  };
+  const navigateTabs = (event: ReactKeyboardEvent<HTMLButtonElement>, tab: NotificationTab) => {
+    const index = TAB_IDS.indexOf(tab);
+    const next = event.key === 'ArrowRight' ? TAB_IDS[(index + 1) % TAB_IDS.length]
+      : event.key === 'ArrowLeft' ? TAB_IDS[(index + TAB_IDS.length - 1) % TAB_IDS.length]
+      : event.key === 'Home' ? TAB_IDS[0] : event.key === 'End' ? TAB_IDS[TAB_IDS.length - 1] : null;
+    if (!next) return;
+    event.preventDefault();
+    setActiveTab(next);
+    tabRefs.current[next]?.focus();
   };
 
   return (
@@ -215,12 +162,32 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {open && (
-        <div id={panelId} role="region" aria-label={t('title')} className="absolute right-0 top-full mt-2 w-[27rem] max-w-[calc(100vw-28px)] overflow-hidden rounded-xl border border-white/10 bg-zinc-950/95 shadow-2xl backdrop-blur-xl">
-          <div className="border-b border-white/[0.06] px-4 py-3">
+      {hasOpened && (
+        <div id={panelId} role="region" aria-label={t('title')} hidden={!open} className={styles.popup}>
+          <div className={styles.heading}>
             <p className="text-sm font-medium text-white">{t('title')}</p>
+            <button type="button" className={styles.close} aria-label={locale === 'en' ? 'Close notifications' : '关闭公告面板'} onClick={() => { setOpen(false); ref.current?.querySelector('button')?.focus(); }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+            </button>
           </div>
-          <div className="max-h-[min(36rem,calc(100dvh-136px))] overflow-y-auto overscroll-contain">
+          <div role="tablist" aria-label={locale === 'en' ? 'Notification sections' : '公告分区'} className={styles.tabs}>
+            {TAB_IDS.map(tab => <button key={tab} ref={element => { tabRefs.current[tab] = element; }} id={`${panelId}-${tab}-tab`}
+              type="button" role="tab" aria-selected={activeTab === tab} aria-controls={`${panelId}-${tab}`} tabIndex={activeTab === tab ? 0 : -1}
+              aria-label={tabLabels[tab]} aria-describedby={unreadCounts[tab] ? `${panelId}-${tab}-unread` : undefined}
+              onClick={() => setActiveTab(tab)} onKeyDown={event => navigateTabs(event, tab)} className={styles.tab}>
+              {tabLabels[tab]}{unreadCounts[tab] > 0 && <><span className={styles.badge} aria-hidden="true">{unreadCounts[tab]}</span>
+                <span id={`${panelId}-${tab}-unread`} className="sr-only">{locale === 'en' ? `${unreadCounts[tab]} unread` : `${unreadCounts[tab]} 条未读`}</span></>}
+            </button>)}
+          </div>
+          <div id={`${panelId}-daily`} role="tabpanel" aria-labelledby={`${panelId}-daily-tab`} hidden={activeTab !== 'daily'} className={styles.tabPanel}>
+            {userId && daily.failed && <section className={styles.status} aria-label={locale === 'en' ? 'Daily reminder status' : '日刊提醒状态'}>
+              <p role="status" className="t-footnote text-amber-200">{locale === 'en' ? 'The daily reminder status could not be loaded. Daily content is still available.' : '日刊提醒状态读取失败，每日内容仍可正常阅读。'}</p>
+              <button type="button" onClick={() => ensureDailyReminder(userId, true)} className="mt-1 min-h-11 t-footnote text-violet-200 underline underline-offset-4">{locale === 'en' ? 'Retry reminder' : '重试提醒'}</button>
+            </section>}
+            <DailyNotificationPanel key={userId ?? 'guest'} userId={userId} locale={locale === 'en' ? 'en' : 'zh'} active={open && activeTab === 'daily'} />
+          </div>
+          <div id={`${panelId}-reminders`} role="tabpanel" aria-labelledby={`${panelId}-reminders-tab`} hidden={activeTab !== 'reminders'} className={styles.tabPanel}>
+          <div className={styles.scroll}>
             {adminUserId && <section className="border-b border-white/10 px-4 py-3" aria-label={monitoringCopy.title}>
               <Link href="/admin/monitoring" onClick={() => markMonitoringRead(adminUserId)} className="inline-flex min-h-10 items-center t-title-4 text-violet-200 underline-offset-4 hover:underline">{monitoringCopy.detail} →</Link>
               {monitoring.failed && <p className="mt-1 t-footnote text-amber-200">{monitoringCopy.failed}</p>}
@@ -252,19 +219,37 @@ export default function NotificationBell() {
                 {locale === 'en' ? 'Mark these reminders as read' : '将这些申请提醒标为已读'}
               </button>}
             </section>}
-            <DailyNotificationPanel key={userId ?? 'guest'} userId={userId} locale={locale === 'en' ? 'en' : 'zh'} />
-            {items === null ? (
+            {masters.notices.length === 0 && !masters.failed && <p className="px-4 pt-4 t-footnote text-white/65">{userId
+              ? (locale === 'en' ? 'No application reminders right now.' : '当前没有申请提醒。')
+              : (locale === 'en' ? 'Sign in to view your application reminders.' : '登录后可查看你的申请提醒。')}</p>}
+            <Link href="/masters" className="mx-4 my-3 inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">{locale === 'en' ? 'Open application calendar' : '打开全年申请日历'} →</Link>
+          </div>
+          </div>
+          <div id={`${panelId}-announcements`} role="tabpanel" aria-labelledby={`${panelId}-announcements-tab`} hidden={activeTab !== 'announcements'} className={styles.tabPanel}>
+          <div className={styles.scroll}>
+            <section aria-label={locale === 'en' ? 'System announcements' : '系统公告'}>
+              <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-3">
+                <h2 className="t-title-4 text-white">{locale === 'en' ? 'System announcements' : '系统公告'}</h2>
+                {items && items.length > 0 && unreadAnnouncements && <button type="button" onClick={() => markAnnouncementsRead(items)}
+                  className="min-h-10 t-footnote text-violet-200 underline underline-offset-4">{locale === 'en' ? 'Mark these announcements as read' : '将这些公告标为已读'}</button>}
+              </div>
+              {announcements.failed && <div className="px-4 py-3">
+                <p role="alert" className="t-footnote text-amber-200">{locale === 'en' ? 'System announcements could not be refreshed. Please retry.' : '系统公告读取失败，请重试。'}</p>
+                <button type="button" aria-disabled={announcements.loading} onClick={() => { if (!announcements.loading) void ensureAnnouncements(true); }}
+                  className="mt-1 min-h-10 t-footnote text-violet-200 underline underline-offset-4">{locale === 'en' ? 'Retry announcements' : '重试公告'}</button>
+              </div>}
+            {items === null && !announcements.failed ? (
               <p className="t-footnote px-4 py-6 text-center text-white/60">{t('loading')}</p>
-            ) : items.length === 0 ? (
+            ) : items?.length === 0 && !announcements.failed ? (
               <p className="t-footnote px-4 py-6 text-center text-white/60">{t('empty')}</p>
-            ) : (
+            ) : items && items.length > 0 ? (
               <ul className="divide-y divide-white/[0.06]">
                 {items.map((a) => {
                   const title = pickAnnouncementText(a.titleZh, a.titleEn, locale);
                   const body = pickAnnouncementText(a.bodyZh, a.bodyEn, locale);
-                  const date = formatDate(announcedAt(a), locale);
+                  const date = formatDate(announcementTimestamp(a), locale);
                   return (
-                    <li key={a.id} className="px-4 py-3">
+                    <li key={a.id} className="min-w-0 px-4 py-3 [overflow-wrap:anywhere]">
                       {title && (
                         <p className="text-sm font-medium text-white">
                           {title}
@@ -281,7 +266,9 @@ export default function NotificationBell() {
                   );
                 })}
               </ul>
-            )}
+            ) : null}
+            </section>
+          </div>
           </div>
         </div>
       )}
@@ -316,7 +303,7 @@ function AnnouncementBody({ text }: { text: string }) {
           <a
             key={index}
             href={part}
-            className="text-violet-200 underline decoration-violet-300/40 underline-offset-4 hover:decoration-violet-200"
+            className="text-violet-200 underline decoration-violet-300/40 underline-offset-4 hover:decoration-violet-200 [overflow-wrap:anywhere]"
           >
             {part.slice(siteOrigin.length)}
           </a>

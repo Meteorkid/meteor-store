@@ -1,0 +1,14 @@
+.popup { position: absolute; top: 100%; right: 0; display: flex; flex-direction: column; width: 27rem; max-width: calc(100vw - 28px); height: min(42rem, calc(100dvh - 88px)); margin-top: 8px; overflow: hidden; border: 1px solid rgb(255 255 255 / 12%); border-radius: 16px; background: #0e0d12; box-shadow: 0 20px 60px rgb(0 0 0 / 45%); }
+.popup[hidden], .tabPanel[hidden] { display: none; }
+.heading { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; padding: 3px 8px 3px 16px; border-bottom: 1px solid rgb(255 255 255 / 10%); }
+.close { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; color: rgb(255 255 255 / 75%); }
+.tabs { display: grid; flex-shrink: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0 8px; border-bottom: 1px solid rgb(255 255 255 / 12%); }
+.tab { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 44px; padding: 8px 4px; border-bottom: 2px solid transparent; color: rgb(255 255 255 / 68%); font-size: 13px; line-height: 1.5; letter-spacing: .01em; }
+.tab[aria-selected="true"] { border-bottom-color: #c4b5fd; color: #e9d5ff; }
+.badge { min-width: 16px; padding-inline: 4px; border-radius: 8px; background: rgb(196 181 253 / 18%); color: #e9d5ff; font-size: 11px; line-height: 16px; }
+.tabPanel { display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; overflow-wrap: anywhere; }
+.status { flex-shrink: 0; padding: 10px 16px; border-bottom: 1px solid rgb(255 255 255 / 10%); }
+.close:focus-visible, .tab:focus-visible { outline: 2px solid #c4b5fd; outline-offset: -4px; }
+@media (hover: hover) and (pointer: fine) { .close:hover, .tab:hover { background: rgb(255 255 255 / 5%); color: #fff; } }
+@media (prefers-reduced-motion: reduce) { .popup *, .popup *::before, .popup *::after { transition: none !important; animation: none !important; transform: none !important; } }

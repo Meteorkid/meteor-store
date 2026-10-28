@@ -1,0 +1,65 @@
+{
+  "environment": "local Next production build and isolated PostgreSQL",
+  "results": [
+    {
+      "name": "private-get-owner-revision",
+      "passed": true
+    },
+    {
+      "name": "unauthorized-private-reads",
+      "passed": true
+    },
+    {
+      "name": "old-client-must-reload",
+      "passed": true
+    },
+    {
+      "name": "owner-origin-guards",
+      "passed": true
+    },
+    {
+      "name": "real-api-concurrent-save-conflict",
+      "passed": true
+    },
+    {
+      "name": "legacy-write-keeps-panel-version",
+      "passed": true
+    },
+    {
+      "name": "old-preview-compatible-recent-readable",
+      "passed": true
+    },
+    {
+      "name": "current-failure-kept-with-readable-history",
+      "passed": true
+    },
+    {
+      "name": "expired-history-filtered-in-recent",
+      "passed": true
+    },
+    {
+      "name": "explicit-history-retains-snapshot",
+      "passed": true
+    },
+    {
+      "name": "recent-mode-input-validation",
+      "passed": true
+    },
+    {
+      "name": "public-dto-size-and-privacy",
+      "passed": true
+    },
+    {
+      "name": "real-announcement-api-seeded",
+      "passed": true
+    }
+  ],
+  "restoredPreferences": {
+    "channels": [
+      "english",
+      "papers"
+    ],
+    "reminders": true
+  },
+  "previewBytes": 4446
+}

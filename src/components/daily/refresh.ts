@@ -1,6 +1,24 @@
-import type { DailyEdition } from '@/lib/daily/types';
+import { dailyDate, type DailyEdition } from '@/lib/daily/types';
 
 export const DAILY_REFRESH_INTERVAL = 60_000;
+
+/** 日期边界独立于正在阅读的期次；午夜只更新导航，不替换课文或作答。 */
+export function subscribeDailyDate(onDate: (date: string) => void) {
+  let previous = '';
+  const update = () => {
+    const today = dailyDate();
+    if (today !== previous) { previous = today; onDate(today); }
+  };
+  update();
+  const timer = setInterval(update, DAILY_REFRESH_INTERVAL);
+  window.addEventListener('focus', update);
+  document.addEventListener('visibilitychange', update);
+  return () => {
+    clearInterval(timer);
+    window.removeEventListener('focus', update);
+    document.removeEventListener('visibilitychange', update);
+  };
+}
 
 export async function fetchDailyEditions(date: string, signal?: AbortSignal): Promise<DailyEdition[]> {
   const response = await fetch(`/api/daily?date=${encodeURIComponent(date)}`, { cache: 'no-store', signal });

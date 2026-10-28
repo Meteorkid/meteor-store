@@ -1,9 +1,9 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ getSession: vi.fn(), getDailyEditions: vi.fn(), getDailyPreferences: vi.fn(), getLatestPublishedDailyDates: vi.fn(), getMastersSummary: vi.fn() }));
+const mocks = vi.hoisted(() => ({ getSession: vi.fn(), getDailyEditions: vi.fn(), getDailyPreferencesState: vi.fn(), getLatestPublishedDailyDates: vi.fn(), getMastersSummary: vi.fn() }));
 vi.mock('@/lib/auth', () => ({ getSession: mocks.getSession }));
-vi.mock('@/lib/daily/service', () => ({ getDailyEditions: mocks.getDailyEditions, getDailyPreferences: mocks.getDailyPreferences, getLatestPublishedDailyDates: mocks.getLatestPublishedDailyDates }));
+vi.mock('@/lib/daily/service', () => ({ getDailyEditions: mocks.getDailyEditions, getDailyPreferencesState: mocks.getDailyPreferencesState, getLatestPublishedDailyDates: mocks.getLatestPublishedDailyDates }));
 vi.mock('@/lib/masters/service', () => ({ getMastersSummary: mocks.getMastersSummary }));
 vi.mock('next/navigation', () => ({ notFound: () => { throw new Error('NOT_FOUND'); } }));
 vi.mock('next-intl/server', () => ({ setRequestLocale: vi.fn() }));
@@ -22,7 +22,7 @@ describe('每日阅读服务端页面', () => {
     vi.setSystemTime(new Date('2026-10-14T01:00:00Z'));
     mocks.getSession.mockResolvedValue(null);
     mocks.getDailyEditions.mockResolvedValue([]);
-    mocks.getDailyPreferences.mockResolvedValue(null);
+    mocks.getDailyPreferencesState.mockResolvedValue({ preferences: null, revision: null });
     mocks.getLatestPublishedDailyDates.mockResolvedValue({ events: '2026-10-07' });
     mocks.getMastersSummary.mockResolvedValue({ intakeYear: 2027, total: 0, opening: 0, closingSoon: 0, changed: 0 });
   });
@@ -36,16 +36,17 @@ describe('每日阅读服务端页面', () => {
   it('游客默认读北京时间今天，不查询账号设置', async () => {
     await DailyPage({ params: Promise.resolve({ locale: 'en' }), searchParams: Promise.resolve({}) });
     expect(mocks.getDailyEditions).toHaveBeenCalledWith('2026-10-14');
-    expect(mocks.getDailyPreferences).not.toHaveBeenCalled();
+    expect(mocks.getDailyPreferencesState).not.toHaveBeenCalled();
   });
 
   it('全栏目深链传递临时视图，不覆盖账号的明确空选', async () => {
     mocks.getSession.mockResolvedValue({ userId: 'user-1' });
-    mocks.getDailyPreferences.mockResolvedValue({ channels: [], reminders: false });
+    mocks.getDailyPreferencesState.mockResolvedValue({ preferences: { channels: [], reminders: false }, revision: '2026-10-14T01:00:00.000Z' });
     const page = await DailyPage({ params: Promise.resolve({ locale: 'zh' }), searchParams: Promise.resolve({ date: '2026-10-01', view: 'all' }) });
     const html = renderToStaticMarkup(page);
     expect(html).toContain('&quot;viewAll&quot;:true');
     expect(html).toContain('&quot;channels&quot;:[]');
+    expect(html).toContain('&quot;initialPreferencesRevision&quot;:&quot;2026-10-14T01:00:00.000Z&quot;');
     expect(mocks.getDailyEditions).toHaveBeenCalledWith('2026-10-01');
   });
 
@@ -56,7 +57,7 @@ describe('每日阅读服务端页面', () => {
 
   it('偏好加载失败不会伪装成正常未设置，公共阅读仍可返回', async () => {
     mocks.getSession.mockResolvedValue({ userId: 'user-1' });
-    mocks.getDailyPreferences.mockRejectedValue(new Error('database unavailable'));
+    mocks.getDailyPreferencesState.mockRejectedValue(new Error('database unavailable'));
     const page = await DailyPage({ params: Promise.resolve({ locale: 'zh' }), searchParams: Promise.resolve({}) });
     const html = renderToStaticMarkup(page);
     expect(html).toContain('&quot;preferencesFailed&quot;:true');

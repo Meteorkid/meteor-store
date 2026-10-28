@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { and, desc, eq, gte, ilike, inArray, lt, lte, or } from 'drizzle-orm';
+import { and, desc, eq, gte, ilike, inArray, lt, lte, or, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderSources } from '@/lib/db/schema';
 import { cleanExternalText, isAllowedHost, normalizeIngestionUrl, toIsoDate } from '@/lib/pathfinder/ingestion/normalize';
@@ -15,6 +15,10 @@ const titlePatterns = [
   '%发布会%', '%發佈會%', '%發表會%', '%开发者大会%', '%開發者大會%', '%开发者峰会%', '%開發者峰會%',
 ];
 const eventTitle = /\b(?:keynote|launch[\s-]+event|press[\s-]+conference|dev[\s-]?day|developers?['’]?[\s-]+(?:conference|summit))\b|发布会|發佈會|發表會|开发者大会|開發者大會|开发者峰会|開發者峰會/i;
+// 同URL可能已归属AI栏目来源；新增feed不迁移来源归属，两者都允许完整品牌名。
+const githubEventSourceIds = ['github-universe-events', 'github-ai-blog'];
+const githubUniverseTitle = /\bgithub\s+universe\b/i;
+const githubUniverseSqlPattern = '(^|[^A-Za-z0-9_])github[[:space:]]+universe([^A-Za-z0-9_]|$)';
 // 事件识别、会场语音数据集等研究成果不是活动公告，不能仅凭标题中的活动用语发布。
 const researchTitle = /\b(?:datasets?|benchmarks?|papers?)\b|论文|論文|数据集|資料集|基准测试|基準測試/i;
 
@@ -36,7 +40,13 @@ export async function loadDailyEvents(date: string, usedSourceKeys: string[]): P
       eq(pathfinderItems.status, 'published'), eq(pathfinderSources.trustLevel, 'official'),
       inArray(pathfinderSources.id, officialSourceIds),
       gte(pathfinderItems.publishedAt, start), lt(pathfinderItems.publishedAt, end), lte(pathfinderItems.publishedAt, now),
-      or(...titlePatterns.flatMap(pattern => [ilike(pathfinderItems.titleZh, pattern), ilike(pathfinderItems.titleEn, pattern)])),
+      or(
+        ...titlePatterns.flatMap(pattern => [ilike(pathfinderItems.titleZh, pattern), ilike(pathfinderItems.titleEn, pattern)]),
+        and(inArray(pathfinderItems.sourceId, githubEventSourceIds), or(
+          sql`${pathfinderItems.titleZh} ~* ${githubUniverseSqlPattern}`,
+          sql`${pathfinderItems.titleEn} ~* ${githubUniverseSqlPattern}`,
+        )),
+      ),
     ))
     .orderBy(desc(pathfinderItems.publishedAt))
     .limit(200);
@@ -55,7 +65,9 @@ export async function loadDailyEvents(date: string, usedSourceKeys: string[]): P
     const titleZh = cleanExternalText(row.titleZh, 300);
     const titleEn = cleanExternalText(row.titleEn, 300);
     const titles = `${titleZh} ${titleEn}`;
-    if (!eventTitle.test(titles) || researchTitle.test(titles)) continue;
+    const isGithubUniverse = githubEventSourceIds.includes(row.sourceId)
+      && (githubUniverseTitle.test(titleZh) || githubUniverseTitle.test(titleEn));
+    if ((!eventTitle.test(titles) && !isGithubUniverse) || researchTitle.test(titles)) continue;
     const sourcePublishedAt = toIsoDate(row.publishedAt);
     if (!sourcePublishedAt || sourcePublishedAt < start || sourcePublishedAt >= end || sourcePublishedAt > now) continue;
     const url = normalizeIngestionUrl(row.canonicalUrl);
