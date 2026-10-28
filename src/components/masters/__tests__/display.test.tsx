@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import RoundCard from '../RoundCard';
 import MastersSummaryCard from '../MastersSummaryCard';
 import MastersHub from '../MastersHub';
+import MastersCalendar from '../MastersCalendar';
 import { mastersText } from '../text';
 import { roundFixture, watchFixture } from './fixtures';
 
@@ -83,5 +84,44 @@ describe('申请日历展示', () => {
     expect(html).toContain('不是 2026-09-20 的历史快照');
     expect(html).toContain('href="/masters?year=2027"');
     expect(html).toContain('不会自动开启申请提醒');
+  });
+});
+
+describe('可视化日历', () => {
+  const calendar = (rounds: Parameters<typeof MastersCalendar>[0]['rounds'], now = new Date('2026-10-14T04:00:00Z')) =>
+    renderToStaticMarkup(<MastersCalendar year={2027} rounds={rounds} now={now} locale="zh" copy={mastersText.zh} onLocate={() => {}} />);
+
+  it('把轮次投影到对应日期格，并标出开放与截止', () => {
+    const html = calendar([roundFixture()]);
+    expect(html).toContain('申请日历');
+    expect(html).toContain('2026 年 10 月');
+    // 开放日 2026-10-01 与截止日 2026-12-01 分属不同月份，10 月只显示开放
+    expect(html).toContain('开放 · Example University');
+    expect(html).toContain('本月 1 个开放 · 0 个截止');
+  });
+
+  it('默认停在今天所在月，越界时贴到有内容的月份', () => {
+    // 今天 2026-10 在范围内 → 停在 10 月
+    expect(calendar([roundFixture()])).toContain('2026 年 10 月');
+    // 全部节点都在 12 月 → 贴到 2026 年 12 月
+    const december = roundFixture({ details: { ...roundFixture().details, opensOn: null, deadlineOn: '2026-12-01' } });
+    expect(calendar([december])).toContain('2026 年 12 月');
+  });
+
+  it('未公布截止的轮次单独列出，不画进网格', () => {
+    const base = roundFixture();
+    const pending = roundFixture({ id: 'pending', details: { ...base.details, deadlineStatus: 'unannounced', deadlineOn: null, opensOn: null } });
+    const html = calendar([pending]);
+    expect(html).toContain('日期待确认 (1)');
+    expect(html).toContain('截止未公布');
+    expect(html).toContain('不进网格');
+  });
+
+  it('提供翻月控件与图例', () => {
+    const html = calendar([roundFixture()]);
+    expect(html).toContain('aria-label="上一个月"');
+    expect(html).toContain('aria-label="下一个月"');
+    expect(html).toContain('图例');
+    expect(html).toContain('按北京时间归入当天');
   });
 });

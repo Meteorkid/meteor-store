@@ -35,13 +35,13 @@ export default function RoundCard({ round, watch, now, locale, copy, signedIn, w
   const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-white disabled:opacity-40';
 
   return (
-    <article className="rounded-2xl border border-white/10 bg-black p-5 sm:p-7" aria-labelledby={`round-${round.id}`}>
+    <article className="rounded-2xl border border-white/10 bg-black p-5 outline-none focus-visible:border-violet-300/40 sm:p-7" aria-labelledby={`round-${round.id}-title`} id={`round-${round.id}`} tabIndex={-1}>
       <div className="flex flex-wrap items-center gap-2 t-footnote text-white/60">
         <span>{region?.[locale]}</span><span aria-hidden>·</span><span>{copy[details.studyType]}</span><span aria-hidden>·</span><span>{details.subject}</span>
         <span className={`ml-auto rounded-full border px-3 py-1 ${timing.state === 'closing' ? 'border-amber-300/30 text-amber-200' : 'border-white/15 text-white/70'}`}>{mastersStateLabel(round, now, locale)}</span>
       </div>
       <p className="mt-5 t-footnote font-semibold text-violet-200">{details.university}</p>
-      <h2 id={`round-${round.id}`} className="mt-2 t-title-3 text-white">{details.programme}</h2>
+      <h2 id={`round-${round.id}-title`} className="mt-2 t-title-3 text-white">{details.programme}</h2>
       <p className="mt-2 t-footnote text-white/70">{round.intakeYear} · {details.intakeLabel} · {details.roundName}</p>
       <div className="mt-4 flex flex-wrap gap-2 t-footnote">
         <span className="rounded-md bg-white/5 px-2.5 py-1 text-white/80">{copy[details.eventType]}</span>
