@@ -83,15 +83,18 @@
       "fixture": "griffith.html",
       "url": "https://www.griffith.edu.au/apply/research-study",
       "verifiedOn": "2026-10-29",
-      "kind": "official-web-text-excerpt",
-      "fixtureSha256": "40c43709ab671d5044c9871734939931c41c93ca67abf610d17157b6488cabfc",
-      "liveParserResult": "not_verified",
-      "note": "Only the official web text was available when the fixture was created. Live verification has not succeeded; this fixture tests parser contracts and is never a publishing fallback.",
+      "kind": "raw-html-excerpts",
+      "fixtureSha256": "17c96e33640b1a6db4155c91f0b5830fa6914648d1c44bbcc5134899dc22fb96",
+      "liveParserResult": "success",
+      "note": "Raw HTML uses an abbr title for the PhD expansion. The full identity sentence is required; parentheses are optional. International Griffith Pathway eligibility and scholarship round restrictions remain unchanged.",
       "lastReadOnlyAudit": {
-        "checkedAt": "2026-10-29T13:34:07.781Z",
-        "status": "failed",
-        "reason": "programme_mismatch"
-      }
+        "checkedAt": "2026-10-29T15:07:49.781Z",
+        "status": "parsed",
+        "networkRequests": 1
+      },
+      "capturedAt": "2026-10-29T15:07:49.781Z",
+      "httpStatus": 200,
+      "sourceSha256": "5bbd6a2d227ee2ee4e578a6193abe96cf9c31ade2fb0ae4e4580295f1a67bb63"
     }
   ],
   "liveAudit": "/tmp/phd-calendar-source-verification-20261029.json"

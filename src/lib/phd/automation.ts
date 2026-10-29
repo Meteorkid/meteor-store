@@ -160,7 +160,7 @@ function parseOxford(html: string, url: string, now: Date) {
 
 function parseGriffith(html: string, url: string, now: Date) {
   const text = pageText(html);
-  if (!/PhD\s*\(Doctor of Philosophy\)/i.test(text)) throw new Error('programme_mismatch');
+  if (!/Griffith offers multiple admission pathways to a PhD(?:\s*\(Doctor of Philosophy\))?\s+or other doctoral degrees/i.test(text)) throw new Error('programme_mismatch');
   const cycle = required(text.match(/(\d{4})\s+scholarship application dates/i));
   const year = intakeYear(cycle[1]);
   const international = required(text.match(/Open merit international scholarships\s+([\s\S]+?)Project-specific scholarships/i))[1];

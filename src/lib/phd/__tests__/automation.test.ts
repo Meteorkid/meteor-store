@@ -105,6 +105,21 @@ describe('博士当期官方证据解析', () => {
     expect(() => parse('griffith', fixture('griffith').replace('40 credit point', '30 credit point'))).toThrow();
   });
 
+  it('Griffith真实abbr身份句未显示括号释义时仍正确解析', () => {
+    const html = fixture('griffith');
+    expect(html).toContain('<abbr title="Doctor of Philosophy">PhD</abbr>');
+    expect(parse('griffith', html)[0]).toMatchObject({
+      id: 'phd-griffith-research-2027-international-scholarship-2', intakeYear: 2027,
+      details: { eventType: 'scholarship', opensOn: null, deadlineOn: '2027-02-05', deadlineAt: null, deadlineTimeZone: null },
+    });
+    expect(parse('griffith', html.replace('<abbr title="Doctor of Philosophy">PhD</abbr>', 'PhD (Doctor of Philosophy)'))).toHaveLength(1);
+  });
+
+  it('Griffith缺少完整博士身份句时拒绝，不能仅凭其他段落的PhD词样发布', () => {
+    const html = fixture('griffith').replace(/<p class="feature a-center">[\s\S]*?<\/p>/, '') + '<p>Industry PhD scholarships</p>';
+    expect(() => parse('griffith', html)).toThrow('programme_mismatch');
+  });
+
   it.each(phdSyncSources)('$id的新年份必须从新正文产生新ID', ({ id }) => {
     const next = (html: string) => html.replace(/20\d{2}/g, year => String(Number(year) + 1)).replaceAll('/28', '/29').replaceAll('-28', '-29');
     const updated = parse(id, next(fixture(id)), next(evidence(id)));
