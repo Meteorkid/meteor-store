@@ -1,6 +1,6 @@
 # 硕士申请日历修复与复验
 
-日期：2026-10-29。基线 `9ce8687`；用户已授权提交、部署及线上复验，执行结果另记于发布部分。
+状态：已于 2026-10-29 北京时间 15:55 上线，运行提交 `cb3f9fe7e5931f003e06c0b4c2f13bf1c6fa0724`，部署后线上复验通过。修复基线为 `9ce8687`。
 
 ## 结论
 
@@ -64,7 +64,41 @@ pnpm exec eslint src/components/masters src/lib/masters
 
 ## 发布与回滚边界
 
-- 用户已确认 Git 提交与生产部署；本地验证结果不替代部署后的线上复验。
+- 用户已确认 Git 提交与生产部署，正式发布和线上复验结果见下文；本地与生产证据分别记录。
 - 本次没有生产回填。首次证据在部署后正常保存或官方同步时逐条落库，不能声称历史起点已恢复。
 - 新代码读取旧 JSON 无需迁移；旧版 strict schema 不识别新键，旧保存逻辑还会整份覆盖详情并清除新键。生产回滚须使用保留 `types.ts`、`opening-evidence.ts`、`service.ts`、`automation.ts` 兼容逻辑的应用产物及匹配源码，不能直接退回 `9ce8687`。不得以清理新键或回灌旧数据库代替兼容回滚。
 - 本轮未重做生产登录关注、真实提醒投递或系统日历导入；这些不是本轮五项可视化修复的验收证据。
+
+## 正式发布（2026-10-29）
+
+- 功能提交 `cb3f9fe` 已推送并部署，GitHub/Gitee/GitLab 已同步该版本。验收附件随后作为文档提交补交，不改变线上运行代码版本。
+- 使用干净提交副本、生产公开配置和 SSH 隧道只读数据库连接重新构建，明确检查 `default_transaction_read_only=on`；未使用本地隔离数据的验收构建。完整类型检查和生产构建均通过，包内排除 cache/dev。
+- 正式包 SHA-256：`28cd252be8a70b821a438d7c416ffc9e95c685ec3e3a19fd8fcbf1043eb09559`。上传后校验全部产物、源码及 bundle，再沿用双锁、产品空闲守卫和既有激活流程。
+- 完整发布前备份：`/var/backups/meteor-store-masters-20261029-YAZh5Tyb`。数据库 dump 含 42 张表，已上传既有私有 R2 并回读校验；运行原始备份：`/var/backups/meteor-store-runtime-duABe0Ua`。
+- Next 受管 PID `1665897` 自己持有 `127.0.0.1:3000`；应用、数据库、Redis 健康。生产环境文件、Nginx/logrotate 配置、cron 哈希与发布前一致，未进行数据库迁移或人工回填，原有未跟踪文件保留。
+- 12 个产品封面 × 3 种宽度预热，36 次均成功；临时构建连接文件已删除，只读 SSH 隧道已关闭。
+
+### 兼容回滚产物
+
+私有兼容提交 `55b955e14035db33509f63f6654ae74c7fb05819` 以旧版 `9ce8687` 为基线，仅保留 `types.ts`、`opening-evidence.ts`、`service.ts`、`automation.ts` 的数据兼容改动。旧 UI 与新证据字段能够共同运行，省略字段的旧表单和后续同步不会清除首次证据。已单独构建并验证新字段解析、ICS 事件输出及证据保留；依赖与部署配置均未改变。
+
+兼容产物、匹配源码、Git bundle 和校验清单均保存在上述完整备份内。发布 wrapper 在主版本失败或中断时进入兼容恢复，恢复使用一次性包副本，保留备份主包和新数据库数据。原始 `next-before` 仅保留作原始状态证据，不直接视为数据兼容回滚包。
+
+若确需回滚本次运行版本，由有权限的运维执行已留存的：
+
+```sh
+bash /var/backups/meteor-store-masters-20261029-YAZh5Tyb/activate-masters-release.sh rollback
+```
+
+该脚本先校验产物、双锁、产品空闲、当前准确提交与干净 tracked 状态，再切换兼容提交和匹配产物。后续已经另行部署时会拒绝，不能绕过版本检查盲目回退。若手工回滚激活失败，会明确报人工恢复并保留日志。没有执行生产故障注入或实际回滚。
+
+## 部署后线上验收
+
+- 真实匿名浏览器 24/24 通过：默认月历、11 月 2 个截止、10 个轮次逐个正确定位、最近截止排序、完整详情与焦点恢复、Enter 定位、空结果、跨视图筛选保持、跨年至 5 月边界、中英文 375/390px 手机及 1280px 桌面。所检查页面无控制台 error/warn。
+- 8 个关键页面、健康和硕士 API 均为 200；生产公开 10 条轮次。UQ 两轮公开 ICS 为 200，包含 2 个对应事件；没有向真实系统日历创建日程。
+- 页面实际引用的 20 个 JS、3 个 CSS 均为 200 且 MIME 正确。特征 chunk `2ilwlo7gde6gc.js` 的服务器文件及公开响应均匹配 SHA-256 `0749ffe07d6d967cc56b0ac5bb375d251ed09f88bda1e5a70064543f7e269033`；未仅依赖重复 BUILD_ID 判断版本。
+- 首次证据字段当前落库 0 条；功能将于正常官方同步或保存时逐条保留已有可靠证据。本轮没有为验收触发 cron、伪造历史日期或写入账号数据，也不将未来首次同步结果声称为已验证。
+
+[发布摘要](masters-calendar-release-20261029/release.json) · [HTTP 结果](masters-calendar-release-20261029/http-verification.json) · [浏览器结果](masters-calendar-release-20261029/browser-verification.json) · [封面预热](masters-calendar-release-20261029/image-warmup.json) · [回滚兼容验证](masters-calendar-release-20261029/compat-verification.json) · [哈希清单](masters-calendar-release-20261029/SHA256SUMS)
+
+[桌面总览](masters-calendar-release-20261029/online-desktop-overview.jpg) · [手机详情](masters-calendar-release-20261029/online-mobile-details.jpg)

@@ -1,0 +1,51 @@
+{
+  "baseline": "9ce868771bce62b2360d0660e063065d17056afa",
+  "candidate": "cb3f9fe7e5931f003e06c0b4c2f13bf1c6fa0724",
+  "compatibility": "55b955e14035db33509f63f6654ae74c7fb05819",
+  "compatRef": "refs/rollback/masters-calendar-20261029",
+  "compatFiles": [
+    "src/lib/masters/types.ts",
+    "src/lib/masters/opening-evidence.ts",
+    "src/lib/masters/service.ts",
+    "src/lib/masters/automation.ts"
+  ],
+  "candidateBuild": {
+    "buildId": "build-TfctsWXpff2fKS",
+    "archiveSha256": "28cd252be8a70b821a438d7c416ffc9e95c685ec3e3a19fd8fcbf1043eb09559",
+    "bytes": 22748880,
+    "cacheExcluded": true,
+    "typecheck": true
+  },
+  "compatBuild": {
+    "buildId": "build-TfctsWXpff2fKS",
+    "archiveSha256": "058abfc57b87670969a8b6508f7cbc7b5118220be328e4eee7acfa0647a98e54",
+    "bytes": 22740532,
+    "cacheExcluded": true,
+    "typecheck": true
+  },
+  "publicChunks": {
+    ".next/static/chunks/2ilwlo7gde6gc.js": "0749ffe07d6d967cc56b0ac5bb375d251ed09f88bda1e5a70064543f7e269033"
+  },
+  "bundleSha256": "06979bad40c37618fecb828b5c2d2a2b7a62b6c70ccacd18f9e57e61ba3c9e75",
+  "compatSourceSha256": "0356e82deb6b19dfe082a1583437adbaa3a2035c1d1aa48ed39acb57d739e7a4",
+  "deployedAtBeijing": "2026-10-29 15:55",
+  "productionHost": "8.138.218.165",
+  "productionRuntimePid": 1665897,
+  "runtimeOwnsLoopbackPort": true,
+  "completeBackup": "/var/backups/meteor-store-masters-20261029-YAZh5Tyb",
+  "runtimeBackup": "/var/backups/meteor-store-runtime-duABe0Ua",
+  "databaseBackup": "/var/backups/meteor-store-masters-20261029-YAZh5Tyb/database/meteor-store-20261029-154222.dump",
+  "databaseBackupTables": 42,
+  "privateR2BackupVerified": true,
+  "productionConfigAndCronUnchanged": true,
+  "compatibilityRecoveryScript": "/var/backups/meteor-store-masters-20261029-YAZh5Tyb/activate-masters-release.sh rollback",
+  "productionWritesForTesting": false,
+  "firstObservedOpenOnRecordsAtAcceptance": 0,
+  "browserChecks": 24,
+  "browserFailures": 0,
+  "consoleWarningsOrErrors": 0,
+  "imageWarmupRequests": 36,
+  "imageWarmupFailures": 0,
+  "buildCredentialsRemoved": true,
+  "readOnlyTunnelClosed": true
+}

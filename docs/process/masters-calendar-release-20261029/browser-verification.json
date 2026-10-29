@@ -1,0 +1,129 @@
+{
+  "url": "https://www.imagentx.top/zh/masters?year=2027",
+  "release": "cb3f9fe7e5931f003e06c0b4c2f13bf1c6fa0724",
+  "checks": [
+    {
+      "case": "default calendar",
+      "pass": true
+    },
+    {
+      "case": "November summary excludes adjacent month",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "cityu-macau-fintech-2027",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "hku-msccs-general-2027-main",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "hku-msccs-general-2027-clearing",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "hkust-mimt-2027-phase-1",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "hkust-mimt-2027-phase-2",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "hkust-mimt-2027-phase-3",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "hkust-mimt-2027-phase-4",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "nus-mcomp-infosec-2027-august",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "uq-computer-science-2027-international-semester-1",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "roundId": "uq-computer-science-2027-international-semester-2",
+      "pass": true
+    },
+    {
+      "case": "recent effective deadline order",
+      "pass": true
+    },
+    {
+      "case": "390px compact overview",
+      "pass": true,
+      "client": 348,
+      "page": 382,
+      "scroll": 348,
+      "viewport": 390
+    },
+    {
+      "case": "mobile zoom scroll inside chart",
+      "pass": true,
+      "client": 348,
+      "offset": 382,
+      "page": 382,
+      "scroll": 944,
+      "viewport": 390
+    },
+    {
+      "case": "keyboard Semester 2 location",
+      "pass": true
+    },
+    {
+      "case": "full mobile round names and dates",
+      "pass": true
+    },
+    {
+      "case": "details close restores school focus",
+      "pass": true
+    },
+    {
+      "case": "empty region view",
+      "pass": true
+    },
+    {
+      "case": "region retained across views",
+      "pass": true
+    },
+    {
+      "case": "English 375px overview and years",
+      "pass": true,
+      "page": 367,
+      "viewport": 375
+    },
+    {
+      "case": "English mobile details",
+      "pass": true
+    },
+    {
+      "case": "cross-year to May boundary",
+      "pass": true
+    },
+    {
+      "case": "1280px desktop overview",
+      "pass": true,
+      "client": 1022,
+      "page": 1272,
+      "rows": 5,
+      "scroll": 1022,
+      "viewport": 1280
+    }
+  ],
+  "console": []
+}

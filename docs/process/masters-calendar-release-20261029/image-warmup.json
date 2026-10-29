@@ -1,0 +1,258 @@
+{
+  "products": 12,
+  "checks": [
+    {
+      "id": "omnicrawl",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 5760
+    },
+    {
+      "id": "omnicrawl",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 19890
+    },
+    {
+      "id": "omnicrawl",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 56243
+    },
+    {
+      "id": "ex-memory",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 4634
+    },
+    {
+      "id": "ex-memory",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 13632
+    },
+    {
+      "id": "ex-memory",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 29230
+    },
+    {
+      "id": "skeleton-anatomy",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 4570
+    },
+    {
+      "id": "skeleton-anatomy",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 13240
+    },
+    {
+      "id": "skeleton-anatomy",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 30811
+    },
+    {
+      "id": "ui-design-system",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 5611
+    },
+    {
+      "id": "ui-design-system",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 18137
+    },
+    {
+      "id": "ui-design-system",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 49958
+    },
+    {
+      "id": "statux",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 5074
+    },
+    {
+      "id": "statux",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 16546
+    },
+    {
+      "id": "statux",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 51912
+    },
+    {
+      "id": "xisland",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 7033
+    },
+    {
+      "id": "xisland",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 16904
+    },
+    {
+      "id": "xisland",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 32637
+    },
+    {
+      "id": "tollow",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 5489
+    },
+    {
+      "id": "tollow",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 15954
+    },
+    {
+      "id": "tollow",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 34529
+    },
+    {
+      "id": "xnook",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 9995
+    },
+    {
+      "id": "xnook",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 29706
+    },
+    {
+      "id": "xnook",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 80446
+    },
+    {
+      "id": "chakra-visualizer",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 9305
+    },
+    {
+      "id": "chakra-visualizer",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 27496
+    },
+    {
+      "id": "chakra-visualizer",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 78705
+    },
+    {
+      "id": "webgl-fluid-sim",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 5707
+    },
+    {
+      "id": "webgl-fluid-sim",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 14773
+    },
+    {
+      "id": "webgl-fluid-sim",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 15964
+    },
+    {
+      "id": "claude-phone-control",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 5657
+    },
+    {
+      "id": "claude-phone-control",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 15876
+    },
+    {
+      "id": "claude-phone-control",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 18200
+    },
+    {
+      "id": "cursor-source-analyzer",
+      "width": 375,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 6314
+    },
+    {
+      "id": "cursor-source-analyzer",
+      "width": 768,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 18529
+    },
+    {
+      "id": "cursor-source-analyzer",
+      "width": 1536,
+      "status": 200,
+      "mime": "image/jpeg",
+      "bytes": 22799
+    }
+  ],
+  "failed": 0
+}
