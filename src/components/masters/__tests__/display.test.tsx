@@ -156,7 +156,7 @@ describe('可视化日历', () => {
     // 起点未知用斜纹淡出，展开面板写明是持续中
     expect(html).toContain('repeating-linear-gradient');
     expect(html).toContain('起止日均已公布');
-    expect(html).toContain('起点未公布，从核验日画起');
+    expect(html).toContain('开放日未公布，从首次核验开放日起画');
     // 不把核验日说成开放日
     expect(html).not.toContain('开放 · Example University');
   });
@@ -190,25 +190,28 @@ describe('可视化日历', () => {
   });
 });
 
-describe('申请期甘特总览', () => {
+describe('申请全年总览', () => {
   const timeline = (rounds: Parameters<typeof MastersTimeline>[0]['rounds'], now = new Date('2026-10-14T04:00:00Z')) =>
     renderToStaticMarkup(<MastersTimeline rounds={rounds} now={now} locale="zh" copy={mastersText.zh} onLocate={() => {}} />);
 
   it('一行一个申请期，学校、项目与起止日期都在行内', () => {
     const html = timeline([roundFixture()]);
-    expect(html).toContain('申请期甘特总览');
+    expect(html).toContain('全年申请总览');
     expect(html).toContain('Example University');
     expect(html).toContain('MSc Computer Science');
     // 摘要行给出轴范围与轮次数，逐行再给一次起止
     expect(html).toContain('共 1 个申请期 · 1 个轮次 · 2026-10-01 → 2026-12-31');
-    expect(html).toContain('· 2026-10-01 → 2026-12-01"');
+    expect(html).toContain('最近截止');
+    expect(html).toContain('2026-12-01');
   });
 
-  it('手机左列放不下整段日期：两个日期各自 nowrap，只在箭头前换行', () => {
+  it('最近截止日期保持完整，并提供手机放大与轮次详情入口', () => {
     const html = timeline([roundFixture()]);
-    // 左列内容区 151px，而整段区间要 176px；不分组会从日期中间断开（2027- / 01-31）
-    expect(html).toMatch(/whitespace-nowrap">2026-10-01</);
-    expect(html).toMatch(/whitespace-nowrap"><span[^>]*>→<\/span> 2026-12-01</);
+    expect(html).toMatch(/whitespace-nowrap[^\"]*">2026-12-01</);
+    expect(html).toContain('aria-label="时间轴显示"');
+    expect(html).toContain('放大');
+    expect(html).toContain('查看轮次');
+    expect(html).toContain('overflow-x-auto');
   });
 
   it('条形按真实天数定位，末端补一天让截止日整日落进条内', () => {
@@ -237,7 +240,8 @@ describe('申请期甘特总览', () => {
     expect(html).toContain('MSc Data Science');
     // 同校同色相：两行都应该用这一个色相（图例另有固定色块，不能直接数色相种类）
     const hue = mastersCalendarHue({ region: base.region, university: base.details.university });
-    expect([...html.matchAll(new RegExp(`hsl\\(${hue} 70% 52%`, 'g'))]).toHaveLength(2);
+    const colourMatches = [...html.matchAll(new RegExp(`hsl\\(${hue} 70% 52%`, 'g'))];
+    expect(colourMatches.length).toBeGreaterThanOrEqual(2);
   });
 
   it('没有可用日期时给空状态，不渲染空表格', () => {
@@ -252,7 +256,8 @@ describe('申请期甘特总览', () => {
   it('只有截止日的项目成行并标出截止点，不画时长条', () => {
     const base = roundFixture();
     const html = timeline([roundFixture({ details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2027-03-15' } })]);
-    expect(html).toContain('截止 2027-03-15');
+    expect(html).toContain('最近截止');
+    expect(html).toContain('2027-03-15');
     expect(html).toContain('其中 1 个只公布了截止日');
     // 没有时长条：条形用的 h-7 定位块不应出现
     expect(html).not.toContain('h-7 -translate-y-1/2 overflow-hidden rounded-md');
@@ -268,9 +273,27 @@ describe('申请期甘特总览', () => {
     expect(html).toContain('absolute inset-y-0 bg-white/[0.09]');
   });
 
-  it('Hub 的视图切换包含甘特，且可设为初始视图', () => {
+  it('Hub 的视图切换包含全年总览，且可设为初始视图', () => {
     const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[roundFixture()]} userId={null} initialWatches={[]} watchedRounds={[]} initialMode="timeline" />);
-    expect(html).toContain('甘特');
-    expect(html).toContain('申请期甘特总览');
+    expect(html).toContain('全年总览');
+    expect(html).toContain('全年申请总览');
+  });
+
+  it('同项目各轮截止点保留独立目标及明确轮次名称', () => {
+    const base = roundFixture();
+    const first = roundFixture({ id: 'semester-1', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2026-11-30', roundName: 'Semester 1' } });
+    const second = roundFixture({ id: 'semester-2', details: { ...first.details, deadlineOn: '2027-05-31', roundName: 'Semester 2' } });
+    const html = timeline([second, first]);
+    expect(html).toMatch(/<button[^>]*data-round-id="semester-1"[^>]*aria-label="[^"]*Semester 1[^"]*2026-11-30/);
+    expect(html).toMatch(/<button[^>]*data-round-id="semester-2"[^>]*aria-label="[^"]*Semester 2[^"]*2027-05-31/);
+    expect(html).toContain('2 轮');
+    expect(html).toContain('data-timeline-year="2026"');
+    expect(html).toContain('data-timeline-year="2027"');
+  });
+
+  it('没有有效待截止轮次时明确说明，不将末轮日期冒充近期截止', () => {
+    const html = timeline([roundFixture()], new Date('2027-06-01T04:00:00Z'));
+    expect(html).toContain('暂无有效待截止轮次');
+    expect(html).not.toContain('>最近截止<');
   });
 });

@@ -199,12 +199,18 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
         <details className="mt-3 t-footnote text-white/60"><summary className="min-h-10 cursor-pointer py-2">{copy.aboutDates}</summary><p>{copy.yearHint}</p><p className="mt-2 max-w-3xl">{copy.scope}</p></details>
       </header>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={copy.viewGroup}>
-          {(['list', 'calendar', 'timeline'] as const).map(value => <button key={value} type="button" onClick={() => setMode(value)} aria-pressed={mode === value} className={`min-h-10 rounded-lg px-4 py-2 text-sm font-medium ${mode === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{value === 'list' ? copy.viewList : value === 'calendar' ? copy.viewCalendar : copy.viewTimeline}</button>)}
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="mb-2 t-footnote text-white/70">{copy.viewGroup}</p>
+          <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={copy.viewGroup}>
+            {(['list', 'calendar', 'timeline'] as const).map(value => <button key={value} type="button" onClick={() => setMode(value)} aria-pressed={mode === value} className={`min-h-11 rounded-lg px-4 py-2 text-sm font-medium ${mode === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{value === 'list' ? copy.viewList : value === 'calendar' ? copy.viewCalendar : copy.viewTimeline}</button>)}
+          </div>
         </div>
-        <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={locale === 'zh' ? '申请列表' : 'Application list'}>
-          {(['all', 'mine'] as const).map(value => <button key={value} type="button" onClick={() => setView(value)} aria-pressed={view === value} className={`min-h-10 rounded-lg px-4 py-2 text-sm font-medium ${view === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{copy[value]}</button>)}
+        <div>
+          <p className="mb-2 t-footnote text-white/70">{locale === 'zh' ? '项目范围' : 'Programme scope'}</p>
+          <div className="inline-flex gap-3" role="group" aria-label={locale === 'zh' ? '申请列表' : 'Application list'}>
+            {(['all', 'mine'] as const).map(value => <button key={value} type="button" onClick={() => setView(value)} aria-pressed={view === value} className={`min-h-11 border-b-2 px-2 py-2 text-sm font-medium ${view === value ? 'border-violet-300 text-violet-100' : 'border-transparent text-white/60'}`}>{copy[value]}</button>)}
+          </div>
         </div>
       </div>
       <div className="my-4 grid gap-4 sm:grid-cols-2">

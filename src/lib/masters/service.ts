@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { mastersNotices, mastersRounds, mastersWatches } from '@/lib/db/schema';
 import { dailyDate, shiftDailyDate } from '@/lib/daily/types';
 import { getMastersRoundState } from './dates';
+import { withMastersOpeningEvidence } from './opening-evidence';
 import { mastersSeeds } from './seeds';
 import { defaultMastersYear, MastersRoundInputSchema, MastersWatchInputSchema,
   type MastersRound, type MastersRoundInput, type MastersSummary, type MastersWatch,
@@ -68,14 +69,15 @@ export async function getMastersSummary(year = defaultMastersYear()): Promise<Ma
 
 /** 更新和改期提醒一同提交；日期版本与正文版本分开，修标点不会重发临期提醒。 */
 export async function saveMastersRound(value: MastersRoundInput, options: { automatic?: boolean } = {}): Promise<MastersRound | null> {
-  const input = MastersRoundInputSchema.parse(value);
+  const parsed = MastersRoundInputSchema.parse(value);
   try {
     return await db.transaction(async tx => {
-      const id = input.id ?? randomUUID();
+      const id = parsed.id ?? randomUUID();
       const [previous] = await tx.select({ ...roundColumns, automationPaused: mastersRounds.automationPaused }).from(mastersRounds).where(eq(mastersRounds.id, id)).limit(1);
       if (options.automatic && previous?.automationPaused) return null;
-      if (previous && (previous.updatedAt !== input.expectedUpdatedAt || previous.intakeYear !== input.intakeYear)) return null;
-      if (!previous && input.expectedUpdatedAt) return null;
+      if (previous && (previous.updatedAt !== parsed.expectedUpdatedAt || previous.intakeYear !== parsed.intakeYear)) return null;
+      if (!previous && parsed.expectedUpdatedAt) return null;
+      const input = withMastersOpeningEvidence(parsed, previous);
       const now = revisionAfter(previous?.updatedAt);
       const changed = previous ? datesFingerprint(previous) !== datesFingerprint(input) : false;
       const values = { intakeYear: input.intakeYear, region: input.region, details: input.details, automationPaused: !options.automatic,

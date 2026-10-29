@@ -4,6 +4,7 @@ import { cleanExternalText } from '@/lib/pathfinder/ingestion/normalize';
 import { DailyDateSchema, dailyDate } from '@/lib/daily/types';
 import { mastersSeeds } from './seeds';
 import { getMastersAutomationRounds, saveMastersRound } from './service';
+import { withMastersOpeningEvidence } from './opening-evidence';
 import { defaultMastersYear, MastersRoundInputSchema, type MastersRoundDetails, type MastersRoundInput } from './types';
 
 export const MASTERS_MAX_PAGE_BYTES = 2 * 1024 * 1024;
@@ -298,8 +299,8 @@ export async function syncMastersSources(now = new Date()): Promise<MastersSyncR
       const inputs = parseMastersPage(source.id, page.html, page.url, now);
       phase = 'save_failed';
       const previous = await getMastersAutomationRounds(inputs.map(input => input.id!));
-      for (const input of inputs) {
-        const existing = previous.find(row => row.id === input.id);
+      for (const parsed of inputs) {
+        const existing = previous.find(row => row.id === parsed.id);
         if (existing?.automationPaused) { result.paused += 1; continue; }
         if (existing?.status === 'draft') {
           const seed = mastersSeeds.find(row => row.id === existing.id);
@@ -308,6 +309,7 @@ export async function syncMastersSources(now = new Date()): Promise<MastersSyncR
             continue;
           }
         }
+        const input = withMastersOpeningEvidence(parsed, existing, now);
         if (existing?.status === 'published' && existing.verifiedOn === input.verifiedOn
           && isDeepStrictEqual(existing.details, input.details)) { result.unchanged += 1; continue; }
         const saved = await saveMastersRound({ ...input, expectedUpdatedAt: existing?.updatedAt }, { automatic: true });

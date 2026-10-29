@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { MastersRound } from '@/lib/masters/types';
 import { buildMastersTimeline, type MastersTimelineRow, type MastersTimelineSort } from '@/lib/masters/timeline';
+import { mastersDeadlineLabel, mastersStateLabel } from './state';
 import type { MastersCopy } from './text';
 
 interface MastersTimelineProps {
@@ -10,106 +11,117 @@ interface MastersTimelineProps {
   now: Date;
   locale: 'zh' | 'en';
   copy: MastersCopy;
-  /** 从总览跳回列表并定位到具体轮次。 */
   onLocate: (roundId: string) => void;
 }
 
-/** 左侧学校列宽度；网格线与今天线覆盖层必须用同一组类，否则百分比基准不一致。 */
-const LABEL_COL = 'w-44 sm:w-60';
-/** 只给绝对定位的网格线覆盖层用：absolutely positioned 时 left/right 同时生效，宽度才等于条形区。 */
-const AXIS_OFFSET = 'left-44 sm:left-60';
+/** 表头、数据行和覆盖层共用同一列宽，保持日期坐标一致。 */
+const LABEL_COL = 'w-40 sm:w-60';
+const AXIS_OFFSET = 'left-40 sm:left-60';
+const focusClass = 'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-violet-300';
 
-/**
- * 起点未知时左端淡出而不是铺斜纹：月历里斜纹只占一格，甘特里整根条铺斜纹
- * 会被读成「这段不重要」，而实际只是起点不确定。
- */
 function barFill(hue: number, past: boolean, startKnown: boolean): string {
   const alpha = past ? 0.28 : 0.55;
   if (startKnown) return `hsl(${hue} 70% 52% / ${alpha})`;
   return `linear-gradient(to right, hsl(${hue} 70% 52% / 0) 0%, hsl(${hue} 70% 52% / ${alpha}) 14%)`;
 }
 
-/** 左列学校 / 项目 / 起止，两种行共用。 */
-function RowLabel({ row, copy }: { row: MastersTimelineRow; copy: MastersCopy }) {
-  return <div className={`${LABEL_COL} shrink-0 border-r border-white/10 px-3 py-2.5`}>
-    <p className="flex items-center gap-1.5 t-footnote font-semibold text-white/85">
-      {/* 变更标记排在文字之前并禁止收缩：放后面会被 truncate 吞掉。 */}
-      {row.changed && <span aria-hidden className="h-2 w-2 shrink-0 rounded-full border border-amber-300/80" />}
-      <span className="truncate" title={row.university}>{row.university}</span>
-      {/* 页头写的是轮次数，这里标出每行合并了几轮，数字才对得上。
-          窄屏左列只有 151px，这个标签会让学校名过早截断，所以只在 sm 以上出现。 */}
-      {row.rounds.length > 1 && <span className="ml-auto hidden shrink-0 tabular-nums t-footnote font-normal text-white/40 sm:inline">{copy.timelineRoundsChip.replace('{count}', String(row.rounds.length))}</span>}
-    </p>
-    <p className="mt-0.5 truncate t-footnote text-white/55" title={row.programme}>{row.programme}</p>
-    {/* 手机左列只有 151px，完整区间要 176px。不换行会从日期中间断开（2027- / 01-31），
-        所以让箭头带着截止日整体换行：两行仍是「起点 / 截止」两个完整日期。 */}
-    <p className="mt-0.5 t-footnote tabular-nums text-white/45">
-      {row.start
-        ? <>
-          <span className="whitespace-nowrap">{row.startKnown ? row.start : copy.calendarSpanOngoing}</span>{' '}
-          <span className="whitespace-nowrap"><span aria-hidden>→</span> {row.end}</span>
-        </>
-        : <span className="whitespace-nowrap">{copy.timelineDeadlineOnlyShort} {row.end}</span>}
-    </p>
-  </div>;
-}
-
-function TimelineRow({ row, copy, onLocate }: {
+function TimelineRow({ row, copy, expanded, labelId, detailsId, onOpen, onLocate }: {
   row: MastersTimelineRow;
   copy: MastersCopy;
+  expanded: boolean;
+  labelId: string;
+  detailsId: string;
+  onOpen: () => void;
   onLocate: (roundId: string) => void;
 }) {
-  const range = row.start
-    ? `${row.startKnown ? row.start : copy.calendarSpanOngoing} → ${row.end}`
-    : `${copy.timelineDeadlineOnlyShort} ${row.end}`;
-  const label = `${row.university} · ${row.programme} · ${range}`;
-  const common = {
-    type: 'button' as const,
-    onClick: () => onLocate(row.rounds[0].id),
-    title: label,
-    'aria-label': `${label} · ${copy.calendarJump}`,
-  };
+  const markers = [...row.milestones, ...row.outsideMarkers].sort((first, second) => first.pct - second.pct || first.roundId.localeCompare(second.roundId));
+  const dates = [...new Set(markers.map(marker => marker.date))];
+  const largestGroup = Math.max(1, ...dates.map(date => markers.filter(marker => marker.date === date).length));
+  const name = `${row.university} · ${row.programme}`;
 
-  return <div className="flex items-stretch border-b border-white/10 last:border-b-0">
-    <RowLabel row={row} copy={copy} />
-    <div className="relative flex-1">
-      {row.kind === 'span'
-        ? <button
-          {...common}
-          style={{ left: `${row.left}%`, width: `${row.width}%`, background: barFill(row.hue, row.past, row.startKnown) }}
-          className="absolute top-1/2 h-7 -translate-y-1/2 overflow-hidden rounded-md"
-        >
-          {/* 每轮截止打一个刻度，末轮加粗——它就是这根条的右端。 */}
-          {row.deadlineTicks.map((tick, index) => <span key={`${tick}-${index}`} aria-hidden style={{ left: `${tick}%` }} className={`absolute inset-y-0 ${index === row.deadlineTicks.length - 1 ? 'w-[3px] bg-white/90' : 'w-px bg-white/45'}`} />)}
-        </button>
-        /* 只有截止日：不画时长（会被读成「这段一直在开放」），整行做点击区，截止处标一个点。 */
-        : <button {...common} className="absolute inset-0">
-          {row.milestones.map(milestone => <span
-            key={milestone.date}
-            aria-hidden
-            style={{ left: `${milestone.pct}%`, background: `hsl(${row.hue} 70% 52% / ${milestone.past ? 0.4 : 0.8})` }}
-            className="absolute top-1/2 h-4 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-          />)}
-        </button>}
-      {/* 条外的截止点（窗口开始前就已截止的轮次）单独标出来，不能塞进条内。 */}
-      {row.outsideMarkers.map(marker => <span
-        key={`outside-${marker.date}`}
-        aria-hidden
-        style={{ left: `${marker.pct}%`, background: `hsl(${row.hue} 70% 52% / ${marker.past ? 0.4 : 0.8})` }}
-        className="pointer-events-none absolute top-1/2 h-4 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-      />)}
+  return <div className="flex items-stretch border-b border-white/10 last:border-b-0" data-timeline-row={row.key}>
+    <button type="button" id={labelId} onClick={onOpen} aria-expanded={expanded} aria-controls={detailsId}
+      aria-label={`${name} · ${copy.timelineShowRounds}`}
+      className={`${LABEL_COL} ${focusClass} sticky left-0 z-30 shrink-0 border-r border-white/10 bg-zinc-950 px-3 py-3 text-left`}>
+      <span className="flex items-start gap-1.5 t-footnote font-semibold text-white/90">
+        {row.changed && <span aria-hidden className="mt-1 h-2 w-2 shrink-0 rounded-full border border-amber-300/80" />}
+        <span className="line-clamp-2 break-words">{row.university}</span>
+      </span>
+      <span className="mt-1 line-clamp-2 t-footnote text-white/70">{row.programme}</span>
+      <span className="mt-2 block t-footnote text-white/80">
+        {row.recentDeadline
+          ? <><span className="block text-white/60">{copy.timelineNextDeadline}</span><span className="whitespace-nowrap tabular-nums">{row.recentDeadline}</span></>
+          : copy.timelineNoUpcoming}
+      </span>
+      <span className="mt-2 flex flex-wrap gap-x-2 t-footnote text-violet-200">
+        <span>{copy.timelineRoundsChip.replace('{count}', String(row.rounds.length))}</span>
+        <span>{expanded ? copy.calendarCollapse : copy.timelineShowRounds}<span aria-hidden> {expanded ? '−' : '+'}</span></span>
+      </span>
+    </button>
+    <div className="relative min-w-0 flex-1 overflow-hidden" style={{ minHeight: `${Math.max(112, largestGroup * 44 + 24)}px` }}>
+      {row.kind === 'span' && <button type="button" onClick={onOpen} aria-expanded={expanded} aria-controls={detailsId}
+        aria-label={`${name} · ${copy.timelineShowRounds}`}
+        style={{ left: `${row.left}%`, width: `${row.width}%` }}
+        className={`absolute top-1/2 z-10 h-11 -translate-y-1/2 rounded-md ${focusClass}`}>
+        <span aria-hidden className="absolute inset-x-0 top-1/2 h-7 -translate-y-1/2 rounded-md" style={{ background: barFill(row.hue, row.past, row.startKnown) }} />
+      </button>}
+      {markers.map(marker => {
+        const round = row.rounds.find(item => item.id === marker.roundId)!;
+        const sameDate = markers.filter(item => item.date === marker.date);
+        // 同日多轮垂直错开；不同日期的命中区止于中点，避免后一个按钮盖住前一个。
+        const offset = (sameDate.findIndex(item => item.roundId === marker.roundId) - (sameDate.length - 1) / 2) * 44;
+        const previous = markers.findLast(item => item.pct < marker.pct);
+        const next = markers.find(item => item.pct > marker.pct);
+        const leftBound = previous ? (previous.pct + marker.pct) / 2 : 0;
+        const rightBound = next ? (next.pct + marker.pct) / 2 : 100;
+        const label = `${name} · ${round.details.intakeLabel} · ${round.details.roundName} · ${marker.date} · ${copy.calendarJump}`;
+        return <span key={marker.roundId}>
+          <button type="button" data-round-id={marker.roundId} aria-label={label} title={label}
+            onClick={() => onLocate(marker.roundId)}
+            style={{ left: `max(${leftBound}%, calc(${marker.pct}% - 22px))`, right: `max(${100 - rightBound}%, calc(${100 - marker.pct}% - 22px))`, top: `calc(50% + ${offset}px - 22px)` }}
+            className={`absolute z-20 h-11 rounded-md ${focusClass}`} />
+          <span aria-hidden style={{ left: `${marker.pct}%`, top: `calc(50% + ${offset}px)`, background: `hsl(${row.hue} 70% 52% / ${marker.past ? 0.5 : 0.95})` }}
+            className="pointer-events-none absolute z-20 h-5 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full ring-1 ring-white/40" />
+        </span>;
+      })}
     </div>
   </div>;
 }
 
 export default function MastersTimeline({ rounds, now, locale, copy, onLocate }: MastersTimelineProps) {
   const [sort, setSort] = useState<MastersTimelineSort>('school');
+  const [zoomed, setZoomed] = useState(false);
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const timeline = useMemo(() => buildMastersTimeline(rounds, now, locale, sort), [rounds, now, locale, sort]);
-  const pillClass = 'min-h-9 rounded-lg px-3 py-1.5 t-footnote';
-  /** 「今天」徽标宽约 39px，轴首尾各留半个徽标：否则今天正好落在窗口首日/末日时会被卡片裁掉一半。 */
-  const todayShift = timeline.todayPct === null ? '-50%'
-    : timeline.todayPct <= 3 ? '0%'
-      : timeline.todayPct >= 97 ? '-100%' : '-50%';
+  const detailsRef = useRef<HTMLDivElement>(null);
+  const id = useId();
+  const detailsId = `${id}-details`;
+  const expandedRow = timeline.rows.find(row => row.key === expandedKey);
+  const labelId = (key: string) => `${id}-row-${encodeURIComponent(key)}`;
+  const pillClass = `min-h-11 rounded-lg px-3 py-2 t-footnote ${focusClass}`;
+
+  useEffect(() => {
+    if (!expandedKey) return;
+    const frame = requestAnimationFrame(() => {
+      const panel = detailsRef.current;
+      panel?.focus({ preventScroll: true });
+      panel?.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [expandedKey]);
+
+  const closeDetails = () => {
+    setExpandedKey(null);
+    if (expandedKey) document.getElementById(labelId(expandedKey))?.focus();
+  };
+  const years = timeline.months.reduce<Array<{ year: string; left: number; width: number }>>((groups, month) => {
+    const year = month.key.slice(0, 4);
+    const last = groups[groups.length - 1];
+    if (last?.year === year) last.width += month.width;
+    else groups.push({ year, left: month.left, width: month.width });
+    return groups;
+  }, []);
+  const todayShift = timeline.todayPct === null ? '-50%' : timeline.todayPct <= 3 ? '0%' : timeline.todayPct >= 97 ? '-100%' : '-50%';
 
   if (timeline.rows.length === 0) return (
     <section className="space-y-3" aria-labelledby="masters-timeline-title">
@@ -123,75 +135,92 @@ export default function MastersTimeline({ rounds, now, locale, copy, onLocate }:
   );
 
   return (
-    <section className="space-y-4" aria-labelledby="masters-timeline-title">
+    <section className="min-w-0 space-y-4" aria-labelledby="masters-timeline-title">
       <div className="flex flex-wrap items-center gap-3">
         <h2 id="masters-timeline-title" className="t-title-3 text-white">{copy.timelineTitle}</h2>
         <div className="ml-auto inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={copy.timelineSort}>
           {(['school', 'deadline'] as const).map(value => <button key={value} type="button" onClick={() => setSort(value)} aria-pressed={sort === value} className={`${pillClass} ${sort === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{value === 'school' ? copy.timelineSortSchool : copy.timelineSortDeadline}</button>)}
         </div>
       </div>
-
-      <div className="space-y-1">
-        <p className="t-footnote text-white/60">{copy.timelineRange
-          .replace('{count}', String(timeline.rows.length))
-          .replace('{rounds}', String(timeline.roundCount))
-          .replace('{start}', timeline.start)
-          .replace('{end}', timeline.end)}</p>
-        {/* 只有截止日的项目不画时长条，必须说明白，否则会被当成漏画。 */}
-        {timeline.deadlineOnlyCount > 0 && <p className="t-footnote text-white/60">{copy.timelineMilestoneNote.replace('{count}', String(timeline.deadlineOnlyCount))}</p>}
-        {timeline.overlapDays > 0 && <p className="t-footnote text-white/60">{copy.timelineOverlapNote.replace('{count}', String(timeline.overlapDays))}</p>}
-        {timeline.undatedCount > 0 && <p className="t-footnote text-white/60">{copy.timelineUndatedNote.replace('{count}', String(timeline.undatedCount))}</p>}
-        <p className="t-footnote text-white/60">{copy.timelineHint}</p>
+      <div className="space-y-1 t-footnote text-white/70">
+        <p>{copy.timelineRange.replace('{count}', String(timeline.rows.length)).replace('{rounds}', String(timeline.roundCount)).replace('{start}', timeline.start).replace('{end}', timeline.end)}</p>
+        {timeline.deadlineOnlyCount > 0 && <p>{copy.timelineMilestoneNote.replace('{count}', String(timeline.deadlineOnlyCount))}</p>}
+        {timeline.overlapDays > 0 && <p>{copy.timelineOverlapNote.replace('{count}', String(timeline.overlapDays))}</p>}
+        {timeline.undatedCount > 0 && <p>{copy.timelineUndatedNote.replace('{count}', String(timeline.undatedCount))}</p>}
+        <p>{copy.timelineHint}</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="inline-flex rounded-xl border border-white/10 p-1" role="group" aria-label={copy.timelineScale}>
+          {[false, true].map(value => <button key={String(value)} type="button" onClick={() => setZoomed(value)} aria-pressed={zoomed === value} className={`${pillClass} ${zoomed === value ? 'bg-white/10 text-white' : 'text-white/70'}`}>{value ? copy.timelineZoom : copy.timelineOverview}</button>)}
+        </div>
+        {zoomed && <p className="max-w-lg t-footnote text-white/70">{copy.timelineZoomHint}</p>}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10">
-        {/* 表头与数据行用同一套 flex 结构：relative + left-* 定位下 right:0 会被忽略，
-            表头宽度仍是整行，百分比基准就和条形错开一整个左列的宽度。 */}
-        <div className="flex items-stretch border-b border-white/10 bg-white/[0.03]">
-          <div className={`${LABEL_COL} shrink-0 border-r border-white/10`} />
-          <div className="relative flex-1">
-            {/* 「今天」单独占一行：与月份同处一条垂直带时，390px 下 10 月/11 月标签会被它压住
-                （实测重叠 23px / 15px），桌面也有 35px。 */}
-            {timeline.todayPct !== null && <div className="relative h-6">
-              <span style={{ left: `${timeline.todayPct}%`, transform: `translateX(${todayShift})` }} className="absolute bottom-0.5 whitespace-nowrap rounded-full bg-violet-400/20 px-1.5 t-footnote text-violet-100">{copy.timelineToday}</span>
-            </div>}
-            <div className="relative h-7">
-              {timeline.months.map(month => <span key={month.key} aria-hidden style={{ left: `${month.left}%`, width: `${month.width}%` }} className="absolute inset-y-0 flex items-center justify-center t-footnote tabular-nums text-white/50">
-                {/* 8 个月 × 21px 时「10月」会换行堆叠，窄屏只给数字。 */}
-                <span className="sm:hidden">{month.short}</span>
-                <span className="hidden sm:inline">{month.label}</span>
-              </span>)}
+      <div role="region" aria-label={copy.timelineChart} tabIndex={0} className={`max-w-full overflow-x-auto overscroll-x-contain rounded-2xl border border-white/15 ${focusClass}`}>
+        <div style={zoomed ? { minWidth: `${Math.max(760, timeline.months.length * 88 + 240)}px` } : undefined}>
+          <div className="flex items-stretch border-b border-white/10 bg-white/[0.03]">
+            <div className={`${LABEL_COL} sticky left-0 z-30 flex shrink-0 items-end border-r border-white/10 bg-zinc-950 px-3 py-2 t-footnote text-white/70`}>{copy.school}</div>
+            <div className="relative min-w-0 flex-1">
+              <div className="relative h-7 border-b border-white/10">
+                {years.map(year => <span key={year.year} data-timeline-year={year.year} style={{ left: `${year.left}%`, width: `${year.width}%` }} className="absolute inset-y-0 flex items-center justify-center border-r border-white/10 t-footnote font-semibold tabular-nums text-white/85 last:border-r-0">{year.year}</span>)}
+              </div>
+              {timeline.todayPct !== null && <div className="relative h-6">
+                <span style={{ left: `${timeline.todayPct}%`, transform: `translateX(${todayShift})` }} className="absolute bottom-0.5 whitespace-nowrap rounded-full bg-violet-400/20 px-1.5 t-footnote text-violet-100">{copy.timelineToday}</span>
+              </div>}
+              <div className="relative h-7">
+                {timeline.months.map(month => <span key={month.key} aria-hidden style={{ left: `${month.left}%`, width: `${month.width}%` }} className="absolute inset-y-0 flex items-center justify-center whitespace-nowrap t-footnote tabular-nums text-white/70">
+                  <span className={zoomed ? 'hidden' : 'sm:hidden'}>{month.short}</span>
+                  <span className={zoomed ? '' : 'hidden sm:inline'}>{month.label}</span>
+                </span>)}
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="relative">
-          {/* 网格线、重叠带与今天线画在覆盖层里：逐行画会在每行首尾出现断口。 */}
-          <div aria-hidden className={`pointer-events-none absolute inset-y-0 right-0 ${AXIS_OFFSET}`}>
-            {/* 两个及以上项目同时开放的时间带，垫在网格线下面。 */}
-            {timeline.overlaps.map((overlap, index) => <span key={`${overlap.start}-${index}`} style={{ left: `${overlap.left}%`, width: `${overlap.width}%` }} className="absolute inset-y-0 bg-white/[0.09]" />)}
-            {timeline.months.slice(1).map(month => <span key={month.key} style={{ left: `${month.left}%` }} className="absolute inset-y-0 w-px bg-white/[0.08]" />)}
-            {timeline.todayPct !== null && <span style={{ left: `${timeline.todayPct}%` }} className="absolute inset-y-0 w-px bg-violet-300/70" />}
+          <div className="relative">
+            <div aria-hidden className={`pointer-events-none absolute inset-y-0 right-0 ${AXIS_OFFSET}`}>
+              {timeline.overlaps.map((overlap, index) => <span key={`${overlap.start}-${index}`} style={{ left: `${overlap.left}%`, width: `${overlap.width}%` }} className="absolute inset-y-0 bg-white/[0.09]" />)}
+              {timeline.months.slice(1).map(month => <span key={month.key} style={{ left: `${month.left}%` }} className="absolute inset-y-0 w-px bg-white/[0.08]" />)}
+              {timeline.todayPct !== null && <span style={{ left: `${timeline.todayPct}%` }} className="absolute inset-y-0 w-px bg-violet-300/70" />}
+            </div>
+            {timeline.rows.map(row => <TimelineRow key={row.key} row={row} copy={copy} expanded={expandedKey === row.key} labelId={labelId(row.key)} detailsId={detailsId}
+              onOpen={() => expandedKey === row.key ? closeDetails() : setExpandedKey(row.key)} onLocate={onLocate} />)}
           </div>
-          {timeline.rows.map(row => <TimelineRow key={row.key} row={row} copy={copy} onLocate={onLocate} />)}
         </div>
       </div>
+
+      {expandedRow && <div id={detailsId} ref={detailsRef} tabIndex={-1} role="region" aria-label={copy.timelineDetails} className="scroll-mt-24 rounded-2xl border border-violet-300/30 bg-zinc-950 p-4 outline-none sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="t-footnote font-semibold text-violet-200">{expandedRow.university}</p>
+            <h3 className="mt-1 break-words t-title-4 text-white">{expandedRow.programme}</h3>
+          </div>
+          <button type="button" onClick={closeDetails} className={`min-h-11 shrink-0 rounded-lg px-3 t-footnote text-white/80 ${focusClass}`}>{copy.calendarCollapse}</button>
+        </div>
+        {expandedRow.start && <p className="mt-3 t-footnote text-white/70">{copy.timelineVerifiedWindow}: {expandedRow.start} → {expandedRow.end}{!expandedRow.startKnown && <> · {copy.unknownOpening}</>}</p>}
+        <ul className="mt-4 divide-y divide-white/10">
+          {[...expandedRow.rounds].sort((first, second) => (first.details.deadlineOn ?? '').localeCompare(second.details.deadlineOn ?? '')).map(round => <li key={round.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div className="min-w-0 flex-1 basis-48">
+              <p className="t-footnote font-semibold text-white/90">{round.details.roundName} · {round.details.intakeLabel}</p>
+              <p className="mt-1 t-footnote text-white/80">{copy.deadline}: {mastersDeadlineLabel(round, locale)}</p>
+              <p className="mt-1 t-footnote text-white/60">{mastersStateLabel(round, now, locale)}</p>
+            </div>
+            <button type="button" onClick={() => onLocate(round.id)} aria-label={`${round.details.roundName} · ${round.details.deadlineOn} · ${copy.calendarJump}`}
+              className={`min-h-11 rounded-xl border border-white/15 px-3 py-2 t-footnote text-violet-200 ${focusClass}`}>{copy.calendarJump}</button>
+          </li>)}
+        </ul>
+      </div>}
 
       <div className="space-y-2 border-t border-white/10 pt-4">
         <p className="t-footnote font-semibold text-white/80">{copy.calendarLegend}</p>
         <ul className="flex flex-wrap gap-x-4 gap-y-2 t-footnote text-white/70">
           <li className="inline-flex items-center gap-2"><span aria-hidden className="h-2.5 w-6 rounded-sm" style={{ background: 'hsl(265 70% 52% / 0.55)' }} />{copy.timelineLegendKnown}</li>
           <li className="inline-flex items-center gap-2"><span aria-hidden className="h-2.5 w-6 rounded-sm" style={{ background: 'linear-gradient(to right, hsl(190 70% 52% / 0) 0%, hsl(190 70% 52% / 0.55) 45%)' }} />{copy.timelineLegendFaded}</li>
-          <li className="inline-flex items-center gap-2"><span aria-hidden className="h-3 w-[3px] rounded-full bg-white/45" />{copy.timelineLegendMilestone}</li>
+          <li className="inline-flex items-center gap-2"><span aria-hidden className="h-3 w-[3px] rounded-full bg-white/70" />{copy.timelineLegendMilestone}</li>
           <li className="inline-flex items-center gap-2"><span aria-hidden className="h-2.5 w-6 rounded-sm bg-white/[0.09]" />{copy.timelineLegendOverlap}</li>
-          {/* 实心点已被状态色占用，变更沿用月历的空心环，同形不同义会读错。 */}
           <li className="inline-flex items-center gap-2"><span aria-hidden className="h-2 w-2 rounded-full border border-amber-200" />{copy.calendarChanged}</li>
           <li className="inline-flex items-center gap-2"><span aria-hidden className="h-3 w-px bg-violet-300" />{copy.timelineToday}</li>
         </ul>
-        <p className="t-footnote text-white/60">{copy.timelineTickHint}</p>
+        <p className="t-footnote text-white/70">{copy.timelineTickHint}</p>
         <p className="t-footnote text-white/60">{copy.timelineMilestoneHint}</p>
-        <p className="t-footnote text-white/60">{copy.calendarSpanHint}</p>
-        <p className="t-footnote text-white/60">{copy.calendarHint}</p>
       </div>
     </section>
   );

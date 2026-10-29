@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { dailyDate } from '@/lib/daily/types';
 import type { MastersRound } from '@/lib/masters/types';
 import {
   MASTERS_CALENDAR_WEEKDAYS, assignMastersCalendarLanes, buildMastersCalendarMonth, clampMonth,
@@ -113,7 +114,7 @@ function CalendarCell({ cell, copy, openDate, onToggle, lanes }: {
   );
   return (
     <div role="gridcell" className="min-h-24 border-r border-white/10 pb-1.5 last:border-r-0">
-      <p className={`flex items-center justify-end gap-1 px-1.5 pt-1.5 t-footnote tabular-nums ${cell.isToday ? 'font-semibold text-violet-200' : 'text-white/60'}`}>
+      <p aria-current={cell.isToday ? 'date' : undefined} className={`flex items-center justify-end gap-1 px-1.5 pt-1.5 t-footnote tabular-nums ${cell.isToday ? 'font-semibold text-violet-200' : 'text-white/60'}`}>
         {cell.isToday && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-violet-300" />}{cell.day}
       </p>
 
@@ -148,7 +149,7 @@ function CalendarCell({ cell, copy, openDate, onToggle, lanes }: {
 }
 
 export default function MastersCalendar({ year, rounds, now, locale, copy, onLocate }: MastersCalendarProps) {
-  const today = now.toISOString().slice(0, 10);
+  const today = dailyDate(now);
   const nodes = useMemo(() => collectMastersCalendarNodes(rounds, now), [rounds, now]);
   const spans = useMemo(() => collectMastersCalendarSpans(rounds, now), [rounds, now]);
   const pending = useMemo(() => collectMastersCalendarPending(rounds), [rounds]);
@@ -212,8 +213,8 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
             }} />
             <span className="min-w-0 flex-1">
               <span className="block text-white/85">{span.university}</span>
-              <span className="block text-white/55">{span.programme}</span>
-              <span className="mt-0.5 block tabular-nums text-white/45">
+              <span className="block text-white/70">{span.programme}</span>
+              <span className="mt-0.5 block tabular-nums text-white/60">
                 {span.startKnown ? `${span.start} → ${span.end}` : `${copy.calendarSpanOngoing} → ${span.end}`} · {span.past ? copy.calendarSpanEnded : copy.calendarSpanActive}
               </span>
             </span>

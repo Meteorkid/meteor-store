@@ -6,6 +6,7 @@ import {
   shiftMonth, spansOnDate, weekdayIndex,
 } from '../calendar';
 import { roundFixture } from '@/components/masters/__tests__/fixtures';
+import { withMastersOpeningEvidence } from '../opening-evidence';
 
 const NOW = new Date('2026-10-14T04:00:00Z');
 
@@ -89,9 +90,14 @@ describe('月网格', () => {
   it('统计本月开放与截止数量，填充格上的节点不计入', () => {
     const base = roundFixture();
     const inMonth = roundFixture({ id: 'in', details: { ...base.details, opensOn: '2026-10-02', deadlineOn: '2026-10-30' } });
-    const view = buildMastersCalendarMonth('2026-10', collectMastersCalendarNodes([inMonth], NOW), '2026-10-14');
+    const previous = roundFixture({ id: 'previous', details: { ...base.details, opensOn: '2026-09-28', deadlineOn: '2026-09-30' } });
+    const next = roundFixture({ id: 'next', details: { ...base.details, opensOn: '2026-11-01', deadlineOn: '2026-11-01' } });
+    const rounds = [inMonth, previous, next];
+    const view = buildMastersCalendarMonth('2026-10', collectMastersCalendarNodes(rounds, NOW), '2026-10-14', collectMastersCalendarSpans(rounds, NOW));
     expect(view.opensCount).toBe(1);
     expect(view.deadlineCount).toBe(1);
+    expect(view.spanCount).toBe(1);
+    expect(view.weeks.flat().filter(cell => !cell.inMonth).some(cell => cell.nodes.length > 0)).toBe(true);
   });
 
   it('非法月份返回空网格而不抛错', () => {
@@ -190,6 +196,65 @@ describe('申请期区间投影', () => {
     const base = roundFixture();
     const separate = roundFixture({ id: 'sep', details: { ...base.details, opensOn: '2027-03-01', deadlineOn: '2027-04-01' } });
     expect(collectMastersCalendarSpans([base, separate], NOW)).toHaveLength(2);
+  });
+
+  it('不相交窗口不受输入顺序影响，分段标识唯一且共享项目标识', () => {
+    const base = roundFixture();
+    const later = roundFixture({ id: 'a-later', details: { ...base.details, opensOn: '2027-03-01', deadlineOn: '2027-04-01' } });
+    const forward = collectMastersCalendarSpans([base, later], NOW);
+    const reversed = collectMastersCalendarSpans([later, base], NOW);
+    expect(reversed).toEqual(forward);
+    expect(reversed.map(span => [span.start, span.end])).toEqual([
+      ['2026-10-01', '2026-12-01'], ['2027-03-01', '2027-04-01'],
+    ]);
+    expect(new Set(reversed.map(span => span.key)).size).toBe(2);
+    expect(reversed[0].projectKey).toBe(reversed[1].projectKey);
+  });
+
+  it('第二段与后续重叠段合并，跨越两段的轮次可合并整个连通区间', () => {
+    const base = roundFixture();
+    const later = roundFixture({ id: 'later', details: { ...base.details, opensOn: '2027-03-01', deadlineOn: '2027-04-01' } });
+    const tail = roundFixture({ id: 'tail', details: { ...base.details, opensOn: '2027-03-15', deadlineOn: '2027-05-01' } });
+    const bridge = roundFixture({ id: 'bridge', details: { ...base.details, opensOn: '2026-11-01', deadlineOn: '2027-03-10' } });
+    const separated = collectMastersCalendarSpans([tail, base, later], NOW);
+    expect(separated).toHaveLength(2);
+    expect(separated[1]).toMatchObject({ start: '2027-03-01', end: '2027-05-01' });
+    const connected = collectMastersCalendarSpans([tail, base, later, bridge], NOW);
+    expect(connected).toHaveLength(1);
+    expect(connected[0]).toMatchObject({ start: '2026-10-01', end: '2027-05-01' });
+    expect(new Set(connected[0].rounds.map(round => round.id)).size).toBe(4);
+  });
+
+  it('首次证实开放的日期不随最新核验日右移，截止后仍保留历史区间', () => {
+    const base = roundFixture();
+    const details = { ...base.details, opensOn: null, openingState: 'open' as const, firstObservedOpenOn: '2026-10-05' };
+    const current = roundFixture({ details, verifiedOn: '2026-10-14' });
+    expect(collectMastersCalendarSpans([current], NOW)[0]).toMatchObject({ start: '2026-10-05', startKnown: false });
+    const expired = roundFixture({ details, verifiedOn: '2026-12-10' });
+    expect(collectMastersCalendarSpans([expired], new Date('2026-12-10T04:00:00Z'))[0])
+      .toMatchObject({ start: '2026-10-05', end: '2026-12-01', past: true });
+  });
+
+  it.each(['closed', 'unknown'] as const)('提前转为%s后，不能在原截止日过去时复活长条', openingState => {
+    const base = roundFixture();
+    const previous = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open', firstObservedOpenOn: '2026-10-01' } });
+    const input = { id: previous.id, intakeYear: previous.intakeYear, region: previous.region,
+      status: previous.status, verifiedOn: '2026-10-29', details: { ...previous.details, openingState } };
+    const closedAt = new Date('2026-10-29T04:00:00Z');
+    const saved = { ...previous, ...withMastersOpeningEvidence(input, previous, closedAt) };
+    expect(saved.details.firstObservedOpenOn).toBe('2026-10-01');
+    expect(collectMastersCalendarSpans([saved], closedAt)).toHaveLength(0);
+    expect(collectMastersCalendarSpans([saved], new Date('2026-12-02T04:00:00Z'))).toHaveLength(0);
+    expect(collectMastersCalendarNodes([saved], closedAt).map(node => node.kind)).toEqual(['deadline']);
+  });
+
+  it('非法或未来的首次开放证据不能成为区间起点', () => {
+    const base = roundFixture();
+    for (const firstObservedOpenOn of ['2026-02-30', '2027-01-01']) {
+      const details = { ...base.details, opensOn: null, openingState: 'open' as const, firstObservedOpenOn };
+      expect(collectMastersCalendarSpans([roundFixture({ details })], NOW)[0].start).toBe('2026-10-12');
+      expect(collectMastersCalendarSpans([roundFixture({ details: { ...details, openingState: 'unknown' } })], NOW)).toHaveLength(0);
+    }
   });
 
   it('合并后只要有一段起点未知，整条就按起点未知处理', () => {

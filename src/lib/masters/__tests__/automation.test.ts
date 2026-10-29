@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mastersSeeds } from '../seeds';
-import type { MastersRoundInput } from '../types';
+import type { MastersRound, MastersRoundInput } from '../types';
+import { withMastersOpeningEvidence } from '../opening-evidence';
 
 const mocks = vi.hoisted(() => ({ getMastersAutomationRounds: vi.fn(), saveMastersRound: vi.fn() }));
 vi.mock('../service', () => mocks);
@@ -162,6 +163,34 @@ describe('受限官方抓取', () => {
 });
 
 describe('自动同步隔离与已有记录保护', () => {
+  it('解析器不伪造首次开放日期，同日重复同步不因服务端证据字段而重复保存', async () => {
+    vi.stubGlobal('fetch', vi.fn(fixtureFetch));
+    const rows = new Map<string, MastersRound & { automationPaused: boolean }>();
+    for (const source of mastersSyncSources) {
+      const parsed = parseMastersPage(source.id, fixture(source.id), sourceUrl(source.id), now);
+      for (const value of parsed) {
+        expect(value.details).not.toHaveProperty('firstObservedOpenOn');
+        const previous = { ...value, verifiedOn: '2026-10-14', revision: 1, dateVersion: 1,
+          dateChangedAt: null, previousDeadlineText: null, createdAt: '2026-10-14T00:00:00Z',
+          updatedAt: '2026-10-14T00:00:00Z' } as MastersRound;
+        rows.set(previous.id, { ...previous, ...withMastersOpeningEvidence(value, previous, now), automationPaused: false });
+      }
+    }
+    mocks.getMastersAutomationRounds.mockImplementation(async (ids: string[]) => ids.map(id => rows.get(id)));
+    expect(await syncMastersSources(now)).toMatchObject({ unchanged: 11, failed: 0 });
+    expect(mocks.saveMastersRound).not.toHaveBeenCalled();
+
+    const tomorrow = new Date('2026-10-16T00:00:00Z');
+    await syncMastersSources(tomorrow);
+    const openCalls = mocks.saveMastersRound.mock.calls.filter(([value]) => value.details.openingState === 'open'
+      && value.details.deadlineOn >= '2026-10-16');
+    expect(openCalls.length).toBeGreaterThan(0);
+    for (const [value] of openCalls) {
+      expect(value.verifiedOn).toBe('2026-10-16');
+      expect(value.details.firstObservedOpenOn).toBe('2026-10-14');
+    }
+  });
+
   it('六个来源重新校验后首发11个轮次，初始draft字段顺序不影响比对', async () => {
     vi.stubGlobal('fetch', vi.fn(fixtureFetch));
     mocks.getMastersAutomationRounds.mockImplementation(async (ids: string[]) => mastersSeeds.filter(seed => ids.includes(seed.id!)).map(seed => ({

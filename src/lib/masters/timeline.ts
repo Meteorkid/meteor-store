@@ -1,13 +1,13 @@
-import { dailyDate, shiftDailyDate } from '@/lib/daily/types';
+import { DailyDateSchema, dailyDate, shiftDailyDate } from '@/lib/daily/types';
 import {
-  collectMastersCalendarSpans, daysInMonth, mastersCalendarHue, monthOf, shiftMonth,
+  collectMastersCalendarSpans, daysInMonth, mastersCalendarHue, mastersCalendarProjectKey, monthOf, shiftMonth,
 } from './calendar';
+import { getMastersRoundState } from './dates';
 import type { MastersRegion, MastersRound } from './types';
 
 /** 一天一号的序号，只用来算比例。YYYY-MM-DD 按 UTC 解析，与月历同一口径。 */
 const dayNumber = (date: string): number => Math.round(Date.parse(`${date}T00:00:00Z`) / 86_400_000);
 
-const CALENDAR_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const MONTHS_EN_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /** 默认按学校分组，同校多项目相邻；按截止日排能看出哪几个项目挤在同一段冲刺期。 */
@@ -32,6 +32,7 @@ export interface MastersTimelineMonth {
 }
 
 export interface MastersTimelineMilestone {
+  roundId: string;
   date: string;
   /** 相对时间轴的百分比。 */
   pct: number;
@@ -41,6 +42,7 @@ export interface MastersTimelineMilestone {
 export interface MastersTimelineRow {
   kind: MastersTimelineRowKind;
   key: string;
+  projectKey: string;
   university: string;
   programme: string;
   region: MastersRegion;
@@ -49,8 +51,11 @@ export interface MastersTimelineRow {
   hue: number;
   /** 时长条起点；只公布截止日的行为 null。 */
   start: string | null;
-  /** 最后一个截止日。 */
+  /** 真实时长条终点；仅截止行取最后一个截止日。条外节点不能延长时长。 */
   end: string;
+  latestDeadline: string;
+  /** 最近尚未截止且未明确关闭的轮次日期，全部结束时为 null。 */
+  recentDeadline: string | null;
   /** 起点是否由官方公布。false 表示从核验日画起，条形起点淡出。 */
   startKnown: boolean;
   changed: boolean;
@@ -106,10 +111,9 @@ function monthLabel(month: string, locale: 'zh' | 'en', dense: boolean): string 
   return locale === 'zh' ? `${index}月` : MONTHS_EN_SHORT[index - 1];
 }
 
-/** 与月历的色带标识同一套写法：同项目合并后仍是一所学校的一条。 */
-function rowKey(round: MastersRound): string {
-  const details = round.details;
-  return `${round.region}:${details.university.trim().toLowerCase()}:${details.programme.trim().toLowerCase()}`;
+function compareRoundDeadlines(first: MastersRound, second: MastersRound): number {
+  return (first.details.deadlineOn as string).localeCompare(second.details.deadlineOn as string)
+    || first.id.localeCompare(second.id);
 }
 
 function emptyTimeline(today: string, undatedCount: number): MastersTimeline {
@@ -140,8 +144,8 @@ export function buildMastersTimeline(
   for (const round of rounds) {
     if (covered.has(round.id)) continue;
     const deadline = round.details.deadlineOn;
-    if (!deadline || !CALENDAR_DATE.test(deadline)) continue;
-    const key = rowKey(round);
+    if (round.details.deadlineStatus !== 'confirmed' || !DailyDateSchema.safeParse(deadline).success) continue;
+    const key = mastersCalendarProjectKey(round);
     const bucket = pending.get(key);
     if (bucket) bucket.push(round); else pending.set(key, [round]);
   }
@@ -163,6 +167,10 @@ export function buildMastersTimeline(
   const axisSpan = Math.max(1, dayNumber(shiftDailyDate(end, 1)) - axisStart);
   const toPct = (value: number) => Math.min(100, Math.max(0, (value / axisSpan) * 100));
   const datePct = (date: string) => toPct(dayNumber(date) - axisStart);
+  const milestoneFor = (round: MastersRound): MastersTimelineMilestone => {
+    const date = round.details.deadlineOn as string;
+    return { roundId: round.id, date, pct: datePct(date), past: getMastersRoundState(round, now).state === 'closed' };
+  };
 
   const monthKeys: string[] = [];
   for (let cursor = monthOf(start); cursor <= monthOf(end); cursor = shiftMonth(cursor, 1)) monthKeys.push(cursor);
@@ -179,43 +187,48 @@ export function buildMastersTimeline(
   const spanRows: MastersTimelineRow[] = spans.map(span => {
     const barStart = dayNumber(span.start);
     const barSpan = Math.max(1, dayNumber(shiftDailyDate(span.end, 1)) - barStart);
-    const deadlines = [...new Set(span.deadlines)].sort();
+    const sorted = [...span.rounds].sort(compareRoundDeadlines);
+    const milestones = sorted.map(milestoneFor);
     return {
       kind: 'span' as const,
-      key: span.key,
+      key: span.key, projectKey: span.projectKey,
       university: span.university, programme: span.programme, region: span.region,
-      rounds: span.rounds,
+      rounds: sorted,
       hue: mastersCalendarHue(span),
       start: span.start, end: span.end, startKnown: span.startKnown,
+      latestDeadline: span.end, recentDeadline: null,
       changed: span.changed, past: span.past,
       left: datePct(span.start),
       width: Math.max(0.6, datePct(shiftDailyDate(span.end, 1)) - datePct(span.start)),
       // 用截止日当天（而非次日）在条形内的位置，末轮刻度才会落在右端内侧而不是贴死边缘。
-      deadlineTicks: deadlines.map(date => ((dayNumber(date) - barStart) / barSpan) * 100),
-      milestones: deadlines.map(date => ({ date, pct: datePct(date), past: date < today })),
+      deadlineTicks: milestones.map(marker => ((dayNumber(marker.date) - barStart) / barSpan) * 100),
+      milestones,
       outsideMarkers: [],
     };
   });
 
-  // 同一项目若已有时长条，条外的截止点挂到那一行，而不是再开一行——
-  // 港科 MIMT 的首轮在核验日之前就已截止，共用逻辑正确地拒绝为它画时长，
-  // 但同一项目出现两行会被读成重复条目。
-  const spanByKey = new Map(spanRows.map(row => [row.key, row]));
+  // 同项目可能有多个不相交窗口。每个额外截止只归属最近的一段，不能延长窗口或重复计轮次。
+  const spansByProject = new Map<string, MastersTimelineRow[]>();
+  for (const row of spanRows) {
+    const group = spansByProject.get(row.projectKey);
+    if (group) group.push(row); else spansByProject.set(row.projectKey, [row]);
+  }
   const milestoneRows: MastersTimelineRow[] = [];
   for (const [key, group] of pending) {
-    const sorted = [...group].sort((first, second) =>
-      (first.details.deadlineOn as string).localeCompare(second.details.deadlineOn as string));
+    const sorted = [...group].sort(compareRoundDeadlines);
     const dates = sorted.map(round => round.details.deadlineOn as string);
-    const milestones = dates.map(date => ({ date, pct: datePct(date), past: date < today }));
+    const milestones = sorted.map(milestoneFor);
     const changed = sorted.some(round => !!round.dateChangedAt && round.dateChangedAt >= recent);
-    const host = spanByKey.get(key);
-    if (host) {
-      host.outsideMarkers.push(...milestones);
-      host.rounds = [...host.rounds, ...sorted];
-      host.changed = host.changed || changed;
-      // 条外还有更晚的截止时，行内的「最后一个截止日」要跟着推后，否则标签和标记自相矛盾。
-      const latest = dates[dates.length - 1];
-      if (latest > host.end) host.end = latest;
+    const hosts = spansByProject.get(key);
+    if (hosts) {
+      sorted.forEach((round, index) => {
+        const date = dayNumber(dates[index]);
+        const distance = (row: MastersTimelineRow) => Math.max(dayNumber(row.start as string) - date, date - dayNumber(row.end), 0);
+        const host = hosts.reduce((nearest, row) => distance(row) < distance(nearest) ? row : nearest);
+        host.outsideMarkers.push(milestones[index]);
+        host.rounds.push(round);
+        host.changed = host.changed || (!!round.dateChangedAt && round.dateChangedAt >= recent);
+      });
       continue;
     }
     const pcts = milestones.map(milestone => milestone.pct);
@@ -223,13 +236,14 @@ export function buildMastersTimeline(
     const first = sorted[0];
     milestoneRows.push({
       kind: 'deadline',
-      key,
+      key: `${key}#deadlines`, projectKey: key,
       university: first.details.university, programme: first.details.programme, region: first.region,
       rounds: sorted,
       hue: mastersCalendarHue({ region: first.region, university: first.details.university }),
       start: null, end: dates[dates.length - 1], startKnown: false,
+      latestDeadline: dates[dates.length - 1], recentDeadline: null,
       changed,
-      past: dates.every(date => date < today),
+      past: milestones.every(marker => marker.past),
       left, width: Math.max(0.6, Math.max(...pcts) - left),
       deadlineTicks: [],
       milestones,
@@ -237,16 +251,29 @@ export function buildMastersTimeline(
     });
   }
 
-  const rows = [...spanRows, ...milestoneRows].sort((first, second) => {
+  const rows = [...spanRows, ...milestoneRows];
+  for (const row of rows) {
+    row.rounds.sort(compareRoundDeadlines);
+    row.latestDeadline = row.rounds[row.rounds.length - 1].details.deadlineOn as string;
+    row.recentDeadline = row.rounds.find(round => {
+      if (round.details.deadlineStatus !== 'confirmed' || !round.verifiedOn
+        || !DailyDateSchema.safeParse(round.verifiedOn).success || round.verifiedOn > today) return false;
+      const timing = getMastersRoundState(round, now);
+      // 开放状态未知但截止已经核实的轮次仍需排序；精确时刻已过或明确关闭的则排除。
+      return timing.state !== 'closed' && timing.daysLeft !== null;
+    })?.details.deadlineOn ?? null;
+  }
+  rows.sort((first, second) => {
     const byUniversity = first.university.localeCompare(second.university);
-    const byDeadline = first.end.localeCompare(second.end);
+    const byDeadline = first.recentDeadline === null
+      ? (second.recentDeadline === null ? 0 : 1)
+      : second.recentDeadline === null ? -1 : first.recentDeadline.localeCompare(second.recentDeadline);
     const byStart = (first.start ?? first.end).localeCompare(second.start ?? second.end);
     return (sort === 'deadline' ? byDeadline || byStart : byUniversity || byStart)
-      || first.programme.localeCompare(second.programme);
+      || first.programme.localeCompare(second.programme) || first.key.localeCompare(second.key);
   });
 
-  // 重叠区间用扫描线算：起点 +1、终点次日 -1，同一天先减后加，
-  // 这样「A 的截止日正好是 B 的开放日」不会被算成重叠。
+  // 日期区间包含截止当天：起点 +1、终点次日 -1；前一段截止次日才开放才没有共同日。
   const events = spanRows.flatMap(row => [
     { date: row.start as string, delta: 1 },
     { date: shiftDailyDate(row.end, 1), delta: -1 },

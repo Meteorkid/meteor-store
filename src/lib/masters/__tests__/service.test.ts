@@ -123,6 +123,31 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe('官方自动同步与人工暂停', () => {
+  it('事务内固定首次开放核验；只补证据不递增日期版本或生成改期提醒', async () => {
+    const previous = round({}, { opensOn: null, openingState: 'open' });
+    const value = { ...input(previous), verifiedOn: '2026-10-29' };
+    value.details = { ...value.details, firstObservedOpenOn: '2020-01-01' };
+    const saved = { ...previous, verifiedOn: value.verifiedOn,
+      details: { ...previous.details, firstObservedOpenOn: previous.verifiedOn }, updatedAt: now };
+    state.responses.push([{ ...previous, automationPaused: false }], [saved], [watched(saved)]);
+    await saveMastersRound(value, { automatic: true });
+    expect(valuesOf(writes(mastersRounds)[0])[0]).toMatchObject({
+      verifiedOn: '2026-10-29', details: { firstObservedOpenOn: '2026-10-14' },
+      dateVersion: 1, dateChangedAt: null,
+    });
+    expect(writes(mastersNotices).flatMap(valuesOf).some(value => value.kind === 'changed')).toBe(false);
+  });
+
+  it('管理员旧表单省略可选字段也不能删除已保存的首次证据', async () => {
+    const previous = round({}, { opensOn: null, openingState: 'open', firstObservedOpenOn: '2026-10-01' });
+    const value = input(previous);
+    value.details = { ...value.details };
+    delete value.details.firstObservedOpenOn;
+    state.responses.push([previous], [previous], []);
+    await saveMastersRound(value);
+    expect(valuesOf(writes(mastersRounds)[0])[0]).toMatchObject({ details: { firstObservedOpenOn: '2026-10-01' }, dateVersion: 1 });
+  });
+
   it('事务内拒绝自动覆盖已暂停记录', async () => {
     state.responses.push([{ ...round(), automationPaused: true }]);
     expect(await saveMastersRound(input(), { automatic: true })).toBeNull();

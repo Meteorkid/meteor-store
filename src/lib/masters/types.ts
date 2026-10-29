@@ -31,6 +31,8 @@ export const MastersRoundDetailsSchema = z.object({
   roundName: label.max(100),
   eventType: z.enum(['application', 'documents', 'recommendation', 'scholarship']),
   opensOn: optionalDate,
+  /** 服务端保存的首次开放核验证据，不是官方公布的开放日。 */
+  firstObservedOpenOn: optionalDate.optional(),
   openingNote: z.string().trim().max(500),
   openingState: z.enum(['unknown', 'scheduled', 'open', 'closed']),
   deadlineStatus: z.enum(['confirmed', 'unannounced', 'unverified']),

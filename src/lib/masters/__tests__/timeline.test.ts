@@ -191,4 +191,66 @@ describe('甘特投影', () => {
     expect(round(timeline.overlaps[0].left)).toBe(33.696);
     expect(round(timeline.overlaps[0].left + timeline.overlaps[0].width)).toBe(100);
   });
+
+  it('条外更晚截止不扩张真实申请窗口或虚构重叠', () => {
+    const base = roundFixture();
+    const window = roundFixture({ id: 'window', details: { ...base.details, opensOn: '2026-10-01', deadlineOn: '2026-10-31' } });
+    const deadline = roundFixture({ id: 'deadline', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2026-12-31' } });
+    const other = roundFixture({ id: 'other', details: { ...base.details, programme: 'MSc Other', opensOn: '2026-11-01', deadlineOn: '2026-11-30' } });
+    const timeline = buildMastersTimeline([window, deadline, other], NOW);
+    const row = timeline.rows.find(row => row.programme === base.details.programme)!;
+    expect(row.end).toBe('2026-10-31');
+    expect(row.latestDeadline).toBe('2026-12-31');
+    expect(row.outsideMarkers).toMatchObject([{ date: '2026-12-31', roundId: 'deadline' }]);
+    expect(timeline.overlapDays).toBe(0);
+  });
+
+  it('同项目多段区间的额外截止各自归到最近一段，每轮只归属一行', () => {
+    const base = roundFixture();
+    const early = roundFixture({ id: 'early', details: { ...base.details, opensOn: '2026-10-01', deadlineOn: '2026-10-31' } });
+    const late = roundFixture({ id: 'late', details: { ...base.details, opensOn: '2027-01-01', deadlineOn: '2027-01-31' } });
+    const before = roundFixture({ id: 'before', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2026-09-30' } });
+    const after = roundFixture({ id: 'after', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2027-02-01' } });
+    const timeline = buildMastersTimeline([late, before, early, after], NOW);
+    expect(timeline.rows).toHaveLength(2);
+    expect(timeline.rows.map(row => row.outsideMarkers.map(marker => marker.roundId))).toEqual([['before'], ['after']]);
+    expect(timeline.rows.flatMap(row => row.rounds.map(round => round.id)).sort()).toEqual(['after', 'before', 'early', 'late']);
+    expect(timeline.roundCount).toBe(4);
+    expect(timeline.overlapDays).toBe(0);
+  });
+
+  it('同日不同轮次的截止点仍可独立定位', () => {
+    const base = roundFixture();
+    const first = roundFixture({ id: 'first' });
+    const second = roundFixture({ id: 'second' });
+    const [window] = buildMastersTimeline([first, second], NOW).rows;
+    expect(window.milestones.map(marker => marker.roundId)).toEqual(['first', 'second']);
+    const details = { ...base.details, opensOn: null, openingState: 'unknown' as const };
+    const [deadline] = buildMastersTimeline([roundFixture({ id: 'first', details }), roundFixture({ id: 'second', details })], NOW).rows;
+    expect(deadline.milestones.map(marker => marker.roundId)).toEqual(['first', 'second']);
+  });
+
+  it('按最近尚有效截止排序，排除已过期、已关闭和已过精确时刻的轮次', () => {
+    const base = roundFixture();
+    const make = (id: string, programme: string, deadlineOn: string, details = {}) => roundFixture({
+      id, details: { ...base.details, programme, opensOn: null, openingState: 'unknown', deadlineOn, ...details },
+    });
+    const rounds = [
+      make('ended', 'Ended', '2026-11-01'),
+      make('closed', 'Closed', '2027-05-01', { openingState: 'closed' }),
+      make('early', 'Multi-round', '2026-11-20'),
+      make('late', 'Multi-round', '2027-05-01'),
+      make('middle', 'Middle', '2026-12-01'),
+      make('exact-ended', 'Exact ended', '2026-11-10', { deadlineAt: '2026-11-10T10:00:00+08:00', deadlineTimeZone: 'Asia/Shanghai' }),
+      { ...make('future-verification', 'Future verification', '2026-11-11'), verifiedOn: '2026-11-11' },
+      { ...make('unverified', 'Unverified', '2026-11-11'), verifiedOn: null },
+    ];
+    const timeline = buildMastersTimeline(rounds, NOW, 'zh', 'deadline');
+    expect(timeline.rows.slice(0, 2).map(row => [row.programme, row.recentDeadline])).toEqual([
+      ['Multi-round', '2026-11-20'], ['Middle', '2026-12-01'],
+    ]);
+    expect(timeline.rows.slice(2).every(row => row.recentDeadline === null)).toBe(true);
+    const exact = timeline.rows.find(row => row.programme === 'Exact ended')!;
+    expect(exact.milestones[0].past).toBe(true);
+  });
 });
