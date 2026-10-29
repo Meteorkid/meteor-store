@@ -69,9 +69,9 @@ describe('甘特投影', () => {
       id: 'beta', details: { ...base.details, university: 'Beta University', opensOn: '2026-11-01', deadlineOn: '2026-12-01' },
     });
     const bySchool = buildMastersTimeline([beta, alpha], NOW, 'zh', 'school');
-    expect(bySchool.rows.map(row => row.span.university)).toEqual(['Alpha University', 'Beta University']);
+    expect(bySchool.rows.map(row => row.university)).toEqual(['Alpha University', 'Beta University']);
     const byDeadline = buildMastersTimeline([alpha, beta], NOW, 'zh', 'deadline');
-    expect(byDeadline.rows.map(row => row.span.university)).toEqual(['Beta University', 'Alpha University']);
+    expect(byDeadline.rows.map(row => row.university)).toEqual(['Beta University', 'Alpha University']);
   });
 
   it('同校不同项目各自一行，颜色一致', () => {
@@ -80,7 +80,7 @@ describe('甘特投影', () => {
     const second = roundFixture({ id: 'b', details: { ...base.details, programme: 'MSc B', opensOn: '2026-11-01', deadlineOn: '2027-02-01' } });
     const rows = buildMastersTimeline([second, first], NOW, 'zh', 'school').rows;
     expect(rows).toHaveLength(2);
-    expect(rows.map(row => row.span.programme)).toEqual(['MSc A', 'MSc B']);
+    expect(rows.map(row => row.programme)).toEqual(['MSc A', 'MSc B']);
     expect(rows[0].hue).toBe(rows[1].hue);
   });
 
@@ -90,8 +90,8 @@ describe('甘特投影', () => {
       details: { ...base.details, opensOn: null, openingState: 'open', deadlineOn: '2026-12-20' },
     });
     const [row] = buildMastersTimeline([openOnly], NOW).rows;
-    expect(row.span.start).toBe('2026-10-12');
-    expect(row.span.startKnown).toBe(false);
+    expect(row.start).toBe('2026-10-12');
+    expect(row.startKnown).toBe(false);
     expect(row.left).toBeGreaterThan(0);
   });
 
@@ -108,5 +108,87 @@ describe('甘特投影', () => {
     const first = roundFixture({ id: 'a', details: { ...base.details, programme: 'MSc A', opensOn: '2026-10-01', deadlineOn: '2027-01-01' } });
     const second = roundFixture({ id: 'b', details: { ...base.details, programme: 'MSc B', opensOn: '2026-11-01', deadlineOn: '2027-02-01' } });
     expect(buildMastersTimeline([first, second], NOW).deadlineCount).toBe(2);
+  });
+
+  it('只有截止日的轮次也成行，但标成 deadline 不画时长', () => {
+    const base = roundFixture();
+    const onlyDeadline = roundFixture({
+      details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2027-03-15' },
+    });
+    const timeline = buildMastersTimeline([onlyDeadline], NOW);
+    expect(timeline.rows).toHaveLength(1);
+    const [row] = timeline.rows;
+    expect(row.kind).toBe('deadline');
+    // 开放日未知就不给起点，避免把「这天才开放」画出来
+    expect(row.start).toBeNull();
+    expect(row.end).toBe('2027-03-15');
+    expect(row.deadlineTicks).toEqual([]);
+    expect(row.milestones.map(milestone => milestone.date)).toEqual(['2027-03-15']);
+    expect(timeline.spanCount).toBe(0);
+    expect(timeline.deadlineOnlyCount).toBe(1);
+  });
+
+  it('轴范围要容纳只有截止日的轮次，否则它会落到轴外', () => {
+    const base = roundFixture();
+    const withWindow = roundFixture({ id: 'w', details: { ...base.details, opensOn: '2026-10-15', deadlineOn: '2026-12-20' } });
+    const onlyDeadline = roundFixture({
+      id: 'd', details: { ...base.details, programme: 'MSc Late', opensOn: null, openingState: 'unknown', deadlineOn: '2027-05-31' },
+    });
+    const timeline = buildMastersTimeline([withWindow, onlyDeadline], NOW);
+    expect(timeline.start).toBe('2026-10-01');
+    expect(timeline.end).toBe('2027-05-31');
+    const deadline = timeline.rows.find(row => row.kind === 'deadline')!;
+    expect(deadline.milestones[0].pct).toBeGreaterThan(0);
+    expect(deadline.milestones[0].pct).toBeLessThanOrEqual(100);
+  });
+
+  it('同一项目的多个只有截止日的轮次合成一行、多个截止点', () => {
+    const base = roundFixture();
+    const first = roundFixture({ id: 'a', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2026-11-30' } });
+    const second = roundFixture({ id: 'b', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2027-05-31' } });
+    const timeline = buildMastersTimeline([first, second], NOW);
+    expect(timeline.rows).toHaveLength(1);
+    expect(timeline.rows[0].rounds).toHaveLength(2);
+    expect(timeline.rows[0].milestones.map(milestone => milestone.date)).toEqual(['2026-11-30', '2027-05-31']);
+    expect(timeline.roundCount).toBe(2);
+  });
+
+  it('没有任何可用日期的轮次计入 undatedCount，不会被悄悄忽略', () => {
+    const base = roundFixture();
+    const undated = roundFixture({
+      details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: null, deadlineStatus: 'unannounced' },
+    });
+    const timeline = buildMastersTimeline([undated], NOW);
+    expect(timeline.rows).toHaveLength(0);
+    expect(timeline.undatedCount).toBe(1);
+    expect(timeline.roundCount).toBe(0);
+  });
+
+  it('两个项目同时开放时算出重叠区间，端点相接不算重叠', () => {
+    const base = roundFixture();
+    // A 10-01 → 12-20，B 11-01 → 01-15：重叠 11-01 至 12-20
+    const wide = roundFixture({ id: 'a', details: { ...base.details, programme: 'MSc A', opensOn: '2026-10-01', deadlineOn: '2026-12-20' } });
+    const late = roundFixture({ id: 'b', details: { ...base.details, programme: 'MSc B', opensOn: '2026-11-01', deadlineOn: '2027-01-15' } });
+    const timeline = buildMastersTimeline([wide, late], NOW);
+    expect(timeline.overlaps).toHaveLength(1);
+    expect(timeline.overlaps[0].start).toBe('2026-11-01');
+    expect(timeline.overlaps[0].end).toBe('2026-12-20');
+    expect(timeline.overlaps[0].count).toBe(2);
+    // 11-01 → 12-20 含首尾共 50 天
+    expect(timeline.overlapDays).toBe(50);
+
+    // 前一段截止的次日才开放，没有共同日，不算重叠
+    const touching = roundFixture({ id: 'c', details: { ...base.details, programme: 'MSc C', opensOn: '2026-12-21', deadlineOn: '2027-01-20' } });
+    expect(buildMastersTimeline([wide, touching], NOW).overlaps).toHaveLength(0);
+  });
+
+  it('重叠区间按真实天数给出百分比，与条形同基准', () => {
+    const base = roundFixture();
+    const wide = roundFixture({ id: 'a', details: { ...base.details, programme: 'MSc A', opensOn: '2026-10-01', deadlineOn: '2026-12-31' } });
+    const late = roundFixture({ id: 'b', details: { ...base.details, programme: 'MSc B', opensOn: '2026-11-01', deadlineOn: '2026-12-31' } });
+    const timeline = buildMastersTimeline([wide, late], NOW);
+    // 轴 10-01 → 12-31 共 92 天；重叠起点 11-01 是第 31 天
+    expect(round(timeline.overlaps[0].left)).toBe(33.696);
+    expect(round(timeline.overlaps[0].left + timeline.overlaps[0].width)).toBe(100);
   });
 });

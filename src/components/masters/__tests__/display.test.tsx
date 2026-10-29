@@ -199,8 +199,8 @@ describe('申请期甘特总览', () => {
     expect(html).toContain('申请期甘特总览');
     expect(html).toContain('Example University');
     expect(html).toContain('MSc Computer Science');
-    // 摘要行给出轴范围，逐行再给一次起止
-    expect(html).toContain('共 1 段申请期 · 2026-10-01 → 2026-12-31');
+    // 摘要行给出轴范围与轮次数，逐行再给一次起止
+    expect(html).toContain('共 1 个申请期 · 1 个轮次 · 2026-10-01 → 2026-12-31');
     expect(html).toContain('· 2026-10-01 → 2026-12-01"');
   });
 
@@ -233,18 +233,39 @@ describe('申请期甘特总览', () => {
     const base = roundFixture();
     const second = roundFixture({ id: 'second', details: { ...base.details, programme: 'MSc Data Science', opensOn: '2026-11-01', deadlineOn: '2027-02-01' } });
     const html = timeline([base, second]);
-    expect(html).toContain('共 2 段申请期');
+    expect(html).toContain('共 2 个申请期 · 2 个轮次');
     expect(html).toContain('MSc Data Science');
     // 同校同色相：两行都应该用这一个色相（图例另有固定色块，不能直接数色相种类）
     const hue = mastersCalendarHue({ region: base.region, university: base.details.university });
     expect([...html.matchAll(new RegExp(`hsl\\(${hue} 70% 52%`, 'g'))]).toHaveLength(2);
   });
 
-  it('没有可画的申请期时给空状态，不渲染空表格', () => {
+  it('没有可用日期时给空状态，不渲染空表格', () => {
     const base = roundFixture();
-    const html = timeline([roundFixture({ details: { ...base.details, opensOn: null, openingState: 'unknown' } })]);
+    const html = timeline([roundFixture({ details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: null, deadlineStatus: 'unannounced' } })]);
     expect(html).toContain('没有可以画出的申请期');
-    expect(html).not.toContain('共 1 段申请期');
+    expect(html).not.toContain('个申请期 ·');
+    // 有轮次但排不进轴，要在文案里说清楚，不能静默丢
+    expect(html).toContain('另有 1 个轮次没有可用的日历日期');
+  });
+
+  it('只有截止日的项目成行并标出截止点，不画时长条', () => {
+    const base = roundFixture();
+    const html = timeline([roundFixture({ details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2027-03-15' } })]);
+    expect(html).toContain('截止 2027-03-15');
+    expect(html).toContain('其中 1 个只公布了截止日');
+    // 没有时长条：条形用的 h-7 定位块不应出现
+    expect(html).not.toContain('h-7 -translate-y-1/2 overflow-hidden rounded-md');
+  });
+
+  it('两个项目同时开放时画出重叠带并给出天数', () => {
+    const base = roundFixture();
+    const wide = roundFixture({ id: 'a', details: { ...base.details, programme: 'MSc A', opensOn: '2026-10-01', deadlineOn: '2026-12-20' } });
+    const late = roundFixture({ id: 'b', details: { ...base.details, programme: 'MSc B', opensOn: '2026-11-01', deadlineOn: '2027-01-15' } });
+    const html = timeline([wide, late]);
+    expect(html).toContain('50 天里有两个及以上项目同时开放');
+    // 只有重叠带用这个组合（图例色块是 h-2.5 w-6 rounded-sm）
+    expect(html).toContain('absolute inset-y-0 bg-white/[0.09]');
   });
 
   it('Hub 的视图切换包含甘特，且可设为初始视图', () => {
