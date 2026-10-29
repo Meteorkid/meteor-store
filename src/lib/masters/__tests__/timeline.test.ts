@@ -90,7 +90,7 @@ describe('甘特投影', () => {
       details: { ...base.details, opensOn: null, openingState: 'open', deadlineOn: '2026-12-20' },
     });
     const [row] = buildMastersTimeline([openOnly], NOW).rows;
-    expect(row.start).toBe('2026-10-12');
+    expect(row.start).toBe('2026-11-10');
     expect(row.startKnown).toBe(false);
     expect(row.left).toBeGreaterThan(0);
   });
@@ -142,14 +142,14 @@ describe('甘特投影', () => {
     expect(deadline.milestones[0].pct).toBeLessThanOrEqual(100);
   });
 
-  it('同一项目的多个只有截止日的轮次合成一行、多个截止点', () => {
+  it('同一项目的多个只有截止日的轮次各自一行和一个截止点', () => {
     const base = roundFixture();
     const first = roundFixture({ id: 'a', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2026-11-30' } });
     const second = roundFixture({ id: 'b', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2027-05-31' } });
     const timeline = buildMastersTimeline([first, second], NOW);
-    expect(timeline.rows).toHaveLength(1);
-    expect(timeline.rows[0].rounds).toHaveLength(2);
-    expect(timeline.rows[0].milestones.map(milestone => milestone.date)).toEqual(['2026-11-30', '2027-05-31']);
+    expect(timeline.rows).toHaveLength(2);
+    expect(timeline.rows.every(row => row.rounds.length === 1)).toBe(true);
+    expect(timeline.rows.flatMap(row => row.milestones.map(milestone => milestone.date))).toEqual(['2026-11-30', '2027-05-31']);
     expect(timeline.roundCount).toBe(2);
   });
 
@@ -192,28 +192,30 @@ describe('甘特投影', () => {
     expect(round(timeline.overlaps[0].left + timeline.overlaps[0].width)).toBe(100);
   });
 
-  it('条外更晚截止不扩张真实申请窗口或虚构重叠', () => {
+  it('同项目仅截止的批次独立成行，不扩张另一批次窗口或虚构重叠', () => {
     const base = roundFixture();
     const window = roundFixture({ id: 'window', details: { ...base.details, opensOn: '2026-10-01', deadlineOn: '2026-10-31' } });
     const deadline = roundFixture({ id: 'deadline', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2026-12-31' } });
     const other = roundFixture({ id: 'other', details: { ...base.details, programme: 'MSc Other', opensOn: '2026-11-01', deadlineOn: '2026-11-30' } });
     const timeline = buildMastersTimeline([window, deadline, other], NOW);
-    const row = timeline.rows.find(row => row.programme === base.details.programme)!;
+    const row = timeline.rows.find(row => row.rounds[0].id === 'window')!;
     expect(row.end).toBe('2026-10-31');
-    expect(row.latestDeadline).toBe('2026-12-31');
-    expect(row.outsideMarkers).toMatchObject([{ date: '2026-12-31', roundId: 'deadline' }]);
+    expect(row.latestDeadline).toBe('2026-10-31');
+    expect(row.outsideMarkers).toEqual([]);
+    expect(timeline.rows.find(row => row.rounds[0].id === 'deadline')).toMatchObject({ kind: 'deadline', start: null,
+      milestones: [{ date: '2026-12-31', roundId: 'deadline' }] });
     expect(timeline.overlapDays).toBe(0);
   });
 
-  it('同项目多段区间的额外截止各自归到最近一段，每轮只归属一行', () => {
+  it('同项目的所有批次各自成行，不把仅截止的批次附到另一段', () => {
     const base = roundFixture();
     const early = roundFixture({ id: 'early', details: { ...base.details, opensOn: '2026-10-01', deadlineOn: '2026-10-31' } });
     const late = roundFixture({ id: 'late', details: { ...base.details, opensOn: '2027-01-01', deadlineOn: '2027-01-31' } });
     const before = roundFixture({ id: 'before', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2026-09-30' } });
     const after = roundFixture({ id: 'after', details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2027-02-01' } });
     const timeline = buildMastersTimeline([late, before, early, after], NOW);
-    expect(timeline.rows).toHaveLength(2);
-    expect(timeline.rows.map(row => row.outsideMarkers.map(marker => marker.roundId))).toEqual([['before'], ['after']]);
+    expect(timeline.rows).toHaveLength(4);
+    expect(timeline.rows.every(row => row.rounds.length === 1 && row.outsideMarkers.length === 0)).toBe(true);
     expect(timeline.rows.flatMap(row => row.rounds.map(round => round.id)).sort()).toEqual(['after', 'before', 'early', 'late']);
     expect(timeline.roundCount).toBe(4);
     expect(timeline.overlapDays).toBe(0);
@@ -223,11 +225,13 @@ describe('甘特投影', () => {
     const base = roundFixture();
     const first = roundFixture({ id: 'first' });
     const second = roundFixture({ id: 'second' });
-    const [window] = buildMastersTimeline([first, second], NOW).rows;
-    expect(window.milestones.map(marker => marker.roundId)).toEqual(['first', 'second']);
+    const windows = buildMastersTimeline([first, second], NOW).rows;
+    expect(windows).toHaveLength(2);
+    expect(windows.map(row => row.milestones[0].roundId)).toEqual(['first', 'second']);
     const details = { ...base.details, opensOn: null, openingState: 'unknown' as const };
-    const [deadline] = buildMastersTimeline([roundFixture({ id: 'first', details }), roundFixture({ id: 'second', details })], NOW).rows;
-    expect(deadline.milestones.map(marker => marker.roundId)).toEqual(['first', 'second']);
+    const deadlines = buildMastersTimeline([roundFixture({ id: 'first', details }), roundFixture({ id: 'second', details })], NOW).rows;
+    expect(deadlines).toHaveLength(2);
+    expect(deadlines.map(row => row.milestones[0].roundId)).toEqual(['first', 'second']);
   });
 
   it('按最近尚有效截止排序，排除已过期、已关闭和已过精确时刻的轮次', () => {
@@ -246,11 +250,62 @@ describe('甘特投影', () => {
       { ...make('unverified', 'Unverified', '2026-11-11'), verifiedOn: null },
     ];
     const timeline = buildMastersTimeline(rounds, NOW, 'zh', 'deadline');
-    expect(timeline.rows.slice(0, 2).map(row => [row.programme, row.recentDeadline])).toEqual([
-      ['Multi-round', '2026-11-20'], ['Middle', '2026-12-01'],
+    expect(timeline.rows.slice(0, 3).map(row => [row.programme, row.recentDeadline])).toEqual([
+      ['Multi-round', '2026-11-20'], ['Middle', '2026-12-01'], ['Multi-round', '2027-05-01'],
     ]);
-    expect(timeline.rows.slice(2).every(row => row.recentDeadline === null)).toBe(true);
+    expect(timeline.rows.slice(3).every(row => row.recentDeadline === null)).toBe(true);
     const exact = timeline.rows.find(row => row.programme === 'Exact ended')!;
     expect(exact.milestones[0].past).toBe(true);
+  });
+
+  it('同项目多个开放批次分别成行，但重叠摘要只计算不同项目', () => {
+    const base = roundFixture();
+    const details = { ...base.details, opensOn: null, openingState: 'open' as const };
+    const first = roundFixture({ id: 'r1', details: { ...details, deadlineOn: '2026-11-20' } });
+    const second = roundFixture({ id: 'r2', details: { ...details, deadlineOn: '2026-12-20' } });
+    const third = roundFixture({ id: 'r3', details: { ...details, deadlineOn: '2027-01-20' } });
+    const alone = buildMastersTimeline([third, first, second], NOW);
+    expect(alone.rows).toHaveLength(3);
+    expect(alone.rows.every(row => row.start === '2026-11-10')).toBe(true);
+    expect(new Set(alone.rows.map(row => row.hue)).size).toBe(1);
+    expect(alone.overlapDays).toBe(0);
+    const other = roundFixture({ id: 'other', details: { ...details, programme: 'Other project', deadlineOn: '2026-11-30' } });
+    const together = buildMastersTimeline([first, second, third, other], NOW);
+    expect(together.overlaps).toMatchObject([{ start: '2026-11-10', end: '2026-11-30', count: 2 }]);
+    expect(together.overlapDays).toBe(21);
+  });
+
+  it('提前明确关闭的官方窗口保留灰色行，但不参与项目重叠', () => {
+    const base = roundFixture();
+    const closed = roundFixture({ id: 'closed', details: { ...base.details, programme: 'Closed project', openingState: 'closed', deadlineOn: '2026-12-31' } });
+    const other = roundFixture({ id: 'other', details: { ...base.details, programme: 'Other project', opensOn: '2026-11-01', deadlineOn: '2026-12-31' } });
+    const timeline = buildMastersTimeline([closed, other], NOW);
+    expect(timeline.rows.find(row => row.key === 'closed')).toMatchObject({ kind: 'span', past: true, start: '2026-10-01', end: '2026-12-31' });
+    expect(timeline.overlapDays).toBe(0);
+    const naturallyEnded = { ...closed, details: { ...closed.details, openingState: 'scheduled' as const } };
+    const historical = buildMastersTimeline([naturallyEnded, other], new Date('2027-01-02T04:00:00Z'));
+    expect(historical.rows.every(row => row.past)).toBe(true);
+    expect(historical.overlapDays).toBe(61);
+  });
+
+  it('精确截止跨到北京时间次月时，范围、条尾、截止点和最近截止保持一致', () => {
+    const base = roundFixture();
+    const exact = roundFixture({ id: 'exact', details: { ...base.details, university: 'A exact',
+      deadlineOn: '2026-10-31', deadlineAt: '2026-10-31T23:59:00Z', deadlineTimeZone: 'Europe/London' } });
+    const dateOnly = roundFixture({ id: 'date-only', details: { ...base.details, university: 'Z date only',
+      opensOn: null, openingState: 'unknown', deadlineOn: '2026-10-31' } });
+    const now = new Date('2026-10-30T20:00:00Z');
+    const timeline = buildMastersTimeline([exact, dateOnly], now, 'zh', 'deadline');
+    expect(timeline.rows.map(row => row.key)).toEqual(['date-only', 'exact']);
+    const row = timeline.rows[1];
+    expect(row).toMatchObject({ end: '2026-11-01', latestDeadline: '2026-11-01', recentDeadline: '2026-11-01',
+      milestones: [{ roundId: 'exact', date: '2026-11-01', past: false }] });
+    expect(timeline.end).toBe('2026-11-30');
+    expect(timeline.months.map(month => month.key)).toEqual(['2026-10', '2026-11']);
+    expect(row.rounds[0].details.deadlineOn).toBe('2026-10-31');
+    const unknownOpening = { ...exact, details: { ...exact.details, opensOn: null, openingState: 'unknown' as const } };
+    expect(buildMastersTimeline([unknownOpening], now).rows[0]).toMatchObject({
+      kind: 'deadline', start: null, end: '2026-11-01', recentDeadline: '2026-11-01', milestones: [{ date: '2026-11-01' }],
+    });
   });
 });

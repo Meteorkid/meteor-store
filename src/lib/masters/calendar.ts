@@ -61,6 +61,25 @@ function isCalendarDate(value: string | null): value is string {
   return !!value && DailyDateSchema.safeParse(value).success;
 }
 
+/** 精确时刻落到北京时间日历日；只有日期时保留原值，不推测截止时刻。 */
+export function calendarDeadlineDate(round: MastersRound): string | null {
+  const { deadlineStatus, deadlineOn, deadlineAt, deadlineTimeZone } = round.details;
+  if (deadlineStatus !== 'confirmed' || !isCalendarDate(deadlineOn)) return null;
+  if (!deadlineAt || !deadlineTimeZone) return deadlineOn;
+  const instant = new Date(deadlineAt);
+  if (!Number.isFinite(instant.getTime())) return deadlineOn;
+  try {
+    const officialDate = new Intl.DateTimeFormat('en-CA', {
+      timeZone: deadlineTimeZone, year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(instant);
+    return officialDate === deadlineOn ? dailyDate(instant) : deadlineOn;
+  } catch (error) {
+    if (!(error instanceof RangeError)) throw error;
+    // 时区非法时不能据此移动日期，保留官方原始日历日供详情核验。
+    return deadlineOn;
+  }
+}
+
 function parseMonth(month: string): { year: number; month: number } | null {
   if (!/^\d{4}-\d{2}$/.test(month)) return null;
   const year = Number(month.slice(0, 4));
@@ -131,14 +150,15 @@ export function collectMastersCalendarNodes(rounds: MastersRound[], now = new Da
   const nodes: MastersCalendarNode[] = [];
   for (const round of rounds) {
     const details = round.details;
+    const deadlineDate = calendarDeadlineDate(round);
     const timing = getMastersRoundState(round, now);
     const changed = !!round.dateChangedAt && round.dateChangedAt >= recent;
     if (isCalendarDate(details.opensOn)) nodes.push({
       date: details.opensOn, kind: 'opens', round, changed,
       tone: details.opensOn >= today ? 'opens' : 'past',
     });
-    if (isCalendarDate(details.deadlineOn)) nodes.push({
-      date: details.deadlineOn, kind: 'deadline', round, changed,
+    if (deadlineDate) nodes.push({
+      date: deadlineDate, kind: 'deadline', round, changed,
       tone: deadlineTone(timing.state, timing.daysLeft),
     });
   }
@@ -157,7 +177,7 @@ export function collectMastersCalendarPending(rounds: MastersRound[]): MastersCa
 /** 可翻月范围取自实际节点与申请期起点，避免让用户翻到一堆空月份。 */
 export function mastersCalendarBounds(rounds: MastersRound[], year: number, spans: MastersCalendarSpan[] = []): MastersCalendarBounds {
   const months = [
-    ...rounds.flatMap(round => [round.details.opensOn, round.details.deadlineOn]),
+    ...rounds.flatMap(round => [round.details.opensOn, calendarDeadlineDate(round)]),
     ...spans.flatMap(span => [span.start, span.end]),
   ]
     .filter(isCalendarDate)
@@ -178,25 +198,25 @@ export function initialMastersCalendarMonth(bounds: MastersCalendarBounds, today
   return clampMonth(monthOf(today), bounds);
 }
 
-/** 一段申请期：同项目内重叠的轮次已合并，deadlines 保留各轮截止刻度。 */
+/** 一轮申请期；同项目不同批次分别投影，不合并起止。 */
 export interface MastersCalendarSpan {
-  /** 区间唯一标识，同项目的不相交窗口仍是不同色带。 */
+  /** 以轮次标识为准，今天推进或日期修改不会改变标识。 */
   key: string;
-  /** 用于把同项目的多个窗口及仅截止节点归组。 */
+  /** 仅用于分组和统计不同项目，不合并批次。 */
   projectKey: string;
   university: string;
   programme: string;
   region: MastersRound['region'];
   start: string;
   end: string;
-  /** 起点是否由官方公布。false 表示从核验日画起，条形起点淡出。 */
+  /** 起点是否由官方公布。false 表示从北京时间今天画剩余窗口。 */
   startKnown: boolean;
-  /** 合并进来的各轮截止日，用于在条形内标刻度。 */
+  /** 当前轮次的截止日，保留数组以供现有显示层使用。 */
   deadlines: string[];
   rounds: MastersRound[];
-  /** 合并的轮次里最早改期的记录，用于标变更。 */
+  /** 当前轮次近期发生过改期。 */
   changed: boolean;
-  /** 整段申请期已经结束（末日在今天之前），仅用于条形降透明度。 */
+  /** 当前轮次已经结束或官方关闭，仅用于条形降透明度。 */
   past: boolean;
 }
 
@@ -206,9 +226,8 @@ export function mastersCalendarProjectKey(round: MastersRound): string {
 }
 
 /**
- * 把轮次投影成申请期长条。只投影区间可知的轮次：
- * 官方公布开放日 → 起止都确定；官方确认正在开放但未公布开放日 → 从首次开放证据日起画，
- * 起点标为未知。只有截止日、开放状态未知的轮次不画条，避免暗示「这天之前都在开放」。
+ * 官方公布开放日时画真实起止；起点未公布但已确认当前开放时，
+ * 只画北京时间今天到截止的剩余窗口。核验证据不作为图上的开放日起点。
  */
 export function collectMastersCalendarSpans(rounds: MastersRound[], now = new Date()): MastersCalendarSpan[] {
   const today = dailyDate(now);
@@ -216,58 +235,35 @@ export function collectMastersCalendarSpans(rounds: MastersRound[], now = new Da
   const spans: MastersCalendarSpan[] = [];
   for (const round of rounds) {
     const details = round.details;
-    if (!isCalendarDate(details.deadlineOn)) continue;
+    const deadlineDate = calendarDeadlineDate(round);
+    if (!deadlineDate) continue;
+    const timing = getMastersRoundState(round, now);
     let start: string | null = null;
     let startKnown = false;
-    const firstObservedOpenOn = details.firstObservedOpenOn ?? null;
     if (isCalendarDate(details.opensOn)) {
       start = details.opensOn; startKnown = true;
-    } else if (details.openingState === 'open'
-      && isCalendarDate(firstObservedOpenOn)
-      && firstObservedOpenOn <= today && firstObservedOpenOn <= details.deadlineOn) {
-      // 最新核验只更新信息新鲜度，不能把已证实开放的历史窗口每天向右抹掉。
-      // 已关闭或状态未知时不画：没有关闭日期证据，不能把原截止日前整段都说成开放。
-      start = firstObservedOpenOn;
-    } else if (details.openingState === 'open' && isCalendarDate(round.verifiedOn)
-      && round.verifiedOn <= today && round.verifiedOn <= details.deadlineOn) {
-      start = round.verifiedOn;
+    } else if (round.status === 'published' && details.openingState === 'open'
+      && isCalendarDate(round.verifiedOn) && round.verifiedOn <= today
+      && (timing.state === 'open' || timing.state === 'closing')) {
+      start = today;
     }
     if (!start) continue;
-    if (start > details.deadlineOn) continue;
+    if (start > deadlineDate) continue;
     const projectKey = mastersCalendarProjectKey(round);
     spans.push({
-      key: `${projectKey}#${start}`, projectKey,
+      key: round.id, projectKey,
       university: details.university, programme: details.programme, region: round.region,
-      start, end: details.deadlineOn, startKnown, deadlines: [details.deadlineOn],
+      start, end: deadlineDate, startKnown, deadlines: [deadlineDate],
       rounds: [round], changed: !!round.dateChangedAt && round.dateChangedAt >= recent,
-      past: details.deadlineOn < today,
+      past: timing.state === 'closed',
     });
   }
 
-  // 同项目重叠轮次合并成一条，否则港科 MIMT 这类四轮项目会叠出四条同色条，看着像渲染错误。
-  // 按项目和起点排序后，只需与最后一段比较；否则较早但不相交的窗口会被错误填平。
-  const ordered = spans.sort((first, second) => first.projectKey.localeCompare(second.projectKey)
-    || first.start.localeCompare(second.start) || first.end.localeCompare(second.end)
-    || first.rounds[0].id.localeCompare(second.rounds[0].id));
-  const merged: MastersCalendarSpan[] = [];
-  for (const span of ordered) {
-    const current = merged[merged.length - 1];
-    if (!current || current.projectKey !== span.projectKey || span.start > current.end) {
-      merged.push(span);
-      continue;
-    }
-    current.end = span.end > current.end ? span.end : current.end;
-    // 合并后只要有一段起点未知，整条就按未知处理，不把边界说死。
-    current.startKnown = current.startKnown && span.startKnown;
-    current.deadlines = [...current.deadlines, span.end].sort();
-    current.rounds = [...current.rounds, ...span.rounds];
-    current.changed = current.changed || span.changed;
-    current.past = current.past && span.past;
-  }
-  return merged.sort((first, second) =>
+  return spans.sort((first, second) =>
     first.start.localeCompare(second.start)
     || first.university.localeCompare(second.university)
-    || first.programme.localeCompare(second.programme));
+    || first.programme.localeCompare(second.programme)
+    || first.end.localeCompare(second.end) || first.key.localeCompare(second.key));
 }
 
 /**

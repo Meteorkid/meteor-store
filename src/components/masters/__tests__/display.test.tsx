@@ -146,7 +146,7 @@ describe('可视化日历', () => {
     expect(html).toContain('本月 1 段申请期');
   });
 
-  it('起点未公布时从核验日起画并标为未知，不虚构开放日', () => {
+  it('起点未公布且已开放时从今天画起，不虚构官方开放日', () => {
     const base = roundFixture();
     const openEnded = roundFixture({
       details: { ...base.details, opensOn: null, openingState: 'open' },
@@ -156,7 +156,7 @@ describe('可视化日历', () => {
     // 起点未知用斜纹淡出，展开面板写明是持续中
     expect(html).toContain('repeating-linear-gradient');
     expect(html).toContain('起止日均已公布');
-    expect(html).toContain('开放日未公布，从首次核验开放日起画');
+    expect(html).toContain('开放日未公布，从今天起显示当前可申请时段');
     // 不把核验日说成开放日
     expect(html).not.toContain('开放 · Example University');
   });
@@ -172,12 +172,11 @@ describe('可视化日历', () => {
     expect(html).toContain('本月 0 个开放 · 1 个截止');
   });
 
-  it('同项目重叠轮次合并成一条色带，各轮截止保留刻度', () => {
+  it('同项目重叠轮次保留独立色带，各轮截止保留刻度', () => {
     const base = roundFixture();
     const later = roundFixture({ id: 'later', details: { ...base.details, deadlineOn: '2027-02-01' } });
     const html = calendar([base, later]);
-    // 两轮同项目且区间重叠 → 合并为一段，不是两条叠色
-    expect(html).toContain('本月 1 段申请期');
+    expect(html).toContain('本月 2 段申请期');
     expect(html).toContain('2 个节点');
   });
 
@@ -194,23 +193,25 @@ describe('申请全年总览', () => {
   const timeline = (rounds: Parameters<typeof MastersTimeline>[0]['rounds'], now = new Date('2026-10-14T04:00:00Z')) =>
     renderToStaticMarkup(<MastersTimeline rounds={rounds} now={now} locale="zh" copy={mastersText.zh} onLocate={() => {}} />);
 
-  it('一行一个申请期，学校、项目与起止日期都在行内', () => {
+  it('一行一个轮次，学校、项目、批次与起止日期都在行内', () => {
     const html = timeline([roundFixture()]);
     expect(html).toContain('全年申请总览');
     expect(html).toContain('Example University');
     expect(html).toContain('MSc Computer Science');
     // 摘要行给出轴范围与轮次数，逐行再给一次起止
-    expect(html).toContain('共 1 个申请期 · 1 个轮次 · 2026-10-01 → 2026-12-31');
-    expect(html).toContain('最近截止');
+    expect(html).toContain('共 1 个轮次 · 2026-10-01 → 2026-12-31');
+    expect(html).toContain('Round 1');
+    expect(html).toContain('September 2027');
+    expect(html).toContain('>2026-10-01<');
     expect(html).toContain('2026-12-01');
   });
 
-  it('最近截止日期保持完整，并提供手机放大与轮次详情入口', () => {
+  it('起止日期保持完整，并提供手机放大与单轮详情入口', () => {
     const html = timeline([roundFixture()]);
     expect(html).toMatch(/whitespace-nowrap[^\"]*">2026-12-01</);
     expect(html).toContain('aria-label="时间轴显示"');
     expect(html).toContain('放大');
-    expect(html).toContain('查看轮次');
+    expect(html).toContain('查看详情');
     expect(html).toContain('overflow-x-auto');
   });
 
@@ -236,7 +237,7 @@ describe('申请全年总览', () => {
     const base = roundFixture();
     const second = roundFixture({ id: 'second', details: { ...base.details, programme: 'MSc Data Science', opensOn: '2026-11-01', deadlineOn: '2027-02-01' } });
     const html = timeline([base, second]);
-    expect(html).toContain('共 2 个申请期 · 2 个轮次');
+    expect(html).toContain('共 2 个轮次');
     expect(html).toContain('MSc Data Science');
     // 同校同色相：两行都应该用这一个色相（图例另有固定色块，不能直接数色相种类）
     const hue = mastersCalendarHue({ region: base.region, university: base.details.university });
@@ -256,9 +257,9 @@ describe('申请全年总览', () => {
   it('只有截止日的项目成行并标出截止点，不画时长条', () => {
     const base = roundFixture();
     const html = timeline([roundFixture({ details: { ...base.details, opensOn: null, openingState: 'unknown', deadlineOn: '2027-03-15' } })]);
-    expect(html).toContain('最近截止');
+    expect(html).toContain('开放状态待核实，仅显示截止');
     expect(html).toContain('2027-03-15');
-    expect(html).toContain('其中 1 个只公布了截止日');
+    expect(html).toContain('其中 1 个轮次仅标截止点');
     // 没有时长条：条形用的 h-7 定位块不应出现
     expect(html).not.toContain('h-7 -translate-y-1/2 overflow-hidden rounded-md');
   });
@@ -286,14 +287,50 @@ describe('申请全年总览', () => {
     const html = timeline([second, first]);
     expect(html).toMatch(/<button[^>]*data-round-id="semester-1"[^>]*aria-label="[^"]*Semester 1[^"]*2026-11-30/);
     expect(html).toMatch(/<button[^>]*data-round-id="semester-2"[^>]*aria-label="[^"]*Semester 2[^"]*2027-05-31/);
-    expect(html).toContain('2 轮');
+    expect([...html.matchAll(/data-timeline-row=/g)]).toHaveLength(2);
     expect(html).toContain('data-timeline-year="2026"');
     expect(html).toContain('data-timeline-year="2027"');
   });
 
-  it('没有有效待截止轮次时明确说明，不将末轮日期冒充近期截止', () => {
+  it('已截止的轮次保留真实起止并显示过期状态', () => {
     const html = timeline([roundFixture()], new Date('2027-06-01T04:00:00Z'));
-    expect(html).toContain('暂无有效待截止轮次');
+    expect(html).toContain('截止日期已过');
+    expect(html).toContain('>2026-10-01<');
+    expect(html).toContain('>2026-12-01<');
     expect(html).not.toContain('>最近截止<');
+  });
+
+  it('未知开放日起点使用今天，明确标示当前可申请而非官方开放日', () => {
+    const base = roundFixture();
+    const open = roundFixture({ verifiedOn: '2026-10-05', details: { ...base.details, opensOn: null, openingState: 'open' } });
+    const html = timeline([open]);
+    expect(html).toContain('当前可申请 · 今天起');
+    expect(html).toContain('>2026-10-14<');
+    expect(html).toContain('>2026-12-01<');
+    expect(html).toContain('开放日未公布');
+    expect(html).not.toContain('2026-10-05');
+    expect(html).not.toContain('首次核验');
+  });
+
+  it('相同轮次名以入学季区分，各自成行且保留各自截止日期', () => {
+    const base = roundFixture();
+    const first = roundFixture({ id: 'uq-s1', details: { ...base.details, roundName: '国际申请截止', intakeLabel: '2027 Semester 1', opensOn: null, openingState: 'unknown', deadlineOn: '2026-11-30' } });
+    const second = roundFixture({ id: 'uq-s2', details: { ...first.details, intakeLabel: '2027 Semester 2', deadlineOn: '2027-05-31' } });
+    const html = timeline([first, second]);
+    expect([...html.matchAll(/data-timeline-row=/g)]).toHaveLength(2);
+    expect(html).toContain('>2027 Semester 1<');
+    expect(html).toContain('>2027 Semester 2<');
+    expect(html).toContain('>2026-11-30<');
+    expect(html).toContain('>2027-05-31<');
+  });
+
+  it('英文总览同样区分当前开放与待核实状态', () => {
+    const base = roundFixture();
+    const open = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open' } });
+    const unknown = roundFixture({ id: 'unknown', details: { ...base.details, opensOn: null, openingState: 'unknown' } });
+    const html = renderToStaticMarkup(<MastersTimeline rounds={[open, unknown]} now={new Date('2026-10-14T04:00:00Z')} locale="en" copy={mastersText.en} onLocate={() => {}} />);
+    expect(html).toContain('Currently accepting applications · From today');
+    expect(html).toContain('Opening date unpublished');
+    expect(html).toContain('Opening status not verified; deadline only');
   });
 });

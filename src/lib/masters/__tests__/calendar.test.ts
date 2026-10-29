@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  assignMastersCalendarLanes, buildMastersCalendarMonth, clampMonth, collectMastersCalendarNodes,
+  assignMastersCalendarLanes, buildMastersCalendarMonth, calendarDeadlineDate, clampMonth, collectMastersCalendarNodes,
   collectMastersCalendarPending, collectMastersCalendarSpans, daysInMonth, formatMastersCalendarDate,
   formatMastersMonth, initialMastersCalendarMonth, mastersCalendarBounds, mastersCalendarHue, monthOf,
   shiftMonth, spansOnDate, weekdayIndex,
@@ -153,6 +153,52 @@ describe('日历文案格式', () => {
   });
 });
 
+describe('截止日的北京时间投影', () => {
+  it.each([
+    ['2026-10-29', '2026-10-30'],
+    ['2026-10-31', '2026-11-01'],
+  ])('伦敦%s末日仍开放时保留到北京时间%s的长条、节点和翻月范围', (officialDate, projectedDate) => {
+    const base = roundFixture();
+    const now = new Date(`${officialDate}T17:00:00Z`);
+    const round = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open',
+      deadlineOn: officialDate, deadlineAt: `${officialDate}T23:59:00Z`, deadlineTimeZone: 'Europe/London' } });
+    const spans = collectMastersCalendarSpans([round], now);
+    expect(spans).toMatchObject([{ start: projectedDate, end: projectedDate, deadlines: [projectedDate], past: false }]);
+    const nodes = collectMastersCalendarNodes([round], now);
+    expect(nodes).toMatchObject([{ date: projectedDate, kind: 'deadline', tone: 'closing' }]);
+    expect(mastersCalendarBounds([round], 2027, spans)).toEqual({ min: monthOf(projectedDate), max: monthOf(projectedDate) });
+    expect(buildMastersCalendarMonth(monthOf(projectedDate), nodes, projectedDate, spans).deadlineCount).toBe(1);
+    expect(round.details.deadlineOn).toBe(officialDate);
+  });
+
+  it('只公布日期时保留原日期，不根据时区猜造午夜截止时刻', () => {
+    const base = roundFixture();
+    const round = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'unknown',
+      deadlineOn: '2026-10-31', deadlineAt: null, deadlineTimeZone: 'Europe/London' } });
+    expect(collectMastersCalendarNodes([round], NOW)[0].date).toBe('2026-10-31');
+    expect(mastersCalendarBounds([round], 2027)).toEqual({ min: '2026-10', max: '2026-10' });
+  });
+
+  it('澳洲新年凌晨的精确截止投影到北京时间前一年，未截止窗口仍可见', () => {
+    const base = roundFixture();
+    const round = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open',
+      deadlineOn: '2027-01-01', deadlineAt: '2027-01-01T00:30:00+11:00', deadlineTimeZone: 'Australia/Sydney' } });
+    expect(calendarDeadlineDate(round)).toBe('2026-12-31');
+    expect(collectMastersCalendarSpans([round], new Date('2026-12-31T12:00:00Z')))
+      .toMatchObject([{ start: '2026-12-31', end: '2026-12-31', past: false }]);
+    expect(mastersCalendarBounds([round], 2027)).toEqual({ min: '2026-12', max: '2026-12' });
+  });
+
+  it('非法精确时刻、时区或与官方日期不符时不据此移动日历日', () => {
+    const base = roundFixture();
+    const details = { ...base.details, deadlineOn: '2026-10-31', deadlineAt: '2026-10-31T23:59:00Z', deadlineTimeZone: 'Europe/London' };
+    for (const change of [{ deadlineAt: 'bad' }, { deadlineTimeZone: 'Invalid/Zone' }, { deadlineOn: '2026-10-30' }]) {
+      const round = roundFixture({ details: { ...details, ...change } });
+      expect(calendarDeadlineDate(round)).toBe(round.details.deadlineOn);
+    }
+  });
+});
+
 describe('申请期区间投影', () => {
   it('官方公布开放日时区间起止都确定', () => {
     const spans = collectMastersCalendarSpans([roundFixture()], NOW);
@@ -160,12 +206,12 @@ describe('申请期区间投影', () => {
     expect(spans[0]).toMatchObject({ start: '2026-10-01', end: '2026-12-01', startKnown: true });
   });
 
-  it('官方确认正在开放但未公布开放日时，从核验日起画且标为起点未知', () => {
+  it('官方确认正在开放但未公布开放日时，从北京时间今天画起且标为起点未知', () => {
     const base = roundFixture();
     const round = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open' }, verifiedOn: '2026-10-05' });
     const spans = collectMastersCalendarSpans([round], NOW);
-    expect(spans[0]).toMatchObject({ start: '2026-10-05', startKnown: false });
-    // 不能把核验日说成开放日
+    expect(spans[0]).toMatchObject({ start: '2026-10-14', startKnown: false });
+    // 今天是剩余窗口的显示起点，不是官方开放日。
     expect(spans[0].start).not.toBe(round.details.opensOn);
   });
 
@@ -182,14 +228,17 @@ describe('申请期区间投影', () => {
     expect(collectMastersCalendarSpans([unannounced], NOW)).toHaveLength(0);
   });
 
-  it('同项目重叠轮次合并成一段，保留各轮截止刻度', () => {
+  it('同项目重叠轮次各画一条，同校同色且按轮次独立标识', () => {
     const base = roundFixture();
     const later = roundFixture({ id: 'later', details: { ...base.details, deadlineOn: '2027-02-01' } });
     const spans = collectMastersCalendarSpans([base, later], NOW);
-    expect(spans).toHaveLength(1);
-    expect(spans[0].end).toBe('2027-02-01');
-    expect(spans[0].deadlines).toEqual(['2026-12-01', '2027-02-01']);
-    expect(spans[0].rounds).toHaveLength(2);
+    expect(spans).toHaveLength(2);
+    expect(spans.map(span => span.deadlines)).toEqual([['2026-12-01'], ['2027-02-01']]);
+    expect(spans.map(span => span.rounds.map(round => round.id))).toEqual([[base.id], ['later']]);
+    expect(new Set(spans.map(span => span.key)).size).toBe(2);
+    expect(mastersCalendarHue(spans[0])).toBe(mastersCalendarHue(spans[1]));
+    const lanes = assignMastersCalendarLanes(spans);
+    expect(lanes.get(spans[0].key)).not.toBe(lanes.get(spans[1].key));
   });
 
   it('不重叠的同项目轮次各自成段，不硬拼成一条', () => {
@@ -211,28 +260,31 @@ describe('申请期区间投影', () => {
     expect(reversed[0].projectKey).toBe(reversed[1].projectKey);
   });
 
-  it('第二段与后续重叠段合并，跨越两段的轮次可合并整个连通区间', () => {
+  it('交叉覆盖的四个批次仍保留各自真实起止，不合并连通区间', () => {
     const base = roundFixture();
     const later = roundFixture({ id: 'later', details: { ...base.details, opensOn: '2027-03-01', deadlineOn: '2027-04-01' } });
     const tail = roundFixture({ id: 'tail', details: { ...base.details, opensOn: '2027-03-15', deadlineOn: '2027-05-01' } });
     const bridge = roundFixture({ id: 'bridge', details: { ...base.details, opensOn: '2026-11-01', deadlineOn: '2027-03-10' } });
     const separated = collectMastersCalendarSpans([tail, base, later], NOW);
-    expect(separated).toHaveLength(2);
-    expect(separated[1]).toMatchObject({ start: '2027-03-01', end: '2027-05-01' });
+    expect(separated).toHaveLength(3);
+    expect(separated.find(span => span.rounds[0].id === 'later')).toMatchObject({ start: '2027-03-01', end: '2027-04-01' });
     const connected = collectMastersCalendarSpans([tail, base, later, bridge], NOW);
-    expect(connected).toHaveLength(1);
-    expect(connected[0]).toMatchObject({ start: '2026-10-01', end: '2027-05-01' });
-    expect(new Set(connected[0].rounds.map(round => round.id)).size).toBe(4);
+    expect(connected).toHaveLength(4);
+    expect(connected.find(span => span.rounds[0].id === 'bridge')).toMatchObject({ start: '2026-11-01', end: '2027-03-10' });
+    expect(connected.every(span => span.rounds.length === 1)).toBe(true);
   });
 
-  it('首次证实开放的日期不随最新核验日右移，截止后仍保留历史区间', () => {
+  it('首次核验证据不参与显示起点，未知起点条随北京时间今天推进且截止后不画', () => {
     const base = roundFixture();
     const details = { ...base.details, opensOn: null, openingState: 'open' as const, firstObservedOpenOn: '2026-10-05' };
     const current = roundFixture({ details, verifiedOn: '2026-10-14' });
-    expect(collectMastersCalendarSpans([current], NOW)[0]).toMatchObject({ start: '2026-10-05', startKnown: false });
+    const initial = collectMastersCalendarSpans([current], NOW)[0];
+    expect(initial).toMatchObject({ start: '2026-10-14', startKnown: false });
+    const tomorrow = collectMastersCalendarSpans([current], new Date('2026-10-14T16:01:00Z'))[0];
+    expect(tomorrow).toMatchObject({ start: '2026-10-15', key: initial.key });
+    expect(current.details.firstObservedOpenOn).toBe('2026-10-05');
     const expired = roundFixture({ details, verifiedOn: '2026-12-10' });
-    expect(collectMastersCalendarSpans([expired], new Date('2026-12-10T04:00:00Z'))[0])
-      .toMatchObject({ start: '2026-10-05', end: '2026-12-01', past: true });
+    expect(collectMastersCalendarSpans([expired], new Date('2026-12-10T04:00:00Z'))).toHaveLength(0);
   });
 
   it.each(['closed', 'unknown'] as const)('提前转为%s后，不能在原截止日过去时复活长条', openingState => {
@@ -252,20 +304,41 @@ describe('申请期区间投影', () => {
     const base = roundFixture();
     for (const firstObservedOpenOn of ['2026-02-30', '2027-01-01']) {
       const details = { ...base.details, opensOn: null, openingState: 'open' as const, firstObservedOpenOn };
-      expect(collectMastersCalendarSpans([roundFixture({ details })], NOW)[0].start).toBe('2026-10-12');
+      expect(collectMastersCalendarSpans([roundFixture({ details })], NOW)[0].start).toBe('2026-10-14');
       expect(collectMastersCalendarSpans([roundFixture({ details: { ...details, openingState: 'unknown' } })], NOW)).toHaveLength(0);
     }
   });
 
-  it('合并后只要有一段起点未知，整条就按起点未知处理', () => {
+  it('官方起点与未知起点的同项目批次分别保留各自起点语义', () => {
     const base = roundFixture();
     const openEnded = roundFixture({
       id: 'open-ended', verifiedOn: '2026-10-05',
       details: { ...base.details, opensOn: null, openingState: 'open', deadlineOn: '2027-02-01' },
     });
     const spans = collectMastersCalendarSpans([base, openEnded], NOW);
-    expect(spans).toHaveLength(1);
-    expect(spans[0].startKnown).toBe(false);
+    expect(spans).toHaveLength(2);
+    expect(spans.find(span => span.rounds[0].id === base.id)).toMatchObject({ start: '2026-10-01', startKnown: true });
+    expect(spans.find(span => span.rounds[0].id === 'open-ended')).toMatchObject({ start: '2026-10-14', startKnown: false });
+  });
+
+  it('未知起点只为已发布且有效核验的当前开放轮次画条', () => {
+    const base = roundFixture();
+    const open = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open' } });
+    for (const overrides of [{ status: 'draft' as const }, { verifiedOn: null }, { verifiedOn: '2026-10-15' }, { verifiedOn: '2026-02-30' }]) {
+      expect(collectMastersCalendarSpans([{ ...open, ...overrides }], NOW)).toHaveLength(0);
+    }
+    const unverified = { ...open, details: { ...open.details, deadlineStatus: 'unverified' as const } };
+    expect(collectMastersCalendarSpans([unverified], NOW)).toHaveLength(0);
+  });
+
+  it('准确截止时刻已过时未知起点不再画条，官方起止仍保留为过去窗口', () => {
+    const base = roundFixture();
+    const details = { ...base.details, openingState: 'open' as const, deadlineOn: '2026-10-14',
+      deadlineAt: '2026-10-14T10:00:00+08:00', deadlineTimeZone: 'Asia/Shanghai' };
+    const unknown = roundFixture({ details: { ...details, opensOn: null } });
+    expect(collectMastersCalendarSpans([unknown], NOW)).toHaveLength(0);
+    expect(collectMastersCalendarNodes([unknown], NOW)).toMatchObject([{ kind: 'deadline', tone: 'past' }]);
+    expect(collectMastersCalendarSpans([roundFixture({ details })], NOW)[0]).toMatchObject({ start: '2026-10-01', end: '2026-10-14', past: true });
   });
 
   it('跨月判断包含起止两端', () => {
@@ -300,9 +373,9 @@ describe('申请期区间投影', () => {
     expect(lanes.get(key('后续大学'))).toBe(0);
   });
 
-  it('区间起点纳入翻月范围，起点在核验日时不会翻不到', () => {
+  it('未知起点的今天纳入翻月范围，不用旧核验月份扩展范围', () => {
     const base = roundFixture();
-    const round = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open' }, verifiedOn: '2026-10-05' });
+    const round = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open' }, verifiedOn: '2026-09-05' });
     const spans = collectMastersCalendarSpans([round], NOW);
     // 无 spans 时范围只有截止月；带上 spans 后应覆盖 2026-10
     expect(mastersCalendarBounds([round], 2027)).toMatchObject({ min: '2026-12' });

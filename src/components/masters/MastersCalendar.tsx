@@ -62,7 +62,7 @@ function SpanBar({ span, date, copy }: {
   const isEnd = date === span.end;
   const knownStart = isStart && span.startKnown;
   const openStart = isStart && !span.startKnown;
-  const label = `${span.university} · ${span.programme}`;
+  const label = `${span.university} · ${span.programme} · ${span.rounds[0].details.roundName} · ${span.rounds[0].details.intakeLabel}`;
   return (
     <span
       data-span-lane
@@ -70,7 +70,7 @@ function SpanBar({ span, date, copy }: {
       title={label}
       style={{
         background: `hsl(${hue} 70% 52% / ${span.past ? 0.3 : 0.6})`,
-        // 起点未知时左端不收口，避免把核验日画成一个明确的开始
+        // 起点未知时左端不收口：今天只是当前可申请区间的显示起点。
         borderTopLeftRadius: knownStart ? '3px' : '0',
         borderBottomLeftRadius: knownStart ? '3px' : '0',
         borderTopRightRadius: isEnd ? '3px' : '0',
@@ -97,6 +97,7 @@ function CalendarCell({ cell, copy, openDate, onToggle, lanes }: {
   lanes: Map<string, number>;
 }) {
   const hidden = Math.max(0, cell.nodes.length - CELL_VISIBLE);
+  const hiddenSpans = cell.spans.filter(span => (lanes.get(span.key) ?? 0) >= LANE_LIMIT).length;
   const expanded = cell.date === openDate;
   const laneCount = Math.min(LANE_LIMIT, Math.max(0, ...cell.spans.map(span => (lanes.get(span.key) ?? 0) + 1)));
   const bars = laneCount > 0 && <div className="-mx-px mt-1 space-y-0.5">
@@ -142,6 +143,11 @@ function CalendarCell({ cell, copy, openDate, onToggle, lanes }: {
           {/* 移动端只显示数字：完整句子在窄格里会折成三行，把行高撑得参差不齐 */}
           <span className="sm:hidden" aria-hidden>{cell.nodes.length}</span>
           <span className="hidden sm:inline" aria-hidden>{expanded ? copy.calendarCollapse : copy.calendarNodeCount.replace('{count}', String(cell.nodes.length))}</span>
+        </button>}
+        {hiddenSpans > 0 && <button type="button" onClick={() => onToggle(cell.date)} aria-expanded={expanded}
+          aria-label={`${cell.date} · ${copy.calendarMoreSpans.replace('{count}', String(hiddenSpans))}`}
+          className="mt-1 min-h-11 w-full rounded-md px-1 text-left t-footnote text-violet-200">
+          <span aria-hidden>+{hiddenSpans}</span>
         </button>}
       </div>
     </div>
@@ -203,7 +209,7 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
         <p className="t-footnote font-semibold text-white/80">{copy.calendarSpanMap}</p>
         {/* 每项独立成卡：挤成一行时项目名必然被 truncate，长校名恰恰是最常见的情况。 */}
         <ul className="mt-2 grid gap-2 sm:grid-cols-2">
-          {spanRows.map(span => <li key={span.key} className="flex items-start gap-2 rounded-lg border border-white/10 px-2.5 py-2 t-footnote">
+          {spanRows.map(span => <li key={span.key} data-calendar-round-id={span.rounds[0].id} className="flex items-start gap-2 rounded-lg border border-white/10 px-2.5 py-2 t-footnote">
             <span aria-hidden className="mt-1 h-2.5 w-6 shrink-0 rounded-sm" style={{
               background: `hsl(${mastersCalendarHue(span)} 70% 52% / ${span.past ? 0.4 : 0.75})`,
               ...(span.startKnown ? {} : {
@@ -214,8 +220,9 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
             <span className="min-w-0 flex-1">
               <span className="block text-white/85">{span.university}</span>
               <span className="block text-white/70">{span.programme}</span>
+              <span className="mt-1 block font-semibold text-violet-200">{span.rounds[0].details.roundName} · {span.rounds[0].details.intakeLabel}</span>
               <span className="mt-0.5 block tabular-nums text-white/60">
-                {span.startKnown ? `${span.start} → ${span.end}` : `${copy.calendarSpanOngoing} → ${span.end}`} · {span.past ? copy.calendarSpanEnded : copy.calendarSpanActive}
+                {!span.startKnown && <>{copy.calendarSpanOngoing} · </>}{`${span.start} → ${span.end}`} · {mastersStateLabel(span.rounds[0], now, locale)}
               </span>
             </span>
           </li>)}
@@ -242,8 +249,8 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
         {openCell.spans.length > 0 && <ul className="mt-3 flex flex-wrap gap-2">
           {openCell.spans.map(span => <li key={span.key} className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-2.5 py-1 t-footnote text-white/80">
             <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: `hsl(${mastersCalendarHue(span)} 70% 52% / ${span.past ? 0.4 : 0.75})` }} />
-            {span.university} · {span.programme}
-            <span className="text-white/60">{span.startKnown ? `${span.start} → ${span.end}` : `${copy.calendarSpanOngoing} → ${span.end}`}</span>
+            {span.university} · {span.programme} · {span.rounds[0].details.roundName} · {span.rounds[0].details.intakeLabel}
+            <span className="text-white/60">{!span.startKnown && <>{copy.calendarSpanOngoing} · </>}{`${span.start} → ${span.end}`}</span>
           </li>)}
         </ul>}
         {openCell.nodes.length === 0 ? <p className="mt-3 t-footnote text-white/60">{copy.calendarNoNodes}</p>
