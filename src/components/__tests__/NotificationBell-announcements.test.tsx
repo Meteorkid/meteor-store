@@ -2,12 +2,16 @@ import { isValidElement, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Announcement } from '@/lib/announcement-text';
+import type { MastersNotice } from '@/lib/masters/types';
+import { roundFixture } from '@/components/masters/__tests__/fixtures';
 
 const fixture = vi.hoisted(() => ({
   open: true, hasOpened: true, tab: 'daily', stateIndex: 0, effects: [] as (() => void)[],
   userId: null as string | null, locale: 'zh', dailyFailed: false, dailyReminder: null as { date: string } | null,
   announcements: { items: null as Announcement[] | null, loading: false, failed: false, readAt: '' },
   mark: vi.fn(), retry: vi.fn(), retryDaily: vi.fn(), markDaily: vi.fn(), setOpen: vi.fn(),
+  mastersNotices: [] as MastersNotice[], phdNotices: [] as MastersNotice[],
+  markMasters: vi.fn(), markPhd: vi.fn(),
 }));
 vi.mock('react', async importOriginal => ({
   ...await importOriginal<typeof import('react')>(), useEffect: (effect: () => void) => { fixture.effects.push(effect); }, useId: () => 'notification-fixture',
@@ -34,8 +38,12 @@ vi.mock('@/lib/daily/reminder-client', () => ({
   getReminderState: () => ({ reminder: fixture.dailyReminder, readDate: '', failed: fixture.dailyFailed }), markDailyReminderRead: fixture.markDaily, syncDailyReminderRead: vi.fn(),
 }));
 vi.mock('@/lib/masters/notice-client', () => ({
-  EMPTY_MASTERS_NOTICES: {}, subscribeMastersNotices: vi.fn(), getMastersNoticeState: () => ({ notices: [], failed: false }),
-  ensureMastersNotices: vi.fn(), markMastersRead: vi.fn(),
+  EMPTY_MASTERS_NOTICES: {}, subscribeMastersNotices: vi.fn(), getMastersNoticeState: () => ({ notices: fixture.mastersNotices, failed: false, marking: false }),
+  ensureMastersNotices: vi.fn(), markMastersRead: fixture.markMasters,
+}));
+vi.mock('@/lib/phd/notice-client', () => ({
+  EMPTY_PHD_NOTICES: {}, subscribePhdNotices: vi.fn(), getPhdNoticeState: () => ({ notices: fixture.phdNotices, failed: false, marking: false }),
+  ensurePhdNotices: vi.fn(), markPhdRead: fixture.markPhd,
 }));
 vi.mock('@/lib/monitoring-client', () => ({
   EMPTY_MONITORING_STATE: {}, subscribeMonitoring: vi.fn(), getMonitoringState: () => ({}),
@@ -57,10 +65,27 @@ const announcement: Announcement = {
 beforeEach(() => {
   fixture.open = true; fixture.hasOpened = true; fixture.tab = 'daily'; fixture.userId = null; fixture.locale = 'zh'; fixture.dailyFailed = false; fixture.dailyReminder = null;
   fixture.announcements = { items: null, loading: false, failed: false, readAt: '' };
+  fixture.mastersNotices = []; fixture.phdNotices = [];
   vi.clearAllMocks();
 });
 
 describe('铃铛系统公告状态与明确已读动作', () => {
+  it('同ID硕博提醒分组链接与已读操作互相隔离', () => {
+    fixture.userId = 'A'; fixture.tab = 'reminders';
+    const notice: MastersNotice = { id: 'a'.repeat(64), roundId: 'shared-round', kind: 'deadline', leadDays: 7,
+      dateVersion: 1, createdAt: '2026-10-29T00:00:00Z', readAt: null, round: roundFixture({ id: 'shared-round' }) };
+    fixture.mastersNotices = [notice]; fixture.phdNotices = [notice];
+    const tree = renderBell();
+    const phd = find(tree, node => node.props['aria-label'] === '博士申请提醒')!;
+    const masters = find(tree, node => node.props['aria-label'] === '硕士申请提醒')!;
+    expect(renderToStaticMarkup(phd)).toContain('/zh/phd?year=2027#round-shared-round');
+    expect(renderToStaticMarkup(masters)).toContain('/zh/masters?year=2027#round-shared-round');
+    const mark = find(phd, node => node.type === 'button' && node.props.children === '将这些申请提醒标为已读')!;
+    (mark.props.onClick as () => void)();
+    expect(fixture.markPhd).toHaveBeenCalledWith('A', [notice.id]);
+    expect(fixture.markMasters).not.toHaveBeenCalled();
+    expect(renderToStaticMarkup(tree)).not.toContain('当前没有申请提醒。');
+  });
   it('打开铃铛不标记系统公告，只有明确动作提交当前渲染快照', () => {
     fixture.announcements.items = [announcement]; fixture.open = false;
     const closed = renderBell();

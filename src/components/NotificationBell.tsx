@@ -9,6 +9,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { Link } from '@/i18n/navigation';
 import { EMPTY_REMINDER_STATE, ensureDailyReminder, getReminderState, markDailyReminderRead, subscribeDailyReminder, syncDailyReminderRead } from '@/lib/daily/reminder-client';
 import { EMPTY_MASTERS_NOTICES, ensureMastersNotices, getMastersNoticeState, markMastersRead, subscribeMastersNotices } from '@/lib/masters/notice-client';
+import { EMPTY_PHD_NOTICES, ensurePhdNotices, getPhdNoticeState, markPhdRead, subscribePhdNotices } from '@/lib/phd/notice-client';
 import { EMPTY_MONITORING_STATE, getMonitoringState, hasUnreadMonitoring, markMonitoringRead, subscribeMonitoring, watchMonitoring } from '@/lib/monitoring-client';
 import { monitoringText } from '@/lib/monitoring-types';
 import styles from './NotificationBell.module.css';
@@ -40,6 +41,7 @@ export default function NotificationBell() {
   const monitoringCopy = monitoringText[locale === 'en' ? 'en' : 'zh'];
   const daily = useSyncExternalStore(subscribeDailyReminder, () => getReminderState(userId), () => EMPTY_REMINDER_STATE);
   const masters = useSyncExternalStore(subscribeMastersNotices, () => getMastersNoticeState(userId), () => EMPTY_MASTERS_NOTICES);
+  const phd = useSyncExternalStore(subscribePhdNotices, () => getPhdNoticeState(userId), () => EMPTY_PHD_NOTICES);
   const announcements = useSyncExternalStore(subscribeAnnouncements, getAnnouncementState, () => EMPTY_ANNOUNCEMENT_STATE);
   const items = announcements.items;
   const [open, setOpen] = useState(false);
@@ -59,20 +61,24 @@ export default function NotificationBell() {
     if (!userId) return;
     ensureDailyReminder(userId);
     ensureMastersNotices(userId);
-    const refresh = () => { ensureDailyReminder(userId); ensureMastersNotices(userId); };
+    ensurePhdNotices(userId);
+    const refresh = () => { ensureDailyReminder(userId); ensureMastersNotices(userId); ensurePhdNotices(userId); };
     const preferencesChanged = () => ensureDailyReminder(userId, true);
     const applicationsChanged = () => ensureMastersNotices(userId, true);
+    const doctoralApplicationsChanged = () => ensurePhdNotices(userId, true);
     const syncRead = () => syncDailyReminderRead(userId);
     const timer = window.setInterval(refresh, 60_000);
     window.addEventListener('focus', refresh);
     window.addEventListener('daily-preferences-changed', preferencesChanged);
     window.addEventListener('masters-watches-changed', applicationsChanged);
+    window.addEventListener('phd-watches-changed', doctoralApplicationsChanged);
     window.addEventListener('storage', syncRead);
     return () => {
       window.clearInterval(timer);
       window.removeEventListener('focus', refresh);
       window.removeEventListener('daily-preferences-changed', preferencesChanged);
       window.removeEventListener('masters-watches-changed', applicationsChanged);
+      window.removeEventListener('phd-watches-changed', doctoralApplicationsChanged);
       window.removeEventListener('storage', syncRead);
     };
   }, [userId]);
@@ -108,15 +114,19 @@ export default function NotificationBell() {
   }, [open, activeTab, userId, daily.reminder, daily.readDate]);
 
   const unreadAnnouncements = hasUnreadAnnouncements();
-  const unread = unreadAnnouncements || Boolean(daily.reminder && daily.reminder.date > daily.readDate) || masters.notices.some(notice => !notice.readAt) || hasUnreadMonitoring(adminUserId);
+  const unread = unreadAnnouncements || Boolean(daily.reminder && daily.reminder.date > daily.readDate) || masters.notices.some(notice => !notice.readAt) || phd.notices.some(notice => !notice.readAt) || hasUnreadMonitoring(adminUserId);
   const tabLabels = locale === 'en'
     ? { daily: 'Daily content', announcements: 'Announcements', reminders: 'Reminders' }
     : { daily: '每日内容', announcements: '系统公告', reminders: '提醒' };
   const unreadCounts = {
     daily: daily.reminder && daily.reminder.date > daily.readDate ? 1 : 0,
     announcements: items?.filter(item => announcementTimestamp(item) > announcements.readAt).length ?? 0,
-    reminders: masters.notices.filter(notice => !notice.readAt).length + (hasUnreadMonitoring(adminUserId) ? 1 : 0),
+    reminders: masters.notices.filter(notice => !notice.readAt).length + phd.notices.filter(notice => !notice.readAt).length + (hasUnreadMonitoring(adminUserId) ? 1 : 0),
   };
+  const applicationGroups = [
+    { kind: 'masters', state: masters, title: locale === 'en' ? 'Master’s application reminders' : '硕士申请提醒', markRead: markMastersRead },
+    { kind: 'phd', state: phd, title: locale === 'en' ? 'PhD application reminders' : '博士申请提醒', markRead: markPhdRead },
+  ];
 
   const togglePanel = () => {
     if (!open) setHasOpened(true);
@@ -198,31 +208,34 @@ export default function NotificationBell() {
                 </p>)}
               </>}
             </section>}
-            {(masters.notices.length > 0 || masters.failed) && <section className="border-b border-white/10 px-4 py-3" aria-label={locale === 'en' ? 'Application reminders' : '硕士申请提醒'}>
-              <p className="t-title-4 text-white">{locale === 'en' ? 'Application reminders' : '硕士申请提醒'}</p>
-              {masters.failed && <p className="mt-2 t-footnote text-amber-200">{locale === 'en' ? 'Could not refresh application reminders.' : '申请提醒暂时读取失败，请稍后重试。'}</p>}
+            {applicationGroups.map(group => (group.state.notices.length > 0 || group.state.failed) && <section key={group.kind} className="border-b border-white/10 px-4 py-3" aria-label={group.title}>
+              <p className="t-title-4 text-white">{group.title}</p>
+              {group.state.failed && <p className="mt-2 t-footnote text-amber-200">{locale === 'en' ? 'Could not refresh application reminders.' : '申请提醒暂时读取失败，请稍后重试。'}</p>}
               <ul className="divide-y divide-white/10">
-                {masters.notices.map(notice => <li key={notice.id} className="py-3">
+                {group.state.notices.map(notice => <li key={notice.id} className="py-3">
                   <p className="t-footnote text-amber-200">{notice.kind === 'changed'
                     ? (locale === 'en' ? 'Application dates updated' : '申请日期或开放状态有变更')
                     : (locale === 'en' ? `Deadline within ${notice.leadDays} days` : `${notice.leadDays} 天内截止`)}{!notice.readAt ? (locale === 'en' ? ' · Unread' : ' · 未读') : ''}</p>
                   {/* 完整导航重置日历筛选，确保跨地区的提醒目标不会被当前筛选藏住。 */}
-                  <a href={`/${locale}/masters?year=${notice.round.intakeYear}#round-${notice.roundId}`} className="mt-1 block text-sm font-semibold text-violet-200 underline-offset-4 hover:underline">
+                  <a href={`/${locale}/${group.kind}?year=${notice.round.intakeYear}#round-${notice.roundId}`} className="mt-1 block text-sm font-semibold text-violet-200 underline-offset-4 hover:underline">
                     {notice.round.details.university} · {notice.round.details.programme}
                   </a>
                   <p className="mt-1 t-footnote text-white/70">{notice.round.details.intakeLabel} · {notice.round.details.roundName} · {notice.round.details.deadlineText || notice.round.details.deadlineOn || (locale === 'en' ? 'Check official dates' : '请查看官方日期')}</p>
                 </li>)}
               </ul>
-              {userId && masters.notices.some(notice => !notice.readAt) && <button type="button" disabled={masters.marking}
-                onClick={() => markMastersRead(userId, masters.notices.filter(notice => !notice.readAt).map(notice => notice.id))}
+              {userId && group.state.notices.some(notice => !notice.readAt) && <button type="button" disabled={group.state.marking}
+                onClick={() => group.markRead(userId, group.state.notices.filter(notice => !notice.readAt).map(notice => notice.id))}
                 className="min-h-10 t-footnote font-semibold text-violet-200 underline underline-offset-4 disabled:opacity-50">
                 {locale === 'en' ? 'Mark these reminders as read' : '将这些申请提醒标为已读'}
               </button>}
-            </section>}
-            {masters.notices.length === 0 && !masters.failed && <p className="px-4 pt-4 t-footnote text-white/65">{userId
+            </section>)}
+            {applicationGroups.every(group => group.state.notices.length === 0 && !group.state.failed) && <p className="px-4 pt-4 t-footnote text-white/65">{userId
               ? (locale === 'en' ? 'No application reminders right now.' : '当前没有申请提醒。')
               : (locale === 'en' ? 'Sign in to view your application reminders.' : '登录后可查看你的申请提醒。')}</p>}
-            <Link href="/masters" className="mx-4 my-3 inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">{locale === 'en' ? 'Open application calendar' : '打开全年申请日历'} →</Link>
+            <div className="flex flex-wrap gap-x-5 px-4 py-3">
+              <Link href="/masters" className="inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">{locale === 'en' ? 'Master’s calendar' : '硕士申请日历'} →</Link>
+              <Link href="/phd" className="inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">{locale === 'en' ? 'PhD calendar' : '博士申请日历'} →</Link>
+            </div>
           </div>
           </div>
           <div id={`${panelId}-announcements`} role="tabpanel" aria-labelledby={`${panelId}-announcements-tab`} hidden={activeTab !== 'announcements'} className={styles.tabPanel}>

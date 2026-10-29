@@ -5,6 +5,7 @@ import { normalizeDailyReturn } from './daily/navigation';
 const ALLOWED_LOGIN_RETURNS = new Set([
   '/daily',
   '/masters',
+  '/phd',
   '/apps',
   '/apps/ex-memory',
   '/apps/tollow/trial',
@@ -26,6 +27,8 @@ const ALLOWED_LOGIN_RETURNS = new Set([
 export function normalizeLoginReturn(value: string | null | undefined): string {
   if (typeof value !== 'string' || !value) return '/';
   if (ALLOWED_LOGIN_RETURNS.has(value)) return value;
+  const admissions = /^\/(?:masters|phd)\?year=(\d{4})$/.exec(value);
+  if (admissions?.[0] === value && Number(admissions[1]) >= 2020 && Number(admissions[1]) <= 2100) return value;
   const daily = normalizeDailyReturn(value);
   if (daily) return daily;
 

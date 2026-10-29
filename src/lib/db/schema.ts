@@ -53,6 +53,56 @@ export const mastersNotices = pgTable('masters_notices', {
   check('masters_notices_kind_check', sql`${t.kind} IN ('deadline', 'changed')`),
 ]);
 
+export const phdRounds = pgTable('phd_rounds', {
+  id: text('id').primaryKey(),
+  identityKey: text('identity_key').notNull(),
+  intakeYear: integer('intake_year').notNull(),
+  region: text('region').$type<MastersRegion>().notNull(),
+  details: jsonb('details').$type<MastersRoundDetails>().notNull(),
+  status: text('status').$type<'draft' | 'published'>().notNull().default('draft'),
+  automationPaused: boolean('automation_paused').notNull().default(false),
+  verifiedOn: text('verified_on'),
+  revision: integer('revision').notNull().default(1),
+  dateVersion: integer('date_version').notNull().default(1),
+  dateChangedAt: text('date_changed_at'),
+  previousDeadlineText: text('previous_deadline_text'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  uniqueIndex('phd_rounds_identity_idx').on(t.identityKey),
+  index('phd_rounds_year_status_idx').on(t.intakeYear, t.status),
+  check('phd_rounds_region_check', sql`${t.region} IN ('hong-kong', 'macau', 'singapore', 'uk', 'australia')`),
+  check('phd_rounds_status_check', sql`${t.status} IN ('draft', 'published')`),
+  check('phd_rounds_study_type_check', sql`coalesce(${t.details}->>'studyType', '') = 'research'`),
+]);
+
+export const phdWatches = pgTable('phd_watches', {
+  userId: text('user_id').notNull(),
+  roundId: text('round_id').notNull(),
+  status: text('status').$type<MastersWatchInput['status']>().notNull().default('preparing'),
+  reminders: boolean('reminders').notNull().default(false),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  primaryKey({ columns: [t.userId, t.roundId] }),
+  index('phd_watches_round_idx').on(t.roundId),
+  check('phd_watches_status_check', sql`${t.status} IN ('preparing', 'submitted', 'abandoned')`),
+]);
+
+export const phdNotices = pgTable('phd_notices', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  roundId: text('round_id').notNull(),
+  kind: text('kind').$type<'deadline' | 'changed'>().notNull(),
+  leadDays: integer('lead_days'),
+  dateVersion: integer('date_version').notNull(),
+  createdAt: text('created_at').notNull(),
+  readAt: text('read_at'),
+}, t => [
+  index('phd_notices_user_idx').on(t.userId, t.createdAt),
+  check('phd_notices_kind_check', sql`${t.kind} IN ('deadline', 'changed')`),
+]);
+
 export const dailyEditions = pgTable('daily_editions', {
   id: text('id').primaryKey(),
   date: text('date').notNull(),

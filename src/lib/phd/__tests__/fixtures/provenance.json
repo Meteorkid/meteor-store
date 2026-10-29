@@ -1,0 +1,98 @@
+{
+  "sources": [
+    {
+      "fixture": "hku.html",
+      "url": "https://www.cs.hku.hk/programmes/research-postgraduate/",
+      "capturedAt": "2026-10-29T12:23:17Z",
+      "kind": "raw-html-excerpts",
+      "sourceSha256": "f17606c2f952cf7a7f9fa32825f5ad9433ba3cc34c7a9e1329ca02621790ebd4",
+      "fixtureSha256": "9444f44a382313a82a358120a91e39cafa279164195d58db138485fa46b2de25",
+      "liveParserResult": "success",
+      "lastReadOnlyAudit": {
+        "checkedAt": "2026-10-29T13:34:07.781Z",
+        "status": "parsed"
+      }
+    },
+    {
+      "fixture": "hku-evidence.html",
+      "url": "https://gradsch.hku.hk/prospective_students/application/application_period",
+      "capturedAt": "2026-10-29T12:20:25Z",
+      "kind": "raw-html-excerpts",
+      "sourceSha256": "9f0d0a3b0017f7833090abcc32b99d3f31bcebbfdcfc6502a77ab78d1e472c66",
+      "fixtureSha256": "1142885332265f4ff3929d9a524780dcf30199c3a523fd8d81c750d2cdebb4e6",
+      "liveParserResult": "success",
+      "lastReadOnlyAudit": {
+        "checkedAt": "2026-10-29T13:34:07.781Z",
+        "status": "parsed"
+      }
+    },
+    {
+      "fixture": "smu.html",
+      "url": "https://computing.smu.edu.sg/phd/online-application",
+      "capturedAt": "2026-10-29T12:21:37Z",
+      "kind": "raw-html-excerpts",
+      "sourceSha256": "514b2569f0b90a8b92a7c82895dfaf75aba566ac17b10bb91c1eb29d351c66b2",
+      "fixtureSha256": "2669ce503116c62f3864753201de207920af197d7d374b514afba6a2b53fc159",
+      "liveParserResult": "success",
+      "lastReadOnlyAudit": {
+        "checkedAt": "2026-10-29T13:34:07.781Z",
+        "status": "parsed"
+      }
+    },
+    {
+      "fixture": "smu-evidence.html",
+      "url": "https://computing.smu.edu.sg/phd",
+      "capturedAt": "2026-10-29T12:24:20Z",
+      "kind": "raw-html-excerpts",
+      "sourceSha256": "492146daebfd2892c8f72a5fc08459515c101dcc1f0d978229fec40d6a4f3864",
+      "fixtureSha256": "f3ba929149bce990834747eb0e33d2348127bcb81e276d8897c47ae90936c7bb",
+      "liveParserResult": "success",
+      "lastReadOnlyAudit": {
+        "checkedAt": "2026-10-29T13:34:07.781Z",
+        "status": "parsed"
+      }
+    },
+    {
+      "fixture": "must.html",
+      "url": "https://sgs.must.edu.mo/page/id-3170.html",
+      "capturedAt": "2026-10-29T12:24:21Z",
+      "kind": "raw-html-excerpts",
+      "sourceSha256": "d4121ea3959a7d905e8729792a28c2596f90610659ca0b2a25dea15c742c4efd",
+      "fixtureSha256": "1a929861152383ed35cb3e0199f4bf6843f1e5531b0622f680275ff484e3720e",
+      "liveParserResult": "success",
+      "lastReadOnlyAudit": {
+        "checkedAt": "2026-10-29T13:34:07.781Z",
+        "status": "parsed"
+      }
+    },
+    {
+      "fixture": "oxford.html",
+      "url": "https://www.ox.ac.uk/admissions/graduate/courses/dphil-computer-science",
+      "verifiedOn": "2026-10-29",
+      "kind": "official-web-text-excerpt",
+      "fixtureSha256": "e5c714d009b1e67d532aa142ffa5acaded3e63de490152e9ede61cb637da616c",
+      "liveParserResult": "not_verified",
+      "note": "Only the official web text was available when the fixture was created. Live verification has not succeeded; this fixture tests parser contracts and is never a publishing fallback.",
+      "lastReadOnlyAudit": {
+        "checkedAt": "2026-10-29T13:34:07.781Z",
+        "status": "failed",
+        "reason": "fetch_failed"
+      }
+    },
+    {
+      "fixture": "griffith.html",
+      "url": "https://www.griffith.edu.au/apply/research-study",
+      "verifiedOn": "2026-10-29",
+      "kind": "official-web-text-excerpt",
+      "fixtureSha256": "40c43709ab671d5044c9871734939931c41c93ca67abf610d17157b6488cabfc",
+      "liveParserResult": "not_verified",
+      "note": "Only the official web text was available when the fixture was created. Live verification has not succeeded; this fixture tests parser contracts and is never a publishing fallback.",
+      "lastReadOnlyAudit": {
+        "checkedAt": "2026-10-29T13:34:07.781Z",
+        "status": "failed",
+        "reason": "programme_mismatch"
+      }
+    }
+  ],
+  "liveAudit": "/tmp/phd-calendar-source-verification-20261029.json"
+}

@@ -1,9 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { PgDialect } from 'drizzle-orm/pg-core';
+import type { SQL } from 'drizzle-orm';
 import {
   blogImages,
   dailyPreferences,
   mastersNotices,
+  mastersRounds,
   mastersWatches,
+  phdNotices,
+  phdRounds,
+  phdWatches,
   personalAccessTokens,
   postSections,
   tollowBookProgress,
@@ -17,6 +23,8 @@ const state = vi.hoisted(() => ({
   deletedTables: [] as unknown[],
   failFirstCleanup: false,
   deleteCount: 0,
+  deletedConditions: [] as Array<{ table: unknown; sql: string; params: unknown[] }>,
+  failTable: null as unknown,
 }));
 
 const deleteSoftwareDevices = vi.fn();
@@ -34,8 +42,9 @@ vi.mock('../db', () => ({
       state.deleteCount += 1;
       const shouldFail = state.failFirstCleanup && state.deleteCount === 1;
       return {
-        where: async () => {
-          if (shouldFail) throw new Error('cleanup failed');
+        where: async (condition: SQL) => {
+          state.deletedConditions.push({ table, ...new PgDialect().sqlToQuery(condition) });
+          if (shouldFail || table === state.failTable) throw new Error('cleanup failed');
           return { rowCount: 1 };
         },
       };
@@ -69,6 +78,8 @@ describe('账户数据删除顺序', () => {
     state.deletedTables.length = 0;
     state.failFirstCleanup = false;
     state.deleteCount = 0;
+    state.deletedConditions.length = 0;
+    state.failTable = null;
     deleteAvatar.mockResolvedValue(undefined);
     deleteImages.mockResolvedValue(undefined);
     deleteSoftwareDevices.mockResolvedValue(undefined);
@@ -88,6 +99,14 @@ describe('账户数据删除顺序', () => {
     expect(state.deletedTables).toContain(dailyPreferences);
     expect(state.deletedTables).toContain(mastersNotices);
     expect(state.deletedTables).toContain(mastersWatches);
+    expect(state.deletedTables).toContain(phdNotices);
+    expect(state.deletedTables).toContain(phdWatches);
+    expect(state.deletedTables).not.toContain(mastersRounds);
+    expect(state.deletedTables).not.toContain(phdRounds);
+    for (const table of [phdNotices, phdWatches]) {
+      expect(state.deletedConditions.find(item => item.table === table)?.params).toEqual(['U1']);
+      expect(state.deletedTables.indexOf(table)).toBeLessThan(state.deletedTables.indexOf(users));
+    }
     expect(state.deletedTables.indexOf(blogImages)).toBeLessThan(
       state.deletedTables.indexOf(users),
     );
@@ -117,5 +136,15 @@ describe('账户数据删除顺序', () => {
 
     expect(state.deletedTables).not.toContain(users);
     expect(deleteImages).not.toHaveBeenCalled();
+  });
+
+  it('博士私人记录清理失败时也保留账号，公共申请轮次不进入删除范围', async () => {
+    state.failTable = phdNotices;
+    const { deleteUserAccount } = await import('../account-deletion');
+    await expect(deleteUserAccount({ userId: 'U1', email: 'user@example.com', avatarUrl: null }))
+      .rejects.toThrow('cleanup failed');
+    expect(state.deletedTables).not.toContain(users);
+    expect(state.deletedTables).not.toContain(phdRounds);
+    expect(state.deletedTables).not.toContain(mastersRounds);
   });
 });

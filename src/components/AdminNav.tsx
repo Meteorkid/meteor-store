@@ -43,6 +43,7 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
         { href: '/admin/posts', label: t('posts') },
         { href: '/admin/daily', label: locale === 'en' ? 'Daily Fresh' : '每日一新' },
         { href: '/admin/masters', label: locale === 'en' ? 'Masters applications' : '硕士申请日历' },
+        { href: '/admin/phd', label: locale === 'en' ? 'PhD applications' : '博士申请日历' },
         { href: '/admin/comments', label: t('comments'), badge: counts?.pendingComments },
         { href: '/admin/reports', label: t('reports'), badge: counts?.pendingReports },
       ],

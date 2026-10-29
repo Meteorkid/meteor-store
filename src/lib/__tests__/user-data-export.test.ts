@@ -6,6 +6,8 @@ import {
   blogImages,
   dailyPreferences,
   mastersWatches,
+  phdNotices,
+  phdWatches,
   personalAccessTokens,
   postSections,
   posts,
@@ -19,6 +21,15 @@ import {
 
 let ownedOrderRows: Array<{ id: string }> = [];
 const refundQueries: Array<{ sql: string; params: unknown[] }> = [];
+const phdQueries: Array<{ sql: string; params: unknown[] }> = [];
+const phdWatchRows = [
+  { userId: 'U1', roundId: 'phd-round-1', status: 'preparing', reminders: true, createdAt: '2026-10-29T00:00:00Z', updatedAt: '2026-10-29T01:00:00Z', internalNote: 'must-not-export' },
+  { userId: 'U2', roundId: 'other-phd-round', status: 'interested', reminders: false },
+];
+const phdNoticeRows = [
+  { id: 'internal-notice-id', userId: 'U1', roundId: 'phd-round-1', kind: 'deadline', leadDays: 7, dateVersion: 2, createdAt: '2026-10-29T00:00:00Z', readAt: null, privateMetadata: 'must-not-export' },
+  { id: 'other-notice', userId: 'U2', roundId: 'other-phd-round', kind: 'deadline' },
+];
 const refundRows = [
   { requestNo: 'owned-request', orderId: 'owned-order', paymentMethod: 'alipay', status: 'UNKNOWN', source: 'api', refundAmount: 3900, totalAmount: 3900, needsReview: false, createdAt: '2026-10-27T00:00:00Z', updatedAt: '2026-10-27T00:00:00Z', lastRequestedAt: '2026-10-27T00:00:00Z', lastQueriedAt: null, privateMetadata: 'must-not-export' },
   { requestNo: 'other-request', orderId: 'other-order', paymentMethod: 'alipay', status: 'SUCCESS' },
@@ -149,6 +160,13 @@ vi.mock('../db', () => ({
             return [Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection))];
           }
           if (table === mastersWatches) return [{ roundId: 'round-1', status: 'preparing', reminders: true }];
+          if (table === phdWatches || table === phdNotices) {
+            const query = new PgDialect().sqlToQuery(condition!);
+            phdQueries.push(query);
+            const rows = table === phdWatches ? phdWatchRows : phdNoticeRows;
+            return rows.filter(row => query.params.includes(row.userId))
+              .map(row => Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection)));
+          }
           return [];
         },
       }),
@@ -160,6 +178,7 @@ describe('用户数据导出', () => {
   beforeEach(() => {
     ownedOrderRows = [];
     refundQueries.length = 0;
+    phdQueries.length = 0;
     accountRows = [{
       id: 'U1',
       email: 'user@example.com',
@@ -237,6 +256,22 @@ describe('用户数据导出', () => {
     accountRows = [{ ...accountRows[0], emailVerified: false }];
     const unverifiedExport = await exportUserData('U1', 'admin@example.com');
     expect(unverifiedExport.content.blogImages.quota.limitBytes).toBe(200 * 1024 * 1024);
+  });
+
+  it('博士申请和提醒只导出本人记录及字段白名单，硕士合同保持不变', async () => {
+    const { exportUserData } = await import('../user-data-export');
+    const exported = await exportUserData('U1', 'user@example.com');
+    expect(exported.phd).toEqual({
+      applications: [{ roundId: 'phd-round-1', status: 'preparing', reminders: true,
+        createdAt: '2026-10-29T00:00:00Z', updatedAt: '2026-10-29T01:00:00Z' }],
+      notices: [{ roundId: 'phd-round-1', kind: 'deadline', leadDays: 7, dateVersion: 2,
+        createdAt: '2026-10-29T00:00:00Z', readAt: null }],
+    });
+    expect(phdQueries.map(query => query.params)).toEqual([['U1'], ['U1']]);
+    expect(phdQueries[0].sql).toContain('"phd_watches"."user_id"');
+    expect(phdQueries[1].sql).toContain('"phd_notices"."user_id"');
+    expect(JSON.stringify(exported.phd)).not.toMatch(/userId|internal-notice|must-not-export|other-phd/);
+    expect(exported.masters).toEqual({ applications: [{ roundId: 'round-1', status: 'preparing', reminders: true }], notices: [] });
   });
 
   it('退款尝试仅按本人已导出的订单关联，使用字段白名单', async () => {

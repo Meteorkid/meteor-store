@@ -4,6 +4,14 @@ import { products } from '@/data/products';
 import { appIds } from '@/data/app-manifest';
 
 describe('normalizeLoginReturn', () => {
+  it.each(['/masters?year=2020', '/masters?year=2100', '/phd', '/phd?year=2027'])('申请页回跳保留学位与合法入学年份：%s', value => {
+    expect(normalizeLoginReturn(value)).toBe(value);
+    expect(new URL(buildLoginHref(value), 'https://store.test').searchParams.get('next')).toBe(value);
+  });
+  it.each(['/phd?year=2019', '/masters?year=2101', '/phd?year=2027&year=2028', '/phd?year=2027&next=/admin',
+    '/phd?year=2027#admin', '/phd?year=2027\n', '/phd?year=02027', '/phd?year=2027.0', '/phd?year=%32%30%32%37'])('申请页拒绝非法年份与额外回跳参数：%s', value => {
+    expect(normalizeLoginReturn(value)).toBe('/');
+  });
   it('日刊回跳保留合法日期、全部视图和栏目', () => {
     const href = '/daily?date=2026-10-22&view=all#papers';
     expect(normalizeLoginReturn(href)).toBe(href);

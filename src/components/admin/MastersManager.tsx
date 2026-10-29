@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useLocale } from 'next-intl';
+import { admissionsConfig, type AdmissionsKind } from '@/lib/admissions/config';
 import { dailyDate } from '@/lib/daily/types';
 import { mastersRegions, MastersRoundInputSchema, type MastersRound, type MastersRoundDetails, type MastersRoundInput } from '@/lib/masters/types';
 
@@ -12,11 +13,11 @@ const panelClass = 'rounded-xl border border-white/10 bg-white/[0.02] p-4 sm:p-5
 type PendingAction = { kind: 'load'; year: number } | { kind: 'edit'; round?: MastersRound }
   | { kind: 'close' } | { kind: 'unpublish'; round: MastersRound };
 
-function emptyRound(intakeYear: number): MastersRoundInput {
+function emptyRound(intakeYear: number, kind: AdmissionsKind): MastersRoundInput {
   return {
     intakeYear, region: 'hong-kong', status: 'draft', verifiedOn: null,
     details: {
-      university: '', programme: '', subject: '', studyType: 'taught', studyMode: '', intakeLabel: '',
+      university: '', programme: '', subject: '', studyType: kind === 'phd' ? 'research' : 'taught', studyMode: '', intakeLabel: '',
       applicantGroup: '', roundName: '', eventType: 'application', opensOn: null, openingNote: '', openingState: 'unknown',
       deadlineStatus: 'unverified', deadlineOn: null, deadlineAt: null, deadlineTimeZone: null, deadlineText: '',
       rolling: false, mayCloseEarly: false, officialUrl: '', sourceNote: '',
@@ -48,7 +49,14 @@ function Select({ label, value, options, onChange }: {
   </select></label>;
 }
 
-export default function MastersManager({ initialYear, initialRounds }: { initialYear: number; initialRounds: MastersRound[] }) {
+interface MastersManagerProps { initialYear: number; initialRounds: MastersRound[]; kind?: AdmissionsKind }
+
+export default function MastersManager(props: MastersManagerProps) {
+  return <MastersManagerForScope key={`${props.kind ?? 'masters'}:${props.initialYear}`} {...props} />;
+}
+
+function MastersManagerForScope({ initialYear, initialRounds, kind = 'masters' }: MastersManagerProps) {
+  const config = admissionsConfig[kind];
   const en = useLocale() === 'en';
   const t = (zh: string, english: string) => en ? english : zh;
   const [year, setYear] = useState(initialYear);
@@ -103,14 +111,14 @@ export default function MastersManager({ initialYear, initialRounds }: { initial
   }
 
   async function readRounds(targetYear: number): Promise<MastersRound[]> {
-    const response = await fetch(`/api/admin/masters?year=${targetYear}`, { cache: 'no-store' });
+    const response = await fetch(`${config.adminApiBase}?year=${targetYear}`, { cache: 'no-store' });
     const data = await response.json();
     if (!response.ok) throw new Error(data.errorCode ?? 'load_failed');
     return data.rounds;
   }
 
   async function write(method: 'POST' | 'PATCH', body: unknown): Promise<{ round?: MastersRound; created?: number }> {
-    const response = await fetch('/api/admin/masters', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const response = await fetch(config.adminApiBase, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.errorCode ?? 'failed');
     return data;
@@ -130,7 +138,7 @@ export default function MastersManager({ initialYear, initialRounds }: { initial
     if (action.kind === 'load') { void loadYear(action.year); return; }
     if (action.kind === 'unpublish') { void unpublish(action.round); return; }
     if (action.kind === 'close') { setEditor(null); setPreview(false); return; }
-    const input = action.round ? editableRound(action.round) : emptyRound(year);
+    const input = action.round ? editableRound(action.round) : emptyRound(year, kind);
     setEditor(input); setBaseline(JSON.stringify(input)); setPreview(false); setError(''); setNotice('');
   }
 
@@ -239,7 +247,7 @@ export default function MastersManager({ initialYear, initialRounds }: { initial
           <Field label={t('学校', 'University')} value={editor.details.university} required onChange={value => updateDetails('university', value)} />
           <Field label={t('具体专业 / 项目', 'Specific programme')} value={editor.details.programme} required onChange={value => updateDetails('programme', value)} />
           <Field label={t('专业方向', 'Subject area')} value={editor.details.subject} required maxLength={100} onChange={value => updateDetails('subject', value)} />
-          <Select label={t('培养类型', 'Study type')} value={editor.details.studyType} options={[[ 'taught', t('授课型', 'Taught') ], ['research', t('研究型', 'Research')]]} onChange={value => updateDetails('studyType', value as MastersRoundDetails['studyType'])} />
+          <Select label={t('培养类型', 'Study type')} value={editor.details.studyType} options={kind === 'phd' ? [['research', t('研究型', 'Research')]] : [[ 'taught', t('授课型', 'Taught') ], ['research', t('研究型', 'Research')]]} onChange={value => updateDetails('studyType', value as MastersRoundDetails['studyType'])} />
           <Field label={t('修读方式 / 学制', 'Study mode / duration')} value={editor.details.studyMode} required maxLength={100} onChange={value => updateDetails('studyMode', value)} />
           <Field label={t('入学季', 'Intake / term')} value={editor.details.intakeLabel} required maxLength={100} placeholder={t('如：2027 年秋季', 'For example: Autumn 2027')} onChange={value => updateDetails('intakeLabel', value)} />
           <Field label={t('适用申请人群体', 'Eligible applicant group')} value={editor.details.applicantGroup} required placeholder={t('明确国际 / 本地等适用范围', 'Specify international / domestic or other scope')} onChange={value => updateDetails('applicantGroup', value)} />

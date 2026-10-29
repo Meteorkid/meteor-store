@@ -263,6 +263,7 @@ describe('公开功能页搜索与本地化', () => {
   it.each([
     ['zh', '每日一新', '/daily'], ['en', 'daily', '/daily'],
     ['zh', '硕士', '/masters'], ['en', 'masters', '/masters'],
+    ['zh', '博士', '/phd'], ['en', 'phd', '/phd'],
     ['zh', '学习路径', '/pathfinder'], ['en', 'learning path', '/pathfinder/plan'],
     ['zh', '学习计划', '/pathfinder/plan'], ['en', 'opportunities', '/pathfinder/opportunities'],
   ] as const)('%s 搜索 %s 可直达 %s', (locale, query, href) => {

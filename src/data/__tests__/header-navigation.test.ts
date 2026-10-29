@@ -14,7 +14,8 @@ describe('全站二级导航', () => {
   it('保留五个清晰分组，每组包含总览和两到三列', () => {
     const groups = getHeaderNavigation(true);
     expect(groups.map(group => group.id)).toEqual(['products', 'daily', 'learn', 'content', 'help']);
-    expect(links().length).toBeLessThanOrEqual(40);
+    // 原有 40 个入口加一个独立博士申请入口。
+    expect(links().length).toBeLessThanOrEqual(41);
     for (const group of groups) {
       expect(group.sections.length).toBeGreaterThanOrEqual(2);
       expect(group.sections.length).toBeLessThanOrEqual(3);
@@ -44,6 +45,8 @@ describe('全站二级导航', () => {
     expect(channelLinks.map(link => link.href)).toEqual(dailyEditionChannels.map(channel => `/daily?view=all#${channel.id}`));
     expect(channelLinks.map(link => link.label.zh)).toEqual(dailyEditionChannels.map(channel => channel.zh));
     expect(links().map(link => link.href)).toContain('/masters');
+    const learning = getHeaderNavigation(false).find(group => group.id === 'learn')!;
+    expect(learning.sections.flatMap(section => section.links).map(link => link.href)).toContain('/phd');
   });
 
   it('内容分区跟随唯一配置，不手写第二套分区', () => {

@@ -82,13 +82,14 @@ const PAGE_ENGLISH: Record<string, { title: string; subtitle?: string }> = {
 
 // 导航也含私人入口；只将已确认公开的路径纳入索引，新增私人页不会意外被收录。
 const PUBLIC_NAV_PATHS = new Set([
-  '/daily', '/masters', '/pathfinder', '/pathfinder/directions/ai', '/pathfinder/plan',
+  '/daily', '/masters', '/phd', '/pathfinder', '/pathfinder/directions/ai', '/pathfinder/plan',
   '/pathfinder/opportunities', '/pathfinder/topics', '/pathfinder/weekly',
   '/blog/tags', '/blog/api-guide', '/support',
 ]);
 const NAV_SEARCH_ALIASES: Record<string, string> = {
   'daily-overview': '每日一新 日刊 日报 daily reading digest',
   masters: '硕士 研究生 申请 日历 留学 masters master graduate admissions calendar',
+  phd: '博士 博士生 研究型 计算机 人工智能 申请 日历 留学 phd doctorate doctoral research admissions calendar CS AI',
   pathfinder: '学习路径 学习工具 学习机会 learning path tools opportunities',
   directions: '学习路径 学习方向 learning path roadmap directions',
   plan: '学习路径 学习计划 规划 learning path study planner plan',

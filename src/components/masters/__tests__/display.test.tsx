@@ -14,6 +14,22 @@ vi.mock('next-intl', () => ({ useLocale: () => 'zh' }));
 vi.mock('@/components/AuthProvider', () => ({ useAuth: () => ({ user: null, loading: false }) }));
 
 describe('申请日历展示', () => {
+  it('博士复用日历和常驻列表，切换学位与卡片登录均保留入学年', () => {
+    const base = roundFixture();
+    const html = renderToStaticMarkup(<MastersHub kind="phd" year={2028} nowIso="2026-10-14T04:00:00Z"
+      rounds={[roundFixture({ intakeYear: 2028, details: { ...base.details, studyType: 'research', programme: 'PhD Computer Science' } })]}
+      userId={null} initialWatches={[]} watchedRounds={[]} />);
+    expect(html).toContain('博士申请日历');
+    expect(html).toContain('PHD · ADMISSIONS');
+    expect(html).toContain('计算机与人工智能');
+    expect(html).toContain('href="/masters?year=2028"');
+    expect(html).toContain('href="/phd?year=2028"');
+    expect(html.match(/href="\/login\?next=%2Fphd%3Fyear%3D2028"/g)).toHaveLength(2);
+    expect(html).not.toContain('value="taught"');
+    expect(html).toContain('申请列表');
+    expect(html).toContain('aria-label="日历显示"');
+  });
+
   it('收录范围按公开年份去重，不把筛选或私人关注计入学校项目数', () => {
     const base = roundFixture();
     const second = roundFixture({ id: 'second-round' });

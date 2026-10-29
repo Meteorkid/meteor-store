@@ -130,3 +130,20 @@ export const mastersText = {
 } as const;
 
 export type MastersCopy = { [Key in keyof typeof mastersText.zh]: string };
+
+export const phdText: Record<'zh' | 'en', MastersCopy> = {
+  zh: {
+    ...mastersText.zh,
+    title: '博士申请日历',
+    description: '优先收录计算机与人工智能方向，按入学年查看研究型博士的申请轮次与官方截止。',
+    scope: '优先核验香港、澳门、新加坡、英国和澳大利亚的计算机与人工智能研究型博士项目。公开申请、奖学金和材料截止分别记录；导师接收意向、个人 offer 与资助结果需以学校通知为准。',
+    studyType: '培养类型',
+  },
+  en: {
+    ...mastersText.en,
+    title: 'PhD application calendar',
+    description: 'Research PhD rounds and official deadlines by intake year, with a focus on computer science and AI.',
+    scope: 'Prioritising research PhDs in computer science and AI in Hong Kong, Macao, Singapore, the UK and Australia. Application, scholarship and document deadlines are recorded separately; supervisor availability, personal offers and funding decisions follow university notices.',
+    studyType: 'Study type',
+  },
+};

@@ -44,7 +44,7 @@ describe('getHelpSitemapEntries', () => {
 
 it('公开发现入口双语进入sitemap，私有应用和账号不加入', async () => {
   const entries = await sitemap();
-  for (const path of ['/playground', '/open-source', '/student', '/blog/api-guide']) {
+  for (const path of ['/playground', '/open-source', '/student', '/blog/api-guide', '/masters', '/phd']) {
     for (const locale of ['zh', 'en']) {
       const entry = entries.find(item => item.url === `${SITE_URL}/${locale}${path}`);
       expect(entry).toBeDefined();

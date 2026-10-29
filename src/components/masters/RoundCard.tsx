@@ -16,6 +16,7 @@ export interface MastersRoundDraft {
 interface RoundCardProps {
   round: MastersRound;
   idPrefix?: string;
+  returnTo?: string;
   draft?: MastersRoundDraft;
   onDraftChange?: (draft: MastersRoundDraft) => void;
   watch?: MastersWatch;
@@ -33,7 +34,7 @@ interface RoundCardProps {
   onRemove: (id: string) => void;
 }
 
-export default function RoundCard({ round, idPrefix = 'round', draft, onDraftChange, watch, now, locale, copy, signedIn, watchesReady, busy, error, selected, selectionFull, onSelect, onSave, onRemove }: RoundCardProps) {
+export default function RoundCard({ round, idPrefix = 'round', returnTo = '/masters', draft, onDraftChange, watch, now, locale, copy, signedIn, watchesReady, busy, error, selected, selectionFull, onSelect, onSave, onRemove }: RoundCardProps) {
   const [localDraft, setLocalDraft] = useState<MastersRoundDraft>({ status: watch?.status ?? 'preparing', reminders: watch?.reminders ?? false });
   const progressRef = useRef<HTMLSelectElement>(null);
   const pendingFollow = useRef(false);
@@ -110,7 +111,7 @@ export default function RoundCard({ round, idPrefix = 'round', draft, onDraftCha
       </div>
 
       <div className="mt-5 border-t border-white/10 pt-5">
-        {!signedIn ? <Link href={buildLoginHref('/masters')} className={buttonClass}>{copy.login}</Link>
+        {!signedIn ? <Link href={buildLoginHref(returnTo)} className={buttonClass}>{copy.login}</Link>
           : !watch ? <button type="button" disabled={!watchesReady || busy} onClick={() => {
             if (busy || !watchesReady) return;
             pendingFollow.current = true;

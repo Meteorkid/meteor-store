@@ -1,7 +1,8 @@
 import { PgDialect } from 'drizzle-orm/pg-core';
 import type { SQL } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mastersNotices, mastersRounds, mastersWatches } from '@/lib/db/schema';
+import { mastersNotices, mastersRounds, mastersWatches, phdNotices, phdRounds, phdWatches } from '@/lib/db/schema';
+import { createAdmissionsService } from '@/lib/admissions/service';
 import type { MastersRound, MastersRoundInput, MastersWatchInput } from '../types';
 
 type Operation = {
@@ -492,5 +493,190 @@ describe('通知读取与已读归属', () => {
     await markMastersNoticesRead('owner', ['notice-a', 'notice-b']);
     expect(sqlOf(state.operations[0].where).params).toEqual(['owner', 'notice-a', 'notice-b']);
     expect(valuesOf(state.operations[0])[0]).toEqual({ readAt: now });
+  });
+});
+
+describe('博士日历固定表组与硕博同ID隔离', () => {
+  const phdRound = () => round({}, { programme: 'PhD Computer Science', studyType: 'research' });
+  const phd = createAdmissionsService('phd', [{ ...input(phdRound()), expectedUpdatedAt: undefined }]);
+  const originalPhdDraft = () => round({ status: 'draft', revision: 1, dateVersion: 1, verifiedOn: null }, {
+    programme: 'PhD Computer Science', studyType: 'research', opensOn: null, openingState: 'unknown',
+    deadlineStatus: 'unverified', deadlineOn: null,
+  });
+
+  it('相同轮次ID的硕士和博士查询各自固定表，博士全部读取路径保持隔离', async () => {
+    state.responses.push([round()], [phdRound()], [], [], [], []);
+    expect(await getMastersRoundsByIds([round().id])).toEqual([round()]);
+    expect(await phd.getRoundsByIds([round().id])).toEqual([phdRound()]);
+    await phd.listRounds(2027);
+    await phd.listAdminRounds(2027);
+    await phd.getAutomationRounds([round().id]);
+    expect(await phd.getSummary(2027)).toEqual({ intakeYear: 2027, total: 0, opening: 0, closingSoon: 0, changed: 0 });
+    expect(state.operations.map(operation => operation.table)).toEqual([mastersRounds, phdRounds, phdRounds, phdRounds, phdRounds, phdRounds]);
+    for (const operation of state.operations.slice(1)) {
+      expect(sqlOf(operation.where).sql).toContain('"phd_rounds"');
+      expect(sqlOf(operation.where).sql).not.toContain('"masters_');
+    }
+  });
+
+  it('博士写入拒绝授课型数据和请求体中的表组选择，校验失败不触库', async () => {
+    await expect(phd.saveRound(input())).rejects.toThrow('PhD rounds must use research study type');
+    await expect(phd.saveRound({ ...input(phdRound()), kind: 'masters' } as MastersRoundInput)).rejects.toThrow();
+    expect(state.operations).toHaveLength(0);
+  });
+
+  it('新建博士轮次使用phd前缀，已有自定义同ID仍靠表隔离', async () => {
+    const value = { ...input(phdRound()), id: undefined, expectedUpdatedAt: undefined, status: 'draft' as const };
+    state.responses.push([], [{ ...phdRound(), status: 'draft' }]);
+    await phd.saveRound(value);
+    const operation = writes(phdRounds)[0];
+    expect(valuesOf(operation)[0].id).toMatch(/^phd-[a-f0-9-]{36}$/);
+    expect(operation.conflict).toBe('nothing');
+    expect(writes(mastersRounds)).toHaveLength(0);
+  });
+
+  it.each([
+    { expectedUpdatedAt: '2026-10-13T01:00:00.000Z' },
+    { intakeYear: 2028 },
+  ])('博士的过期版本或跨入学年覆盖被拒绝 %j', async change => {
+    state.responses.push([phdRound()]);
+    expect(await phd.saveRound({ ...input(phdRound()), ...change })).toBeNull();
+    expect(writes(phdRounds)).toHaveLength(0);
+    expect(state.operations[0].table).toBe(phdRounds);
+  });
+
+  it('博士人工暂停阻止自动保存', async () => {
+    state.responses.push([{ ...phdRound(), automationPaused: true }]);
+    expect(await phd.saveRound(input(phdRound()), { automatic: true })).toBeNull();
+    expect(writes(phdRounds)).toHaveLength(0);
+  });
+
+  it.each(['unverified', 'unannounced'] as const)('原始博士草稿首次自动发布从%s核验日期，不显示改期也不生成变更提醒', async deadlineStatus => {
+    const previous = originalPhdDraft();
+    previous.details.deadlineStatus = deadlineStatus;
+    const saved = { ...phdRound(), revision: 2, updatedAt: now };
+    state.responses.push([previous], [saved], [watched(saved)], [{ id: 'deadline' }]);
+
+    await phd.saveRound(input(phdRound()), { automatic: true });
+
+    expect(valuesOf(writes(phdRounds)[0])[0]).toMatchObject({
+      status: 'published', revision: 2, dateVersion: 1, dateChangedAt: null, previousDeadlineText: null,
+    });
+    expect(valuesOf(writes(phdNotices)[0]).map(value => value.kind)).toEqual(['deadline']);
+  });
+
+  it.each([
+    ['人工首次发布', originalPhdDraft, false],
+    ['已公开记录改期', () => ({ ...originalPhdDraft(), status: 'published' as const }), true],
+    ['下架后再发布', () => ({ ...originalPhdDraft(), revision: 3 }), true],
+    ['已经核验的草稿', () => ({ ...originalPhdDraft(), verifiedOn: '2026-10-14' }), true],
+    ['已有改期历史的草稿', () => ({ ...originalPhdDraft(), dateVersion: 2, dateChangedAt: previousTime }), true],
+    ['已有确认日期的草稿', () => ({ ...originalPhdDraft(), details: { ...phdRound().details, deadlineOn: '2027-02-28' } }), true],
+  ] as const)('%s继续保留博士日期版本和变更记录语义', async (_label, createPrevious, automatic) => {
+    const previous = createPrevious();
+    state.responses.push([previous], [phdRound()], []);
+
+    await phd.saveRound(input(phdRound()), { automatic });
+
+    expect(valuesOf(writes(phdRounds)[0])[0]).toMatchObject({
+      dateVersion: previous.dateVersion + 1, dateChangedAt: now,
+    });
+  });
+
+  it('博士草稿自动修订但尚未发布时仍按原合同记录日期变化', async () => {
+    const previous = originalPhdDraft();
+    state.responses.push([previous], [{ ...phdRound(), status: 'draft' }]);
+    await phd.saveRound({ ...input(phdRound()), status: 'draft' }, { automatic: true });
+    expect(valuesOf(writes(phdRounds)[0])[0]).toMatchObject({ dateVersion: 2, dateChangedAt: now });
+  });
+
+  it('硕士原始草稿首次自动发布继续沿用原日期版本合同', async () => {
+    const previous = originalPhdDraft();
+    previous.details.studyType = 'taught';
+    state.responses.push([previous], [round()], []);
+    await saveMastersRound(input(), { automatic: true });
+    expect(valuesOf(writes(mastersRounds)[0])[0]).toMatchObject({ dateVersion: 2, dateChangedAt: now });
+  });
+
+  it('博士日期修订与提醒只在博士表同一事务提交，保留CAS和日期版本', async () => {
+    const previous = phdRound();
+    const saved = { ...previous, revision: 4, dateVersion: 2, dateChangedAt: now,
+      details: { ...previous.details, deadlineOn: '2027-01-15' } };
+    state.responses.push([previous], [saved], [watched(saved)], [{ id: 'deadline' }, { id: 'changed' }]);
+    expect(await phd.saveRound(input(saved))).toEqual(saved);
+    expect(state.operations.map(operation => operation.table)).toEqual([phdRounds, phdRounds, phdWatches, phdNotices]);
+    expect(state.operations.every(operation => operation.transactionId === 1)).toBe(true);
+    expect(valuesOf(writes(phdRounds)[0])[0]).toMatchObject({ revision: 4, dateVersion: 2, automationPaused: true });
+    expect(sqlOf(writes(phdRounds)[0].where).params).toEqual([saved.id, previousTime]);
+    expect(valuesOf(writes(phdNotices)[0]).map(value => value.kind)).toEqual(['deadline', 'changed']);
+  });
+
+  it('博士首次开放证据由历史核验日期确定，伪造值不能递增日期版本', async () => {
+    const previous = { ...phdRound(), details: { ...phdRound().details, opensOn: null, openingState: 'open' as const } };
+    state.responses.push([previous], [previous], []);
+    await phd.saveRound({ ...input(previous), details: { ...previous.details, firstObservedOpenOn: '2020-01-01' } });
+    expect(valuesOf(writes(phdRounds)[0])[0]).toMatchObject({ details: { firstObservedOpenOn: '2026-10-14' }, dateVersion: 1 });
+  });
+
+  it('博士导入只插入草稿，重复导入不覆盖同ID记录', async () => {
+    state.responses.push([{ id: round().id }], []);
+    expect(await phd.importSeeds()).toEqual({ created: 1 });
+    expect(await phd.importSeeds()).toEqual({ created: 0 });
+    expect(state.operations.every(operation => operation.table === phdRounds && operation.kind === 'insert' && operation.conflict === 'nothing')).toBe(true);
+    expect(valuesOf(state.operations[0])[0]).toMatchObject({ id: round().id, status: 'draft', details: { studyType: 'research' } });
+  });
+
+  it('博士关注不存在的轮次时不能因硕士同ID存在而写入', async () => {
+    state.responses.push([round()], []);
+    await getMastersRoundsByIds([round().id]);
+    expect(await phd.saveWatch('owner', { roundId: round().id, status: 'preparing', reminders: true })).toBeNull();
+    expect(state.operations.map(operation => operation.table)).toEqual([mastersRounds, phdRounds]);
+    expect(writes(phdWatches)).toHaveLength(0);
+  });
+
+  it('博士关注、读取和取消均限制当前账号和博士表', async () => {
+    const watch = { roundId: round().id, status: 'preparing' as const, reminders: true };
+    state.responses.push([{ id: watch.roundId }], [{ ...watch, updatedAt: now }], [], [], [], []);
+    await phd.saveWatch('owner', watch);
+    await phd.getWatches('owner');
+    await phd.removeWatch('owner', watch.roundId);
+    expect(state.operations.map(operation => operation.table)).toEqual([phdRounds, phdWatches, phdWatches, phdWatches, phdNotices, phdWatches]);
+    expect(sqlOf(state.operations[2].where).params).toEqual(['preparing', true, 'published', 'owner', watch.roundId]);
+    expect(sqlOf(state.operations[3].where).params).toEqual(['owner']);
+    expect(state.operations[4].transactionId).toBe(state.operations[5].transactionId);
+    for (const operation of state.operations.slice(4)) expect(sqlOf(operation.where).params).toEqual(['owner', watch.roundId]);
+  });
+
+  it('相同账号、轮次和版本可在硕博两表独立生成提醒，各自重复运行仍幂等', async () => {
+    state.responses.push([watched()], [{ id: 'masters' }], [watched(phdRound())], [{ id: 'phd' }], [watched(phdRound())], []);
+    expect(await syncMastersNotices()).toEqual({ created: 1 });
+    expect(await phd.syncNotices()).toEqual({ created: 1 });
+    expect(await phd.syncNotices()).toEqual({ created: 0 });
+    const master = valuesOf(writes(mastersNotices)[0])[0];
+    const doctor = valuesOf(writes(phdNotices)[0])[0];
+    expect(master.id).toBe(doctor.id);
+    expect(writes(phdNotices).every(operation => operation.conflict === 'nothing')).toBe(true);
+    expect(valuesOf(writes(phdNotices)[1])[0].id).toBe(doctor.id);
+  });
+
+  it('博士通知关联和已读更新不能匹配硕士同ID，仍检查当前账号与日期版本', async () => {
+    state.responses.push([], []);
+    await phd.getNotices('owner');
+    await phd.markNoticesRead('owner', ['shared-notice']);
+    expect(state.operations.map(operation => operation.table)).toEqual([phdNotices, phdNotices]);
+    const condition = sqlOf(state.operations[0].where);
+    expect(condition.sql).toContain('"phd_notices"."date_version" = "phd_rounds"."date_version"');
+    expect(condition.params).toEqual(['owner', 'published', 'preparing', true, '2026-12-01T16:00:00.000Z']);
+    for (const join of state.operations[0].joins) expect(sqlOf(join).sql).not.toContain('"masters_');
+    expect(sqlOf(state.operations[0].joins[1]).sql).toContain('"phd_watches"."user_id" = "phd_notices"."user_id"');
+    expect(sqlOf(state.operations[1].where).params).toEqual(['owner', 'shared-notice']);
+  });
+
+  it('博士下架仅更新博士表且保留条件版本和自动暂停', async () => {
+    state.responses.push([{ id: round().id }]);
+    expect(await phd.unpublishRound(round().id, previousTime)).toBe(true);
+    expect(state.operations[0].table).toBe(phdRounds);
+    expect(sqlOf(state.operations[0].where).params).toEqual([round().id, previousTime, 'published']);
+    expect(valuesOf(state.operations[0])[0]).toMatchObject({ status: 'draft', automationPaused: true });
   });
 });

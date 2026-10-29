@@ -2,10 +2,11 @@
 
 import SourceLanguageNote from '@/components/SourceLanguageNote';
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocale } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import { admissionsConfig, type AdmissionsKind } from '@/lib/admissions/config';
 import { buildLoginHref } from '@/lib/login-return';
 import { mastersRegions, type MastersRound, type MastersWatch, type MastersWatchInput } from '@/lib/masters/types';
 import RoundCard, { type MastersRoundDraft } from './RoundCard';
@@ -13,9 +14,10 @@ import MastersCalendar from './MastersCalendar';
 import MastersTimeline from './MastersTimeline';
 import MastersRoundDrawer from './MastersRoundDrawer';
 import { assertMastersOwner, canExportMastersRound, filterMastersRounds, organizeMastersRounds, parseMastersWatch, parseMastersWatches, unavailableWatches, type MastersFilters } from './state';
-import { mastersText } from './text';
+import { mastersText, phdText } from './text';
 
 export interface MastersHubProps {
+  kind?: AdmissionsKind;
   year: number;
   nowIso: string;
   rounds: MastersRound[];
@@ -35,8 +37,8 @@ function subscribeClock(listener: () => void) {
 }
 const minuteNow = () => Math.floor(Date.now() / 60_000) * 60_000;
 
-async function fetchWatches(userId: string) {
-  const response = await fetch('/api/masters/watches', { cache: 'no-store' });
+async function fetchWatches(userId: string, kind: AdmissionsKind) {
+  const response = await fetch(`${admissionsConfig[kind].apiBase}/watches`, { cache: 'no-store' });
   if (!response.ok) throw new Error('Watches unavailable');
   return parseMastersWatches(await response.json(), userId);
 }
@@ -44,12 +46,14 @@ async function fetchWatches(userId: string) {
 export default function MastersHub(props: MastersHubProps) {
   const { user, loading } = useAuth();
   const identity = loading ? props.userId : user?.id ?? null;
-  return <MastersHubForIdentity key={`${identity === null ? 'guest' : `user:${identity}`}:${props.year}`} {...props} activeUserId={identity} />;
+  return <MastersHubForIdentity key={`${props.kind ?? 'masters'}:${identity === null ? 'guest' : `user:${identity}`}:${props.year}`} {...props} activeUserId={identity} />;
 }
 
-function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, initialWatches, watchedRounds, loadFailed = false, watchesFailed = false, initialCalendarMode = 'calendar' }: MastersHubProps & { activeUserId: string | null }) {
+function MastersHubForIdentity({ kind = 'masters', year, nowIso, rounds, userId, activeUserId, initialWatches, watchedRounds, loadFailed = false, watchesFailed = false, initialCalendarMode = 'calendar' }: MastersHubProps & { activeUserId: string | null }) {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
-  const copy = mastersText[locale];
+  const config = admissionsConfig[kind];
+  const copy = (kind === 'phd' ? phdText : mastersText)[locale];
+  const returnTo = `${config.href}?year=${year}`;
   const router = useRouter();
   const sameIdentity = activeUserId !== null && activeUserId === userId;
   const needsFetch = activeUserId !== null && !sameIdentity;
@@ -65,6 +69,11 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
   const [selected, setSelected] = useState<string[]>([]);
   const [pending, setPending] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   const clock = useSyncExternalStore(subscribeClock, minuteNow, useCallback(() => Date.parse(nowIso), [nowIso]));
   const now = new Date(clock);
 
@@ -72,24 +81,26 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
     // 同一账号退出后再次登录时，旧 RSC 初始值也不能覆盖最新申请进度。
     if (!activeUserId) return;
     let cancelled = false;
-    fetchWatches(activeUserId).then(value => {
+    fetchWatches(activeUserId, kind).then(value => {
       if (cancelled) return;
+      if (!mounted.current) return;
       setWatches(value.watches);
       setOwnRounds(value.rounds);
       setWatchStatus('ready');
     }).catch(() => { if (!cancelled) setWatchStatus('failed'); });
     return () => { cancelled = true; };
-  }, [activeUserId]);
+  }, [activeUserId, kind]);
 
   const reloadWatches = async () => {
     if (!activeUserId) return;
     setWatchStatus('loading');
     try {
-      const value = await fetchWatches(activeUserId);
+      const value = await fetchWatches(activeUserId, kind);
+      if (!mounted.current) return;
       setWatches(value.watches);
       setOwnRounds(value.rounds);
       setWatchStatus('ready');
-    } catch { setWatchStatus('failed'); }
+    } catch { if (mounted.current) setWatchStatus('failed'); }
   };
 
   const updateWatch = async (roundId: string, input?: MastersWatchInput) => {
@@ -97,13 +108,14 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
     setPending(previous => [...previous, roundId]);
     setErrors(previous => ({ ...previous, [roundId]: '' }));
     try {
-      const response = await fetch('/api/masters/watches', {
+      const response = await fetch(`${config.apiBase}/watches`, {
         method: input ? 'PUT' : 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'X-Masters-User': activeUserId },
+        headers: { 'Content-Type': 'application/json', [config.ownerHeader]: activeUserId },
         body: JSON.stringify(input ?? { roundId }),
       });
       if (!response.ok) throw new Error('Watch save failed');
       const data: unknown = await response.json();
+      if (!mounted.current) return;
       assertMastersOwner(data, activeUserId);
       if (input) {
         const watch = parseMastersWatch(data, activeUserId);
@@ -118,10 +130,11 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
       }
       // 仅显式保存/取消关注成功后清除此轮草稿，两处表单随后共用新的服务端状态。
       setDrafts(previous => { const next = { ...previous }; delete next[roundId]; return next; });
-      window.dispatchEvent(new Event('masters-watches-changed'));
+      window.dispatchEvent(new Event(config.changedEvent));
     } catch {
+      if (!mounted.current) return;
       setErrors(previous => ({ ...previous, [roundId]: copy.saveFailed }));
-    } finally { setPending(previous => previous.filter(id => id !== roundId)); }
+    } finally { if (mounted.current) setPending(previous => previous.filter(id => id !== roundId)); }
   };
 
   const byId = new Map([...ownRounds, ...rounds].map(round => [round.id, round]));
@@ -150,10 +163,11 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
   };
   const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-white disabled:opacity-40';
   const selectClass = 'mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-zinc-950 px-3 text-sm text-white';
+  const saveWatch = (input: MastersWatchInput) => { void updateWatch(input.roundId, input); };
   const renderRound = (round: MastersRound, idPrefix = 'round') => {
     const watch = watches.find(item => item.roundId === round.id);
     const draft = drafts[round.id] ?? { status: watch?.status ?? 'preparing', reminders: watch?.reminders ?? false };
-    return <RoundCard key={`${idPrefix}:${round.id}`} idPrefix={idPrefix} round={round} watch={watch} now={now} locale={locale} copy={copy} signedIn={!!activeUserId} watchesReady={watchStatus === 'ready'} busy={pending.includes(round.id)} error={errors[round.id]} selected={exportIds.includes(round.id)} selectionFull={selected.length >= 50} draft={draft} onDraftChange={value => setDrafts(previous => ({ ...previous, [round.id]: value }))} onSelect={toggleSelected} onSave={input => { void updateWatch(round.id, input); }} onRemove={id => { void updateWatch(id); }} />;
+    return <RoundCard key={`${idPrefix}:${round.id}`} idPrefix={idPrefix} returnTo={returnTo} round={round} watch={watch} now={now} locale={locale} copy={copy} signedIn={!!activeUserId} watchesReady={watchStatus === 'ready'} busy={pending.includes(round.id)} error={errors[round.id]} selected={exportIds.includes(round.id)} selectionFull={selected.length >= 50} draft={draft} onDraftChange={value => setDrafts(previous => ({ ...previous, [round.id]: value }))} onSelect={toggleSelected} onSave={saveWatch} onRemove={updateWatch} />;
   };
   const renderGroups = (groups: typeof organized.active) => groups.map(group => <section key={group.key} className="space-y-4">
     {group.rounds.length > 1 && <h2 className="px-1 t-title-4 text-violet-200">{group.rounds[0].details.university} · {group.rounds[0].details.programme} <span className="t-footnote text-white/60">({group.rounds.length} {copy.rounds})</span></h2>}
@@ -168,12 +182,15 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
     <div className="mx-auto max-w-5xl">
       <header className="border-b border-white/10 pb-5">
         <Link href="/daily" className="inline-flex min-h-10 items-center t-footnote text-violet-200">← {locale === 'zh' ? '每日一新' : 'Daily Fresh'}</Link>
-        <p className="mt-2 t-eyebrow text-violet-300">MASTERS · ADMISSIONS</p>
+        <p className="mt-2 t-eyebrow text-violet-300">{config.eyebrow}</p>
+        <nav aria-label={locale === 'zh' ? '申请学位' : 'Application degree'} className="mt-3 flex gap-3">
+          {(['masters', 'phd'] as const).map(value => <Link key={value} href={`${admissionsConfig[value].href}?year=${year}`} aria-current={kind === value ? 'page' : undefined} className={`inline-flex min-h-11 items-center border-b-2 px-2 text-sm ${kind === value ? 'border-violet-300 text-violet-100' : 'border-transparent text-white/60'}`}>{admissionsConfig[value].label[locale]}</Link>)}
+        </nav>
         <h1 className="mt-3 t-title-1 text-white">{copy.title}</h1>
         <p className="mt-2 t-footnote text-white/70">{copy.description}</p>
         <SourceLanguageNote locale={locale} />
-        <form className="mt-4 flex flex-wrap items-end gap-3" onSubmit={event => { event.preventDefault(); const value = Number(yearInput); if (Number.isInteger(value) && value >= 2020 && value <= 2100) router.push(`/masters?year=${value}`); }}>
-          <label className="t-footnote text-white/70" htmlFor="masters-year">{copy.year}<input id="masters-year" type="number" min={2020} max={2100} required value={yearInput} onChange={event => setYearInput(event.target.value)} className={`${selectClass} max-w-36`} /></label>
+        <form className="mt-4 flex flex-wrap items-end gap-3" onSubmit={event => { event.preventDefault(); const value = Number(yearInput); if (Number.isInteger(value) && value >= 2020 && value <= 2100) router.push(`${config.href}?year=${value}`); }}>
+          <label className="t-footnote text-white/70" htmlFor={`${kind}-year`}>{copy.year}<input id={`${kind}-year`} type="number" min={2020} max={2100} required value={yearInput} onChange={event => setYearInput(event.target.value)} className={`${selectClass} max-w-36`} /></label>
           <button type="submit" className={buttonClass}>{copy.applyYear}</button>
         </form>
         {!loadFailed && <aside data-masters-coverage className="mt-4 space-y-1 rounded-xl border border-white/10 px-4 py-3 t-footnote text-white/70">
@@ -198,11 +215,11 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
       </div>
       <details className="mb-5 rounded-xl border border-white/10 px-4"><summary className="min-h-11 cursor-pointer py-3 t-footnote text-white/70">{copy.moreFilters}{[filters.school, filters.subject, filters.intake, filters.studyType].some(Boolean) ? ` · ${copy.filtersActive}` : ''}</summary><div className="grid gap-4 pb-4 sm:grid-cols-2 lg:grid-cols-3">
         {([['school', 'university'], ['subject', 'subject'], ['intake', 'intakeLabel']] as const).map(([field, detail]) => <label key={field} className="t-footnote text-white/70">{copy[field]}<select className={selectClass} value={filters[field]} onChange={event => setFilters(previous => ({ ...previous, [field]: event.target.value }))}><option value="">{copy.allOption}</option>{options(detail).map(value => <option key={value} value={value}>{value}</option>)}</select></label>)}
-        <label className="t-footnote text-white/70">{copy.studyType}<select className={selectClass} value={filters.studyType} onChange={event => setFilters(previous => ({ ...previous, studyType: event.target.value }))}><option value="">{copy.allOption}</option><option value="taught">{copy.taught}</option><option value="research">{copy.research}</option></select></label>
+        {kind === 'masters' && <label className="t-footnote text-white/70">{copy.studyType}<select className={selectClass} value={filters.studyType} onChange={event => setFilters(previous => ({ ...previous, studyType: event.target.value }))}><option value="">{copy.allOption}</option><option value="taught">{copy.taught}</option><option value="research">{copy.research}</option></select></label>}
         <button type="button" className={`${buttonClass} self-end`} onClick={() => setFilters({ year, region: '', school: '', subject: '', studyType: '', intake: '' })}>{copy.resetFilters}</button>
       </div></details>
 
-      {!activeUserId && <p className="mb-4 t-footnote text-white/60"><Link href={buildLoginHref('/masters')} className="inline-flex min-h-10 items-center text-violet-200 underline underline-offset-4">{copy.login}</Link></p>}
+      {!activeUserId && <p className="mb-4 t-footnote text-white/60"><Link href={buildLoginHref(returnTo)} className="inline-flex min-h-10 items-center text-violet-200 underline underline-offset-4">{copy.login}</Link></p>}
       {activeUserId && watchStatus !== 'ready' && <div role="status" className="mb-6 rounded-xl border border-amber-300/20 p-5"><p className="t-footnote text-amber-200">{watchStatus === 'loading' ? copy.loading : copy.watchesFailed}</p>{watchStatus === 'failed' && <button type="button" onClick={reloadWatches} className={`${buttonClass} mt-3`}>{copy.retry}</button>}</div>}
       {view === 'all' && loadFailed ? <div role="alert" className="rounded-xl border border-amber-300/20 p-7"><h2 className="t-title-3 text-white">{copy.contentFailed}</h2><button type="button" onClick={() => router.refresh()} className={`${buttonClass} mt-4`}>{copy.retry}</button></div>
         : view === 'mine' && (!activeUserId || watchStatus !== 'ready') ? null
@@ -220,7 +237,7 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
               <h2 id="masters-round-list-title" className="t-title-3 text-white">{copy.listTitle}</h2>
               <div className="mb-5 mt-4 border-y border-white/10 py-3">
                 <div className="flex flex-wrap items-center gap-3">
-                  {exportIds.length > 0 ? <a href={`/api/masters/calendar?ids=${encodeURIComponent(exportIds.join(','))}`} download className={buttonClass}>{copy.export} ({exportIds.length})</a> : <button type="button" disabled className={buttonClass}>{copy.export}</button>}
+                  {exportIds.length > 0 ? <a href={`${config.apiBase}/calendar?ids=${encodeURIComponent(exportIds.join(','))}`} download className={buttonClass}>{copy.export} ({exportIds.length})</a> : <button type="button" disabled className={buttonClass}>{copy.export}</button>}
                   <span className="t-footnote text-white/60">{copy.selected} {exportIds.length}/50</span>
                   {selected.length > 0 && <button type="button" onClick={() => setSelected([])} className="min-h-11 px-2 t-footnote text-white/70 underline underline-offset-4">{copy.clearSelection}</button>}
                 </div>
