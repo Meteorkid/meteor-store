@@ -1,0 +1,147 @@
+{
+  "environment": "isolated local database; synthetic account used only on localhost:3000",
+  "checks": [
+    {
+      "case": "two calendar modes above persistent list",
+      "pass": true,
+      "buttons": 2,
+      "calendarBottom": 2103.65625,
+      "cards": 10,
+      "list": true,
+      "listTop": 2151.65625
+    },
+    {
+      "case": "month legend opens matching drawer with distinct card IDs",
+      "pass": true
+    },
+    {
+      "case": "close restores scroll/focus; export selection shared",
+      "pass": true,
+      "focus": "hkust-mimt-2027-phase-2",
+      "overflow": "",
+      "position": "",
+      "scrollY": 709,
+      "selected": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "cityu-macau-fintech-2027",
+      "pass": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "hku-msccs-general-2027-main",
+      "pass": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "hku-msccs-general-2027-clearing",
+      "pass": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "hkust-mimt-2027-phase-1",
+      "pass": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "hkust-mimt-2027-phase-2",
+      "pass": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "hkust-mimt-2027-phase-3",
+      "pass": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "hkust-mimt-2027-phase-4",
+      "pass": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "nus-mcomp-infosec-2027-august",
+      "pass": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "uq-computer-science-2027-international-semester-1",
+      "pass": true
+    },
+    {
+      "case": "year deadline opens own drawer; Escape restores marker",
+      "id": "uq-computer-science-2027-international-semester-2",
+      "pass": true
+    },
+    {
+      "case": "year duration bar opens side details",
+      "pass": true
+    },
+    {
+      "case": "native dialog focus wraps both directions",
+      "pass": true
+    },
+    {
+      "case": "search receives focus after drawer releases lock",
+      "pass": true
+    },
+    {
+      "case": "backdrop closes without navigation",
+      "pass": true
+    },
+    {
+      "case": "month keyboard bar and direct date node",
+      "pass": true
+    },
+    {
+      "case": "local signed-in list draft visible in drawer",
+      "pass": true
+    },
+    {
+      "case": "local signed-in save updates persistent list",
+      "pass": true
+    },
+    {
+      "case": "390px full-width drawer with internal scrolling",
+      "pass": true,
+      "article": "drawer-round-uq-computer-science-2027-international-semester-2",
+      "height": 844,
+      "page": 390,
+      "panel": 390,
+      "scrollables": [
+        {
+          "client": 767,
+          "scroll": 844
+        }
+      ],
+      "viewport": 390,
+      "width": 390
+    },
+    {
+      "case": "final local authenticated save preserves action focus",
+      "pass": true,
+      "inDrawer": true,
+      "label": "保存进度",
+      "tag": "BUTTON"
+    },
+    {
+      "case": "new round resets detail scroll only",
+      "pass": true
+    },
+    {
+      "case": "new follow focuses its own progress control",
+      "pass": true,
+      "id": "drawer-round-uq-computer-science-2027-international-semester-2-progress",
+      "tag": "SELECT"
+    },
+    {
+      "case": "375px English single page and drawer",
+      "pass": true,
+      "article": "drawer-round-nus-mcomp-infosec-2027-august",
+      "page": 375,
+      "viewport": 375,
+      "width": 375
+    }
+  ],
+  "console": []
+}

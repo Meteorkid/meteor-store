@@ -1,0 +1,16 @@
+{
+  "localOnly": true,
+  "syntheticAccount": true,
+  "watches": [
+    {
+      "round_id": "hkust-mimt-2027-phase-2",
+      "status": "preparing",
+      "reminders": false
+    },
+    {
+      "round_id": "uq-computer-science-2027-international-semester-2",
+      "status": "preparing",
+      "reminders": false
+    }
+  ]
+}

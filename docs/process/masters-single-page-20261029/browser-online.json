@@ -1,0 +1,121 @@
+{
+  "release": "bae94d979288a7798ce686c15dd99d9b6af95933",
+  "url": "https://www.imagentx.top/zh/masters?year=2027",
+  "checks": [
+    {
+      "case": "two calendar modes above persistent list",
+      "pass": true,
+      "calendarBottom": 2103.65625,
+      "cards": 10,
+      "listTop": 2151.65625,
+      "modes": 2
+    },
+    {
+      "case": "month legend opens correct drawer with isolated IDs",
+      "pass": true
+    },
+    {
+      "case": "shared export and original scroll/focus restored",
+      "pass": true
+    },
+    {
+      "case": "calendar switch preserves list",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "cityu-macau-fintech-2027",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "hku-msccs-general-2027-main",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "hku-msccs-general-2027-clearing",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "hkust-mimt-2027-phase-1",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "hkust-mimt-2027-phase-2",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "hkust-mimt-2027-phase-3",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "hkust-mimt-2027-phase-4",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "nus-mcomp-infosec-2027-august",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "uq-computer-science-2027-international-semester-1",
+      "pass": true
+    },
+    {
+      "case": "exact side details and Escape focus",
+      "id": "uq-computer-science-2027-international-semester-2",
+      "pass": true
+    },
+    {
+      "case": "year bar opens side panel directly",
+      "pass": true
+    },
+    {
+      "case": "dialog keyboard focus loop",
+      "pass": true
+    },
+    {
+      "case": "search takes focus after drawer releases body lock",
+      "pass": true
+    },
+    {
+      "case": "backdrop closes without navigation",
+      "pass": true
+    },
+    {
+      "case": "month bar keyboard and direct date chip",
+      "pass": true
+    },
+    {
+      "case": "390px drawer fits viewport and starts at top",
+      "pass": true,
+      "page": 390,
+      "scrollTop": 0,
+      "viewport": 390,
+      "width": 390
+    },
+    {
+      "case": "new round resets inner scroll",
+      "pass": true
+    },
+    {
+      "case": "375px English calendar/list and drawer",
+      "pass": true
+    },
+    {
+      "case": "calendar and list share school filter",
+      "pass": true
+    },
+    {
+      "case": "drawer login link releases lock and opens login at top",
+      "pass": true
+    }
+  ],
+  "console": []
+}
