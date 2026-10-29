@@ -1,0 +1,29 @@
+{
+  "candidate": "cf6eaf517c707ad69a6334c00a5667d1a36a12ef",
+  "previousRuntime": "cb3f9fe7e5931f003e06c0b4c2f13bf1c6fa0724",
+  "archiveSha256": "5fba8f9510d6f0dd3c748f036dedc2367bd362b27bfb7561884d58f2d637af0a",
+  "archiveBytes": 22747870,
+  "buildId": "build-TfctsWXpff2fKS",
+  "readOnlyProductionBuild": true,
+  "fullTestsPassed": 3563,
+  "fullTestsSkipped": 43,
+  "publicChunks": {
+    ".next/static/chunks/3l8s3id6o_s3u.js": "2a4ab2b637ebba75faf89b993d428649c001dd75b9c5e5f09a48905a8436a36e"
+  },
+  "deployedAtBeijing": "2026-10-29 17:22",
+  "pid": 1672288,
+  "managedPidOwnsLoopbackPort": true,
+  "completeBackup": "/var/backups/meteor-store-rounds-20261029-m8d4583k",
+  "runtimeBackup": "/var/backups/meteor-store-runtime-bsuTIKrq",
+  "databaseBackupTables": 42,
+  "privateR2BackupVerified": true,
+  "productionConfigAndCronUnchanged": true,
+  "databaseAndIngestionUnchanged": true,
+  "localBrowserPassed": 18,
+  "onlineBrowserPassed": 20,
+  "consoleWarningsOrErrors": 0,
+  "warmupRequests": 36,
+  "warmupFailed": 0,
+  "buildCredentialsRemoved": true,
+  "readOnlyTunnelClosed": true
+}

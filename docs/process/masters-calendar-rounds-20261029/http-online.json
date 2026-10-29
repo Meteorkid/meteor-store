@@ -1,0 +1,476 @@
+{
+  "verifiedAt": "2026-10-29T09:24:18.056121+00:00",
+  "releaseSha": "cf6eaf517c707ad69a6334c00a5667d1a36a12ef",
+  "baseUrl": "https://www.imagentx.top",
+  "method": "GET only; maximum three concurrent requests; no account or cron requests",
+  "routes": [
+    {
+      "path": "/zh/masters?year=2027",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "finalPath": "/zh/masters?year=2027",
+      "bytes": 238692,
+      "elapsedMs": 735
+    },
+    {
+      "path": "/en/masters?year=2027",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "finalPath": "/en/masters?year=2027",
+      "bytes": 247012,
+      "elapsedMs": 242
+    },
+    {
+      "path": "/zh",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "finalPath": "/zh",
+      "bytes": 240714,
+      "elapsedMs": 1786
+    },
+    {
+      "path": "/zh/daily",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "finalPath": "/zh/daily",
+      "bytes": 234981,
+      "elapsedMs": 1115
+    },
+    {
+      "path": "/zh/blog",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "finalPath": "/zh/blog",
+      "bytes": 217250,
+      "elapsedMs": 2688
+    },
+    {
+      "path": "/zh/products",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "finalPath": "/zh/products",
+      "bytes": 312540,
+      "elapsedMs": 2257
+    },
+    {
+      "path": "/zh/help",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "finalPath": "/zh/help",
+      "bytes": 155837,
+      "elapsedMs": 469
+    },
+    {
+      "path": "/zh/apps/tollow/trial",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "finalPath": "/zh/apps/tollow/trial",
+      "bytes": 158232,
+      "elapsedMs": 1062
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "contentType": "application/json",
+      "finalPath": "/api/health",
+      "bytes": 176,
+      "elapsedMs": 384
+    },
+    {
+      "path": "/api/masters?year=2027",
+      "status": 200,
+      "contentType": "application/json",
+      "finalPath": "/api/masters?year=2027",
+      "bytes": 12901,
+      "elapsedMs": 95
+    }
+  ],
+  "health": {
+    "status": "healthy",
+    "timestamp": "2026-10-29T09:24:12.825Z",
+    "checks": {
+      "self": {
+        "status": "ok"
+      },
+      "database": {
+        "status": "ok",
+        "latency_ms": 1
+      },
+      "redis": {
+        "status": "ok",
+        "latency_ms": 300
+      }
+    }
+  },
+  "masters": {
+    "count": 10,
+    "publishedCount": 10,
+    "intakeYears": [
+      2027
+    ],
+    "roundFields": [
+      "createdAt",
+      "dateChangedAt",
+      "dateVersion",
+      "details",
+      "id",
+      "intakeYear",
+      "previousDeadlineText",
+      "region",
+      "revision",
+      "status",
+      "updatedAt",
+      "verifiedOn"
+    ],
+    "detailFields": [
+      "applicantGroup",
+      "deadlineAt",
+      "deadlineOn",
+      "deadlineStatus",
+      "deadlineText",
+      "deadlineTimeZone",
+      "eventType",
+      "intakeLabel",
+      "mayCloseEarly",
+      "officialUrl",
+      "openingNote",
+      "openingState",
+      "opensOn",
+      "programme",
+      "rolling",
+      "roundName",
+      "sourceNote",
+      "studyMode",
+      "studyType",
+      "subject",
+      "university"
+    ],
+    "firstObservedOpenOnCount": 0
+  },
+  "ics": {
+    "path": "/api/masters/calendar?ids=uq-computer-science-2027-international-semester-1%2Cuq-computer-science-2027-international-semester-2",
+    "status": 200,
+    "contentType": "text/calendar; charset=utf-8",
+    "finalPath": "/api/masters/calendar?ids=uq-computer-science-2027-international-semester-1%2Cuq-computer-science-2027-international-semester-2",
+    "bytes": 3523,
+    "elapsedMs": 95,
+    "eventCount": 2,
+    "calendarEnvelope": true,
+    "containsUqIds": {
+      "uq-computer-science-2027-international-semester-1": true,
+      "uq-computer-science-2027-international-semester-2": true
+    },
+    "usesCrlf": true
+  },
+  "assets": [
+    {
+      "path": "/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/02lhne5ld25kp.js?dpl=static-recovery-20261016",
+      "bytes": 85463,
+      "elapsedMs": 1087,
+      "mimeValid": true,
+      "sha256": "ed304b0e559c2f1e4c8d39e23c530e2edd9cfdef52d3e1744e2abf3f6ef3d78b",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/09o4sa9231g80.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/09o4sa9231g80.js?dpl=static-recovery-20261016",
+      "bytes": 51460,
+      "elapsedMs": 221,
+      "mimeValid": true,
+      "sha256": "83d830697a2c669d910426dc7562c62e7938d853974b8f0c94d4107e9a6a1542",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016",
+      "bytes": 13465,
+      "elapsedMs": 96,
+      "mimeValid": true,
+      "sha256": "659bf5b3d3e16f76f4ea2358afacecf10c0850ac5b88dcff32491b5caee44c4c",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/0cz1d0mv5g_q7.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/0cz1d0mv5g_q7.js?dpl=static-recovery-20261016",
+      "bytes": 112594,
+      "elapsedMs": 467,
+      "mimeValid": true,
+      "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016",
+      "bytes": 204919,
+      "elapsedMs": 1305,
+      "mimeValid": true,
+      "sha256": "7f51aecdfbaf134d2af165642d9f4833537479d4ddcb34ad5d7a94f2b0b5bf3d",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016",
+      "bytes": 40154,
+      "elapsedMs": 499,
+      "mimeValid": true,
+      "sha256": "4ed9e2dba988c7733e638d67102c66e3eee929dde4e11e496e4a4ab48bada030",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/100e44bl4baa_.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/100e44bl4baa_.js?dpl=static-recovery-20261016",
+      "bytes": 273748,
+      "elapsedMs": 1942,
+      "mimeValid": true,
+      "sha256": "03cf40ac2a2658d7cd0028e99cdf6198c2915a583260d4c893d298295005be7f",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016",
+      "bytes": 32456,
+      "elapsedMs": 456,
+      "mimeValid": true,
+      "sha256": "850990d1e93947df329cbcf575bb68cab558ec3ff49934790d34e2df60a6b001",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/16pluv0e6avry.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/16pluv0e6avry.js?dpl=static-recovery-20261016",
+      "bytes": 10787,
+      "elapsedMs": 84,
+      "mimeValid": true,
+      "sha256": "f94b60dbcefc92ab480da49bd5d5ef112e490de2a4965170a21c1b526c11496e",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/1e4e7_7lx_3jy.css?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "text/css",
+      "finalPath": "/_next/static/chunks/1e4e7_7lx_3jy.css?dpl=static-recovery-20261016",
+      "bytes": 277321,
+      "elapsedMs": 1083,
+      "mimeValid": true,
+      "sha256": "b007fac7f5ae4164086e8754eb9426acfe10fb6b1511899c0acf1700743752ff",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016",
+      "bytes": 14254,
+      "elapsedMs": 479,
+      "mimeValid": true,
+      "sha256": "a41c6c62a46645c70be7169a44c639e658b0374cd93d91c52d0e254245f72a4a",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016",
+      "bytes": 7492,
+      "elapsedMs": 109,
+      "mimeValid": true,
+      "sha256": "923cf23df776708f724042bbe986c6f7a4f1b70ef03d726f8f4a4f6ae4048742",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/25_cr4f57lo2w.css?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "text/css",
+      "finalPath": "/_next/static/chunks/25_cr4f57lo2w.css?dpl=static-recovery-20261016",
+      "bytes": 14017,
+      "elapsedMs": 368,
+      "mimeValid": true,
+      "sha256": "9c4bb8b43aecedd2b041364e4a7f2e734c1a37e77ad545dabd572b7bf52fa000",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016",
+      "bytes": 30615,
+      "elapsedMs": 374,
+      "mimeValid": true,
+      "sha256": "747e7573e5deec6023db15808d52f37cbc055093cb83702f7ac2c64d9427cc65",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "text/css",
+      "finalPath": "/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016",
+      "bytes": 1009,
+      "elapsedMs": 302,
+      "mimeValid": true,
+      "sha256": "1dfe53a4ac85a5f57b2d365f60f4d0e36653ae859ebd9cfe68fbd6f429a783ae",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016",
+      "bytes": 1519,
+      "elapsedMs": 79,
+      "mimeValid": true,
+      "sha256": "1702f28f9acc7e5c9f5c4b3a562143a5b86652c1587b5e473d5a39f5621dd99c",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016",
+      "bytes": 283794,
+      "elapsedMs": 1645,
+      "mimeValid": true,
+      "sha256": "3edfc42e360e491796fc4ae3c05e0bb1a4176d537f72c3bfce7077bfd0afa831",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/3gquvyaajil2k.js?dpl=static-recovery-20261016",
+      "bytes": 23738,
+      "elapsedMs": 655,
+      "mimeValid": true,
+      "sha256": "9eed3b186cccd5be051807906c96b03b942967f815b7672af8452310268f8fdc",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016",
+      "bytes": 1013,
+      "elapsedMs": 133,
+      "mimeValid": true,
+      "sha256": "3cb9dd43c68dc1192c3b0d4b5fd6536f9e639c453b527a735eb5fe2a12285bf9",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/3l8s3id6o_s3u.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/3l8s3id6o_s3u.js?dpl=static-recovery-20261016",
+      "bytes": 74742,
+      "elapsedMs": 615,
+      "mimeValid": true,
+      "sha256": "2a4ab2b637ebba75faf89b993d428649c001dd75b9c5e5f09a48905a8436a36e",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016",
+      "bytes": 156084,
+      "elapsedMs": 1394,
+      "mimeValid": true,
+      "sha256": "0cc627a8142995f6b2dc35e87952019e88fb5d930ee27a5e2ed9742dd2a6fd85",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/3sk183iiypev1.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/3sk183iiypev1.js?dpl=static-recovery-20261016",
+      "bytes": 235672,
+      "elapsedMs": 1167,
+      "mimeValid": true,
+      "sha256": "8abb8f37065e6d46da3f119cfb4bae8b3e93db637a39f2cd034c1260c87dad6c",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/turbopack-2o-cx0ywelwnx.js?dpl=static-recovery-20261016",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/turbopack-2o-cx0ywelwnx.js?dpl=static-recovery-20261016",
+      "bytes": 11315,
+      "elapsedMs": 328,
+      "mimeValid": true,
+      "sha256": "c5a14197a0aba456788a325ec29cccd6830b8301ff72abff9a464dc9218db792",
+      "referencedByMastersHtml": true
+    },
+    {
+      "path": "/_next/static/chunks/3l8s3id6o_s3u.js",
+      "status": 200,
+      "contentType": "application/javascript",
+      "finalPath": "/_next/static/chunks/3l8s3id6o_s3u.js",
+      "bytes": 74742,
+      "elapsedMs": 292,
+      "mimeValid": true,
+      "sha256": "2a4ab2b637ebba75faf89b993d428649c001dd75b9c5e5f09a48905a8436a36e",
+      "referencedByMastersHtml": false
+    }
+  ],
+  "featureChunk": {
+    "path": "/_next/static/chunks/3l8s3id6o_s3u.js",
+    "expectedSha256": "2a4ab2b637ebba75faf89b993d428649c001dd75b9c5e5f09a48905a8436a36e",
+    "responses": [
+      {
+        "path": "/_next/static/chunks/3l8s3id6o_s3u.js?dpl=static-recovery-20261016",
+        "status": 200,
+        "contentType": "application/javascript",
+        "finalPath": "/_next/static/chunks/3l8s3id6o_s3u.js?dpl=static-recovery-20261016",
+        "bytes": 74742,
+        "elapsedMs": 615,
+        "mimeValid": true,
+        "sha256": "2a4ab2b637ebba75faf89b993d428649c001dd75b9c5e5f09a48905a8436a36e",
+        "referencedByMastersHtml": true
+      },
+      {
+        "path": "/_next/static/chunks/3l8s3id6o_s3u.js",
+        "status": 200,
+        "contentType": "application/javascript",
+        "finalPath": "/_next/static/chunks/3l8s3id6o_s3u.js",
+        "bytes": 74742,
+        "elapsedMs": 292,
+        "mimeValid": true,
+        "sha256": "2a4ab2b637ebba75faf89b993d428649c001dd75b9c5e5f09a48905a8436a36e",
+        "referencedByMastersHtml": false
+      }
+    ],
+    "hashMatches": true,
+    "referencedByMastersHtml": true
+  },
+  "summary": {
+    "routesAll200": true,
+    "healthHealthy": true,
+    "mastersCount10": true,
+    "icsHasTwoEvents": true,
+    "htmlReferencedAssets": 23,
+    "htmlReferencedJsCount": 20,
+    "htmlReferencedCssCount": 3,
+    "assetRequests": 24,
+    "assetsAll200": true,
+    "assetsAllValidMime": true,
+    "featureHashMatches": true,
+    "featureReferencedByHtml": true,
+    "getRequestCount": 35
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "release": "cf6eaf517c707ad69a6334c00a5667d1a36a12ef",
+  "url": "https://www.imagentx.top/zh/masters?year=2027",
+  "checks": [
+    {
+      "case": "month four independent round bars",
+      "pass": true
+    },
+    {
+      "case": "November excludes padding deadlines",
+      "pass": true
+    },
+    {
+      "case": "10 distinct rows, four independent bars, 44px targets",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "cityu-macau-fintech-2027",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "hku-msccs-general-2027-main",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "hku-msccs-general-2027-clearing",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "hkust-mimt-2027-phase-1",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "hkust-mimt-2027-phase-2",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "hkust-mimt-2027-phase-3",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "hkust-mimt-2027-phase-4",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "nus-mcomp-infosec-2027-august",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "uq-computer-science-2027-international-semester-1",
+      "pass": true
+    },
+    {
+      "case": "exact round location",
+      "id": "uq-computer-science-2027-international-semester-2",
+      "pass": true
+    },
+    {
+      "case": "390px compact overview",
+      "pass": true,
+      "client": 348,
+      "page": 382,
+      "scroll": 348,
+      "viewport": 390
+    },
+    {
+      "case": "mobile horizontal zoom",
+      "pass": true,
+      "client": 348,
+      "offset": 382,
+      "scroll": 944
+    },
+    {
+      "case": "keyboard exact round target",
+      "pass": true
+    },
+    {
+      "case": "single round detail only",
+      "pass": true
+    },
+    {
+      "case": "375px English view",
+      "pass": true
+    },
+    {
+      "case": "school filter keeps four independent phases",
+      "pass": true
+    },
+    {
+      "case": "same programme phases do not self-count overlap",
+      "pass": true
+    }
+  ],
+  "console": []
+}
