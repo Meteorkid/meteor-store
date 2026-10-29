@@ -10,6 +10,7 @@ import { buildLoginHref } from '@/lib/login-return';
 import { mastersRegions, type MastersRound, type MastersWatch, type MastersWatchInput } from '@/lib/masters/types';
 import RoundCard from './RoundCard';
 import MastersCalendar from './MastersCalendar';
+import MastersTimeline from './MastersTimeline';
 import { assertMastersOwner, canExportMastersRound, filterMastersRounds, organizeMastersRounds, parseMastersWatch, parseMastersWatches, unavailableWatches, type MastersFilters } from './state';
 import { mastersText } from './text';
 
@@ -23,7 +24,7 @@ export interface MastersHubProps {
   loadFailed?: boolean;
   watchesFailed?: boolean;
   /** 初始视图。默认日历，列表留给需要逐条精读时切换。 */
-  initialMode?: 'list' | 'calendar';
+  initialMode?: 'list' | 'calendar' | 'timeline';
 }
 
 function subscribeClock(listener: () => void) {
@@ -57,7 +58,7 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
   const [view, setView] = useState<'all' | 'mine'>('all');
   // 默认进日历：一眼看清申请节奏与「还在不在申请期内」是这张页面的主要用途，
   // 列表留给需要逐条精读和关注轮次时切换。
-  const [mode, setMode] = useState<'list' | 'calendar'>(initialMode);
+  const [mode, setMode] = useState<'list' | 'calendar' | 'timeline'>(initialMode);
   const [yearInput, setYearInput] = useState(String(year));
   const [filters, setFilters] = useState<MastersFilters>({ year, region: '', school: '', subject: '', studyType: '', intake: '' });
   const [selected, setSelected] = useState<string[]>([]);
@@ -200,7 +201,7 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={copy.viewGroup}>
-          {(['list', 'calendar'] as const).map(value => <button key={value} type="button" onClick={() => setMode(value)} aria-pressed={mode === value} className={`min-h-10 rounded-lg px-4 py-2 text-sm font-medium ${mode === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{value === 'list' ? copy.viewList : copy.viewCalendar}</button>)}
+          {(['list', 'calendar', 'timeline'] as const).map(value => <button key={value} type="button" onClick={() => setMode(value)} aria-pressed={mode === value} className={`min-h-10 rounded-lg px-4 py-2 text-sm font-medium ${mode === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{value === 'list' ? copy.viewList : value === 'calendar' ? copy.viewCalendar : copy.viewTimeline}</button>)}
         </div>
         <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={locale === 'zh' ? '申请列表' : 'Application list'}>
           {(['all', 'mine'] as const).map(value => <button key={value} type="button" onClick={() => setView(value)} aria-pressed={view === value} className={`min-h-10 rounded-lg px-4 py-2 text-sm font-medium ${view === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{copy[value]}</button>)}
@@ -230,6 +231,7 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
       {view === 'all' && loadFailed ? <div role="alert" className="rounded-xl border border-amber-300/20 p-7"><h2 className="t-title-3 text-white">{copy.contentFailed}</h2><button type="button" onClick={() => router.refresh()} className={`${buttonClass} mt-4`}>{copy.retry}</button></div>
         : view === 'mine' && (!activeUserId || watchStatus !== 'ready') ? null
           : mode === 'calendar' ? <MastersCalendar year={year} rounds={filtered} now={now} locale={locale} copy={copy} onLocate={locateRound} />
+          : mode === 'timeline' ? <MastersTimeline rounds={filtered} now={now} locale={locale} copy={copy} onLocate={locateRound} />
           : filtered.length === 0 ? <div className="rounded-xl border border-white/10 px-6 py-10 text-center"><h2 className="t-title-3 text-white">{view === 'mine' && watches.length === 0 ? copy.noWatches : copy.noResults}</h2><p className="mt-3 t-footnote text-white/60">{view === 'mine' && watches.length === 0 ? copy.noWatchesHint : copy.noResultsHint}</p></div>
             : <div className="space-y-6">
               <p className="t-footnote text-white/60">{copy.deadlineOrder} · {organized.activeCount} {copy.rounds}</p>

@@ -4,7 +4,9 @@ import RoundCard from '../RoundCard';
 import MastersSummaryCard from '../MastersSummaryCard';
 import MastersHub from '../MastersHub';
 import MastersCalendar from '../MastersCalendar';
+import MastersTimeline from '../MastersTimeline';
 import { mastersText } from '../text';
+import { mastersCalendarHue } from '@/lib/masters/calendar';
 import { roundFixture, watchFixture } from './fixtures';
 
 vi.mock('@/i18n/navigation', () => ({ Link: 'a', useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
@@ -185,5 +187,69 @@ describe('可视化日历', () => {
     const forward = hue(calendar([base, roundFixture({ id: 'other', details: { ...base.details, university: '另一所大学' } })]));
     const reversed = hue(calendar([roundFixture({ id: 'other', details: { ...base.details, university: '另一所大学' } }), base]));
     expect(forward).toBe(reversed);
+  });
+});
+
+describe('申请期甘特总览', () => {
+  const timeline = (rounds: Parameters<typeof MastersTimeline>[0]['rounds'], now = new Date('2026-10-14T04:00:00Z')) =>
+    renderToStaticMarkup(<MastersTimeline rounds={rounds} now={now} locale="zh" copy={mastersText.zh} onLocate={() => {}} />);
+
+  it('一行一个申请期，学校、项目与起止日期都在行内', () => {
+    const html = timeline([roundFixture()]);
+    expect(html).toContain('申请期甘特总览');
+    expect(html).toContain('Example University');
+    expect(html).toContain('MSc Computer Science');
+    // 摘要行给出轴范围，逐行再给一次起止
+    expect(html).toContain('共 1 段申请期 · 2026-10-01 → 2026-12-31');
+    expect(html).toContain('· 2026-10-01 → 2026-12-01"');
+  });
+
+  it('手机左列放不下整段日期：两个日期各自 nowrap，只在箭头前换行', () => {
+    const html = timeline([roundFixture()]);
+    // 左列内容区 151px，而整段区间要 176px；不分组会从日期中间断开（2027- / 01-31）
+    expect(html).toMatch(/whitespace-nowrap">2026-10-01</);
+    expect(html).toMatch(/whitespace-nowrap"><span[^>]*>→<\/span> 2026-12-01</);
+  });
+
+  it('条形按真实天数定位，末端补一天让截止日整日落进条内', () => {
+    const html = timeline([roundFixture()]);
+    // 轴 2026-10-01 → 2026-12-31（92 天），条形 10-01 → 12-02（62 天）
+    expect(html).toContain('left:0%');
+    expect(html).toContain('width:67.3913043478261%');
+  });
+
+  it('今天落在轴上时标出竖线与标签', () => {
+    const html = timeline([roundFixture()]);
+    expect(html).toContain('今天');
+    expect(html).toContain('left:14.130434782608695%');
+  });
+
+  it('今天落在轴外时不画今天线', () => {
+    const html = timeline([roundFixture()], new Date('2027-06-01T04:00:00Z'));
+    expect(html).not.toContain('bg-violet-300/70');
+  });
+
+  it('同校不同项目各占一行且同色', () => {
+    const base = roundFixture();
+    const second = roundFixture({ id: 'second', details: { ...base.details, programme: 'MSc Data Science', opensOn: '2026-11-01', deadlineOn: '2027-02-01' } });
+    const html = timeline([base, second]);
+    expect(html).toContain('共 2 段申请期');
+    expect(html).toContain('MSc Data Science');
+    // 同校同色相：两行都应该用这一个色相（图例另有固定色块，不能直接数色相种类）
+    const hue = mastersCalendarHue({ region: base.region, university: base.details.university });
+    expect([...html.matchAll(new RegExp(`hsl\\(${hue} 70% 52%`, 'g'))]).toHaveLength(2);
+  });
+
+  it('没有可画的申请期时给空状态，不渲染空表格', () => {
+    const base = roundFixture();
+    const html = timeline([roundFixture({ details: { ...base.details, opensOn: null, openingState: 'unknown' } })]);
+    expect(html).toContain('没有可以画出的申请期');
+    expect(html).not.toContain('共 1 段申请期');
+  });
+
+  it('Hub 的视图切换包含甘特，且可设为初始视图', () => {
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[roundFixture()]} userId={null} initialWatches={[]} watchedRounds={[]} initialMode="timeline" />);
+    expect(html).toContain('甘特');
+    expect(html).toContain('申请期甘特总览');
   });
 });
