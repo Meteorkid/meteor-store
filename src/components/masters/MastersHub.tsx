@@ -8,9 +8,10 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { buildLoginHref } from '@/lib/login-return';
 import { mastersRegions, type MastersRound, type MastersWatch, type MastersWatchInput } from '@/lib/masters/types';
-import RoundCard from './RoundCard';
+import RoundCard, { type MastersRoundDraft } from './RoundCard';
 import MastersCalendar from './MastersCalendar';
 import MastersTimeline from './MastersTimeline';
+import MastersRoundDrawer from './MastersRoundDrawer';
 import { assertMastersOwner, canExportMastersRound, filterMastersRounds, organizeMastersRounds, parseMastersWatch, parseMastersWatches, unavailableWatches, type MastersFilters } from './state';
 import { mastersText } from './text';
 
@@ -23,8 +24,8 @@ export interface MastersHubProps {
   watchedRounds: MastersRound[];
   loadFailed?: boolean;
   watchesFailed?: boolean;
-  /** 初始视图。默认日历，列表留给需要逐条精读时切换。 */
-  initialMode?: 'list' | 'calendar' | 'timeline';
+  /** 上方图表初始显示方式；申请列表始终保留。 */
+  initialCalendarMode?: 'calendar' | 'timeline';
 }
 
 function subscribeClock(listener: () => void) {
@@ -46,7 +47,7 @@ export default function MastersHub(props: MastersHubProps) {
   return <MastersHubForIdentity key={`${identity === null ? 'guest' : `user:${identity}`}:${props.year}`} {...props} activeUserId={identity} />;
 }
 
-function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, initialWatches, watchedRounds, loadFailed = false, watchesFailed = false, initialMode = 'calendar' }: MastersHubProps & { activeUserId: string | null }) {
+function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, initialWatches, watchedRounds, loadFailed = false, watchesFailed = false, initialCalendarMode = 'calendar' }: MastersHubProps & { activeUserId: string | null }) {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const copy = mastersText[locale];
   const router = useRouter();
@@ -56,9 +57,9 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
   const [ownRounds, setOwnRounds] = useState(sameIdentity ? watchedRounds : []);
   const [watchStatus, setWatchStatus] = useState<'ready' | 'loading' | 'failed'>(needsFetch ? 'loading' : sameIdentity && watchesFailed ? 'failed' : 'ready');
   const [view, setView] = useState<'all' | 'mine'>('all');
-  // 默认进日历：一眼看清申请节奏与「还在不在申请期内」是这张页面的主要用途，
-  // 列表留给需要逐条精读和关注轮次时切换。
-  const [mode, setMode] = useState<'list' | 'calendar' | 'timeline'>(initialMode);
+  const [calendarMode, setCalendarMode] = useState<'calendar' | 'timeline'>(initialCalendarMode);
+  const [detailSelection, setDetailSelection] = useState<{ roundId: string; trigger?: HTMLElement } | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, MastersRoundDraft>>({});
   const [yearInput, setYearInput] = useState(String(year));
   const [filters, setFilters] = useState<MastersFilters>({ year, region: '', school: '', subject: '', studyType: '', intake: '' });
   const [selected, setSelected] = useState<string[]>([]);
@@ -115,6 +116,8 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
         setWatches(previous => previous.filter(watch => watch.roundId !== roundId));
         setOwnRounds(previous => previous.filter(round => round.id !== roundId));
       }
+      // 仅显式保存/取消关注成功后清除此轮草稿，两处表单随后共用新的服务端状态。
+      setDrafts(previous => { const next = { ...previous }; delete next[roundId]; return next; });
       window.dispatchEvent(new Event('masters-watches-changed'));
     } catch {
       setErrors(previous => ({ ...previous, [roundId]: copy.saveFailed }));
@@ -125,6 +128,9 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
   const myPublicRounds = ownRounds.filter(round => watches.some(watch => watch.roundId === round.id));
   const source = view === 'mine' ? myPublicRounds : rounds;
   const filtered = filterMastersRounds(source, filters, now);
+  const detailRound = detailSelection ? filtered.find(round => round.id === detailSelection.roundId) : undefined;
+  // 筛选移除、取消关注或记录下架后，不能在之后恢复筛选时意外重开旧详情。
+  if (detailSelection && !detailRound) setDetailSelection(null);
   const organized = organizeMastersRounds(filtered, now);
   const yearRounds = source.filter(round => round.intakeYear === year);
   const publicYearRounds = rounds.filter(round => round.intakeYear === year);
@@ -139,43 +145,22 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
   });
   const toggleSelected = (id: string) => setSelected(previous => previous.includes(id) ? previous.filter(value => value !== id) : previous.length < 50 ? [...previous, id] : previous);
 
-  /**
-   * 从日历跳回列表：切回列表视图后目标卡片可能还在折叠的同项目轮次里，
-   * 所以先展开祖先 details 再滚动定位。跨帧等待是因为切换视图要等一次渲染。
-   */
-  const locateRound = (roundId: string) => {
-    setMode('list');
-    const reveal = () => {
-      const target = document.getElementById(`round-${roundId}`);
-      if (!target) return false;
-      for (let parent = target.parentElement; parent; parent = parent.parentElement) {
-        if (parent instanceof HTMLDetailsElement) parent.open = true;
-      }
-      target.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-      target.focus({ preventScroll: true });
-      return true;
-    };
-    if (reveal()) return;
-    const deadline = Date.now() + 2000;
-    // 有界等待一次渲染提交；超时即放弃，避免无限轮询。
-    const follow = () => {
-      if (reveal() || Date.now() > deadline) return;
-      requestAnimationFrame(follow);
-    };
-    requestAnimationFrame(follow);
+  const openRound = (roundId: string, trigger?: HTMLElement) => {
+    if (filtered.some(round => round.id === roundId)) setDetailSelection({ roundId, trigger });
   };
   const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-white disabled:opacity-40';
   const selectClass = 'mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-zinc-950 px-3 text-sm text-white';
-  const renderRound = (round: MastersRound) => {
+  const renderRound = (round: MastersRound, idPrefix = 'round') => {
     const watch = watches.find(item => item.roundId === round.id);
-    return <RoundCard key={`${round.id}:${watch?.updatedAt ?? 'none'}`} round={round} watch={watch} now={now} locale={locale} copy={copy} signedIn={!!activeUserId} watchesReady={watchStatus === 'ready'} busy={pending.includes(round.id)} error={errors[round.id]} selected={exportIds.includes(round.id)} selectionFull={selected.length >= 50} onSelect={toggleSelected} onSave={input => { void updateWatch(round.id, input); }} onRemove={id => { void updateWatch(id); }} />;
+    const draft = drafts[round.id] ?? { status: watch?.status ?? 'preparing', reminders: watch?.reminders ?? false };
+    return <RoundCard key={`${idPrefix}:${round.id}`} idPrefix={idPrefix} round={round} watch={watch} now={now} locale={locale} copy={copy} signedIn={!!activeUserId} watchesReady={watchStatus === 'ready'} busy={pending.includes(round.id)} error={errors[round.id]} selected={exportIds.includes(round.id)} selectionFull={selected.length >= 50} draft={draft} onDraftChange={value => setDrafts(previous => ({ ...previous, [round.id]: value }))} onSelect={toggleSelected} onSave={input => { void updateWatch(round.id, input); }} onRemove={id => { void updateWatch(id); }} />;
   };
   const renderGroups = (groups: typeof organized.active) => groups.map(group => <section key={group.key} className="space-y-4">
     {group.rounds.length > 1 && <h2 className="px-1 t-title-4 text-violet-200">{group.rounds[0].details.university} · {group.rounds[0].details.programme} <span className="t-footnote text-white/60">({group.rounds.length} {copy.rounds})</span></h2>}
     {renderRound(group.rounds[0])}
     {group.rounds.length > 1 && <details open={view === 'mine'} className="rounded-xl border border-white/10 p-4">
       <summary className="min-h-10 cursor-pointer py-2 t-footnote text-white/70">{copy.otherRounds.replace('{count}', String(group.rounds.length - 1))}</summary>
-      <div className="mt-4 space-y-4">{group.rounds.slice(1).map(renderRound)}</div>
+      <div className="mt-4 space-y-4">{group.rounds.slice(1).map(round => renderRound(round))}</div>
     </details>}
   </section>);
 
@@ -199,16 +184,10 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
         <details className="mt-3 t-footnote text-white/60"><summary className="min-h-10 cursor-pointer py-2">{copy.aboutDates}</summary><p>{copy.yearHint}</p><p className="mt-2 max-w-3xl">{copy.scope}</p></details>
       </header>
 
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="mb-2 t-footnote text-white/70">{copy.viewGroup}</p>
-          <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={copy.viewGroup}>
-            {(['list', 'calendar', 'timeline'] as const).map(value => <button key={value} type="button" onClick={() => setMode(value)} aria-pressed={mode === value} className={`min-h-11 rounded-lg px-4 py-2 text-sm font-medium ${mode === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{value === 'list' ? copy.viewList : value === 'calendar' ? copy.viewCalendar : copy.viewTimeline}</button>)}
-          </div>
-        </div>
+      <div className="mt-6">
         <div>
           <p className="mb-2 t-footnote text-white/70">{locale === 'zh' ? '项目范围' : 'Programme scope'}</p>
-          <div className="inline-flex gap-3" role="group" aria-label={locale === 'zh' ? '申请列表' : 'Application list'}>
+          <div className="inline-flex gap-3" role="group" aria-label={locale === 'zh' ? '项目范围' : 'Programme scope'}>
             {(['all', 'mine'] as const).map(value => <button key={value} type="button" onClick={() => setView(value)} aria-pressed={view === value} className={`min-h-11 border-b-2 px-2 py-2 text-sm font-medium ${view === value ? 'border-violet-300 text-violet-100' : 'border-transparent text-white/60'}`}>{copy[value]}</button>)}
           </div>
         </div>
@@ -225,30 +204,44 @@ function MastersHubForIdentity({ year, nowIso, rounds, userId, activeUserId, ini
 
       {!activeUserId && <p className="mb-4 t-footnote text-white/60"><Link href={buildLoginHref('/masters')} className="inline-flex min-h-10 items-center text-violet-200 underline underline-offset-4">{copy.login}</Link></p>}
       {activeUserId && watchStatus !== 'ready' && <div role="status" className="mb-6 rounded-xl border border-amber-300/20 p-5"><p className="t-footnote text-amber-200">{watchStatus === 'loading' ? copy.loading : copy.watchesFailed}</p>{watchStatus === 'failed' && <button type="button" onClick={reloadWatches} className={`${buttonClass} mt-3`}>{copy.retry}</button>}</div>}
-      {mode === 'list' && <div className="mb-5 border-y border-white/10 py-3">
-        <div className="flex flex-wrap items-center gap-3">
-          {exportIds.length > 0 ? <a href={`/api/masters/calendar?ids=${encodeURIComponent(exportIds.join(','))}`} download className={buttonClass}>{copy.export} ({exportIds.length})</a> : <button type="button" disabled className={buttonClass}>{copy.export}</button>}
-          <span className="t-footnote text-white/60">{copy.selected} {exportIds.length}/50</span>
-          {selected.length > 0 && <button type="button" onClick={() => setSelected([])} className="min-h-11 px-2 t-footnote text-white/70 underline underline-offset-4">{copy.clearSelection}</button>}
-        </div>
-        <details className="mt-2 t-footnote text-white/60"><summary className="min-h-10 cursor-pointer py-2">{copy.exportEligible}</summary><p>{copy.maxSelection} · {copy.exportHint}</p></details>
-      </div>}
-
       {view === 'all' && loadFailed ? <div role="alert" className="rounded-xl border border-amber-300/20 p-7"><h2 className="t-title-3 text-white">{copy.contentFailed}</h2><button type="button" onClick={() => router.refresh()} className={`${buttonClass} mt-4`}>{copy.retry}</button></div>
         : view === 'mine' && (!activeUserId || watchStatus !== 'ready') ? null
-          : mode === 'calendar' ? <MastersCalendar year={year} rounds={filtered} now={now} locale={locale} copy={copy} onLocate={locateRound} />
-          : mode === 'timeline' ? <MastersTimeline rounds={filtered} now={now} locale={locale} copy={copy} onLocate={locateRound} />
-          : filtered.length === 0 ? <div className="rounded-xl border border-white/10 px-6 py-10 text-center"><h2 className="t-title-3 text-white">{view === 'mine' && watches.length === 0 ? copy.noWatches : copy.noResults}</h2><p className="mt-3 t-footnote text-white/60">{view === 'mine' && watches.length === 0 ? copy.noWatchesHint : copy.noResultsHint}</p></div>
-            : <div className="space-y-6">
-              <p className="t-footnote text-white/60">{copy.deadlineOrder} · {organized.activeCount} {copy.rounds}</p>
-              {renderGroups(organized.active)}
-              {organized.closedCount > 0 && <details className="rounded-2xl border border-white/10 p-4 sm:p-5"><summary className="min-h-11 cursor-pointer py-2 t-title-4 text-white/70">{copy.closedRounds} ({organized.closedCount})</summary><div className="mt-4 space-y-6">{renderGroups(organized.closed)}</div></details>}
-            </div>}
+          : <>
+            <div className="mb-4 flex justify-end">
+              <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label={copy.viewGroup}>
+                {(['calendar', 'timeline'] as const).map(value => <button key={value} type="button" onClick={() => setCalendarMode(value)} aria-pressed={calendarMode === value} data-masters-detail-fallback={calendarMode === value ? 'true' : undefined} className={`min-h-11 rounded-lg px-4 py-2 text-sm font-medium ${calendarMode === value ? 'bg-white/10 text-white' : 'text-white/60'}`}>{value === 'calendar' ? copy.viewCalendar : copy.viewTimeline}</button>)}
+              </div>
+            </div>
+            {calendarMode === 'calendar'
+              ? <MastersCalendar year={year} rounds={filtered} now={now} locale={locale} copy={copy} onSelectRound={openRound} />
+              : <MastersTimeline rounds={filtered} now={now} locale={locale} copy={copy} onSelectRound={openRound} />}
+
+            <section id="masters-round-list" aria-labelledby="masters-round-list-title" className="mt-10 border-t border-white/15 pt-7 sm:mt-12">
+              <h2 id="masters-round-list-title" className="t-title-3 text-white">{copy.listTitle}</h2>
+              <div className="mb-5 mt-4 border-y border-white/10 py-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  {exportIds.length > 0 ? <a href={`/api/masters/calendar?ids=${encodeURIComponent(exportIds.join(','))}`} download className={buttonClass}>{copy.export} ({exportIds.length})</a> : <button type="button" disabled className={buttonClass}>{copy.export}</button>}
+                  <span className="t-footnote text-white/60">{copy.selected} {exportIds.length}/50</span>
+                  {selected.length > 0 && <button type="button" onClick={() => setSelected([])} className="min-h-11 px-2 t-footnote text-white/70 underline underline-offset-4">{copy.clearSelection}</button>}
+                </div>
+                <details className="mt-2 t-footnote text-white/60"><summary className="min-h-10 cursor-pointer py-2">{copy.exportEligible}</summary><p>{copy.maxSelection} · {copy.exportHint}</p></details>
+              </div>
+              {filtered.length === 0 ? <div className="rounded-xl border border-white/10 px-6 py-10 text-center"><h3 className="t-title-3 text-white">{view === 'mine' && watches.length === 0 ? copy.noWatches : copy.noResults}</h3><p className="mt-3 t-footnote text-white/60">{view === 'mine' && watches.length === 0 ? copy.noWatchesHint : copy.noResultsHint}</p></div>
+                : <div className="space-y-6">
+                  <p className="t-footnote text-white/60">{copy.deadlineOrder} · {organized.activeCount} {copy.rounds}</p>
+                  {renderGroups(organized.active)}
+                  {organized.closedCount > 0 && <details className="rounded-2xl border border-white/10 p-4 sm:p-5"><summary className="min-h-11 cursor-pointer py-2 t-title-4 text-white/70">{copy.closedRounds} ({organized.closedCount})</summary><div className="mt-4 space-y-6">{renderGroups(organized.closed)}</div></details>}
+                </div>}
+            </section>
+          </>}
 
       {view === 'mine' && activeUserId && watchStatus === 'ready' && unknown.length > 0 && <section className="mt-8 rounded-2xl border border-white/10 p-5 sm:p-7">
         <h2 className="t-title-3 text-white">{copy.unavailable}</h2><p className="mt-2 t-footnote text-white/60">{copy.unavailableHint}</p>
         <ul className="mt-4 divide-y divide-white/10">{unknown.map((watch, index) => <li key={watch.roundId} className="flex flex-wrap items-center justify-between gap-3 py-3"><span className="text-sm text-white/70">{copy.unavailable} {index + 1} · {copy[watch.status]}</span><button type="button" disabled={pending.includes(watch.roundId)} onClick={() => { void updateWatch(watch.roundId); }} className={buttonClass}>{copy.remove}</button>{errors[watch.roundId] && <p role="alert" className="w-full t-footnote text-amber-200">{errors[watch.roundId]}</p>}</li>)}</ul>
       </section>}
+      <MastersRoundDrawer open={!!detailRound} title={copy.drawerTitle} closeLabel={copy.drawerClose} trigger={detailSelection?.trigger} onClose={() => setDetailSelection(null)}>
+        {detailRound && renderRound(detailRound, 'drawer-round')}
+      </MastersRoundDrawer>
     </div>
   );
 }

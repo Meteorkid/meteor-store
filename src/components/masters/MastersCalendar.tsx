@@ -19,8 +19,8 @@ interface MastersCalendarProps {
   now: Date;
   locale: 'zh' | 'en';
   copy: MastersCopy;
-  /** 从日历跳回列表并定位到具体轮次。 */
-  onLocate: (roundId: string) => void;
+  /** 在共享详情侧栏查看具体轮次，不改变当前月份。 */
+  onSelectRound: (roundId: string, trigger?: HTMLElement) => void;
 }
 
 const TONE_CLASS: Record<MastersCalendarNode['tone'], string> = {
@@ -52,10 +52,11 @@ function nodeLabel(node: MastersCalendarNode, copy: MastersCopy): string {
  * 只在真实起点/终点收口，中间格两端是直角并出血到格边，相邻格才连成一条；
  * 这是「一眼看出这天还在不在申请期」的关键。
  */
-function SpanBar({ span, date, copy }: {
+function SpanBar({ span, date, copy, onSelectRound }: {
   span: MastersCalendarSpan;
   date: string;
   copy: MastersCopy;
+  onSelectRound?: (roundId: string, trigger?: HTMLElement) => void;
 }) {
   const hue = mastersCalendarHue(span);
   const isStart = date === span.start;
@@ -63,11 +64,10 @@ function SpanBar({ span, date, copy }: {
   const knownStart = isStart && span.startKnown;
   const openStart = isStart && !span.startKnown;
   const label = `${span.university} · ${span.programme} · ${span.rounds[0].details.roundName} · ${span.rounds[0].details.intakeLabel}`;
-  return (
+  const bar = (
     <span
       data-span-lane
-      aria-label={`${label}${openStart ? `（${copy.calendarSpanOpenEnded}）` : ''}`}
-      title={label}
+      aria-hidden
       style={{
         background: `hsl(${hue} 70% 52% / ${span.past ? 0.3 : 0.6})`,
         // 起点未知时左端不收口：今天只是当前可申请区间的显示起点。
@@ -87,14 +87,23 @@ function SpanBar({ span, date, copy }: {
       {isEnd && <span aria-hidden className="absolute inset-y-0 right-0 w-[3px] rounded-sm bg-white/90" />}
     </span>
   );
+  // 补位格由 aria-hidden 容器包住，不能把可聚焦控件放进去。
+  if (!onSelectRound) return bar;
+  return <button type="button" onClick={event => onSelectRound(span.rounds[0].id, event.currentTarget)} aria-haspopup="dialog"
+    aria-label={`${label} · ${copy.timelineShowRounds}${openStart ? `（${copy.calendarSpanOpenEnded}）` : ''}`} title={label}
+    data-calendar-span-round-id={span.rounds[0].id}
+    className="block w-full focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-violet-100">
+    {bar}
+  </button>;
 }
 
-function CalendarCell({ cell, copy, openDate, onToggle, lanes }: {
+function CalendarCell({ cell, copy, openDate, onToggle, lanes, onSelectRound }: {
   cell: MastersCalendarCell;
   copy: MastersCopy;
   openDate: string | null;
   onToggle: (date: string) => void;
   lanes: Map<string, number>;
+  onSelectRound: (roundId: string, trigger?: HTMLElement) => void;
 }) {
   const hidden = Math.max(0, cell.nodes.length - CELL_VISIBLE);
   const hiddenSpans = cell.spans.filter(span => (lanes.get(span.key) ?? 0) >= LANE_LIMIT).length;
@@ -103,7 +112,7 @@ function CalendarCell({ cell, copy, openDate, onToggle, lanes }: {
   const bars = laneCount > 0 && <div className="-mx-px mt-1 space-y-0.5">
     {Array.from({ length: laneCount }, (_, lane) => {
       const span = cell.spans.find(item => (lanes.get(item.key) ?? 0) === lane);
-      return <div key={lane} className="h-2.5">{span && <SpanBar span={span} date={cell.date} copy={copy} />}</div>;
+      return <div key={lane} className="h-2.5">{span && <SpanBar span={span} date={cell.date} copy={copy} onSelectRound={cell.inMonth ? onSelectRound : undefined} />}</div>;
     })}
   </div>;
   // 相邻月的补位格也要画条：否则申请期在月界处被硬切断，会被读成「窗口到此结束」。
@@ -129,12 +138,15 @@ function CalendarCell({ cell, copy, openDate, onToggle, lanes }: {
           {cell.nodes.slice(0, 4).map((node, index) => <span key={`${node.round.id}-${node.kind}-${index}`} className={`h-1.5 w-1.5 rounded-full ${DOT_CLASS[node.tone]}`} />)}
         </div>
         <div className="mt-1 hidden space-y-1 sm:block">
-          {cell.nodes.slice(0, CELL_VISIBLE).map((node, index) => <p key={`${node.round.id}-${node.kind}-${index}`} className={`flex items-center gap-1 rounded-md border px-1.5 py-0.5 t-footnote ${TONE_CLASS[node.tone]}`}>
+          {cell.nodes.slice(0, CELL_VISIBLE).map((node, index) => <button key={`${node.round.id}-${node.kind}-${index}`} type="button"
+            onClick={event => onSelectRound(node.round.id, event.currentTarget)} aria-haspopup="dialog"
+            aria-label={`${cell.date} · ${nodeLabel(node, copy)} · ${node.round.details.university} · ${node.round.details.programme} · ${node.round.details.roundName} · ${node.round.details.intakeLabel} · ${copy.timelineShowRounds}`}
+            className={`flex w-full items-center gap-1 rounded-md border px-1.5 py-0.5 text-left t-footnote focus-visible:outline-2 focus-visible:outline-violet-100 ${TONE_CLASS[node.tone]}`}>
             {/* 标记排在文字之前并禁止收缩：放在文字之后会被 truncate 直接截掉，
                 而长校名恰恰是最常见的情况，等于标记永远看不见 */}
             {node.changed && <span className="h-2 w-2 shrink-0 rounded-full border border-amber-300/80" aria-label={copy.calendarChanged} />}
             <span className="truncate">{nodeLabel(node, copy)} · {node.round.details.university}</span>
-          </p>)}
+          </button>)}
           {hidden > 0 && <p className="px-1.5 t-footnote text-white/60">{copy.calendarMore.replace('{count}', String(hidden))}</p>}
         </div>
         {cell.nodes.length > 0 && <button type="button" onClick={() => onToggle(cell.date)} aria-expanded={expanded}
@@ -154,7 +166,7 @@ function CalendarCell({ cell, copy, openDate, onToggle, lanes }: {
   );
 }
 
-export default function MastersCalendar({ year, rounds, now, locale, copy, onLocate }: MastersCalendarProps) {
+export default function MastersCalendar({ year, rounds, now, locale, copy, onSelectRound }: MastersCalendarProps) {
   const today = dailyDate(now);
   const nodes = useMemo(() => collectMastersCalendarNodes(rounds, now), [rounds, now]);
   const spans = useMemo(() => collectMastersCalendarSpans(rounds, now), [rounds, now]);
@@ -209,7 +221,10 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
         <p className="t-footnote font-semibold text-white/80">{copy.calendarSpanMap}</p>
         {/* 每项独立成卡：挤成一行时项目名必然被 truncate，长校名恰恰是最常见的情况。 */}
         <ul className="mt-2 grid gap-2 sm:grid-cols-2">
-          {spanRows.map(span => <li key={span.key} data-calendar-round-id={span.rounds[0].id} className="flex items-start gap-2 rounded-lg border border-white/10 px-2.5 py-2 t-footnote">
+          {spanRows.map(span => <li key={span.key} data-calendar-round-id={span.rounds[0].id} className="rounded-lg border border-white/10 t-footnote">
+            <button type="button" onClick={event => onSelectRound(span.rounds[0].id, event.currentTarget)} aria-haspopup="dialog"
+              aria-label={`${span.university} · ${span.programme} · ${span.rounds[0].details.roundName} · ${span.rounds[0].details.intakeLabel} · ${copy.timelineShowRounds}`}
+              className="flex min-h-11 w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left focus-visible:outline-2 focus-visible:outline-violet-300">
             <span aria-hidden className="mt-1 h-2.5 w-6 shrink-0 rounded-sm" style={{
               background: `hsl(${mastersCalendarHue(span)} 70% 52% / ${span.past ? 0.4 : 0.75})`,
               ...(span.startKnown ? {} : {
@@ -225,6 +240,7 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
                 {!span.startKnown && <>{copy.calendarSpanOngoing} · </>}{`${span.start} → ${span.end}`} · {mastersStateLabel(span.rounds[0], now, locale)}
               </span>
             </span>
+            </button>
           </li>)}
         </ul>
       </div>}
@@ -237,7 +253,7 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
           {weekdays.map(day => <div key={day} role="columnheader" className="px-2 py-2 text-center t-footnote text-white/60">{day}</div>)}
         </div>
         {view.weeks.map(week => <div key={week[0].date} className="grid grid-cols-7 border-b border-white/10 last:border-b-0" role="row">
-          {week.map(cell => <CalendarCell key={cell.date} cell={cell} copy={copy} openDate={openDate} onToggle={setOpenDate} lanes={lanes} />)}
+          {week.map(cell => <CalendarCell key={cell.date} cell={cell} copy={copy} openDate={openDate} onToggle={setOpenDate} lanes={lanes} onSelectRound={onSelectRound} />)}
         </div>)}
       </div>}
 
@@ -247,10 +263,14 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
           <button type="button" onClick={() => setOpenDate(null)} className="min-h-10 px-2 t-footnote text-white/70 underline underline-offset-4">{copy.calendarCollapse}</button>
         </div>
         {openCell.spans.length > 0 && <ul className="mt-3 flex flex-wrap gap-2">
-          {openCell.spans.map(span => <li key={span.key} className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-2.5 py-1 t-footnote text-white/80">
+          {openCell.spans.map(span => <li key={span.key} className="rounded-lg border border-white/10 t-footnote text-white/80">
+            <button type="button" onClick={event => onSelectRound(span.rounds[0].id, event.currentTarget)} aria-haspopup="dialog"
+              aria-label={`${span.university} · ${span.programme} · ${span.rounds[0].details.roundName} · ${span.rounds[0].details.intakeLabel} · ${copy.timelineShowRounds}`}
+              className="inline-flex min-h-11 flex-wrap items-center gap-2 rounded-lg px-2.5 py-1 text-left focus-visible:outline-2 focus-visible:outline-violet-300">
             <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: `hsl(${mastersCalendarHue(span)} 70% 52% / ${span.past ? 0.4 : 0.75})` }} />
             {span.university} · {span.programme} · {span.rounds[0].details.roundName} · {span.rounds[0].details.intakeLabel}
             <span className="text-white/60">{!span.startKnown && <>{copy.calendarSpanOngoing} · </>}{`${span.start} → ${span.end}`}</span>
+            </button>
           </li>)}
         </ul>}
         {openCell.nodes.length === 0 ? <p className="mt-3 t-footnote text-white/60">{copy.calendarNoNodes}</p>
@@ -262,7 +282,7 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
                 <p className="mt-1 t-footnote text-white/70">{node.round.details.programme}</p>
                 <p className="mt-1 t-footnote text-white/60">{node.round.intakeYear} · {node.round.details.intakeLabel} · {mastersStateLabel(node.round, now, locale)}</p>
               </div>
-              <button type="button" onClick={() => onLocate(node.round.id)} className={buttonClass}>{copy.calendarJump}</button>
+              <button type="button" onClick={event => onSelectRound(node.round.id, event.currentTarget)} aria-haspopup="dialog" className={buttonClass}>{copy.timelineShowRounds}</button>
             </li>)}
           </ul>}
       </div>}
@@ -299,7 +319,7 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onLoc
             <p className="mt-1 t-footnote text-white/70">{round.details.programme} · {round.details.roundName}</p>
             <p className="mt-1 t-footnote text-amber-200">{reason === 'unannounced' ? copy.calendarUnannounced : copy.calendarUnverified}</p>
           </div>
-          <button type="button" onClick={() => onLocate(round.id)} className={buttonClass}>{copy.calendarJump}</button>
+          <button type="button" onClick={event => onSelectRound(round.id, event.currentTarget)} aria-haspopup="dialog" className={buttonClass}>{copy.timelineShowRounds}</button>
         </li>)}</ul>
       </details>}
     </section>

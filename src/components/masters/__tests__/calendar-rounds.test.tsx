@@ -16,7 +16,7 @@ describe('月历按申请批次展示', () => {
       roundName: item.name, intakeLabel: '2027/28 入学季', deadlineOn: item.end,
     } }));
     const html = renderToStaticMarkup(<MastersCalendar year={2027} rounds={rounds}
-      now={new Date('2026-10-29T04:00:00Z')} locale="zh" copy={mastersText.zh} onLocate={() => {}} />);
+      now={new Date('2026-10-29T04:00:00Z')} locale="zh" copy={mastersText.zh} onSelectRound={() => {}} />);
     for (const item of rounds) {
       const row = html.match(new RegExp(`<li[^>]*data-calendar-round-id="${item.id}"[^>]*>([\\s\\S]*?)<\\/li>`))?.[1] ?? '';
       expect(row).toContain(item.details.roundName);
@@ -29,7 +29,7 @@ describe('月历按申请批次展示', () => {
     const base = roundFixture();
     const round = roundFixture({ details: { ...base.details, opensOn: '2026-10-30' } });
     const html = renderToStaticMarkup(<MastersCalendar year={2027} rounds={[round]}
-      now={new Date('2026-10-29T04:00:00Z')} locale="zh" copy={mastersText.zh} onLocate={() => {}} />);
+      now={new Date('2026-10-29T04:00:00Z')} locale="zh" copy={mastersText.zh} onSelectRound={() => {}} />);
     const row = html.match(/<li[^>]*data-calendar-round-id="school-cs-2027-round1"[^>]*>([\s\S]*?)<\/li>/)?.[1] ?? '';
     expect(row).toContain('尚未开放');
   });
@@ -40,7 +40,7 @@ describe('月历按申请批次展示', () => {
       ...base.details, opensOn: null, openingState: 'open', roundName: `第${index + 1}轮`,
     } }));
     const html = renderToStaticMarkup(<MastersCalendar year={2027} rounds={rounds}
-      now={new Date('2026-10-29T04:00:00Z')} locale="zh" copy={mastersText.zh} onLocate={() => {}} />);
+      now={new Date('2026-10-29T04:00:00Z')} locale="zh" copy={mastersText.zh} onSelectRound={() => {}} />);
     expect(html).toContain('2026-10-29 · 另有 1 个申请期，展开查看');
   });
 });

@@ -31,7 +31,7 @@ describe('申请日历展示', () => {
   it('默认展示近期有效轮次，过期轮次仍可展开并保留官方信息', () => {
     const base = roundFixture();
     const past = roundFixture({ id: 'past-round', details: { ...base.details, deadlineOn: '2026-10-01' } });
-    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[past, base]} userId={null} initialWatches={[]} watchedRounds={[]} initialMode="list" />);
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[past, base]} userId={null} initialWatches={[]} watchedRounds={[]} />);
     expect(html.indexOf(`id="round-${base.id}"`)).toBeLessThan(html.indexOf('id="round-past-round"'));
     const closedDetails = html.match(/<details([^>]*)><summary[^>]*>已过截止或官方关闭的轮次/);
     expect(closedDetails).not.toBeNull();
@@ -45,7 +45,7 @@ describe('申请日历展示', () => {
   it('同项目后续轮次默认折叠，避免挤走其他项目的临近截止', () => {
     const near = roundFixture();
     const later = roundFixture({ id: 'later-round', details: { ...near.details, deadlineOn: '2027-02-01' } });
-    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[later, near]} userId={null} initialWatches={[]} watchedRounds={[]} initialMode="list" />);
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[later, near]} userId={null} initialWatches={[]} watchedRounds={[]} />);
     const details = html.match(/<details([^>]*)><summary[^>]*>展开同项目其余 1 个轮次/);
     expect(details).not.toBeNull();
     expect(details![1]).not.toContain('open');
@@ -53,13 +53,17 @@ describe('申请日历展示', () => {
     expect(html.indexOf('id="round-later-round"')).toBeGreaterThan(html.indexOf('展开同项目其余 1 个轮次'));
   });
 
-  it('默认进日历视图，列表需显式切换', () => {
+  it('默认月历位于常驻列表上方，日历区只有两个显示方式', () => {
     const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[roundFixture()]} userId={null} initialWatches={[]} watchedRounds={[]} />);
-    expect(html).toContain('aria-label="申请视图"');
+    expect(html).toContain('aria-label="日历显示"');
     expect(html).toContain('申请日历');
     expect(html).toContain('本月 1 个开放 · 0 个截止');
-    // 日历模式不渲染导出选择区：那是列表卡片的操作
-    expect(html).not.toContain('加入日历导出');
+    expect(html).toContain('加入日历导出');
+    expect(html).toContain('id="masters-round-list"');
+    expect(html.indexOf('id="masters-calendar-title"')).toBeLessThan(html.indexOf('id="masters-round-list"'));
+    expect(html).not.toMatch(/<button[^>]*>列表<\/button>/);
+    const controls = html.match(/role="group" aria-label="日历显示"[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    expect([...controls.matchAll(/<button/g)]).toHaveLength(2);
   });
 
   it('rolling与轮次并列，截止已过仍保留官方入口', () => {
@@ -100,7 +104,7 @@ describe('申请日历展示', () => {
 
 describe('可视化日历', () => {
   const calendar = (rounds: Parameters<typeof MastersCalendar>[0]['rounds'], now = new Date('2026-10-14T04:00:00Z')) =>
-    renderToStaticMarkup(<MastersCalendar year={2027} rounds={rounds} now={now} locale="zh" copy={mastersText.zh} onLocate={() => {}} />);
+    renderToStaticMarkup(<MastersCalendar year={2027} rounds={rounds} now={now} locale="zh" copy={mastersText.zh} onSelectRound={() => {}} />);
 
   it('把轮次投影到对应日期格，并标出开放与截止', () => {
     const html = calendar([roundFixture()]);
@@ -191,7 +195,7 @@ describe('可视化日历', () => {
 
 describe('申请全年总览', () => {
   const timeline = (rounds: Parameters<typeof MastersTimeline>[0]['rounds'], now = new Date('2026-10-14T04:00:00Z')) =>
-    renderToStaticMarkup(<MastersTimeline rounds={rounds} now={now} locale="zh" copy={mastersText.zh} onLocate={() => {}} />);
+    renderToStaticMarkup(<MastersTimeline rounds={rounds} now={now} locale="zh" copy={mastersText.zh} onSelectRound={() => {}} />);
 
   it('一行一个轮次，学校、项目、批次与起止日期都在行内', () => {
     const html = timeline([roundFixture()]);
@@ -275,9 +279,12 @@ describe('申请全年总览', () => {
   });
 
   it('Hub 的视图切换包含全年总览，且可设为初始视图', () => {
-    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[roundFixture()]} userId={null} initialWatches={[]} watchedRounds={[]} initialMode="timeline" />);
-    expect(html).toContain('全年总览');
+    const html = renderToStaticMarkup(<MastersHub year={2027} nowIso="2026-10-14T04:00:00Z" rounds={[roundFixture()]} userId={null} initialWatches={[]} watchedRounds={[]} initialCalendarMode="timeline" />);
+    expect(html).toContain('全年日历');
     expect(html).toContain('全年申请总览');
+    expect(html).toContain('id="masters-round-list"');
+    expect(html.indexOf('id="masters-timeline-title"')).toBeLessThan(html.indexOf('id="masters-round-list"'));
+    expect(html).not.toContain('在列表中定位');
   });
 
   it('同项目各轮截止点保留独立目标及明确轮次名称', () => {
@@ -328,7 +335,7 @@ describe('申请全年总览', () => {
     const base = roundFixture();
     const open = roundFixture({ details: { ...base.details, opensOn: null, openingState: 'open' } });
     const unknown = roundFixture({ id: 'unknown', details: { ...base.details, opensOn: null, openingState: 'unknown' } });
-    const html = renderToStaticMarkup(<MastersTimeline rounds={[open, unknown]} now={new Date('2026-10-14T04:00:00Z')} locale="en" copy={mastersText.en} onLocate={() => {}} />);
+    const html = renderToStaticMarkup(<MastersTimeline rounds={[open, unknown]} now={new Date('2026-10-14T04:00:00Z')} locale="en" copy={mastersText.en} onSelectRound={() => {}} />);
     expect(html).toContain('Currently accepting applications · From today');
     expect(html).toContain('Opening date unpublished');
     expect(html).toContain('Opening status not verified; deadline only');

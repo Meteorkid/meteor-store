@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { MastersRound } from '@/lib/masters/types';
 import { buildMastersTimeline, type MastersTimelineRow, type MastersTimelineSort } from '@/lib/masters/timeline';
-import { mastersDeadlineLabel, mastersStateLabel } from './state';
+import { mastersStateLabel } from './state';
 import type { MastersCopy } from './text';
 
 interface MastersTimelineProps {
@@ -11,7 +11,7 @@ interface MastersTimelineProps {
   now: Date;
   locale: 'zh' | 'en';
   copy: MastersCopy;
-  onLocate: (roundId: string) => void;
+  onSelectRound: (roundId: string, trigger?: HTMLElement) => void;
 }
 
 /** 表头、数据行和覆盖层共用同一列宽，保持日期坐标一致。 */
@@ -25,16 +25,12 @@ function barFill(hue: number, past: boolean, startKnown: boolean): string {
   return `linear-gradient(to right, hsl(${hue} 70% 52% / 0) 0%, hsl(${hue} 70% 52% / ${alpha}) 14%)`;
 }
 
-function TimelineRow({ row, now, locale, copy, expanded, labelId, detailsId, onOpen, onLocate }: {
+function TimelineRow({ row, now, locale, copy, onSelectRound }: {
   row: MastersTimelineRow;
   now: Date;
   locale: 'zh' | 'en';
   copy: MastersCopy;
-  expanded: boolean;
-  labelId: string;
-  detailsId: string;
-  onOpen: () => void;
-  onLocate: (roundId: string) => void;
+  onSelectRound: (roundId: string, trigger?: HTMLElement) => void;
 }) {
   const round = row.rounds[0];
   const markers = [...row.milestones, ...row.outsideMarkers];
@@ -46,7 +42,7 @@ function TimelineRow({ row, now, locale, copy, expanded, labelId, detailsId, onO
       : unknownStart ? copy.timelineUnknownStart : mastersStateLabel(round, now, locale);
 
   return <div className="flex items-stretch border-b border-white/10 last:border-b-0" data-timeline-row={row.key}>
-    <button type="button" id={labelId} onClick={onOpen} aria-expanded={expanded} aria-controls={detailsId}
+    <button type="button" onClick={event => onSelectRound(round.id, event.currentTarget)} aria-haspopup="dialog"
       aria-label={`${name} · ${copy.timelineShowRounds}`}
       className={`${LABEL_COL} ${focusClass} sticky left-0 z-30 shrink-0 border-r border-white/10 bg-zinc-950 px-3 py-2.5 text-left`}>
       <span className="flex items-start gap-1.5 t-footnote font-semibold text-white/90">
@@ -56,7 +52,7 @@ function TimelineRow({ row, now, locale, copy, expanded, labelId, detailsId, onO
       <span className="mt-0.5 line-clamp-1 t-footnote text-white/70">{row.programme}</span>
       <span className="mt-1.5 block t-footnote font-semibold text-violet-200">{round.details.roundName}</span>
       <span className="block t-footnote text-white/75">{round.details.intakeLabel}</span>
-      <span className="mt-1.5 block t-footnote text-white/70">{expanded ? copy.calendarCollapse : copy.timelineShowRounds}<span aria-hidden> {expanded ? '−' : '+'}</span></span>
+      <span className="mt-1.5 block t-footnote text-white/70">{copy.timelineShowRounds}<span aria-hidden> →</span></span>
     </button>
     <div className="min-w-0 flex-1 overflow-hidden">
       <div className="min-h-14 px-2 pt-2 t-footnote text-white/80">
@@ -67,17 +63,17 @@ function TimelineRow({ row, now, locale, copy, expanded, labelId, detailsId, onO
         </span>
       </div>
       <div className="relative h-11">
-        {row.kind === 'span' && <button type="button" onClick={onOpen} aria-expanded={expanded} aria-controls={detailsId}
+        {row.kind === 'span' && <button type="button" onClick={event => onSelectRound(round.id, event.currentTarget)} aria-haspopup="dialog"
           aria-label={`${name} · ${copy.timelineShowRounds}`}
           style={{ left: `${row.left}%`, width: `${row.width}%` }}
           className={`absolute top-0 z-10 h-11 rounded-md ${focusClass}`}>
           <span aria-hidden className="absolute inset-x-0 top-1/2 h-7 -translate-y-1/2 rounded-md" style={{ background: barFill(row.hue, row.past, row.startKnown) }} />
         </button>}
         {markers.map(marker => {
-          const label = `${name} · ${marker.date} · ${copy.calendarJump}`;
+          const label = `${name} · ${marker.date} · ${copy.timelineShowRounds}`;
           return <span key={marker.roundId}>
-            <button type="button" data-round-id={marker.roundId} aria-label={label} title={label}
-              onClick={() => onLocate(marker.roundId)}
+            <button type="button" data-round-id={marker.roundId} aria-label={label} title={label} aria-haspopup="dialog"
+              onClick={event => onSelectRound(marker.roundId, event.currentTarget)}
               style={{ left: `clamp(0px, calc(${marker.pct}% - 22px), calc(100% - 44px))`, width: '44px' }}
               className={`absolute top-0 z-20 h-11 rounded-md ${focusClass}`} />
             <span aria-hidden style={{ left: `${marker.pct}%`, background: `hsl(${row.hue} 70% 52% / ${marker.past ? 0.5 : 0.95})` }}
@@ -90,32 +86,12 @@ function TimelineRow({ row, now, locale, copy, expanded, labelId, detailsId, onO
   </div>;
 }
 
-export default function MastersTimeline({ rounds, now, locale, copy, onLocate }: MastersTimelineProps) {
+export default function MastersTimeline({ rounds, now, locale, copy, onSelectRound }: MastersTimelineProps) {
   const [sort, setSort] = useState<MastersTimelineSort>('school');
   const [zoomed, setZoomed] = useState(false);
-  const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const timeline = useMemo(() => buildMastersTimeline(rounds, now, locale, sort), [rounds, now, locale, sort]);
-  const detailsRef = useRef<HTMLDivElement>(null);
-  const id = useId();
-  const detailsId = `${id}-details`;
-  const expandedRow = timeline.rows.find(row => row.key === expandedKey);
-  const labelId = (key: string) => `${id}-row-${encodeURIComponent(key)}`;
   const pillClass = `min-h-11 rounded-lg px-3 py-2 t-footnote ${focusClass}`;
 
-  useEffect(() => {
-    if (!expandedKey) return;
-    const frame = requestAnimationFrame(() => {
-      const panel = detailsRef.current;
-      panel?.focus({ preventScroll: true });
-      panel?.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [expandedKey]);
-
-  const closeDetails = () => {
-    setExpandedKey(null);
-    if (expandedKey) document.getElementById(labelId(expandedKey))?.focus();
-  };
   const years = timeline.months.reduce<Array<{ year: string; left: number; width: number }>>((groups, month) => {
     const year = month.key.slice(0, 4);
     const last = groups[groups.length - 1];
@@ -183,34 +159,10 @@ export default function MastersTimeline({ rounds, now, locale, copy, onLocate }:
               {timeline.months.slice(1).map(month => <span key={month.key} style={{ left: `${month.left}%` }} className="absolute inset-y-0 w-px bg-white/[0.08]" />)}
               {timeline.todayPct !== null && <span style={{ left: `${timeline.todayPct}%` }} className="absolute inset-y-0 w-px bg-violet-300/70" />}
             </div>
-            {timeline.rows.map(row => <TimelineRow key={row.key} row={row} now={now} locale={locale} copy={copy} expanded={expandedKey === row.key} labelId={labelId(row.key)} detailsId={detailsId}
-              onOpen={() => expandedKey === row.key ? closeDetails() : setExpandedKey(row.key)} onLocate={onLocate} />)}
+            {timeline.rows.map(row => <TimelineRow key={row.key} row={row} now={now} locale={locale} copy={copy} onSelectRound={onSelectRound} />)}
           </div>
         </div>
       </div>
-
-      {expandedRow && <div id={detailsId} ref={detailsRef} tabIndex={-1} role="region" aria-label={copy.timelineDetails} className="scroll-mt-24 rounded-2xl border border-violet-300/30 bg-zinc-950 p-4 outline-none sm:p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="t-footnote font-semibold text-violet-200">{expandedRow.university}</p>
-            <h3 className="mt-1 break-words t-title-4 text-white">{expandedRow.programme}</h3>
-          </div>
-          <button type="button" onClick={closeDetails} className={`min-h-11 shrink-0 rounded-lg px-3 t-footnote text-white/80 ${focusClass}`}>{copy.calendarCollapse}</button>
-        </div>
-        {expandedRow.start && <p className="mt-3 t-footnote text-white/70">{expandedRow.startKnown ? copy.timelinePeriod : `${copy.timelineAvailableNow} · ${copy.timelineFromToday}`}: {expandedRow.start} → {expandedRow.end}{!expandedRow.startKnown && <> · {copy.timelineUnknownStart}</>}</p>}
-        <ul className="mt-4 divide-y divide-white/10">
-          {[...expandedRow.rounds].sort((first, second) => (first.details.deadlineOn ?? '').localeCompare(second.details.deadlineOn ?? '')).map(round => <li key={round.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-            <div className="min-w-0 flex-1 basis-48">
-              <p className="t-footnote font-semibold text-white/90">{round.details.roundName} · {round.details.intakeLabel}</p>
-              <p className="mt-1 t-footnote text-white/80">{copy.deadline}: {mastersDeadlineLabel(round, locale)}</p>
-              <p className="mt-1 t-footnote text-white/60">{mastersStateLabel(round, now, locale)}</p>
-              {round.details.mayCloseEarly && <p className="mt-1 t-footnote text-amber-200">{copy.closeEarly}</p>}
-            </div>
-            <button type="button" onClick={() => onLocate(round.id)} aria-label={`${round.details.roundName} · ${round.details.deadlineOn} · ${copy.calendarJump}`}
-              className={`min-h-11 rounded-xl border border-white/15 px-3 py-2 t-footnote text-violet-200 ${focusClass}`}>{copy.calendarJump}</button>
-          </li>)}
-        </ul>
-      </div>}
 
       <div className="space-y-2 border-t border-white/10 pt-4">
         <p className="t-footnote font-semibold text-white/80">{copy.calendarLegend}</p>

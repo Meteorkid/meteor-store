@@ -1,0 +1,78 @@
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  color: white;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100%);
+  height: 100%;
+  margin-left: auto;
+  border-left: 1px solid rgb(255 255 255 / 0.12);
+  background: #0b0b0f;
+  box-shadow: -16px 0 64px rgb(0 0 0 / 0.3);
+}
+
+.header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: max(16px, env(safe-area-inset-top)) 16px 16px;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.close {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgb(255 255 255 / 0.15);
+  border-radius: 12px;
+  color: rgb(255 255 255 / 0.85);
+  background: rgb(255 255 255 / 0.05);
+}
+
+.close:focus-visible {
+  outline: 2px solid #c4b5fd;
+  outline-offset: 2px;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 16px max(16px, env(safe-area-inset-bottom));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .close:hover { background: rgb(255 255 255 / 0.1); }
+}
+
+@media (max-width: 639px) {
+  .panel { width: 100%; border-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog, .panel { animation: none; transition: none; transform: none; }
+}
