@@ -1,0 +1,277 @@
+{
+  "acceptedOn": "2026-10-30",
+  "runtimeCommit": "49f23788048a8b24ea182ff7315778cd1f1698ea",
+  "migration": {
+    "hash": "dcbe2cbb1838bb6ed9f39f2571cde17240fd7414c6f7d40fd90d7c949c0768c7",
+    "created_at": "1793276328542"
+  },
+  "artifact": {
+    "sha256": "c45f2b4c80f06bae2985a7ea1bbe911e57cb5edbb1a280a2b59fea04df7f7f4e",
+    "bytes": 23177778,
+    "buildId": "build-TfctsWXpff2fKS"
+  },
+  "compatibleRollback": {
+    "commit": "cbc854d8586ad8f87ef48a22714db2eb286e213e",
+    "artifact": {
+      "sha256": "9bf8f4b9140aa5cab12a5a5a4a861b8f3b6bd9d4bf6b5432ae1ff4a974b06c45",
+      "bytes": 22767241,
+      "buildId": "build-TfctsWXpff2fKS"
+    }
+  },
+  "masters": {
+    "count": 10,
+    "regions": {
+      "macau": {
+        "rounds": 1,
+        "universities": [
+          "澳门城市大学"
+        ]
+      },
+      "hong-kong": {
+        "rounds": 6,
+        "universities": [
+          "香港大学",
+          "香港科技大学"
+        ]
+      },
+      "singapore": {
+        "rounds": 1,
+        "universities": [
+          "新加坡国立大学"
+        ]
+      },
+      "australia": {
+        "rounds": 2,
+        "universities": [
+          "The University of Queensland"
+        ]
+      }
+    }
+  },
+  "phd": {
+    "currentYear": 2027,
+    "currentRounds": 5,
+    "nextYear": 2028,
+    "nextRounds": 1,
+    "regions": {
+      "australia": {
+        "rounds": 1,
+        "universities": [
+          "Griffith University"
+        ]
+      },
+      "hong-kong": {
+        "rounds": 2,
+        "universities": [
+          "香港大学"
+        ]
+      },
+      "macau": {
+        "rounds": 1,
+        "universities": [
+          "澳门科技大学"
+        ]
+      },
+      "singapore": {
+        "rounds": 1,
+        "universities": [
+          "Singapore Management University"
+        ]
+      }
+    },
+    "sourceLimits": {
+      "oxford": "unpublished drafts; server HTTP 403",
+      "griffith": "published after current official browser text verification; server HTTP 403 remains"
+    }
+  },
+  "validation": {
+    "unitPassed": 3768,
+    "unitSkipped": 47,
+    "postgresIntegrationPassedSeparately": 4,
+    "http": [
+      {
+        "path": "/api/masters?year=2027",
+        "status": 200,
+        "cacheControl": "public, max-age=30, stale-while-revalidate=30",
+        "pass": true
+      },
+      {
+        "path": "/api/phd?year=2027",
+        "status": 200,
+        "cacheControl": "public, max-age=30, stale-while-revalidate=30",
+        "pass": true
+      },
+      {
+        "path": "/api/phd?year=2028",
+        "status": 200,
+        "cacheControl": "public, max-age=30, stale-while-revalidate=30",
+        "pass": true
+      },
+      {
+        "path": "/api/admin/phd?year=2027",
+        "status": 404,
+        "cacheControl": "no-store",
+        "pass": true
+      },
+      {
+        "path": "/api/phd/notices",
+        "status": 200,
+        "cacheControl": "no-store",
+        "pass": true
+      },
+      {
+        "path": "/api/phd?year=0",
+        "status": 400,
+        "cacheControl": null,
+        "pass": true
+      },
+      {
+        "path": "/api/phd/watches",
+        "status": 401,
+        "cacheControl": "no-store",
+        "pass": true
+      },
+      {
+        "path": "/api/masters/watches",
+        "status": 401,
+        "cacheControl": "no-store",
+        "pass": true
+      },
+      {
+        "path": "/en/phd",
+        "status": 200,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "pass": true
+      },
+      {
+        "path": "/masters",
+        "status": 200,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "pass": true
+      },
+      {
+        "path": "/phd",
+        "status": 200,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "pass": true
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "cacheControl": null,
+        "pass": true
+      },
+      {
+        "path": "/admin/phd",
+        "status": 200,
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "pass": true
+      },
+      {
+        "path": "/api/phd/calendar?ids=phd-griffith-research-2027-international-scholarship-2,phd-hku-cs-2027-clearing-1,phd-hku-cs-2027-main,phd-must-research-2027-general-1,phd-smu-cs-2027-august",
+        "status": 200,
+        "cacheControl": "no-store",
+        "pass": true
+      },
+      {
+        "path": "/api/phd/calendar?ids=cityu-macau-fintech-2027",
+        "status": 404,
+        "cacheControl": "no-store",
+        "pass": true
+      },
+      {
+        "path": "/api/cron/phd-sync",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "path": "/api/cron/phd-deadlines",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "path": "/sitemap.xml",
+        "status": 200,
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "pass": true
+      }
+    ],
+    "browser": [
+      {
+        "case": "2027 shows four regions and five rounds",
+        "pass": true
+      },
+      {
+        "case": "each HKU round occupies its own timeline row",
+        "pass": true
+      },
+      {
+        "case": "bar opens matching side dialog without navigating",
+        "pass": true
+      },
+      {
+        "case": "Escape closes drawer and restores focus to clicked bar",
+        "pass": true
+      },
+      {
+        "case": "calendar and list remain on the same page without overflow",
+        "pass": true
+      },
+      {
+        "case": "deadline-only scholarship opens correct drawer and retains eligibility limits",
+        "pass": true
+      },
+      {
+        "case": "drawer selection exports through independent PhD ICS URL",
+        "pass": true
+      },
+      {
+        "case": "January intake is listed only under 2028 and return links retain year",
+        "pass": true
+      },
+      {
+        "case": "English mobile month/year switch has no document overflow",
+        "pass": true
+      },
+      {
+        "case": "390px mobile deadline marker opens usable details drawer",
+        "pass": true
+      },
+      {
+        "case": "masters retains five universities and ten rounds without doctoral export selection",
+        "pass": true
+      }
+    ],
+    "consoleErrors": 0,
+    "realUserMutations": false
+  },
+  "assets": [
+    {
+      "name": "06mi35agdj5r_.js",
+      "sha256": "9b2e69659b24eaac56eac191095e9d73693c4a5bd122624b8ae8fe3878514d5f"
+    },
+    {
+      "name": "2wdr1g3o487c0.js",
+      "sha256": "e7ef330381b97c736c9080ac259f096893b746cfaf1672168a1a74450581eb1d"
+    }
+  ],
+  "cron": {
+    "checkedAt": "2026-10-30T08:04:43.161Z",
+    "timezone": "Asia/Shanghai",
+    "installed": 2,
+    "otherEntriesPreserved": true,
+    "entries": [
+      "20 8,14 * * * /usr/bin/flock -n /run/lock/meteor-phd-sync.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/phd-sync-cron.mjs 2>&1 | /usr/bin/logger -t meteor-phd-sync",
+      "5 9,15 * * * /usr/bin/flock -n /run/lock/meteor-phd-deadlines.lock /usr/local/bin/node --env-file=/var/www/meteor-store/.env.production /var/www/meteor-store/scripts/phd-deadlines-cron.mjs 2>&1 | /usr/bin/logger -t meteor-phd-deadlines"
+    ]
+  },
+  "griffithEvidence": {
+    "source": "griffith",
+    "url": "https://www.griffith.edu.au/apply/research-study",
+    "capturedAt": "2026-10-30T07:53:02.951Z",
+    "sha256": "811b3914b145077fe34cc29f74cfb75290a90b33993e49bd2ee582bd303ab376",
+    "bytes": 7336,
+    "method": "official HTTPS page rendered text from browser; parsed with production parser; direct HTTP timeout preserved separately",
+    "roundId": "phd-griffith-research-2027-international-scholarship-2"
+  }
+}
