@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextRequest } from 'next/server';
 
 const state = vi.hoisted(() => ({
@@ -52,6 +52,8 @@ function request(): NextRequest {
   }) as unknown as NextRequest;
 }
 
+afterEach(() => vi.unstubAllEnvs());
+
 describe('POST /api/auth/login', () => {
   beforeEach(() => {
     state.passwordMatches = true;
@@ -89,6 +91,16 @@ describe('POST /api/auth/login', () => {
       email: 'user@example.com',
       emailVerified: true,
     });
+  });
+
+  it.each([true, false])('登录响应立即包含正确的管理员入口标记：%s', async admin => {
+    vi.stubEnv('ADMIN_EMAILS', admin ? 'user@example.com' : 'other@example.com');
+    state.user = { ...state.user, emailVerified: true };
+    const response = await POST(request());
+    const body = await response.json();
+    expect(body.user).toMatchObject({ id: 'U1', emailVerified: true, isAdmin: admin });
+    expect(body.user).not.toHaveProperty('passwordHash');
+    expect(state.createdSessions[0]).not.toHaveProperty('isAdmin');
   });
 
   it('密码错误时不泄露账户是否尚未验证', async () => {

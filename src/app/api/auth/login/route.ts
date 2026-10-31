@@ -3,6 +3,7 @@ import { compare, hash } from 'bcryptjs';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { createSession } from '@/lib/auth';
+import { isAdminSession } from '@/lib/admin';
 import { createEmailVerificationResendTicket } from '@/lib/email-verification';
 import {
   MFA_CHALLENGE_COOKIE,
@@ -116,6 +117,6 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    user: { id: user.id, email: user.email, name: user.name },
+    user: { id: user.id, email: user.email, name: user.name, emailVerified: true, isAdmin: isAdminSession(user) },
   });
 }

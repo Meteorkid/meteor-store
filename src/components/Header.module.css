@@ -81,6 +81,7 @@
 .chevron { width: 14px; height: 14px; flex-shrink: 0; transition: transform 160ms ease; }
 [aria-expanded="true"] > .chevron { transform: rotate(180deg); }
 .hamburger { display: none; }
+.mobileAdminShortcut { display: none; }
 
 .desktopPanel {
   position: absolute;
@@ -122,6 +123,7 @@
   .bar { padding-inline: 20px; gap: 10px; }
   .desktopNav, .desktopAccount { display: none; }
   .hamburger { display: inline-flex; }
+  .mobileAdminShortcut { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding-inline: 6px; border: 1px solid rgb(196 181 253 / 35%); border-radius: 10px; background: rgb(139 92 246 / 12%); color: rgb(220 206 255); font-size: 14px; font-weight: 600; }
   .mobilePanel {
     display: block;
     position: fixed;
@@ -132,6 +134,7 @@
     background: linear-gradient(150deg, rgb(26 21 38), rgb(12 12 18) 65%);
   }
   .mobileContent { padding: 12px 24px max(32px, env(safe-area-inset-bottom)); }
+  .mobileAdminEntry { display: flex; align-items: center; justify-content: space-between; min-height: 52px; margin-bottom: 12px; padding: 12px 16px; border: 1px solid rgb(196 181 253 / 30%); border-radius: 12px; background: rgb(139 92 246 / 12%); color: #fff; font-size: 16px; font-weight: 600; }
   .mobileGroup { border-bottom: 1px solid rgb(255 255 255 / 12%); }
   .mobileHeading { display: flex; align-items: center; gap: 8px; }
   .mobileLink { display: flex; align-items: center; flex: 1; min-width: 0; min-height: 64px; padding-block: 8px; border-radius: 8px; color: #fff; }

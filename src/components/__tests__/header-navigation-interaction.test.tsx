@@ -1,6 +1,8 @@
 import { isValidElement, type ReactElement } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+const authState = vi.hoisted(() => ({ user: null as null | { name: string; isAdmin: boolean } }));
+
 const hooks = vi.hoisted(() => ({
   states: [] as unknown[],
   refs: [] as Array<{ current: unknown }>,
@@ -51,7 +53,7 @@ vi.mock('react', async importOriginal => ({
 vi.mock('react-dom', () => ({ flushSync: (callback: () => void) => { callback(); hooks.commit(); } }));
 vi.mock('next-intl', () => ({ useLocale: () => 'zh', useTranslations: () => (key: string) => key }));
 vi.mock('@/i18n/navigation', () => ({ usePathname: () => '/daily', Link: () => null }));
-vi.mock('../AuthProvider', () => ({ useAuth: () => ({ user: null, logout: vi.fn() }) }));
+vi.mock('../AuthProvider', () => ({ useAuth: () => ({ user: authState.user, logout: vi.fn() }) }));
 vi.mock('../UserMenu', () => ({ default: () => null }));
 vi.mock('../NotificationBell', () => ({ default: () => null }));
 vi.mock('../LanguageSwitcher', () => ({ default: () => null }));
@@ -109,6 +111,7 @@ function productGroup() { return findElement(props => typeof props.onPointerEnte
 function productPanel() { return findElement(props => props.id === 'header-panel-products'); }
 
 beforeEach(() => {
+  authState.user = null;
   vi.useFakeTimers();
   hooks.states = [];
   hooks.refs = [];
@@ -139,6 +142,17 @@ afterEach(() => {
 });
 
 describe('Header 导航交接', () => {
+  it('手机菜单首项为管理员入口，点击后关闭面板并恢复滚动', () => {
+    authState.user = { name: 'Admin', isAdmin: true };
+    renderHeader();
+    invoke(hamburger(), 'onClick', { detail: 1 });
+    const panel = mobilePanel();
+    const firstLink = findElement(props => typeof props.href === 'string', panel);
+    expect(firstLink?.props.href).toBe('/admin');
+    invoke(firstLink, 'onClick');
+    expect(mobilePanel()).toBeUndefined();
+    expect(body.style.overflow).toBe('auto');
+  });
   it('一级名称点击关闭下拉但不阻止原生跳转或修饰键打开新页', () => {
     invoke(productGroup(), 'onPointerEnter', { pointerType: 'mouse' });
     vi.advanceTimersByTime(120); renderHeader();

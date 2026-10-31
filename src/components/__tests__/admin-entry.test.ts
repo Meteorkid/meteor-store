@@ -79,7 +79,7 @@ describe('账号区能进入后台', () => {
   });
 
   it('移动端菜单同样有总入口', () => {
-    expect(header).toMatch(/user\.isAdmin[\s\S]{0,300}href="\/admin"/);
+    expect(header).toMatch(/user\??\.isAdmin[\s\S]{0,300}href="\/admin"/);
   });
 
   it('账号页的快捷入口里有后台，且按管理员身份门控', () => {

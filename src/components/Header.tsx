@@ -385,6 +385,11 @@ export default function Header() {
             <NotificationBell />
             <LanguageSwitcher />
             <div className={styles.desktopAccount}><UserMenu /></div>
+            {user?.isAdmin && (
+              <Link href="/admin" className={styles.mobileAdminShortcut} aria-label={t('adminDashboard')} onClick={closeNavigation}>
+                {locale === 'en' ? 'Admin' : '管理'}
+              </Link>
+            )}
             <button
               ref={hamburgerRef}
               type="button"
@@ -413,6 +418,11 @@ export default function Header() {
       {mobileOpen && (
         <div ref={mobileRef} id="header-mobile-panel" data-animate={animateMobile || undefined} className={styles.mobilePanel}>
           <nav className={`container mx-auto ${styles.mobileContent}`} aria-label={navLabel}>
+            {user?.isAdmin && (
+              <Link href="/admin" className={styles.mobileAdminEntry} onClick={closeNavigation}>
+                <span>{t('adminDashboard')}</span><span aria-hidden="true">→</span>
+              </Link>
+            )}
             {navigation.map(group => {
               const expanded = mobileGroup === group.id;
               return (
@@ -458,9 +468,6 @@ export default function Header() {
                   <p className={`t-footnote ${styles.sectionLabel}`}>{user.name || t('defaultUserName')}</p>
                   <div className={styles.accountLinks}>
                     {accountLinks.map(link => <Link key={link.href} href={link.href} className={styles.accountLink} onClick={closeNavigation}>{t(link.key)}</Link>)}
-                    {user.isAdmin && (
-                      <Link href="/admin" className={styles.accountLink} onClick={closeNavigation}>{t('adminDashboard')}</Link>
-                    )}
                   </div>
                   <button type="button" className={styles.logout} onClick={() => { logout(); closeMobile(); }}>{t('logout')}</button>
                 </>

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import zh from '../../../messages/zh.json';
 import en from '../../../messages/en.json';
 
-const state = vi.hoisted(() => ({ locale: 'zh', pathname: '/', user: null }));
+const state = vi.hoisted(() => ({ locale: 'zh', pathname: '/', user: null as null | { name: string; isAdmin: boolean } }));
 vi.mock('next-intl', () => ({
   useLocale: () => state.locale,
   useTranslations: () => (key: string) => (state.locale === 'en' ? en : zh).Header[key as keyof typeof zh.Header],
@@ -21,9 +21,16 @@ vi.mock('../BrandMark', () => ({ default: () => <svg aria-hidden="true" /> }));
 
 import Header from '../Header';
 
-beforeEach(() => { state.locale = 'zh'; state.pathname = '/'; });
+beforeEach(() => { state.locale = 'zh'; state.pathname = '/'; state.user = null; });
 
 describe('主导航初始呈现', () => {
+  it('管理员在手机顶栏有直接入口，普通用户没有', () => {
+    state.user = { name: 'Admin', isAdmin: true };
+    const html = renderToStaticMarkup(<Header />);
+    expect(html).toMatch(/<a(?=[^>]*href="\/admin")(?=[^>]*aria-label="管理后台")[^>]*>/);
+    state.user = { name: 'Member', isAdmin: false };
+    expect(renderToStaticMarkup(<Header />)).not.toContain('href="/admin"');
+  });
   it.each(['zh', 'en'])('%s 一级名称是独立总览链接，旁边按钮只负责展开', locale => {
     state.locale = locale;
     const html = renderToStaticMarkup(<Header />);
