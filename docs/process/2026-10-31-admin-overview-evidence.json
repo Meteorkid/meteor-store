@@ -1,0 +1,301 @@
+{
+  "checkedAt": "2026-10-31T15:31:12.767Z",
+  "runtime": "bad1555f9411a0fe13053da34eddf9fea6578606",
+  "checks": [
+    {
+      "route": "/api/health",
+      "status": 200
+    },
+    {
+      "route": "/zh/admin",
+      "status": 200,
+      "notFound": true
+    },
+    {
+      "route": "/en/admin",
+      "status": 200,
+      "notFound": true
+    },
+    {
+      "route": "/api/admin/posts",
+      "status": 404
+    },
+    {
+      "route": "/api/admin/comments",
+      "status": 404
+    },
+    {
+      "route": "/api/admin/reports",
+      "status": 404
+    },
+    {
+      "route": "/api/admin/users",
+      "status": 404
+    }
+  ],
+  "boundary": "Production anonymous access and frozen SSR artifact verification; administrator navigation tested in isolated local environment",
+  "tests": {
+    "passed": 3780,
+    "skipped": 47
+  },
+  "localBrowser": {
+    "environment": "isolated local synthetic administrator",
+    "navigation": [
+      {
+        "card": "文章总数 0 查看详情",
+        "url": "http://localhost:3000/zh/admin/posts",
+        "headings": [
+          "文章管理",
+          "产品",
+          "资源",
+          "公司"
+        ]
+      },
+      {
+        "card": "待审核 0 查看详情",
+        "url": "http://localhost:3000/zh/admin/review",
+        "headings": [
+          "待审核",
+          "产品",
+          "资源",
+          "公司"
+        ]
+      },
+      {
+        "card": "评论总数 0 查看详情",
+        "url": "http://localhost:3000/zh/admin/comments",
+        "headings": [
+          "评论管理",
+          "产品",
+          "资源",
+          "公司"
+        ]
+      },
+      {
+        "card": "待处理举报 0 查看详情",
+        "url": "http://localhost:3000/zh/admin/reports?status=pending",
+        "headings": [
+          "举报管理",
+          "产品",
+          "资源",
+          "公司"
+        ]
+      },
+      {
+        "card": "待处理反馈 0 查看详情",
+        "url": "http://localhost:3000/zh/admin/feedback",
+        "headings": [
+          "反馈管理",
+          "产品",
+          "资源",
+          "公司"
+        ]
+      },
+      {
+        "card": "用户总数 1 查看详情",
+        "url": "http://localhost:3000/zh/admin/users",
+        "headings": [
+          "账号管理",
+          "管理员名单",
+          "产品",
+          "资源",
+          "公司"
+        ]
+      },
+      {
+        "card": "有效 Pass 0 订单与授权",
+        "url": "http://localhost:3000/zh/admin/commerce",
+        "headings": [
+          "订单与授权",
+          "最近订单",
+          "最近授权码",
+          "产品",
+          "资源",
+          "公司"
+        ]
+      }
+    ],
+    "viewports": [
+      {
+        "cards": [
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          },
+          {
+            "height": 126.59375,
+            "width": 134
+          }
+        ],
+        "scrollWidth": 312,
+        "width": 312
+      },
+      {
+        "cards": [
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          },
+          {
+            "height": 126.59375,
+            "width": 169
+          }
+        ],
+        "scrollWidth": 382,
+        "width": 382
+      },
+      {
+        "cards": [
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          },
+          {
+            "height": 149.3671875,
+            "width": 356
+          }
+        ],
+        "scrollWidth": 760,
+        "width": 760
+      }
+    ],
+    "englishPostsHref": "/en/admin/posts"
+  },
+  "artifact": {
+    "sha256": "42db95467887fa6f1f8cae17dd21bc13061fb45358a6d7a25bb96f038565ec94",
+    "bytes": 23188915,
+    "buildId": "build-TfctsWXpff2fKS"
+  }
+}
