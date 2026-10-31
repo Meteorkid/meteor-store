@@ -102,7 +102,7 @@ export function getHeaderNavigation(showPricing: boolean): HeaderNavGroup[] {
       ],
     },
     {
-      id: 'content', label: { zh: '内容', en: 'Writing' },
+      id: 'content', label: { zh: '博客', en: 'Blog' },
       description: { zh: '产品与技术，也聊代码之外的生活。', en: 'Products, technology and life beyond code.' },
       overview: { id: 'blog', href: '/blog', label: { zh: '阅读全部文章', en: 'Read all articles' } },
       sections: [
