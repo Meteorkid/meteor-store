@@ -1,0 +1,120 @@
+{
+  "checkedAt": "2026-10-31T13:21:03.817Z",
+  "candidate": "e1a15a9b198ad71fef18671a3677e01430b7a05f",
+  "checks": [
+    {
+      "route": "/api/health",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "/zh/phd",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "/api/auth/me",
+      "status": 200,
+      "pass": true
+    },
+    {
+      "route": "/api/admin/phd",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "route": "/api/auth/login",
+      "status": 400,
+      "pass": true
+    },
+    {
+      "route": "/api/auth/mfa",
+      "status": 400,
+      "pass": true
+    }
+  ],
+  "assets": [
+    {
+      "name": "0oanshy2z6cla.js",
+      "sha256": "df8f1424c62f66b412b6815a379cd59469451a4dfb58e3ebeba3b17bf1a516bd"
+    },
+    {
+      "name": "2m53e5hyigber.css",
+      "sha256": "9de80514cfa1425802ae50b30d499c9436096cdc25e254ad7f641c9dfcda2fe5"
+    }
+  ],
+  "pwaManifest": {
+    "display": "standalone",
+    "start_url": "/"
+  },
+  "boundary": "Production anonymous HTTP and frozen asset verification; real admin login tested only with synthetic local account",
+  "unitTests": {
+    "passed": 3776,
+    "skipped": 47
+  },
+  "viewports": [
+    {
+      "scrollWidth": 312,
+      "shortcut": {
+        "height": 44,
+        "left": 219,
+        "right": 263,
+        "width": 44
+      },
+      "width": 312
+    },
+    {
+      "scrollWidth": 352,
+      "shortcut": {
+        "height": 44,
+        "left": 259,
+        "right": 303,
+        "width": 44
+      },
+      "width": 352
+    },
+    {
+      "scrollWidth": 382,
+      "shortcut": {
+        "height": 44,
+        "left": 289,
+        "right": 333,
+        "width": 44
+      },
+      "width": 382
+    },
+    {
+      "scrollWidth": 760,
+      "shortcut": {
+        "height": 44,
+        "left": 653,
+        "right": 697,
+        "width": 44
+      },
+      "width": 760
+    },
+    {
+      "scrollWidth": 1016,
+      "shortcut": {
+        "height": 0,
+        "left": 0,
+        "right": 0,
+        "width": 0
+      },
+      "width": 1016
+    }
+  ],
+  "productionBrowser": {
+    "guest": {
+      "adminLinkPresent": false,
+      "firstMenuLink": "/zh/products",
+      "scrollWidth": 390,
+      "width": 390
+    },
+    "errors": []
+  },
+  "backup": {
+    "localVerified": true,
+    "r2Upload": "timed_out"
+  }
+}
