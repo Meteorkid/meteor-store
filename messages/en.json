@@ -1819,6 +1819,10 @@
     "statusRejected": "Rejected"
   },
   "AdminDashboardPage": {
+    "navigationHint": "Select a statistics card to open its management page.",
+    "viewDetails": "View details",
+    "viewOrders": "Orders & licenses",
+    "viewAccounts": "Account redemptions",
     "metaTitle": "Dashboard - Meteor Store",
     "metaNotFound": "Page Not Found - Meteor Store",
     "title": "Dashboard",

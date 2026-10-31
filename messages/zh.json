@@ -1819,6 +1819,10 @@
     "statusRejected": "已驳回"
   },
   "AdminDashboardPage": {
+    "navigationHint": "点击数字卡片，进入对应管理页面。",
+    "viewDetails": "查看详情",
+    "viewOrders": "订单与授权",
+    "viewAccounts": "账号兑换记录",
     "metaTitle": "管理后台 - Meteor Store",
     "metaNotFound": "页面未找到 - Meteor Store",
     "title": "管理后台",

@@ -28,7 +28,7 @@ const accountPage = readFileSync(
 /** 枚举实际存在的后台页面路由，而不是维护一份手写清单。 */
 function adminRoutes(): string[] {
   return readdirSync(adminDir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && entry.name !== '__tests__')
     .map((entry) => `/admin/${entry.name}`)
     .sort();
 }
