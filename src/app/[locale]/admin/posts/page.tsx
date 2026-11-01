@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import mobile from '@/components/admin/AdminMobile.module.css';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/i18n/routing';
@@ -60,13 +61,13 @@ export default async function PostsPage({
         </p>
       </header>
 
-      <div className="mt-8 overflow-x-auto">
+      <div className={`mt-8 ${mobile.tableShell}`}>
         {allPosts.length === 0 ? (
           <p className="t-body text-white/40">{t('noPosts')}</p>
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-white/50 t-footnote">
+          <table role="table" className={`w-full text-left text-sm ${mobile.responsiveTable}`}>
+            <thead role="rowgroup">
+              <tr role="row" className="border-b border-white/10 text-white/50 t-footnote">
                 <th className="py-3 pr-4 font-medium">{t('tableTitle')}</th>
                 <th className="py-3 pr-4 font-medium">{t('tableSource')}</th>
                 <th className="py-3 pr-4 font-medium">{t('tableSection')}</th>
@@ -77,7 +78,7 @@ export default async function PostsPage({
                 <th className="py-3 pr-4 font-medium">{t('tableActions')}</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {allPosts.map((post) => {
                 const section = getSectionById(post.section);
                 const sectionLabel =
@@ -89,19 +90,19 @@ export default async function PostsPage({
                     : `/blog/submit?id=${post.id}&admin=1`;
 
                 return (
-                  <tr
+                  <tr role="row"
                     key={post.source === 'file' ? `file-${post.id}` : `db-${post.id}`}
                     className="border-b border-white/5 transition-colors hover:bg-white/5"
                   >
-                    <td className="py-3 pr-4">
+                    <td role="cell" data-label={t('tableTitle')} className="py-3 pr-4"><div>
                       <Link
-                        href={post.href}
-                        className="text-white/90 hover:text-white transition-colors"
+                        href={post.source === 'database' && post.status !== 'published' ? editHref : post.href}
+                        className="flex min-h-11 items-center text-white/90 hover:text-white transition-colors"
                       >
                         {post.title}
                       </Link>
-                    </td>
-                    <td className="py-3 pr-4">
+                    </div></td>
+                    <td role="cell" data-label={t('tableSource')} className="py-3 pr-4"><div>
                       {post.source === 'file' ? (
                         <span className="inline-block rounded bg-white/10 px-2 py-0.5 text-xs text-white/60">
                           {t('sourceFile')}
@@ -111,24 +112,24 @@ export default async function PostsPage({
                           {t('sourceDatabase')}
                         </span>
                       )}
-                    </td>
-                    <td className="py-3 pr-4 text-white/70">
+                    </div></td>
+                    <td role="cell" data-label={t('tableSection')} className="py-3 pr-4 text-white/70"><div>
                       {sectionLabel}
-                    </td>
-                    <td className="py-3 pr-4 text-white/70">
+                    </div></td>
+                    <td role="cell" data-label={t('tableAuthor')} className="py-3 pr-4 text-white/70"><div>
                       {post.author ?? '—'}
-                    </td>
-                    <td className="py-3 pr-4">
+                    </div></td>
+                    <td role="cell" data-label={t('tableStatus')} className="py-3 pr-4"><div>
                       {post.source === 'database' && post.status ? (
                         <StatusBadge status={post.status} t={t} />
                       ) : (
                         <span className="text-white/30">—</span>
                       )}
-                    </td>
-                    <td className="py-3 pr-4 text-white/50 tabular-nums whitespace-nowrap">
+                    </div></td>
+                    <td role="cell" data-label={t('tableDate')} className="py-3 pr-4 text-white/50 tabular-nums whitespace-nowrap"><div>
                       {formatDate(date)}
-                    </td>
-                    <td className="py-3 pr-4 whitespace-nowrap">
+                    </div></td>
+                    <td role="cell" data-label={t('tableReports')} className="py-3 pr-4 whitespace-nowrap"><div>
                       {post.source === 'database' ? (
                         (() => {
                           const n = pendingReports.get(post.id) ?? 0;
@@ -149,17 +150,14 @@ export default async function PostsPage({
                       ) : (
                         <span className="text-white/25">—</span>
                       )}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <a
-                        href={editHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-white/50 hover:text-white transition-colors text-xs"
-                      >
-                        {t('editLink')}
-                      </a>
-                    </td>
+                    </div></td>
+                    <td role="cell" data-label={t('tableActions')} className="py-3 pr-4"><div>
+                      {post.source === 'database' ? (
+                        <Link href={editHref} data-admin-action className="text-sm text-violet-200">{t('editLink')}</Link>
+                      ) : (
+                        <a href={editHref} target="_blank" rel="noopener noreferrer" data-admin-action className="text-sm text-violet-200">{t('editLink')}</a>
+                      )}
+                    </div></td>
                   </tr>
                 );
               })}

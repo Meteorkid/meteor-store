@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { formatAdminTimestamp } from '@/lib/admin-date';
 
 interface CommerceOrder {
   id: string;
@@ -36,6 +37,7 @@ export default function CommerceManager({
   initialOrders: CommerceOrder[];
   initialLicenses: CommerceLicense[];
 }) {
+  const locale = useLocale();
   const t = useTranslations('AdminCommercePage');
   const [orders, setOrders] = useState(initialOrders);
   const [licenses, setLicenses] = useState(initialLicenses);
@@ -155,15 +157,15 @@ export default function CommerceManager({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-medium text-white/90">{order.productId} · {order.planName}</p>
-                      <p className="t-footnote mt-1 truncate text-white/45">{order.email}</p>
-                      <p className="t-footnote mt-1 truncate font-mono text-white/30">{order.id}</p>
+                      <p className="t-footnote mt-1 break-all sm:truncate text-white/45">{order.email}</p>
+                      <p className="t-footnote mt-1 break-all sm:truncate font-mono text-white/30">{order.id}</p>
                     </div>
                     <span className="font-medium text-white/80">¥{order.amountCny}</span>
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-white/50">
                     <span>{t('payment')}: {paymentLabels[order.status] ?? order.status}</span>
                     <span>{t('delivery')}: {deliveryLabels[order.deliveryStatus] ?? order.deliveryStatus}</span>
-                    <span>{new Date(order.createdAt).toLocaleString()}</span>
+                    <span>{formatAdminTimestamp(order.createdAt, locale)}</span>
                     {order.refundStatus && <span className="text-amber-200">{t('refundState')}: {refundLabels[order.refundStatus] ?? order.refundStatus}</span>}
                     {order.outRefundNo && <span className="break-all font-mono">{order.outRefundNo}</span>}
                     {canRetry && (
@@ -207,8 +209,8 @@ export default function CommerceManager({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-medium text-white/90">{license.productId} · {license.planName}</p>
-                      <p className="t-footnote mt-1 truncate text-white/45">{license.email}</p>
-                      <p className="t-footnote mt-1 truncate font-mono text-emerald-400/70 select-all">{license.key}</p>
+                      <p className="t-footnote mt-1 break-all sm:truncate text-white/45">{license.email}</p>
+                      <p className="t-footnote mt-1 break-all sm:truncate font-mono text-emerald-400/70 select-all">{license.key}</p>
                     </div>
                     <span className={license.status === 'active' ? 'text-emerald-400' : 'text-red-400'}>
                       {licenseLabels[license.status] ?? license.status}

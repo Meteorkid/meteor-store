@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdminNav from '@/components/AdminNav';
+import mobile from '@/components/admin/AdminMobile.module.css';
 import { getAdminPageSession } from '@/lib/admin-session';
 import { isAdminSession } from '@/lib/admin';
 import { getAdminBadgeCounts } from '@/lib/admin-stats';
@@ -38,7 +39,7 @@ export default async function AdminLayout({
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row lg:gap-10">
           <AdminNav counts={counts} />
-          <main className="min-w-0 flex-1">{children}</main>
+          <main className={`min-w-0 flex-1 ${mobile.content}`}>{children}</main>
         </div>
       </div>
       <Footer />

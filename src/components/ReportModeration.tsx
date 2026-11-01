@@ -287,12 +287,16 @@ export default function ReportModeration() {
                   {report.targetPreview ?? t('targetNotFound')}
                 </p>
                 {report.targetPreview && (
-                  <Link
-                    href={report.targetType === 'comment' ? '#' : `/blog/p/${report.targetId}`}
-                    className="t-footnote mt-2 inline-block text-violet-300/70 underline decoration-violet-300/30 underline-offset-4 transition-colors hover:text-violet-300"
-                  >
-                    {t('viewTarget')}
-                  </Link>
+                  <>
+                    {report.targetType === 'comment' && <details className="mt-2"><summary className="cursor-pointer text-sm text-violet-200">{t('viewFullComment')}</summary><p className="mt-2 whitespace-pre-wrap break-words text-sm text-white/80">{report.targetPreview}</p></details>}
+                    <Link
+                      href={report.targetType === 'comment' ? `/admin/comments#comment-${encodeURIComponent(report.targetId)}` : report.targetStatus === 'published' ? `/blog/p/${report.targetId}` : `/blog/submit?id=${encodeURIComponent(report.targetId)}&admin=1`}
+                      data-admin-action
+                      className="t-footnote mt-2 inline-flex items-center text-violet-200 underline decoration-violet-300/30 underline-offset-4"
+                    >
+                      {report.targetType === 'comment' ? t('manageComment') : t('viewTarget')}
+                    </Link>
+                  </>
                 )}
               </div>
 

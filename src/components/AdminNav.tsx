@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { usePathname } from 'next/navigation';
@@ -30,6 +30,7 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
   const locale = useLocale();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
 
   const groups: { title: string; items: NavItem[] }[] = [
     {
@@ -97,7 +98,7 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
     <div className="space-y-6">
       {groups.map((group) => (
         <div key={group.title}>
-          <p className="t-eyebrow px-3 text-white/35">{group.title}</p>
+          <p className="t-eyebrow px-3 text-white/65">{group.title}</p>
           <ul className="mt-2 space-y-0.5">
             {group.items.map((item) => {
               const active = isActive(item.href);
@@ -107,7 +108,7 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
                     href={item.href}
                     aria-current={active ? 'page' : undefined}
                     onClick={() => setOpen(false)}
-                    className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+                    className={`flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
                       active
                         ? 'bg-white/10 font-medium text-white'
                         : 'text-white/60 hover:bg-white/5 hover:text-white'
@@ -132,15 +133,18 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
   return (
     <>
       {/* 移动端：折叠成一个当前页按钮，展开后仍是竖排列表 */}
-      <div className="lg:hidden">
+      <div className="lg:hidden" onKeyDown={event => { if (event.key === 'Escape' && open) { setOpen(false); menuButton.current?.focus(); } }}>
+        <div className="flex items-center gap-2">
         <button
+          ref={menuButton}
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          className="glass-card flex w-full items-center justify-between rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-3 text-sm text-white"
+          aria-controls="admin-mobile-navigation"
+          className="glass-card flex min-h-11 min-w-0 flex-1 items-center justify-between gap-2 rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-3 text-sm text-white"
         >
           <span className="flex items-center gap-2">
-            <span className="text-white/45">{t('menu')}</span>
+            <span className="text-white/70">{t('openMenu')}</span>
             <span className="font-medium">{activeLabel}</span>
             {totalBadge > 0 && (
               <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-xs font-medium tabular-nums text-violet-300">
@@ -150,8 +154,10 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
           </span>
           <span aria-hidden className={`transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
         </button>
+        <Link href="/admin" onClick={() => setOpen(false)} className="flex min-h-11 shrink-0 items-center rounded-lg border border-white/15 px-3 text-sm text-violet-200">{t('dashboard')}</Link>
+        </div>
         {open && (
-          <nav aria-label={t('ariaLabel')} className="mt-3 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
+          <nav id="admin-mobile-navigation" aria-label={t('ariaLabel')} className="mt-3 max-h-[65dvh] overflow-y-auto overscroll-contain rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
             {list}
           </nav>
         )}

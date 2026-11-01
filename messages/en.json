@@ -1101,6 +1101,7 @@
     "ariaLabel": "Back to top"
   },
   "AdminNav": {
+    "openMenu": "Manage pages",
     "dashboard": "Dashboard",
     "review": "Review",
     "posts": "Posts",
@@ -1218,6 +1219,7 @@
     "operationFailed": "Operation failed, please try again later"
   },
   "AdminAuditLogsPage": {
+    "viewDetail": "View details",
     "metaTitle": "Audit Logs - Meteor Store",
     "metaNotFound": "Page Not Found - Meteor Store",
     "title": "Audit Logs",
@@ -1380,6 +1382,11 @@
     "manageUsers": "Gift activation codes in account management"
   },
   "BlogSubmitPage": {
+    "backToManagement": "← Back to post management",
+    "adminPublishedEditWarning": "Saving updates this published post and keeps it published.",
+    "saveChanges": "Save changes",
+    "saveAndPublish": "Save and publish",
+    "adminSaveHint": "Return to post management after saving.",
     "metaTitle": "Submit - Meteor Store Blog",
     "title": "Write a Post",
     "myPostsLink": "My Posts →",
@@ -1903,6 +1910,8 @@
     "close": "Close"
   },
   "AdminReportsPage": {
+    "viewFullComment": "Read full comment",
+    "manageComment": "Manage this comment",
     "metaTitle": "Reports - Meteor Store",
     "metaNotFound": "Page Not Found - Meteor Store",
     "title": "Reports",

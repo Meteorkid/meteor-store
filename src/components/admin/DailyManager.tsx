@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useLocale } from 'next-intl';
+import mobile from './AdminMobile.module.css';
+import { useAdminEditorFocus } from './useAdminEditorFocus';
 import { DailyContentSchema, dailyEditionChannels, dailyDate, type DailyEditionChannelId, type DailyContent, type DailyEdition, type DailyLinkItem, type EnglishContent } from '@/lib/daily/types';
 
 const inputClass = 'w-full rounded-lg border border-white/15 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-violet-400';
@@ -64,6 +66,14 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
   const [dateInput, setDateInput] = useState(initialDate);
   const [editions, setEditions] = useState(initialEditions);
   const [editor, setEditor] = useState<Editor | null>(null);
+  const { editorRef, listRef } = useAdminEditorFocus<HTMLDivElement>(editor !== null, editor?.channel);
+  const [baseline, setBaseline] = useState('');
+  const dirty = editor !== null && JSON.stringify(editor) !== baseline;
+  const [pending, setPending] = useState<{ run: () => void } | null>(null);
+  const confirmationRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (pending) { confirmationRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); confirmationRef.current?.focus({ preventScroll: true }); }
+  }, [pending]);
   const [preview, setPreview] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -87,9 +97,9 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
     return data;
   }
 
-  async function loadDate(event?: FormEvent) {
+  async function loadDate(event?: FormEvent, confirmed = false) {
     event?.preventDefault();
-    if (editor && !window.confirm(t('重新载入会关闭当前编辑，继续吗？', 'Reloading closes the current editor. Continue?'))) return;
+    if (dirty && !confirmed) { setPending({ run: () => { void loadDate(undefined, true); } }); return; }
     setBusy(true); setError(''); setNotice('');
     try {
       const response = await fetch(`/api/admin/daily?date=${encodeURIComponent(dateInput)}`, { cache: 'no-store' });
@@ -116,15 +126,21 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
     finally { setBusy(false); }
   }
 
-  function edit(channel: DailyEditionChannelId) {
-    if (editor && !window.confirm(t('切换栏目会关闭当前编辑，继续吗？', 'Switching channels closes the current editor. Continue?'))) return;
+  function edit(channel: DailyEditionChannelId, confirmed = false) {
+    if (dirty && !confirmed) { setPending({ run: () => edit(channel, true) }); return; }
     const edition = editions.find(item => item.channel === channel);
-    setEditor({
+    const nextEditor: Editor = {
       id: edition?.id, date, channel, title: edition?.title ?? '', summary: edition?.summary ?? '',
       content: edition?.content ? structuredClone(edition.content) : emptyContent(channel),
       expectedUpdatedAt: edition?.updatedAt, published: edition?.status === 'published',
-    });
+    };
+    setEditor(nextEditor); setBaseline(JSON.stringify(nextEditor));
     setError(''); setNotice(''); setPreview(false);
+  }
+
+  function closeEditor(confirmed = false) {
+    if (dirty && !confirmed) { setPending({ run: () => closeEditor(true) }); return; }
+    setEditor(null); setPreview(false);
   }
 
   async function save(event: FormEvent<HTMLFormElement>) {
@@ -140,7 +156,8 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
       if (data.edition) {
         const edition = data.edition;
         setEditions(current => [...current.filter(item => item.channel !== edition.channel), edition]);
-        setEditor({ ...editor, id: edition.id, title: edition.title, summary: edition.summary, content: edition.content ?? editor.content, expectedUpdatedAt: edition.updatedAt, published: edition.status === 'published' });
+        const savedEditor = { ...editor, id: edition.id, title: edition.title, summary: edition.summary, content: edition.content ?? editor.content, expectedUpdatedAt: edition.updatedAt, published: edition.status === 'published' };
+        setEditor(savedEditor); setBaseline(JSON.stringify(savedEditor));
         setNotice(edition.status === 'published' ? t('已发布，读者现在可以看到这期内容。', 'Published. Readers can now see this edition.') : t('草稿已保存，尚未公开。', 'Draft saved. It is not public yet.'));
       }
     } catch (failure) { setError(errorMessage(failure instanceof Error ? failure.message : 'failed')); }
@@ -185,17 +202,24 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <form onSubmit={loadDate} className="flex items-end gap-2">
-          <label className="space-y-1 text-sm text-white/70"><span className="block">{t('期刊日期 · 北京时间', 'Edition date · Beijing time')}</span><input type="date" required value={dateInput} disabled={busy} onChange={event => setDateInput(event.target.value)} className={inputClass} /></label>
-          <button className={buttonClass} disabled={busy}>{t('载入', 'Load')}</button>
+          <label className="space-y-1 text-sm text-white/70"><span className="block">{t('期刊日期 · 北京时间', 'Edition date · Beijing time')}</span><input type="date" required value={dateInput} disabled={busy || pending !== null} onChange={event => setDateInput(event.target.value)} className={inputClass} /></label>
+          <button className={buttonClass} disabled={busy || pending !== null}>{t('载入', 'Load')}</button>
         </form>
-        <button className={buttonClass} type="button" disabled={busy || date !== dailyDate() || dateInput !== date} onClick={() => generate()}>{busy ? t('处理中…', 'Working…') : t('生成当天内容', 'Generate editions')}</button>
+        <button className={buttonClass} type="button" disabled={busy || pending !== null || date !== dailyDate() || dateInput !== date} onClick={() => generate()}>{busy ? t('处理中…', 'Working…') : t('生成当天内容', 'Generate editions')}</button>
       </div>
       <p className="text-sm text-white/60">{t('栏目每天自动采集并发布。人工编辑或下架会暂停该期的自动更新；未确认的活动时间保持待定。', 'Channels are collected and published automatically. Editing or unpublishing pauses automation for that edition. Unconfirmed event times stay unspecified.')}</p>
       {dateInput !== date && <p className="text-sm text-white/70">{t('日期已更改，请先载入。下方仍为', 'Date changed. Load it first; the editions below are still for')} {date}。</p>}
       {date !== dailyDate() && <p className="text-sm text-white/60">{t('仅今天支持自动生成，历史和未来期刊可手工编辑。', 'Automatic generation is available only for today. Edit past and future editions manually.')}</p>}
-      {error && <p role="alert" className="rounded-lg border border-red-400/30 p-3 text-sm text-red-200">{error}</p>}
-      {notice && <p role="status" className="text-sm text-emerald-300">{notice}</p>}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {!editor && error && <p role="alert" className="rounded-lg border border-red-400/30 p-3 text-sm text-red-200">{error}</p>}
+      {!editor && notice && <p role="status" className="text-sm text-emerald-300">{notice}</p>}
+      {pending && <div ref={confirmationRef} tabIndex={-1} role="alert" className={`rounded-xl border border-amber-300/40 bg-amber-300/5 p-4 ${mobile.editor}`}>
+        <p className="text-sm text-amber-200">{t('有未保存的修改，继续会放弃这些修改。', 'You have unsaved changes. Continuing discards them.')}</p>
+        <div className="mt-3 flex flex-wrap gap-3">
+          <button type="button" className={buttonClass} onClick={() => { setPending(null); requestAnimationFrame(() => { editorRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); editorRef.current?.focus({ preventScroll: true }); }); }}>{t('继续编辑', 'Keep editing')}</button>
+          <button type="button" className={buttonClass} onClick={() => { const action = pending; setPending(null); action.run(); }}>{t('放弃改动并继续', 'Discard and continue')}</button>
+        </div>
+      </div>}
+      <div ref={listRef} tabIndex={-1} className={`grid gap-3 sm:grid-cols-2 xl:grid-cols-4 ${mobile.list}`}>
         {dailyEditionChannels.map(channel => {
           const edition = editions.find(item => item.channel === channel.id);
           return <section key={channel.id} className={panelClass}>
@@ -203,27 +227,27 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
             <p className="mt-2 text-sm text-white/70">{date} · {edition ? statuses[edition.status] : t('尚未准备', 'Not prepared')}</p>
             {edition?.error && <p className="mt-2 break-words text-xs text-red-200">{edition.error === 'content_unavailable' ? t('来源暂时不可用，请稍后重试。', 'The source is temporarily unavailable. Retry later.') : edition.error}</p>}
             <div className="mt-4 flex flex-wrap gap-2">
-              <button type="button" className={buttonClass} disabled={busy} onClick={() => edit(channel.id)}>{edition?.content ? t('编辑 / 预览', 'Edit / preview') : t('录入内容', 'Create content')}</button>
-              {channel.id !== 'events' && (!edition || edition.status === 'failed' || edition.status === 'empty') && <button type="button" className={buttonClass} disabled={busy || date !== dailyDate() || dateInput !== date} onClick={() => generate(channel.id)}>{edition ? t('重试', 'Retry') : t('生成', 'Generate')}</button>}
-              {edition?.status === 'published' && <button type="button" className={buttonClass} disabled={busy} onClick={() => setRetiringId(edition.id)}>{t('下架', 'Unpublish')}</button>}
+              <button type="button" className={buttonClass} disabled={busy || pending !== null} onClick={() => edit(channel.id)}>{edition?.content ? t('编辑 / 预览', 'Edit / preview') : t('录入内容', 'Create content')}</button>
+              {channel.id !== 'events' && (!edition || edition.status === 'failed' || edition.status === 'empty') && <button type="button" className={buttonClass} disabled={busy || pending !== null || date !== dailyDate() || dateInput !== date} onClick={() => generate(channel.id)}>{edition ? t('重试', 'Retry') : t('生成', 'Generate')}</button>}
+              {edition?.status === 'published' && <button type="button" className={buttonClass} disabled={busy || pending !== null} onClick={() => setRetiringId(edition.id)}>{t('下架', 'Unpublish')}</button>}
             </div>
             {edition?.status === 'published' && retiringId === edition.id && <div className="mt-4 border-t border-amber-300/30 pt-4" role="alert">
               <p className="text-sm text-amber-200">{t('下架后读者将看不到这期内容，草稿会保留，自动任务不会重新发布。', 'Readers will no longer see this edition. The draft is kept and automation will not republish it.')}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <button type="button" className={buttonClass} disabled={busy} onClick={() => setRetiringId(null)}>{t('取消下架', 'Cancel unpublishing')}</button>
-                <button type="button" className={buttonClass} disabled={busy} onClick={() => retire(edition)}>{t('确认下架', 'Confirm unpublishing')}</button>
+                <button type="button" className={buttonClass} disabled={busy || pending !== null} onClick={() => setRetiringId(null)}>{t('取消下架', 'Cancel unpublishing')}</button>
+                <button type="button" className={buttonClass} disabled={busy || pending !== null} onClick={() => retire(edition)}>{t('确认下架', 'Confirm unpublishing')}</button>
               </div>
             </div>}
           </section>;
         })}
       </div>
 
-      {editor && <form onSubmit={save} className={`${panelClass} space-y-5`}>
+      {editor && <form ref={editorRef} tabIndex={-1} onSubmit={save} className={`${panelClass} space-y-5 ${mobile.editor}`}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="t-title-3">{en ? dailyEditionChannels.find(item => item.id === editor.channel)?.en : dailyEditionChannels.find(item => item.id === editor.channel)?.zh} · {editor.date}</h2>
-          <button className={buttonClass} type="button" disabled={busy} onClick={() => { setEditor(null); setPreview(false); }}>{t('关闭编辑', 'Close editor')}</button>
+          <button className={buttonClass} type="button" disabled={busy || pending !== null} onClick={() => closeEditor()}>{t('关闭编辑', 'Close editor')}</button>
         </div>
-        <fieldset disabled={busy} className="space-y-5">
+        <fieldset disabled={busy || pending !== null} className="space-y-5">
           <Field label={t('标题', 'Title')} value={editor.title} onChange={title => setEditor({ ...editor, title })} maxLength={300} required />
           <Field label={t('本期摘要', 'Edition summary')} value={editor.summary} onChange={summary => setEditor({ ...editor, summary })} multiline maxLength={2000} />
 
@@ -298,10 +322,13 @@ export default function DailyManager({ initialDate, initialEditions }: { initial
             <button type="button" className={buttonClass} disabled={editor.content.items.length >= (editor.channel === 'open-source' ? 1 : ['papers', 'competitions', 'internships'].includes(editor.channel) ? 3 : editor.channel === 'ai' ? 5 : 10)} onClick={() => { if (editor.content.kind !== 'english') setEditor({ ...editor, content: { ...editor.content, items: [...editor.content.items, newItem(editor.content.kind)] } }); }}>{t('添加条目', 'Add item')}</button>
           </>}
         </fieldset>
-        <div className="flex flex-wrap gap-3">
-          <button type="button" className={buttonClass} disabled={busy} onClick={() => { if (!parseContent(editor.content).success) { setError(errorMessage('invalid')); return; } setPreview(!preview); }}>{preview ? t('收起预览', 'Hide preview') : t('预览内容', 'Preview content')}</button>
-          <button type="submit" value="save" className={buttonClass} disabled={busy}>{editor.published ? t('保存已发布内容', 'Save published edition') : t('保存草稿', 'Save draft')}</button>
-          {!editor.published && <button type="submit" value="publish" className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" disabled={busy}>{t('手动发布', 'Publish manually')}</button>}
+        <div className={`flex flex-wrap gap-3 ${mobile.editorActions}`}>
+          {error && <p role="alert" className="w-full text-sm text-red-200">{error}</p>}
+          {notice && <p role="status" className="w-full text-sm text-emerald-300">{notice}</p>}
+          <button type="button" className={buttonClass} disabled={busy || pending !== null} onClick={() => { if (!parseContent(editor.content).success) { setError(errorMessage('invalid')); return; } setPreview(!preview); }}>{preview ? t('收起预览', 'Hide preview') : t('预览内容', 'Preview content')}</button>
+          <button type="submit" value="save" className={buttonClass} disabled={busy || pending !== null}>{editor.published ? t('保存已发布内容', 'Save published edition') : t('保存草稿', 'Save draft')}</button>
+          <button type="button" className={buttonClass} disabled={busy || pending !== null} onClick={() => closeEditor()}>{t('返回列表', 'Back to list')}</button>
+          {!editor.published && <button type="submit" value="publish" className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" disabled={busy || pending !== null}>{t('手动发布', 'Publish manually')}</button>}
         </div>
         {preview && <section aria-label={t('内容预览', 'Content preview')} className="space-y-4 border-t border-white/15 pt-5">
           <p className="text-sm text-white/60">{t('管理预览 · 练习答案在此可见', 'Admin preview · answers are visible here')}</p>

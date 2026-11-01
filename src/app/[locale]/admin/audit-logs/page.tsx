@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import mobile from '@/components/admin/AdminMobile.module.css';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAdminPageSession } from '@/lib/admin-session';
@@ -70,10 +71,10 @@ export default async function AdminAuditLogsPage({
       {logs.length === 0 ? (
         <p className="t-body mt-8 text-white/60">{t('empty')}</p>
       ) : (
-        <div className="mt-8 overflow-x-auto rounded-2xl border border-white/[0.07] bg-white/[0.02]">
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.07] text-white/60">
+        <div className={`mt-8 overflow-x-auto rounded-2xl border border-white/[0.07] bg-white/[0.02] ${mobile.tableShell}`}>
+          <table role="table" className={`w-full min-w-[720px] text-left text-sm ${mobile.responsiveTable}`}>
+            <thead role="rowgroup">
+              <tr role="row" className="border-b border-white/[0.07] text-white/60">
                 <th className="t-footnote px-4 py-3">{t('colTime')}</th>
                 <th className="t-footnote px-4 py-3">{t('colAdmin')}</th>
                 <th className="t-footnote px-4 py-3">{t('colAction')}</th>
@@ -82,30 +83,30 @@ export default async function AdminAuditLogsPage({
                 <th className="t-footnote px-4 py-3">IP</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {logs.map((log) => (
-                <tr
+                <tr role="row"
                   key={log.id}
                   className="border-b border-white/[0.04] text-white/70 last:border-b-0"
                 >
-                  <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-white/60">
+                  <td role="cell" data-label={t('colTime')} className="whitespace-nowrap px-4 py-3 font-mono text-xs text-white/60"><div>
                     {formatTime(log.createdAt, locale)}
-                  </td>
-                  <td className="px-4 py-3">{log.adminEmail}</td>
-                  <td className="px-4 py-3">
+                  </div></td>
+                  <td role="cell" data-label={t('colAdmin')} className="px-4 py-3"><div>{log.adminEmail}</div></td>
+                  <td role="cell" data-label={t('colAction')} className="px-4 py-3"><div>
                     <code className="rounded bg-white/5 px-2 py-0.5 font-mono text-xs text-white/80">
                       {log.action}
                     </code>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs">
+                  </div></td>
+                  <td role="cell" data-label={t('colTarget')} className="px-4 py-3 font-mono text-xs"><div>
                     {log.targetType ? `${log.targetType}:${log.targetId ?? ''}` : '—'}
-                  </td>
-                  <td className="max-w-[240px] truncate px-4 py-3 font-mono text-xs text-white/60">
-                    {formatDetail(log.detail) || '—'}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-white/60">
+                  </div></td>
+                  <td role="cell" data-label={t('colDetail')} className="max-w-[240px] truncate px-4 py-3 font-mono text-xs text-white/60"><div>
+                    {log.detail ? <details><summary className="cursor-pointer text-violet-200">{t('viewDetail')}</summary><p className="mt-2 whitespace-pre-wrap break-all">{formatDetail(log.detail)}</p></details> : '—'}
+                  </div></td>
+                  <td role="cell" data-label="IP" className="whitespace-nowrap px-4 py-3 font-mono text-xs text-white/60"><div>
                     {log.ip ?? '—'}
-                  </td>
+                  </div></td>
                 </tr>
               ))}
             </tbody>

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import SoftwareLicensePanel from './SoftwareLicensePanel';
+import { formatAdminDate, formatAdminTimestamp } from '@/lib/admin-date';
 import type {
   AdminRosterEntry,
   AdminUserDetail,
@@ -28,14 +29,12 @@ const FILTERS: AdminUserFilter[] = [
  */
 function formatDate(value: string | null, locale: string) {
   if (!value) return '—';
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(locale);
+  return formatAdminDate(value, locale);
 }
 
 function formatDateTime(value: string | null, locale: string) {
   if (!value) return '—';
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(locale);
+  return formatAdminTimestamp(value, locale);
 }
 
 export default function UserManager({
@@ -186,7 +185,7 @@ export default function UserManager({
                 key={entry.email}
                 className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-white/[0.03] px-4 py-2.5 text-sm"
               >
-                <span className="min-w-0 truncate font-mono text-white/80">{entry.email}</span>
+                <span className="min-w-0 break-all sm:truncate font-mono text-white/80">{entry.email}</span>
                 {entry.name && <span className="text-white/45">{entry.name}</span>}
                 <span
                   className={`ml-auto rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -380,7 +379,7 @@ function UserRow({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="flex flex-wrap items-center gap-2 font-medium text-white/90">
-            <span className="truncate">{user.name || user.email}</span>
+            <span className="break-all sm:truncate">{user.name || user.email}</span>
             {user.isAdmin && (
               <span className="rounded-full bg-violet-500/15 px-2 py-0.5 text-xs font-medium text-violet-300">
                 {t('badgeAdmin')}
@@ -407,8 +406,8 @@ function UserRow({
               </span>
             )}
           </p>
-          <p className="t-footnote mt-1 truncate text-white/50">{user.email}</p>
-          <p className="t-footnote mt-1 truncate font-mono text-white/30">{user.id}</p>
+          <p className="t-footnote mt-1 break-all sm:truncate text-white/50">{user.email}</p>
+          <p className="t-footnote mt-1 break-all sm:truncate font-mono text-white/30">{user.id}</p>
         </div>
         <div className="text-right">
           <p
@@ -591,8 +590,8 @@ function DetailBlock({
         <ul className="mt-2 space-y-1.5">
           {rows.map((row) => (
             <li key={row.key} className="rounded-lg bg-white/[0.03] px-3 py-2">
-              <p className="truncate text-sm text-white/80">{row.main}</p>
-              <p className="t-footnote mt-0.5 truncate font-mono text-white/40">{row.meta}</p>
+              <p className="break-all sm:truncate text-sm text-white/80">{row.main}</p>
+              <p className="t-footnote mt-0.5 break-all sm:truncate font-mono text-white/40">{row.meta}</p>
             </li>
           ))}
         </ul>

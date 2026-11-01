@@ -10,6 +10,7 @@ import { buildLoginHref, normalizeLoginReturn } from '@/lib/login-return';
 import { isAdminSession } from '@/lib/admin';
 import { getPostById, type UserPost } from '@/lib/posts';
 import { markdownToHtml } from '@/lib/markdown';
+import mobile from '@/components/admin/AdminMobile.module.css';
 
 export async function generateMetadata({
   params,
@@ -63,6 +64,7 @@ export default async function SubmitPage({
     }
     initialPost = post;
   }
+  const adminEditing = Boolean(initialPost && admin === '1' && isAdminSession(session));
 
   /**
    * 预览在服务端渲染。用的是和正式文章完全相同的那条管线
@@ -77,28 +79,29 @@ export default async function SubmitPage({
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      <main className="container mx-auto px-4 py-10 md:py-14">
+      <main className={`container mx-auto px-4 py-10 md:py-14 ${adminEditing ? mobile.content : ''}`}>
         <div className="mx-auto max-w-3xl">
           <header className="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <h1 className="t-title-2">{initialPost ? t('editTitle') : t('title')}</h1>
             <Link
-              href="/blog/my-posts"
-              className="t-footnote text-white/60 transition-colors duration-200 hover:text-white"
+              href={adminEditing ? '/admin/posts' : '/blog/my-posts'}
+              data-admin-action={adminEditing || undefined}
+              className="t-footnote inline-flex items-center text-white/70 transition-colors duration-200 hover:text-white"
             >
-              {t('myPostsLink')}
+              {adminEditing ? t('backToManagement') : t('myPostsLink')}
             </Link>
           </header>
 
-                    <div className="mb-6 rounded-xl border border-violet-400/15 bg-violet-400/[0.04] px-5 py-3">
+          {!adminEditing && <div className="mb-6 rounded-xl border border-violet-400/15 bg-violet-400/[0.04] px-5 py-3">
             <p className="t-footnote text-white/65">
               {t('apiTokenHint')}
               <Link href="/account" className="text-violet-300 underline decoration-violet-300/35 underline-offset-4 transition-colors hover:text-violet-200">
                 {t('apiTokenLink')}
               </Link>
             </p>
-          </div>
+          </div>}
 
-          <PostSubmitForm renderPreview={renderPreview} initialPost={initialPost} />
+          <PostSubmitForm renderPreview={renderPreview} initialPost={initialPost} adminEditing={adminEditing} />
         </div>
       </main>
       <Footer />

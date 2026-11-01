@@ -12,6 +12,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { blogSections } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
 import type { UserPost } from '@/lib/posts';
+import mobile from './admin/AdminMobile.module.css';
 
 const inputClass =
   'w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[0.9375rem] text-white placeholder-white/50 transition-colors focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/40';
@@ -22,9 +23,11 @@ interface PostSubmitFormProps {
   renderPreview: (markdown: string) => Promise<string>;
   /** 编辑模式时传入已有文章；不传或 null 为新建 */
   initialPost?: UserPost | null;
+  /** 由服务端确认的后台编辑上下文；不参与API授权。 */
+  adminEditing?: boolean;
 }
 
-export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmitFormProps) {
+export default function PostSubmitForm({ renderPreview, initialPost, adminEditing = false }: PostSubmitFormProps) {
   const router = useRouter();
   const locale = useLocale() as Locale;
   const t = useTranslations('BlogSubmitPage');
@@ -82,7 +85,7 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
       if (!res.ok) throw new Error(data.error || t('submitFailed'));
 
       setStatus('done');
-      router.push('/blog/my-posts');
+      router.push(adminEditing ? '/admin/posts' : '/blog/my-posts');
     } catch (err) {
       setStatus('error');
       setError(err instanceof Error ? err.message : t('submitFailed'));
@@ -334,7 +337,7 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
 
       {isEdit && initialPost?.status === 'published' && (
         <p className="t-footnote rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2 text-amber-200/90">
-          {t('publishedEditWarning')}
+          {adminEditing ? t('adminPublishedEditWarning') : t('publishedEditWarning')}
         </p>
       )}
 
@@ -344,23 +347,23 @@ export default function PostSubmitForm({ renderPreview, initialPost }: PostSubmi
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-4 border-t border-white/[0.07] pt-6">
+      <div className={`flex flex-wrap items-center gap-4 border-t border-white/[0.07] pt-6 ${adminEditing ? mobile.editorActions : ''}`}>
         <button
           type="submit"
           disabled={!canSubmit || status === 'saving'}
           className="rounded-xl bg-white px-5 py-2.5 text-[0.9375rem] font-semibold text-black transition-[transform,opacity] duration-150 ease-out hover:opacity-90 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {status === 'saving' ? t('submitting') : t('submit')}
+          {status === 'saving' ? t('submitting') : adminEditing ? t(initialPost?.status === 'published' ? 'saveChanges' : 'saveAndPublish') : t('submit')}
         </button>
-        <button
+        {!(adminEditing && initialPost?.status === 'published') && <button
           type="button"
           onClick={() => void send(false)}
           disabled={!title.trim() || status === 'saving'}
           className="t-footnote text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white disabled:opacity-40"
         >
           {t('saveDraft')}
-        </button>
-        <p className="t-footnote text-white/45">{t('reviewHint')}</p>
+        </button>}
+        <p className="t-footnote text-white/65">{adminEditing ? t('adminSaveHint') : t('reviewHint')}</p>
       </div>
 
       {/* UGC 条款提示:提交即视为同意 EULA 第 8 节 */}

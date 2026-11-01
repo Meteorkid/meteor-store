@@ -61,6 +61,16 @@ export default function CommentModeration() {
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [fetchError, setFetchError] = useState(false);
 
+  useEffect(() => {
+    if (loading) return;
+    let id: string;
+    try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
+    if (!id.startsWith('comment-')) return;
+    const target = document.getElementById(id);
+    target?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    target?.focus({ preventScroll: true });
+  }, [loading, comments]);
+
   // reloadKey 用于在审核/删除等操作后触发重新拉取：自增一次即让 effect 重跑
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -226,7 +236,9 @@ export default function CommentModeration() {
           {comments.map((comment) => (
             <article
               key={comment.id}
-              className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6"
+              id={`comment-${comment.id}`}
+              tabIndex={-1}
+              className="scroll-mt-24 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 focus-visible:outline-2 focus-visible:outline-violet-300"
             >
               <div className="mb-3 flex flex-wrap items-center gap-2.5">
                 <Avatar name={comment.authorName} url={comment.authorAvatar} />

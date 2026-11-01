@@ -1101,6 +1101,7 @@
     "ariaLabel": "返回顶部"
   },
   "AdminNav": {
+    "openMenu": "管理菜单",
     "dashboard": "概述",
     "review": "审核投稿",
     "posts": "文章管理",
@@ -1218,6 +1219,7 @@
     "operationFailed": "操作失败，请稍后重试"
   },
   "AdminAuditLogsPage": {
+    "viewDetail": "展开详情",
     "metaTitle": "审计日志 - Meteor Store",
     "metaNotFound": "页面未找到 - Meteor Store",
     "title": "审计日志",
@@ -1380,6 +1382,11 @@
     "manageUsers": "到账号管理赠送激活码"
   },
   "BlogSubmitPage": {
+    "backToManagement": "← 返回文章管理",
+    "adminPublishedEditWarning": "保存后会更新这篇已发布的文章，并保持发布状态。",
+    "saveChanges": "保存修改",
+    "saveAndPublish": "保存并发布",
+    "adminSaveHint": "保存后返回后台文章列表。",
     "metaTitle": "投稿 - Meteor Store 博客",
     "title": "写一篇",
     "myPostsLink": "我的投稿 →",
@@ -1903,6 +1910,8 @@
     "close": "关闭"
   },
   "AdminReportsPage": {
+    "viewFullComment": "展开评论全文",
+    "manageComment": "前往评论管理",
     "metaTitle": "举报管理 - Meteor Store",
     "metaNotFound": "页面未找到 - Meteor Store",
     "title": "举报管理",

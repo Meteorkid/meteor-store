@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { runCancellableTask } from '@/lib/cancellable-task';
 import type { Announcement } from '@/lib/announcements';
+import mobile from './admin/AdminMobile.module.css';
+import { useAdminEditorFocus } from './admin/useAdminEditorFocus';
 
 interface FormState {
   id?: string;
@@ -34,6 +36,7 @@ export default function AnnouncementManager() {
   const [success, setSuccess] = useState('');
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [editing, setEditing] = useState(false);
+  const { editorRef, listRef } = useAdminEditorFocus<HTMLDivElement>(editing, form.id);
 
   const fetchItems = async () => {
     const res = await fetch('/api/admin/announcements');
@@ -99,6 +102,8 @@ export default function AnnouncementManager() {
       setSuccess(editing ? t('updateSuccess') : t('createSuccess'));
       resetForm();
       await fetchItems();
+      listRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
+      listRef.current?.focus({ preventScroll: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : t('saveFailed'));
     } finally {
@@ -126,7 +131,7 @@ export default function AnnouncementManager() {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSave} className="space-y-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+      <form ref={editorRef} tabIndex={-1} onSubmit={handleSave} className={`space-y-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 ${mobile.editor}`}>
         <div className="flex items-center justify-between">
           <h2 className="t-title-3">
             {editing ? t('editTitle') : t('newTitle')}
@@ -144,8 +149,9 @@ export default function AnnouncementManager() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm text-gray-400">{t('titleZh')}</label>
+            <label htmlFor="announcement-titleZh" className="mb-1 block text-sm text-white/70">{t('titleZh')}</label>
             <input
+              id="announcement-titleZh"
               type="text"
               value={form.titleZh}
               onChange={(e) => setForm({ ...form, titleZh: e.target.value })}
@@ -155,8 +161,9 @@ export default function AnnouncementManager() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-gray-400">{t('titleEn')}</label>
+            <label htmlFor="announcement-titleEn" className="mb-1 block text-sm text-white/70">{t('titleEn')}</label>
             <input
+              id="announcement-titleEn"
               type="text"
               value={form.titleEn}
               onChange={(e) => setForm({ ...form, titleEn: e.target.value })}
@@ -169,8 +176,9 @@ export default function AnnouncementManager() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm text-gray-400">{t('bodyZh')}</label>
+            <label htmlFor="announcement-bodyZh" className="mb-1 block text-sm text-white/70">{t('bodyZh')}</label>
             <textarea
+              id="announcement-bodyZh"
               value={form.bodyZh}
               onChange={(e) => setForm({ ...form, bodyZh: e.target.value })}
               placeholder={t('bodyPlaceholder')}
@@ -180,8 +188,9 @@ export default function AnnouncementManager() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-gray-400">{t('bodyEn')}</label>
+            <label htmlFor="announcement-bodyEn" className="mb-1 block text-sm text-white/70">{t('bodyEn')}</label>
             <textarea
+              id="announcement-bodyEn"
               value={form.bodyEn}
               onChange={(e) => setForm({ ...form, bodyEn: e.target.value })}
               placeholder={t('bodyPlaceholder')}
@@ -203,7 +212,6 @@ export default function AnnouncementManager() {
         </label>
 
         {error && <p className="text-sm text-red-400">{error}</p>}
-        {success && <p className="text-sm text-emerald-400">{success}</p>}
 
         <button
           type="submit"
@@ -214,7 +222,8 @@ export default function AnnouncementManager() {
         </button>
       </form>
 
-      <div>
+      <div ref={listRef} tabIndex={-1} className={mobile.list}>
+        {success && <p role="status" className="mb-4 text-sm text-emerald-300">{success}</p>}
         <h2 className="t-title-3 mb-4">{t('listTitle')}</h2>
         {loading ? (
           <div className="flex justify-center py-8">
@@ -231,7 +240,7 @@ export default function AnnouncementManager() {
               >
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-white">
+                    <p className="break-words text-sm font-medium text-white">
                       {a.titleZh || a.titleEn || t('untitled')}
                     </p>
                     <p className="t-footnote mt-0.5 text-white/60">

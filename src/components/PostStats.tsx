@@ -162,7 +162,7 @@ export default function PostStats({
       {/* Views */}
       <div
         className="flex items-center gap-1.5 text-sm text-white/50"
-        aria-label={`${fmt(viewCount)} ${t('views')}`}
+        aria-label={t('views', { count: fmt(viewCount) })}
       >
         <svg
           width="16"
@@ -236,7 +236,7 @@ export default function PostStats({
       {/* Comments */}
       <div
         className="flex items-center gap-1.5 text-sm text-white/50"
-        aria-label={`${fmt(commentCount)} ${t('comments')}`}
+        aria-label={t('comments', { count: fmt(commentCount) })}
       >
         <svg
           width="16"

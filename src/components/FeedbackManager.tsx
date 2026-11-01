@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { formatAdminTimestamp } from '@/lib/admin-date';
 
 interface FeedbackItem {
   id: string;
@@ -15,6 +16,7 @@ interface FeedbackItem {
 }
 
 export default function FeedbackManager({ initialFeedback }: { initialFeedback: FeedbackItem[] }) {
+  const locale = useLocale();
   const t = useTranslations('AdminFeedbackPage');
   const [items, setItems] = useState(initialFeedback);
   const [busy, setBusy] = useState('');
@@ -66,7 +68,7 @@ export default function FeedbackManager({ initialFeedback }: { initialFeedback: 
           <div className="flex flex-wrap items-center gap-3 text-xs text-white/45">
             <span className="rounded-full bg-white/[0.06] px-2.5 py-1">{typeLabels[item.type] ?? item.type}</span>
             <span>{statusLabels[item.status] ?? item.status}</span>
-            <span>{new Date(item.createdAt).toLocaleString()}</span>
+            <span>{formatAdminTimestamp(item.createdAt, locale)}</span>
             {item.email && <a href={`mailto:${item.email}`} className="text-violet-400 hover:text-violet-300">{item.email}</a>}
           </div>
           <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/75">{item.content}</p>

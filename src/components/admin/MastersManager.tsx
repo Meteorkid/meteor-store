@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useLocale } from 'next-intl';
+import mobile from './AdminMobile.module.css';
+import { useAdminEditorFocus } from './useAdminEditorFocus';
 import { admissionsConfig, type AdmissionsKind } from '@/lib/admissions/config';
 import { dailyDate } from '@/lib/daily/types';
 import { mastersRegions, MastersRoundInputSchema, type MastersRound, type MastersRoundDetails, type MastersRoundInput } from '@/lib/masters/types';
@@ -63,6 +65,7 @@ function MastersManagerForScope({ initialYear, initialRounds, kind = 'masters' }
   const [yearInput, setYearInput] = useState(String(initialYear));
   const [rounds, setRounds] = useState(initialRounds);
   const [editor, setEditor] = useState<MastersRoundInput | null>(null);
+  const { editorRef, listRef } = useAdminEditorFocus<HTMLElement>(editor !== null, editor?.id ?? (editor ? 'new' : undefined));
   const [baseline, setBaseline] = useState('');
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [preview, setPreview] = useState(false);
@@ -72,7 +75,7 @@ function MastersManagerForScope({ initialYear, initialRounds, kind = 'masters' }
   const confirmationRef = useRef<HTMLDivElement>(null);
   const dirty = editor !== null && JSON.stringify(editor) !== baseline;
 
-  useEffect(() => { if (pending) confirmationRef.current?.focus(); }, [pending]);
+  useEffect(() => { if (pending) { confirmationRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); confirmationRef.current?.focus({ preventScroll: true }); } }, [pending]);
 
   const deadlineLabels = {
     confirmed: t('已核验日期', 'Confirmed'), unannounced: t('官方尚未公布', 'Not announced'), unverified: t('待核验', 'Needs verification'),
@@ -212,17 +215,17 @@ function MastersManagerForScope({ initialYear, initialRounds, kind = 'masters' }
     </div>
     <p className="text-sm text-white/60">{t('已接入的官方项目每天自动核对并发布。每条记录区分入学季、申请群体和事项；人工编辑或下架会暂停该记录的自动更新。', 'Connected official programmes are checked and published automatically each day. Editing or unpublishing a record pauses automatic updates for it.')}</p>
     {yearInput !== String(year) && <p className="text-sm text-white/70">{t(`请先载入新年份；下方仍是 ${year} 年记录。`, `Load the new year first. The records below are still for ${year}.`)}</p>}
-    {error && <p role="alert" className="rounded-lg border border-red-400/30 p-3 text-sm text-red-200">{error}</p>}
-    {notice && <p role="status" className="text-sm text-emerald-300">{notice}</p>}
+    {!editor && error && <p role="alert" className="rounded-lg border border-red-400/30 p-3 text-sm text-red-200">{error}</p>}
+    {!editor && notice && <p role="status" className="text-sm text-emerald-300">{notice}</p>}
 
-    {pending && <div ref={confirmationRef} tabIndex={-1} role="alert" className="rounded-xl border border-amber-300/40 bg-amber-300/5 p-4 outline-none">
+    {pending && <div ref={confirmationRef} tabIndex={-1} role="alert" className={`rounded-xl border border-amber-300/40 bg-amber-300/5 p-4 outline-none ${mobile.editor}`}>
       <p className="text-sm text-amber-200">{pending.kind === 'unpublish'
         ? t('下架后将从公开日历移除并暂停自动发布，草稿仍保留。该记录尚未保存的编辑会关闭。', 'Unpublishing removes this record and pauses automatic publishing. Its draft is kept; unsaved edits will close.')
         : t('此操作会关闭当前未保存的编辑。继续前请确认不需要这些改动。', 'This closes the current unsaved edits. Continue only if you no longer need them.')}</p>
-      <div className="mt-3 flex gap-3"><button type="button" className={buttonClass} onClick={() => setPending(null)}>{t('取消', 'Cancel')}</button><button type="button" className={buttonClass} onClick={() => execute(pending)}>{pending.kind === 'unpublish' ? t('确认下架', 'Confirm unpublishing') : t('放弃改动并继续', 'Discard and continue')}</button></div>
+      <div className="mt-3 flex gap-3"><button type="button" className={buttonClass} onClick={() => { setPending(null); requestAnimationFrame(() => { const target = editorRef.current ?? listRef.current; target?.scrollIntoView({ block: 'start', behavior: 'instant' }); target?.focus({ preventScroll: true }); }); }}>{t('取消', 'Cancel')}</button><button type="button" className={buttonClass} onClick={() => execute(pending)}>{pending.kind === 'unpublish' ? t('确认下架', 'Confirm unpublishing') : t('放弃改动并继续', 'Discard and continue')}</button></div>
     </div>}
 
-    <section aria-label={t('申请轮次列表', 'Application rounds')} className="space-y-3">
+    <section ref={listRef} tabIndex={-1} aria-label={t('申请轮次列表', 'Application rounds')} className={`space-y-3 ${mobile.list}`}>
       <p className="text-sm text-white/70">{year} · {t(`共 ${rounds.length} 条，${rounds.filter(round => round.status === 'published').length} 条已发布`, `${rounds.length} records, ${rounds.filter(round => round.status === 'published').length} published`)}</p>
       {rounds.length === 0 && <p className={`${panelClass} text-sm text-white/60`}>{t('此入学年暂无记录。可手工新增，或导入后切换到对应入学年。', 'No records for this intake year. Add one manually or import drafts and load their intake year.')}</p>}
       {rounds.map(round => <article key={round.id} className={panelClass}>
@@ -237,7 +240,7 @@ function MastersManagerForScope({ initialYear, initialRounds, kind = 'masters' }
       </article>)}
     </section>
 
-    {editor && <form onSubmit={save} className={`${panelClass} space-y-5`}>
+    {editor && <form ref={editorRef} tabIndex={-1} onSubmit={save} className={`${panelClass} space-y-5 ${mobile.editor}`}>
       <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="t-title-3">{editor.id ? t('编辑申请轮次', 'Edit application round') : t('新增申请轮次', 'New application round')} · {editor.intakeYear}</h2><button type="button" className={buttonClass} disabled={busy || pending !== null} onClick={() => requestAction({ kind: 'close' })}>{t('关闭编辑', 'Close editor')}</button></div>
       <fieldset disabled={busy || pending !== null} className="space-y-5">
         <legend className="sr-only">{t('申请轮次信息', 'Application round details')}</legend>
@@ -282,13 +285,16 @@ function MastersManagerForScope({ initialYear, initialRounds, kind = 'masters' }
           {editor.status === 'published' && <p className="text-sm text-amber-200">{t('正在编辑已发布记录。请核对来源后保存，更正后的日期会更新版本并提示关注者。', 'You are editing a published record. Verify its source before saving; date corrections update its version and notify followers.')}</p>}
         </section>
       </fieldset>
-      <div className="flex flex-wrap gap-3">
+      <div className={`flex flex-wrap gap-3 ${mobile.editorActions}`}>
+          {error && <p role="alert" className="w-full text-sm text-red-200">{error}</p>}
+          {notice && <p role="status" className="w-full text-sm text-emerald-300">{notice}</p>}
         <button type="button" className={buttonClass} disabled={busy || pending !== null} onClick={() => {
           const parsed = MastersRoundInputSchema.safeParse({ ...editor, status: 'draft' });
           if (!parsed.success) { setError(invalidMessage(parsed.error.issues[0]?.message ?? 'invalid')); return; }
           setPreview(value => !value);
         }}>{preview ? t('收起预览', 'Hide preview') : t('预览记录', 'Preview record')}</button>
         <button type="submit" value="save" className={buttonClass} disabled={busy || pending !== null}>{editor.status === 'published' ? t('保存已发布更正', 'Save published corrections') : t('保存草稿', 'Save draft')}</button>
+        <button type="button" className={buttonClass} disabled={busy || pending !== null} onClick={() => requestAction({ kind: 'close' })}>{t('返回列表', 'Back to list')}</button>
         {editor.status === 'draft' && <button type="submit" value="publish" className="min-h-10 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" disabled={busy || pending !== null}>{t('手动发布', 'Publish manually')}</button>}
       </div>
 

@@ -5,7 +5,7 @@ vi.mock('react', async () => ({ ...(await vi.importActual<typeof import('react')
   const index = hooks.index++; if (!(index in hooks.values)) hooks.values[index] = initial;
   return [hooks.values[index], (next: unknown) => { hooks.values[index] = typeof next === 'function' ? next(hooks.values[index]) : next; }];
 } }));
-vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+vi.mock('next-intl', () => ({ useLocale: () => 'zh', useTranslations: () => (key: string) => key }));
 import CommerceManager from '../CommerceManager';
 const order = { id: 'order', productId: 'xnook', planName: 'Pro', email: 'buyer@example.invalid', amountCny: 39, status: 'paid', deliveryStatus: 'emailed', alipayTradeNo: 'wx-order', paidAt: null, createdAt: '2026-01-01T00:00:00Z' };
 const license = { id: 'license', orderId: 'order', productId: 'xnook', planName: 'Pro', email: 'buyer@example.invalid', key: 'MC-TEST', status: 'active', createdAt: order.createdAt };
