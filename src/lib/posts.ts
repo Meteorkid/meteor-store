@@ -25,16 +25,19 @@ export class PostTranslationError extends Error {
 /**
  * 校验"译文 → 原文"这条边是否成立。
  *
- * 只允许指向自己的文章：否则任何人都能把别人的文章标成自己的原文，
- * 从而在对方页面上凭空多出一条"另有版本"的链接。
+ * 三条规则：目标必须是自己的文章、语言必须与原文不同、同一原文在同一语言下
+ * 只能有一篇译文。第一条防越权（否则任何人都能把别人的文章标成自己的原文，
+ * 在对方页面上凭空多出一条"另有版本"）；第三条防歧义——否则 getPostTranslations
+ * 会返回两篇同语言译文，详情页"跳到哪一篇"取决于数据库返回顺序。
  */
 async function assertTranslationTarget(
   translationOfId: string,
   authorId: string,
   selfLocale: string,
+  selfId?: string,
 ): Promise<void> {
   const [target] = await db
-    .select({ id: posts.id, authorId: posts.authorId, locale: posts.locale })
+    .select({ id: posts.id, authorId: posts.authorId, locale: posts.locale, translationOfId: posts.translationOfId })
     .from(posts)
     .where(eq(posts.id, translationOfId))
     .limit(1);
@@ -44,6 +47,18 @@ async function assertTranslationTarget(
   }
   if (target.locale === selfLocale) {
     throw new PostTranslationError('译文的语言需要与原文不同');
+  }
+
+  // 指向译文时归到它的原文，避免 A←B←C 这样的链把同一组拆散
+  const rootId = target.translationOfId ?? target.id;
+  const [existing] = await db
+    .select({ id: posts.id })
+    .from(posts)
+    .where(and(eq(posts.translationOfId, rootId), eq(posts.locale, selfLocale)))
+    .limit(1);
+
+  if (existing && existing.id !== selfId) {
+    throw new PostTranslationError('这篇原文已经有同语言的译文');
   }
 }
 
@@ -624,6 +639,7 @@ export async function updatePost(input: {
         input.translationOfId.trim(),
         input.authorId,
         input.locale?.trim() || row.locale,
+        input.postId,
       );
     } catch {
       return { ok: false, reason: 'invalidTranslation' };
