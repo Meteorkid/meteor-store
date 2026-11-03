@@ -1,5 +1,8 @@
 # Launch 文案包(可直接发布)
 
+> ⚠️ **2026-11-03 起请改用 `launch-pack.md`。** 本文件的价格表述已过时
+> （产品改成限时免费、领取即发永久激活码），仅保留作历史参考。
+
 > 配套:`2026-11-03-卖软件方案.md`
 > 所有功能描述均取自 `src/data/products.ts` 与 `promo/README.md`,未添加产品不具备的能力。
 > 发布前请自己再核对一遍:文案里承诺的每个功能,用户装上后必须能在 30 秒内看到。
@@ -34,7 +37,7 @@ Some details that took longer than expected:
   hook in each tool, so it works with agents I didn't write.
 - It's native Swift, ~40MB RSS with four agents attached.
 
-Free 14-day trial, then $12 one-time. macOS only. No account needed to try it.
+Free during the launch period — lifetime license, up to 3 Macs. macOS only. No account needed to try it.
 
 https://imagentx.top/products/xisland
 
@@ -70,7 +73,7 @@ jumping back to the terminal.
 Built native in Swift. Sits above full-screen apps and Spaces without
 stealing focus. ~40MB with four agents attached.
 
-14-day free trial, no account required. $12 one-time after that.
+Free during the launch period, lifetime license, no account required. 14-day trial either way.
 ```
 
 **First comment**(发布者自己发的第一条,PH 上很重要):
@@ -117,7 +120,7 @@ inline.
 Status comes from process activity and output patterns rather than a hook
 inside Claude Code, so it also picks up other agents.
 
-It's macOS only, native Swift. 14-day trial without an account, $12 after.
+It's macOS only, native Swift. Free during the launch period — lifetime license, 14-day trial without an account.
 
 https://imagentx.top/products/xisland
 
