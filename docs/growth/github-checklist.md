@@ -71,7 +71,7 @@ or from the [official site](https://www.imagentx.top/en/products/xisland).
 
 ```bash
 # first launch (the build is ad-hoc signed, not notarized yet)
-xattr -cr /Applications/XIsland.app
+xattr -cr "/Applications/X Island.app"
 ```
 
 ## Features

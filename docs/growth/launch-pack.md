@@ -90,7 +90,7 @@ https://imagentx.top/products/xisland
 
 两点先说明，免得你踩坑：
 · 目前是 adhoc 签名，没买苹果开发者证书。第一次打开如果提示"已损坏"，
-  在终端跑一下 xattr -cr /Applications/XIsland.app 就行
+  在终端跑一下 xattr -cr "/Applications/X Island.app" 就行
 · 只支持 macOS 13 以上
 
 想听听大家平时的用法——你们是开多个会话并行，还是一个会话干到底？
@@ -187,7 +187,7 @@ Native Swift, ~40MB with four agents attached. The panel is non-activating,
 so clicking it doesn't pull focus away from your editor.
 
 macOS 13+. Ad-hoc signed for now — first launch needs
-`xattr -cr /Applications/XIsland.app`.
+`xattr -cr "/Applications/X Island.app"`.
 
 Free during the launch period, lifetime license, up to 3 Macs:
 https://imagentx.top/en/products/xisland
@@ -311,7 +311,7 @@ ssh root@8.138.218.165 '/usr/local/bin/traffic-report.sh 1'
 | 质疑 | 回答 |
 |---|---|
 | 「为什么免费？是不是有坑」 | 直说：限时免费是为攒用户和口碑，以后会出付费版，但领到的永久码不会失效 |
-| 「装不上，提示已损坏」 | adhoc 签名导致的，`xattr -cr /Applications/XIsland.app` 即可；正在买开发者证书 |
+| 「装不上，提示已损坏」 | adhoc 签名导致的，`xattr -cr "/Applications/X Island.app"` 即可；正在买开发者证书 |
 | 「和 NotchNook 有什么区别」 | 那类工具管媒体/日历/文件托盘，XIsland 管的是 **AI 代理的运行状态和问答**，不重叠 |
 | 「为什么不用 tmux / 终端标签」 | tmux 能看输出，但不会在别的窗口提醒你「这个代理卡在提问上了」 |
 | 「状态识别准吗」 | 诚实说：启发式，常见场景准，极端情况会误判，欢迎报 case |
