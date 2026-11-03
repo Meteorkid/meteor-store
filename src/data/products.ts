@@ -44,7 +44,15 @@ export interface Product {
     period?: string;
     features: LocalizedText[];
   }[];
-  /** GitHub 仓库地址。商业策略调整后不再对外暴露，保留字段仅供内部使用，UI 不渲染 */
+  /**
+   * GitHub 仓库地址。**产品页会渲染成「在 GitHub 查看」按钮。**
+   *
+   * 2026-11 改回对外暴露：开发者靠 GitHub 发现这类工具，藏起来等于主动放弃
+   * 唯一的免费流量来源（当时 star 只有 1）。
+   *
+   * 注意：一旦恢复收费并重新门控下载，这里必须确认 GitHub Releases 里没有
+   * 挂同一个 DMG —— 公开挂在 GitHub 上的包是门控不住的。
+   */
   github?: string;
   /** 开源许可证。'mit' 才算是真开源，会进 /open-source 页面；其余产品（源码可用-非商业等）不展示为开源 */
   license?: 'mit';
@@ -106,7 +114,15 @@ export interface LocalizedProduct {
     period?: string;
     features: string[];
   }[];
-  /** GitHub 仓库地址。商业策略调整后不再对外暴露，保留字段仅供内部使用，UI 不渲染 */
+  /**
+   * GitHub 仓库地址。**产品页会渲染成「在 GitHub 查看」按钮。**
+   *
+   * 2026-11 改回对外暴露：开发者靠 GitHub 发现这类工具，藏起来等于主动放弃
+   * 唯一的免费流量来源（当时 star 只有 1）。
+   *
+   * 注意：一旦恢复收费并重新门控下载，这里必须确认 GitHub Releases 里没有
+   * 挂同一个 DMG —— 公开挂在 GitHub 上的包是门控不住的。
+   */
   github?: string;
   /** 开源许可证。'mit' 才算是真开源，会进 /open-source 页面；其余产品（源码可用-非商业等）不展示为开源 */
   license?: 'mit';

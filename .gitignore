@@ -95,3 +95,6 @@ brand-film_assets/
 
 # 宣传片成片与中间素材（近 700M，走对象存储分发，不进 git）
 promo/
+
+# 构建产物备份（沙箱禁止批量删除时用 mv 移开的旧 .next，事后可手工删）
+.next.bak-*/
