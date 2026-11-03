@@ -8,7 +8,7 @@ type TransitionLinkProps = ComponentProps<typeof Link>;
 
 /** View Transitions API 尚未进入 lib.dom.d.ts，按用到的部分声明 */
 type DocumentWithViewTransition = Document & {
-  startViewTransition: (callback: () => void) => void;
+  startViewTransition: (callback: () => void) => { ready: Promise<void> };
 };
 
 export default function TransitionLink({ href, onClick, ...props }: TransitionLinkProps) {
@@ -20,8 +20,13 @@ export default function TransitionLink({ href, onClick, ...props }: TransitionLi
 
     if ('startViewTransition' in document) {
       e.preventDefault();
-      (document as DocumentWithViewTransition).startViewTransition(() => {
+      const transition = (document as DocumentWithViewTransition).startViewTransition(() => {
         router.push(typeof href === 'string' ? href : href.pathname ?? '/');
+      });
+      // 视口变化或新过渡可取消动画；路由回调仍执行，其错误保留原有传播路径。
+      void transition.ready.catch((error: unknown) => {
+        if (error instanceof DOMException && (error.name === 'AbortError' || error.name === 'InvalidStateError')) return;
+        throw error;
       });
     }
   };
