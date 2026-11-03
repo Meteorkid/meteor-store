@@ -9,6 +9,10 @@ vi.mock('@/lib/rate-limit', () => ({
 const getSession = vi.fn();
 vi.mock('@/lib/auth', () => ({ getSession: () => getSession() }));
 
+/** 桌面软件要走履约发码；单测里替掉，避免真的去打数据库和发邮件 */
+const fulfillOrder = vi.fn();
+vi.mock('@/lib/order-fulfillment', () => ({ fulfillOrder: (...args: unknown[]) => fulfillOrder(...args) }));
+
 /** select 返回的「已有订单」，空数组表示还没入库过 */
 let existingOrders: Record<string, unknown>[] = [];
 const inserted: Record<string, unknown>[] = [];
@@ -38,19 +42,44 @@ function post(body: unknown): NextRequest {
 
 describe('免费入库', () => {
   afterEach(() => vi.unstubAllEnvs());
-  it('授权上线后XIsland不能通过旧免费入库取得永久授权', async () => {
+  it('限时免费期间 XIsland 领取写入待履约订单，并照常发放永久激活码', async () => {
     vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    fulfillOrder.mockResolvedValue({ status: 'emailed' });
     const { POST } = await import('../route');
     const response = await POST(post({ productId: 'xisland' }));
-    expect(response.status).toBe(400);
-    expect(inserted).toHaveLength(0);
-    expect((await response.json()).error).toContain('14 天试用');
+
+    expect(response.status).toBe(200);
+    expect(inserted).toHaveLength(1);
+    expect(inserted[0]).toMatchObject({
+      productId: 'xisland',
+      planId: 'limited-free',
+      amountCny: 0,
+      status: 'paid',
+      billingPeriod: 'lifetime',
+      // 必须进交付队列，否则用户拿不到激活码也收不到邮件
+      deliveryStatus: 'pending',
+    });
+    expect(inserted[0].paidAt).toBeTruthy();
+    expect(fulfillOrder).toHaveBeenCalledWith(inserted[0].id);
+    await expect(response.json()).resolves.toMatchObject({ success: true, delivered: true });
+  });
+
+  it('履约失败时订单留在 pending，等重试补发，不给用户 500', async () => {
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    fulfillOrder.mockResolvedValue({ status: 'failed' });
+    const { POST } = await import('../route');
+    const response = await POST(post({ productId: 'xnook' }));
+
+    expect(response.status).toBe(200);
+    expect(inserted[0]).toMatchObject({ deliveryStatus: 'pending' });
+    await expect(response.json()).resolves.toMatchObject({ success: true, delivered: false });
   });
   beforeEach(() => {
     vi.clearAllMocks();
     inserted.length = 0;
     existingOrders = [];
     getSession.mockResolvedValue({ userId: 'u1', email: 'a@b.com' });
+    fulfillOrder.mockResolvedValue({ status: 'skipped' });
   });
 
   it('未登录时拒绝：授权要绑定到账号', async () => {
@@ -73,13 +102,24 @@ describe('免费入库', () => {
   });
 
   it('没有免费档的产品不能白拿', async () => {
-    const { POST } = await import('../route');
-
-    // xnook 只有 ¥9 买断一档，不该能通过入库接口绕过付款
-    const response = await POST(post({ productId: 'xnook' }));
-
-    expect(response.status).toBe(400);
-    expect(inserted).toHaveLength(0);
+    // 现在的真实产品里每个都至少有一档 ¥0（限免 / 免费），
+    // 所以把 findProduct 换成「只有付费档」的产品来守这条边界。
+    vi.resetModules();
+    vi.doMock('@/lib/products', () => ({
+      findProduct: (id: string) => (id === 'paid-only'
+        ? { id: 'paid-only', pricing: [{ id: 'pro', name: { zh: 'Pro', en: 'Pro' }, price: 99, features: [] }], downloads: [] }
+        : null),
+    }));
+    try {
+      const { POST } = await import('../route');
+      const response = await POST(post({ productId: 'paid-only' }));
+      expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toEqual({ error: '该产品没有免费档，请购买后使用' });
+      expect(inserted).toHaveLength(0);
+    } finally {
+      vi.doUnmock('@/lib/products');
+      vi.resetModules();
+    }
   });
 
   it('Meteor Pass 不能靠入库接口白拿（它不是 products 里的产品）', async () => {

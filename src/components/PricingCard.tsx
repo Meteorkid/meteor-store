@@ -30,6 +30,20 @@ interface PricingCardProps {
   /** 用户当前持有的 Pass 档位，用于智能 CTA 文案 */
   currentPassPlan?: PassPlanId | null;
   passStatusState?: 'ready' | 'loading' | 'error';
+  /**
+   * 免费档领取成功后跳转的地址。
+   *
+   * 桌面软件（XIsland / XNook）领取的是**永久激活码**，跳账户页的激活码面板；
+   * 站内应用没有码，留空则沿用 `/apps/{id}`。
+   */
+  claimDoneHref?: string;
+  /**
+   * 无需领取、直接可下载时的锚点（如 `#download`）。
+   *
+   * 只给「免费且不需要激活码」的桌面软件用（如 statux）：
+   * 这类产品走领取会先要求登录，登录后又跳到不存在的 `/apps/{id}`。
+   */
+  freeDownloadHref?: string;
 }
 
 export default function PricingCard({
@@ -48,6 +62,8 @@ export default function PricingCard({
   isAnnual,
   currentPassPlan,
   passStatusState = 'ready',
+  claimDoneHref,
+  freeDownloadHref,
 }: PricingCardProps) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [claiming, setClaiming] = useState(false);
@@ -80,7 +96,7 @@ export default function PricingCard({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       // 完整导航重新读取授权，避免返回同一产品页时沿用领取前的客户端状态。
-      window.location.assign(`/${locale}/apps/${productId}`);
+      window.location.assign(claimDoneHref ?? `/${locale}/apps/${productId}`);
     } catch (err) {
       setClaimError(err instanceof Error ? err.message : t('claimFailed'));
       setClaiming(false);
@@ -89,6 +105,14 @@ export default function PricingCard({
 
   const handlePurchase = () => {
     if (price === 0) {
+      // 不需要激活码的桌面软件：直接带用户去下载区，不逼他先登录。
+      // 需要发码的产品（xisland / xnook）不能走这条，否则领不到激活码。
+      if (freeDownloadHref) {
+        const target = document.querySelector(freeDownloadHref);
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        return;
+      }
       handleClaim();
       return;
     }
@@ -204,7 +228,11 @@ export default function PricingCard({
           const isOwned = !!cardPlan && currentPassPlan === 'lifetime';
           // 智能 CTA：根据用户当前 Pass 档位显示不同文案
           const getCtaText = () => {
-            if (price === 0) return claiming ? t('claiming') : t('claimFree');
+            if (price === 0) {
+              if (freeDownloadHref) return t('downloadFree');
+              if (claimDoneHref) return claiming ? t('claimingLicense') : t('claimLicense');
+              return claiming ? t('claiming') : t('claimFree');
+            }
             if (passStatusState !== 'ready') return passText(passStatusState === 'loading' ? 'checking' : 'unavailable');
             if (!currentPassPlan) return t('buyNow');
             

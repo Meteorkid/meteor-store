@@ -105,16 +105,19 @@ function withDownloads(product: Product, catalog: ReleaseCatalog): Product {
   const trialDownload = isSoftwareLicensingEnabled() && (product.id === 'xnook' || product.id === 'xisland');
   return {
     ...product,
-    // 下载试用不能经过“零元领取永久权益”的旧入口。
-    ...(trialDownload ? { pricing: product.pricing.filter(plan => plan.price > 0) } : {}),
+    // 这里不再过滤 price=0 的档位。
+    //
+    // 早先过滤是为了挡住「免费入库换永久权益」绕过试用；现在运营策略是**限时免费**，
+    // 零元档是有意的，领取会写 ¥0 订单并照常发永久激活码（见 /api/claim）。
+    // 若这里继续过滤，定价区会被清空成一片空白——用户既看不到价格也领不到码。
     downloads: product.downloads?.map((download) => ({
       ...download,
       ...catalog.downloads[product.id]?.[download.id],
       ...(trialDownload ? {
         gated: false,
         note: {
-          zh: '免费下载，完整试用 14 天。首次启用需联网；到期可选月付、年付或永久激活。',
-          en: 'Free download, 14-day full trial. Internet required on first use; then choose monthly, annual or lifetime activation.',
+          zh: '免费下载，完整试用 14 天；限时免费期间可领取永久激活码。',
+          en: 'Free download, 14-day full trial; claim a lifetime license while the free period lasts.',
         },
       } : {}),
     })),

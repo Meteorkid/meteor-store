@@ -226,6 +226,8 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
   const productName = escapeHtml(product?.name?.zh || data.productId);
   const planName = escapeHtml(data.planName);
   const orderId = escapeHtml(data.orderId);
+  // 限时免费的领取也走这条确认邮件，¥0 订单不能写成「支付成功 ¥0」。
+  const isFreeClaim = data.amount === 0;
 
   const fromEmail = process.env.RESEND_FROM_EMAIL || SENDER_EMAIL;
   const { error } = await getResend().emails.send({
@@ -235,13 +237,13 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
     subject: `订单确认 - ${productName} ${planName}`,
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #333;">🎉 支付成功！</h1>
-        <p>感谢您购买 <strong>${productName}</strong> 的 <strong>${planName}</strong> 方案。</p>
+        <h1 style="color: #333;">${isFreeClaim ? '🎉 领取成功！' : '🎉 支付成功！'}</h1>
+        <p>${isFreeClaim ? '你已免费领取' : '感谢您购买'} <strong>${productName}</strong> 的 <strong>${planName}</strong> 方案。</p>
         <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
           <p><strong>订单号：</strong>${orderId}</p>
           <p><strong>产品：</strong>${productName}</p>
           <p><strong>方案：</strong>${planName}</p>
-          <p><strong>支付金额：</strong>¥${data.amount}</p>
+          <p><strong>${isFreeClaim ? '本次费用：' : '支付金额：'}</strong>${isFreeClaim ? '限时免费（¥0）' : `¥${data.amount}`}</p>
         </div>
         ${data.softwareLicenses?.length ? data.softwareLicenses.map(license => `
         <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">

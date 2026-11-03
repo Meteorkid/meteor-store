@@ -57,12 +57,18 @@ describe('产品公开下载源', () => {
     }
   });
 
-  it('安装包统一走 R2 分发：付费产品门控，免费产品公开', () => {
+  it('安装包统一走 R2 分发：付费产品默认门控，免费产品公开', () => {
     const xnook = findProduct('xnook');
     const xisland = findProduct('xisland');
     const statux = findProduct('statux');
 
-    // 付费产品（xnook / xisland）：下载条目必须标 gated 且配 r2Key
+    /**
+     * 付费产品在源码里保持 `gated: true`，线上由 `catalog.withDownloads()` 在
+     * `SOFTWARE_LICENSE_ENABLED=true` 时放开成「免费下载 + 14 天试用」。
+     *
+     * 两者不能同时写死：源码默认放开，开关一关就等于白送完整版；
+     * 源码默认门控，开关一开用户才能先试用再决定买不买。
+     */
     for (const product of [xnook, xisland]) {
       for (const d of product?.downloads ?? []) {
         expect(d.gated).toBe(true);
