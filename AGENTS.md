@@ -1448,6 +1448,13 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - **静态资源部署权限必须显式归一**：构建机可能继承`umask 077`。解包后`.next`及公开静态目录必须可遍历、静态文件可读；`deploy-local.sh`已固定目录755、文件644。不要对整个`.next`递归放宽，server/cache不属于公开资源。
 - **静态错误响应不得immutable缓存**：nginx按状态决定缓存头，错误为`no-store`。2026-10-16曾缓存403导致页面200但所有交互失效；`next.config.ts`的`deploymentId: static-recovery-20261016`用于恢复这些客户端，不能无故删除。验收必须检查真实JS/CSS请求与浏览器按钮，不能只测页面状态。
 
+### HTTPS 证书续期
+
+- 证书由现有 acme.sh / Let's Encrypt 免费续签，双域名共用 `/etc/nginx/ssl/imagentx.top.pem` 与 `.key`；使用 webroot `/var/lib/meteor-store-acme`，不能改回独占80端口的 standalone。
+- HTTP server 的 `/.well-known/acme-challenge/` 必须直接读验证目录；普通301放在 `location /`，不能提升为server级return，否则先于验证location执行。每次部署覆盖Nginx配置时须保留这条规则。
+- root cron 保留每天02:15/08:15/14:15/20:15检查，使用部署互斥锁、`--request-v4`与`meteor-acme`系统日志；安装hook为`nginx -t && nginx -s reload`（实际使用绝对路径）。临时签发网络通道不作为自动续期依赖。
+- 验收检查公网实际证书与正常TLS、自动任务日志和监控恢复，不能只看磁盘证书或curl跳过校验。操作与回滚见`docs/process/tls-renewal.md`。
+
 ## 每日一新（2026-10-15 已上线）
 
 - 独立阅读页 `/daily`、后台 `/admin/daily`；栏目协议与配置在 `src/lib/daily/types.ts`，服务在 `service.ts`，来源适配在 `content.ts`。同一天同栏目只保存一份公共内容，个人只保存选择与提醒开关。

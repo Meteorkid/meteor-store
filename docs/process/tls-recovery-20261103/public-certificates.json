@@ -1,0 +1,10 @@
+[
+  {
+    "host": "imagentx.top",
+    "certificate": "notBefore=Nov  3 10:25:35 2026 GMT\nnotAfter=Feb  1 10:25:34 2027 GMT\nserial=06464682AD3BC27FE174452CDCAE1FEE199D\nsha256 Fingerprint=8A:F5:F4:9F:FC:79:BA:36:CF:12:9C:05:38:20:53:F9:03:39:51:73:F7:D9:02:D0:4A:A9:A5:9B:37:71:3B:83\n"
+  },
+  {
+    "host": "www.imagentx.top",
+    "certificate": "notBefore=Nov  3 10:25:35 2026 GMT\nnotAfter=Feb  1 10:25:34 2027 GMT\nserial=06464682AD3BC27FE174452CDCAE1FEE199D\nsha256 Fingerprint=8A:F5:F4:9F:FC:79:BA:36:CF:12:9C:05:38:20:53:F9:03:39:51:73:F7:D9:02:D0:4A:A9:A5:9B:37:71:3B:83\n"
+  }
+]

@@ -1,0 +1,4 @@
+{
+  "deploy/nginx.conf": "824219c495ba06b9c16daee8259190c07968a75ba93dad30b2366bc5ee30fa1a",
+  "src/lib/__tests__/nginx-static.test.ts": "8c76a49e449712992f4af28ab829adc01ae6a6a4c5d211190036543d39298567"
+}

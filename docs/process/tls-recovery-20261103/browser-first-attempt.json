@@ -1,0 +1,649 @@
+{
+  "startedAt": "2026-11-03T11:26:01.271Z",
+  "base": "https://www.imagentx.top",
+  "cases": [
+    {
+      "label": "desktop-zh-1280",
+      "status": "failed",
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: locator('main')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for locator('main')\n\n    at captureRawStack (/Users/meteor/github/meteor-store/node_modules/.pnpm/playwright-core@1.62.1/node_modules/playwright-core/lib/coreBundle.js:9681:17)\n    at callMatcherAsStep (/Users/meteor/github/meteor-store/node_modules/.pnpm/playwright@1.62.1/node_modules/playwright/lib/matchers/expect.js:13310:57)\n    at Object.toBeVisible (/Users/meteor/github/meteor-store/node_modules/.pnpm/playwright@1.62.1/node_modules/playwright/lib/matchers/expect.js:13300:23)\n    at initial (/private/tmp/meteor-tls-recovery-20261103/browser/check.cjs:52:38)\n    at async /private/tmp/meteor-tls-recovery-20261103/browser/check.cjs:84:29\n    at async runCase (/private/tmp/meteor-tls-recovery-20261103/browser/check.cjs:70:20)\n    at async /private/tmp/meteor-tls-recovery-20261103/browser/check.cjs:83:5",
+      "url": "https://www.imagentx.top/zh",
+      "healthIssues": []
+    },
+    {
+      "label": "mobile-en-375",
+      "status": "failed",
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: locator('main')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for locator('main')\n\n    at captureRawStack (/Users/meteor/github/meteor-store/node_modules/.pnpm/playwright-core@1.62.1/node_modules/playwright-core/lib/coreBundle.js:9681:17)\n    at callMatcherAsStep (/Users/meteor/github/meteor-store/node_modules/.pnpm/playwright@1.62.1/node_modules/playwright/lib/matchers/expect.js:13310:57)\n    at Object.toBeVisible (/Users/meteor/github/meteor-store/node_modules/.pnpm/playwright@1.62.1/node_modules/playwright/lib/matchers/expect.js:13300:23)\n    at initial (/private/tmp/meteor-tls-recovery-20261103/browser/check.cjs:52:38)\n    at async /private/tmp/meteor-tls-recovery-20261103/browser/check.cjs:105:29\n    at async runCase (/private/tmp/meteor-tls-recovery-20261103/browser/check.cjs:70:20)\n    at async /private/tmp/meteor-tls-recovery-20261103/browser/check.cjs:104:5",
+      "url": "https://www.imagentx.top/en",
+      "healthIssues": []
+    }
+  ],
+  "events": [
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/40buj0qf42_bg.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/244zy2nf8cykx.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2w1ypdbs28o3i.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/turbopack-235pbaizvi_1_.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1d7b7cniikcbn.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1p4f4hkigxbl0.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1wnaaxlm63m75.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3tyoi_jm16jlv.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1oka7o914idl4.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/21dae01zty8sk.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0oanshy2z6cla.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-warning",
+      "message": "Service Worker registration blocked by Playwright"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/auth/me",
+      "contentType": "application/json"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "anonymous-auth",
+      "status": 200,
+      "anonymous": true,
+      "noStore": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://www.imagentx.top/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/announcements",
+      "contentType": "application/json"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/19m8en2-e426z.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1ddg08yufr1wo.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-warning",
+      "message": "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/docs?_rsc=L898nmYqz1zNS-Do",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/login?_rsc=L898nmYqz1zNS-Do",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh?_rsc=NaBPNuouHDwVNwaU",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products?_rsc=NaBPNuouHDwVNwaU",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/pathfinder?_rsc=NaBPNuouHDwVNwaU",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/blog?_rsc=NaBPNuouHDwVNwaU",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/docs?_rsc=NaBPNuouHDwVNwaU",
+      "resourceType": "fetch",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/40buj0qf42_bg.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/244zy2nf8cykx.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2w1ypdbs28o3i.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/turbopack-235pbaizvi_1_.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1d7b7cniikcbn.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1p4f4hkigxbl0.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1wnaaxlm63m75.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3tyoi_jm16jlv.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1oka7o914idl4.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/21dae01zty8sk.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0oanshy2z6cla.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-warning",
+      "message": "Service Worker registration blocked by Playwright"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://www.imagentx.top/api/online/heartbeat"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/auth/me",
+      "contentType": "application/json"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "anonymous-auth",
+      "status": 200,
+      "anonymous": true,
+      "noStore": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/19m8en2-e426z.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1ddg08yufr1wo.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-warning",
+      "message": "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/announcements",
+      "contentType": "application/json"
+    }
+  ],
+  "normalTlsValidation": true,
+  "ignoreHTTPSErrors": false,
+  "boundaries": [
+    "Fresh anonymous Chrome contexts; no login, cookies or storage state imported.",
+    "Service workers blocked. Every non-GET request and every WebSocket is blocked.",
+    "All permitted GET requests reach production; no authentication or API fixtures.",
+    "No source edits, deploys, database writes, business actions or messages.",
+    "375px mobile is Chrome touch emulation, not a physical phone test."
+  ],
+  "browser": "156.0.8078.80",
+  "browserClosed": true,
+  "finishedAt": "2026-11-03T11:26:21.849Z",
+  "summary": {
+    "cases": 2,
+    "passed": 0,
+    "failed": 2,
+    "anonymousAuthReads": 2,
+    "apiReads": 4,
+    "staticResponses": 50,
+    "invalidStatic": 0,
+    "blockedWrites": 8,
+    "blockedWebSockets": 0,
+    "healthIssues": 0
+  }
+}
