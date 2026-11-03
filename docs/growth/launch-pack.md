@@ -12,12 +12,37 @@
 | 1 | 当前**限时免费**，领取永久激活码，最多 3 台设备，**无需付款** | `products.ts` pricing.price = 0 |
 | 2 | 原价 ¥12（XNook ¥9），页面上是划线价 | `originalPrice` |
 | 3 | 即使不领码，安装后也有 **14 天完整试用** | MSL1 试用机制 |
-| 4 | 仅 macOS，原生 Swift，**不需要账号即可下载试用** | 下载接口 `gated:false` |
+| 4 | 仅 macOS 13+，原生 Swift，**不需要账号即可下载试用** | 下载接口 `gated:false` |
 | 5 | **adhoc 签名**，首次打开需 `xattr -cr` 或右键「打开」 | 未买 Apple Developer |
 | 6 | 官网 `imagentx.top`，GitHub `github.com/Meteorkid/XIsland` | — |
 
 > 第 5 条最容易被骂。**主动写出来**远好过让用户自己撞上：
 > 写出来是「开发者很坦诚」，不写就是「这软件是坏的」。
+> README 里其实已经写了 Gatekeeper 提示，帖子里再写一遍不亏。
+
+### 卖点排序（这一条决定成败）
+
+先记住：**「看状态」是弱需求，「批准权限」才是强需求。**
+
+任何菜单栏工具都能告诉你「有个进程在跑」。但 Claude Code 每次要写文件、执行命令，
+都会停下来等你批准；你要做的是切窗口 → 找到那个终端 → 看清楚它要干嘛 → 点允许 →
+切回来。一天几十次。**这才是真正让人烦的地方。**
+
+所以打头阵的顺序应该是：
+
+1. **在岛上批准/拒绝权限**（文件写入、命令执行）——把切窗口那一步省掉
+2. **在岛上回答提问**（⌘1 / ⌘2）——同样是切窗口问题
+3. **审阅并批准计划**（Plan review）
+4. **点一下跳到那个终端标签**（iTerm2 精确到 tab）
+5. 看状态（谁在跑、谁卡住、谁在等你）——这个是「顺带有的」
+
+按这个顺序写，读者第一句就中；按「看状态」开头，读者觉得「我又不需要」。
+
+> 诚实边界：README 的兼容性矩阵里，多数客户端的 hooks 接入还标着
+> "real client verification pending"。帖子里写「通过各家原生 hooks 接入，
+> 部分客户端还在验证」，比写「全面支持 30 个代理」安全得多——
+> HN 上一定会有人挑这个。
+
 
 ## 一、V2EX（今天就能发，优先级最高）
 
@@ -29,27 +54,34 @@
 **标题**：
 
 ```
-做了个 macOS 灵动岛，把 Claude Code / Cursor 这些 AI 代理都收进一个岛里
+给 Claude Code 点「允许」一天要切几十次窗口，我把它搬到灵动岛上了
 ```
 
 **正文**：
 
 ```
-平时同时开好几个 AI 编码代理：Claude Code 两三个会话、Cursor 一个窗口，
-偶尔还有跑很久的任务。最烦的不是启动它们，是切回来才发现某个已经卡在
-"要不要继续"的提问上，等了十分钟。
+给 Claude Code 点「允许」这件事，一天要切几十次窗口，我把它搬到灵动岛上了
 
-所以写了个工具，把这些代理收进屏幕顶部一个灵动岛里。
+平时同时开好几个 AI 编码代理：Claude Code 两三个会话、Cursor 一个窗口。
 
-收起状态：显示有几个在跑、有没有在等你的
-展开状态：每个代理一行，谁在跑、谁卡住、谁在等你，一眼看完
-有代理提问的时候：直接在岛上按 ⌘1 / ⌘2 选，不用切回终端
+最烦的其实不是启动它们，是每次它要写文件、跑命令都得停下来等你批准：
+切窗口 → 找到那个终端 → 看清楚它想干嘛 → 点允许 → 再切回来。
+一天几十次，节奏全碎了。
 
-状态是从进程活动和输出特征推断的，不是给每个工具写 hook，
-所以我自己没适配过的代理也能识别。目前内置了 31 个代理的图标和识别。
+所以写了个工具，把这几个代理收进屏幕顶部一个灵动岛里：
+
+· 要权限的时候，岛上直接出现「允许 / 拒绝」，不用切窗口
+· 代理提问的时候，按 ⌘1 / ⌘2 选
+· 要审阅计划的时候，也是在岛上过
+· 想回到那个会话，点一下直接跳到对应的 iTerm2 标签页
+· 顺带能看到谁在跑、谁卡住、谁在等你
 
 技术上是原生 Swift，四个代理挂着大概 40MB 内存。面板是非激活窗口，
-点它不会把你编辑器的焦点抢走。
+点它不会把你编辑器的焦点抢走，拖到副屏也会自己跟过去。
+
+代理是通过各家自己的 hooks / settings 接入的，目前内置 30 来个
+（Claude Code、Codex、Cursor、Gemini CLI、Trae、Windsurf、Cline 这些），
+有一部分客户端我还在逐个验证，README 里列了每个的真实状态。
 
 现在限时免费，领一个永久激活码就行，最多 3 台设备，不用付款。
 不领码也能先试用 14 天。
@@ -61,7 +93,7 @@ https://imagentx.top/products/xisland
   在终端跑一下 xattr -cr /Applications/XIsland.app 就行
 · 只支持 macOS 13 以上
 
-想听听大家平时的用法——你们是开多个会话，还是一个会话干到底？
+想听听大家平时的用法——你们是开多个会话并行，还是一个会话干到底？
 ```
 
 **发布要点**：
@@ -86,38 +118,41 @@ Show HN: XIsland – a macOS Dynamic Island for AI coding agents
 
 ```
 I run several coding agents at once (Claude Code, Cursor, plus a couple of
-long-running jobs). The problem wasn't starting them — it was not knowing
-which one was sitting there waiting for an answer while I was in another window.
+long-running jobs). The annoying part turned out not to be starting them —
+it's that Claude Code stops for approval every time it wants to write a file
+or run a command. So: switch window, find the terminal, read what it wants,
+click allow, switch back. Dozens of times a day.
 
-XIsland puts them in a Dynamic Island-style pill at the top of the screen.
-Collapsed, it shows how many are working and whether any is waiting on me.
-Expanded, it lists every agent with its state, and when one asks a question
-I can pick an option with ⌘1 / ⌘2 right there instead of going back to the
-terminal that spawned it.
+XIsland moves that to a Dynamic Island-style pill at the top of the screen.
 
-Two things that took longer than I expected:
+- Permission requests show up on the island with approve / deny — no window switching
+- Agent questions can be answered with ⌘1 / ⌘2
+- Plans can be reviewed and approved inline
+- Clicking a session jumps to the exact iTerm2 tab it's running in
+- And yes, it shows who's running / stuck / waiting at a glance
 
-- Agent state is inferred from process activity and output patterns, not from
-  a hook in each tool. That means it also covers agents I never integrated
-  with, but it's heuristic — it can mislabel an agent that's thinking hard
-  as idle.
+Integration is through each tool's own hooks and settings files rather than a
+PTY wrapper, so it doesn't sit between you and the agent. About 30 agents are
+covered (Claude Code, Codex, Cursor, Gemini CLI, Trae, Windsurf, Cline and
+more); the README lists the actual verification status per client — several
+are still "real client verification pending", and I'd rather say that than
+claim full support.
 
-- The panel is a non-activating NSPanel, so clicking it doesn't steal focus
-  from your editor. It has to float above full-screen apps and Spaces without
-  ever taking key focus, which rules out a normal window.
+Native Swift, ~40MB RSS with four agents attached. The panel is a
+non-activating NSPanel, so clicking it doesn't steal focus from your editor,
+and it has to float above full-screen apps and Spaces without ever taking key
+focus — which rules out a normal window.
 
-Native Swift, ~40MB RSS with four agents attached.
-
-It's macOS only. The build is ad-hoc signed for now (no Apple Developer
-account yet), so first launch needs `xattr -cr /Applications/XIsland.app`.
+It's macOS 13+. The build is ad-hoc signed for now (no Apple Developer account
+yet), so first launch needs `xattr -cr "/Applications/X Island.app"`.
 
 Free while the launch period lasts: you claim a lifetime license, up to three
 machines. No account needed to try it for 14 days.
 
 https://imagentx.top/en/products/xisland
 
-Happy to answer anything about the panel/focus behaviour or the state
-detection heuristics.
+Happy to answer anything about the permission flow, the panel/focus behaviour,
+or how the per-client hooks are wired.
 ```
 
 **注意**：
