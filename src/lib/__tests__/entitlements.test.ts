@@ -19,8 +19,13 @@ vi.mock('../db', () => {
   return { db: { select: () => chain() } };
 });
 
-import { products } from '@/data/products';
 import { getUserEntitlements, getUserEntitlementSummary } from '../entitlements';
+
+const legacyProductIds = [
+  'omnicrawl', 'ex-memory', 'skeleton-anatomy', 'tollow', 'chakra-visualizer',
+  'webgl-fluid-sim', 'ui-design-system', 'claude-phone-control',
+  'cursor-source-analyzer', 'statux', 'xisland', 'xnook',
+];
 
 describe('getUserEntitlements', () => {
   beforeEach(() => {
@@ -152,12 +157,12 @@ describe('getUserEntitlements', () => {
       licenseStatus: 'active',
     });
 
-    it('有效期内的 Pass 展开成全部产品的访问权', async () => {
+    it('有效期内的 Pass 保留历史产品访问权，不将 DuoCast 当成付费权益', async () => {
       selectQueue.push([passOrder('annual', new Date().toISOString())]);
 
       const result = await getUserEntitlements('u1', 'a@b.com');
 
-      expect(result).toHaveLength(products.length);
+      expect(result.map(item => item.productId).sort()).toEqual([...legacyProductIds].sort());
       expect(result[0].planName).toBe('Meteor Pass');
       expect(result[0].passPlanId).toBe('annual');
       expect(result[0].viaPass).toBe(true);
@@ -177,7 +182,7 @@ describe('getUserEntitlements', () => {
 
       const result = await getUserEntitlements('u1', 'a@b.com');
 
-      expect(result).toHaveLength(products.length);
+      expect(result).toHaveLength(legacyProductIds.length);
       expect(result[0].expiresAt).toBeNull();
       expect(result[0].passPlanId).toBe('lifetime');
     });
@@ -205,7 +210,19 @@ describe('getUserEntitlements', () => {
       expect(exMemory?.expiresAt).toBeNull();
       expect(exMemory?.viaPass).toBe(false);
       // 其余产品仍由 Pass 覆盖
-      expect(result).toHaveLength(products.length);
+      expect(result).toHaveLength(legacyProductIds.length);
+    });
+
+    it('DuoCast 已显式免费入库时保留单品记录，不改成 Pass 授权', async () => {
+      selectQueue.push([
+        { ...baseRow, productId: 'duocast', planId: 'free', planName: '免费版', deliveryStatus: 'not_required', licenseStatus: null },
+        passOrder('annual', new Date().toISOString()),
+      ]);
+      const result = await getUserEntitlements('u1', 'a@b.com');
+      expect(result.find(item => item.productId === 'duocast')).toMatchObject({
+        planId: 'free', viaPass: false, passPlanId: null, expiresAt: null,
+      });
+      expect(result).toHaveLength(legacyProductIds.length + 1);
     });
 
     it('Tollow Free 不会遮住 Pass 提供的 Pro', async () => {
@@ -318,7 +335,7 @@ describe('getUserEntitlements', () => {
       });
     });
 
-    it('兑换 Pass 邀请码同样展开成全部产品，并按档位计算有效期', async () => {
+    it('兑换 Pass 邀请码同样保留历史产品，并按档位计算有效期', async () => {
       selectQueue.push([]);
       selectQueue.push([
         {
@@ -331,7 +348,7 @@ describe('getUserEntitlements', () => {
 
       const result = await getUserEntitlements('u1', 'a@b.com');
 
-      expect(result).toHaveLength(products.length);
+      expect(result.map(item => item.productId).sort()).toEqual([...legacyProductIds].sort());
       expect(result[0].planName).toBe('Meteor Pass');
       expect(result[0].passPlanId).toBe('monthly');
       expect(result[0].billingPeriod).toBe('monthly');

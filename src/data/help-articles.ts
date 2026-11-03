@@ -450,6 +450,26 @@ export const helpArticles: HelpArticleMeta[] = [
     },
   },
 
+  {
+    slug: 'duocast-first-play',
+    category: 'products',
+    kind: 'tutorial',
+    order: 110,
+    readingMinutes: 4,
+    updatedAt: '2026-11-03',
+    commercial: false,
+    relatedSlugs: ['macos-cannot-open-app', 'product-updates', 'technical-support'],
+    title: { zh: 'DuoCast：安装与首次播放', en: 'DuoCast: Installation and First Playback' },
+    excerpt: {
+      zh: '在 Apple Silicon Mac 上安装 DuoCast，授予音频采集权限，选择输出设备并调节各路音量、延迟和 EQ。',
+      en: 'Install DuoCast on an Apple Silicon Mac, grant audio capture permission, choose output devices, and adjust volume, delay and EQ for each output.',
+    },
+    keywords: {
+      zh: ['DuoCast', 'macOS', 'Apple Silicon', '安装', '多路音频', '系统声音', '录屏与系统录音', '蓝牙耳机', '延迟', 'EQ'],
+      en: ['DuoCast', 'macOS', 'Apple Silicon', 'install', 'multi-output audio', 'system audio', 'Screen & System Audio Recording', 'Bluetooth headphones', 'delay', 'EQ'],
+    },
+  },
+
   // ========== 博客与社区 (3) ==========
   {
     slug: 'browse-blog-tags-and-rss',
@@ -646,7 +666,7 @@ export function findLocalizedHelpArticle(
   return article ? localizeHelpArticle(article, locale) : undefined;
 }
 
-/** 期望的 26 个稳定 slug，用于测试和验证 */
+/** 稳定 slug 清单，用于测试和验证 */
 export const EXPECTED_SLUGS: readonly string[] = [
   // 初识与导航
   'start-here', 'navigate-and-search', 'understand-product-types', 'online-trial-vs-full-access',
@@ -656,6 +676,7 @@ export const EXPECTED_SLUGS: readonly string[] = [
   'browse-and-compare-products', 'claim-free-product', 'buy-product-or-meteor-pass', 'redeem-invitation-code',
   'open-or-download-owned-product', 'meteor-pass-access-and-renewal',
   'macos-cannot-open-app', 'get-product-after-purchase', 'use-license-key', 'product-updates',
+  'duocast-first-play',
   // 博客与社区
   'browse-blog-tags-and-rss', 'interact-with-blog-posts', 'submit-and-manage-blog-posts', 'blog-publishing-api',
   // 在线工具

@@ -11,6 +11,7 @@ export const productDisplayOrderIds = [
   'chakra-visualizer',
   'claude-phone-control',
   'cursor-source-analyzer',
+  'duocast',
 ] as const;
 
 export function selectProductsInDisplayOrder<T extends { id: string }>(

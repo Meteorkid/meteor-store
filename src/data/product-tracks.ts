@@ -4,7 +4,7 @@
  * **收缩产品线时不要删或合并 `products` 数组的条目**：`orders` 表存的是 productId，
  * `getUserEntitlements`、`/api/download/[productId]`、订单页、成功页、邀请码后台
  * 全部按 id 查。删掉一个条目等于让已购用户的订单和授权同时失效，而且没有补救手段。
- * 想让某款产品不再主推，把它挪进 `lab` 就够了 —— 数据层 12 个条目一个不动。
+ * 想让某款产品不再主推，把它挪进 `lab` 就够了 —— 数据层已有条目一个不动。
  *
  * 三条线的分工：
  * - `flagship` 主线付费主体，站点唯一认真卖的东西
@@ -36,6 +36,7 @@ export const labProductIds = [
   'webgl-fluid-sim',
   'ex-memory',
   'ui-design-system',
+  'duocast',
 ] as const;
 
 /**
@@ -75,7 +76,7 @@ export function selectProductLine<T extends { id: string }>(allProducts: readonl
   return selectInOrder(allProducts, productLineIds);
 }
 
-/** 实验室七款，/lab 页面用 */
+/** 实验室产品，产品页实验室区块使用 */
 export function selectLabProducts<T extends { id: string }>(allProducts: readonly T[]): T[] {
   return selectInOrder(allProducts, labProductIds);
 }

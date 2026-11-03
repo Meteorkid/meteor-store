@@ -478,7 +478,7 @@ Footer 和内容列；后台页面**只写自己的正文**，不要再各自套
 |-------|------|------|
 | `flagship` | xisland, xnook | 主线付费主体，站点唯一认真卖的东西 |
 | `funnel` | statux, claude-phone-control, cursor-source-analyzer | 同一条线上的免费入口，作用是引流不是收钱 |
-| `lab` | omnicrawl, skeleton-anatomy, tollow, chakra-visualizer, webgl-fluid-sim, ex-memory, ui-design-system | 实验室，一律 ¥0，作用是证明能力 |
+| `lab` | omnicrawl, skeleton-anatomy, tollow, chakra-visualizer, webgl-fluid-sim, ex-memory, ui-design-system, duocast | 实验室，一律 ¥0，作用是证明能力 |
 
 - **绝对不要靠删或合并 `products` 数组的条目来做收缩**：`orders` 表存的是 productId，
   `getUserEntitlements`、`/api/download/[productId]`、订单页、成功页、邀请码后台全按 id 查。
@@ -494,6 +494,13 @@ Footer 和内容列；后台页面**只写自己的正文**，不要再各自套
   `Product.category` 字段本身保留，它描述的是产品属性
 - 首页 `ProductShowcase`、`/products`、Footer 产品栏都只列主线五款，实验室走 `/lab` 一个入口。
   **别把实验室那七款加回首页**——那正是这次收缩要消除的东西
+
+### DuoCast 上架边界
+
+- DuoCast为独立免费lab工具，现仅提供macOS14.2+ / Apple Silicon包；没有Windows安装包或已声明的开源许可证，不标MIT。安装包ad-hoc签名、未经Apple公证。
+- 下载使用稳定ID`macos-arm64`及私有R2短时签名，无需登录；暂不扩展后台产品更新来源白名单。安装与权限帮助为`duocast-first-play`。
+- 追加展示顺序不改变首页布局和主线产品顺序；封面基于真实界面做参数操作示意，第三槽始终等待设备，不能伪装实测三台设备同时播放。
+- 运行期Pass当前保留历史12款展开，只排除新增DuoCast；不能借新增产品收回其他历史权益。显式免费入库记录仍保留。
 
 ## 商业模式：Meteor Pass + 单品
 

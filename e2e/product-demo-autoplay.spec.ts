@@ -1,17 +1,19 @@
 import { expect, test } from '@playwright/test';
 
-const ids = ['xisland', 'xnook', 'statux', 'claude-phone-control', 'cursor-source-analyzer', 'omnicrawl', 'skeleton-anatomy', 'tollow', 'chakra-visualizer', 'webgl-fluid-sim', 'ex-memory', 'ui-design-system'];
+import { productCoverSources } from '../src/data/product-cover-sources';
+
+const ids = Object.keys(productCoverSources);
 
 test.describe('原型操作动画封面', () => {
-  test('12段新短片确实播放，离屏释放，播放结束可悬停重播', async ({ page }, testInfo) => {
+  test('全部新短片确实播放，离屏释放，播放结束可悬停重播', async ({ page }, testInfo) => {
     test.setTimeout(60000);
     const oldMedia: string[] = [];
     page.on('request', (request) => {
       if (/\/products\/[^/]+\/(demo\.mp4|demo\.gif)/.test(decodeURIComponent(request.url()))) oldMedia.push(request.url());
     });
     await page.goto('/zh/products');
-    await expect(page.locator('[data-product-cover]')).toHaveCount(12);
-    expect(await page.locator('[data-motion-video]').count()).toBeLessThan(12);
+    await expect(page.locator('[data-product-cover]')).toHaveCount(ids.length);
+    expect(await page.locator('[data-motion-video]').count()).toBeLessThan(ids.length);
     for (const id of ids) {
       const cover = page.locator(`[data-product-cover="${id}"]`);
       await cover.scrollIntoViewIfNeeded();
@@ -60,11 +62,11 @@ test.describe('原型操作动画封面', () => {
     await expect.poll(() => cover.locator('[data-cover-frame="poster"]').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
   });
 
-  test('服务端输出12张回退图，不提前插入播放器', async ({ browser, baseURL }) => {
+  test('服务端输出全部回退图，不提前插入播放器', async ({ browser, baseURL }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
     await page.goto(`${baseURL}/zh/products`);
-    await expect(page.locator('[data-product-cover]')).toHaveCount(12);
+    await expect(page.locator('[data-product-cover]')).toHaveCount(ids.length);
     await expect(page.locator('[data-motion-video]')).toHaveCount(0);
     for (const id of ids) {
       const cover = page.locator(`[data-product-cover="${id}"]`);

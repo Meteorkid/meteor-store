@@ -48,7 +48,8 @@ describe('真实权益计算与 Pass 状态接口契约', () => {
   ])('%s 持有状态独立于展开后的产品授权', async (plan, expiresAt) => {
     queueOrders([order(plan!)]);
     const summary = await getUserEntitlementSummary('pass-owner', 'pass@example.test');
-    expect(summary.entitlements).toHaveLength(products.length);
+    expect(summary.entitlements).toHaveLength(12);
+    expect(summary.entitlements.some(item => item.productId === 'duocast')).toBe(false);
     expect(summary.entitlements.some(item => item.productId === 'meteor-pass')).toBe(false);
     expect(summary.activePass).toEqual({ planId: plan, expiresAt });
     queueOrders([order(plan!)]);

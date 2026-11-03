@@ -847,6 +847,64 @@ export const products: Product[] = [
       ],
     },
   },
+  {
+    id: 'duocast',
+    name: { zh: 'DuoCast', en: 'DuoCast' },
+    tagline: { zh: 'Mac 多路音频输出工具', en: 'Multi-output audio for Mac' },
+    description: {
+      zh: '将系统声音或本地音频分发到最多 3 路输出，每路独立调节音量、延迟与 10 段 EQ。当前提供 Apple Silicon Mac 安装包；不保证两副蓝牙耳机同时播放，Windows 暂无安装包。',
+      en: 'Route system audio or a local file to up to three outputs, with independent volume, delay and 10-band EQ for each. An Apple Silicon Mac build is available; simultaneous playback on two Bluetooth headsets is not guaranteed, and no Windows installer is available yet.',
+    },
+    features: [
+      { zh: '最多 3 路音频输出，每路独立控制', en: 'Up to three audio outputs with independent controls' },
+      { zh: '每路独立音量、延迟补偿与 10 段 EQ', en: 'Independent volume, delay compensation and 10-band EQ per output' },
+      { zh: '采集系统声音或本地音频文件，无需安装虚拟声卡', en: 'Capture system audio or play a local file without a virtual audio driver' },
+      { zh: '按 App 选择系统声音采集范围', en: 'Choose which apps to capture system audio from' },
+      { zh: '设备热插拔：接入新设备，断开时仅停止对应输出', en: 'Hot-plug devices; disconnecting one stops only its output' },
+      { zh: '按设备记住音量、延迟和 EQ 设置', en: 'Remember volume, delay and EQ settings for each device' },
+    ],
+    pricing: [
+      {
+        id: 'free',
+        name: { zh: '免费', en: 'Free' },
+        price: 0,
+        features: [
+          { zh: 'macOS 版下载', en: 'macOS app download' },
+          { zh: '最多 3 路输出与独立参数调节', en: 'Up to three outputs with independent settings' },
+          { zh: 'App 音频采集与设备参数记忆', en: 'Per-app audio capture and saved device settings' },
+        ],
+      },
+    ],
+    github: 'https://github.com/Meteorkid/duocast',
+    quickstart: {
+      download: '/api/download/duocast?file=macos-arm64',
+      note: {
+        zh: '适用于 macOS 14.2+、Apple Silicon。安装包采用 ad-hoc 签名，未经 Apple 公证；采集系统声音需授予「录屏与系统录音」权限。',
+        en: 'Requires macOS 14.2+ on Apple Silicon. The app is ad-hoc signed and not notarized by Apple; capturing system audio requires Screen & System Audio Recording permission.',
+      },
+    },
+    downloads: [
+      {
+        id: 'macos-arm64',
+        label: { zh: 'macOS 安装包（Apple 芯片）', en: 'macOS app (Apple Silicon)' },
+        icon: 'zip',
+        r2Key: 'releases/duocast/0.1.0/DuoCast-0.1.0-macOS-arm64.zip',
+        version: '0.1.0',
+        sha256: '15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1',
+        note: { zh: 'macOS 14.2 及以上；ad-hoc 签名，未经 Apple 公证', en: 'macOS 14.2 or later; ad-hoc signed, not notarized by Apple' },
+      },
+    ],
+    category: 'utility',
+    icon: '🎧',
+    gradient: 'from-cyan-500 to-blue-500',
+    platforms: ['macOS 14.2+', 'Apple Silicon'],
+    media: {
+      cover: '/products/duocast/cover.webp',
+      screenshots: [
+        { src: '/products/duocast/screenshot-1.webp', alt: { zh: 'DuoCast 多路音频输出与独立通道控制', en: 'DuoCast audio outputs and independent channel controls' } },
+      ],
+    },
+  },
 ];
 
 

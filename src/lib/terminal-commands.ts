@@ -1,5 +1,6 @@
 // 店主的终端 · 命令注册表
 // 纯函数实现，不依赖 DOM，便于单元测试；副作用通过 action 交给组件执行
+import { productDisplayOrderIds } from '@/data/product-order';
 
 export interface CommandResult {
   lines: string[];
@@ -132,7 +133,7 @@ export function runCommand(rawInput: string): CommandResult {
         '    │ Style    │ Tailwind 4 · 暗色主题    │',
         '    │ Theme    │ 流星 · 星空 · 玻璃拟态   │',
         '    ├──────────────────────────────┤',
-        '    │ 产品     │ 12 款开发者工具          │',
+        `    │ 产品     │ ${productDisplayOrderIds.length} 款工具与应用          │`,
         '    │ 博客     │ 星辰分区 · 读者投稿       │',
         '    │ 店主     │ 大学生 · 赚学费           │',
         '    ╰──────────────────────────────╯',

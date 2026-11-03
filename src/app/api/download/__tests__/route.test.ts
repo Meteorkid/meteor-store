@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextRequest } from 'next/server';
+import { products } from '@/data/products';
 
 vi.mock('@/lib/rate-limit', () => ({
   getClientIp: () => '127.0.0.1',
@@ -85,6 +86,21 @@ describe('安装包下载', () => {
     expect(createSignedReleaseUrl).toHaveBeenCalledWith(
       'releases/statux/0.4.3/statux-darwin-arm64',
       'statux-darwin-arm64',
+    );
+  });
+
+  it('DuoCast 的正式 macOS 下载对游客签发私有链接，不查询账户授权', async () => {
+    getProductWithCurrentDownloads.mockResolvedValue(products.find(product => product.id === 'duocast'));
+    getSession.mockResolvedValue(null);
+    const { GET } = await import('../[productId]/route');
+    const response = await GET(...get('duocast', 'macos-arm64'));
+    expect(response.status).toBe(302);
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(getSession).not.toHaveBeenCalled();
+    expect(getUserEntitlements).not.toHaveBeenCalled();
+    expect(createSignedReleaseUrl).toHaveBeenCalledWith(
+      'releases/duocast/0.1.0/DuoCast-0.1.0-macOS-arm64.zip',
+      'DuoCast-0.1.0-macOS-arm64.zip',
     );
   });
 

@@ -15,6 +15,7 @@ const expectedOrder = [
   'chakra-visualizer',
   'claude-phone-control',
   'cursor-source-analyzer',
+  'duocast',
 ];
 
 describe('产品展示顺序', () => {

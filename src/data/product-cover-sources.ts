@@ -2,7 +2,7 @@
 const motionProductIds = [
   'xisland', 'xnook', 'statux', 'claude-phone-control', 'cursor-source-analyzer',
   'omnicrawl', 'skeleton-anatomy', 'tollow', 'chakra-visualizer', 'webgl-fluid-sim',
-  'ex-memory', 'ui-design-system',
+  'ex-memory', 'ui-design-system', 'duocast',
 ] as const;
 
 export interface ProductCoverSource {

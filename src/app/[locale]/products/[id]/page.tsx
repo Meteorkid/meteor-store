@@ -121,6 +121,14 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                 </div>
               </div>
             )}
+            {product.id === 'duocast' && (
+              <div className="mt-5 flex flex-wrap gap-4 text-sm">
+                <Link href="/docs/duocast-first-play" className="text-violet-300 underline underline-offset-4">{t('duocastGuide')}</Link>
+                {product.github && (
+                  <a href={product.github} target="_blank" rel="noopener noreferrer" className="text-violet-300 underline underline-offset-4">{t('duocastGithub')}</a>
+                )}
+              </div>
+            )}
           </div>
           <ProductVisual product={product} priority className="shadow-[0_35px_100px_rgba(76,29,149,0.28)]" transitionName={`product-visual-${product.id}`} />
         </section>

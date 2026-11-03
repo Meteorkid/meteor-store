@@ -267,6 +267,8 @@ export async function getUserEntitlementSummary(
 
   if (pass && passActive) {
     for (const product of products) {
+      // 新增独立免费工具不作为 Pass 权益；原有产品继续保留历史授权。
+      if (product.id === 'duocast') continue;
       const existing = owned.get(product.id);
       if (existing) {
         const shouldUpgradeTollow = product.id === TOLLOW_PRODUCT_ID
