@@ -1,16 +1,17 @@
 import SourceLanguageNote from '@/components/SourceLanguageNote';
+import PostTranslationSwitch from '@/components/PostTranslationSwitch';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogReadingProgress from '@/components/BlogReadingProgress';
 import RelatedPosts from '@/components/RelatedPosts';
 import { getRelatedPosts } from '@/lib/related-posts';
 import { getFeedPosts } from '@/data/blog-feed';
-import { getPostById } from '@/lib/posts';
+import { getPostById, getPostTranslations } from '@/lib/posts';
 import { getSession } from '@/lib/auth';
 import { blogScopeStyle, getSectionById } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
@@ -42,6 +43,14 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
   const section = getSectionById(post.sectionId);
   const sourceLocale = post.locale === 'en' ? 'en' : 'zh';
   const canonical = `${SITE_URL}/${sourceLocale}/blog/p/${post.id}`;
+  // 有译文时把各语言版本写进 hreflang，让搜索引擎把两篇当成同一页的两种语言，
+  // 而不是两份互相竞争的重复内容。没有译文就只有原文自己。
+  const translations = post.status === 'published' ? await getPostTranslations(post) : [];
+  const languages: Record<string, string> = { [sourceLocale]: canonical };
+  for (const translation of translations) {
+    languages[translation.locale] = `${SITE_URL}/${translation.locale}/blog/p/${translation.id}`;
+  }
+  languages['x-default'] = canonical;
   return {
     title: `${post.title} | ${t('blogSuffix')}`,
     description: post.excerpt,
@@ -49,7 +58,7 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
     robots: post.status === 'published' ? undefined : { index: false, follow: false },
     alternates: post.status === 'published' ? {
       canonical,
-      languages: { [sourceLocale]: canonical, 'x-default': canonical },
+      languages,
       ...(section ? { types: { 'application/rss+xml': `/${locale}/blog/section/${section.slug}/feed.xml` } } : {}),
     } : undefined,
   };
@@ -67,6 +76,20 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
 
   const isPreview = post.status !== 'published';
   const sourceLocale = post.locale === 'en' ? 'en' : 'zh';
+  // 只对已发布文章查译文：预览时不把同组其它语言的线上版本暴露给作者
+  const translations = post.status === 'published' ? await getPostTranslations(post) : [];
+
+  /**
+   * 界面语言下已有本篇的译文时，直接送到译文。
+   *
+   * 不加这一步的话，/en 下打开一篇中文文章会停在一页看不懂的正文上，
+   * 而且同一内容会有两个都能打开的地址。只在"确实存在同语言译文"时跳，
+   * 没有译文时保持可读并给出提示——把读者硬拽回 /zh 更糟。
+   */
+  if (!isPreview && post.locale !== locale) {
+    const localized = translations.find((translation) => translation.locale === locale);
+    if (localized) redirect(`/${locale}/blog/p/${localized.id}`);
+  }
   const section = getSectionById(post.sectionId);
   const isAdmin = !!session && isAdminSession(session);
   // 管理员或作者本人可编辑；管理员走 admin=1 路径有越权编辑能力
@@ -129,7 +152,12 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
       )}
       <main className="relative container mx-auto px-4 py-8 md:py-10">
         <article className="mx-auto max-w-2xl">
-          <SourceLanguageNote locale={locale} sourceLanguage={post.locale} />
+          {/* 有译文就给入口；没有译文才说明"读到的是原文语言"，两者不同时出现 */}
+          {translations.length > 0 ? (
+            <PostTranslationSwitch uiLocale={locale} links={translations} />
+          ) : (
+            <SourceLanguageNote locale={locale} sourceLanguage={post.locale} />
+          )}
           <Link
             href={section ? `/blog/section/${section.slug}` : '/blog'}
             className="t-footnote group mb-8 inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white"

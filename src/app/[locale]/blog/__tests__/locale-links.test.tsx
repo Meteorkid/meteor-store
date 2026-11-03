@@ -3,12 +3,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SITE_URL } from '@/lib/constants';
 
 const mocks = vi.hoisted(() => ({
-  post: vi.fn(), session: vi.fn(), tags: { zh: [] as { label: string; key: string; href: string; count: number }[], en: [] as { label: string; key: string; href: string; count: number }[] },
+  post: vi.fn(), translations: vi.fn(), session: vi.fn(), tags: { zh: [] as { label: string; key: string; href: string; count: number }[], en: [] as { label: string; key: string; href: string; count: number }[] },
 }));
 vi.mock('next-intl/server', () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
-vi.mock('next/navigation', () => ({ notFound: () => { throw new Error('not found'); } }));
+vi.mock('next/navigation', () => ({
+  notFound: () => { throw new Error('not found'); },
+  redirect: (url: string) => { throw new Error(`redirect:${url}`); },
+}));
 vi.mock('@/i18n/navigation', () => ({ Link: 'a' }));
-vi.mock('@/lib/posts', () => ({ getPostById: mocks.post }));
+vi.mock('@/lib/posts', () => ({ getPostById: mocks.post, getPostTranslations: mocks.translations }));
 vi.mock('@/lib/auth', () => ({ getSession: mocks.session }));
 vi.mock('@/lib/admin', () => ({ isAdminSession: () => false }));
 vi.mock('@/lib/related-posts', () => ({ getRelatedPosts: () => [] }));
@@ -27,6 +30,7 @@ const tag = (label: string) => ({ label, key: label.toLowerCase(), href: `/blog/
 const publishedPost = { id: 'original', locale: 'zh', title: '原文', excerpt: '摘要', content: '正文', tags: ['中文标签'], sectionId: 'tech', authorId: 'author', status: 'published', publishedAt: '2026-10-23' };
 beforeEach(() => {
   mocks.post.mockResolvedValue(publishedPost);
+  mocks.translations.mockResolvedValue([]);
   mocks.session.mockResolvedValue(null);
   mocks.tags = { zh: [tag('中文标签'), tag('SHARED')], en: [tag('English'), tag('Shared')] };
 });
@@ -49,6 +53,43 @@ describe('博客内容语言与界面语言的链接边界', () => {
     expect(nodes(tree).find(node => node.props.href === '/blog/tag/English')?.props.locale).toBe('en');
     expect((await postMetadata({ params })).alternates?.languages)
       .toEqual({ en: `${SITE_URL}/en/blog/p/original`, 'x-default': `${SITE_URL}/en/blog/p/original` });
+  });
+
+  it('存在译文时两种语言的地址互相声明，并给出切换入口', async () => {
+    mocks.translations.mockResolvedValue([{ id: 'translated', locale: 'en', title: 'English version' }]);
+    const params = Promise.resolve({ locale: 'zh', id: 'original' });
+    const tree = await UserPostPage({ params });
+    // 有译文就不再提示"本文为中文"，否则读者会以为没有英文版
+    expect(nodes(tree).some(node => 'sourceLanguage' in node.props)).toBe(false);
+    // PostTranslationSwitch 是独立组件，测试树里只能断言它拿到的 links
+    const switchNode = nodes(tree).find(node => Array.isArray(node.props.links));
+    expect(switchNode?.props.links).toEqual([{ id: 'translated', locale: 'en', title: 'English version' }]);
+    const metadata = await postMetadata({ params });
+    expect(metadata.alternates?.canonical).toBe(`${SITE_URL}/zh/blog/p/original`);
+    expect(metadata.alternates?.languages).toEqual({
+      zh: `${SITE_URL}/zh/blog/p/original`,
+      en: `${SITE_URL}/en/blog/p/translated`,
+      'x-default': `${SITE_URL}/zh/blog/p/original`,
+    });
+  });
+
+  it('当前语言已有译文时，直接跳到译文地址', async () => {
+    mocks.translations.mockResolvedValue([{ id: 'translated', locale: 'en', title: 'English version' }]);
+    await expect(UserPostPage({ params: Promise.resolve({ locale: 'en', id: 'original' }) }))
+      .rejects.toThrow('redirect:/en/blog/p/translated');
+  });
+
+  it('当前语言就是原文语言时原地直读，不跳转也不出现译文入口', async () => {
+    const tree = await UserPostPage({ params: Promise.resolve({ locale: 'zh', id: 'original' }) });
+    // 能正常返回就说明没触发 redirect（redirect 在测试里会抛出）
+    expect(nodes(tree).some(node => Array.isArray(node.props.links))).toBe(false);
+    expect(nodes(tree).find(node => 'sourceLanguage' in node.props)?.props.sourceLanguage).toBe('zh');
+  });
+
+  it('没有译文时跨语言直读，保留原文语言提示而不是把人拽回原文', async () => {
+    const tree = await UserPostPage({ params: Promise.resolve({ locale: 'en', id: 'original' }) });
+    expect(nodes(tree).find(node => 'sourceLanguage' in node.props)?.props.locale).toBe('en');
+    expect(nodes(tree).some(node => Array.isArray(node.props.links))).toBe(false);
   });
 
   it('静态标签参数按各语言真实集合生成', async () => {

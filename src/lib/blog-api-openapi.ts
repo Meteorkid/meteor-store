@@ -22,6 +22,7 @@ const postSchema = {
   required: [
     'id', 'authorId', 'authorName', 'authorBio', 'authorAvatarUrl', 'status', 'title',
     'excerpt', 'content', 'sectionId', 'sections', 'tags', 'reviewNote', 'eventDate',
+    'locale', 'translationOfId',
     'publishedAt', 'createdAt', 'updatedAt', 'previewUrls',
   ],
   properties: {
@@ -39,6 +40,11 @@ const postSchema = {
     tags: { type: 'array', items: { type: 'string' }, maxItems: 8 },
     eventDate: { type: ['string', 'null'], format: 'date' },
     reviewNote: { type: ['string', 'null'] },
+    locale: { type: 'string', enum: ['zh', 'en'] },
+    translationOfId: {
+      type: ['string', 'null'],
+      description: '译文指向的原文文章 id；原文本身为 null',
+    },
     publishedAt: { type: ['string', 'null'], format: 'date-time' },
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
@@ -325,6 +331,11 @@ export const blogPublishingOpenApi = {
             items: { type: 'string', minLength: 1, maxLength: 24 },
           },
           eventDate: { type: ['string', 'null'], format: 'date' },
+          locale: { type: 'string', enum: ['zh', 'en'], description: '正文语言，默认 zh' },
+          translationOfId: {
+            type: ['string', 'null'],
+            description: '译文指向的原文文章 id；原文本身留空',
+          },
         },
       },
       UpdatePostInput: {
@@ -346,6 +357,11 @@ export const blogPublishingOpenApi = {
             items: { type: 'string', minLength: 1, maxLength: 24 },
           },
           eventDate: { type: ['string', 'null'], format: 'date' },
+          locale: { type: 'string', enum: ['zh', 'en'], description: '正文语言，默认 zh' },
+          translationOfId: {
+            type: ['string', 'null'],
+            description: '译文指向的原文文章 id；原文本身留空',
+          },
         },
       },
       ExpectedUpdatedAtInput: {

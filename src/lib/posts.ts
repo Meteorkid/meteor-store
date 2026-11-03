@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, or, sql } from 'drizzle-orm';
 import { db } from './db';
 import { posts, postTags, postSections, users } from './db/schema';
 import { normalizeTag } from '@/data/blog-tags';
@@ -13,6 +13,39 @@ import type { BlogSectionId } from '@/data/blog-sections';
  */
 
 export type PostStatus = 'draft' | 'pending' | 'published' | 'rejected';
+
+/** 译文配对不合法：目标不存在、不属于自己，或与原文语言相同。 */
+export class PostTranslationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PostTranslationError';
+  }
+}
+
+/**
+ * 校验"译文 → 原文"这条边是否成立。
+ *
+ * 只允许指向自己的文章：否则任何人都能把别人的文章标成自己的原文，
+ * 从而在对方页面上凭空多出一条"另有版本"的链接。
+ */
+async function assertTranslationTarget(
+  translationOfId: string,
+  authorId: string,
+  selfLocale: string,
+): Promise<void> {
+  const [target] = await db
+    .select({ id: posts.id, authorId: posts.authorId, locale: posts.locale })
+    .from(posts)
+    .where(eq(posts.id, translationOfId))
+    .limit(1);
+
+  if (!target || target.authorId !== authorId) {
+    throw new PostTranslationError('译文只能指向自己的文章');
+  }
+  if (target.locale === selfLocale) {
+    throw new PostTranslationError('译文的语言需要与原文不同');
+  }
+}
 
 export interface UserPost {
   id: string;
@@ -176,6 +209,7 @@ const postColumns = {
   updatedAt: posts.updatedAt,
   eventDate: posts.eventDate,
   locale: posts.locale,
+  translationOfId: posts.translationOfId,
   authorName: users.name,
   authorBio: users.bio,
   authorAvatarUrl: users.avatarUrl,
@@ -257,6 +291,8 @@ export async function createPost(input: {
   eventDate?: string | null;
   /** 投稿语言版本，默认 zh */
   locale?: string;
+  /** 译文指向的原文 id；原文留空 */
+  translationOfId?: string | null;
 }): Promise<{ id: string; updatedAt: string }> {
   const id = newPostId();
   const now = new Date().toISOString();
@@ -271,18 +307,20 @@ export async function createPost(input: {
       : null;
 
   const locale = input.locale?.trim() || 'zh';
+  const translationOfId = input.translationOfId?.trim() || null;
+  if (translationOfId) await assertTranslationTarget(translationOfId, input.authorId, locale);
 
   const ctes = [sql`
     inserted_post AS (
       INSERT INTO "posts" (
         "id", "author_id", "title", "excerpt", "content", "section_id", "status",
         "review_note", "reviewer_id", "reviewed_at", "event_date", "published_at",
-        "locale", "created_at", "updated_at"
+        "locale", "translation_of_id", "created_at", "updated_at"
       )
       VALUES (
         ${id}, ${input.authorId}, ${input.title}, ${input.excerpt}, ${input.content},
         ${input.sectionId}, ${input.status}, NULL, NULL, NULL, ${eventDate},
-        ${publishedAt}, ${locale}, ${now}, ${now}
+        ${publishedAt}, ${locale}, ${translationOfId}, ${now}, ${now}
       )
       RETURNING "id", "updated_at"
     )
@@ -332,6 +370,35 @@ export async function getPostById(id: string): Promise<UserPost | null> {
 
   const [post] = await attachTags(rows);
   return post ?? null;
+}
+
+export interface PostTranslationLink {
+  id: string;
+  locale: string;
+  title: string;
+}
+
+/**
+ * 取同组的其它语言版本。
+ *
+ * 指针是单向的（译文 → 原文），所以先归到原文 id 再反查：原文查自己的译文，
+ * 译文则查回原文与其它译文。只算已发布，作者预览草稿时不会看到还没上线的译文。
+ */
+export async function getPostTranslations(
+  post: { id: string; translationOfId?: string | null },
+): Promise<PostTranslationLink[]> {
+  const rootId = post.translationOfId ?? post.id;
+  const rows = await db
+    .select({ id: posts.id, locale: posts.locale, title: posts.title })
+    .from(posts)
+    .where(
+      and(
+        eq(posts.status, 'published'),
+        or(eq(posts.id, rootId), eq(posts.translationOfId, rootId)),
+      ),
+    );
+
+  return rows.filter((row) => row.id !== post.id);
 }
 
 /** v1 私有读取：所有权直接进入 SQL 条件，跨用户与不存在统一返回 null。 */
@@ -487,7 +554,7 @@ export type UpdatePostResult =
     }
   | {
       ok: false;
-      reason: 'notFound' | 'notAuthor' | 'pendingCannotEdit' | 'concurrentUpdate';
+      reason: 'notFound' | 'notAuthor' | 'pendingCannotEdit' | 'concurrentUpdate' | 'invalidTranslation';
     };
 
 /**
@@ -519,6 +586,8 @@ export async function updatePost(input: {
   eventDate?: string | null;
   /** 投稿语言版本 */
   locale?: string;
+  /** 译文指向的原文 id；null 清空 */
+  translationOfId?: string | null;
   submit?: boolean;
   /** 管理员直发：仅与 asAdmin 同时为 true 时生效。 */
   adminPublish?: boolean;
@@ -531,6 +600,7 @@ export async function updatePost(input: {
       authorId: posts.authorId,
       status: posts.status,
       sectionId: posts.sectionId,
+      locale: posts.locale,
       updatedAt: posts.updatedAt,
     })
     .from(posts)
@@ -543,6 +613,19 @@ export async function updatePost(input: {
   }
   // 管理员可以编辑 pending（审核中需要修正），普通作者不行
   if (row.status === 'pending' && !input.asAdmin) return { ok: false, reason: 'pendingCannotEdit' };
+
+  // 改指向同样要校验：否则可以通过 PATCH 把已有文章的原文改成别人的
+  if (input.translationOfId) {
+    try {
+      await assertTranslationTarget(
+        input.translationOfId.trim(),
+        input.authorId,
+        input.locale?.trim() || row.locale,
+      );
+    } catch {
+      return { ok: false, reason: 'invalidTranslation' };
+    }
+  }
 
   const wasPublished = row.status === 'published';
   const now = nextUpdatedAt(row.updatedAt);
@@ -565,6 +648,9 @@ export async function updatePost(input: {
   if (input.sectionId !== undefined) updates.sectionId = input.sectionId;
   if (input.eventDate !== undefined) updates.eventDate = input.eventDate?.trim() ? input.eventDate.trim() : null;
   if (input.locale !== undefined) updates.locale = input.locale?.trim() || 'zh';
+  if (input.translationOfId !== undefined) {
+    updates.translationOfId = input.translationOfId?.trim() || null;
+  }
 
   // 进入 pending 清掉旧审核留痕
   if (newStatus === 'pending') {
@@ -621,6 +707,9 @@ export async function updatePost(input: {
     }
     if (input.locale !== undefined) {
       assignments.push(sql`"locale" = ${input.locale?.trim() || 'zh'}`);
+    }
+    if (input.translationOfId !== undefined) {
+      assignments.push(sql`"translation_of_id" = ${input.translationOfId?.trim() || null}`);
     }
     if (newStatus === 'pending') {
       assignments.push(
@@ -890,6 +979,7 @@ export async function updatePostDraftVersioned(input: {
   tags?: string[];
   eventDate?: string | null;
   locale?: string;
+  translationOfId?: string | null;
 }): Promise<VersionedPostMutationResult> {
   let rebuiltSections: string[] | undefined;
   if (input.sectionId !== undefined || input.sections !== undefined) {
@@ -953,6 +1043,9 @@ export async function updatePostDraftVersioned(input: {
     }
     if (input.locale !== undefined) {
       assignments.push(sql`"locale" = ${input.locale?.trim() || 'zh'}`);
+    }
+    if (input.translationOfId !== undefined) {
+      assignments.push(sql`"translation_of_id" = ${input.translationOfId?.trim() || null}`);
     }
 
     const ctes = [sql`
