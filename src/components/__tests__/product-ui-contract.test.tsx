@@ -52,6 +52,8 @@ describe('产品媒体与获取入口', () => {
   it.each(['zh', 'en'] as const)('%s 下载说明跟随现有渠道且不改变门控条目', async locale => {
     state.locale = locale;
     const messages = locale === 'zh' ? zh.ProductDetailPage : en.ProductDetailPage;
+    // 源码默认门控；线上由 SOFTWARE_LICENSE_ENABLED 在运行时放开成 14 天试用
+    // （`catalog.withDownloads()`，另有 catalog 用例覆盖），静态渲染这里看到的是默认值。
     for (const id of ['xisland', 'xnook']) {
       const html = renderToStaticMarkup(await DownloadSection({ product: product(id) }));
       expect(html).toContain(messages.downloadHintGated);

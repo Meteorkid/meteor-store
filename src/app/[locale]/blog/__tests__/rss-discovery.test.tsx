@@ -5,7 +5,7 @@ const mocks = vi.hoisted(() => ({ getSession: vi.fn(), getPostById: vi.fn(), get
 vi.mock('next-intl/server', () => ({ getTranslations: async () => (key: string) => key, setRequestLocale: vi.fn() }));
 vi.mock('@/i18n/navigation', () => ({ Link: 'a' }));
 vi.mock('@/lib/auth', () => ({ getSession: mocks.getSession }));
-vi.mock('@/lib/posts', () => ({ getPostById: mocks.getPostById }));
+vi.mock('@/lib/posts', () => ({ getPostById: mocks.getPostById, getPostTranslations: async () => [] }));
 vi.mock('@/data/blog', () => ({ getBlogPosts: mocks.getBlogPosts }));
 vi.mock('@/data/blog-feed', () => ({ findFeedTags: async () => [], getFeedPosts: async () => [] }));
 vi.mock('@/lib/related-posts', () => ({ getRelatedPosts: async () => [] }));

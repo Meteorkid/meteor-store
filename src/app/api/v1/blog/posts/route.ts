@@ -1,7 +1,7 @@
 import { authenticateBlogApiRequest } from '@/lib/blog-api-auth';
 import { blogApiAuthError, blogApiError, blogApiSuccess } from '@/lib/blog-api-response';
 import { BlogApiCreatePostSchema } from '@/lib/post-validation';
-import { createPost, getPostSummariesByAuthor } from '@/lib/posts';
+import { createPost, getPostSummariesByAuthor, PostTranslationError } from '@/lib/posts';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
 function retryAfter(resetAt: number): number {
@@ -95,6 +95,10 @@ export async function POST(request: Request) {
       },
     }, { status: 201 });
   } catch (error) {
+    // 译文配错属于请求本身的问题，不该以 500 返回
+    if (error instanceof PostTranslationError) {
+      return blogApiError(400, 'invalid_request', error.message);
+    }
     console.error('blog api create post failed:', error);
     return blogApiError(500, 'internal_error', '创建文章失败');
   }

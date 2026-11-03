@@ -393,6 +393,15 @@ export const posts = pgTable('posts', {
   reviewedAt: text('reviewed_at'),
   eventDate: text('event_date'),                      // 内容描述事件的时间，YYYY-MM-DD，可空
   locale: text('locale').default('zh').notNull(),   // zh | en，投稿语言版本
+  /**
+   * 译文指向原文的 id，原文为 null。
+   *
+   * 只存单向指针，译文列表由 `translation_of_id = 原文.id` 反查得出：
+   * 这样新增译文不需要回写原文行，已发布的原文也能被后补的译文引用。
+   * 同一原文同一语言最多一篇译文，由写入层校验，不建唯一索引
+   * （post_tags 等关联表同样把唯一性放在代码里，便于给出可读的错误）。
+   */
+  translationOfId: text('translation_of_id'),
   publishedAt: text('published_at'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
@@ -403,6 +412,8 @@ export const posts = pgTable('posts', {
   index('posts_author_idx').on(t.authorId),
   // 博客列表：只取已发布的，按发布时间倒序
   index('posts_published_idx').on(t.publishedAt),
+  // 详情页反查译文：按原文 id 找同组文章
+  index('posts_translation_of_idx').on(t.translationOfId),
 ]);
 
 /**

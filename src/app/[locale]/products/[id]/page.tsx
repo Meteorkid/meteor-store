@@ -83,6 +83,18 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                   {primaryDownload.label}
                 </a>
               ) : null}
+              {/* 开发者主要从 GitHub 找工具，产品页不给入口等于关掉唯一免费的发现渠道。 */}
+              {product.github && (
+                <a
+                  href={product.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48 0-.24-.01-.87-.01-1.71-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02.8-.22 1.65-.33 2.5-.33s1.7.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85 0 1.34-.01 2.42-.01 2.75 0 .27.18.58.69.48A10.01 10.01 0 0 0 22 12c0-5.52-4.48-10-10-10z" /></svg>
+                  {t('viewOnGitHub')}
+                </a>
+              )}
               {product.demo && (
                 <a href={product.demo} target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10">
                   {t('liveDemo')}
@@ -124,9 +136,6 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             {product.id === 'duocast' && (
               <div className="mt-5 flex flex-wrap gap-4 text-sm">
                 <Link href="/docs/duocast-first-play" className="text-violet-300 underline underline-offset-4">{t('duocastGuide')}</Link>
-                {product.github && (
-                  <a href={product.github} target="_blank" rel="noopener noreferrer" className="text-violet-300 underline underline-offset-4">{t('duocastGithub')}</a>
-                )}
               </div>
             )}
           </div>
@@ -172,9 +181,9 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
           <section id="pricing" className="mb-16">
             <h2 className="mb-6 text-center text-2xl font-bold text-white">{t('pricing')}</h2>
             {softwareTrial && <div className="mx-auto mb-6 max-w-2xl rounded-2xl border border-violet-400/20 bg-violet-500/5 p-5 text-center">
-              <p className="text-white">{locale === 'en' ? 'Download free and try all features for 14 days.' : '免费下载，完整体验 14 天。'}</p>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{locale === 'en' ? 'Buy a lifetime license below, or choose a monthly or annual Meteor Pass to receive separate XNook and XIsland activation codes. Up to 3 devices per product, with device unlinking.' : '可购买下方单品永久授权，或选择月付、年付 Meteor Pass，分别获得 XNook 和 XIsland 激活码。每款最多激活 3 台设备，支持解绑换机。'}</p>
-              <Link href="/pricing" className="mt-3 inline-block text-violet-300 underline underline-offset-4">{locale === 'en' ? 'Monthly and annual activation' : '查看月付与年付激活方案'}</Link>
+              <p className="text-white">{locale === 'en' ? 'Limited-time free: claim a lifetime license, no payment needed.' : '限时免费：领取永久激活码，无需付款。'}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/70">{locale === 'en' ? 'Download and try every feature for 14 days. Claim the free plan below — the activation code is emailed to your registered address and also shown in your account. Up to 3 devices per product, with device unlinking.' : '下载后可先完整体验 14 天。在下方「限时免费」档领取，激活码会发到注册邮箱，也可在账户页查看。每款最多激活 3 台设备，支持解绑换机。'}</p>
+              <Link href="/pricing" className="mt-3 inline-block text-violet-300 underline underline-offset-4">{locale === 'en' ? 'See other activation options' : '查看其他激活方案'}</Link>
             </div>}
             {product.status === 'coming_soon' ? (
               <div className="glass-card mx-auto max-w-2xl rounded-3xl px-8 py-12 text-center">
@@ -205,6 +214,14 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
               productId={product.id}
               productName={product.name}
               isAnnual={isAnnual && product.pricing.some((p) => p.period === '月')}
+              // 桌面软件（XIsland / XNook）领取的是永久激活码，去账户页的激活码面板取；
+              // 其余可直接下载的产品仍然只把用户带到下载区，不逼他先登录。
+              claimDoneHref={product.id === 'xisland' || product.id === 'xnook' ? '/account#software-licenses' : undefined}
+              downloadAnchor={
+                product.id !== 'xisland' && product.id !== 'xnook' && product.downloads?.some((d) => !d.gated)
+                  ? '#download'
+                  : undefined
+              }
             />
 
             {/* 单品与全站会员是同一套商业模式的两条路径，这里给出通往 Pass 的入口。

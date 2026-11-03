@@ -63,17 +63,20 @@ describe('创建支付订单', () => {
   });
   afterEach(() => vi.unstubAllEnvs());
 
-  it.each(['xnook', 'xisland', 'meteor-pass'])('启用软件授权后 %s 下单必须验证邮箱', async (productName) => {
+  // XIsland / XNook 已改为限时免费（定价卡直接走 /api/claim），下单链路只剩 Pass，
+  // 但「授权类产品必须验证邮箱」这条规则仍然必须守住。
+  it.each(['meteor-pass'])('启用软件授权后 %s 下单必须验证邮箱', async (productName) => {
     vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
     const { POST } = await import('../route');
     const make = () => new Request('https://www.imagentx.top/api/payment', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ productName, planName: productName === 'meteor-pass' ? 'monthly' : 'Pro', paymentMethod: 'alipay', email: 'buyer@example.com' }) }) as unknown as NextRequest;
+      body: JSON.stringify({ productName, planName: 'monthly', paymentMethod: 'alipay', email: 'buyer@example.com' }) }) as unknown as NextRequest;
     expect((await POST(make())).status).toBe(401);
     getSession.mockResolvedValue({ userId: 'user', email: 'buyer@example.com', emailVerified: false });
     expect((await POST(make())).status).toBe(401);
     expect(inserted).toHaveLength(0);
     expect(createDesktopOrder).not.toHaveBeenCalled();
-  });
+    // 动态 import 整个支付路由 + 两次请求，满负载跑全量时会超过默认 5s
+  }, 20_000);
 
   it('不能用自己的已验证账号给他人邮箱下单并继承其历史授权', async () => {
     vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
@@ -111,7 +114,8 @@ describe('创建支付订单', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        productName: 'xisland',
+        // 用真正带零元档的产品做样例：零价方案永远不该创建支付订单。
+        productName: 'statux',
         planName: 'Free',
         paymentMethod: 'alipay',
         email: 'buyer@example.com',
@@ -133,8 +137,8 @@ describe('创建支付订单', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        productName: 'xnook',
-        planName: 'Pro',
+        productName: 'meteor-pass',
+        planName: 'monthly',
         paymentMethod: 'alipay',
         email: 'buyer@example.com',
       }),
@@ -223,8 +227,8 @@ describe('创建支付订单', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        productName: 'xnook',
-        planName: 'Pro',
+        productName: 'meteor-pass',
+        planName: 'monthly',
         paymentMethod: 'wechat',
         email: 'buyer@example.com',
         isMobile: false,
@@ -240,14 +244,16 @@ describe('创建支付订单', () => {
     expect(inserted[0]).toMatchObject({ paymentMethod: 'wechat' });
   });
 
-  it('XIsland Pro 按稳定 planId 下单并写成 ¥12 永久买断', async () => {
+  it('买断档按稳定 planId 下单，客户端文案改了也不影响价格', async () => {
+    // XIsland / XNook 已改为限时免费（走 /api/claim），带稳定 planId 的下单链路
+    // 现在只剩 Meteor Pass 买断档可验，这里用它的 lifetime 档守住这条契约。
     const { POST } = await import('../route');
     const request = new Request('https://www.imagentx.top/api/payment', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        productName: 'xisland',
-        planId: 'pro',
+        productName: 'meteor-pass',
+        planId: 'lifetime',
         planName: '客户端可变文案',
         paymentMethod: 'alipay',
         email: 'buyer@example.com',
@@ -258,10 +264,9 @@ describe('创建支付订单', () => {
 
     expect(response.status).toBe(200);
     expect(inserted[0]).toMatchObject({
-      productId: 'xisland',
-      planId: 'pro',
-      planName: 'Pro',
-      amountCny: 12,
+      productId: 'meteor-pass',
+      planName: '买断',
+      amountCny: 99,
       billingPeriod: 'lifetime',
     });
   });
@@ -273,8 +278,8 @@ describe('创建支付订单', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        productName: 'xnook',
-        planName: 'Pro',
+        productName: 'meteor-pass',
+        planName: 'monthly',
         paymentMethod: 'wechat',
         email: 'buyer@example.com',
         isMobile: true,
@@ -296,8 +301,8 @@ describe('创建支付订单', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        productName: 'xnook',
-        planName: 'Pro',
+        productName: 'meteor-pass',
+        planName: 'monthly',
         paymentMethod: 'wechat',
         email: 'buyer@example.com',
       }),

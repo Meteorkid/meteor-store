@@ -44,7 +44,15 @@ export interface Product {
     period?: string;
     features: LocalizedText[];
   }[];
-  /** GitHub 仓库地址。商业策略调整后不再对外暴露，保留字段仅供内部使用，UI 不渲染 */
+  /**
+   * GitHub 仓库地址。**产品页会渲染成「在 GitHub 查看」按钮。**
+   *
+   * 2026-11 改回对外暴露：开发者靠 GitHub 发现这类工具，藏起来等于主动放弃
+   * 唯一的免费流量来源（当时 star 只有 1）。
+   *
+   * 注意：一旦恢复收费并重新门控下载，这里必须确认 GitHub Releases 里没有
+   * 挂同一个 DMG —— 公开挂在 GitHub 上的包是门控不住的。
+   */
   github?: string;
   /** 开源许可证。'mit' 才算是真开源，会进 /open-source 页面；其余产品（源码可用-非商业等）不展示为开源 */
   license?: 'mit';
@@ -106,7 +114,15 @@ export interface LocalizedProduct {
     period?: string;
     features: string[];
   }[];
-  /** GitHub 仓库地址。商业策略调整后不再对外暴露，保留字段仅供内部使用，UI 不渲染 */
+  /**
+   * GitHub 仓库地址。**产品页会渲染成「在 GitHub 查看」按钮。**
+   *
+   * 2026-11 改回对外暴露：开发者靠 GitHub 发现这类工具，藏起来等于主动放弃
+   * 唯一的免费流量来源（当时 star 只有 1）。
+   *
+   * 注意：一旦恢复收费并重新门控下载，这里必须确认 GitHub Releases 里没有
+   * 挂同一个 DMG —— 公开挂在 GitHub 上的包是门控不住的。
+   */
   github?: string;
   /** 开源许可证。'mit' 才算是真开源，会进 /open-source 页面；其余产品（源码可用-非商业等）不展示为开源 */
   license?: 'mit';
@@ -509,32 +525,48 @@ export const products: Product[] = [
       { zh: '低资源占用', en: 'Low resource usage' },
     ],
     pricing: [
+      // 限时免费：价格直接置 0，原价留在 originalPrice 里只用于划线展示。
+      // 领取走 /api/claim，会写一条 ¥0 已支付订单并**照常发放永久激活码**（邮件 + 账户页），
+      // 客户端拿码激活后不再受 14 天试用限制。
       {
-        id: 'free',
-        name: { zh: 'Free', en: 'Free' },
+        id: 'limited-free',
+        name: { zh: '限时免费', en: 'Limited-time free' },
         price: 0,
-        features: [
-          { zh: '基础功能', en: 'Basic features' },
-          { zh: '单代理', en: 'Single agent' },
-          { zh: '社区支持', en: 'Community support' },
-        ],
-      },
-      {
-        id: 'pro',
-        name: { zh: 'Pro', en: 'Pro' },
-        price: 12,
+        originalPrice: 12,
         period: '买断',
         features: [
-          { zh: '多代理', en: 'Multiple agents' },
-          { zh: '高级主题', en: 'Advanced themes' },
+          { zh: '永久激活，最多 3 台设备', en: 'Lifetime activation, up to 3 devices' },
+          { zh: '后续版本更新', en: 'Future version updates' },
           { zh: '优先支持', en: 'Priority support' },
-          { zh: '永久更新', en: 'Lifetime updates' },
+          { zh: '支持这款工具继续做下去', en: 'Keeps this tool alive' },
         ],
       },
     ],
     github: 'https://github.com/Meteorkid/XIsland',
     downloads: [
-      { id: 'dmg', label: { zh: '下载 DMG', en: 'Download DMG' }, r2Key: 'releases/xisland/1.13.0/XIsland-1.13.0.dmg', icon: 'dmg', gated: true, version: '1.13.0', sha256: '4c18b053e15721b3e62f397fe51e075ef4ae621660bd9ee5199db5feacdf724c' },
+      {
+        id: 'dmg',
+        label: { zh: '下载 DMG', en: 'Download DMG' },
+        /**
+         * **兜底默认值，必须与线上 `data/product-updates/catalog.json` 一致。**
+         *
+         * 线上版本由目录文件覆盖（当前 2.0.15）；这里只在目录文件缺失或损坏时生效。
+         * 曾经这里是 1.13.0（2026-08-15 构建，早于 MSL1 授权协议），一旦目录读失败就会
+         * 静默回退到那个没有任何授权校验的旧包 —— 页面写着"14 天试用"，下发的却是永久版。
+         */
+        r2Key: 'releases/xisland/2.0.15/XIsland-2.0.15.dmg',
+        icon: 'dmg',
+        /**
+         * 默认门控：付费产品的安装包理应只给已授权用户。
+         * `SOFTWARE_LICENSE_ENABLED=true` 时 `catalog.withDownloads()` 会在运行时
+         * 把 XIsland/XNook 改成 `gated: false` 并换成 14 天试用说明 —— 线上正是这个状态，
+         * 所以「免费下载 + 到期锁功能」由开关表达，不在这里写死。
+         */
+        gated: true,
+        note: { zh: '免费下载，完整试用 14 天', en: 'Free download, 14-day full trial' },
+        version: '2.0.15',
+        sha256: '860baa66321a225f272f7d87b41fa65b57e78cfb3764f524b45c0e065371d61d',
+      },
     ],
     category: 'developer',
     icon: '🏝️',
@@ -625,15 +657,17 @@ export const products: Product[] = [
       { zh: '低资源占用', en: 'Low resource usage' },
     ],
     pricing: [
+      // 同 XIsland：限时免费，领取后照常发放永久激活码。
       {
-        id: 'pro',
-        name: { zh: 'Pro', en: 'Pro' },
-        price: 9,
+        id: 'limited-free',
+        name: { zh: '限时免费', en: 'Limited-time free' },
+        price: 0,
+        originalPrice: 9,
         period: '买断',
         features: [
-          { zh: '全部功能', en: 'All features' },
+          { zh: '永久激活，最多 3 台设备', en: 'Lifetime activation, up to 3 devices' },
+          { zh: '后续版本更新', en: 'Future version updates' },
           { zh: '优先支持', en: 'Priority support' },
-          { zh: '永久更新', en: 'Lifetime updates' },
         ],
       },
     ],
@@ -642,11 +676,17 @@ export const products: Product[] = [
       {
         id: 'dmg',
         label: { zh: '下载 DMG', en: 'Download DMG' },
-        r2Key: 'releases/xnook/1.3.16/XNook-1.3.16.dmg',
+        // 兜底默认值：线上真实版本由 data/product-updates/catalog.json 覆盖为 1.3.30。
+        r2Key: 'releases/xnook/1.3.30/XNook-1.3.30.dmg',
         icon: 'dmg',
+        // 同 XIsland：默认门控，线上由 SOFTWARE_LICENSE_ENABLED 放开为 14 天试用；
+        // 这里同时是兜底默认值，线上真实版本由 catalog.json 覆盖为 1.3.30。
+        // 1.3.30（2026-10-30）已把真实 Ed25519 公钥注入 Info.plist，
+        // 源码里的占位符只影响未经 build.sh 注入的调试构建。
         gated: true,
-        version: '1.3.16',
-        sha256: '2339b50f38b6c13b4a160d4e94d23d20a3597404a42ed49bf2e909a0a2d603bf',
+        note: { zh: '免费下载，完整试用 14 天', en: 'Free download, 14-day full trial' },
+        version: '1.3.30',
+        sha256: 'febcd0db52a56a48f416aed3e99f9630cffcdb5416751487f0f20e01e27fa84e',
       },
     ],
     category: 'utility',

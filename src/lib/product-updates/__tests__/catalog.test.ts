@@ -9,7 +9,7 @@ import type { DownloadOverride, ReleaseCatalog } from '../types.ts';
 let directory: string;
 const sha256 = 'a'.repeat(64);
 
-function island(version = '1.14.0', hash = sha256): DownloadOverride {
+function island(version = '2.1.0', hash = sha256): DownloadOverride {
   return { version, sha256: hash, r2Key: `releases/xisland/${version}/XIsland-${version}.dmg` };
 }
 
@@ -33,13 +33,14 @@ afterEach(async () => {
 });
 
 describe('动态下载目录', () => {
-  it('启用软件授权后只开放XNook/XIsland试用下载，不把试用变成零元永久领取', async () => {
+  it('启用软件授权后放开采纳下载，并且保留限时免费的零元档', async () => {
     vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
     for (const id of ['xnook', 'xisland']) {
       const product = await getProductWithCurrentDownloads(id);
       expect(product!.downloads!.every(file => file.gated === false)).toBe(true);
-      expect(product!.downloads![0].note!.zh).toContain('14 天');
-      expect(product!.pricing.every(plan => plan.price > 0)).toBe(true);
+      expect(product!.downloads![0].note!.zh).toContain('激活码');
+      // 限免是运营策略：零元档必须保留，否则定价区会变成空白、用户也领不到码
+      expect(product!.pricing.some(plan => plan.price === 0)).toBe(true);
       expect(products.find(item => item.id === id)!.downloads![0].gated).toBe(true);
     }
     expect(await getProductWithCurrentDownloads('statux')).toEqual(products.find(item => item.id === 'statux'));
@@ -100,13 +101,13 @@ describe('动态下载目录', () => {
     ['尝试改 ID', catalog({ xisland: { dmg: { ...island(), id: 'other' } as DownloadOverride } })],
     ['尝试改价格', catalog({ xisland: { dmg: { ...island(), price: 0 } as DownloadOverride } })],
     ['二进制公开地址', catalog({ xisland: { dmg: { ...island(), url: 'https://github.com/a/a.dmg' } } })],
-    ['缺少对象或 hash', catalog({ xisland: { dmg: { version: '1.14.0' } } })],
-    ['非预期文件名', catalog({ xisland: { dmg: { ...island(), r2Key: 'releases/xisland/1.14.0/other.dmg' } } })],
-    ['错误产品路径', catalog({ xisland: { dmg: { ...island(), r2Key: 'releases/xnook/1.14.0/XIsland-1.14.0.dmg' } } })],
-    ['路径穿越', catalog({ xisland: { dmg: { ...island(), r2Key: 'releases/xisland/1.14.0/../XIsland-1.14.0.dmg' } } })],
-    ['预发布版本', catalog({ xisland: { dmg: island('1.14.0-beta.1') } })],
-    ['带 v 版本', catalog({ xisland: { dmg: island('v1.14.0') } })],
-    ['非法 SHA', catalog({ xisland: { dmg: island('1.14.0', 'not-a-hash') } })],
+    ['缺少对象或 hash', catalog({ xisland: { dmg: { version: '2.1.0' } } })],
+    ['非预期文件名', catalog({ xisland: { dmg: { ...island(), r2Key: 'releases/xisland/2.1.0/other.dmg' } } })],
+    ['错误产品路径', catalog({ xisland: { dmg: { ...island(), r2Key: 'releases/xnook/2.1.0/XIsland-2.1.0.dmg' } } })],
+    ['路径穿越', catalog({ xisland: { dmg: { ...island(), r2Key: 'releases/xisland/2.1.0/../XIsland-2.1.0.dmg' } } })],
+    ['预发布版本', catalog({ xisland: { dmg: island('2.1.0-beta.1') } })],
+    ['带 v 版本', catalog({ xisland: { dmg: island('v2.1.0') } })],
+    ['非法 SHA', catalog({ xisland: { dmg: island('2.1.0', 'not-a-hash') } })],
     ['错误 PyPI 包', catalog({ omnicrawl: { pypi: { version: '1.2.3', url: 'https://pypi.org/project/omnicrawl/' } } })],
     ['PyPI 用户名', catalog({ omnicrawl: { pypi: { version: '1.2.3', url: 'https://evil@pypi.org/project/omnicrawl-core/' } } })],
     ['PyPI 查询串', catalog({ omnicrawl: { pypi: { version: '1.2.3', url: 'https://pypi.org/project/omnicrawl-core/?next=evil' } } })],
@@ -122,8 +123,8 @@ describe('动态下载目录', () => {
   });
 
   it('拒绝低于静态版本和静态同版异 hash 的目录', async () => {
-    await expect(save(catalog({ xisland: { dmg: island('1.12.0') } }))).rejects.toThrow('降级');
-    await expect(save(catalog({ xisland: { dmg: island('1.13.0') } }))).rejects.toThrow('同版本');
+    await expect(save(catalog({ xisland: { dmg: island('2.0.10') } }))).rejects.toThrow('降级');
+    await expect(save(catalog({ xisland: { dmg: island('2.0.15') } }))).rejects.toThrow('同版本');
     expect(await readdir(directory)).toEqual([]);
   });
 
@@ -131,8 +132,8 @@ describe('动态下载目录', () => {
     await save(catalog());
     const previous = await readFile(path.join(directory, 'catalog.json'), 'utf8');
     await expect(save(catalog({}))).rejects.toThrow('降级');
-    await expect(save(catalog({ xisland: { dmg: island('1.13.1') } }))).rejects.toThrow('降级');
-    await expect(save(catalog({ xisland: { dmg: island('1.14.0', 'b'.repeat(64)) } }))).rejects.toThrow('同版本');
+    await expect(save(catalog({ xisland: { dmg: island('2.0.20') } }))).rejects.toThrow('降级');
+    await expect(save(catalog({ xisland: { dmg: island('2.1.0', 'b'.repeat(64)) } }))).rejects.toThrow('同版本');
     expect(await readFile(path.join(directory, 'catalog.json'), 'utf8')).toBe(previous);
   });
 
@@ -145,21 +146,21 @@ describe('动态下载目录', () => {
     const { revision } = await readCurrentCatalog({ directory });
     const results = await Promise.allSettled([
       writeCatalog(catalog(), revision, { directory }),
-      writeCatalog(catalog({ xisland: { dmg: island('1.15.0') } }), revision, { directory }),
+      writeCatalog(catalog({ xisland: { dmg: island('2.2.0') } }), revision, { directory }),
     ]);
     expect(results.map((result) => result.status)).toEqual(['fulfilled', 'rejected']);
     await expect(writeCatalog(catalog(), revision, { directory })).rejects.toThrow('重新检查');
-    expect((await readCurrentCatalog({ directory })).current.find((product) => product.productId === 'xisland')?.downloads[0].version).toBe('1.14.0');
+    expect((await readCurrentCatalog({ directory })).current.find((product) => product.productId === 'xisland')?.downloads[0].version).toBe('2.1.0');
     expect(await readdir(directory)).toEqual(['catalog.json']);
   });
 
   it('目录与文件权限固定为 700/600，历史最多保留 20 份且可读回旧内容', async () => {
     await save(catalog());
     const previous = await readFile(path.join(directory, 'catalog.json'), 'utf8');
-    await save(catalog({ xisland: { dmg: island('1.15.0') } }));
+    await save(catalog({ xisland: { dmg: island('2.2.0') } }));
     const historyDirectory = path.join(directory, 'history');
     expect(await readFile(path.join(historyDirectory, (await readdir(historyDirectory))[0]), 'utf8')).toBe(previous);
-    for (let patch = 1; patch <= 22; patch += 1) await save(catalog({ xisland: { dmg: island(`1.15.${patch}`) } }));
+    for (let patch = 1; patch <= 22; patch += 1) await save(catalog({ xisland: { dmg: island(`2.2.${patch}`) } }));
     const history = await readdir(historyDirectory);
     expect(history).toHaveLength(20);
     expect((await stat(directory)).mode & 0o777).toBe(0o700);
@@ -173,23 +174,23 @@ describe('动态下载目录', () => {
     await save(catalog());
     const previous = await readFile(path.join(directory, 'catalog.json'), 'utf8');
     await writeFile(path.join(directory, 'history'), 'blocked');
-    await expect(save(catalog({ xisland: { dmg: island('1.15.0') } }))).rejects.toThrow();
+    await expect(save(catalog({ xisland: { dmg: island('2.2.0') } }))).rejects.toThrow();
     expect(await readFile(path.join(directory, 'catalog.json'), 'utf8')).toBe(previous);
     expect((await readdir(directory)).filter((name) => name.endsWith('.tmp'))).toEqual([]);
     await rm(path.join(directory, 'history'));
-    await save(catalog({ xisland: { dmg: island('1.15.0') } }));
-    expect((await getProductWithCurrentDownloads('xisland'))?.downloads?.[0].version).toBe('1.15.0');
+    await save(catalog({ xisland: { dmg: island('2.2.0') } }));
+    expect((await getProductWithCurrentDownloads('xisland'))?.downloads?.[0].version).toBe('2.2.0');
   });
 
   it('切换期间读者始终读到完整有效的旧版或新版', async () => {
     await save(catalog());
     const writes = (async () => {
-      for (let patch = 1; patch <= 5; patch += 1) await save(catalog({ xisland: { dmg: island(`1.14.${patch}`) } }));
+      for (let patch = 1; patch <= 5; patch += 1) await save(catalog({ xisland: { dmg: island(`2.1.${patch}`) } }));
     })();
     for (let i = 0; i < 20; i += 1) {
       const state = await readCurrentCatalog({ directory });
       expect(state.catalogError).toBe(false);
-      expect(state.current.find((product) => product.productId === 'xisland')?.downloads[0].version).toMatch(/^1\.14\.[0-5]$/);
+      expect(state.current.find((product) => product.productId === 'xisland')?.downloads[0].version).toMatch(/^2\.1\.[0-5]$/);
     }
     await writes;
   });
