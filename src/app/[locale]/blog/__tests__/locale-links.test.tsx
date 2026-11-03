@@ -73,6 +73,20 @@ describe('博客内容语言与界面语言的链接边界', () => {
     });
   });
 
+  it('译文页的 x-default 也钉在原文，两页声明同一个默认地址', async () => {
+    mocks.post.mockResolvedValue({
+      ...publishedPost, id: 'translated', locale: 'en', translationOfId: 'original',
+    });
+    mocks.translations.mockResolvedValue([{ id: 'original', locale: 'zh', title: '原文' }]);
+    const metadata = await postMetadata({ params: Promise.resolve({ locale: 'en', id: 'translated' }) });
+    expect(metadata.alternates?.canonical).toBe(`${SITE_URL}/en/blog/p/translated`);
+    expect(metadata.alternates?.languages).toEqual({
+      en: `${SITE_URL}/en/blog/p/translated`,
+      zh: `${SITE_URL}/zh/blog/p/original`,
+      'x-default': `${SITE_URL}/zh/blog/p/original`,
+    });
+  });
+
   it('当前语言已有译文时，直接跳到译文地址', async () => {
     mocks.translations.mockResolvedValue([{ id: 'translated', locale: 'en', title: 'English version' }]);
     await expect(UserPostPage({ params: Promise.resolve({ locale: 'en', id: 'original' }) }))

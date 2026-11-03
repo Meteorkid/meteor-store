@@ -50,7 +50,14 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
   for (const translation of translations) {
     languages[translation.locale] = `${SITE_URL}/${translation.locale}/blog/p/${translation.id}`;
   }
-  languages['x-default'] = canonical;
+  // x-default 必须钉在原文：原文页与译文页要声明同一个默认地址。
+  // 让两页各自指向自己，等于声明了两个互相矛盾的默认页，整组 hreflang 会被判无效。
+  const original = post.translationOfId
+    ? translations.find((translation) => translation.id === post.translationOfId)
+    : undefined;
+  languages['x-default'] = original
+    ? `${SITE_URL}/${original.locale}/blog/p/${original.id}`
+    : canonical;
   return {
     title: `${post.title} | ${t('blogSuffix')}`,
     description: post.excerpt,

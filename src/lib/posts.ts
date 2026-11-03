@@ -67,6 +67,8 @@ export interface UserPost {
   updatedAt: string;
   eventDate: string | null;
   locale: string;
+  /** 译文指向的原文 id；原文本身为 null */
+  translationOfId: string | null;
 }
 
 export type UserPostSummary = Pick<
@@ -129,6 +131,7 @@ interface PostRow {
   updatedAt: string;
   eventDate: string | null;
   locale: string;
+  translationOfId: string | null;
   authorName: string | null;
   authorBio: string | null;
   authorAvatarUrl: string | null;
