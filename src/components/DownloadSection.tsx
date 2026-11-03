@@ -91,6 +91,23 @@ export default async function DownloadSection({ product }: { product: LocalizedP
           );
         })}
       </div>
+
+      {/*
+        开箱提示：安装包是 adhoc 签名，没做苹果公证，双击会被 Gatekeeper 拦。
+        这段以前只写在 GitHub README 里，从站外点进来的人看不到，
+        下载完就卡在「已损坏，无法打开」——那是整条漏斗里最贵的一次流失。
+        包名必须取自 product.macBundleName，与 DMG 里的实际名一致，写错一个字符就白搭。
+      */}
+      {product.macBundleName && downloads.some((download) => download.icon === 'dmg') ? (
+        <div className="mt-6 rounded-2xl border border-amber-400/25 bg-amber-400/[0.06] p-5">
+          <p className="mb-2 text-sm font-semibold text-amber-200">{t('macInstallTitle')}</p>
+          <p className="mb-3 text-sm leading-6 text-gray-300">{t('macInstallBody')}</p>
+          <pre className="overflow-x-auto rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-[13px] text-gray-200">
+            <code>{`xattr -cr "/Applications/${product.macBundleName}"`}</code>
+          </pre>
+          <p className="mt-3 text-sm leading-6 text-gray-400">{t('macInstallAlt')}</p>
+        </div>
+      ) : null}
     </section>
   );
 }

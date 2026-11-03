@@ -76,6 +76,13 @@ export interface Product {
   icon: string;
   gradient: string;
   platforms: string[];
+  /**
+   * DMG 安装后的 .app 包名（含 .app 后缀，可能带空格）。
+   * 下载区用它拼出 `xattr -cr "/Applications/<包名>"` 这句开箱提示 —— 
+   * 占位符清理路径写错一个字符，用户就永远装不上，所以必须与实际包一致。
+   * 取值方式：挂载 DMG 后 `ls /Volumes/<卷名>`。
+   */
+  macBundleName?: string;
   media?: {
     cover: string;
     demo?: string;
@@ -142,6 +149,13 @@ export interface LocalizedProduct {
   icon: string;
   gradient: string;
   platforms: string[];
+  /**
+   * DMG 安装后的 .app 包名（含 .app 后缀，可能带空格）。
+   * 下载区用它拼出 `xattr -cr "/Applications/<包名>"` 这句开箱提示 —— 
+   * 占位符清理路径写错一个字符，用户就永远装不上，所以必须与实际包一致。
+   * 取值方式：挂载 DMG 后 `ls /Volumes/<卷名>`。
+   */
+  macBundleName?: string;
   media?: {
     cover: string;
     demo?: string;
@@ -543,6 +557,7 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/XIsland',
+    macBundleName: 'X Island.app',
     downloads: [
       {
         id: 'dmg',
@@ -672,6 +687,7 @@ export const products: Product[] = [
       },
     ],
     github: 'https://github.com/Meteorkid/XNook',
+    macBundleName: 'X Nook.app',
     downloads: [
       {
         id: 'dmg',
@@ -992,6 +1008,7 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
     icon: product.icon,
     gradient: product.gradient,
     platforms: product.platforms,
+    macBundleName: product.macBundleName,
     media: product.media
       ? {
           cover: product.media.cover,
