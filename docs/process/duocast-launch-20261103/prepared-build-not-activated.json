@@ -1,0 +1,11 @@
+{
+  "sha": "e6446d887471b9d9645411057d67831558a1774d",
+  "buildId": "build-TfctsWXpff2fKS",
+  "archiveSha256": "83aa0034207cc9b7324859ff377e0a89fe9a47d31deebe54b51005e8fd060f11",
+  "archiveBytes": 23337253,
+  "nginxSha256": "824219c495ba06b9c16daee8259190c07968a75ba93dad30b2366bc5ee30fa1a",
+  "databaseReadOnly": true,
+  "buildAndTypecheck": "passed",
+  "staticPages": 437,
+  "excludedCache": true
+}

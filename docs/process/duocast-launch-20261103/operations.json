@@ -1,0 +1,26 @@
+{
+  "featureCommit": "b3fb37b",
+  "tlsCommit": "5ae634a",
+  "transitionCommit": "661aff2",
+  "integrationCommit": "e6446d887471b9d9645411057d67831558a1774d",
+  "observedProductionCommit": "97d186925583a0675cb85747c007e3f910626967",
+  "observedAt": "2026-11-03T13:24:32Z",
+  "productionDeployment": "shared concurrent release included the published DuoCast changes",
+  "ownedActivationAttempts": "aborted before mutation by deployment lock and source-version guard; prepared archive was not activated and was removed",
+  "backupBeforeSharedRelease": "/var/backups/meteor-store-duocast-20261103-pcswHUhJ",
+  "observedRuntimeRollback": "/var/backups/meteor-store-runtime-boe4Xu0v/next-before",
+  "runtimePid": 2181981,
+  "directNextOwnsLoopback3000": true,
+  "health": {
+    "self": "ok",
+    "database": "ok",
+    "redis": "ok"
+  },
+  "nginxSha256": "824219c495ba06b9c16daee8259190c07968a75ba93dad30b2366bc5ee30fa1a",
+  "acmeMissingProbeStatus": 404,
+  "newDatabaseMigrationByThisTask": false,
+  "existingTranslationColumnAndIndexVerified": true,
+  "R2NewObjectVerified": true,
+  "privateBuildEnvironmentRemoved": true,
+  "temporaryBuildAndPreviewTunnelsStopped": true
+}

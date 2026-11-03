@@ -1,0 +1,46 @@
+{
+  "files": [
+    {
+      "file": "cover-motion.mp4",
+      "status": 200,
+      "mime": "video/mp4",
+      "bytes": 65375,
+      "sha256": "dd94e716fdd46f7844c6d920c90ccb6692dece759cd77c638eba74b4acd2a5d9",
+      "matches": true,
+      "seconds": 0.278
+    },
+    {
+      "file": "cover-motion.webp",
+      "status": 200,
+      "mime": "image/webp",
+      "bytes": 42138,
+      "sha256": "e784a9067309ae586a5814fa61806f43f36a2bc88053fc18c29a45ad54bec024",
+      "matches": true,
+      "seconds": 0.155
+    },
+    {
+      "file": "cover.webp",
+      "status": 200,
+      "mime": "image/webp",
+      "bytes": 42138,
+      "sha256": "e784a9067309ae586a5814fa61806f43f36a2bc88053fc18c29a45ad54bec024",
+      "matches": true,
+      "seconds": 0.152
+    },
+    {
+      "file": "screenshot-1.webp",
+      "status": 200,
+      "mime": "image/webp",
+      "bytes": 79884,
+      "sha256": "445238174f49ddfe35d339c4844a103b52bedc45a720e43a6d77236fe270087c",
+      "matches": true,
+      "seconds": 0.202
+    }
+  ],
+  "range": {
+    "status": 206,
+    "contentRange": "bytes 0-1023/65375",
+    "bytes": 1024,
+    "matches": true
+  }
+}

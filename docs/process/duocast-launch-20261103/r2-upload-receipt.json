@@ -1,0 +1,9 @@
+{
+  "key": "releases/duocast/0.1.0/DuoCast-0.1.0-macOS-arm64.zip",
+  "created": true,
+  "bytes": 339310,
+  "sha256": "15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1",
+  "contentType": "application/zip",
+  "conditionalWrite": true,
+  "fullReadbackVerified": true
+}

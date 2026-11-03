@@ -1,0 +1,1698 @@
+{
+  "startedAt": "2026-11-03T13:24:46.773Z",
+  "mode": "production",
+  "base": "https://www.imagentx.top",
+  "normalTlsValidation": true,
+  "ignoreHTTPSErrors": false,
+  "events": [
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3lfqzogctgp0w.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/244zy2nf8cykx.css?dpl=static-recovery-20261016",
+      "contentType": "text/css",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2q97ujbbfr-5f.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/turbopack-0a6a6jskq3ya7.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3a8y-fghjjt7n.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1dtsk096-4d7e.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2xe8spbqtdl0e.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0msmpgqe4u-0d.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/0oanshy2z6cla.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-warning",
+      "message": "Service Worker registration blocked by Playwright"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://www.imagentx.top/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/auth/me",
+      "contentType": "application/json"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "diagnostic-stage",
+      "stage": "list-loaded",
+      "timestamp": "2026-11-03T13:24:49.518Z",
+      "performanceNow": 1646.9000000059605,
+      "url": "https://www.imagentx.top/zh/products",
+      "width": 1280,
+      "height": 900,
+      "clientWidth": 1280,
+      "clientHeight": 900,
+      "visualWidth": 1280,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "diagnostic-stage",
+      "stage": "list-scroll-and-motion",
+      "timestamp": "2026-11-03T13:24:49.541Z",
+      "performanceNow": 1670,
+      "url": "https://www.imagentx.top/zh/products",
+      "width": 1280,
+      "height": 900,
+      "clientWidth": 1280,
+      "clientHeight": 900,
+      "visualWidth": 1280,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-request",
+      "timestamp": "2026-11-03T13:24:49.604Z",
+      "url": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "range": "bytes=0-",
+      "timing": {
+        "startTime": 0,
+        "domainLookupStart": -1,
+        "domainLookupEnd": -1,
+        "connectStart": -1,
+        "secureConnectionStart": -1,
+        "connectEnd": -1,
+        "requestStart": -1,
+        "responseStart": -1,
+        "responseEnd": -1
+      }
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 0,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 1020,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://www.imagentx.top/api/announcements",
+      "contentType": "application/json"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-response",
+      "timestamp": "2026-11-03T13:24:50.768Z",
+      "url": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "status": 206,
+      "elapsedMs": 1164,
+      "contentType": "video/mp4",
+      "contentLength": "65375",
+      "contentRange": "bytes 0-65374/65375"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 2049,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 3099,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 4124,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 5147,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-five-second-checkpoint",
+      "elapsedMs": 5147,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 6167,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 7192,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 8217,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 9239,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 10266,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 11298,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 12324,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0,
+      "readyState": 0,
+      "networkState": 2,
+      "paused": true,
+      "ended": false,
+      "duration": null,
+      "width": 0,
+      "height": 0,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-request-finished",
+      "timestamp": "2026-11-03T13:25:02.394Z",
+      "url": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "elapsedMs": 12790,
+      "timing": {
+        "startTime": 1793712289605.113,
+        "domainLookupStart": -1,
+        "domainLookupEnd": -1,
+        "connectStart": -1,
+        "secureConnectionStart": -1,
+        "connectEnd": -1,
+        "requestStart": 0.084,
+        "responseStart": 1159.733,
+        "responseEnd": 12789.72
+      }
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/chakra-visualizer?_rsc=7HBGUdtzyeRzE9Pp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/webgl-fluid-sim?_rsc=7HBGUdtzyeRzE9Pp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/ex-memory?_rsc=7HBGUdtzyeRzE9Pp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/ui-design-system?_rsc=7HBGUdtzyeRzE9Pp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-state-sample",
+      "elapsedMs": 13531,
+      "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "time": 0.7259,
+      "readyState": 4,
+      "networkState": 1,
+      "paused": false,
+      "ended": false,
+      "duration": 5.4,
+      "width": 1280,
+      "height": 800,
+      "muted": true,
+      "loop": false,
+      "playsInline": true,
+      "error": null
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-load-diagnostic",
+      "maximumObservationMs": 30000,
+      "firstReady": {
+        "elapsedMs": 12838,
+        "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+        "time": 0.0343,
+        "readyState": 4,
+        "networkState": 1,
+        "paused": false,
+        "ended": false,
+        "duration": 5.4,
+        "width": 1280,
+        "height": 800,
+        "muted": true,
+        "loop": false,
+        "playsInline": true,
+        "error": null
+      },
+      "fiveSecondState": {
+        "elapsedMs": 5147,
+        "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+        "time": 0,
+        "readyState": 0,
+        "networkState": 2,
+        "paused": true,
+        "ended": false,
+        "duration": null,
+        "width": 0,
+        "height": 0,
+        "muted": true,
+        "loop": false,
+        "playsInline": true,
+        "error": null
+      },
+      "lastObserved": {
+        "elapsedMs": 14045,
+        "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+        "time": 1.2402,
+        "readyState": 4,
+        "networkState": 1,
+        "paused": false,
+        "ended": false,
+        "duration": 5.4,
+        "width": 1280,
+        "height": 800,
+        "muted": true,
+        "loop": false,
+        "playsInline": true,
+        "error": null
+      },
+      "samples": [
+        {
+          "elapsedMs": 0,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 1020,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 2049,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 3099,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 4124,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 5147,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 6167,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 7192,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 8217,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 9239,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 10266,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 11298,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 12324,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0,
+          "readyState": 0,
+          "networkState": 2,
+          "paused": true,
+          "ended": false,
+          "duration": null,
+          "width": 0,
+          "height": 0,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        },
+        {
+          "elapsedMs": 13531,
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0.7259,
+          "readyState": 4,
+          "networkState": 1,
+          "paused": false,
+          "ended": false,
+          "duration": 5.4,
+          "width": 1280,
+          "height": 800,
+          "muted": true,
+          "loop": false,
+          "playsInline": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "diagnostic-stage",
+      "stage": "list-card-click",
+      "timestamp": "2026-11-03T13:25:04.035Z",
+      "performanceNow": 16164,
+      "url": "https://www.imagentx.top/zh/products",
+      "width": 1280,
+      "height": 900,
+      "clientWidth": 1280,
+      "clientHeight": 900,
+      "visualWidth": 1280,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/xnook?_rsc=7HBGUdtzyeRzE9Pp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/statux?_rsc=7HBGUdtzyeRzE9Pp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/claude-phone-control?_rsc=7HBGUdtzyeRzE9Pp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/duocast?_rsc=Hhr6oRFPVBf_034P",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/webgl-fluid-sim?_rsc=Hhr6oRFPVBf_034P",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/duocast?_rsc=soRcD9j0nMmbN502",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/chakra-visualizer?_rsc=Hhr6oRFPVBf_034P",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/ex-memory?_rsc=Hhr6oRFPVBf_034P",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/3atk65mjky8yc.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/205ywbh-6fd0m.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/1oka7o914idl4.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products/xnook?_rsc=Hhr6oRFPVBf_034P",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://www.imagentx.top/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "diagnostic-stage",
+      "stage": "detail-scroll-and-motion",
+      "timestamp": "2026-11-03T13:25:04.962Z",
+      "performanceNow": 17091.30000001192,
+      "url": "https://www.imagentx.top/zh/products/duocast",
+      "width": 1280,
+      "height": 900,
+      "clientWidth": 1280,
+      "clientHeight": 900,
+      "visualWidth": 1280,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/daily?_rsc=-q9bjgcLAUp_ViJO",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/login?_rsc=-q9bjgcLAUp_ViJO",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-request",
+      "timestamp": "2026-11-03T13:25:05.600Z",
+      "url": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "range": "bytes=0-",
+      "timing": {
+        "startTime": 0,
+        "domainLookupStart": -1,
+        "domainLookupEnd": -1,
+        "connectStart": -1,
+        "secureConnectionStart": -1,
+        "connectEnd": -1,
+        "requestStart": -1,
+        "responseStart": -1,
+        "responseEnd": -1
+      }
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/docs/duocast-first-play?_rsc=-q9bjgcLAUp_ViJO",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-response",
+      "timestamp": "2026-11-03T13:25:05.654Z",
+      "url": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "status": 206,
+      "elapsedMs": 54,
+      "contentType": "video/mp4",
+      "contentLength": "65375",
+      "contentRange": "bytes 0-65374/65375"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "media-request-finished",
+      "timestamp": "2026-11-03T13:25:05.873Z",
+      "url": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+      "elapsedMs": 273,
+      "timing": {
+        "startTime": 1793712305600.95,
+        "domainLookupStart": -1,
+        "domainLookupEnd": -1,
+        "connectStart": -1,
+        "secureConnectionStart": -1,
+        "connectEnd": -1,
+        "requestStart": 0.604,
+        "responseStart": 53.045,
+        "responseEnd": 271.377
+      }
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products?_rsc=ms82vK172ZhUGa2T",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/docs/duocast-first-play?_rsc=W3KgfbH3BPLHYzRy",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh?_rsc=W3KgfbH3BPLHYzRy",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products?_rsc=W3KgfbH3BPLHYzRy",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/daily?_rsc=W3KgfbH3BPLHYzRy",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/pathfinder?_rsc=W3KgfbH3BPLHYzRy",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/blog?_rsc=W3KgfbH3BPLHYzRy",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/products?_rsc=W3KgfbH3BPLHYzRy",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/docs?_rsc=W3KgfbH3BPLHYzRy",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/login?_rsc=W3KgfbH3BPLHYzRy",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "motion",
+      "before": {
+        "time": 0.343,
+        "duration": 5.4,
+        "ended": false
+      },
+      "observed": {
+        "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+        "time": 0.7169,
+        "duration": 5.4,
+        "width": 1280,
+        "height": 800,
+        "muted": true,
+        "loop": false,
+        "playsInline": true
+      },
+      "poster": {
+        "complete": true,
+        "width": 1280,
+        "source": "https://www.imagentx.top/products/duocast/cover-motion.webp?dpl=static-recovery-20261016"
+      },
+      "framesDiffer": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "diagnostic-stage",
+      "stage": "download-scroll",
+      "timestamp": "2026-11-03T13:25:09.065Z",
+      "performanceNow": 21193.70000001788,
+      "url": "https://www.imagentx.top/zh/products/duocast",
+      "width": 1280,
+      "height": 900,
+      "clientWidth": 1280,
+      "clientHeight": 900,
+      "visualWidth": 1280,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "diagnostic-stage",
+      "stage": "download-click",
+      "timestamp": "2026-11-03T13:25:09.318Z",
+      "performanceNow": 21446.70000001788,
+      "url": "https://www.imagentx.top/zh/products/duocast",
+      "width": 1280,
+      "height": 900,
+      "clientWidth": 1280,
+      "clientHeight": 900,
+      "visualWidth": 1280,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "api-read",
+      "method": "GET",
+      "status": 302,
+      "url": "https://www.imagentx.top/api/download/duocast?file=macos-arm64",
+      "contentType": ""
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "download-redirect",
+      "status": 302,
+      "noStore": true,
+      "targetHost": "meteor-store-releases.96b5ea21e00ba614487a66632a9bd634.r2.cloudflarestorage.com",
+      "targetPath": "/releases/duocast/0.1.0/DuoCast-0.1.0-macOS-arm64.zip",
+      "privateR2Host": true,
+      "signed": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://meteor-store-releases.96b5ea21e00ba614487a66632a9bd634.r2.cloudflarestorage.com/releases/duocast/0.1.0/DuoCast-0.1.0-macOS-arm64.zip?X-Amz-Algorithm=%5BREDACTED%5D&X-Amz-Content-Sha256=%5BREDACTED%5D&X-Amz-Credential=REDACTED&X-Amz-Date=%5BREDACTED%5D&X-Amz-Expires=%5BREDACTED%5D&X-Amz-Signature=REDACTED&X-Amz-SignedHeaders=%5BREDACTED%5D&response-content-disposition=attachment%3B+filename%3D%22DuoCast-0.1.0-macOS-arm64.zip%22&x-amz-checksum-mode=%5BREDACTED%5D&x-id=GetObject",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "diagnostic-stage",
+      "stage": "help-link-click",
+      "timestamp": "2026-11-03T13:25:10.349Z",
+      "performanceNow": 22478.30000001192,
+      "url": "https://www.imagentx.top/zh/products/duocast",
+      "width": 1280,
+      "height": 900,
+      "clientWidth": 1280,
+      "clientHeight": 900,
+      "visualWidth": 1280,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://o4511817340289024.ingest.us.sentry.io/api/4511817346318336/envelope/?sentry_version=7&sentry_key=REDACTED&sentry_client=sentry.javascript.nextjs%2F10.68.0"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "diagnostic-stage",
+      "stage": "help-loaded",
+      "timestamp": "2026-11-03T13:25:10.428Z",
+      "performanceNow": 22557.20000001788,
+      "url": "https://www.imagentx.top/zh/docs/duocast-first-play",
+      "width": 1280,
+      "height": 900,
+      "clientWidth": 1280,
+      "clientHeight": 900,
+      "visualWidth": 1280,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "navigation-aborted-get",
+      "url": "https://www.imagentx.top/zh/docs/duocast-first-play?_rsc=fyPODyO-bKhH3Ohu",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "static",
+      "status": 200,
+      "url": "https://www.imagentx.top/_next/static/chunks/2e7874agq28sv.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript",
+      "valid": true
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://www.imagentx.top/api/online/heartbeat"
+    },
+    {
+      "label": "desktop-zh-1280",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    }
+  ],
+  "cases": [
+    {
+      "label": "desktop-zh-1280",
+      "status": "passed",
+      "initial": {
+        "status": 200,
+        "tls": {
+          "issuer": "YE1",
+          "protocol": "TLS 1.3",
+          "subjectName": "imagentx.top",
+          "validFrom": 1793701535,
+          "validTo": 1801477534
+        },
+        "anonymous": true
+      },
+      "productCards": 13,
+      "cardHref": "/products/duocast",
+      "listMotion": {
+        "diagnostic": {
+          "maximumObservationMs": 30000,
+          "firstReady": {
+            "elapsedMs": 12838,
+            "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+            "time": 0.0343,
+            "readyState": 4,
+            "networkState": 1,
+            "paused": false,
+            "ended": false,
+            "duration": 5.4,
+            "width": 1280,
+            "height": 800,
+            "muted": true,
+            "loop": false,
+            "playsInline": true,
+            "error": null
+          },
+          "fiveSecondState": {
+            "elapsedMs": 5147,
+            "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+            "time": 0,
+            "readyState": 0,
+            "networkState": 2,
+            "paused": true,
+            "ended": false,
+            "duration": null,
+            "width": 0,
+            "height": 0,
+            "muted": true,
+            "loop": false,
+            "playsInline": true,
+            "error": null
+          },
+          "lastObserved": {
+            "elapsedMs": 14045,
+            "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+            "time": 1.2402,
+            "readyState": 4,
+            "networkState": 1,
+            "paused": false,
+            "ended": false,
+            "duration": 5.4,
+            "width": 1280,
+            "height": 800,
+            "muted": true,
+            "loop": false,
+            "playsInline": true,
+            "error": null
+          },
+          "samples": [
+            {
+              "elapsedMs": 0,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 1020,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 2049,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 3099,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 4124,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 5147,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 6167,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 7192,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 8217,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 9239,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 10266,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 11298,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 12324,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0,
+              "readyState": 0,
+              "networkState": 2,
+              "paused": true,
+              "ended": false,
+              "duration": null,
+              "width": 0,
+              "height": 0,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            },
+            {
+              "elapsedMs": 13531,
+              "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+              "time": 0.7259,
+              "readyState": 4,
+              "networkState": 1,
+              "paused": false,
+              "ended": false,
+              "duration": 5.4,
+              "width": 1280,
+              "height": 800,
+              "muted": true,
+              "loop": false,
+              "playsInline": true,
+              "error": null
+            }
+          ]
+        },
+        "framesDiffer": true,
+        "frameScreenshots": [
+          "/tmp/meteor-duocast-20261103/browser/production-desktop-diagnostic-01/desktop-zh-1280-list-motion-a.png",
+          "/tmp/meteor-duocast-20261103/browser/production-desktop-diagnostic-01/desktop-zh-1280-list-motion-b.png"
+        ],
+        "poster": {
+          "complete": true,
+          "width": 1280,
+          "source": "https://www.imagentx.top/products/duocast/cover-motion.webp?dpl=static-recovery-20261016"
+        },
+        "screenshot": "/tmp/meteor-duocast-20261103/browser/production-desktop-diagnostic-01/desktop-zh-1280-list.png"
+      },
+      "detailMotion": {
+        "before": {
+          "time": 0.343,
+          "duration": 5.4,
+          "ended": false
+        },
+        "observed": {
+          "src": "https://www.imagentx.top/products/duocast/cover-motion.mp4",
+          "time": 0.7169,
+          "duration": 5.4,
+          "width": 1280,
+          "height": 800,
+          "muted": true,
+          "loop": false,
+          "playsInline": true
+        },
+        "poster": {
+          "complete": true,
+          "width": 1280,
+          "source": "https://www.imagentx.top/products/duocast/cover-motion.webp?dpl=static-recovery-20261016"
+        },
+        "framesDiffer": true,
+        "frameScreenshots": [
+          "/tmp/meteor-duocast-20261103/browser/production-desktop-diagnostic-01/desktop-zh-1280-detail-cover-motion-a.png",
+          "/tmp/meteor-duocast-20261103/browser/production-desktop-diagnostic-01/desktop-zh-1280-detail-cover-motion-b.png"
+        ],
+        "screenshot": "/tmp/meteor-duocast-20261103/browser/production-desktop-diagnostic-01/desktop-zh-1280-detail-cover.png"
+      },
+      "checkedDescription": true,
+      "freePriceVisible": true,
+      "githubHref": "https://github.com/Meteorkid/duocast",
+      "download": {
+        "file": "/tmp/meteor-duocast-20261103/browser/production-desktop-diagnostic-01/desktop-zh-1280-DuoCast-0.1.0-macOS-arm64.zip",
+        "bytes": 339310,
+        "sha256": "15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1",
+        "actualDownloadEvent": true,
+        "redirect": {
+          "label": "desktop-zh-1280",
+          "type": "download-redirect",
+          "status": 302,
+          "noStore": true,
+          "targetHost": "meteor-store-releases.96b5ea21e00ba614487a66632a9bd634.r2.cloudflarestorage.com",
+          "targetPath": "/releases/duocast/0.1.0/DuoCast-0.1.0-macOS-arm64.zip",
+          "privateR2Host": true,
+          "signed": true
+        },
+        "screenshot": "/tmp/meteor-duocast-20261103/browser/production-desktop-diagnostic-01/desktop-zh-1280-download.png"
+      },
+      "help": {
+        "url": "https://www.imagentx.top/zh/docs/duocast-first-play",
+        "screenshot": "/tmp/meteor-duocast-20261103/browser/production-desktop-diagnostic-01/desktop-zh-1280-help.png"
+      },
+      "horizontalOverflow": {
+        "width": 1280,
+        "scrollWidth": 1280
+      }
+    }
+  ],
+  "boundaries": [
+    "Fresh anonymous Chrome context; no personal cookies, profile, or storage imported.",
+    "Only GET requests permitted; WebSocket and Service Worker blocked; no claim/login/order actions.",
+    "Production: every permitted GET uses real endpoints, with no authentication/API fixtures and ordinary TLS validation.",
+    "Normal TLS verification is retained.",
+    "Mobile means 375px Chrome touch emulation, not physical-phone testing. Audio/device behavior is outside browser validation."
+  ],
+  "browser": "156.0.8078.80",
+  "finishedAt": "2026-11-03T13:25:11.252Z",
+  "browserClosed": true,
+  "summary": {
+    "cases": 1,
+    "passed": 1,
+    "failed": 0,
+    "healthIssues": 0,
+    "fixtures": 0,
+    "blockedWrites": 10,
+    "blockedWebSockets": 0
+  }
+}

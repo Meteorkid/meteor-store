@@ -1,0 +1,10 @@
+Running 4 tests using 1 worker
+
+(node:74463) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 e2e/product-demo-autoplay.spec.ts:8:7 › 原型操作动画封面 › 全部新短片确实播放，离屏释放，播放结束可悬停重播 (10.3s)
+  ✓  2 e2e/product-demo-autoplay.spec.ts:40:7 › 原型操作动画封面 › 减少动态效果不加载短片，英文卡片仍正确跳转 (702ms)
+  ✓  3 e2e/product-demo-autoplay.spec.ts:55:7 › 原型操作动画封面 › 新短片加载失败仍可看到静态回退 (513ms)
+  ✓  4 e2e/product-demo-autoplay.spec.ts:65:7 › 原型操作动画封面 › 服务端输出全部回退图，不提前插入播放器 (348ms)
+
+  4 passed (12.9s)

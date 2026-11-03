@@ -1,0 +1,20 @@
+{
+  "repository": "https://github.com/Meteorkid/duocast",
+  "tag": "v0.1.0",
+  "releaseId": 432370633,
+  "publishedAt": "2026-11-03T07:05:24Z",
+  "draft": false,
+  "prerelease": false,
+  "asset": {
+    "id": 704665795,
+    "name": "DuoCast-0.1.0-macOS-arm64.zip",
+    "size": 339310,
+    "digest": "sha256:15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1",
+    "browser_download_url": "https://github.com/Meteorkid/duocast/releases/download/v0.1.0/DuoCast-0.1.0-macOS-arm64.zip"
+  },
+  "sourceCommit": "769a848835dfa39f822b74188af08dd14fc7cfce",
+  "signature": "ad-hoc",
+  "notarized": false,
+  "platform": "macOS 14.2+ arm64",
+  "license": "no license specified"
+}

@@ -1,0 +1,7 @@
+To eliminate this warning, add "type": "module" to /Users/meteor/.codex/worktrees/duocast-launch/meteor-store/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  363 passed | 4 skipped (367)
+      Tests  3828 passed | 47 skipped (3875)
+   Start at  21:34:42
+   Duration  9.27s (transform 12.60s, setup 0ms, import 42.38s, tests 29.55s, environment 19ms)

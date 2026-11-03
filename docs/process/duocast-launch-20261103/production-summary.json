@@ -1,0 +1,78 @@
+{
+  "origin": "https://www.imagentx.top",
+  "finishedAt": "2026-11-03T13:25:11.252Z",
+  "result": "4 functional cases passed with an explicitly recorded slow first media load",
+  "normalTlsValidation": true,
+  "apiOrAuthFixtures": false,
+  "sourceEdits": false,
+  "cases": [
+    {
+      "label": "desktop-zh-1280",
+      "status": "passed",
+      "evidence": "production-desktop-diagnostic-01/results.json"
+    },
+    {
+      "label": "mobile-en-375",
+      "status": "passed",
+      "evidence": "production-01/results.json"
+    },
+    {
+      "label": "reduced-motion-en-375",
+      "status": "passed",
+      "evidence": "production-01/results.json"
+    },
+    {
+      "label": "search-sitemap-home",
+      "status": "passed",
+      "evidence": "production-01/results.json"
+    }
+  ],
+  "preservedFailure": {
+    "evidence": "production-01/results.json",
+    "case": "desktop-zh-1280",
+    "reason": "Video readyState remained 0 at the original 5-second wait."
+  },
+  "mediaDiagnostic": {
+    "evidence": "production-desktop-diagnostic-01/results.json",
+    "explicitLimitMs": 30000,
+    "fiveSecondCheckMs": 5147,
+    "readyStateAtFiveSeconds": 0,
+    "responseHeaderMs": 1164,
+    "requestFinishedMs": 12790,
+    "firstReadyMs": 12838,
+    "observedTimeFrom": 0.0343,
+    "observedTimeTo": 1.2402,
+    "mediaError": null,
+    "status": 206,
+    "contentType": "video/mp4",
+    "contentRange": "bytes 0-65374/65375"
+  },
+  "downloads": [
+    {
+      "case": "desktop-zh-1280",
+      "bytes": 339310,
+      "sha256": "15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1",
+      "actualDownloadEvent": true,
+      "apiStatus": 302,
+      "noStore": true,
+      "signedR2Redirect": true
+    },
+    {
+      "case": "mobile-en-375",
+      "bytes": 339310,
+      "sha256": "15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1",
+      "actualDownloadEvent": true,
+      "apiStatus": 302,
+      "noStore": true,
+      "signedR2Redirect": true
+    }
+  ],
+  "observedHealthErrors": 0,
+  "pageErrors": 0,
+  "queryRedactionScan": "passed",
+  "limits": [
+    "The 5-second first-load check failed and remains preserved. The bounded diagnostic proves eventual playback, not high performance.",
+    "375px is Chrome touch emulation, not a physical phone. No DuoCast application or audio hardware was run.",
+    "Only GET was permitted; Sentry telemetry and online heartbeat POST attempts were blocked. No claim, login or order action was performed."
+  ]
+}

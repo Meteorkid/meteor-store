@@ -1,0 +1,56 @@
+{
+  "video": {
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 1280,
+    "height": 800,
+    "fps": "30/1",
+    "frames": "162",
+    "duration": "5.400000",
+    "audioStreams": 0
+  },
+  "atoms": [
+    {
+      "type": "ftyp",
+      "offset": 0,
+      "size": 32
+    },
+    {
+      "type": "moov",
+      "offset": 32,
+      "size": 2841
+    },
+    {
+      "type": "free",
+      "offset": 2873,
+      "size": 8
+    },
+    {
+      "type": "mdat",
+      "offset": 2881,
+      "size": 62494
+    }
+  ],
+  "samples": [
+    {
+      "frame": 0,
+      "cChannelHash": "44c926cd2c00840b25e41e36ec8b9f044211c69b986f8f32bccf35a41a0879bd"
+    },
+    {
+      "frame": 35,
+      "cChannelHash": "44c926cd2c00840b25e41e36ec8b9f044211c69b986f8f32bccf35a41a0879bd"
+    },
+    {
+      "frame": 80,
+      "cChannelHash": "44c926cd2c00840b25e41e36ec8b9f044211c69b986f8f32bccf35a41a0879bd"
+    },
+    {
+      "frame": 124,
+      "cChannelHash": "44c926cd2c00840b25e41e36ec8b9f044211c69b986f8f32bccf35a41a0879bd"
+    },
+    {
+      "frame": 161,
+      "cChannelHash": "44c926cd2c00840b25e41e36ec8b9f044211c69b986f8f32bccf35a41a0879bd"
+    }
+  ]
+}

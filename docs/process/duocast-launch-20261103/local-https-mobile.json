@@ -1,0 +1,757 @@
+{
+  "startedAt": "2026-11-03T12:45:56.875Z",
+  "mode": "local",
+  "base": "https://127.0.0.1:3189",
+  "normalTlsValidation": false,
+  "ignoreHTTPSErrors": true,
+  "events": [
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/32zk91m88vgn1.css?dpl=static-recovery-20261016",
+      "contentType": "text/css; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/2mwr3olsgnp44.css?dpl=static-recovery-20261016",
+      "contentType": "text/css; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/244zy2nf8cykx.css?dpl=static-recovery-20261016",
+      "contentType": "text/css; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/0cidjye4-cs1q.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/16aayz3q9h1ra.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/turbopack-0f3n3hfzwv6qt.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/3rsevm-vtmm-j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/1lsyhkpp-bq7l.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/1mjrp1irr7nuq.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/0f6h9y1aogg9j.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/0z2zyzcje-a4b.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/3toln81mhconl.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/3k_092asijnif.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/2bhzg0jq9bchp.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/2xe8spbqtdl0e.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/0oanshy2z6cla.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/2rn_u_m-gl9uh.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/37f3m8xct717g.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/1u5pgt4jeboz5.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/2uqgrz33xtmf1.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/3bkescwdbsl5u.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-warning",
+      "message": "Service Worker registration blocked by Playwright"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "fixture",
+      "fixture": "anonymous-auth"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/api/auth/me",
+      "contentType": "application/json"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://127.0.0.1:3189/api/online/heartbeat"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "diagnostic-stage",
+      "stage": "list-loaded",
+      "timestamp": "2026-11-03T12:46:02.642Z",
+      "performanceNow": 300.5,
+      "url": "https://127.0.0.1:3189/en/products",
+      "width": 375,
+      "height": 900,
+      "clientWidth": 375,
+      "clientHeight": 900,
+      "visualWidth": 375,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "local-database-http-error",
+      "status": 500,
+      "url": "https://127.0.0.1:3189/api/announcements",
+      "contentType": ""
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "api-read",
+      "method": "GET",
+      "status": 500,
+      "url": "https://127.0.0.1:3189/api/announcements",
+      "contentType": ""
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/api/announcements",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en?_rsc=wnKipSm_GJ8PSQUJ",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "diagnostic-stage",
+      "stage": "list-scroll-and-motion",
+      "timestamp": "2026-11-03T12:46:02.672Z",
+      "performanceNow": 329.10000002384186,
+      "url": "https://127.0.0.1:3189/en/products",
+      "width": 375,
+      "height": 900,
+      "clientWidth": 375,
+      "clientHeight": 900,
+      "visualWidth": 375,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products/xisland?_rsc=oWOzJcqfO7ElGPlV",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products/ex-memory?_rsc=oWOzJcqfO7ElGPlV",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products/ui-design-system?_rsc=oWOzJcqfO7ElGPlV",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products/ex-memory?_rsc=wnKipSm_GJ8PSQUJ",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products/ui-design-system?_rsc=wnKipSm_GJ8PSQUJ",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products/duocast?_rsc=wnKipSm_GJ8PSQUJ",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "motion",
+      "before": {
+        "time": 0.0556,
+        "duration": 5.4,
+        "ended": false
+      },
+      "observed": {
+        "src": "https://127.0.0.1:3189/products/duocast/cover-motion.mp4",
+        "time": 0.4264,
+        "duration": 5.4,
+        "width": 1280,
+        "height": 800,
+        "muted": true,
+        "loop": false,
+        "playsInline": true
+      },
+      "poster": {
+        "complete": true,
+        "width": 1280,
+        "source": "https://127.0.0.1:3189/products/duocast/cover-motion.webp?dpl=static-recovery-20261016"
+      },
+      "framesDiffer": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "diagnostic-stage",
+      "stage": "list-card-click",
+      "timestamp": "2026-11-03T12:46:05.615Z",
+      "performanceNow": 3272.300000011921,
+      "url": "https://127.0.0.1:3189/en/products",
+      "width": 375,
+      "height": 900,
+      "clientWidth": 375,
+      "clientHeight": 900,
+      "visualWidth": 375,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/3atk65mjky8yc.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/0gpiywhwnogyr.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/1oka7o914idl4.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://127.0.0.1:3189/api/online/heartbeat"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "diagnostic-stage",
+      "stage": "detail-scroll-and-motion",
+      "timestamp": "2026-11-03T12:46:05.804Z",
+      "performanceNow": 3461.5,
+      "url": "https://127.0.0.1:3189/en/products/duocast",
+      "width": 375,
+      "height": 900,
+      "clientWidth": 375,
+      "clientHeight": 900,
+      "visualWidth": 375,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "local-database-http-error",
+      "status": 500,
+      "url": "https://127.0.0.1:3189/api/announcements",
+      "contentType": ""
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "api-read",
+      "method": "GET",
+      "status": 500,
+      "url": "https://127.0.0.1:3189/api/announcements",
+      "contentType": ""
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/api/announcements",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/eula?_rsc=9N_1v0Is0rTvc2L0",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/refund?_rsc=9N_1v0Is0rTvc2L0",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products/xnook?_rsc=wWUS-dBDhisPo0xI",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products/statux?_rsc=wWUS-dBDhisPo0xI",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products/cursor-source-analyzer?_rsc=wWUS-dBDhisPo0xI",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/docs?_rsc=wWUS-dBDhisPo0xI",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/support?_rsc=wWUS-dBDhisPo0xI",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/story?_rsc=wWUS-dBDhisPo0xI",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/products?_rsc=TWs5PVxRNDpRbmYq",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "motion",
+      "before": {
+        "time": 0.9426,
+        "duration": 5.4,
+        "ended": false
+      },
+      "observed": {
+        "src": "https://127.0.0.1:3189/products/duocast/cover-motion.mp4",
+        "time": 1.3096,
+        "duration": 5.4,
+        "width": 1280,
+        "height": 800,
+        "muted": true,
+        "loop": false,
+        "playsInline": true
+      },
+      "poster": {
+        "complete": true,
+        "width": 1280,
+        "source": "https://127.0.0.1:3189/products/duocast/cover-motion.webp?dpl=static-recovery-20261016"
+      },
+      "framesDiffer": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "diagnostic-stage",
+      "stage": "download-scroll",
+      "timestamp": "2026-11-03T12:46:09.731Z",
+      "performanceNow": 7388.4000000059605,
+      "url": "https://127.0.0.1:3189/en/products/duocast",
+      "width": 375,
+      "height": 900,
+      "clientWidth": 375,
+      "clientHeight": 900,
+      "visualWidth": 375,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "diagnostic-stage",
+      "stage": "download-click",
+      "timestamp": "2026-11-03T12:46:09.847Z",
+      "performanceNow": 7504.800000011921,
+      "url": "https://127.0.0.1:3189/en/products/duocast",
+      "width": 375,
+      "height": 900,
+      "clientWidth": 375,
+      "clientHeight": 900,
+      "visualWidth": 375,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "fixture",
+      "fixture": "verified-local-zip"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "api-read",
+      "method": "GET",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/api/download/duocast?file=macos-arm64",
+      "contentType": "application/zip"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "download-redirect",
+      "status": 200,
+      "noStore": true,
+      "privateR2Host": false,
+      "signed": false
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/api/download/duocast?file=macos-arm64",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "diagnostic-stage",
+      "stage": "help-link-click",
+      "timestamp": "2026-11-03T12:46:10.039Z",
+      "performanceNow": 7696.5,
+      "url": "https://127.0.0.1:3189/en/products/duocast",
+      "width": 375,
+      "height": 900,
+      "clientWidth": 375,
+      "clientHeight": 900,
+      "visualWidth": 375,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/en/docs/duocast-first-play?_rsc=0_HWLzVbr6eHZkOe",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "static",
+      "status": 200,
+      "url": "https://127.0.0.1:3189/_next/static/chunks/2e7874agq28sv.js?dpl=static-recovery-20261016",
+      "contentType": "application/javascript; charset=UTF-8",
+      "valid": true
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "diagnostic-stage",
+      "stage": "help-loaded",
+      "timestamp": "2026-11-03T12:46:10.101Z",
+      "performanceNow": 7758.300000011921,
+      "url": "https://127.0.0.1:3189/en/docs/duocast-first-play",
+      "width": 409,
+      "height": 980,
+      "clientWidth": 375,
+      "clientHeight": 900,
+      "visualWidth": 375,
+      "visualHeight": 900,
+      "visualScale": 1
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "blocked-write",
+      "method": "POST",
+      "url": "https://127.0.0.1:3189/api/online/heartbeat"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "local-database-http-error",
+      "status": 500,
+      "url": "https://127.0.0.1:3189/api/announcements",
+      "contentType": ""
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "api-read",
+      "method": "GET",
+      "status": 500,
+      "url": "https://127.0.0.1:3189/api/announcements",
+      "contentType": ""
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "label": "mobile-en-375",
+      "type": "navigation-aborted-get",
+      "url": "https://127.0.0.1:3189/api/announcements",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "cases": [
+    {
+      "label": "mobile-en-375",
+      "status": "passed",
+      "initial": {
+        "status": 200,
+        "tls": {
+          "issuer": "localhost",
+          "protocol": "TLS 1.3",
+          "subjectName": "localhost",
+          "validFrom": 1793709870,
+          "validTo": 1793882670
+        },
+        "anonymous": true
+      },
+      "productCards": 13,
+      "cardHref": "/products/duocast",
+      "listMotion": {
+        "before": {
+          "time": 0.0556,
+          "duration": 5.4,
+          "ended": false
+        },
+        "observed": {
+          "src": "https://127.0.0.1:3189/products/duocast/cover-motion.mp4",
+          "time": 0.4264,
+          "duration": 5.4,
+          "width": 1280,
+          "height": 800,
+          "muted": true,
+          "loop": false,
+          "playsInline": true
+        },
+        "poster": {
+          "complete": true,
+          "width": 1280,
+          "source": "https://127.0.0.1:3189/products/duocast/cover-motion.webp?dpl=static-recovery-20261016"
+        },
+        "framesDiffer": true,
+        "frameScreenshots": [
+          "/tmp/meteor-duocast-20261103/browser/diagnostic-https-mobile-01/mobile-en-375-list-motion-a.png",
+          "/tmp/meteor-duocast-20261103/browser/diagnostic-https-mobile-01/mobile-en-375-list-motion-b.png"
+        ],
+        "screenshot": "/tmp/meteor-duocast-20261103/browser/diagnostic-https-mobile-01/mobile-en-375-list.png"
+      },
+      "detailMotion": {
+        "before": {
+          "time": 0.9426,
+          "duration": 5.4,
+          "ended": false
+        },
+        "observed": {
+          "src": "https://127.0.0.1:3189/products/duocast/cover-motion.mp4",
+          "time": 1.3096,
+          "duration": 5.4,
+          "width": 1280,
+          "height": 800,
+          "muted": true,
+          "loop": false,
+          "playsInline": true
+        },
+        "poster": {
+          "complete": true,
+          "width": 1280,
+          "source": "https://127.0.0.1:3189/products/duocast/cover-motion.webp?dpl=static-recovery-20261016"
+        },
+        "framesDiffer": true,
+        "frameScreenshots": [
+          "/tmp/meteor-duocast-20261103/browser/diagnostic-https-mobile-01/mobile-en-375-detail-cover-motion-a.png",
+          "/tmp/meteor-duocast-20261103/browser/diagnostic-https-mobile-01/mobile-en-375-detail-cover-motion-b.png"
+        ],
+        "screenshot": "/tmp/meteor-duocast-20261103/browser/diagnostic-https-mobile-01/mobile-en-375-detail-cover.png"
+      },
+      "checkedDescription": true,
+      "freePriceVisible": true,
+      "githubHref": "https://github.com/Meteorkid/duocast",
+      "download": {
+        "file": "/tmp/meteor-duocast-20261103/browser/diagnostic-https-mobile-01/mobile-en-375-DuoCast-0.1.0-macOS-arm64.zip",
+        "bytes": 339310,
+        "sha256": "15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1",
+        "actualDownloadEvent": true,
+        "redirect": {
+          "label": "mobile-en-375",
+          "type": "download-redirect",
+          "status": 200,
+          "noStore": true,
+          "privateR2Host": false,
+          "signed": false
+        },
+        "screenshot": "/tmp/meteor-duocast-20261103/browser/diagnostic-https-mobile-01/mobile-en-375-download.png"
+      },
+      "help": {
+        "url": "https://127.0.0.1:3189/en/docs/duocast-first-play",
+        "screenshot": "/tmp/meteor-duocast-20261103/browser/diagnostic-https-mobile-01/mobile-en-375-help.png"
+      },
+      "horizontalOverflow": {
+        "width": 375,
+        "scrollWidth": 375
+      }
+    }
+  ],
+  "boundaries": [
+    "Fresh anonymous Chrome context; no personal cookies, profile, or storage imported.",
+    "Only GET requests permitted; WebSocket and Service Worker blocked; no claim/login/order actions.",
+    "Local only: /api/auth/me anonymous fixture and the exact verified ZIP download fixture; external GET blocked; known missing-database announcement errors recorded separately; not production API/R2 evidence.",
+    "Explicitly authorized local HTTPS proxy uses a task self-signed certificate and ignoreHTTPSErrors=true; production always retains normal TLS.",
+    "Mobile means 375px Chrome touch emulation, not physical-phone testing. Audio/device behavior is outside browser validation."
+  ],
+  "browser": "156.0.8078.80",
+  "finishedAt": "2026-11-03T12:46:11.177Z",
+  "browserClosed": true,
+  "summary": {
+    "cases": 1,
+    "passed": 1,
+    "failed": 0,
+    "healthIssues": 0,
+    "fixtures": 2,
+    "blockedWrites": 3,
+    "blockedWebSockets": 0
+  }
+}
