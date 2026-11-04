@@ -1,7 +1,14 @@
 import type { ReactNode } from 'react';
 import type { LocalizedProduct } from '@/data/products';
 import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
+import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
+import { SOFTWARE_PRODUCT_IDS } from '@/lib/software-licenses/types';
 import DownloadCard from './DownloadCard';
+
+/** 下载区里的引导链接：与页面其他次级链接同一套视觉，可被键盘聚焦。 */
+const licenseLinkClass =
+  'rounded-sm text-violet-300 underline underline-offset-4 transition-colors hover:text-violet-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400';
 
 const iconMap: Record<string, { svg: ReactNode; color: string }> = {
   gitee: {
@@ -54,12 +61,25 @@ const iconMap: Record<string, { svg: ReactNode; color: string }> = {
   },
 };
 
-export default async function DownloadSection({ product }: { product: LocalizedProduct }) {
+export default async function DownloadSection({
+  product,
+  licenseClaimed = false,
+}: {
+  product: LocalizedProduct;
+  /** 当前账号是否已领过这款软件的永久激活码；由产品页查库后传入，组件本身不碰会话。 */
+  licenseClaimed?: boolean;
+}) {
   // 过滤掉 GitHub 图标项（商业策略调整后不再对外暴露 GitHub 源码链接）
   const downloads = product.downloads?.filter((d) => d.icon !== 'github') ?? [];
   if (!downloads.length) return null;
 
   const t = await getTranslations('ProductDetailPage');
+  /**
+   * 「下载即用、永久使用要激活码」的桌面软件才提示领码。
+   * 线上 SOFTWARE_LICENSE_ENABLED=true 时 DMG 才放开成免费下载 + 14 天试用，
+   * 开关关掉就跟着沉默，免得指一个不存在的入口。
+   */
+  const showLicenseHint = isSoftwareLicensingEnabled() && SOFTWARE_PRODUCT_IDS.some((id) => id === product.id);
   const hintKey = downloads.every((download) => download.icon === 'pypi' || download.icon === 'npm')
     ? 'downloadHintPackage'
     : downloads.some((download) => download.gated) ? 'downloadHintGated' : 'downloadHint';
@@ -75,19 +95,45 @@ export default async function DownloadSection({ product }: { product: LocalizedP
           const iconInfo = iconMap[dl.icon] || iconMap.github;
           // 下载地址一律由 /api/download 签发（私有 bucket），不在页面落地公开链接
           return (
-            <DownloadCard
-              key={dl.id}
-              productId={product.id}
-              fileId={dl.id}
-              label={dl.label}
-              note={dl.note}
-              icon={iconInfo.svg}
-              iconColor={iconInfo.color}
-              recommended={i === 0}
-              gated={Boolean(dl.gated)}
-              version={dl.version}
-              sha256={dl.sha256}
-            />
+            <div key={dl.id} className="flex flex-col">
+              <DownloadCard
+                productId={product.id}
+                fileId={dl.id}
+                label={dl.label}
+                note={dl.note}
+                icon={iconInfo.svg}
+                iconColor={iconInfo.color}
+                recommended={i === 0}
+                gated={Boolean(dl.gated)}
+                version={dl.version}
+                sha256={dl.sha256}
+              />
+              {/*
+                领取入口原本只在下方「定价方案」的免费档里，而页面顶部的主按钮直接
+                把人锚点跳到本区块——下载完就以为流程结束了，装好发现只能试用 14 天，
+                回头再找入口也找不到。这句把两条路接上，紧贴卡片、不额外占一屏。
+                已领过就改成指路账户页，否则会引发重复领取的疑问。
+              */}
+              {showLicenseHint && dl.icon === 'dmg' ? (
+                <p className="mt-3 px-1 text-[13px] leading-6 text-white/60">
+                  {licenseClaimed
+                    ? t.rich('licenseClaimOwned', {
+                        account: chunks => (
+                          <Link href="/account#software-licenses" className={licenseLinkClass}>
+                            {chunks}
+                          </Link>
+                        ),
+                      })
+                    : t.rich('licenseClaimNudge', {
+                        claim: chunks => (
+                          <Link href={`/products/${product.id}#pricing`} className={licenseLinkClass}>
+                            {chunks}
+                          </Link>
+                        ),
+                      })}
+                </p>
+              ) : null}
+            </div>
           );
         })}
       </div>

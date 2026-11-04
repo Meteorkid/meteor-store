@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { and, eq, or } from 'drizzle-orm';
 import TransitionLink from '@/components/TransitionLink';
 import { Link } from '@/i18n/navigation';
 import Header from '@/components/Header';
@@ -17,6 +18,9 @@ import { getProductWithCurrentDownloads } from '@/lib/product-updates/catalog';
 import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
 import { routing, type Locale } from '@/i18n/routing';
 import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
+import { getSession } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { orders } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,6 +57,8 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   const trialHref = getAppTrialHref(product.id);
   const primaryDownload = product.downloads?.find((download) => download.icon !== 'github');
   const softwareTrial = isSoftwareLicensingEnabled() && (id === 'xnook' || id === 'xisland');
+  // 领过码就把下载区的引导换成「去账户页查看」，不再劝人重复领取一次。
+  const licenseClaimed = softwareTrial ? await hasClaimedLicense(id) : false;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -144,7 +150,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
 
         <InstallCommand product={product} />
 
-        <DownloadSection product={product} />
+        <DownloadSection product={product} licenseClaimed={licenseClaimed} />
 
         <ProductGallery product={product} />
 
@@ -266,4 +272,36 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
       <Footer />
     </div>
   );
+}
+
+/**
+ * 当前账号是否已领过这款桌面软件的永久授权。
+ *
+ * 只用于下载区那句引导的措辞，不是访问控制——真正的门控在 `/api/download`
+ * 与软件客户端的激活流程里。所以查询失败按「未领取」降级：多显示一次领取入口
+ * 只是文案不精确，而抛错会让整张产品页 500，代价不对等。
+ *
+ * 判定口径与 `/api/claim` 写入的形状一致：一条 paid 订单（免费档也是 ¥0 + paid），
+ * userId 或邮箱任一命中即算——游客态下单、后补账号的历史订单也能认出来。
+ */
+async function hasClaimedLicense(productId: string): Promise<boolean> {
+  try {
+    const session = await getSession();
+    if (!session) return false;
+    const [claimed] = await db
+      .select({ id: orders.id })
+      .from(orders)
+      .where(
+        and(
+          eq(orders.productId, productId),
+          eq(orders.status, 'paid'),
+          or(eq(orders.userId, session.userId), eq(orders.email, session.email)),
+        ),
+      )
+      .limit(1);
+    return Boolean(claimed);
+  } catch (error) {
+    console.error('读取软件授权状态失败，下载区按未领取展示:', { productId, error });
+    return false;
+  }
 }

@@ -72,4 +72,37 @@ describe('产品媒体与获取入口', () => {
   it('没有公开下载条目时不生成空的下载引导', async () => {
     expect(await DownloadSection({ product: { ...product('xnook'), downloads: [] } })).toBeNull();
   });
+
+  /**
+   * 领取入口原本只挂在下方定价卡的免费档里，而顶部「下载 DMG」是锚点直达下载区，
+   * 用户下完就以为结束（装好发现只能试用 14 天，回头也找不到入口）。
+   * 这里钉住「下载卡下方必须给出领码去路」，以及已领取时改为指向账户页。
+   */
+  it.each(['zh', 'en'] as const)('%s 桌面软件在下载卡下方给出领码入口，已领取时改指账户页', async locale => {
+    state.locale = locale;
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    try {
+      const messages = locale === 'zh' ? zh.ProductDetailPage : en.ProductDetailPage;
+      const nudgeText = messages.licenseClaimNudge.replace(/<\/?claim>/g, '');
+      const ownedText = messages.licenseClaimOwned.replace(/<\/?account>/g, '');
+
+      const html = renderToStaticMarkup(await DownloadSection({ product: product('xisland') }));
+      expect(html).toContain('href="/products/xisland#pricing"');
+      expect(html).toContain(nudgeText.slice(0, 8));
+      expect(html).not.toContain('href="/account#software-licenses"');
+
+      const owned = renderToStaticMarkup(
+        await DownloadSection({ product: product('xisland'), licenseClaimed: true }),
+      );
+      expect(owned).toContain('href="/account#software-licenses"');
+      expect(owned).toContain(ownedText.slice(0, 6));
+      expect(owned).not.toContain('href="/products/xisland#pricing"');
+
+      // 不需要激活码的产品不该被带上领码引导
+      const binary = renderToStaticMarkup(await DownloadSection({ product: product('statux') }));
+      expect(binary).not.toContain('#pricing');
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });
