@@ -900,6 +900,8 @@
     "downloadHintPackage": "Open the package page below for installation instructions.",
     "licenseClaimNudge": "Try every feature free for 14 days. To keep it for good, <claim>claim a free lifetime license</claim> (sign-in required, takes a minute, code sent by email).",
     "licenseClaimOwned": "Lifetime license claimed. <account>View it in your account</account>.",
+    "claimLicenseCta": "Claim free license",
+    "licenseClaimOwnedCta": "View my license",
     "macInstallTitle": "macOS blocked it on first launch?",
     "macInstallBody": "The build isn't notarized yet, so double-clicking shows \"damaged and can't be opened\". Paste this into Terminal and press Return — one time only:",
     "macInstallAlt": "Prefer not to use Terminal? Open System Settings → Privacy & Security, scroll down to the blocked-app notice and click \"Open Anyway\".",

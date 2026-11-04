@@ -90,6 +90,14 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                 </a>
               ) : null}
               {/* 开发者主要从 GitHub 找工具，产品页不给入口等于关掉唯一免费的发现渠道。 */}
+              {softwareTrial && (
+                <a
+                  href={licenseClaimed ? '/account#software-licenses' : '#pricing'}
+                  className="inline-flex items-center gap-2 rounded-full border border-violet-400/40 bg-violet-500/10 px-5 py-2.5 text-sm font-semibold text-violet-100 transition-colors hover:bg-violet-500/20"
+                >
+                  {licenseClaimed ? t('licenseClaimOwnedCta') : t('claimLicenseCta')}
+                </a>
+              )}
               {product.github && (
                 <a
                   href={product.github}

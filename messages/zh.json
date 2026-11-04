@@ -900,6 +900,8 @@
     "downloadHintPackage": "通过下方的软件包页面查看安装说明。",
     "licenseClaimNudge": "下载完先完整体验 14 天。要永久使用，点这里<claim>领取免费激活码</claim>（需登录，1 分钟，码发到邮箱）。",
     "licenseClaimOwned": "已领取永久激活码，<account>去账户页查看</account>。",
+    "claimLicenseCta": "免费领取激活码",
+    "licenseClaimOwnedCta": "查看我的激活码",
     "macInstallTitle": "第一次打开被 macOS 拦住了？",
     "macInstallBody": "安装包还没做苹果公证，双击会提示「已损坏，无法打开」。打开「终端」，把下面这行粘进去回车即可，只需要做一次：",
     "macInstallAlt": "不想用终端的话：打开「系统设置 → 隐私与安全性」，往下翻到刚才那条拦截提示，点「仍要打开」。",
