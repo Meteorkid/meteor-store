@@ -39,10 +39,28 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale, id } = await params;
   const { item, savedHistory } = await getItemPageContext(id);
   if (!item) return {};
+
+  // 两种「不索引」，严格程度不同，别合并：
+  // - 私人收藏历史（savedHistory）：`follow: false`，连链接都不必跟。
+  // - 公开但不可上手的条目（`learningEligible === false`）：`follow: true`。
+  //
+  // 后者的正文平均只有约 104 字符摘要（最长 320），本质是 GitHub issue / 博客 RSS
+  // 的转载，对搜索用户没有增量信息。2026-11-05 实测：百度爬虫把 sitemap 里
+  // 1354 个唯一地址全抓了一遍（4868 个 200），但 `site:` 查不到任何结果——
+  // 697 条目录里 567 条属于这一类，占 sitemap 的 81%，百度据此判定整站低质。
+  //
+  // 收口 sitemap（见 src/app/sitemap.ts）只挡住了「主动提交」这一路，
+  // 站内链接仍会让爬虫发现并抓取这些地址，所以这里必须同时禁止索引。
+  // 保留 `follow: true`：条目页指向原文出处与同方向其他条目，权重该继续流出去。
+  // 页面本身照常渲染，站内导航和用户收藏都不受影响。
+  const robots = savedHistory
+    ? { index: false, follow: false }
+    : item.learningEligible ? undefined : { index: false, follow: true };
+
   return {
     title: localizedText(item.title, locale),
     description: localizedText(item.summary, locale),
-    ...(savedHistory ? { robots: { index: false, follow: false } } : {}),
+    ...(robots ? { robots } : {}),
   };
 }
 

@@ -33,7 +33,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const [posts, tags] = await Promise.all([getFeedPosts(locale), getFeedTags(locale)]);
       return { locale, posts, tags };
     })),
-    listCatalogItems(),
+    // 只取「可上手」条目，见下方 pathfinderItemPages 的说明。
+    listCatalogItems({ learningEligible: true }),
   ]);
 
   const staticPages = [
@@ -123,12 +124,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const helpPages = getHelpSitemapEntries();
 
+  // 只收录「可上手」的条目（`learningEligible`）。
+  //
+  // 2026-11-05：这里原本无条件输出全部目录条目，sitemap 因此有 1352 条，其中 1098 条
+  // （81%）是这些详情页。实测百度爬虫把 1354 个唯一地址全抓了一遍、4868 个 200，
+  // 但 `site:` 查不到任何结果——**抓取不是瓶颈，收录才是**。
+  //
+  // 原因是这些条目本质是 GitHub issue / 博客 RSS 的转载：正文平均只有 104 字符摘要
+  // （最长 320），详情页可见文本约 1800 字符且大半是导航。697 条里 567 条
+  // `learningEligible=false`，即「只作方向参考，不进学习路径」——它们对站内导航有价值，
+  // 但对搜索用户没有增量信息，百度据此判定整站为低质聚合。
+  //
+  // 收口后 sitemap 降到约 250 条，抓取预算集中到真正有内容的页面上。
+  // 详情页本身仍可访问（`generateMetadata` 里对同类条目输出 noindex），
+  // 站内链接与用户收藏都不受影响。
   const pathfinderItemPages = pathfinderItems.flatMap((item) =>
     LOCALES.map((locale) => ({
       url: `${BASE_URL}/${locale}/pathfinder/items/${item.id}`,
       lastModified: item.verifiedAt,
       changeFrequency: 'weekly' as const,
-      priority: item.learningEligible ? 0.6 : 0.5,
+      priority: 0.6,
       alternates: {
         languages: {
           zh: `${BASE_URL}/zh/pathfinder/items/${item.id}`,

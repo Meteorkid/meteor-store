@@ -86,6 +86,24 @@ describe('全文降级和私人历史详情', () => {
     expect(dynamic).toBe('force-dynamic');
   });
 
+  // 2026-11-05：sitemap 收口只挡「主动提交」，站内链接仍会让爬虫发现这些地址，
+  // 所以低质条目必须在 metadata 里显式 noindex。
+  it('可上手的公开条目不加 robots，保持可索引', async () => {
+    mocks.getCatalogItem.mockResolvedValue(catalogItemFixture({ learningEligible: true }));
+    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'zh', id: digestItem.id }) });
+    expect(metadata.robots).toBeUndefined();
+  });
+
+  it('不可上手的公开条目禁止索引但保留 follow，页面本身仍可访问', async () => {
+    const item = catalogItemFixture({ learningEligible: false, itemType: 'ai-update' });
+    mocks.getCatalogItem.mockResolvedValue(item);
+    const params = Promise.resolve({ locale: 'zh', id: item.id });
+    expect((await generateMetadata({ params })).robots).toEqual({ index: false, follow: true });
+    // 站内导航价值保留：正文照常渲染，不是 404。
+    const html = renderToStaticMarkup(await ItemPage({ params }));
+    expect(html).toContain(item.summary.zh);
+  });
+
   it('历史读取不可用时metadata和详情均交给安全错误边界，不获取正文', async () => {
     mocks.getCatalogItem.mockResolvedValue(null);
     mocks.getSession.mockResolvedValue({ userId: 'user-a' });

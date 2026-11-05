@@ -7,7 +7,18 @@ vi.mock('@/data/blog-feed', () => ({
   getFeedPosts: async (locale: 'zh' | 'en') => blog.posts[locale],
   getFeedTags: async (locale: 'zh' | 'en') => blog.tags[locale],
 }));
-vi.mock('@/lib/pathfinder/catalog', () => ({ listCatalogItems: async () => [] }));
+const catalog = vi.hoisted(() => ({
+  items: [] as { id: string; learningEligible: boolean; verifiedAt: string }[],
+  lastOptions: undefined as { learningEligible?: boolean } | undefined,
+}));
+vi.mock('@/lib/pathfinder/catalog', () => ({
+  // sitemap 必须以 { learningEligible: true } 调用；把收到的选项记下来供断言。
+  listCatalogItems: async (options: { learningEligible?: boolean } = {}) => {
+    catalog.lastOptions = options;
+    return catalog.items.filter((item) => options.learningEligible === undefined
+      || item.learningEligible === options.learningEligible);
+  },
+}));
 import { helpArticles, isHelpArticleVisible, LEGACY_INVITATION_HELP_SLUG } from '@/data/help-articles';
 import { SITE_URL } from '@/lib/constants';
 import sitemap, { getHelpSitemapEntries } from '../sitemap';
@@ -15,6 +26,8 @@ import sitemap, { getHelpSitemapEntries } from '../sitemap';
 beforeEach(() => {
   blog.posts = { zh: [], en: [] };
   blog.tags = { zh: [], en: [] };
+  catalog.items = [];
+  catalog.lastOptions = undefined;
 });
 
 describe('getHelpSitemapEntries', () => {
@@ -52,6 +65,29 @@ it('公开发现入口双语进入sitemap，私有应用和账号不加入', asy
     }
   }
   expect(entries.some(item => /\/(?:apps|account|admin)(?:\/|$)/.test(new URL(item.url).pathname))).toBe(false);
+});
+
+it('pathfinder 详情页只收录 learningEligible 条目，且过滤发生在查询层', async () => {
+  catalog.items = [
+    { id: 'pf_eligible', learningEligible: true, verifiedAt: '2026-11-01' },
+    { id: 'pf_reference', learningEligible: false, verifiedAt: '2026-11-02' },
+  ];
+  const entries = await sitemap();
+
+  // 过滤必须下推到 listCatalogItems，而不是取出全量再在内存里筛——
+  // 后者仍会把 567 条低质条目读出来，只是不写进 XML。
+  expect(catalog.lastOptions).toEqual({ learningEligible: true });
+
+  for (const locale of ['zh', 'en']) {
+    const eligible = entries.find(item => item.url === `${SITE_URL}/${locale}/pathfinder/items/pf_eligible`);
+    expect(eligible).toBeDefined();
+    expect(eligible?.priority).toBe(0.6);
+    expect(eligible?.alternates?.languages).toEqual({
+      zh: `${SITE_URL}/zh/pathfinder/items/pf_eligible`,
+      en: `${SITE_URL}/en/pathfinder/items/pf_eligible`,
+    });
+    expect(entries.some(item => item.url === `${SITE_URL}/${locale}/pathfinder/items/pf_reference`)).toBe(false);
+  }
 });
 
 it('文章和标签分别来自当前语言集合，缺少的语言版本不能复制出来', async () => {
