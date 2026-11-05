@@ -19,6 +19,7 @@ const ALLOWED_FILES: Record<string, readonly string[]> = {
   xnook: ['dmg'],
   statux: ['macos-arm64', 'macos-x64'],
   omnicrawl: ['pypi'],
+  duocast: ['macos-arm64'],
 };
 const writeQueues = new Map<string, Promise<void>>();
 
@@ -87,7 +88,8 @@ function validateCatalog(value: unknown): ReleaseCatalog {
       } else {
         const fileName = productId === 'xisland' ? `XIsland-${override.version}.dmg`
           : productId === 'xnook' ? `XNook-${override.version}.dmg`
-            : fileId === 'macos-arm64' ? 'statux-darwin-arm64' : 'statux-darwin-x64';
+            : productId === 'duocast' ? `DuoCast-${override.version}-macOS-arm64.zip`
+              : fileId === 'macos-arm64' ? 'statux-darwin-arm64' : 'statux-darwin-x64';
         if (typeof override.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(override.sha256)
             || override.r2Key !== `releases/${productId}/${override.version}/${fileName}`) {
           throw new Error('下载对象路径或 SHA-256 不正确');
@@ -161,11 +163,16 @@ export async function readCurrentCatalog(options: CatalogOptions = {}): Promise<
   } catch (error) {
     catalogError = (error as NodeJS.ErrnoException).code !== 'ENOENT';
   }
+  const current = currentProducts(catalog);
   const revision = createHash('sha256').update(stableJson({
     catalog,
     defaults: products.filter((product) => product.downloads?.length).map(({ id, downloads }) => ({ id, downloads })),
+    // White-list membership changes must invalidate checks created by older code.
+    registry: current
+      .map(({ productId, downloads }) => ({ productId, fileIds: downloads.map(({ id }) => id) }))
+      .sort((left, right) => left.productId.localeCompare(right.productId)),
   })).digest('hex');
-  return { catalog, current: currentProducts(catalog), revision, catalogError };
+  return { catalog, current, revision, catalogError };
 }
 
 export async function getProductWithCurrentDownloads(id: string): Promise<Product | undefined> {

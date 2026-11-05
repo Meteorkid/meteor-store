@@ -21,8 +21,9 @@
 | XNook | `Meteorkid/XNook` GitHub Releases | 已登记的 macOS DMG |
 | Statux | `Meteorkid/statux` GitHub Releases | 已登记的 macOS arm64/x64 独立程序 |
 | OmniCrawl | PyPI `omnicrawl-core` | 已发布包的版本和安装链接，开发阶段单独提示 |
+| DuoCast | `Meteorkid/duocast` GitHub Releases | 已登记的 macOS arm64 ZIP；校验单一 `DuoCast.app` 与内部 arm64 主程序 |
 
-Statux npm、Web/Docker、Ex-Memory helper Beta、Windows 测试包不是这些稳定安装包的替代来源。相同版本但 SHA 不同会阻止同步，不能把它当成当前文件已损坏。签名公证状态不会因为同步而改变。
+Statux npm、Web/Docker、Ex-Memory helper Beta、Windows 测试包不是这些稳定安装包的替代来源。ZIP 只接受已登记的 DuoCast 文件名、单一 `DuoCast.app` 顶层应用和带完整 `__TEXT` load command 的 arm64 Mach-O 主程序；加密 ZIP、ZIP64、Unicode Path Extra、额外顶层内容及解压后超过 128 MiB 的包会拒绝。相同版本但 SHA 不同会阻止同步，不能把它当成当前文件已损坏。签名公证状态不会因为同步而改变。
 
 ## 运行要求与存储
 
@@ -41,6 +42,10 @@ Statux npm、Web/Docker、Ex-Memory helper Beta、Windows 测试包不是这些�
 代码回滚与版本目录分别管理：通常保留已通过校验的目录即可，旧代码不支持动态目录时会重新使用静态基线。需要恢复历史下载时，先确认无运行任务，备份当前目录，再将选定的合法历史 JSON 复制到同目录临时文件、设为 600，最后原子 `mv` 为 `catalog.json`。不要截断当前文件，也不要删除 R2 对象。恢复后在后台重新检查，并核对公开产品页及授权下载入口。
 
 首次同步前目录为空，可以备份后移走 `catalog.json` 回到静态基线。恢复比当前版本旧的目录属于人工回滚，日常同步接口会拒绝降级。
+
+目录 revision 包含当前允许产品的 fileId 集合，因此上线新增来源后，旧的四产品 `check.json` 会自然失效，必须重新检查。目录一旦写入 `duocast`，回滚到不含 DuoCast 白名单的旧代码会把整份目录判为损坏并退回静态基线；回滚包必须包含本次支持，或先备份并恢复到上一个合法目录。
+
+自动同步只切换下载目录，不改产品说明、系统要求或帮助正文。DuoCast 帮助已改为使用产品页当前文件名，并把完整校验值指向对应 GitHub Release；若未来系统要求或签名状态变化，仍需人工检查文案。
 
 ## 故障排查
 

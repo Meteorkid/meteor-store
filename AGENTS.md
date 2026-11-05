@@ -498,7 +498,7 @@ Footer 和内容列；后台页面**只写自己的正文**，不要再各自套
 ### DuoCast 上架边界
 
 - DuoCast为独立免费lab工具，现仅提供macOS14.2+ / Apple Silicon包；没有Windows安装包或已声明的开源许可证，不标MIT。安装包ad-hoc签名、未经Apple公证。
-- 下载使用稳定ID`macos-arm64`及私有R2短时签名，无需登录；暂不扩展后台产品更新来源白名单。安装与权限帮助为`duocast-first-play`。
+- 下载使用稳定ID`macos-arm64`及私有R2短时签名，无需登录；后台产品更新控制台已登记官方`DuoCast-{version}-macOS-arm64.zip`，同步前会校验单一`DuoCast.app`、Info.plist与内部arm64主程序。安装与权限帮助为`duocast-first-play`。
 - 追加展示顺序不改变首页布局和主线产品顺序；封面基于真实界面做参数操作示意，第三槽始终等待设备，不能伪装实测三台设备同时播放。
 - 运行期Pass当前保留历史12款展开，只排除新增DuoCast；不能借新增产品收回其他历史权益。显式免费入库记录仍保留。
 
@@ -610,7 +610,7 @@ bucket 完全隔离。服务层在
 #### 后台检查与同步产品更新
 
 - `/admin/product-updates` 使用两步流程：先检查并保存一小时有效的快照，再点击“一键同步”。不启用定时同步，也不恢复已暂停的每日巡检。
-- 固定来源与平台位于 `src/lib/product-updates/discovery.ts`。仅处理已登记的 XIsland/XNook macOS DMG、Statux macOS 两种独立包、omnicrawl-core PyPI；npm/Web/Docker/helper Beta/Windows 预览不混入。相同版本不同 SHA 一律阻止覆盖。
+- 固定来源与平台位于 `src/lib/product-updates/discovery.ts`。仅处理已登记的 XIsland/XNook macOS DMG、Statux macOS 两种独立包、omnicrawl-core PyPI、DuoCast macOS arm64 ZIP；npm/Web/Docker/helper Beta/Windows 预览不混入。ZIP会在内存中校验中央目录、单一应用边界和带`__TEXT`段/完整load commands的arm64 Mach-O，拒绝加密、ZIP64、Unicode Path Extra、符号链接、路径穿越与超限解压。相同版本不同 SHA 一律阻止覆盖。
 - 产品价格、`gated` 和下载 `id` 仍来自 `products.ts`。版本、SHA、私有对象 key 由 `data/product-updates/catalog.json` 严格白名单覆盖；产品页与下载 API 共用 `catalog.ts` 实时读取，无需重建。不要另加静态下载读取路径。
 - 同步由 `scripts/product-update-worker.sh` 取得 OS 文件锁后运行 Node 22 worker，逐项复核发布记录、下载校验、R2 `IfNoneMatch: '*'` 写入及完整回读；确认成功后原子切换目录，失败项保留原下载。不要直接从 API 执行大包上传。
 - 状态目录 700、文件 600，保留最近 20 份历史目录和旧 R2 对象。部署前确认没有 queued/running 任务，并备份该目录；回滚代码时同步评估版本目录。操作见 `docs/process/product-update-console.md`。数据库备份不包含这份运行目录。
@@ -1205,7 +1205,7 @@ pnpm build                  # 构建
 | 评论树形查询优化 | 评论量增长后服务端按层级返回,加 `parentId` 索引 |
 | /admin/comments 也加举报联动入口 | 评论量大后,目前仅 /admin/posts 有,且评论侧已有逐条举报按钮 |
 | Pass 续费流程（到期自动续/一键续费） | 当前支付宝/微信都是单次付款不是代扣,到期后是**静默失效**;提醒已上线,续费入口还没做 |
-| 发新版安装包 | 已登记产品使用后台“产品更新”检查并确认同步；实际版本以有效运行目录为准，静态基线仍为 statux 0.4.3、xisland 1.13.0、xnook 1.3.16。新增产品/平台再扩展固定来源与现有下载条目，不按文件名另造 `dmg` ID |
+| 发新版安装包 | 已登记产品使用后台“产品更新”检查并确认同步；实际版本以有效运行目录为准，静态基线仍为 statux 0.4.3、xisland 1.13.0、xnook 1.3.16、duocast 0.1.1。新增产品/平台再扩展固定来源与现有下载条目，不按文件名另造下载 ID |
 | 实验室产品恢复收费 | 实验室七款想重新收费时,把 `originalPrice` 挪回 `price` 即可——但先想清楚它是否该回到主线:实验室的定位就是不收钱。`product-tracks.test.ts` 会拦住「留在 lab 却带价格」的组合 |
 
 **已完成的待办**（从上表移除,留作记录）：

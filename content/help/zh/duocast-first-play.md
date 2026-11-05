@@ -6,20 +6,14 @@ DuoCast 将同一路音频分发到最多 3 路输出，每路可分别调节音
 
 ## 下载、核对并安装
 
-1. 打开 [DuoCast 产品页的下载区](/zh/products/duocast#download)，下载 macOS 安装包，无需登录。v0.1.1 的文件名是 `DuoCast-0.1.1-macOS-arm64.zip`。
-2. 核对下载来源与 SHA-256。若文件保存在默认「下载」文件夹，可在「终端」运行下面的命令：
+1. 打开 [DuoCast 产品页的下载区](/zh/products/duocast#download)，下载 macOS 安装包，无需登录。下载卡会显示当前版本和文件名。
+2. 核对下载来源与 SHA-256。文件名以产品页下载卡为准；若文件保存在默认「下载」文件夹，把文件名代入下面的命令，在「终端」运行：
 
    ```bash
-   shasum -a 256 ~/Downloads/DuoCast-0.1.1-macOS-arm64.zip
+   shasum -a 256 ~/Downloads/DuoCast-<版本>-macOS-arm64.zip
    ```
 
-   v0.1.1 的完整校验值如下，命令输出应与它一致：
-
-   ```text
-   92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28
-   ```
-
-   下载其他版本时，使用对应文件名和发布记录中的完整校验值。校验不一致时，先重新下载或反馈问题。
+   完整校验值见产品页当前版本对应的 [GitHub Release](https://github.com/Meteorkid/duocast/releases) 发布说明。校验不一致时，先重新下载或反馈问题。
 3. 解压 ZIP，将 `DuoCast.app` 拖入「应用程序」。
 4. 打开应用。当前构建采用 **ad-hoc 签名，未经 Apple 公证**。如果 macOS 提示无法验证开发者或无法检查恶意软件，在确认来源可信且校验值一致后，进入「系统设置 → 隐私与安全性」，找到 DuoCast，点「仍要打开」，再按提示确认。
 

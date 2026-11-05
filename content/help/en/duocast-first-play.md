@@ -6,20 +6,14 @@ Connect your headphones or speakers before opening the app. A wired headset pair
 
 ## Download, verify and install
 
-1. Open the [download section on the DuoCast product page](/en/products/duocast#download) and download the macOS package. No sign-in is required. The v0.1.1 file is named `DuoCast-0.1.1-macOS-arm64.zip`.
-2. Check the download source and SHA-256. If the file is in your default Downloads folder, run this command in Terminal:
+1. Open the [download section on the DuoCast product page](/en/products/duocast#download) and download the macOS package. No sign-in is required. The download card shows the current version and filename.
+2. Check the download source and SHA-256. Use the filename shown on the download card. If the file is in your default Downloads folder, substitute that filename in this command and run it in Terminal:
 
    ```bash
-   shasum -a 256 ~/Downloads/DuoCast-0.1.1-macOS-arm64.zip
+   shasum -a 256 ~/Downloads/DuoCast-<version>-macOS-arm64.zip
    ```
 
-   The complete checksum for v0.1.1 is below. The command output should match it:
-
-   ```text
-   92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28
-   ```
-
-   For another version, use its filename and the complete checksum from its release record. If the values differ, download the package again or report the issue before proceeding.
+   The complete checksum is in the [GitHub Release](https://github.com/Meteorkid/duocast/releases) notes for the current version on the download card. If the values differ, download the package again or report the issue before proceeding.
 3. Extract the ZIP and move `DuoCast.app` to Applications.
 4. Open the app. This build is **ad-hoc signed and has not been notarized by Apple**. If macOS cannot verify the developer or check the app for malicious software, first confirm that the source is trustworthy and the checksum matches. Then open System Settings → Privacy & Security, find DuoCast, click Open Anyway and follow the confirmation prompts.
 

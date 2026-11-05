@@ -11,6 +11,9 @@ const githubSources: GitHubSource[] = [
     { fileId: 'macos-arm64', architecture: 'macos-arm64', name: () => 'statux-darwin-arm64' },
     { fileId: 'macos-x64', architecture: 'macos-x64', name: () => 'statux-darwin-x64' },
   ] },
+  { productId: 'duocast', repository: 'duocast', assets: [
+    { fileId: 'macos-arm64', architecture: 'macos-arm64', name: version => `DuoCast-${version}-macOS-arm64.zip` },
+  ] },
 ];
 const PYPI_PACKAGE = 'omnicrawl-core';
 const PYPI_URL = `https://pypi.org/project/${PYPI_PACKAGE}/`;

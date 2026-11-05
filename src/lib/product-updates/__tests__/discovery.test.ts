@@ -14,12 +14,16 @@ function current(productId = 'xisland', version = '1.13.0'): CurrentProduct {
       ? ['macos-arm64', 'macos-x64'].map(id => ({ id, version, sha256: OLD_HASH }))
       : productId === 'omnicrawl'
         ? [{ id: 'pypi', url: 'https://pypi.org/project/omnicrawl/' }]
-        : [{ id: 'dmg', version, sha256: OLD_HASH, gated: true }],
+        : productId === 'duocast'
+          ? [{ id: 'macos-arm64', version, sha256: OLD_HASH, gated: false }]
+          : [{ id: 'dmg', version, sha256: OLD_HASH, gated: true }],
   };
 }
 
 function githubRelease(repository = 'XIsland', version = '2.0.3') {
-  const names = repository === 'statux' ? ['statux-darwin-arm64', 'statux-darwin-x64'] : [`${repository}-${version}.dmg`];
+  const names = repository === 'statux' ? ['statux-darwin-arm64', 'statux-darwin-x64']
+    : repository === 'duocast' ? [`DuoCast-${version}-macOS-arm64.zip`]
+      : [`${repository}-${version}.dmg`];
   return {
     id: 123, tag_name: `v${version}`, draft: false, prerelease: false, published_at: DATE,
     assets: names.map((name, index) => ({
@@ -71,6 +75,17 @@ describe('产品官方更新发现', () => {
     }]);
     expect(product).toEqual(saved);
     expect(fetcher).toHaveBeenCalledWith('https://api.github.com/repos/Meteorkid/XIsland/releases/latest', expect.objectContaining({ redirect: 'manual', cache: 'no-store', signal: expect.any(AbortSignal) }));
+  });
+
+  it('检查 DuoCast 固定 ZIP 资产并识别后台可同步更新', async () => {
+    const fetcher = jsonFetcher(githubRelease('duocast', '0.1.1'));
+    const [row] = await discoverProductUpdates([current('duocast', '0.1.0')], { fetcher });
+    expect(row).toMatchObject({ status: 'update', currentVersion: '0.1.0', latestVersion: '0.1.1' });
+    expect(row.assets).toEqual([{
+      fileId: 'macos-arm64', name: 'DuoCast-0.1.1-macOS-arm64.zip',
+      url: 'https://github.com/Meteorkid/duocast/releases/download/v0.1.1/DuoCast-0.1.1-macOS-arm64.zip',
+      sha256: HASH, bytes: 128, assetId: 456, architecture: 'macos-arm64',
+    }]);
   });
 
   it('隔离单个来源失败并继续检查另一个产品，不泄漏原始异常 URL 或凭证', async () => {
@@ -320,6 +335,7 @@ describe('下载跳转地址白名单', () => {
     'https://github.com/Meteorkid/XIsland/releases/download/v2.0.3/XIsland-2.0.3.dmg',
     'https://github.com/Meteorkid/XNook/releases/download/v1.4.0/XNook-1.4.0.dmg.sha256',
     'https://github.com/Meteorkid/statux/releases/download/v0.4.3/statux-darwin-x64',
+    'https://github.com/Meteorkid/duocast/releases/download/v0.1.1/DuoCast-0.1.1-macOS-arm64.zip',
     'https://release-assets.githubusercontent.com/github-production-release-asset/123/abc-123?sig=private',
     'https://objects.githubusercontent.com/github-production-release-asset-2e65be/123/abc-123?sig=private',
   ])('允许固定资产与官方 CDN：%s', url => { expect(approvedAssetUrl(url)).toBe(true); });

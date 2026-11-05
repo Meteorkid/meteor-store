@@ -3,14 +3,24 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GetObjectCommand, PutObjectCommand, type S3Client } from '@aws-sdk/client-s3';
 import { assertArtifact, downloadArtifact, putAndVerify } from '../artifact.ts';
 import type { ReleaseAsset } from '../types';
+import { duoCastZip, makeZip } from './zip-fixture';
 
 const body = Buffer.alloc(1024); body.write('koly', 512);
 const asset: ReleaseAsset = { fileId: 'dmg', name: 'XIsland-2.0.3.dmg', bytes: body.length, sha256: createHash('sha256').update(body).digest('hex'),
   url: 'https://github.com/Meteorkid/XIsland/releases/download/v2.0.3/XIsland-2.0.3.dmg', assetId: 1, architecture: 'macos-arm64' };
-function store(retrieved = body, existing = false) {
+
+function zipAsset(bytes: Buffer): ReleaseAsset {
+  return {
+    fileId: 'macos-arm64', name: 'DuoCast-0.1.1-macOS-arm64.zip', bytes: bytes.length,
+    sha256: createHash('sha256').update(bytes).digest('hex'), architecture: 'macos-arm64', assetId: 2,
+    url: 'https://github.com/Meteorkid/duocast/releases/download/v0.1.1/DuoCast-0.1.1-macOS-arm64.zip',
+  };
+}
+function store(retrieved: Buffer = body, existing = false) {
   const send = vi.fn(async command => {
     if (command instanceof PutObjectCommand) { if (existing) throw { $metadata: { httpStatusCode: 412 } }; return {}; }
-    return { ContentLength: retrieved.length, Body: { transformToWebStream: () => new Response(retrieved).body! } };
+    const responseBody = new Uint8Array(retrieved);
+    return { ContentLength: retrieved.length, Body: { transformToWebStream: () => new Response(responseBody).body! } };
   });
   return { send, client: { send } as unknown as Pick<S3Client, 'send'> };
 }
@@ -48,6 +58,69 @@ describe('安装包边界与私有存储校验', () => {
     expect(send.mock.calls[0][0]).toBeInstanceOf(PutObjectCommand);
     expect(send.mock.calls[0][0].input).toMatchObject({ IfNoneMatch: '*', Bucket: 'private', Metadata: { sha256: asset.sha256 } });
     expect(send.mock.calls[1][0]).toBeInstanceOf(GetObjectCommand);
+  });
+  it('DuoCast ZIP 校验容器、应用边界和内部 arm64 主程序，并以 application/zip 上传', async () => {
+    const zip = duoCastZip();
+    const download = zipAsset(zip);
+    const { send, client } = store(zip);
+    expect(() => assertArtifact(zip, download)).not.toThrow();
+    const unsignedDescriptor = duoCastZip(0x0100000c, false);
+    expect(() => assertArtifact(unsignedDescriptor, zipAsset(unsignedDescriptor))).not.toThrow();
+    await putAndVerify(client, 'private', 'releases/duocast/0.1.1/DuoCast-0.1.1-macOS-arm64.zip', zip, download);
+    expect(send.mock.calls[0][0].input).toMatchObject({ ContentType: 'application/zip', IfNoneMatch: '*' });
+  });
+  it('拒绝非 arm64、错误产品名、额外顶层内容或加密的 ZIP', () => {
+    const x64 = duoCastZip(0x01000007);
+    expect(() => assertArtifact(x64, zipAsset(x64))).toThrow('arm64');
+    const valid = duoCastZip();
+    expect(() => assertArtifact(valid, { ...zipAsset(valid), name: 'XIsland-0.1.1-macOS-arm64.zip' })).toThrow('已登记');
+    const extra = makeZip([
+      { name: 'DuoCast.app/', data: Buffer.alloc(0), compression: 0 },
+      { name: 'DuoCast.app/Contents/Info.plist', data: Buffer.from('plist') },
+      { name: 'DuoCast.app/Contents/MacOS/DuoCast', data: Buffer.concat([Buffer.from([0xcf, 0xfa, 0xed, 0xfe]), Buffer.from([0x0c, 0x00, 0x00, 0x01])]) },
+      { name: 'install.sh', data: Buffer.from('unexpected') },
+    ]);
+    expect(() => assertArtifact(extra, zipAsset(extra))).toThrow('顶层');
+    const encrypted = makeZip([
+      { name: 'DuoCast.app/', data: Buffer.alloc(0), compression: 0, flags: 1 },
+      { name: 'DuoCast.app/Contents/Info.plist', data: Buffer.from('plist') },
+    ]);
+    expect(() => assertArtifact(encrypted, zipAsset(encrypted))).toThrow('ZIP');
+    const traversal = makeZip([
+      { name: 'DuoCast.app/', data: Buffer.alloc(0), compression: 0 },
+      { name: 'DuoCast.app/../outside', data: Buffer.from('unexpected') },
+    ]);
+    expect(() => assertArtifact(traversal, zipAsset(traversal))).toThrow('ZIP');
+    const zip64 = Buffer.from(valid);
+    zip64.writeUInt16LE(0xffff, zip64.length - 12);
+    expect(() => assertArtifact(zip64, { ...zipAsset(zip64), sha256: createHash('sha256').update(zip64).digest('hex') })).toThrow('ZIP');
+    const symlink = makeZip([
+      { name: 'DuoCast.app/', data: Buffer.alloc(0), compression: 0 },
+      { name: 'DuoCast.app/Contents/Info.plist', data: Buffer.from('plist') },
+      { name: 'DuoCast.app/Contents/MacOS/DuoCast', data: Buffer.concat([Buffer.from([0xcf, 0xfa, 0xed, 0xfe]), Buffer.from([0x0c, 0x00, 0x00, 0x01])]) },
+      { name: 'DuoCast.app/Contents/link', data: Buffer.from('../outside'), mode: 0o120777 },
+    ]);
+    expect(() => assertArtifact(symlink, zipAsset(symlink))).toThrow('符号链接');
+    const badLocalCrc = makeZip([
+      { name: 'DuoCast.app/', data: Buffer.alloc(0), compression: 0 },
+      { name: 'DuoCast.app/Contents/Info.plist', data: Buffer.from('plist'), localCrc: 1 },
+      { name: 'DuoCast.app/Contents/MacOS/DuoCast', data: Buffer.concat([Buffer.from([0xcf, 0xfa, 0xed, 0xfe]), Buffer.from([0x0c, 0x00, 0x00, 0x01]), Buffer.alloc(28)]) },
+    ]);
+    expect(() => assertArtifact(badLocalCrc, zipAsset(badLocalCrc))).toThrow('ZIP');
+    const zip64Extra = makeZip([
+      { name: 'DuoCast.app/', data: Buffer.alloc(0), compression: 0 },
+      { name: 'DuoCast.app/Contents/Info.plist', data: Buffer.from('plist'), extra: Buffer.from([1, 0, 0, 0]) },
+    ]);
+    expect(() => assertArtifact(zip64Extra, zipAsset(zip64Extra))).toThrow('ZIP64');
+    const unicodePath = makeZip([
+      { name: 'DuoCast.app/', data: Buffer.alloc(0), compression: 0 },
+      { name: 'DuoCast.app/Contents/Info.plist', data: Buffer.from('plist'), extra: Buffer.from([0x75, 0x70, 0, 0]) },
+    ]);
+    expect(() => assertArtifact(unicodePath, zipAsset(unicodePath))).toThrow('Unicode');
+    const maskedDirectory = makeZip([
+      { name: 'DuoCast.app/', data: Buffer.alloc(0), compression: 0, flags: 0x2000 },
+    ]);
+    expect(() => assertArtifact(maskedDirectory, zipAsset(maskedDirectory))).toThrow('ZIP');
   });
   it('已存在相同对象可幂等复用，不覆盖对象', async () => {
     const { client, send } = store(body, true); await putAndVerify(client, 'private', 'key', body, asset);

@@ -1,10 +1,17 @@
 import { createHash } from 'node:crypto';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { approvedAssetUrl } from './discovery.ts';
+import { assertDuoCastZip } from './zip-artifact.ts';
 import type { ReleaseAsset } from './types';
 
 const MAX_BYTES = 128 * 1024 * 1024;
 
+function contentTypeFor(fileName: string): string {
+  const lower = fileName.toLowerCase();
+  if (lower.endsWith('.dmg')) return 'application/x-apple-diskimage';
+  if (lower.endsWith('.zip')) return 'application/zip';
+  return 'application/octet-stream';
+}
 export function assertArtifact(body: Uint8Array, asset: ReleaseAsset): void {
   if (body.byteLength !== asset.bytes || body.byteLength > MAX_BYTES) throw new Error('安装包大小不匹配');
   if (createHash('sha256').update(body).digest('hex') !== asset.sha256) throw new Error('安装包 SHA-256 校验失败');
@@ -14,6 +21,8 @@ export function assertArtifact(body: Uint8Array, asset: ReleaseAsset): void {
     if (buffer.length < 512 || buffer.toString('ascii', buffer.length - 512, buffer.length - 508) !== 'koly') {
       throw new Error('文件不是预期的 DMG 安装包');
     }
+  } else if (asset.name.endsWith('.zip')) {
+    assertDuoCastZip(buffer, asset);
   } else {
     const cpu = asset.architecture === 'macos-arm64' ? 0x0100000c : 0x01000007;
     if (buffer.length < 8 || buffer.readUInt32LE(0) !== 0xfeedfacf || buffer.readUInt32LE(4) !== cpu) {
@@ -82,7 +91,7 @@ export async function putAndVerify(client: Pick<S3Client, 'send'>, bucket: strin
   const abortSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
   try {
     await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, IfNoneMatch: '*',
-      ContentType: asset.name.endsWith('.dmg') ? 'application/x-apple-diskimage' : 'application/octet-stream',
+      ContentType: contentTypeFor(asset.name),
       Metadata: { sha256: asset.sha256 }, }), { abortSignal });
   } catch (error) {
     // 已有同名对象只允许内容完全相同的幂等复用，绝不覆盖。

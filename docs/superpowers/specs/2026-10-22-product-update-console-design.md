@@ -6,13 +6,13 @@
 
 仅管理员页面与API可见，页面/metadata/API分别鉴权，私人no-store；检查/同步POST核对Origin并限流。客户端只提交已生成的检查ID，不能传任意仓库、URL、对象key或gated。
 
-固定来源：XIsland/XNook macOS DMG、Statux现有两种macOS独立包、OmniCrawl的omnicrawl-core PyPI包。Web/Docker与helper Beta、Windows预览不进入稳定安装包同步。npm版本不替换独立二进制版本。
+固定来源：XIsland/XNook macOS DMG、Statux现有两种macOS独立包、OmniCrawl的omnicrawl-core PyPI包、DuoCast已登记的macOS arm64 ZIP。Web/Docker与helper Beta、Windows预览不进入稳定安装包同步。npm版本不替换独立二进制版本。
 
 ## 两步流程
 
 检查官方已发布版本、平台白名单和官方SHA，区分可更新/已最新/同版本构建不同/来源失败。检查快照绑定当前下载目录指纹，默认不更新网站。
 
-同步在受文件锁保护的后台工作进程运行，前端查询进度。使用检查快照中的固定release/asset再次核验，下载字节/格式/架构/hash，R2条件写入禁止覆盖同key不同内容，上传后完整回读校验。成功后原子切换小型版本目录；失败项保留原下载。旧R2包不删除。
+同步在受文件锁保护的后台工作进程运行，前端查询进度。使用检查快照中的固定release/asset再次核验，下载字节/格式/架构/hash，R2条件写入禁止覆盖同key不同内容，上传后完整回读校验。DuoCast ZIP在内存中解析中央目录与目标主程序，不解压落盘；只接受单一`DuoCast.app`、`Info.plist`和arm64 Mach-O，拒绝加密、ZIP64、路径穿越、额外顶层内容及超限解压。成功后原子切换小型版本目录；失败项保留原下载。旧R2包不删除。
 
 产品价格、权限和稳定fileId继续来自products.ts；私有运行目录只覆盖已登记产品的version/hash/r2Key或受限PyPI链接，页面与下载API使用同一读取层。下载权限始终由原API校验，不能改成公开GitHub下载。元数据切换无需重建Next，目录与历史在data/product-updates私有存储，纳入备份/回滚说明。
 

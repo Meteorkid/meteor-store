@@ -8,16 +8,24 @@ import { runProductUpdateJob } from '../worker.ts';
 import { readStateFile, writeStateFile } from '../state.ts';
 import type { JobRecord } from '../state.ts';
 import type { ProductUpdateRow } from '../types';
+import { duoCastZip } from './zip-fixture';
 
 let directory: string;
 const body = Buffer.alloc(1024);
 body.write('koly', 512);
 const hash = createHash('sha256').update(body).digest('hex');
+const duocastBody = duoCastZip();
+const duocastHash = createHash('sha256').update(duocastBody).digest('hex');
 function row(productId = 'xisland'): ProductUpdateRow {
-  const name = productId === 'xisland' ? 'XIsland' : 'XNook';
+  const repository = productId === 'duocast' ? 'duocast' : productId === 'xisland' ? 'XIsland' : 'XNook';
+  const name = productId === 'duocast' ? 'DuoCast' : repository;
+  const fileId = productId === 'duocast' ? 'macos-arm64' : 'dmg';
+  const fileName = productId === 'duocast' ? 'DuoCast-2.1.0-macOS-arm64.zip' : `${name}-2.1.0.dmg`;
+  const bytes = productId === 'duocast' ? duocastBody.length : body.length;
+  const sha256 = productId === 'duocast' ? duocastHash : hash;
   return { productId, name, channel: 'github-stable', currentVersion: '1.0.0', latestVersion: '2.1.0', status: 'update',
-    message: '', sourceUrl: `https://github.com/Meteorkid/${name}/releases/tag/v2.1.0`, publishedAt: new Date().toISOString(), releaseId: 42, tag: 'v2.1.0',
-    assets: [{ fileId: 'dmg', name: `${name}-2.1.0.dmg`, url: `https://github.com/Meteorkid/${name}/releases/download/v2.1.0/${name}-2.1.0.dmg`, bytes: body.length, sha256: hash, architecture: 'macos-arm64', assetId: 1 }] };
+    message: '', sourceUrl: `https://github.com/Meteorkid/${repository}/releases/tag/v2.1.0`, publishedAt: new Date().toISOString(), releaseId: 42, tag: 'v2.1.0',
+    assets: [{ fileId, name: fileName, url: `https://github.com/Meteorkid/${repository}/releases/download/v2.1.0/${fileName}`, bytes, sha256, architecture: 'macos-arm64', assetId: 1 }] };
 }
 async function queue(rows = [row()]): Promise<JobRecord> {
   const record: JobRecord = {
@@ -29,7 +37,11 @@ async function queue(rows = [row()]): Promise<JobRecord> {
   await writeStateFile('job', record);
   return record;
 }
-const dependencies = () => ({ verifyRow: vi.fn(async () => undefined), download: vi.fn(async () => body), upload: vi.fn(async () => undefined) });
+const dependencies = () => ({
+  verifyRow: vi.fn(async () => undefined),
+  download: vi.fn(async (): Promise<Buffer> => body),
+  upload: vi.fn(async () => undefined),
+});
 beforeEach(async () => { directory = await mkdtemp(path.join(os.tmpdir(), 'update-worker-')); vi.stubEnv('PRODUCT_UPDATES_DIR', directory); });
 afterEach(async () => { vi.unstubAllEnvs(); await rm(directory, { recursive: true, force: true }); });
 
@@ -51,6 +63,21 @@ describe('产品更新后台任务（隔离安装包与存储）', () => {
     expect(catalog.catalog.downloads.xisland).toBeUndefined();
     expect(catalog.catalog.downloads.xnook.dmg.version).toBe('2.1.0');
     expect((await readStateFile<JobRecord>('job'))?.job.status).toBe('partial');
+  });
+  it('DuoCast ZIP 下载校验后上传固定对象并切换下载目录', async () => {
+    const record = await queue([row('duocast')]); const deps = dependencies();
+    deps.download.mockResolvedValue(duocastBody);
+    await runProductUpdateJob(record.job.id, deps);
+    expect(deps.upload).toHaveBeenCalledWith(
+      'releases/duocast/2.1.0/DuoCast-2.1.0-macOS-arm64.zip',
+      duocastBody,
+      record.check.rows[0].assets[0],
+      expect.any(AbortSignal),
+    );
+    expect((await readCurrentCatalog()).catalog.downloads.duocast['macos-arm64']).toMatchObject({
+      version: '2.1.0', sha256: duocastHash, r2Key: 'releases/duocast/2.1.0/DuoCast-2.1.0-macOS-arm64.zip',
+    });
+    expect((await readStateFile<JobRecord>('job'))?.job.status).toBe('completed');
   });
   it('hash错误阻止上传且不生成发布目录', async () => {
     const record = await queue(); const deps = dependencies(); deps.download.mockResolvedValue(Buffer.from('incorrect'));

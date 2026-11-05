@@ -13,6 +13,10 @@ function island(version = '2.1.0', hash = sha256): DownloadOverride {
   return { version, sha256: hash, r2Key: `releases/xisland/${version}/XIsland-${version}.dmg` };
 }
 
+function duoCast(version = '0.1.2', hash = sha256): DownloadOverride {
+  return { version, sha256: hash, r2Key: `releases/duocast/${version}/DuoCast-${version}-macOS-arm64.zip` };
+}
+
 function catalog(downloads: ReleaseCatalog['downloads'] = { xisland: { dmg: island() } }): ReleaseCatalog {
   return { version: 1, updatedAt: '2026-10-22T01:02:03.000Z', downloads };
 }
@@ -46,10 +50,10 @@ describe('动态下载目录', () => {
     expect(await getProductWithCurrentDownloads('statux')).toEqual(products.find(item => item.id === 'statux'));
   });
 
-  it('无文件时仅列四个静态下载产品，并且不写文件', async () => {
+  it('无文件时列出五个登记下载产品，并且不写文件', async () => {
     const state = await readCurrentCatalog({ directory });
     expect(state.catalogError).toBe(false);
-    expect(state.current.map((product) => product.productId).sort()).toEqual(['omnicrawl', 'statux', 'xisland', 'xnook']);
+    expect(state.current.map((product) => product.productId).sort()).toEqual(['duocast', 'omnicrawl', 'statux', 'xisland', 'xnook']);
     expect(state.catalog.downloads).toEqual({});
     expect(state.revision).toMatch(/^[a-f0-9]{64}$/);
     expect(await readdir(directory)).toEqual([]);
@@ -84,6 +88,14 @@ describe('动态下载目录', () => {
     expect(await getProductWithCurrentDownloads('xnook')).toEqual(products.find((product) => product.id === 'xnook'));
   });
 
+  it('DuoCast ZIP 只覆盖已登记的 macos-arm64 下载', async () => {
+    await save(catalog({ duocast: { 'macos-arm64': duoCast() } }));
+    expect((await getProductWithCurrentDownloads('duocast'))?.downloads?.[0]).toMatchObject({
+      id: 'macos-arm64', version: '0.1.2',
+      r2Key: 'releases/duocast/0.1.2/DuoCast-0.1.2-macOS-arm64.zip',
+    });
+  });
+
   it('损坏目录与文件缺失有区别，公共读取安全回落，不能覆盖损坏目录', async () => {
     await writeFile(path.join(directory, 'catalog.json'), '{broken');
     const state = await readCurrentCatalog({ directory });
@@ -108,6 +120,7 @@ describe('动态下载目录', () => {
     ['预发布版本', catalog({ xisland: { dmg: island('2.1.0-beta.1') } })],
     ['带 v 版本', catalog({ xisland: { dmg: island('v2.1.0') } })],
     ['非法 SHA', catalog({ xisland: { dmg: island('2.1.0', 'not-a-hash') } })],
+    ['DuoCast 错误对象名', catalog({ duocast: { 'macos-arm64': { ...duoCast(), r2Key: 'releases/duocast/0.1.2/DuoCast-0.1.2.zip' } } })],
     ['错误 PyPI 包', catalog({ omnicrawl: { pypi: { version: '1.2.3', url: 'https://pypi.org/project/omnicrawl/' } } })],
     ['PyPI 用户名', catalog({ omnicrawl: { pypi: { version: '1.2.3', url: 'https://evil@pypi.org/project/omnicrawl-core/' } } })],
     ['PyPI 查询串', catalog({ omnicrawl: { pypi: { version: '1.2.3', url: 'https://pypi.org/project/omnicrawl-core/?next=evil' } } })],
