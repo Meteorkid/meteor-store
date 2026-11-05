@@ -6,24 +6,30 @@ Connect your headphones or speakers before opening the app. A wired headset pair
 
 ## Download, verify and install
 
-1. Open the [download section on the DuoCast product page](/en/products/duocast#download) and download the macOS package. No sign-in is required. The v0.1.0 file is named `DuoCast-0.1.0-macOS-arm64.zip`.
+1. Open the [download section on the DuoCast product page](/en/products/duocast#download) and download the macOS package. No sign-in is required. The v0.1.1 file is named `DuoCast-0.1.1-macOS-arm64.zip`.
 2. Check the download source and SHA-256. If the file is in your default Downloads folder, run this command in Terminal:
 
    ```bash
-   shasum -a 256 ~/Downloads/DuoCast-0.1.0-macOS-arm64.zip
+   shasum -a 256 ~/Downloads/DuoCast-0.1.1-macOS-arm64.zip
    ```
 
-   The complete checksum for v0.1.0 is below. The command output should match it:
+   The complete checksum for v0.1.1 is below. The command output should match it:
 
    ```text
-   15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1
+   92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28
    ```
 
    For another version, use its filename and the complete checksum from its release record. If the values differ, download the package again or report the issue before proceeding.
 3. Extract the ZIP and move `DuoCast.app` to Applications.
 4. Open the app. This build is **ad-hoc signed and has not been notarized by Apple**. If macOS cannot verify the developer or check the app for malicious software, first confirm that the source is trustworthy and the checksum matches. Then open System Settings → Privacy & Security, find DuoCast, click Open Anyway and follow the confirmation prompts.
 
-This creates an exception for this app. See Apple's [Safely open apps on your Mac](https://support.apple.com/en-us/102445). If macOS says the app is damaged, will damage your computer, or moves it to the Trash, stop and [report the issue](/en/feedback?type=question) with the exact warning. Keep Gatekeeper enabled and do not run commands that remove quarantine attributes.
+This creates an exception for this app. See Apple's [Safely open apps on your Mac](https://support.apple.com/en-us/102445). If macOS says the app is damaged and you have confirmed both the download source and checksum, run the command below in Terminal to remove the quarantine attribute from this DuoCast app only, then try opening it again:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/DuoCast.app"
+```
+
+Keep Gatekeeper enabled. Do not run commands that bypass security checks for the operating system or other apps. If the problem remains, [report it](/en/feedback?type=question) with the exact warning.
 
 ## Play audio for the first time
 

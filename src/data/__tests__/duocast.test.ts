@@ -25,9 +25,9 @@ describe('DuoCast 产品目录', () => {
     expect(duocast.downloads![0]).toMatchObject({
       id: 'macos-arm64',
       icon: 'zip',
-      r2Key: 'releases/duocast/0.1.0/DuoCast-0.1.0-macOS-arm64.zip',
-      version: '0.1.0',
-      sha256: '15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1',
+      r2Key: 'releases/duocast/0.1.1/DuoCast-0.1.1-macOS-arm64.zip',
+      version: '0.1.1',
+      sha256: '92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28',
     });
     expect(duocast.downloads![0].gated).not.toBe(true);
     expect(duocast.downloads![0].url).toBeUndefined();

@@ -73,6 +73,13 @@ describe('产品媒体与获取入口', () => {
     expect(await DownloadSection({ product: { ...product('xnook'), downloads: [] } })).toBeNull();
   });
 
+  it('DuoCast ZIP 下载也显示对应的未公证安装提示', async () => {
+    const html = renderToStaticMarkup(await DownloadSection({ product: product('duocast') }));
+    expect(html).toContain('data-file="macos-arm64" data-gated="false"');
+    expect(html).toContain('xattr -cr &quot;/Applications/DuoCast.app&quot;');
+    expect(html).toContain(en.ProductDetailPage.macInstallTitle);
+  });
+
   /**
    * 领取入口原本只挂在下方定价卡的免费档里，而顶部「下载 DMG」是锚点直达下载区，
    * 用户下完就以为结束（装好发现只能试用 14 天，回头也找不到入口）。
