@@ -144,7 +144,7 @@ export default async function DownloadSection({
         下载完就卡在「已损坏，无法打开」——那是整条漏斗里最贵的一次流失。
         包名必须取自 product.macBundleName，与 DMG 里的实际名一致，写错一个字符就白搭。
       */}
-      {product.macBundleName && downloads.some((download) => download.icon === 'dmg') ? (
+      {product.macBundleName && downloads.some((download) => download.icon === 'dmg' || download.icon === 'zip') ? (
         <div className="mt-6 rounded-2xl border border-amber-400/25 bg-amber-400/[0.06] p-5">
           <p className="mb-2 text-sm font-semibold text-amber-200">{t('macInstallTitle')}</p>
           <p className="mb-3 text-sm leading-6 text-gray-300">{t('macInstallBody')}</p>

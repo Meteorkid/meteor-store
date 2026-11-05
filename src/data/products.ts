@@ -944,9 +944,9 @@ export const products: Product[] = [
         id: 'macos-arm64',
         label: { zh: 'macOS 安装包（Apple 芯片）', en: 'macOS app (Apple Silicon)' },
         icon: 'zip',
-        r2Key: 'releases/duocast/0.1.0/DuoCast-0.1.0-macOS-arm64.zip',
-        version: '0.1.0',
-        sha256: '15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1',
+        r2Key: 'releases/duocast/0.1.1/DuoCast-0.1.1-macOS-arm64.zip',
+        version: '0.1.1',
+        sha256: '92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28',
         note: { zh: 'macOS 14.2 及以上；ad-hoc 签名，未经 Apple 公证', en: 'macOS 14.2 or later; ad-hoc signed, not notarized by Apple' },
       },
     ],
@@ -954,6 +954,7 @@ export const products: Product[] = [
     icon: '🎧',
     gradient: 'from-cyan-500 to-blue-500',
     platforms: ['macOS 14.2+', 'Apple Silicon'],
+    macBundleName: 'DuoCast.app',
     media: {
       cover: '/products/duocast/cover.webp',
       screenshots: [

@@ -99,8 +99,8 @@ describe('安装包下载', () => {
     expect(getSession).not.toHaveBeenCalled();
     expect(getUserEntitlements).not.toHaveBeenCalled();
     expect(createSignedReleaseUrl).toHaveBeenCalledWith(
-      'releases/duocast/0.1.0/DuoCast-0.1.0-macOS-arm64.zip',
-      'DuoCast-0.1.0-macOS-arm64.zip',
+      'releases/duocast/0.1.1/DuoCast-0.1.1-macOS-arm64.zip',
+      'DuoCast-0.1.1-macOS-arm64.zip',
     );
   });
 

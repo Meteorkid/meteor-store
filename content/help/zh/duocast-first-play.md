@@ -6,24 +6,30 @@ DuoCast 将同一路音频分发到最多 3 路输出，每路可分别调节音
 
 ## 下载、核对并安装
 
-1. 打开 [DuoCast 产品页的下载区](/zh/products/duocast#download)，下载 macOS 安装包，无需登录。v0.1.0 的文件名是 `DuoCast-0.1.0-macOS-arm64.zip`。
+1. 打开 [DuoCast 产品页的下载区](/zh/products/duocast#download)，下载 macOS 安装包，无需登录。v0.1.1 的文件名是 `DuoCast-0.1.1-macOS-arm64.zip`。
 2. 核对下载来源与 SHA-256。若文件保存在默认「下载」文件夹，可在「终端」运行下面的命令：
 
    ```bash
-   shasum -a 256 ~/Downloads/DuoCast-0.1.0-macOS-arm64.zip
+   shasum -a 256 ~/Downloads/DuoCast-0.1.1-macOS-arm64.zip
    ```
 
-   v0.1.0 的完整校验值如下，命令输出应与它一致：
+   v0.1.1 的完整校验值如下，命令输出应与它一致：
 
    ```text
-   15e932bf5cbe9e29e46c998d58e5d481918a7db1ed1489922d79f56fd4b2edd1
+   92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28
    ```
 
    下载其他版本时，使用对应文件名和发布记录中的完整校验值。校验不一致时，先重新下载或反馈问题。
 3. 解压 ZIP，将 `DuoCast.app` 拖入「应用程序」。
 4. 打开应用。当前构建采用 **ad-hoc 签名，未经 Apple 公证**。如果 macOS 提示无法验证开发者或无法检查恶意软件，在确认来源可信且校验值一致后，进入「系统设置 → 隐私与安全性」，找到 DuoCast，点「仍要打开」，再按提示确认。
 
-该步骤只为这一款应用设置例外，Apple 的操作说明见[《在 Mac 上安全地打开 App》](https://support.apple.com/zh-cn/102445)。如果系统提示应用已损坏、将损坏电脑，或将它移入废纸篓，请停止打开并[反馈问题](/zh/feedback?type=question)，附上完整提示文字。不要关闭 Gatekeeper 或运行移除隔离属性的命令。
+该步骤只为这一款应用设置例外，Apple 的操作说明见[《在 Mac 上安全地打开 App》](https://support.apple.com/zh-cn/102445)。如果系统提示“已损坏，无法打开”，先确认文件来自本站且校验值一致；仍无法打开时，可在“终端”运行下面的命令，只移除 DuoCast 这一份应用的隔离属性，再重新打开：
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/DuoCast.app"
+```
+
+不要关闭 Gatekeeper，也不要对系统或其他应用执行绕过安全检查的命令。如果问题仍存在，请[反馈问题](/zh/feedback?type=question)，附上完整提示文字。
 
 ## 完成第一次播放
 

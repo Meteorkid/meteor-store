@@ -41,7 +41,8 @@ export async function generateMetadata({ params }: ProductPageProps) {
   const t = await getTranslations({ locale, namespace: 'ProductDetailPage' });
   if (!raw) return { title: t('notFound') };
   const product = localizeProduct(raw, locale as Locale);
-  return { title: `${product.name} - ${product.tagline} | Meteor Store`, description: product.description };
+  // 根布局会用 `%s | Meteor Store` 统一补品牌名，这里重复写会产生两个后缀。
+  return { title: `${product.name} - ${product.tagline}`, description: product.description };
 }
 
 export default async function ProductPage({ params, searchParams }: ProductPageProps) {
