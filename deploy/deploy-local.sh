@@ -176,7 +176,7 @@ echo "  已预热 $warmed 个产品封面 × 3 种宽度"
 echo "==> 同步公开镜像"
 for remote in gitee gitlab; do
   if ! git remote get-url "$remote" >/dev/null 2>&1; then
-    echo "  跳过 $remote（未配置该 remote）"
+    echo "  跳过 ${remote}（未配置该 remote）"
     continue
   fi
   # 失败时要能看出「为什么」。这里原本是 >/dev/null 2>&1 把输出整个吞掉，

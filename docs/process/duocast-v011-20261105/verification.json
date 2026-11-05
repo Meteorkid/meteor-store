@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-11-05T04:20:39Z",
+  "productionCommit": "35b34c2555698faa6cf6985f412eb1a16fbbcf0d",
+  "buildId": "build-TfctsWXpff2fKS",
+  "pm2Pid": 2339334,
+  "rollback": "/var/backups/meteor-store-runtime-P5FbjxFp",
+  "pages": {
+    "zh": "https://www.imagentx.top/zh/products/duocast",
+    "en": "https://www.imagentx.top/en/products/duocast",
+    "helpZh": "https://www.imagentx.top/zh/docs/duocast-first-play",
+    "helpEn": "https://www.imagentx.top/en/docs/duocast-first-play"
+  },
+  "download": {
+    "api": "https://www.imagentx.top/api/download/duocast?file=macos-arm64",
+    "status": 302,
+    "cacheControl": "no-store",
+    "object": "releases/duocast/0.1.1/DuoCast-0.1.1-macOS-arm64.zip",
+    "filename": "DuoCast-0.1.1-macOS-arm64.zip",
+    "bytes": 710738,
+    "sha256": "92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28",
+    "zipIntegrity": "ok"
+  },
+  "health": {
+    "status": "healthy",
+    "database": "ok",
+    "redis": "ok"
+  },
+  "tests": {
+    "filesPassed": 363,
+    "filesSkipped": 4,
+    "testsPassed": 3831,
+    "testsSkipped": 47,
+    "targetedPassed": 23,
+    "typecheck": "passed",
+    "changedFileLint": "passed",
+    "fullLint": "pre-existing failures remain"
+  },
+  "notCovered": [
+    "No physical Mac launch or real headset/audio verification",
+    "DuoCast ZIP is not yet registered in product-update console discovery/artifact sync",
+    "GitHub release is not marked immutable"
+  ]
+}
