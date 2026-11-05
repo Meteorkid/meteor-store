@@ -1,0 +1,1 @@
+* [XIsland](https://www.imagentx.top/en/products/xisland) - Menu bar panel for 30+ AI coding agents, approving file writes and command execution from the notch, including Chinese clients such as Kimi, Qwen, DeepSeek, GLM, CodeBuddy and Trae CN; each client is documented as either approval-capable or observe-only.

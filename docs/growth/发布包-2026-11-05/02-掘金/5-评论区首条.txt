@@ -1,0 +1,7 @@
+接入矩阵和每个版本的验收记录在这里，想核「到底支持到哪一步」可以逐格查：
+https://github.com/Meteorkid/XIsland
+
+产品页（Mac 刘海面板，现在限时免费，领个永久码就行）：
+https://www.imagentx.top/zh/products/xisland
+
+哪家客户端其实有对外审批接口、但矩阵里标成了「只能观察」，欢迎直接指出，那比我自己测出来值钱。
