@@ -18,6 +18,7 @@
     "sha256": "92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28"
   },
   "syncPerformed": false,
+  "productionWorkerArtifactReadback": { "bytes": 710738, "sha256": "92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28", "uploaded": false },
   "pendingUnrelatedUpdate": { "productId": "xisland", "latestVersion": "2.0.16" },
   "tests": {
     "filesPassed": 363,

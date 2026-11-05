@@ -22,6 +22,7 @@
 - 生产 `/api/health` 为 healthy，数据库与 Redis 正常；DuoCast 公开下载仍返回 302、no-store 和 v0.1.1 私有对象。
 - 完整单测 3,838 项通过、47 项跳过；TypeScript、改动文件 ESLint、worker/deploy shell 语法和 `git diff --check` 通过。生产构建生成 437 个路由。
 - 真实官方 v0.1.1 ZIP 通过新校验器；构造的 Unicode Path Extra、错误 CRC、ZIP64、加密、符号链接、额外顶层内容、错误架构和非法 Mach-O 样本均被拒绝。
+- 生产服务器用实际 worker 的 `downloadArtifact` 路径下载并解析官方包：710,738 字节、SHA-256 `92efeae…eae28`，未执行 R2 上传。
 
 ## 未覆盖
 
