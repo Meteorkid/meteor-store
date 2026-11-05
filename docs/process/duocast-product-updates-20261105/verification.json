@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-11-05T04:44:48Z",
+  "runtimeCommit": "e93158249e216cbf678dfc17c040ea61d57f06e9",
+  "buildId": "build-TfctsWXpff2fKS",
+  "pm2Pid": 2341616,
+  "runtimeRollback": "/var/backups/meteor-store-runtime-bVUXrBEy",
+  "productUpdatesBackup": "/var/backups/meteor-product-updates-duocast-20261105.dW4Y0t",
+  "currentRevision": "cdc104c24706a3c4d619e15a30b10baa4fa4cf09f0a44188796a01062c732a51",
+  "currentProducts": ["duocast", "omnicrawl", "statux", "xisland", "xnook"],
+  "duocast": {
+    "status": "current",
+    "currentVersion": "0.1.1",
+    "latestVersion": "0.1.1",
+    "releaseId": 434097803,
+    "assetId": 709955805,
+    "fileName": "DuoCast-0.1.1-macOS-arm64.zip",
+    "bytes": 710738,
+    "sha256": "92efeae754d2da37459047d936bcca9855c9a5ec9b3fc74d19b4b3c9755eae28"
+  },
+  "syncPerformed": false,
+  "pendingUnrelatedUpdate": { "productId": "xisland", "latestVersion": "2.0.16" },
+  "tests": {
+    "filesPassed": 363,
+    "filesSkipped": 4,
+    "testsPassed": 3838,
+    "testsSkipped": 47,
+    "typecheck": "passed",
+    "changedFileLint": "passed"
+  },
+  "health": { "status": "healthy", "database": "ok", "redis": "ok" }
+}
