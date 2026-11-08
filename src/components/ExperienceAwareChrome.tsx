@@ -14,6 +14,7 @@ import { isFullscreenExperiencePath } from '@/lib/fullscreen-experience';
 export default function ExperienceAwareChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const fullscreenExperience = isFullscreenExperiencePath(pathname);
+  const homeExperience = /^\/(?:zh|en)?\/?$/.test(pathname);
 
   return (
     <>
@@ -21,9 +22,7 @@ export default function ExperienceAwareChrome({ children }: { children: ReactNod
         <>
           <EasterEggs />
           <SpotlightSearch />
-          <FilmGrain />
-          <HeroCanvas />
-          <MeteorShower />
+          {!homeExperience && <><FilmGrain /><HeroCanvas /><MeteorShower /></>}
         </>
       )}
       {children}

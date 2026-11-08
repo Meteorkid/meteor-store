@@ -69,6 +69,7 @@ class PointerTarget extends EventTarget {
 }
 
 let tree: ElementNode;
+let variant: 'default' | 'celestial' = 'default';
 let browserWindow: EventTarget;
 let body: { style: { overflow: string } };
 let closePopovers = vi.fn<(event: Event) => void>();
@@ -79,7 +80,7 @@ function renderHeader() {
     if (++attempts > 20) throw new Error('Header render did not settle');
     hooks.dirty = false;
     hooks.stateIndex = hooks.refIndex = hooks.callbackIndex = hooks.effectIndex = 0;
-    tree = Header();
+    tree = Header({ variant });
   } while (hooks.dirty);
   hooks.pending.splice(0).forEach(effect => effect());
   return tree;
@@ -141,7 +142,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('Header 导航交接', () => {
+describe.each(['default', 'celestial'] as const)('Header 导航交接：%s', testedVariant => {
+  beforeEach(() => { variant = testedVariant; renderHeader(); });
   it('手机菜单首项为管理员入口，点击后关闭面板并恢复滚动', () => {
     authState.user = { name: 'Admin', isAdmin: true };
     renderHeader();

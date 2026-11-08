@@ -197,3 +197,84 @@
     backdrop-filter: none;
   }
 }
+
+/* 仅首页使用星光字形与银线；导航结构和默认 64px 顶栏保持原样。 */
+.celestial { color: #e4edf5; background: transparent; }
+.celestial.headerSurface {
+  background: rgb(6 11 18 / 94%);
+  box-shadow: inset 0 -1px 0 rgb(215 230 243 / 14%);
+  -webkit-backdrop-filter: blur(24px) saturate(1.1);
+  backdrop-filter: blur(24px) saturate(1.1);
+}
+.celestial .bar { position: relative; height: var(--home-header-height, 88px); padding-inline: clamp(24px, 3vw, 44px); }
+.celestial .bar::after { content: ''; position: absolute; bottom: 0; inset-inline: clamp(24px, 3vw, 44px); height: 1px; background: rgb(215 230 243 / 14%); pointer-events: none; }
+.celestial .brand { gap: 12px; min-height: 44px; color: #edf2f6; }
+.celestialMark { position: relative; display: block; width: 28px; height: 36px; flex-shrink: 0; }
+.celestialMark::before { content: ''; position: absolute; left: 2px; top: 17px; width: 27px; height: 1px; background: linear-gradient(90deg, transparent, #e7f5ff); transform: rotate(-42deg); }
+.celestialMark::after { content: ''; position: absolute; right: 1px; top: 7px; width: 4px; height: 4px; border-radius: 50%; background: #eff8ff; box-shadow: 0 0 10px rgb(201 232 255 / 55%); }
+.celestialBrandType { display: grid; gap: 3px; }
+.celestialBrandMain { --type-height: 20px; --letter-stroke: 3.8; }
+.celestialBrandSub { --type-height: 11px; --letter-stroke: 5; color: #b7c6d3; }
+.celestial .navLink { padding-inline: 5px; color: #d4dfe9; }
+.celestialNavText { --type-height: 18px; }
+.celestialNavLatin { --type-height: 14px; }
+.celestial .navTrigger, .celestial .iconButton { color: #cad7e2; }
+.celestial .navLink::before, .celestial .navTrigger::before { display: none; }
+.celestial .navLink::after { content: ''; position: absolute; bottom: 3px; inset-inline: 6px; height: 1px; background: #dcecf6; opacity: 0; transition: opacity 160ms ease; }
+.celestial .navGroup[data-expanded] > .navLink::after, .celestial .navGroup[data-active] > .navLink::after, .celestial .navLink:focus-visible::after { opacity: .8; }
+.celestial .desktopPanel { max-height: calc(100dvh - var(--home-header-height, 88px)); background: linear-gradient(115deg, rgb(15 25 38 / 98%), rgb(6 11 18 / 98%) 65%); }
+.celestial .overviewLink, .celestialMobile .overviewLink { color: #cbdde9; }
+.celestial a:focus-visible, .celestial button:focus-visible, .celestialMobile a:focus-visible, .celestialMobile button:focus-visible { outline-color: #d4e9f7; }
+.celestial .mobileAdminShortcut { border-color: rgb(207 228 243 / 38%); background: rgb(200 223 240 / 7%); color: #e0edf5; }
+.celestialMobileText { --type-height: 23px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .celestial .navLink:hover::after { opacity: .8; }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .celestial .bar { gap: 12px; }
+  .celestial .brand { gap: 8px; }
+  .celestialMark { width: 24px; }
+  .celestialBrandMain { --type-height: 17px; }
+  .celestialBrandSub { --type-height: 10px; }
+  .celestialNavText { --type-height: 17px; }
+  .celestialNavLatin { --type-height: 13px; }
+  .celestial .navLink { padding-inline: 4px; }
+}
+
+@media (max-width: 1023px) {
+  .celestial .bar { height: var(--home-header-height, 76px); padding-inline: 20px; gap: 10px; }
+  .celestial .bar::after { inset-inline: 20px; }
+  .celestial .brand { gap: 10px; }
+  .celestialBrandMain { --type-height: 18px; }
+  .celestialMark { width: 26px; }
+  .celestialMobile { inset-block-start: var(--home-header-height, 76px); background: linear-gradient(150deg, #0d1825, #060b12 65%); }
+  .celestialMobile .mobileLink > span::before, .celestialMobile .mobileTrigger::before { display: none; }
+  .celestialMobile .mobileAdminEntry { border-color: rgb(207 228 243 / 30%); background: rgb(200 223 240 / 7%); }
+  .celestial .utilities > [data-header-popover-open] > div { inset-block-start: calc(var(--home-header-height, 76px) + 8px); }
+}
+
+@media (max-width: 420px) {
+  .celestial .bar { padding-inline: 14px; gap: 8px; }
+  .celestial .bar::after { inset-inline: 14px; }
+  .celestial .brand { gap: 8px; }
+  .celestialMark { width: 20px; }
+  .celestialMark::before { width: 22px; left: 0; }
+  .celestialBrandMain { --type-height: 16px; }
+  .celestialBrandSub { --type-height: 10px; }
+}
+
+@media (max-width: 359px) {
+  .celestial .bar, .celestial .brand { gap: 6px; }
+  .celestialMark { width: 18px; }
+  .celestialBrandMain { --type-height: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celestial .navLink::after { transition: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .celestial.headerSurface, .celestial .desktopPanel { background: #0a131e; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

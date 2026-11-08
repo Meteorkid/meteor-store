@@ -18,6 +18,7 @@ import { products } from '@/data/products';
 import { webAppCount } from '@/data/app-manifest';
 import { localizeHelpArticles } from '@/data/help-articles';
 import { SHOW_PRICING } from '@/lib/constants';
+import styles from './HomePage.module.css';
 
 export async function generateMetadata({
   params,
@@ -41,8 +42,8 @@ export default async function Home({
   setRequestLocale(locale);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Header />
+    <div className={`${styles.home} min-h-screen text-foreground`}>
+      <Header variant="celestial" />
 
       {/* Hero Section */}
       {/* Hero 的四个数字由服务端从真实数据算出：产品总数、可在浏览器直接打开的数量、

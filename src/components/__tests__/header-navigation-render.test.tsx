@@ -23,17 +23,17 @@ import Header from '../Header';
 
 beforeEach(() => { state.locale = 'zh'; state.pathname = '/'; state.user = null; });
 
-describe('主导航初始呈现', () => {
+describe.each(['default', 'celestial'] as const)('主导航初始呈现：%s', variant => {
   it('管理员在手机顶栏有直接入口，普通用户没有', () => {
     state.user = { name: 'Admin', isAdmin: true };
-    const html = renderToStaticMarkup(<Header />);
+    const html = renderToStaticMarkup(<Header variant={variant} />);
     expect(html).toMatch(/<a(?=[^>]*href="\/admin")(?=[^>]*aria-label="管理后台")[^>]*>/);
     state.user = { name: 'Member', isAdmin: false };
-    expect(renderToStaticMarkup(<Header />)).not.toContain('href="/admin"');
+    expect(renderToStaticMarkup(<Header variant={variant} />)).not.toContain('href="/admin"');
   });
   it.each(['zh', 'en'])('%s 一级名称是独立总览链接，旁边按钮只负责展开', locale => {
     state.locale = locale;
-    const html = renderToStaticMarkup(<Header />);
+    const html = renderToStaticMarkup(<Header variant={variant} />);
     for (const [id, href] of Object.entries({ products: '/products', daily: '/daily', learn: '/pathfinder', content: '/blog', help: '/docs' })) {
       expect(html).toMatch(new RegExp(`<a(?=[^>]*id="header-overview-${id}")(?=[^>]*href="${href}")[^>]*>`));
       expect(html).toMatch(new RegExp(`<button(?=[^>]*id="header-trigger-${id}")(?=[^>]*aria-expanded="false")[^>]*>`));
@@ -41,7 +41,7 @@ describe('主导航初始呈现', () => {
     expect(html).not.toMatch(/<a[^>]*>[^<]*<button/);
   });
   it('五个展开按钮有独立关系，不把隐藏面板链接留在键盘顺序内', () => {
-    const html = renderToStaticMarkup(<Header />);
+    const html = renderToStaticMarkup(<Header variant={variant} />);
     for (const id of ['products', 'daily', 'learn', 'content', 'help']) {
       expect(html).toContain(`id="header-trigger-${id}"`);
       expect(html).toContain(`aria-controls="header-panel-${id}"`);
@@ -53,7 +53,7 @@ describe('主导航初始呈现', () => {
   });
 
   it('保留回首页、搜索、移动菜单状态及既有彩蛋入口', () => {
-    const html = renderToStaticMarkup(<Header />);
+    const html = renderToStaticMarkup(<Header variant={variant} />);
     expect(html).toContain('href="/"');
     expect(html).toContain('data-meteor-logo="true"');
     expect(html).toContain('aria-label="搜索"');
@@ -64,11 +64,24 @@ describe('主导航初始呈现', () => {
 
   it('英文导航使用英文入口，不把中文菜单标题留在英文页', () => {
     state.locale = 'en';
-    const html = renderToStaticMarkup(<Header />);
+    const html = renderToStaticMarkup(<Header variant={variant} />);
     expect(html).toContain('Main navigation');
     expect(html).toContain('Products');
     expect(html).toContain('Daily');
     expect(html).toContain('Open menu');
     expect(html).not.toContain('每日一新');
   });
+});
+
+it('默认顶栏保留原品牌，首页变体只在显式传入时使用自绘字形', () => {
+  const defaultHtml = renderToStaticMarkup(<Header />);
+  expect(defaultHtml).not.toContain('data-variant="celestial"');
+  expect(defaultHtml).not.toContain('data-celestial-text');
+  const homeHtml = renderToStaticMarkup(<Header variant="celestial" />);
+  expect(homeHtml).toContain('data-variant="celestial"');
+  expect(homeHtml).toContain('data-celestial-text="METEOR"');
+  expect(homeHtml).toContain('data-celestial-text="STORE"');
+  expect(homeHtml).toContain('Notifications fixture');
+  expect(homeHtml).toContain('Language fixture');
+  expect(homeHtml).toContain('Account fixture');
 });

@@ -11,6 +11,7 @@ import UserMenu from './UserMenu';
 import LanguageSwitcher from './LanguageSwitcher';
 import BrandMark from './BrandMark';
 import NotificationBell from './NotificationBell';
+import CelestialText from './home/CelestialText';
 import styles from './Header.module.css';
 
 const navigation = getHeaderNavigation(SHOW_PRICING);
@@ -53,7 +54,12 @@ function SearchIcon() {
   return <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" /></svg>;
 }
 
-export default function Header() {
+export interface HeaderProps {
+  variant?: 'default' | 'celestial';
+}
+
+export default function Header({ variant = 'default' }: HeaderProps = {}) {
+  const celestial = variant === 'celestial';
   const pathname = usePathname();
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const t = useTranslations('Header');
@@ -282,7 +288,8 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`${styles.header} ${scrolled || desktopOpen || mobileOpen ? styles.headerSurface : ''} ${hidden && !desktopOpen && !mobileOpen && !focusWithin ? styles.headerHidden : ''}`}
+        className={`${styles.header} ${celestial ? styles.celestial : ''} ${scrolled || desktopOpen || mobileOpen ? styles.headerSurface : ''} ${hidden && !desktopOpen && !mobileOpen && !focusWithin ? styles.headerHidden : ''}`}
+        data-variant={celestial ? 'celestial' : undefined}
         onFocusCapture={() => setFocusWithin(true)}
         onBlurCapture={event => {
           if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -294,8 +301,16 @@ export default function Header() {
         <div className={`container mx-auto ${styles.bar}`}>
           {/* 移动端连点 7 次的流星雨入口需要保留此标记。 */}
           <Link href="/" className={styles.brand} data-meteor-logo onClick={closeNavigation} aria-label={`Meteor Store · ${t('home')}`}>
-            <BrandMark className="h-7 w-7" />
-            <span className={styles.brandName}>Meteor Store</span>
+            {celestial ? <>
+              <span className={styles.celestialMark} aria-hidden="true" />
+              <span className={styles.celestialBrandType}>
+                <CelestialText text="METEOR" className={styles.celestialBrandMain} decorative />
+                <CelestialText text="STORE" className={styles.celestialBrandSub} spacing={15} decorative />
+              </span>
+            </> : <>
+              <BrandMark className="h-7 w-7" />
+              <span className={styles.brandName}>Meteor Store</span>
+            </>}
           </Link>
 
           <nav className={styles.desktopNav} aria-label={navLabel}>
@@ -320,7 +335,7 @@ export default function Header() {
                         enterDesktopPanel(group.id, event.currentTarget);
                       }
                     }}>
-                    {group.label[locale]}
+                    {celestial ? <CelestialText text={group.label[locale]} className={`${styles.celestialNavText} ${locale === 'en' ? styles.celestialNavLatin : ''}`} spacing={3} weight={4.6} /> : group.label[locale]}
                   </Link>
                   <button
                     type="button"
@@ -416,7 +431,7 @@ export default function Header() {
 
       {/* 与 header 平级，避免 transform/backdrop-filter 把 fixed 面板限制在导航栏高度内。 */}
       {mobileOpen && (
-        <div ref={mobileRef} id="header-mobile-panel" data-animate={animateMobile || undefined} className={styles.mobilePanel}>
+        <div ref={mobileRef} id="header-mobile-panel" data-animate={animateMobile || undefined} className={`${styles.mobilePanel} ${celestial ? styles.celestialMobile : ''}`}>
           <nav className={`container mx-auto ${styles.mobileContent}`} aria-label={navLabel}>
             {user?.isAdmin && (
               <Link href="/admin" className={styles.mobileAdminEntry} onClick={closeNavigation}>
@@ -431,7 +446,7 @@ export default function Header() {
                     <Link href={group.overview.href} id={`header-mobile-overview-${group.id}`} className={styles.mobileLink}
                       data-active={isGroupActive(group, pathname) || undefined} onClick={closeNavigation}
                       aria-current={isHeaderLinkActive(group.overview.href, pathname) ? 'page' : undefined}>
-                      <span className="t-title-3">{group.label[locale]}</span>
+                      <span className="t-title-3">{celestial ? <CelestialText text={group.label[locale]} className={styles.celestialMobileText} weight={4.6} /> : group.label[locale]}</span>
                     </Link>
                     <button type="button" className={styles.mobileTrigger}
                       aria-label={locale === 'en' ? `${group.label.en} submenu` : `${group.label.zh}二级菜单`}

@@ -1,148 +1,106 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import GlowButton from './GlowButton';
-import HeroCanvas from "./HeroCanvas";
-import Aurora from './Aurora';
-import ScrambleText from './ScrambleText';
-import MagneticWrap from './MagneticWrap';
-import { SHOW_PRICING } from '@/lib/constants';
+import { useState } from 'react';
+import { useLocale } from 'next-intl';
+import { Link } from '@/i18n/navigation';
+import { useReducedMotion } from '@/lib/motion';
+import CelestialText from './home/CelestialText';
+import HomeSky from './home/HomeSky';
+import styles from './HeroSection.module.css';
 
 interface HeroSectionProps {
-  /** 站内产品总数 */
   productCount: number;
-  /** 其中能在浏览器里直接打开的（已登记进 app-manifest 的）数量 */
   webAppCount: number;
-  /** 完全免费的数量（实验室全部免费） */
   freeCount: number;
-  /** 帮助中心的文章数 */
   helpCount: number;
 }
 
-/**
- * 首页 Hero。
- *
- * **这四个数字必须是可核实的事实**，由服务端从真实数据算好传进来。
- * 曾经写死成「1K+ 活跃用户 / 4.9 平均评分 / < 50ms 响应延迟」——三个都没有
- * 任何数据源支撑。对开发者受众，编造的社会证明一眼就能看穿，是负分；
- * 而站点同时是个体工商户的经营主体，虚构用户数据属于虚假宣传。
- * 现在这四个数字随产品目录自动变化，不会再漂移成谎话。
- */
+function EntryArrow() {
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10" /></svg>;
+}
+
+/** 首屏只拥有自己的星空；统计仍来自服务端真实目录，显示状态不写入账号或缓存。 */
 export default function HeroSection({ productCount, webAppCount, freeCount, helpCount }: HeroSectionProps) {
-  const t = useTranslations('HeroSection');
+  const english = useLocale() === 'en';
+  const reducedMotion = useReducedMotion();
+  const [peopleVisible, setPeopleVisible] = useState(false);
+  const [motionOverride, setMotionOverride] = useState<boolean | null>(null);
+  const playing = motionOverride ?? !reducedMotion;
+  const title = english ? 'Starlight is near' : '星光不远';
+  const peopleLabel = peopleVisible
+    ? (english ? 'Hide the crowd and return to starlight' : '隐藏人海，回到星光')
+    : (english ? 'See the people behind the starlight' : '看见星光背后的人');
+  const stats = [
+    { value: productCount, text: 'TOOLS', label: english ? 'Tools in the catalogue' : '目录中的工具' },
+    { value: webAppCount, text: 'WEB APPS', label: english ? 'Apps available in the browser' : '可在线体验的应用' },
+    { value: freeCount, text: 'FREE', label: english ? 'Free tools' : '免费工具' },
+    { value: helpCount, text: 'GUIDES', label: english ? 'Help articles' : '帮助文档' },
+  ];
 
   return (
-    <section className="relative overflow-hidden min-h-screen flex items-center">
-      {/* Aurora flowing gradient background */}
-      <Aurora />
-      <HeroCanvas />
-
-      {/* Interactive particle constellation */}
-
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.04)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
-
-      <div className="relative container mx-auto px-4 py-24 lg:py-32">
-        <div className="text-center max-w-3xl mx-auto">
-          {/* Status Badge — liquid glass pill */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full glass mb-8 animate-fade-in-up">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            <span className="text-xs font-medium text-white/70 tracking-wide uppercase">{t('badge')}</span>
-          </div>
-
-          {/* Main Heading — shimmer + gradient + ambient glow */}
-          <div className="relative mb-6">
-            {/* Ambient glow halo */}
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-28 bg-gradient-to-r from-purple-500/20 via-indigo-400/15 to-pink-500/20 rounded-full blur-3xl -z-10 pointer-events-none" aria-hidden="true" />
-            <h1 className="text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-bold tracking-tight">
-              <span className="hero-shimmer">
-                <ScrambleText text={t('headingLine1')} delay={200} />
-              </span>
-              <br />
-              <span className="hero-gradient">
-                <ScrambleText text={t('headingLine2')} delay={500} />
-              </span>
+    <>
+      <section className={styles.hero} aria-labelledby="home-celestial-title" data-home-celestial="true">
+        <div className={styles.background} aria-hidden="true">
+          <HomeSky peopleVisible={peopleVisible} paused={!playing} />
+        </div>
+        <div className={styles.content}>
+          <div className={styles.copy}>
+            <p className={styles.eyebrow} aria-label={english ? 'Independent creations' : '独立创造'}>
+              <span className={styles.eyebrowLine} aria-hidden="true" />
+              <CelestialText className={styles.eyebrowFull} text="INDEPENDENT CREATIONS" spacing={14} weight={7} decorative />
+              <CelestialText className={styles.eyebrowShort} text="INDEPENDENT" spacing={14} weight={7} decorative />
+            </p>
+            <h1 id="home-celestial-title" className={styles.title}>
+              <span className="sr-only">{title}</span>
+              {english ? <>
+                <CelestialText className={styles.englishTitle} text="STARLIGHT" spacing={10} weight={3.2} decorative />
+                <CelestialText className={styles.englishTitleSecond} text="IS NEAR" spacing={10} weight={3.2} decorative />
+              </> : <CelestialText className={styles.titleText} text="星光不远" spacing={10} weight={3.2} decorative />}
             </h1>
+            <p className={styles.description} aria-label={english ? 'Let your thoughts glow' : '让想念发光'}>
+              <CelestialText className={english ? styles.englishDescription : styles.descriptionText} text={english ? 'LET YOUR THOUGHTS GLOW' : '让想念发光'} spacing={english ? 8 : 17} weight={4.8} decorative />
+            </p>
+            <p className="sr-only">{english ? 'Independent tools, applications, writing and learning resources from Meteor Store.' : 'Meteor Store 的独立工具、应用、文字与学习资源。'}</p>
+            <div className={styles.actions}>
+              <Link className={styles.entry} href="/products" aria-label={english ? 'Explore tools and products' : '探索作品与产品'}>
+                <CelestialText className={styles.entryMain} text={english ? 'WORKS' : '作品'} spacing={10} weight={4.5} decorative />
+                <CelestialText className={styles.entrySub} text={english ? 'EXPLORE' : 'WORKS'} spacing={12} weight={7} decorative />
+                <EntryArrow />
+              </Link>
+              <Link className={`${styles.entry} ${styles.entrySecondary}`} href="/docs" aria-label={english ? 'Read guides and help' : '查看指南与帮助'}>
+                <CelestialText className={styles.entryMain} text={english ? 'GUIDE' : '指南'} spacing={10} weight={4.5} decorative />
+                <CelestialText className={styles.entrySub} text={english ? 'HELP' : 'GUIDE'} spacing={12} weight={7} decorative />
+                <EntryArrow />
+              </Link>
+            </div>
           </div>
-
-          {/* Subtitle */}
-          <p
-            className="text-lg md:text-xl text-white/50 mb-6 max-w-2xl mx-auto animate-fade-in-up"
-            style={{ animationDelay: '0.85s' }}
-          >
-            {t('subtitleLine1')}
-            <br className="hidden sm:block" />
-            {t('subtitleLine2')}
-          </p>
-
-          {/* Trust Line */}
-          <p
-            className="text-sm text-white/30 mb-10 animate-fade-in-up"
-            style={{ animationDelay: '0.95s' }}
-          >
-            {SHOW_PRICING ? t('trustLinePricing') : t('trustLineNoPricing')}
-          </p>
-
-          {/* CTA Buttons — magnetic cursor */}
-          <div
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fade-in-up"
-            style={{ animationDelay: '1.05s' }}
-          >
-            <MagneticWrap strength={0.25}>
-              <GlowButton variant="primary" size="lg" renderAs="a" href="/products">
-                <span className="flex items-center gap-2">
-                  <span>{t('ctaExplore')}</span>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
-              </GlowButton>
-            </MagneticWrap>
-            <MagneticWrap strength={0.25}>
-              <GlowButton variant="ghost" size="lg" renderAs="a" href="/docs">
-                <span className="flex items-center gap-2">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <span>{t('ctaGithub')}</span>
-                </span>
-              </GlowButton>
-            </MagneticWrap>
+          <div className={styles.discoverWrap}>
+            <button className={styles.discover} type="button" aria-label={peopleLabel} aria-pressed={peopleVisible} onClick={() => setPeopleVisible(value => !value)}>
+              <span className={styles.orbit} aria-hidden="true" />
+              <span className={styles.peopleCopy}>
+                <CelestialText className={styles.peopleLabel} text={english ? (peopleVisible ? 'RETURN' : 'SEE YOU') : (peopleVisible ? '回到星光' : '看见你')} spacing={10} weight={4.5} decorative />
+                <CelestialText className={styles.peopleLatin} text={peopleVisible ? 'TO THE STARS' : 'BEHIND THE LIGHT'} spacing={4} weight={7} decorative />
+              </span>
+            </button>
           </div>
-
-          {/* Stats — glass pills */}
-          <div
-            className="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-fade-in-up"
-            style={{ animationDelay: '1.15s' }}
-          >
-            {[
-              { value: String(productCount), label: t('statTools') },
-              { value: String(webAppCount), label: t('statPlayable') },
-              { value: String(freeCount), label: t('statFree') },
-              { value: String(helpCount), label: t('statDocs') },
-            ].map((stat) => (
-              <div key={stat.label} className="px-4 py-3 rounded-xl backdrop-blur-md bg-white/[0.03] border-t border-t-white/[0.10] border-b border-b-transparent border-x border-x-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-                <div className="text-2xl md:text-3xl font-bold text-white mb-1">{stat.value}</div>
-                <div className="text-xs text-white/40 uppercase tracking-wider">{stat.label}</div>
-              </div>
-            ))}
+          <div className={styles.heroFooter}>
+            <span aria-label={english ? 'A light is never alone' : '每一束光，都有人回应'}>
+              <CelestialText className={styles.footerFull} text="A LIGHT IS NEVER ALONE" spacing={11} weight={7} decorative />
+              <CelestialText className={styles.footerShort} text="WITH YOU" spacing={11} weight={7} decorative />
+            </span>
+            <button className={styles.pause} type="button" aria-label={english ? (playing ? 'Pause starlight' : 'Play starlight') : (playing ? '暂停星光' : '继续星光')} aria-pressed={playing} onClick={() => setMotionOverride(!playing)}>
+              <span className={styles.pauseDot} aria-hidden="true" />
+              <CelestialText className={styles.pauseLabel} text={playing ? 'PAUSE' : 'PLAY'} spacing={10} weight={7} decorative />
+            </button>
           </div>
         </div>
+      </section>
+      <div className={styles.stats} aria-label={english ? 'Catalogue facts' : '目录统计'}>
+        {stats.map(stat => <div className={styles.stat} key={stat.text} aria-label={`${stat.label}: ${stat.value}`}>
+          <CelestialText className={styles.statValue} text={String(stat.value)} spacing={4} weight={4} decorative />
+          <CelestialText className={styles.statLabel} text={stat.text} spacing={8} weight={6} decorative />
+        </div>)}
       </div>
-
-      {/* Bottom Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
-
-      {/* Scroll Indicator — glass pill */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in-up" style={{ animationDelay: '1.4s' }}>
-        <span className="text-xs text-white/30 tracking-widest uppercase">Scroll</span>
-        <div className="w-6 h-9 rounded-full backdrop-blur-md bg-white/[0.04] border-t border-l border-r border-b border-t-white/[0.18] border-l-white/[0.08] border-r-white/[0.05] border-b-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] flex justify-center pt-2">
-          <div className="w-1 h-2 bg-white/50 rounded-full animate-bounce" />
-        </div>
-      </div>
-    </section>
+    </>
   );
 }
