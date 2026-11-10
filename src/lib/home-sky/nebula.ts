@@ -1,6 +1,9 @@
 export interface NebulaRenderOptions {
   brightness?: number;
   dust?: number;
+  /** 弧度；与星光相同的先 Y 后 X 视角，屏幕 x 向右、y 向下、z 向远处。 */
+  yaw?: number;
+  pitch?: number;
 }
 
 export interface NebulaRenderer {
@@ -16,6 +19,7 @@ interface GpuResources {
   resolution: WebGLUniformLocation;
   brightness: WebGLUniformLocation;
   dust: WebGLUniformLocation;
+  viewRotation: WebGLUniformLocation;
 }
 
 const vertexSource = `#version 300 es
@@ -33,6 +37,7 @@ const fragmentSource = `#version 300 es
   uniform vec2 u_resolution;
   uniform float u_brightness;
   uniform float u_dust;
+  uniform mat3 u_view_rotation;
 
   float hash31(vec3 p) {
     p = fract(p * 0.1031);
@@ -83,10 +88,13 @@ const fragmentSource = `#version 300 es
     q = mat2(0.958,-0.287,0.287,0.958) * q;
     vec3 radiance = vec3(0.0);
     float transmittance = 1.0;
+    // 将整条采样射线变换回密度场；零角度仍沿用已批准的构图与光程。
+    vec3 rayOrigin = u_view_rotation * vec3(q, 0.0);
+    vec3 rayDirection = u_view_rotation * vec3(0.055, -0.025, 1.0);
     const float stepLength = 2.6 / 36.0;
     for (int stepIndex = 0; stepIndex < 36; stepIndex++) {
       float z = -1.3 + (float(stepIndex) + 0.5) * stepLength;
-      vec3 p = vec3(q + vec2(z * 0.055, z * -0.025), z);
+      vec3 p = rayOrigin + rayDirection * z;
       vec3 displacement = warp(p + vec3(3.7,4.8,1.5));
       vec3 field = p * vec3(1.55,2.45,1.75) + displacement * 0.95;
       float broad = fbm(field + vec3(1.7,6.3,2.1));
@@ -109,18 +117,22 @@ const fragmentSource = `#version 300 es
       transmittance *= 1.0 - absorbed;
     }
     // 广泛而不规则的前景尘埃，避免把发光气体画成地球积云的镀金边。
-    vec3 frontField = vec3(q * vec2(1.9,2.8),2.7);
+    // 尘埃位于前方的薄层中；随同一射线求交，避免云转动而遮挡留在屏幕上。
+    const float dustDepth = -0.95;
+    float dustRayLength = (dustDepth - rayOrigin.z) / rayDirection.z;
+    vec2 dustQ = (rayOrigin + rayDirection * dustRayLength).xy - vec2(0.055,-0.025) * dustDepth;
+    vec3 frontField = vec3(dustQ * vec2(1.9,2.8),2.7);
     float foreground = fbm(frontField + warp(frontField * .75) * 1.3);
     float fibers = fbm(frontField * 3.1 + vec3(7.1,12.4,5.8));
-    float cloudAxis = 0.20 * sin(q.x * 2.3 + 0.7) + q.x * 0.16;
+    float cloudAxis = 0.20 * sin(dustQ.x * 2.3 + 0.7) + dustQ.x * 0.16;
     float irregularity = (foreground - .48) * .84 + (fibers - .48) * .13;
-    float mainDistance = q.y - cloudAxis - .025 + irregularity;
+    float mainDistance = dustQ.y - cloudAxis - .025 + irregularity;
     float veinWidth = .045 + .095 * fibers;
     float mainVein = exp(-pow(mainDistance / veinWidth,2.0));
-    float branchDistance = q.y - cloudAxis + (q.x - .16) * .43 - .13 + irregularity * .83;
+    float branchDistance = dustQ.y - cloudAxis + (dustQ.x - .16) * .43 - .13 + irregularity * .83;
     float branch = exp(-pow(branchDistance / (veinWidth * .70),2.0));
-    branch *= smoothstep(-.30,.15,q.x) * (1.0 - smoothstep(.86,1.40,q.x));
-    float dustExtent = exp(-pow(q.x / 1.30,4.0));
+    branch *= smoothstep(-.30,.15,dustQ.x) * (1.0 - smoothstep(.86,1.40,dustQ.x));
+    float dustExtent = exp(-pow(dustQ.x / 1.30,4.0));
     float denseVeins = max(mainVein,branch) * dustExtent * (.62 + fibers * .74);
     float diffuseDust = smoothstep(.40,.70,foreground) * .55;
     radiance *= exp(-(denseVeins * 3.8 + diffuseDust * 1.3) * u_dust);
@@ -146,7 +158,7 @@ export function createNebulaRenderer(
   let hasRendered = false;
   let gl: WebGL2RenderingContext | null = null;
   let gpu: GpuResources | null = null;
-  let lastOptions = { brightness: 1, dust: 0.7 };
+  let lastOptions = { brightness: 1, dust: 0.7, yaw: 0, pitch: 0 };
 
   function releaseGpu(): void {
     if (gl && gpu) {
@@ -220,13 +232,14 @@ export function createNebulaRenderer(
       const resolution = context.getUniformLocation(program, 'u_resolution');
       const brightness = context.getUniformLocation(program, 'u_brightness');
       const dust = context.getUniformLocation(program, 'u_dust');
-      if (position < 0 || !resolution || !brightness || !dust) {
+      const viewRotation = context.getUniformLocation(program, 'u_view_rotation');
+      if (position < 0 || !resolution || !brightness || !dust || !viewRotation) {
         throw new Error('星云着色器接口不可用');
       }
       context.enableVertexAttribArray(position);
       context.vertexAttribPointer(position, 2, context.FLOAT, false, 0, 0);
       gl = context;
-      gpu = { program, buffer, vertexArray, resolution, brightness, dust };
+      gpu = { program, buffer, vertexArray, resolution, brightness, dust, viewRotation };
       program = null;
       buffer = null;
       vertexArray = null;
@@ -271,7 +284,7 @@ export function createNebulaRenderer(
     for (let i = 0; i < 5; i++) { sum += noise(x, y) * weight; const oldX = x; x = (x * .8 + y * .6) * 2.07 + 19.3; y = (-oldX * .6 + y * .8) * 2.07 + 7.1; weight *= .47; }
     return sum;
   }
-  function renderFallback(brightness: number, dust: number): void {
+  function renderFallback(brightness: number, dust: number, yaw: number, pitch: number): void {
     let target: CanvasRenderingContext2D | null;
     try { target = fallbackCanvas.getContext('2d'); } catch { return; }
     if (!target) return;
@@ -280,9 +293,13 @@ export function createNebulaRenderer(
     fallbackCanvas.height = Math.ceil(height * ratio);
     const pixels = target.createImageData(fallbackCanvas.width, fallbackCanvas.height);
     const mobile = width < 621;
+    // 2D 降级只提供温和的平面视差；重新采样全幅噪声，不移动画布而露出边缘。
+    const shiftX = Math.sin(yaw) * 0.18;
+    const shiftY = Math.sin(pitch) * 0.18;
     for (let y = 0; y < pixels.height; y++) for (let x = 0; x < pixels.width; x++) {
       const u = x / pixels.width, v = y / pixels.height;
-      const px = (u - (mobile ? .55 : .60)) * (mobile ? 2.35 : 3.15), py = (v - .46) * 2.65;
+      const px = (u - (mobile ? .55 : .60)) * (mobile ? 2.35 : 3.15) - shiftX;
+      const py = (v - .46) * 2.65 + shiftY;
       const qx = px * .958 + py * .287, qy = -px * .287 + py * .958;
       const wx = fractal(qx * 1.3 + 11, qy * 1.7 + 4) - .5;
       const wy = fractal(qx * 1.7 + 23, qy * 1.3 + 19) - .5;
@@ -324,10 +341,18 @@ export function createNebulaRenderer(
       gl.uniform2f(gpu.resolution, width, height);
       gl.uniform1f(gpu.brightness, lastOptions.brightness);
       gl.uniform1f(gpu.dust, lastOptions.dust);
+      // Rx(pitch) * Ry(yaw) 的逆矩阵，按 WebGL 列主序上传；三角函数每次重绘只算一次。
+      const cy = Math.cos(lastOptions.yaw), sy = Math.sin(lastOptions.yaw);
+      const cp = Math.cos(lastOptions.pitch), sp = Math.sin(lastOptions.pitch);
+      gl.uniformMatrix3fv(gpu.viewRotation, false, new Float32Array([
+        cy, 0, sy,
+        sp * sy, cp, -sp * cy,
+        -cp * sy, sp, cp * cy,
+      ]));
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       gl.flush();
     } else {
-      renderFallback(lastOptions.brightness, lastOptions.dust);
+      renderFallback(lastOptions.brightness, lastOptions.dust, lastOptions.yaw, lastOptions.pitch);
     }
   }
 
@@ -364,9 +389,14 @@ export function createNebulaRenderer(
       if (disposed) return;
       const brightness = options.brightness ?? 1;
       const dust = options.dust ?? 0.7;
+      const yaw = options.yaw ?? 0;
+      const pitch = options.pitch ?? 0;
       lastOptions = {
         brightness: Number.isFinite(brightness) ? Math.max(0.2, Math.min(2, brightness)) : 1,
         dust: Number.isFinite(dust) ? Math.max(0, Math.min(1.5, dust)) : 0.7,
+        // 有限视角也保证前景尘埃射线求交的分母远离零。
+        yaw: Number.isFinite(yaw) ? Math.max(-Math.PI / 3, Math.min(Math.PI / 3, yaw)) : 0,
+        pitch: Number.isFinite(pitch) ? Math.max(-Math.PI / 3, Math.min(Math.PI / 3, pitch)) : 0,
       };
       hasRendered = true;
       renderCurrent();

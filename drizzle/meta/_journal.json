@@ -386,6 +386,13 @@
       "when": 1793706651765,
       "tag": "0054_post_translation_links",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1794283242217,
+      "tag": "0055_vengeful_master_chief",
+      "breakpoints": true
     }
   ]
 }

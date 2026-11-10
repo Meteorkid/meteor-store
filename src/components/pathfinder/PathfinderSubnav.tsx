@@ -38,7 +38,7 @@ export default function PathfinderSubnav() {
           >
             <span
               aria-hidden="true"
-              className="h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_12px_rgba(167,139,250,0.7)]"
+              className="h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_12px_var(--site-accent)]"
             />
             Pathfinder
           </Link>

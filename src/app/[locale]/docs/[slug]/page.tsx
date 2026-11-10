@@ -125,7 +125,7 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
                 <header className="mb-12 border-b border-white/[0.06] pb-10">
                   <div className="t-footnote mb-5 flex flex-wrap items-center gap-x-3 gap-y-1">
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/20 bg-violet-400/[0.04] px-2.5 py-0.5 text-violet-300">
-                      <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-violet-300/60 shadow-[0_0_4px_rgba(196,181,253,0.4)]" />
+                      <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-violet-300/60 shadow-[0_0_4px_var(--site-accent)]" />
                       {categoryLabel}
                     </span>
                     <span aria-hidden>
@@ -181,7 +181,7 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
                         >
                           <div
                             aria-hidden
-                            className="absolute left-2 top-2 h-1 w-1 rounded-full bg-white/0 transition-all duration-500 group-hover:bg-violet-300/40 group-hover:shadow-[0_0_4px_rgba(196,181,253,0.2)]"
+                            className="absolute left-2 top-2 h-1 w-1 rounded-full bg-white/0 transition-all duration-500 group-hover:bg-violet-300/40 group-hover:shadow-[0_0_4px_var(--site-accent)]"
                           />
                           <p className="t-title-4 text-white/80 transition-colors duration-200 group-hover:text-white">
                             {related.title}
@@ -197,11 +197,11 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
                 <section className="glass-card relative mt-16 overflow-hidden rounded-3xl px-6 py-10 text-center md:px-10">
                   <div
                     aria-hidden
-                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(139,92,246,0.2),transparent_55%),radial-gradient(circle_at_85%_80%,rgba(168,85,247,0.08),transparent_30%)]"
+                    className="site-glow-card pointer-events-none absolute inset-0"
                   />
                   <div aria-hidden className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 opacity-30">
                     <div className="h-px w-full origin-bottom-left -rotate-45 bg-gradient-to-r from-transparent via-violet-400/25 to-violet-300/50" />
-                    <div className="absolute right-0 top-0 h-1.5 w-1.5 rounded-full bg-violet-300/40 shadow-[0_0_8px_rgba(196,181,253,0.3)]" />
+                    <div className="absolute right-0 top-0 h-1.5 w-1.5 rounded-full bg-violet-300/40 shadow-[0_0_8px_var(--site-accent)]" />
                   </div>
                   <div className="relative">
                     <h2 className="t-title-2 mb-3 text-white">{t('unresolvedTitle')}</h2>

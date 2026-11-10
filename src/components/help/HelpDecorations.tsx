@@ -15,20 +15,13 @@ export function MeteorTrail({ className = '' }: { className?: string }) {
     >
       <line
         x1="4" y1="4" x2="18" y2="18"
-        stroke="url(#mt-grad)"
+        stroke="var(--site-accent)"
         strokeWidth="1.5"
         strokeLinecap="round"
         opacity="0.6"
       />
-      <circle cx="18" cy="18" r="2.5" fill="url(#mt-grad)" />
-      <circle cx="4" cy="4" r="0.8" fill="rgba(167,139,250,0.3)" />
-      <defs>
-        <linearGradient id="mt-grad" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
-          <stop stopColor="rgba(167,139,250,0.05)" />
-          <stop offset="0.5" stopColor="rgba(167,139,250,0.4)" />
-          <stop offset="1" stopColor="#c4b5fd" />
-        </linearGradient>
-      </defs>
+      <circle cx="18" cy="18" r="2.5" fill="var(--site-accent)" />
+      <circle cx="4" cy="4" r="0.8" fill="var(--site-accent)" opacity=".3" />
     </svg>
   );
 }
@@ -47,7 +40,7 @@ export function ConstellationDot({ active = false }: { active?: boolean }) {
       aria-hidden="true"
       className={`inline-block h-1.5 w-1.5 rounded-full transition-all duration-300 ${
         active
-          ? 'bg-violet-300 shadow-[0_0_6px_rgba(196,181,253,0.6)]'
+          ? 'bg-violet-300 shadow-[0_0_6px_var(--site-accent)]'
           : 'bg-white/20'
       }`}
     />

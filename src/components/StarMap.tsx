@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 import type { FeedPostSummary } from '@/data/blog-feed';
 import { FOUR_SYMBOLS, MANSION_GROUPS } from '@/data/celestial';
 import type { Locale } from '@/i18n/routing';
+import { useOptionalSiteTheme } from './theme/ThemeProvider';
 
 /**
  * 星图导航：把当前博客的全部文章按「事件时间」排成一条蜿蜒的星轨。
@@ -32,6 +33,8 @@ interface StarMapProps {
 export default function StarMap({ posts }: StarMapProps) {
   const t = useTranslations('StarMap');
   const locale = useLocale() as Locale;
+  const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
+  const lineColor = siteTheme === 'nebula' ? 'rgba(182,216,232,0.22)' : 'rgba(167,139,250,0.2)';
 
   const nodes = useMemo(() => {
     const sorted = [...posts].sort((a, b) => a.eventDate.localeCompare(b.eventDate));
@@ -66,13 +69,13 @@ export default function StarMap({ posts }: StarMapProps) {
           lines.push({
             x1: nodes[i].x, y1: nodes[i].y,
             x2: nodes[j].x, y2: nodes[j].y,
-            color: 'rgba(167,139,250,0.2)',
+            color: lineColor,
           });
         }
       }
     }
     return lines;
-  }, [viewMode, nodes]);
+  }, [viewMode, nodes, lineColor]);
 
   const line = nodes.map((n) => `${n.x.toFixed(1)},${n.y.toFixed(1)}`).join(' ');
 
@@ -114,7 +117,7 @@ export default function StarMap({ posts }: StarMapProps) {
           <polyline
             points={line}
             fill="none"
-            stroke="rgba(167,139,250,0.35)"
+            stroke={siteTheme === 'nebula' ? 'rgba(182,216,232,0.38)' : 'rgba(167,139,250,0.35)'}
             strokeWidth="1.5"
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -140,7 +143,7 @@ export default function StarMap({ posts }: StarMapProps) {
               r={size}
               fill="#e8e8f4"
               className="cursor-pointer transition-all duration-200 group-hover:fill-violet-300 group-hover:stroke-violet-300"
-              style={{ filter: 'drop-shadow(0 0 2px rgba(167,139,250,0.8))' }}
+              style={{ filter: 'drop-shadow(0 0 2px var(--site-accent))' }}
             >
               <title>{`${p.eventDate} · ${p.title}`}</title>
             </circle>

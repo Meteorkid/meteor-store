@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 import AccountForms from '@/components/AccountForms';
 import BlogApiTokenManager from '@/components/BlogApiTokenManager';
 import GlassPreference from '@/components/GlassPreference';
+import ThemeSwitcher from '@/components/theme/ThemeSwitcher';
 import WechatAccountBinding from '@/components/WechatAccountBinding';
 import { db } from '@/lib/db';
 import { users, licenseKeys, posts, orders, postFavorites } from '@/lib/db/schema';
@@ -279,6 +280,8 @@ export default async function AccountPage({
           {user.emailVerified && <BlogApiTokenManager />}
 
           <AccountForms initialName={user.name ?? ''} initialBio={user.bio ?? ''} initialAvatar={user.avatarUrl ?? null} email={user.email} />
+
+          <div className="my-8"><ThemeSwitcher /></div>
 
           <GlassPreference />
 

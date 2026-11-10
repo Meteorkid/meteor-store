@@ -21,6 +21,7 @@ const hooks = vi.hoisted(() => ({
 // 不模拟浏览器命中测试、焦点与 Next 路由，相关真实交互仍需浏览器复验。
 vi.mock('react', async importOriginal => ({
   ...await importOriginal<typeof import('react')>(),
+  useContext: () => null,
   useState: <T,>(initial: T | (() => T)) => {
     const index = hooks.stateIndex++;
     if (!(index in hooks.states)) hooks.states[index] = typeof initial === 'function' ? (initial as () => T)() : initial;

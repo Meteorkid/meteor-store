@@ -14,6 +14,8 @@ import { HelpPanelProvider } from "@/components/help/HelpPanelContext";
 import { SITE_URL } from "@/lib/constants";
 import { buildAlternateUrls } from "@/lib/seo";
 import RouteAlternateLinks from "@/components/RouteAlternateLinks";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { getInitialSiteTheme } from "@/lib/site-theme-server";
 import "../globals.css";
 
 const geistSans = localFont({
@@ -154,6 +156,7 @@ export default async function LocaleLayout({
 
   // 获取翻译消息
   const messages = await getMessages();
+  const initialTheme = await getInitialSiteTheme();
 
   // JSON-LD 结构化数据
   //
@@ -196,6 +199,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale === "zh" ? "zh-CN" : "en"}
+      data-theme={initialTheme}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
@@ -235,10 +239,12 @@ export default async function LocaleLayout({
             <ScrollAnimateInit />
           </Suspense>
           <AuthProvider>
-            <HelpPanelProvider>
-            <ServiceWorkerRegistrar />
-            <ExperienceAwareChrome>{children}</ExperienceAwareChrome>
-            </HelpPanelProvider>
+            <ThemeProvider initialTheme={initialTheme}>
+              <HelpPanelProvider>
+                <ServiceWorkerRegistrar />
+                <ExperienceAwareChrome>{children}</ExperienceAwareChrome>
+              </HelpPanelProvider>
+            </ThemeProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

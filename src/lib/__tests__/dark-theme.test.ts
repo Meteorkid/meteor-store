@@ -3,7 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
 /**
- * 架构约束测试：全站只有暗色一套主题，不跟随系统深浅色。
+ * 架构约束测试：全站只提供暗色视觉主题，不跟随系统深浅色。
  *
  * 这条约束此前只靠「记得别改」维持，结果 :root 里长期放的是浅色值、暗色值藏在
  * prefers-color-scheme 媒体查询里——浅色系统的机器上 --background 变成近白，
@@ -53,6 +53,15 @@ describe('全站暗色主题的固定', () => {
     // 浅色档的取值不该再出现在任何语义 token 上
     expect(css).not.toMatch(/--background:\s*var\(--color-1\)/);
     expect(css).not.toMatch(/--secondary:\s*var\(--gray-2\)/);
+  });
+
+  it('两套可选主题都声明为暗色，不出现浅色分支', () => {
+    const css = stripComments(globals);
+    expect(css).toMatch(/:root:root\[data-theme="classic"\]/);
+    expect(css).toMatch(/:root:root\[data-theme="nebula"\]/);
+    expect(css).toMatch(/--site-home-bg:\s*#09070f/);
+    expect(css).toMatch(/--site-home-bg:\s*#030509/);
+    expect(css).not.toMatch(/data-theme="light"/);
   });
 
   it('主 token 块用 :root:root 抬高特异性，不依赖与 tokens.css 的源码顺序', () => {

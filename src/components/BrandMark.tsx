@@ -15,22 +15,15 @@ export default function BrandMark({ className }: { className?: string }) {
       {/* 流星轨迹：左上到右下 */}
       <line
         x1="6" y1="6" x2="22" y2="22"
-        stroke="url(#bm-grad)"
+        stroke="var(--site-brand-line-mid)"
         strokeWidth="2"
         strokeLinecap="round"
         opacity="0.7"
       />
       {/* 流星头部亮点 */}
-      <circle cx="22" cy="22" r="3" fill="url(#bm-grad)" />
+      <circle cx="22" cy="22" r="3" fill="var(--site-brand-line-end)" />
       {/* 尾部渐隐光点 */}
-      <circle cx="6" cy="6" r="1.2" fill="rgba(167,139,250,0.5)" />
-      <defs>
-        <linearGradient id="bm-grad" x1="6" y1="6" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-          <stop stopColor="rgba(167,139,250,0.1)" />
-          <stop offset="0.5" stopColor="rgba(167,139,250,0.6)" />
-          <stop offset="1" stopColor="#c4b5fd" />
-        </linearGradient>
-      </defs>
+      <circle cx="6" cy="6" r="1.2" fill="var(--site-brand-tail)" />
     </svg>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from '@/lib/motion';
+import { useOptionalSiteTheme } from '@/components/theme/ThemeProvider';
 
 /**
  * 帮助中心专用星场背景
@@ -11,6 +12,7 @@ import { useReducedMotion } from '@/lib/motion';
 export default function HelpCosmicBg() {
   const ref = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
+  const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
 
   useEffect(() => {
     if (reduced) return;
@@ -18,6 +20,10 @@ export default function HelpCosmicBg() {
     if (!canvas) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const nebula = siteTheme === 'nebula';
+    const hueStart = nebula ? 188 : 240;
+    const hueSpread = nebula ? 42 : 80;
+    const connectionColor = nebula ? '126,184,214' : '139,92,246';
     let W = 0, H = 0;
 
     type Star = {
@@ -36,7 +42,7 @@ export default function HelpCosmicBg() {
         r: Math.random() * 0.8 + 0.15,
         twinkleSpeed: Math.random() * 0.8 + 0.2,
         twinklePhase: Math.random() * Math.PI * 2,
-        hue: 240 + Math.random() * 80, // 蓝紫到紫
+        hue: hueStart + Math.random() * hueSpread,
       }));
     }
 
@@ -80,7 +86,7 @@ export default function HelpCosmicBg() {
             ctx.beginPath();
             ctx.moveTo(stars[i].x, stars[i].y);
             ctx.lineTo(stars[j].x, stars[j].y);
-            ctx.strokeStyle = `rgba(139,92,246,${(1 - dist / (150 * dpr)) * 0.06})`;
+            ctx.strokeStyle = `rgba(${connectionColor},${(1 - dist / (150 * dpr)) * 0.06})`;
             ctx.lineWidth = 0.4 * dpr;
             ctx.stroke();
           }
@@ -94,7 +100,7 @@ export default function HelpCosmicBg() {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
-  }, [reduced]);
+  }, [reduced, siteTheme]);
 
   if (reduced) return null;
 

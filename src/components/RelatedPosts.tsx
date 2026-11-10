@@ -25,7 +25,7 @@ export default function RelatedPosts({ posts, accentRgb }: RelatedPostsProps) {
 
   if (posts.length === 0) return null;
 
-  const starColor = accentRgb ? `rgb(${accentRgb})` : 'rgba(167,139,250,0.6)';
+  const starColor = accentRgb ? `rgb(${accentRgb})` : 'var(--site-accent)';
 
   return (
     <section className="mt-20" aria-labelledby="related-heading">

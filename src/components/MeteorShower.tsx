@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/navigation';
 import { createFrameGuard, isLateNight, useReducedMotion } from '@/lib/motion';
 import { showToast } from './EasterEggs';
+import { useOptionalSiteTheme } from './theme/ThemeProvider';
 
 interface Star {
   x: number; y: number; size: number; twinkle: number;
@@ -40,6 +41,7 @@ export default function MeteorShower() {
   const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reducedMotion = useReducedMotion();
+  const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
   const t = useTranslations('MeteorShower');
   const tRef = useRef(t);
   const isQuiet = /^(?:\/(?:zh|en))?\/(?:daily|masters)(?:\/|$)/.test(pathname) || /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname);
@@ -58,7 +60,8 @@ export default function MeteorShower() {
 
     const night = isLateNight();
     const speedScale = night ? 0.7 : 1;
-    const baseHue = night ? 30 : 265; // 深夜偏暖橙
+    const nebula = siteTheme === 'nebula';
+    const baseHue = night ? 30 : nebula ? 194 : 265; // 深夜保留暖橙，其余跟随主题
     const hueSpread = night ? 30 : 50;
 
     const resize = () => {
@@ -154,7 +157,7 @@ export default function MeteorShower() {
       tail.style.cssText = [
         'position:absolute', 'right:0', 'top:50%',
         'width:120px', 'height:2px',
-        'background:linear-gradient(90deg, transparent, rgba(196,181,253,0.15) 20%, rgba(167,139,250,0.6) 60%, rgba(232,225,255,0.9))',
+        `background:linear-gradient(90deg, transparent, ${nebula ? 'rgba(182,216,232,.15)' : 'rgba(196,181,253,.15)'} 20%, ${nebula ? 'rgba(182,216,232,.6)' : 'rgba(167,139,250,.6)'} 60%, rgba(240,250,255,.9))`,
         'border-radius:1px',
         'transform:translateY(-50%) rotate(-3deg)',
         'pointer-events:none',
@@ -165,7 +168,7 @@ export default function MeteorShower() {
       tailGlow.style.cssText = [
         'position:absolute', 'right:0', 'top:50%',
         'width:140px', 'height:6px',
-        'background:linear-gradient(90deg, transparent, rgba(139,92,246,0.08) 30%, rgba(167,139,250,0.25) 65%, rgba(196,181,253,0.4))',
+        `background:linear-gradient(90deg, transparent, ${nebula ? 'rgba(126,184,214,.08)' : 'rgba(139,92,246,.08)'} 30%, ${nebula ? 'rgba(182,216,232,.25)' : 'rgba(167,139,250,.25)'} 65%, ${nebula ? 'rgba(216,239,247,.4)' : 'rgba(196,181,253,.4)'})`,
         'border-radius:3px',
         'filter:blur(2px)',
         'transform:translateY(-50%) rotate(-3deg)',
@@ -178,8 +181,8 @@ export default function MeteorShower() {
         'position:absolute', 'right:-3px', 'top:50%',
         'width:8px', 'height:8px',
         'border-radius:50%',
-        'background:radial-gradient(circle, #f5f0ff 10%, #c4b5fd 40%, rgba(139,92,246,0.4) 70%, transparent 100%)',
-        'box-shadow:0 0 12px 4px rgba(196,181,253,0.5), 0 0 24px 8px rgba(139,92,246,0.25)',
+        `background:radial-gradient(circle, #f5fbff 10%, ${nebula ? '#b6d8e8' : '#c4b5fd'} 40%, ${nebula ? 'rgba(126,184,214,.4)' : 'rgba(139,92,246,.4)'} 70%, transparent 100%)`,
+        `box-shadow:0 0 12px 4px ${nebula ? 'rgba(182,216,232,.5)' : 'rgba(196,181,253,.5)'}, 0 0 24px 8px ${nebula ? 'rgba(126,184,214,.25)' : 'rgba(139,92,246,.25)'}`,
         'transform:translateY(-50%)',
         'animation:wish-head-pulse 1.6s ease-in-out infinite',
         'pointer-events:none',
@@ -191,9 +194,9 @@ export default function MeteorShower() {
       label.style.cssText = [
         'position:absolute', 'right:12px', 'top:50%',
         'transform:translateY(-140%)',
-        'font-size:12px', 'color:#e9d5ff',
+        'font-size:12px', `color:${nebula ? '#dff3fa' : '#e9d5ff'}`,
         'white-space:nowrap',
-        'text-shadow:0 0 8px rgba(167,139,250,0.5)',
+        `text-shadow:0 0 8px ${nebula ? 'rgba(182,216,232,.5)' : 'rgba(167,139,250,.5)'}`,
         'pointer-events:none',
         'letter-spacing:0.04em',
       ].join(';');
@@ -329,7 +332,7 @@ export default function MeteorShower() {
       window.removeEventListener('meteor:burst', onBurst);
       window.removeEventListener('mousemove', onMouseMove);
     };
-  }, [reducedMotion, isQuiet]);
+  }, [reducedMotion, isQuiet, siteTheme]);
 
   if (isQuiet) return null;
 
@@ -344,7 +347,7 @@ export default function MeteorShower() {
             'radial-gradient(1px 1px at 12% 28%, rgba(255,255,255,.5) 50%, transparent 50%),' +
             'radial-gradient(1.5px 1.5px at 68% 12%, rgba(255,255,255,.4) 50%, transparent 50%),' +
             'radial-gradient(1px 1px at 42% 64%, rgba(255,255,255,.35) 50%, transparent 50%),' +
-            'radial-gradient(2px 2px at 85% 45%, rgba(196,181,253,.4) 50%, transparent 50%),' +
+            `radial-gradient(2px 2px at 85% 45%, ${siteTheme === 'nebula' ? 'rgba(182,216,232,.4)' : 'rgba(196,181,253,.4)'} 50%, transparent 50%),` +
             'radial-gradient(1px 1px at 25% 82%, rgba(255,255,255,.3) 50%, transparent 50%)',
         }}
       />

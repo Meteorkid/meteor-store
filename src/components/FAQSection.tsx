@@ -32,7 +32,7 @@ function FAQItem({ faq, isOpen, onToggle }: {
         aria-expanded={isOpen}
         className={`glass-card w-full text-left p-5 rounded-xl transition-all duration-300 ${
           isOpen
-            ? '!border-t-purple-400/30 !border-l-purple-400/15 !border-r-purple-400/10 !border-b-purple-400/5 shadow-[inset_0_1px_0_rgba(168,85,247,0.12)]'
+            ? '!border-t-purple-400/30 !border-l-purple-400/15 !border-r-purple-400/10 !border-b-purple-400/5 shadow-[inset_0_1px_0_var(--site-accent-soft)]'
             : ''
         }`}
       >

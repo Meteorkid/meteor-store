@@ -3,17 +3,21 @@
 import { useEffect, useRef } from 'react';
 import { usePathname } from '@/i18n/navigation';
 import { createFrameGuard, useReducedMotion } from '@/lib/motion';
+import { useOptionalSiteTheme } from './theme/ThemeProvider';
 
 export default function HeroCanvas({ className = '' }: { className?: string }) {
   const pathname = usePathname();
   const ref = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
+  const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
   const isQuiet = /^(?:\/(?:zh|en))?\/(?:daily|masters)(?:\/|$)/.test(pathname) || /^(?:\/[a-z]{2})?\/(?:admin|login|register|forgot-password|reset-password|verify-email|refund|terms|privacy|eula)/.test(pathname) || /^\/(?:zh|en)$/.test(pathname);
 
   useEffect(() => {
     if (reduced || isQuiet) return;
     const canvas = ref.current;
     if (!canvas) return;
+    const accentRgb = siteTheme === 'nebula' ? '126,184,214' : '139,92,246';
+    const hueBase = siteTheme === 'nebula' ? 194 : 260;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let W = 0, H = 0, connectR = 0, cursorR = 0;
@@ -65,7 +69,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
         vx: (Math.random() - 0.5) * 0.4,
         vy: (Math.random() - 0.5) * 0.4,
         r: Math.random() * 2 + 1,
-        hue: 260 + Math.random() * 60,
+        hue: hueBase + Math.random() * (siteTheme === 'nebula' ? 34 : 60),
       }));
     }
 
@@ -118,7 +122,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
           vx: Math.cos(a) * (2 + Math.random() * 3),
           vy: Math.sin(a) * (2 + Math.random() * 3),
           life: 1, r: Math.random() * 2 + 1,
-          hue: 265 + Math.random() * 45,
+          hue: hueBase + Math.random() * (siteTheme === 'nebula' ? 26 : 45),
         });
       }
     };
@@ -187,7 +191,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
               ctx.beginPath();
               ctx.moveTo(dots[i].x, dots[i].y);
               ctx.lineTo(dots[j].x, dots[j].y);
-              ctx.strokeStyle = `rgba(139,92,246,${(1 - d / connectR) * 0.15})`;
+              ctx.strokeStyle = `rgba(${accentRgb},${(1 - d / connectR) * 0.15})`;
               ctx.lineWidth = 0.7 * dpr;
               ctx.stroke();
             }
@@ -200,7 +204,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
             if (dist < cursorR) {
               ctx.beginPath();
               ctx.moveTo(d.x, d.y); ctx.lineTo(mouse.x, mouse.y);
-              ctx.strokeStyle = `rgba(168,85,247,${(1 - dist / cursorR) * 0.28})`;
+              ctx.strokeStyle = `rgba(${accentRgb},${(1 - dist / cursorR) * 0.28})`;
               ctx.lineWidth = 1 * dpr;
               ctx.stroke();
             }
@@ -225,8 +229,8 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
       if (mouse.active && !degraded) {
         const gr = 110 * dpr;
         const g = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, gr);
-        g.addColorStop(0, 'rgba(139,92,246,0.1)');
-        g.addColorStop(0.5, 'rgba(139,92,246,0.03)');
+        g.addColorStop(0, `rgba(${accentRgb},0.1)`);
+        g.addColorStop(0.5, `rgba(${accentRgb},0.03)`);
         g.addColorStop(1, 'transparent');
         ctx.fillStyle = g;
         ctx.beginPath();
@@ -245,7 +249,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
         const p = trail[i];
         ctx.beginPath();
         ctx.arc(p.x, p.y, (p.a * 3 + 0.5) * dpr, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(168,85,247,${p.a * 0.4})`;
+        ctx.fillStyle = `rgba(${accentRgb},${p.a * 0.4})`;
         ctx.fill();
       }
 
@@ -259,7 +263,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
           vx: top ? (Math.random() - 0.2) * 5 : -(4 + Math.random() * 3),
           vy: top ? 4 + Math.random() * 2 : 2 + Math.random() * 2,
           life: 1, len: 50 + Math.random() * 40,
-          hue: 260 + Math.random() * 40,
+          hue: hueBase + Math.random() * (siteTheme === 'nebula' ? 24 : 40),
         });
       }
       for (let i = streaks.length - 1; i >= 0; i--) {
@@ -303,7 +307,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
         if (rp.a <= 0) { rings.splice(i, 1); continue; }
         ctx.beginPath();
         ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(139,92,246,${rp.a})`;
+        ctx.strokeStyle = `rgba(${accentRgb},${rp.a})`;
         ctx.lineWidth = 1.5 * dpr;
         ctx.stroke();
       }
@@ -321,7 +325,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
       window.removeEventListener('resize', resize);
       window.removeEventListener('blur', onLeave);
     };
-  }, [reduced, isQuiet]);
+  }, [reduced, isQuiet, siteTheme]);
 
   if (isQuiet) return null;
   if (reduced) return null;

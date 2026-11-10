@@ -39,6 +39,7 @@ function createGpu() {
     viewport: vi.fn(),
     uniform2f: vi.fn(),
     uniform1f: vi.fn<(location: WebGLUniformLocation, value: number) => void>(),
+    uniformMatrix3fv: vi.fn<(location: WebGLUniformLocation, transpose: boolean, value: Float32Array) => void>(),
     drawArrays: vi.fn(),
     flush: vi.fn(),
   };
@@ -82,6 +83,42 @@ function setup(gpu = createGpu()) {
 }
 
 describe('首页星云渲染器生命周期', () => {
+  it('默认上传单位视角矩阵，显式零角保持相同参数', () => {
+    const { gpu, primary, fallback } = setup();
+    const renderer = createNebulaRenderer(primary.element, fallback.element);
+    renderer.resize(24, 18);
+    renderer.render({});
+    const defaultMatrix = Array.from(gpu.uniformMatrix3fv.mock.lastCall![2]);
+    expect(defaultMatrix.map(value => value || 0)).toEqual([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    renderer.render({ yaw: 0, pitch: 0 });
+    expect(Array.from(gpu.uniformMatrix3fv.mock.lastCall![2])).toEqual(defaultMatrix);
+    expect(gpu.uniformMatrix3fv.mock.lastCall?.[0]).toEqual({ name: 'u_view_rotation' });
+    expect(gpu.uniformMatrix3fv.mock.lastCall?.[1]).toBe(false);
+    renderer.dispose();
+  });
+
+  it('体积采样使用先Y后X显示旋转的逆矩阵，与星光方向一致', () => {
+    const { gpu, primary, fallback } = setup();
+    const renderer = createNebulaRenderer(primary.element, fallback.element);
+    const yaw = .26, pitch = -.18;
+    renderer.render({ yaw, pitch });
+    const matrix = gpu.uniformMatrix3fv.mock.lastCall![2];
+    const point = [.4, -.3, .8];
+    const [x, y, z] = point;
+    const x1 = Math.cos(yaw) * x + Math.sin(yaw) * z;
+    const z1 = -Math.sin(yaw) * x + Math.cos(yaw) * z;
+    const projected = [x1, Math.cos(pitch) * y - Math.sin(pitch) * z1, Math.sin(pitch) * y + Math.cos(pitch) * z1];
+    for (let axis = 0; axis < 3; axis++) {
+      const restored = matrix[axis] * projected[0] + matrix[axis + 3] * projected[1] + matrix[axis + 6] * projected[2];
+      expect(restored).toBeCloseTo(point[axis], 6);
+    }
+    renderer.render({ yaw: NaN, pitch: Infinity });
+    expect(Array.from(gpu.uniformMatrix3fv.mock.lastCall![2]).map(value => value || 0)).toEqual([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    renderer.render({ yaw: 100, pitch: -100 });
+    expect(Array.from(gpu.uniformMatrix3fv.mock.lastCall![2]).every(Number.isFinite)).toBe(true);
+    renderer.dispose();
+  });
+
   it('使用批准的采样上限渲染，dispose 释放 GPU 资源并移除监听', () => {
     const { gpu, cpu, primary, fallback } = setup();
     const renderer = createNebulaRenderer(primary.element, fallback.element);
@@ -156,13 +193,15 @@ describe('首页星云渲染器生命周期', () => {
     expect(fallback.canvas.style.display).toBe('block');
 
     renderer.resize(30, 20);
-    renderer.render({ brightness: 0.8, dust: 1 });
+    renderer.render({ brightness: 0.8, dust: 1, yaw: .2, pitch: -.1 });
     primary.dispatch(new Event('webglcontextrestored'));
     expect(primary.canvas.getContext).toHaveBeenCalledTimes(2);
     expect(gpu.createProgram).toHaveBeenCalledTimes(2);
     expect(gpu.drawArrays).toHaveBeenCalledTimes(2);
     expect(gpu.uniform2f).toHaveBeenLastCalledWith(expect.anything(), 30, 20);
     expect(gpu.uniform1f.mock.calls.slice(-2).map(call => call[1])).toEqual([0.8, 1]);
+    expect(gpu.uniformMatrix3fv.mock.lastCall![2][0]).toBeCloseTo(Math.cos(.2), 6);
+    expect(gpu.uniformMatrix3fv.mock.lastCall![2][7]).toBeCloseTo(Math.sin(-.1), 6);
     expect(primary.canvas.style.display).toBe('block');
     expect(fallback.canvas.style.display).toBe('none');
     renderer.dispose();
@@ -213,5 +252,22 @@ describe('首页星云渲染器生命周期', () => {
     const empty = createNebulaRenderer(primary.element, unavailable.element);
     expect(() => empty.render({})).not.toThrow();
     empty.dispose();
+  });
+
+  it('2D降级的零角保持原图，改变视角重新采样而不产生透明边缘', () => {
+    const primary = createCanvas(null, 'webgl2');
+    const cpu = createCpu();
+    const fallback = createCanvas(cpu, '2d');
+    const renderer = createNebulaRenderer(primary.element, fallback.element);
+    renderer.resize(28, 20);
+    renderer.render({});
+    const original = cpu.putImageData.mock.lastCall![0].data;
+    renderer.render({ yaw: 0, pitch: 0 });
+    expect(cpu.putImageData.mock.lastCall![0].data).toEqual(original);
+    renderer.render({ yaw: .26, pitch: -.18 });
+    const changed = cpu.putImageData.mock.lastCall![0].data;
+    expect(changed).not.toEqual(original);
+    expect(changed.filter((_value, index) => index % 4 === 3).every(alpha => alpha === 255)).toBe(true);
+    renderer.dispose();
   });
 });

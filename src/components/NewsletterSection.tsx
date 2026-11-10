@@ -44,7 +44,7 @@ export default function NewsletterSection() {
       <div className="container mx-auto px-4">
         <div className="glass-card relative rounded-3xl p-10 md:p-14 text-center scroll-animate">
           {/* Background grid */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:24px_24px]" />
+          <div className="site-grid absolute inset-0" />
 
           <div className="relative">
             <div className="text-4xl mb-4">📬</div>

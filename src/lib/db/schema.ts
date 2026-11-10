@@ -190,6 +190,8 @@ export const users = pgTable('users', {
   name: text('name'),
   avatarUrl: text('avatar_url'),
   bio: text('bio'),
+  /** 全站视觉主题；null 表示尚未选择，按当前设备偏好回退。 */
+  themePreference: text('theme_preference'),
   emailVerified: boolean('email_verified').default(false).notNull(),
   isStudent: boolean('is_student').default(false).notNull(),
   studentEmail: text('student_email').unique(),

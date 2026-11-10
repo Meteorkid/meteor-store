@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useReducedMotion } from '@/lib/motion';
 import CelestialText from './home/CelestialText';
 import HomeSky from './home/HomeSky';
+import ClassicHeroSection from './ClassicHeroSection';
+import { useOptionalSiteTheme } from './theme/ThemeProvider';
 import styles from './HeroSection.module.css';
 
 interface HeroSectionProps {
@@ -20,12 +22,25 @@ function EntryArrow() {
 }
 
 /** 首屏只拥有自己的星空；统计仍来自服务端真实目录，显示状态不写入账号或缓存。 */
-export default function HeroSection({ productCount, webAppCount, freeCount, helpCount }: HeroSectionProps) {
+export default function HeroSection(props: HeroSectionProps) {
+  const theme = useOptionalSiteTheme()?.theme ?? 'nebula';
+  return theme === 'classic' ? <ClassicHeroSection {...props} /> : <NebulaHeroSection {...props} />;
+}
+
+function NebulaHeroSection({ productCount, webAppCount, freeCount, helpCount }: HeroSectionProps) {
   const english = useLocale() === 'en';
   const reducedMotion = useReducedMotion();
   const [peopleVisible, setPeopleVisible] = useState(false);
   const [motionOverride, setMotionOverride] = useState<boolean | null>(null);
+  const [viewMode, setViewMode] = useState<'follow' | 'drag' | 'off' | null>(null);
+  const [autoRotate, setAutoRotate] = useState(false);
+  const [resetView, setResetView] = useState(0);
+  const [viewSettingsOpen, setViewSettingsOpen] = useState(false);
+  const heroRef = useRef<HTMLElement>(null);
+  const viewControlsRef = useRef<HTMLDivElement>(null);
+  const viewButtonRef = useRef<HTMLButtonElement>(null);
   const playing = motionOverride ?? !reducedMotion;
+  const interactionMode = viewMode ?? (reducedMotion ? 'off' : 'follow');
   const title = english ? 'Starlight is near' : '星光不远';
   const peopleLabel = peopleVisible
     ? (english ? 'Hide the crowd and return to starlight' : '隐藏人海，回到星光')
@@ -37,11 +52,20 @@ export default function HeroSection({ productCount, webAppCount, freeCount, help
     { value: helpCount, text: 'GUIDES', label: english ? 'Help articles' : '帮助文档' },
   ];
 
+  useEffect(() => {
+    if (!viewSettingsOpen) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !viewControlsRef.current?.contains(event.target)) setViewSettingsOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
+  }, [viewSettingsOpen]);
+
   return (
     <>
-      <section className={styles.hero} aria-labelledby="home-celestial-title" data-home-celestial="true">
+      <section ref={heroRef} className={styles.hero} aria-labelledby="home-celestial-title" data-home-celestial="true">
         <div className={styles.background} aria-hidden="true">
-          <HomeSky peopleVisible={peopleVisible} paused={!playing} />
+          <HomeSky peopleVisible={peopleVisible} paused={!playing} interactionMode={interactionMode} autoRotate={autoRotate} resetView={resetView} interactionRef={heroRef} />
         </div>
         <div className={styles.content}>
           <div className={styles.copy}>
@@ -88,10 +112,55 @@ export default function HeroSection({ productCount, webAppCount, freeCount, help
               <CelestialText className={styles.footerFull} text="A LIGHT IS NEVER ALONE" spacing={11} weight={7} decorative />
               <CelestialText className={styles.footerShort} text="WITH YOU" spacing={11} weight={7} decorative />
             </span>
-            <button className={styles.pause} type="button" aria-label={english ? (playing ? 'Pause starlight' : 'Play starlight') : (playing ? '暂停星光' : '继续星光')} aria-pressed={playing} onClick={() => setMotionOverride(!playing)}>
-              <span className={styles.pauseDot} aria-hidden="true" />
-              <CelestialText className={styles.pauseLabel} text={playing ? 'PAUSE' : 'PLAY'} spacing={10} weight={7} decorative />
-            </button>
+            <div className={styles.footerControls}>
+              <div ref={viewControlsRef} className={styles.viewControls} data-sky-controls="true" onBlurCapture={event => {
+                if (!event.currentTarget.contains(event.relatedTarget)) setViewSettingsOpen(false);
+              }} onKeyDown={event => {
+                if (event.key === 'Escape' && viewSettingsOpen) {
+                  event.stopPropagation();
+                  setViewSettingsOpen(false);
+                  viewButtonRef.current?.focus();
+                }
+              }}>
+                <button ref={viewButtonRef} className={styles.viewToggle} type="button" aria-label={english ? 'Starlight view settings' : '星空视角设置'} aria-expanded={viewSettingsOpen} aria-controls="home-view-settings" onClick={() => setViewSettingsOpen(value => !value)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true"><circle cx="12" cy="12" r="7.5" /><path d="M12 1v5m0 12v5M1 12h5m12 0h5" /><circle cx="12" cy="12" r="1.5" /></svg>
+                  <CelestialText className={styles.controlLabel} text="VIEW" spacing={9} weight={7} decorative />
+                </button>
+                {viewSettingsOpen && <div id="home-view-settings" className={styles.viewPanel} role="group" aria-label={english ? 'Starlight view settings' : '星空视角设置'}>
+                  <CelestialText className={styles.panelHeading} text="PERSPECTIVE" spacing={11} weight={7} decorative />
+                  <div className={styles.viewModes}>
+                    {([
+                      ['follow', 'FOLLOW', english ? 'Follow the pointer' : '跟随鼠标'],
+                      ['drag', 'DRAG', english ? 'Drag to rotate the view' : '按住空白处拖拽旋转'],
+                      ['off', 'STILL', english ? 'Turn off pointer interaction' : '关闭鼠标交互'],
+                    ] as const).map(([mode, text, label]) => <button key={mode} type="button" aria-label={label} title={label} aria-pressed={interactionMode === mode} onClick={() => {
+                      setViewMode(mode);
+                      if (mode === 'off') setAutoRotate(false);
+                    }}>
+                      <span className={styles.modeMark} aria-hidden="true" />
+                      <CelestialText className={styles.modeLabel} text={text} spacing={7} weight={7} decorative />
+                    </button>)}
+                  </div>
+                  <div className={styles.viewActions}>
+                    <button type="button" aria-label={english ? 'Slow automatic rotation' : '缓慢自动旋转'} aria-pressed={autoRotate} onClick={() => setAutoRotate(value => !value)}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true"><ellipse cx="12" cy="12" rx="10" ry="5" transform="rotate(-35 12 12)" /><circle cx="12" cy="12" r="2" /></svg>
+                      <CelestialText className={styles.controlLabel} text="ORBIT" spacing={8} weight={7} decorative />
+                    </button>
+                    <button type="button" aria-label={english ? 'Reset the view' : '复位视角'} onClick={() => {
+                      setAutoRotate(false);
+                      setResetView(value => value + 1);
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true"><path d="M5 8a8 8 0 1 1-1 7M5 3v5h5" /></svg>
+                      <CelestialText className={styles.controlLabel} text="RESET" spacing={8} weight={7} decorative />
+                    </button>
+                  </div>
+                </div>}
+              </div>
+              <button className={styles.pause} type="button" aria-label={english ? (playing ? 'Pause starlight' : 'Play starlight') : (playing ? '暂停星光' : '继续星光')} aria-pressed={playing} onClick={() => setMotionOverride(!playing)}>
+                <span className={styles.pauseDot} aria-hidden="true" />
+                <CelestialText className={styles.pauseLabel} text={playing ? 'PAUSE' : 'PLAY'} spacing={10} weight={7} decorative />
+              </button>
+            </div>
           </div>
         </div>
       </section>

@@ -219,7 +219,7 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
                     active ? 'opacity-80' : 'opacity-0'
                   }`}
                   style={{
-                    background: 'radial-gradient(circle, rgba(167,139,250,0.9), transparent 70%)',
+                    background: 'radial-gradient(circle, var(--site-accent), transparent 70%)',
                   }}
                 />
                 {/* 球体 */}
@@ -228,8 +228,8 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
                   style={{
                     background: luminary.gradient,
                     boxShadow: active
-                      ? '0 0 10px rgba(167,139,250,0.85)'
-                      : '0 0 6px rgba(167,139,250,0.4)',
+                      ? '0 0 10px var(--site-accent)'
+                      : '0 0 6px var(--site-accent-soft)',
                   }}
                 />
                 {/* 球体高光点 */}
@@ -298,7 +298,7 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
               <span
                 aria-hidden
                 className="absolute inset-0 rounded-full blur-md"
-                style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.22), transparent 70%)' }}
+                style={{ background: 'radial-gradient(circle, var(--site-accent-soft), transparent 70%)' }}
               />
               <svg
                 viewBox="0 0 100 100"

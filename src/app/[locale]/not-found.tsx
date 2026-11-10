@@ -29,7 +29,7 @@ export default function NotFound() {
             strokeLinejoin="round"
             strokeLinecap="round"
           />
-          <circle cx="36" cy="12" r="6" fill="#e8e8f4" style={{ filter: 'drop-shadow(0 0 4px rgba(167,139,250,0.9))' }} />
+          <circle cx="36" cy="12" r="6" fill="#e8e8f4" style={{ filter: 'drop-shadow(0 0 4px var(--site-accent))' }} />
           <circle cx="12" cy="34" r="4" fill="#cfcfe0" />
           <circle cx="34" cy="62" r="4" fill="#c9c9dc" />
           <circle cx="58" cy="42" r="4" fill="#c9c9dc" />

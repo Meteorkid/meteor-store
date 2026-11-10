@@ -64,11 +64,11 @@ afterEach(() => { hooks.effects.forEach(effect => effect.cleanup?.()); });
 describe('HomeSky组件生命周期', () => {
   it('一个实例只创建一个engine，prop变化更新控制器而不重建背景', () => {
     const node = render({ peopleVisible: false, paused: false, className: 'hero-sky' });
-    expect(engine.create).toHaveBeenCalledExactlyOnceWith(stage, { paused: true });
-    expect(controllers[0].setState).toHaveBeenLastCalledWith({ peopleVisible: false, paused: false });
-    render({ peopleVisible: true, paused: true, className: 'hero-sky' });
+    expect(engine.create).toHaveBeenCalledExactlyOnceWith(stage, { paused: true }, null);
+    expect(controllers[0].setState).toHaveBeenLastCalledWith({ peopleVisible: false, paused: false, interactionMode: 'follow', autoRotate: false, resetView: 0 });
+    render({ peopleVisible: true, paused: true, className: 'hero-sky', interactionMode: 'drag', autoRotate: true, resetView: 2 });
     expect(engine.create).toHaveBeenCalledTimes(1);
-    expect(controllers[0].setState).toHaveBeenLastCalledWith({ peopleVisible: true, paused: true });
+    expect(controllers[0].setState).toHaveBeenLastCalledWith({ peopleVisible: true, paused: true, interactionMode: 'drag', autoRotate: true, resetView: 2 });
     expect(node.props.style.position).toBe('absolute');
     expect(node.props.style.pointerEvents).toBe('none');
     expect(node.props['aria-hidden']).toBe('true');
@@ -83,6 +83,15 @@ describe('HomeSky组件生命周期', () => {
     expect(controllers).toHaveLength(2);
     expect(controllers[0].dispose).toHaveBeenCalledTimes(1);
     expect(controllers[1].dispose).not.toHaveBeenCalled();
-    expect(controllers[1].setState).toHaveBeenLastCalledWith({ peopleVisible: true, paused: true });
+    expect(controllers[1].setState).toHaveBeenLastCalledWith({ peopleVisible: true, paused: true, interactionMode: 'follow', autoRotate: false, resetView: 0 });
+  });
+
+  it('把Hero交互面传入engine，模式变化不重新创建实例', () => {
+    const surface = {} as HTMLElement;
+    const interactionRef = { current: surface };
+    render({ peopleVisible: false, paused: true, interactionRef, interactionMode: 'off' });
+    expect(engine.create).toHaveBeenCalledExactlyOnceWith(stage, { paused: true }, surface);
+    render({ peopleVisible: false, paused: true, interactionRef, interactionMode: 'follow' });
+    expect(engine.create).toHaveBeenCalledTimes(1);
   });
 });

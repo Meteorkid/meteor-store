@@ -2,11 +2,15 @@ import { createFrameGuard } from '@/lib/motion';
 import { createPhoneSprites, createPointSprites, PHONE_ATLAS_URL, releaseSprites, type PhoneSprites } from './atlas';
 import { createLights, PHONE_STYLES, phoneAlpha, smooth, starAlpha, type SkyLight } from './lights';
 import { createNebulaRenderer, type NebulaRenderer } from './nebula';
+import { createSkyCamera, createSkyProjector, type SkyCameraPose, type SkyInteractionMode } from './camera';
 
 export interface HomeSkyState {
   peopleVisible: boolean;
   /** 父组件合并系统偏好与主动播放选择；false表示明确允许星光播放。 */
   paused: boolean;
+  interactionMode?: SkyInteractionMode;
+  autoRotate?: boolean;
+  resetView?: number;
 }
 
 export interface HomeSkyController {
@@ -16,14 +20,18 @@ export interface HomeSkyController {
 
 const OVERSCAN = 36;
 const TRANSITION_SECONDS = .65;
+const NEBULA_FRAME_INTERVAL = 1000 / 12;
+const DRAG_EXCLUSIONS = 'a,button,input,textarea,select,nav,summary,label,h1,h2,h3,h4,h5,h6,p,svg,[role="button"],[role="link"],[role="slider"],[contenteditable],[data-celestial-text],[data-sky-controls]';
 const mountedEngines = new WeakMap<HTMLElement, HomeSkyController>();
 
 /** 只拥有传入容器内的画布；同一容器重新创建时先销毁旧实例。 */
-export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSkyState> = {}): HomeSkyController {
+export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSkyState> = {}, interactionSurface: HTMLElement | null = null): HomeSkyController {
   mountedEngines.get(stage)?.dispose();
 
   const doc = stage.ownerDocument;
   const win = doc.defaultView ?? window;
+  const pointerSurface = interactionSurface ?? doc;
+  const captureSurface = interactionSurface ?? stage;
   const ownedCanvases: HTMLCanvasElement[] = [];
   const makeLayer = (name: string, overscan = false) => {
     const canvas = doc.createElement('canvas');
@@ -48,6 +56,7 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
   const ctx = canvas.getContext('2d');
   const phoneContexts = phoneCanvases.map(layer => layer.getContext('2d'));
   const reduceQuery = win.matchMedia('(prefers-reduced-motion: reduce)');
+  const finePointerQuery = win.matchMedia('(hover: hover) and (pointer: fine)');
   const allLights = createLights();
   const pointSprites = createPointSprites(doc);
   let activeLights: SkyLight[] = [];
@@ -57,10 +66,19 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
   let atlasRequested = false;
   let nebula: NebulaRenderer | null = null;
   let nebulaSize = '';
+  let nebulaPose: SkyCameraPose = { yaw: NaN, pitch: NaN };
+  let lastNebulaPaint = -Infinity;
+  let frameNow = 0;
   let disposed = false;
   let viewportVisible = true;
   let reduced = reduceQuery.matches;
   let paused = initial.paused ?? false;
+  let interactionMode = initial.interactionMode ?? 'follow';
+  let autoRotate = initial.autoRotate ?? false;
+  let resetView = initial.resetView ?? 0;
+  const camera = createSkyCamera({ interactionMode, autoRotate });
+  let paintedPose: SkyCameraPose = { yaw: NaN, pitch: NaN };
+  let drag: { pointerId: number; x: number; y: number; time: number } | null = null;
   let peopleVisible = false;
   let peopleBlend = 0;
   let transition: { from: number; to: number; elapsed: number } | null = null;
@@ -83,7 +101,13 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
   }
 
   function canAnimate(): boolean {
-    return isVisible() && ctx !== null && (!paused || transition !== null);
+    return isVisible() && ctx !== null && (!paused || transition !== null || camera.isMoving(!paused) || nebulaNeedsPaint());
+  }
+
+  function nebulaNeedsPaint(): boolean {
+    if (!nebula) return false;
+    const pose = camera.getPose();
+    return pose.yaw !== nebulaPose.yaw || pose.pitch !== nebulaPose.pitch;
   }
 
   function invalidatePhoneCaches(): void {
@@ -117,10 +141,14 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     if (!isVisible()) return;
     nebula ??= createNebulaRenderer(nebulaCanvas, fallbackCanvas);
     const size = `${width}:${height}:${dpr}`;
-    if (size === nebulaSize) return;
-    nebula.resize(width, height, dpr);
-    nebula.render({ brightness: 1, dust: .7 });
+    const resized = size !== nebulaSize;
+    if (resized) nebula.resize(width, height, dpr);
+    if (!resized && (!nebulaNeedsPaint() || frameNow - lastNebulaPaint < NEBULA_FRAME_INTERVAL)) return;
+    const pose = camera.getPose();
+    nebula.render({ brightness: 1, dust: .7, yaw: pose.yaw, pitch: pose.pitch });
     nebulaSize = size;
+    nebulaPose = pose;
+    lastNebulaPaint = frameNow;
   }
 
   function requestAtlas(): void {
@@ -146,7 +174,7 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     image.src = PHONE_ATLAS_URL;
   }
 
-  function paintPhoneCache(index: number): void {
+  function paintPhoneCache(index: number, project: ReturnType<typeof createSkyProjector>): void {
     if (peopleBlend <= 0) return;
     const target = phoneContexts[index];
     const elapsed = sceneTime - cacheTimes[index];
@@ -164,9 +192,10 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
       const sprite = phoneSprites[light.styleIndex]?.[index];
       if (!sprite) continue;
       const meta = PHONE_STYLES[light.styleIndex];
-      const size = handSize * light.scale;
+      const position = project(light.screenX, light.screenY, light.depth);
+      const size = handSize * light.scale * position.scale;
       target.globalAlpha = alpha;
-      target.drawImage(sprite, light.screenX + OVERSCAN - meta.ledX * size, light.screenY + OVERSCAN - meta.ledY * size, size, size);
+      target.drawImage(sprite, position.x + OVERSCAN - meta.ledX * size, position.y + OVERSCAN - meta.ledY * size, size, size);
     }
     target.globalAlpha = 1;
   }
@@ -175,14 +204,22 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     if (!isVisible() || !ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
+    const pose = camera.getPose();
+    const project = createSkyProjector(width, height, pose);
+    if (pose.yaw !== paintedPose.yaw || pose.pitch !== paintedPose.pitch) {
+      // 相机移动时缓存也在同一帧更新，避免手机LED落后于对应星光。
+      invalidatePhoneCaches();
+      paintedPose = pose;
+    }
     for (const light of activeLights) {
       const alpha = starAlpha(light, sceneTime);
       if (alpha < .018) continue;
       const sprite = pointSprites[light.colorIndex];
       if (!sprite) continue;
-      const size = light.radius * 15;
+      const position = project(light.screenX, light.screenY, light.depth);
+      const size = light.radius * 15 * position.scale;
       ctx.globalAlpha = alpha;
-      ctx.drawImage(sprite, light.screenX - size / 2, light.screenY - size / 2, size, size);
+      ctx.drawImage(sprite, position.x - size / 2, position.y - size / 2, size, size);
     }
     ctx.globalAlpha = 1;
     for (const layer of phoneCanvases) layer.style.opacity = String(peopleBlend);
@@ -190,27 +227,30 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
       clearPhoneCaches();
       return;
     }
-    paintPhoneCache(0);
-    paintPhoneCache(1);
+    paintPhoneCache(0, project);
+    paintPhoneCache(1, project);
     for (const light of lightLayers[2]) {
       const alpha = phoneAlpha(light, sceneTime) * peopleBlend;
       if (alpha <= .004) continue;
       const sprite = phoneSprites[light.styleIndex]?.[2];
       if (!sprite) continue;
       const meta = PHONE_STYLES[light.styleIndex];
-      const size = handSize * light.scale;
+      const position = project(light.screenX, light.screenY, light.depth);
+      const size = handSize * light.scale * position.scale;
       ctx.globalAlpha = alpha;
-      ctx.drawImage(sprite, light.screenX - meta.ledX * size, light.screenY - meta.ledY * size, size, size);
+      ctx.drawImage(sprite, position.x - meta.ledX * size, position.y - meta.ledY * size, size, size);
     }
     ctx.globalAlpha = 1;
   }
 
   function animate(now: number): void {
     raf = null;
+    frameNow = now;
     if (!canAnimate()) { lastTick = lastPaint = null; return; }
     const delta = lastTick === null ? 0 : Math.min((now - lastTick) / 1000, .1);
     lastTick = now;
     if (!paused) sceneTime += delta;
+    camera.tick(delta, !paused);
     let transitionDone = false;
     if (transition) {
       transition.elapsed += delta;
@@ -225,6 +265,7 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     // 暂停时也必须绘制过渡终态，否则最后一帧可能被30fps节流跳过。
     if (lastPaint === null || now - lastPaint >= frameInterval - .25 || transitionDone) {
       paint();
+      renderNebula();
       lastPaint = now;
       guardFrame(now);
     }
@@ -252,6 +293,8 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     height = nextHeight;
     dpr = nextDpr;
     if (width === 0 || height === 0) {
+      releaseDrag(false);
+      camera.cancelInput();
       if (!peopleVisible) { peopleBlend = 0; transition = null; clearHiddenPeople(); }
       synchronizeLoop();
       return;
@@ -278,6 +321,10 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
 
   function onVisibility(): void {
     if (disposed) return;
+    if (!isVisible()) {
+      releaseDrag(false);
+      camera.cancelInput();
+    }
     if (!isVisible() && !peopleVisible && transition) {
       peopleBlend = 0;
       transition = null;
@@ -301,6 +348,83 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     synchronizeLoop();
   }
 
+  function releaseDrag(inertia: boolean): void {
+    const previous = drag;
+    drag = null;
+    camera.endDrag(inertia);
+    if (previous && captureSurface.hasPointerCapture?.(previous.pointerId)) {
+      captureSurface.releasePointerCapture(previous.pointerId);
+    }
+  }
+
+  function pointerBounds() { return (interactionSurface ?? stage).getBoundingClientRect(); }
+
+  function pointerAllowed(event: PointerEvent): boolean {
+    return !disposed && isVisible() && finePointerQuery.matches && event.pointerType === 'mouse';
+  }
+
+  function onPointerMove(event: Event): void {
+    const pointer = event as PointerEvent;
+    if (!pointerAllowed(pointer)) return;
+    const bounds = pointerBounds();
+    if (bounds.width <= 0 || bounds.height <= 0) return;
+    if (drag && drag.pointerId === pointer.pointerId) {
+      camera.dragBy((pointer.clientX - drag.x) / bounds.width, (pointer.clientY - drag.y) / bounds.height, (pointer.timeStamp - drag.time) / 1000);
+      drag = { pointerId: pointer.pointerId, x: pointer.clientX, y: pointer.clientY, time: pointer.timeStamp };
+    } else if (interactionMode === 'follow') {
+      const x = (pointer.clientX - bounds.left) / bounds.width;
+      const y = (pointer.clientY - bounds.top) / bounds.height;
+      if (x < 0 || y < 0 || x > 1 || y > 1) camera.leave();
+      else camera.follow(x * 2 - 1, y * 2 - 1);
+    }
+    synchronizeLoop();
+  }
+
+  function onPointerDown(event: Event): void {
+    const pointer = event as PointerEvent;
+    if (!pointerAllowed(pointer) || interactionMode !== 'drag' || pointer.button !== 0 || pointer.isPrimary === false) return;
+    const target = pointer.target as Element | null;
+    if (typeof target?.closest === 'function' && target.closest(DRAG_EXCLUSIONS)) return;
+    const bounds = pointerBounds();
+    if (pointer.clientX < bounds.left || pointer.clientX > bounds.left + bounds.width || pointer.clientY < bounds.top || pointer.clientY > bounds.top + bounds.height) return;
+    camera.beginDrag();
+    drag = { pointerId: pointer.pointerId, x: pointer.clientX, y: pointer.clientY, time: pointer.timeStamp };
+    captureSurface.setPointerCapture?.(pointer.pointerId);
+    pointer.preventDefault();
+    synchronizeLoop();
+  }
+
+  function onPointerUp(event: Event): void {
+    const pointer = event as PointerEvent;
+    if (!drag || pointer.pointerId !== drag.pointerId) return;
+    releaseDrag(pointer.timeStamp - drag.time < 120);
+    synchronizeLoop();
+  }
+
+  function onPointerCancel(event: Event): void {
+    const pointer = event as PointerEvent;
+    if (!drag || pointer.pointerId !== drag.pointerId) return;
+    releaseDrag(false);
+    synchronizeLoop();
+  }
+
+  function onPointerLeave(): void {
+    if (disposed || drag) return;
+    camera.leave();
+    synchronizeLoop();
+  }
+
+  function onPointerUnavailable(): void {
+    if (disposed) return;
+    releaseDrag(false);
+    camera.cancelInput();
+    synchronizeLoop();
+  }
+
+  function onFinePointerChange(): void {
+    if (!finePointerQuery.matches) onPointerUnavailable();
+  }
+
   const resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resize);
   const visibilityObserver = typeof IntersectionObserver === 'undefined' ? null : new IntersectionObserver(entries => {
     if (disposed || !entries[0]) return;
@@ -311,6 +435,16 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
   const controller: HomeSkyController = {
     setState(next) {
       if (disposed) return;
+      const nextMode = next.interactionMode ?? interactionMode;
+      if (nextMode !== interactionMode) releaseDrag(false);
+      interactionMode = nextMode;
+      autoRotate = next.autoRotate ?? autoRotate;
+      camera.setOptions({ interactionMode, autoRotate });
+      if (next.resetView !== undefined && Number.isFinite(next.resetView) && next.resetView !== resetView) {
+        resetView = next.resetView;
+        releaseDrag(false);
+        camera.reset();
+      }
       paused = next.paused;
       if (peopleVisible !== next.peopleVisible) {
         peopleVisible = next.peopleVisible;
@@ -330,13 +464,22 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     dispose() {
       if (disposed) return;
       disposed = true;
+      releaseDrag(false);
       if (raf !== null) win.cancelAnimationFrame(raf);
       raf = null;
       resizeObserver?.disconnect();
       visibilityObserver?.disconnect();
       doc.removeEventListener('visibilitychange', onVisibility);
       win.removeEventListener('resize', resize);
+      win.removeEventListener('blur', onPointerUnavailable);
       reduceQuery.removeEventListener('change', onReducedMotion);
+      finePointerQuery.removeEventListener('change', onFinePointerChange);
+      pointerSurface.removeEventListener('pointermove', onPointerMove);
+      pointerSurface.removeEventListener('pointerdown', onPointerDown);
+      pointerSurface.removeEventListener('pointerup', onPointerUp);
+      pointerSurface.removeEventListener('pointercancel', onPointerCancel);
+      pointerSurface.removeEventListener('lostpointercapture', onPointerCancel);
+      pointerSurface.removeEventListener('pointerleave', onPointerLeave);
       if (atlasImage) {
         atlasImage.onload = atlasImage.onerror = null;
         atlasImage.removeAttribute('src');
@@ -360,7 +503,15 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
   mountedEngines.set(stage, controller);
   doc.addEventListener('visibilitychange', onVisibility);
   win.addEventListener('resize', resize);
+  win.addEventListener('blur', onPointerUnavailable);
   reduceQuery.addEventListener('change', onReducedMotion);
+  finePointerQuery.addEventListener('change', onFinePointerChange);
+  pointerSurface.addEventListener('pointermove', onPointerMove, { passive: true });
+  pointerSurface.addEventListener('pointerdown', onPointerDown);
+  pointerSurface.addEventListener('pointerup', onPointerUp);
+  pointerSurface.addEventListener('pointercancel', onPointerCancel);
+  pointerSurface.addEventListener('lostpointercapture', onPointerCancel);
+  pointerSurface.addEventListener('pointerleave', onPointerLeave);
   resizeObserver?.observe(stage);
   visibilityObserver?.observe(stage);
   resize();

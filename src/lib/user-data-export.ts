@@ -62,6 +62,7 @@ export async function exportUserData(userId: string, email: string) {
       name: users.name,
       avatarUrl: users.avatarUrl,
       bio: users.bio,
+      themePreference: users.themePreference,
       emailVerified: users.emailVerified,
       isStudent: users.isStudent,
       studentEmail: users.studentEmail,

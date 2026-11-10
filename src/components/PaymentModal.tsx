@@ -253,7 +253,7 @@ export default function PaymentModal({
           role="dialog"
           aria-modal="true"
           aria-label={t('dialogAriaLabel')}
-          className="glass-lg relative w-full max-w-md bg-[rgba(20,16,34,0.8)] rounded-2xl p-6 animate-spotlight-in"
+          className="glass-lg relative w-full max-w-md bg-[var(--site-modal-bg)] rounded-2xl p-6 animate-spotlight-in"
         >
           {/* Close button */}
           <button

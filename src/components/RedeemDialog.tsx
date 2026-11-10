@@ -99,7 +99,7 @@ export default function RedeemDialog({ isOpen, onClose }: RedeemDialogProps) {
         aria-modal="true"
         aria-labelledby="redeem-dialog-title"
         tabIndex={-1}
-        className="glass-lg relative mx-4 w-full max-w-md rounded-2xl bg-[rgba(20,16,34,0.8)] p-6 animate-spotlight-in outline-none"
+        className="glass-lg relative mx-4 w-full max-w-md rounded-2xl bg-[var(--site-modal-bg)] p-6 animate-spotlight-in outline-none"
       >
         <button
           onClick={onClose}

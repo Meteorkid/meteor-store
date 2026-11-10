@@ -85,7 +85,7 @@ export default function HelpToc({
                 {isActive && (
                   <span
                     aria-hidden
-                    className="absolute -left-[5px] mt-[0.35rem] inline-block h-1.5 w-1.5 rounded-full bg-violet-300 shadow-[0_0_6px_rgba(196,181,253,0.5)]"
+                    className="absolute -left-[5px] mt-[0.35rem] inline-block h-1.5 w-1.5 rounded-full bg-violet-300 shadow-[0_0_6px_var(--site-accent)]"
                     style={{ left: heading.level === 3 ? 'calc(0.75rem - 5px)' : '-5px' }}
                   />
                 )}
@@ -125,7 +125,7 @@ export default function HelpToc({
                   aria-hidden
                   className={`absolute top-[0.6rem] h-1.5 w-1.5 rounded-full transition-all duration-300 ${
                     isActive
-                      ? 'bg-violet-300 shadow-[0_0_6px_rgba(196,181,253,0.5)]'
+                      ? 'bg-violet-300 shadow-[0_0_6px_var(--site-accent)]'
                       : 'bg-white/15'
                   }`}
                   style={{ left: heading.level === 3 ? '0.5rem' : '0' }}

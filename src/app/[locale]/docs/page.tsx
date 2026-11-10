@@ -53,7 +53,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
         {/* 顶部星云光晕 */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-[44rem] bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(88,28,135,0.2),transparent_55%),radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(139,92,246,0.12),transparent_60%)]"
+          className="site-glow-top pointer-events-none absolute inset-x-0 top-0 h-[44rem]"
         />
         <div className="container relative mx-auto px-4 py-14 md:py-20">
           <div className="mx-auto max-w-5xl">
@@ -75,7 +75,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
             <div className="relative mb-12 max-w-2xl">
               <div
                 aria-hidden
-                className="pointer-events-none absolute -inset-4 rounded-2xl bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.1),transparent_70%)] opacity-0 transition-opacity duration-500 has-[:focus]:opacity-100"
+                className="site-glow-focus pointer-events-none absolute -inset-4 rounded-2xl opacity-0 transition-opacity duration-500 has-[:focus]:opacity-100"
                 style={{ zIndex: -1 }}
               />
               <HelpCenterSearch
@@ -97,7 +97,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                     >
                       <span
                         aria-hidden
-                        className="inline-block h-1.5 w-1.5 rounded-full bg-white/20 transition-all duration-300 group-hover:bg-violet-300 group-hover:shadow-[0_0_6px_rgba(196,181,253,0.6)]"
+                        className="inline-block h-1.5 w-1.5 rounded-full bg-white/20 transition-all duration-300 group-hover:bg-violet-300 group-hover:shadow-[0_0_6px_var(--site-accent)]"
                       />
                       {category.label[currentLocale]}
                     </a>
@@ -134,7 +134,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                         className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 motion-reduce:transition-none"
                       >
                         <div className="h-px w-full origin-bottom-left rotate-45 bg-gradient-to-r from-transparent via-violet-400/20 to-violet-300/40" />
-                        <div className="absolute right-0 top-0 h-1.5 w-1.5 rounded-full bg-violet-300/60 shadow-[0_0_8px_rgba(196,181,253,0.4)]" />
+                        <div className="absolute right-0 top-0 h-1.5 w-1.5 rounded-full bg-violet-300/60 shadow-[0_0_8px_var(--site-accent)]" />
                       </div>
                       <div className="relative z-10">
                         <h3 className="t-title-4 mb-2 text-white/90 transition-colors duration-200 group-hover:text-white">
@@ -179,7 +179,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                         {/* 左上角星点 */}
                         <div
                           aria-hidden
-                          className="absolute left-3 top-3 h-1 w-1 rounded-full bg-white/0 transition-all duration-500 group-hover:bg-violet-300/50 group-hover:shadow-[0_0_6px_rgba(196,181,253,0.3)]"
+                          className="absolute left-3 top-3 h-1 w-1 rounded-full bg-white/0 transition-all duration-500 group-hover:bg-violet-300/50 group-hover:shadow-[0_0_6px_var(--site-accent)]"
                         />
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
@@ -200,7 +200,7 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
                             <OpenInPanelButton slug={article.slug} variant="icon" className="relative z-10" />
                             <span
                               aria-hidden
-                              className="text-white/25 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-violet-300/70 group-hover:drop-shadow-[0_0_4px_rgba(196,181,253,0.3)] motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+                              className="text-white/25 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-violet-300/70 group-hover:drop-shadow-[0_0_4px_var(--site-accent)] motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
                             >
                               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M5 12h12m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -221,12 +221,12 @@ export default async function DocsPage({ params, searchParams }: DocsPageProps) 
               {/* 星云背景 */}
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(139,92,246,0.22),transparent_58%),radial-gradient(circle_at_85%_20%,rgba(168,85,247,0.1),transparent_30%)]"
+                className="site-glow-card pointer-events-none absolute inset-0"
               />
               {/* 流星划过 */}
               <div aria-hidden className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 opacity-40">
                 <div className="h-px w-full origin-bottom-left -rotate-45 bg-gradient-to-r from-transparent via-violet-400/30 to-violet-300/60" />
-                <div className="absolute right-0 top-0 h-2 w-2 rounded-full bg-violet-300/50 shadow-[0_0_12px_rgba(196,181,253,0.4)]" />
+                <div className="absolute right-0 top-0 h-2 w-2 rounded-full bg-violet-300/50 shadow-[0_0_12px_var(--site-accent)]" />
               </div>
               {/* 星点装饰 */}
               <div aria-hidden className="pointer-events-none absolute bottom-6 left-6 flex gap-3">

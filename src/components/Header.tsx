@@ -12,6 +12,9 @@ import LanguageSwitcher from './LanguageSwitcher';
 import BrandMark from './BrandMark';
 import NotificationBell from './NotificationBell';
 import CelestialText from './home/CelestialText';
+import ThemeToggle from './theme/ThemeToggle';
+import ThemeSwitcher from './theme/ThemeSwitcher';
+import { useOptionalSiteTheme } from './theme/ThemeProvider';
 import styles from './Header.module.css';
 
 const navigation = getHeaderNavigation(SHOW_PRICING);
@@ -59,7 +62,8 @@ export interface HeaderProps {
 }
 
 export default function Header({ variant = 'default' }: HeaderProps = {}) {
-  const celestial = variant === 'celestial';
+  const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
+  const celestial = variant === 'celestial' && siteTheme === 'nebula';
   const pathname = usePathname();
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const t = useTranslations('Header');
@@ -399,6 +403,7 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
             <button type="button" className={styles.iconButton} onClick={openSearch} data-spotlight-trigger aria-label={t('search')} title={t('searchShortcutTitle')}><SearchIcon /></button>
             <NotificationBell />
             <LanguageSwitcher />
+            <ThemeToggle className={`${styles.iconButton} ${styles.desktopThemeToggle}`} />
             <div className={styles.desktopAccount}><UserMenu /></div>
             {user?.isAdmin && (
               <Link href="/admin" className={styles.mobileAdminShortcut} aria-label={t('adminDashboard')} onClick={closeNavigation}>
@@ -477,6 +482,7 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
                 </div>
               );
             })}
+            <div className={styles.mobileTheme}><ThemeSwitcher compact headingId="header-mobile-theme" /></div>
             <div className={styles.mobileAccount}>
               {user ? (
                 <>

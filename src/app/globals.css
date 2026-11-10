@@ -77,6 +77,148 @@
   --inner-shadow-highlight:
     inset 0 -0.5px 0 0 hsla(0, 0%, 100%, 0.067),
     inset 0 0.5px 0 0 rgba(0, 0, 0, 0.467);
+
+  /* 两套视觉主题都保持暗色；组件优先读取这组变量。 */
+  --site-accent: rgb(196 181 253);
+  --site-accent-soft: rgb(216 214 230 / .62);
+  --site-border: rgb(255 255 255 / .08);
+  --site-panel: rgb(255 255 255 / .02);
+  --site-choice: rgb(139 92 246 / .11);
+  --site-home-bg: #030509;
+  --site-page-atmosphere: radial-gradient(ellipse at 78% 12%, rgb(95 133 160 / .13), transparent 43%), radial-gradient(ellipse at 16% 48%, rgb(55 84 112 / .1), transparent 38%);
+  --site-glass-a: 139 92 246;
+  --site-glass-b: 20 16 34;
+  --site-glass-c: 99 102 241;
+  --site-glass-shadow: 139 92 246;
+  --site-brand-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  --site-hero-gradient: linear-gradient(120deg, #c084fc 0%, #818cf8 20%, #60a5fa 40%, #a78bfa 60%, #f472b6 80%, #c084fc 100%);
+  --site-back-to-top: rgb(139 92 246 / .35);
+  --site-modal-bg: rgb(20 16 34 / .8);
+  --site-brand-tail: rgb(167 139 250 / .5);
+  --site-brand-line-mid: rgb(167 139 250 / .6);
+  --site-brand-line-end: #c4b5fd;
+  --site-grid-line: rgb(139 92 246 / .03);
+  --site-glow-deep: rgb(88 28 135 / .2);
+  --site-glow-accent: rgb(139 92 246 / .12);
+  --site-glow-soft: rgb(168 85 247 / .08);
+}
+
+:root:root[data-theme="classic"] {
+  --background: #09070f;
+  --card: #111018;
+  --popover: #14111c;
+  --primary: var(--purple-6);
+  --primary-foreground: var(--purple-0);
+  --accent: var(--violet-6);
+  --accent-foreground: var(--violet-0);
+  --border: #3c3248;
+  --input: #3c3248;
+  --site-accent: rgb(196 181 253);
+  --site-accent-soft: rgb(216 214 230 / .62);
+  --site-border: rgb(196 181 253 / .13);
+  --site-panel: rgb(24 17 34 / .74);
+  --site-choice: rgb(139 92 246 / .12);
+  --site-home-bg: #09070f;
+  --site-page-atmosphere: radial-gradient(ellipse at 73% 14%, rgb(139 92 246 / .16), transparent 44%), radial-gradient(ellipse at 18% 58%, rgb(236 72 153 / .08), transparent 38%);
+  --site-glass-a: 139 92 246;
+  --site-glass-b: 20 16 34;
+  --site-glass-c: 99 102 241;
+  --site-glass-shadow: 139 92 246;
+  --site-brand-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  --site-hero-gradient: linear-gradient(120deg, #c084fc 0%, #818cf8 20%, #60a5fa 40%, #a78bfa 60%, #f472b6 80%, #c084fc 100%);
+  --site-back-to-top: rgb(139 92 246 / .35);
+  --site-modal-bg: rgb(20 16 34 / .8);
+  --site-brand-tail: rgb(167 139 250 / .5);
+  --site-brand-line-mid: rgb(167 139 250 / .6);
+  --site-brand-line-end: #c4b5fd;
+  --site-grid-line: rgb(139 92 246 / .03);
+  --site-glow-deep: rgb(88 28 135 / .2);
+  --site-glow-accent: rgb(139 92 246 / .12);
+  --site-glow-soft: rgb(168 85 247 / .08);
+}
+
+:root:root[data-theme="nebula"] {
+  --background: #030509;
+  --card: #09121b;
+  --popover: #09121b;
+  --primary: #9bc6dd;
+  --primary-foreground: #06111a;
+  --secondary: #142331;
+  --secondary-foreground: #e8f2f7;
+  --accent: #b6d8e8;
+  --accent-foreground: #06111a;
+  --border: #2f4658;
+  --input: #2f4658;
+  --site-accent: rgb(182 216 232);
+  --site-accent-soft: rgb(200 223 236 / .62);
+  --site-border: rgb(182 216 232 / .12);
+  --site-panel: rgb(9 18 27 / .74);
+  --site-choice: rgb(126 180 207 / .1);
+  --site-home-bg: #030509;
+  --site-page-atmosphere: radial-gradient(ellipse at 78% 12%, rgb(95 133 160 / .16), transparent 43%), radial-gradient(ellipse at 16% 48%, rgb(55 84 112 / .12), transparent 38%);
+  --site-glass-a: 126 184 214;
+  --site-glass-b: 6 15 23;
+  --site-glass-c: 80 134 160;
+  --site-glass-shadow: 126 184 214;
+  --site-brand-gradient: linear-gradient(135deg, #d9eff7 0%, #8cc6dc 52%, #b9e1ee 100%);
+  --site-hero-gradient: linear-gradient(120deg, #e4f6fb 0%, #a8d9e8 25%, #7eb8d2 50%, #c0e7f2 72%, #8cc6dc 100%);
+  --site-back-to-top: rgb(70 137 165 / .55);
+  --site-modal-bg: rgb(6 16 25 / .9);
+  --site-brand-tail: rgb(182 216 232 / .55);
+  --site-brand-line-mid: rgb(182 216 232 / .55);
+  --site-brand-line-end: #d8eff7;
+  --site-grid-line: rgb(126 184 214 / .035);
+  --site-glow-deep: rgb(40 93 116 / .25);
+  --site-glow-accent: rgb(126 184 214 / .16);
+  --site-glow-soft: rgb(80 134 160 / .1);
+
+  /* Tailwind 的紫色系在星云主题里统一映射为冷蓝银，不影响红、绿、琥珀等语义色。 */
+  --color-violet-50: #f4fbff;
+  --color-violet-100: #e7f5fb;
+  --color-violet-200: #d3edf5;
+  --color-violet-300: #b6dcea;
+  --color-violet-400: #8dc6db;
+  --color-violet-500: #4f8ba3;
+  --color-violet-600: #356b82;
+  --color-violet-700: #2d596d;
+  --color-violet-800: #294b5b;
+  --color-violet-900: #243e49;
+  --color-violet-950: #10222b;
+  --color-purple-50: #f2fbfe;
+  --color-purple-100: #e1f5fb;
+  --color-purple-200: #c6eaf4;
+  --color-purple-300: #a9dae8;
+  --color-purple-400: #7bc1d6;
+  --color-purple-500: #5aa3bc;
+  --color-purple-600: #407b93;
+  --color-purple-700: #346577;
+  --color-purple-800: #2c5262;
+  --color-purple-900: #243f4c;
+  --color-purple-950: #0e202a;
+  --color-pink-50: #f5fdff;
+  --color-pink-100: #e8f9ff;
+  --color-pink-200: #d3f2fb;
+  --color-pink-300: #b9e7f2;
+  --color-pink-400: #94d4e4;
+  --color-pink-500: #73bbce;
+  --color-pink-600: #4b879b;
+  --color-pink-700: #3f7181;
+  --color-pink-800: #345b68;
+  --color-pink-900: #294953;
+  --color-pink-950: #12262e;
+  --color-indigo-50: #f3f9fc;
+  --color-indigo-100: #e1f0f7;
+  --color-indigo-200: #c3e2ee;
+  --color-indigo-300: #9dccdf;
+  --color-indigo-400: #72adc7;
+  --color-indigo-500: #548fa9;
+  --color-indigo-600: #3f728a;
+  --color-indigo-700: #355c6e;
+  --color-indigo-800: #2e4c5a;
+  --color-indigo-900: #263d47;
+  --color-indigo-950: #10222b;
+  --purple-6: #407b93;
+  --pink-6: #73bbce;
 }
 
 @theme inline {
@@ -111,9 +253,39 @@
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image: var(--site-page-atmosphere);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+.site-grid {
+  background-image: linear-gradient(var(--site-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--site-grid-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.site-glow-top {
+  background-image: radial-gradient(ellipse 80% 60% at 50% 0%, var(--site-glow-deep), transparent 55%), radial-gradient(ellipse 60% 40% at 50% 0%, var(--site-glow-accent), transparent 60%);
+}
+
+.site-glow-focus {
+  background-image: radial-gradient(ellipse at center, var(--site-glow-accent), transparent 70%);
+}
+
+.site-glow-card {
+  background-image: radial-gradient(ellipse 60% 50% at 50% 0%, var(--site-glow-accent), transparent 58%), radial-gradient(circle at 85% 20%, var(--site-glow-soft), transparent 30%);
+}
+
+.glass-card.pricing-featured-glow {
+  box-shadow: inset 0 1px 0 rgb(var(--site-glass-a) / .2), 0 8px 40px rgb(var(--site-glass-shadow) / .15);
+}
+
+/* 页面外壳在星云主题下承接同一层冷色深空，不再用纯黑截断全站氛围。 */
+html[data-theme="nebula"] .min-h-screen.bg-black {
+  background-color: var(--background);
+  background-image: var(--site-page-atmosphere);
+  background-attachment: fixed;
 }
 
 /* Smooth scrolling */
@@ -127,11 +299,11 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: color-mix(in srgb, var(--background) 84%, white 16%);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4a4a4a;
+  background: color-mix(in srgb, var(--site-accent) 28%, #4a4a4a);
   border-radius: 4px;
 }
 
@@ -141,8 +313,8 @@ html {
 
 /* Selection */
 ::selection {
-  background: rgba(168, 85, 247, 0.4);
-  color: white;
+  background: color-mix(in srgb, var(--site-accent) 38%, transparent);
+  color: var(--foreground);
 }
 
 /* Button Glow Effect */
@@ -179,7 +351,7 @@ html {
 }
 
 .card-3d:hover {
-  box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 20px 40px rgb(var(--site-glass-shadow) / .2);
 }
 
 /* Card Glow Effect */
@@ -191,7 +363,7 @@ html {
   bottom: 0;
   background: radial-gradient(
     circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(139, 92, 246, 0.1) 0%,
+    rgb(var(--site-glass-shadow) / .1) 0%,
     transparent 50%
   );
   pointer-events: none;
@@ -205,7 +377,7 @@ html {
 
 /* Gradient Text */
 .gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: var(--site-brand-gradient);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -246,22 +418,14 @@ html {
 
 /* 流动渐变（第二行标题） */
 .hero-gradient {
-  background: linear-gradient(
-    120deg,
-    #c084fc 0%,
-    #818cf8 20%,
-    #60a5fa 40%,
-    #a78bfa 60%,
-    #f472b6 80%,
-    #c084fc 100%
-  );
+  background: var(--site-hero-gradient);
   background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradient-flow 8s linear infinite;
-  filter: drop-shadow(0 0 32px rgba(139,92,246,0.35))
-          drop-shadow(0 0 64px rgba(99,102,241,0.18));
+  filter: drop-shadow(0 0 32px rgb(var(--site-glass-shadow) / .35))
+          drop-shadow(0 0 64px rgb(var(--site-glass-c) / .18));
 }
 
 @keyframes gradient-flow {
@@ -547,9 +711,9 @@ html {
   backdrop-filter: blur(20px) saturate(1.6);
   background: linear-gradient(
     135deg,
-    rgb(139 92 246 / calc(0.06 * var(--glass-alpha))) 0%,
-    rgb(20 16 34 / calc(0.55 * var(--glass-alpha))) 50%,
-    rgb(139 92 246 / calc(0.03 * var(--glass-alpha))) 100%
+    rgb(var(--site-glass-a) / calc(0.06 * var(--glass-alpha))) 0%,
+    rgb(var(--site-glass-b) / calc(0.55 * var(--glass-alpha))) 50%,
+    rgb(var(--site-glass-c) / calc(0.03 * var(--glass-alpha))) 100%
   );
   border-top: 1px solid rgba(255,255,255,0.15);
   border-left: 1px solid rgba(255,255,255,0.08);
@@ -575,7 +739,7 @@ html {
     inset 0 -1px 0 rgba(0,0,0,0.25),
     0 1px 3px rgba(0,0,0,0.35),
     0 24px 80px rgba(0,0,0,0.6),
-    0 0 0 1px rgba(139,92,246,0.06);
+    0 0 0 1px rgb(var(--site-glass-shadow) / .06);
 }
 
 /* 交互式玻璃卡片：鼠标追踪镜面高光 + 渐变边框 */
@@ -585,9 +749,9 @@ html {
   backdrop-filter: blur(16px) saturate(1.5);
   background: linear-gradient(
     145deg,
-    rgb(139 92 246 / calc(0.05 * var(--glass-alpha))) 0%,
-    rgb(20 16 34 / calc(0.50 * var(--glass-alpha))) 50%,
-    rgb(99 102 241 / calc(0.03 * var(--glass-alpha))) 100%
+    rgb(var(--site-glass-a) / calc(0.05 * var(--glass-alpha))) 0%,
+    rgb(var(--site-glass-b) / calc(0.50 * var(--glass-alpha))) 50%,
+    rgb(var(--site-glass-c) / calc(0.03 * var(--glass-alpha))) 100%
   );
   border-top: 1px solid rgba(255,255,255,0.12);
   border-left: 1px solid rgba(255,255,255,0.06);
@@ -646,7 +810,7 @@ html {
     inset 0 1px 0 rgba(255,255,255,0.14),
     inset 0 -1px 0 rgba(0,0,0,0.18),
     0 2px 4px rgba(0,0,0,0.25),
-    0 8px 40px rgba(139,92,246,0.12);
+    0 8px 40px rgb(var(--site-glass-shadow) / .12);
 }
 
 /* 移动端 blur 减半，省 GPU */
@@ -1104,10 +1268,10 @@ html {
 /* 许愿流星核脉动 */
 @keyframes wish-head-pulse {
   0%, 100% {
-    box-shadow: 0 0 12px 4px rgba(196,181,253,0.5), 0 0 24px 8px rgba(139,92,246,0.25);
+    box-shadow: 0 0 12px 4px var(--site-accent-soft), 0 0 24px 8px rgb(var(--site-glass-shadow) / .25);
   }
   50% {
-    box-shadow: 0 0 18px 6px rgba(196,181,253,0.7), 0 0 32px 12px rgba(139,92,246,0.35);
+    box-shadow: 0 0 18px 6px var(--site-accent-soft), 0 0 32px 12px rgb(var(--site-glass-shadow) / .35);
   }
 }
 

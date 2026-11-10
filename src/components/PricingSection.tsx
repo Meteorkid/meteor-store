@@ -235,12 +235,12 @@ function ConstellationField() {
                 height: s.halo,
                 left: -s.halo / 2,
                 top: -s.halo / 2,
-                background: 'radial-gradient(circle, rgba(167,139,250,0.5), transparent 70%)',
+                background: 'radial-gradient(circle, var(--site-accent-soft), transparent 70%)',
               }}
             />
             <span
               className="block rounded-full bg-white"
-              style={{ width: s.r * 4, height: s.r * 4, boxShadow: '0 0 8px rgba(167,139,250,0.9)' }}
+              style={{ width: s.r * 4, height: s.r * 4, boxShadow: '0 0 8px var(--site-accent)' }}
             />
           </span>
         ))}
@@ -283,7 +283,7 @@ function ConstellationField() {
         {[16, 50, 84].map((top) => (
           <span
             key={top}
-            className="absolute left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_8px_rgba(167,139,250,0.95)]"
+            className="absolute left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_8px_var(--site-accent)]"
             style={{ top: `${top}%` }}
           />
         ))}
