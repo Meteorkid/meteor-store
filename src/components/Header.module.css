@@ -12,6 +12,7 @@
   --site-header-accent-soft: rgb(220 206 255);
   --site-header-mobile-a: rgb(26 21 38);
   --site-header-mobile-b: rgb(12 12 18);
+  --site-header-solid: #0d0c13;
   --site-nav-highlight: rgb(211 199 255 / .12);
 }
 
@@ -23,6 +24,7 @@ html[data-theme="nebula"] .header {
   --site-header-accent-soft: rgb(208 232 243);
   --site-header-mobile-a: rgb(11 23 33);
   --site-header-mobile-b: rgb(5 10 16);
+  --site-header-solid: #050a10;
   --site-nav-highlight: rgb(182 216 232 / .13);
 }
 
@@ -215,7 +217,7 @@ html[data-theme="nebula"] .mobilePanel {
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .headerSurface, .desktopPanel { background: #111017; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .headerSurface, .desktopPanel { background: var(--site-header-solid); -webkit-backdrop-filter: none; backdrop-filter: none; }
   .navLink::before, .navTrigger::before, .mobileLink > span::before, .mobileTrigger::before { background: #34313f; -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 
@@ -230,8 +232,24 @@ html[data-theme="nebula"] .mobilePanel {
   }
 }
 
-/* 仅首页使用星光字形与银线；导航结构和默认 64px 顶栏保持原样。 */
-.celestial { color: #e4edf5; background: transparent; }
+/* 星云主题下，星光字形和银线属于整站导航，不再只在首页出现。 */
+.celestial {
+  color: #e4edf5;
+  background: radial-gradient(ellipse at 18% -90%, rgb(126 184 214 / .16), transparent 58%);
+}
+.celestial::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgb(222 242 251 / .54) 0 .65px, transparent .9px),
+    radial-gradient(circle, rgb(151 205 231 / .38) 0 .5px, transparent .8px),
+    radial-gradient(ellipse at 50% 120%, rgb(126 184 214 / .09), transparent 58%);
+  background-position: 17px 9px, 71px 31px, center;
+  background-size: 113px 47px, 191px 73px, 100% 100%;
+  opacity: .5;
+}
 .celestial.headerSurface {
   background: rgb(6 11 18 / 94%);
   box-shadow: inset 0 -1px 0 rgb(215 230 243 / 14%);
@@ -259,6 +277,14 @@ html[data-theme="nebula"] .mobilePanel {
 .celestial a:focus-visible, .celestial button:focus-visible, .celestialMobile a:focus-visible, .celestialMobile button:focus-visible { outline-color: #d4e9f7; }
 .celestial .mobileAdminShortcut { border-color: rgb(207 228 243 / 38%); background: rgb(200 223 240 / 7%); color: #e0edf5; }
 .celestialMobileText { --type-height: 23px; }
+
+html[data-theme="nebula"] .celestialMobile {
+  background:
+    radial-gradient(circle at 14% 18%, rgb(222 242 251 / .48) 0 .75px, transparent 1.15px),
+    radial-gradient(circle at 72% 46%, rgb(151 205 231 / .32) 0 .6px, transparent 1px),
+    linear-gradient(150deg, #0d1825, #060b12 65%);
+  background-size: 137px 89px, 193px 121px, 100% 100%;
+}
 
 html[data-theme="nebula"] .header:not(.celestial) .bar { position: relative; }
 html[data-theme="nebula"] .header:not(.celestial) .bar::after {

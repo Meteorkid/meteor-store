@@ -243,6 +243,7 @@ export default function PaymentModal({
         {/* Backdrop：fixed，不随弹窗内容滚动 */}
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+          data-transparency-surface="overlay"
           onClick={handleClose}
         />
 

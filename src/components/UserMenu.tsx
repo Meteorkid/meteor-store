@@ -98,7 +98,7 @@ export default function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-56 max-h-[calc(100dvh-80px)] overflow-y-auto overscroll-contain rounded-xl border border-white/10 bg-zinc-950/95 shadow-2xl backdrop-blur-xl">
+        <div className="absolute right-0 top-full mt-2 w-56 max-h-[calc(100dvh-80px)] overflow-y-auto overscroll-contain rounded-xl border border-white/10 bg-[var(--site-modal-bg)] shadow-2xl backdrop-blur-xl" data-transparency-surface="panel">
           <div className="border-b border-white/[0.06] px-4 py-3">
             <p className="text-sm font-medium text-white flex items-center gap-2">
               {user.name || t('defaultUserName')}

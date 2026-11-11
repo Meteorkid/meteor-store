@@ -38,5 +38,5 @@
   .responsiveTable td { display: grid; grid-template-columns: 4.5em minmax(0, 1fr); align-items: baseline; gap: 12px; max-width: none; padding: 6px 0; overflow: visible; text-overflow: clip; white-space: normal; }
   .responsiveTable td::before { content: attr(data-label); color: rgb(255 255 255 / 65%); font: 400 13px/1.5 system-ui, sans-serif; letter-spacing: 0.01em; }
   .responsiveTable td > div { min-width: 0; overflow-wrap: anywhere; }
-  .responsiveTable td a[data-admin-action] { display: inline-flex; align-items: center; padding: 8px 12px; border: 1px solid rgb(196 181 253 / 30%); border-radius: 8px; color: rgb(220 206 255); }
+  .responsiveTable td a[data-admin-action] { display: inline-flex; align-items: center; padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--site-accent) 30%, transparent); border-radius: 8px; color: var(--site-accent-soft); }
 }

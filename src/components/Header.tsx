@@ -63,7 +63,9 @@ export interface HeaderProps {
 
 export default function Header({ variant = 'default' }: HeaderProps = {}) {
   const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
-  const celestial = variant === 'celestial' && siteTheme === 'nebula';
+  // 星云主题属于整站外观；variant 只标记首页的语义，不应把其他页面的导航留在旧皮肤。
+  const celestial = siteTheme === 'nebula';
+  const celestialHome = celestial && variant === 'celestial';
   const pathname = usePathname();
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const t = useTranslations('Header');
@@ -293,7 +295,7 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
       <header
         ref={headerRef}
         className={`${styles.header} ${celestial ? styles.celestial : ''} ${scrolled || desktopOpen || mobileOpen ? styles.headerSurface : ''} ${hidden && !desktopOpen && !mobileOpen && !focusWithin ? styles.headerHidden : ''}`}
-        data-variant={celestial ? 'celestial' : undefined}
+        data-variant={celestialHome ? 'celestial' : undefined}
         onFocusCapture={() => setFocusWithin(true)}
         onBlurCapture={event => {
           if (!event.currentTarget.contains(event.relatedTarget)) {

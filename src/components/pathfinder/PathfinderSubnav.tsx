@@ -81,7 +81,7 @@ export default function PathfinderSubnav() {
           </summary>
           <nav
             aria-label={t('ariaLabel')}
-            className="mt-2 grid grid-cols-2 gap-1 rounded-xl border border-white/10 bg-black/80 p-1.5 shadow-2xl shadow-black/30 sm:grid-cols-4"
+            className="mt-2 grid grid-cols-2 gap-1 rounded-xl border border-[color:var(--site-border)] bg-[var(--site-modal-bg)] p-1.5 shadow-2xl shadow-black/30 sm:grid-cols-4"
           >
             {NAV_ITEMS.map((item) => {
               const active = isActive(pathname, item.href, 'exact' in item && item.exact);

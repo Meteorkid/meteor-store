@@ -115,8 +115,8 @@ export default function GlassPreference() {
             onChange={(e) => handleChange(parseFloat(e.target.value))}
             className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
             style={{
-              background: `linear-gradient(to right, rgb(139 92 246 / 0.3) 0%, rgb(139 92 246 / 0.7) ${pct}%, rgb(255 255 255 / 0.08) ${pct}%, rgb(255 255 255 / 0.08) 100%)`,
-              accentColor: 'rgb(139 92 246)',
+              background: `linear-gradient(to right, rgb(var(--site-glass-a) / 0.3) 0%, rgb(var(--site-glass-a) / 0.7) ${pct}%, rgb(255 255 255 / 0.08) ${pct}%, rgb(255 255 255 / 0.08) 100%)`,
+              accentColor: 'var(--site-accent)',
             }}
           />
           <div className="flex gap-0.5">

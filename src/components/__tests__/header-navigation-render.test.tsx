@@ -4,7 +4,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import zh from '../../../messages/zh.json';
 import en from '../../../messages/en.json';
 
-const state = vi.hoisted(() => ({ locale: 'zh', pathname: '/', user: null as null | { name: string; isAdmin: boolean } }));
+const state = vi.hoisted(() => ({
+  locale: 'zh',
+  pathname: '/',
+  user: null as null | { name: string; isAdmin: boolean },
+  theme: 'nebula' as 'classic' | 'nebula',
+}));
 vi.mock('next-intl', () => ({
   useLocale: () => state.locale,
   useTranslations: () => (key: string) => (state.locale === 'en' ? en : zh).Header[key as keyof typeof zh.Header],
@@ -18,10 +23,13 @@ vi.mock('../UserMenu', () => ({ default: () => <button>Account fixture</button> 
 vi.mock('../NotificationBell', () => ({ default: () => <button>Notifications fixture</button> }));
 vi.mock('../LanguageSwitcher', () => ({ default: () => <button>Language fixture</button> }));
 vi.mock('../BrandMark', () => ({ default: () => <svg aria-hidden="true" /> }));
+vi.mock('../theme/ThemeProvider', () => ({
+  useOptionalSiteTheme: () => ({ theme: state.theme, saving: false, saveError: null, setTheme: vi.fn() }),
+}));
 
 import Header from '../Header';
 
-beforeEach(() => { state.locale = 'zh'; state.pathname = '/'; state.user = null; });
+beforeEach(() => { state.locale = 'zh'; state.pathname = '/'; state.user = null; state.theme = 'nebula'; });
 
 describe.each(['default', 'celestial'] as const)('主导航初始呈现：%s', variant => {
   it('管理员在手机顶栏有直接入口，普通用户没有', () => {
@@ -73,10 +81,16 @@ describe.each(['default', 'celestial'] as const)('主导航初始呈现：%s', v
   });
 });
 
-it('默认顶栏保留原品牌，首页变体只在显式传入时使用自绘字形', () => {
+it('星云主题让所有页面共享星光导航，经典主题恢复原品牌', () => {
   const defaultHtml = renderToStaticMarkup(<Header />);
   expect(defaultHtml).not.toContain('data-variant="celestial"');
-  expect(defaultHtml).not.toContain('data-celestial-text');
+  expect(defaultHtml).toContain('data-celestial-text="METEOR"');
+  expect(defaultHtml).toContain('data-celestial-text="STORE"');
+  state.theme = 'classic';
+  const classicHtml = renderToStaticMarkup(<Header />);
+  expect(classicHtml).not.toContain('data-celestial-text');
+  expect(classicHtml).toContain('Meteor Store');
+  state.theme = 'nebula';
   const homeHtml = renderToStaticMarkup(<Header variant="celestial" />);
   expect(homeHtml).toContain('data-variant="celestial"');
   expect(homeHtml).toContain('data-celestial-text="METEOR"');

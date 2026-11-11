@@ -121,7 +121,7 @@ export default function RoundCard({ round, idPrefix = 'round', returnTo = '/mast
               <fieldset disabled={!watchesReady}>
                 <legend className="mb-3 t-footnote font-semibold text-white/80">{copy.progress}</legend>
                 <label className="sr-only" htmlFor={progressId}>{copy.progress}</label>
-                <select ref={progressRef} id={progressId} value={status} disabled={busy} onChange={event => updateDraft({ status: event.target.value as MastersWatchInput['status'], reminders })} className="min-h-11 w-full rounded-xl border border-white/15 bg-zinc-950 px-3 text-sm text-white sm:w-auto">
+                <select ref={progressRef} id={progressId} value={status} disabled={busy} onChange={event => updateDraft({ status: event.target.value as MastersWatchInput['status'], reminders })} className="min-h-11 w-full rounded-xl border border-white/15 bg-background px-3 text-sm text-white sm:w-auto">
                   {(['preparing', 'submitted', 'abandoned'] as const).map(value => <option key={value} value={value}>{copy[value]}</option>)}
                 </select>
                 <label htmlFor={remindersId} className="mt-4 flex items-start gap-3 text-sm text-white/80"><input id={remindersId} type="checkbox" checked={reminders} disabled={busy || status !== 'preparing'} onChange={event => updateDraft({ status, reminders: event.target.checked })} className="mt-1 h-4 w-4 accent-violet-400" /><span>{copy.reminders}<span className="mt-1 block t-footnote text-white/60">{status === 'preparing' ? copy.reminderHint : copy.reminderPaused}</span></span></label>

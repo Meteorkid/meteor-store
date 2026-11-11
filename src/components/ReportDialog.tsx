@@ -95,10 +95,11 @@ export default function ReportDialog({
         aria-label={t('close')}
         onClick={onClose}
         className="absolute inset-0 cursor-default bg-black/70 backdrop-blur-sm"
+        data-transparency-surface="overlay"
       />
 
       {/* 对话框主体 */}
-      <div className="relative w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#0d0d10] p-6 shadow-2xl">
+      <div className="relative w-full max-w-md rounded-2xl border border-[color:var(--site-border)] bg-[var(--site-modal-bg)] p-6 shadow-2xl">
         {done ? (
           <div className="py-6 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-300">

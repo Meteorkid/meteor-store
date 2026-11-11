@@ -65,6 +65,55 @@ const fragmentSource = `#version 300 es
     }
     return value;
   }
+  float starCell(vec3 dir, float density, float threshold, float sharp) {
+    vec3 p = dir * density;
+    vec3 cell = floor(p);
+    float h = hash31(cell);
+    if (h < threshold) return 0.0;
+    vec3 f = fract(p) - 0.5;
+    vec3 jitter = (vec3(hash31(cell + 11.0), hash31(cell + 23.0), hash31(cell + 37.0)) - 0.5) * 0.62;
+    float d = length(f - jitter);
+    float core = pow(max(0.0, 1.0 - d * 2.45), sharp);
+    return core * (0.34 + 0.66 * hash31(cell + 71.0));
+  }
+  vec3 proceduralStars(vec3 dir) {
+    float large = starCell(dir, 54.0, 0.895, 6.2);
+    float fine = starCell(dir, 104.0, 0.932, 5.0) * 0.62;
+    float tint = hash31(floor(dir * 73.0));
+    vec3 color = mix(vec3(0.70, 0.84, 1.00), vec3(1.00, 0.88, 0.68), step(0.84, tint));
+    return color * (large + fine);
+  }
+  vec4 drawPlanet(vec3 dir, vec3 center, float radius, vec3 base, float ringed) {
+    float angle = acos(clamp(dot(dir, center), -1.0, 1.0));
+    if (angle > radius * 2.35) return vec4(0.0);
+    vec3 axis = abs(center.y) > 0.92 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 1.0, 0.0);
+    vec3 right = normalize(cross(axis, center));
+    vec3 up = normalize(cross(center, right));
+    vec2 p = vec2(dot(dir, right), dot(dir, up)) / radius;
+    float rr = length(p);
+    float body = 1.0 - smoothstep(0.945, 1.015, rr);
+    float nz = sqrt(max(0.0, 1.0 - rr * rr));
+    vec3 normal = normalize(right * p.x + up * p.y + center * nz);
+    vec3 lightDirection = normalize(vec3(-0.62, 0.74, 0.32));
+    float light = 0.16 + 0.92 * max(0.0, dot(normal, lightDirection));
+    float bands = 0.82 + 0.18 * sin(p.y * 28.0 + noise3(dir * 19.0) * 3.0);
+    vec3 bodyColor = base * (0.26 + light) * bands;
+    float rim = pow(smoothstep(0.62, 1.0, rr), 2.2) * body;
+    float specular = pow(max(0.0, dot(reflect(-lightDirection, normal), -dir)), 22.0) * 0.42;
+    bodyColor += base * rim * 0.48 + vec3(specular);
+    float halo = (1.0 - smoothstep(0.96, 2.35, rr)) * 0.18;
+    vec3 color = bodyColor + base * halo * 0.34;
+    float alpha = max(body, halo);
+    if (ringed > 0.5) {
+      float ringDistance = length(vec2(p.x, p.y * 2.70));
+      float ring = (1.0 - smoothstep(0.00, 0.105, abs(ringDistance - 1.52))) * ringed;
+      ring *= 1.0 - smoothstep(0.78, 1.04, abs(p.y));
+      vec3 ringColor = mix(vec3(0.50, 0.47, 0.40), vec3(0.88, 0.81, 0.64), ring) * (0.50 + light * 0.40);
+      color = mix(ringColor, bodyColor, body);
+      alpha = max(alpha, ring * 0.66);
+    }
+    return vec4(color, clamp(alpha, 0.0, 1.0));
+  }
   vec3 warp(vec3 p) {
     return vec3(
       noise3(p * 1.7 + vec3(8.1,3.4,9.2)),
@@ -83,25 +132,25 @@ const fragmentSource = `#version 300 es
   void main() {
     vec2 uv = vec2(v_uv.x, 1.0 - v_uv.y);
     float mobile = 1.0 - smoothstep(0.85, 1.05, u_resolution.x / u_resolution.y);
-    vec2 q = (uv - vec2(mix(0.60,0.55,mobile),0.46)) * vec2(mix(3.15,2.35,mobile),2.65);
-    // 坐标扭转只改变密度场，不把云画成重复的环线。
-    q = mat2(0.958,-0.287,0.287,0.958) * q;
+    float aspect = u_resolution.x / max(1.0, u_resolution.y);
+    vec2 ndc = vec2((uv.x - 0.5) * 2.0, (0.5 - uv.y) * 2.0 / aspect);
     vec3 radiance = vec3(0.0);
     float transmittance = 1.0;
-    // 将整条采样射线变换回密度场；零角度仍沿用已批准的构图与光程。
-    vec3 rayOrigin = u_view_rotation * vec3(q, 0.0);
-    vec3 rayDirection = u_view_rotation * vec3(0.055, -0.025, 1.0);
-    const float stepLength = 2.6 / 36.0;
+    // 观察者固定在云团内部；视角只改变看出去的方向，云体本身不绕用户旋转。
+    vec3 cameraRay = normalize(vec3(ndc, 1.0));
+    vec3 rayDirection = u_view_rotation * cameraRay;
+    const float stepLength = 2.8 / 36.0;
     for (int stepIndex = 0; stepIndex < 36; stepIndex++) {
-      float z = -1.3 + (float(stepIndex) + 0.5) * stepLength;
-      vec3 p = rayOrigin + rayDirection * z;
+      float radius = 0.20 + (float(stepIndex) + 0.5) * stepLength;
+      vec3 p = rayDirection * radius;
       vec3 displacement = warp(p + vec3(3.7,4.8,1.5));
       vec3 field = p * vec3(1.55,2.45,1.75) + displacement * 0.95;
       float broad = fbm(field + vec3(1.7,6.3,2.1));
       float detail = noise3(field * 8.5 + displacement * 2.0);
       float ridge = pow(1.0 - abs(2.0 * noise3(field * 4.4 + 13.0) - 1.0), 2.5);
-      float cloud = smoothstep(0.26,0.72,broad + (detail - 0.5) * 0.085);
-      float density = envelope(p) * cloud * (0.40 + ridge * 1.05);
+      float cloud = smoothstep(0.44,0.88,broad + (detail - 0.5) * 0.085);
+      // 抬高亮云、压掉低密度雾，内部天幕才保留深空黑位而非整屏蒙灰。
+      float density = pow(envelope(p) * cloud * (0.40 + ridge * 1.05), 1.65) * 1.35;
       float dustNoise = fbm(field * 0.81 + vec3(14.0,3.0,17.0));
       float lane = exp(-pow((p.y - 0.10 - p.x * 0.19 - (dustNoise - 0.5) * 0.80) / 0.17, 2.0));
       float dust = envelope(p) * smoothstep(0.38,0.73,dustNoise) * (0.45 + lane * 2.1);
@@ -116,34 +165,43 @@ const fragmentSource = `#version 300 es
       radiance += transmittance * emission * stepLength;
       transmittance *= 1.0 - absorbed;
     }
-    // 广泛而不规则的前景尘埃，避免把发光气体画成地球积云的镀金边。
-    // 尘埃位于前方的薄层中；随同一射线求交，避免云转动而遮挡留在屏幕上。
-    const float dustDepth = -0.95;
-    float dustRayLength = (dustDepth - rayOrigin.z) / rayDirection.z;
-    vec2 dustQ = (rayOrigin + rayDirection * dustRayLength).xy - vec2(0.055,-0.025) * dustDepth;
-    vec3 frontField = vec3(dustQ * vec2(1.9,2.8),2.7);
-    float foreground = fbm(frontField + warp(frontField * .75) * 1.3);
-    float fibers = fbm(frontField * 3.1 + vec3(7.1,12.4,5.8));
-    float cloudAxis = 0.20 * sin(dustQ.x * 2.3 + 0.7) + dustQ.x * 0.16;
-    float irregularity = (foreground - .48) * .84 + (fibers - .48) * .13;
-    float mainDistance = dustQ.y - cloudAxis - .025 + irregularity;
-    float veinWidth = .045 + .095 * fibers;
-    float mainVein = exp(-pow(mainDistance / veinWidth,2.0));
-    float branchDistance = dustQ.y - cloudAxis + (dustQ.x - .16) * .43 - .13 + irregularity * .83;
-    float branch = exp(-pow(branchDistance / (veinWidth * .70),2.0));
-    branch *= smoothstep(-.30,.15,dustQ.x) * (1.0 - smoothstep(.86,1.40,dustQ.x));
-    float dustExtent = exp(-pow(dustQ.x / 1.30,4.0));
-    float denseVeins = max(mainVein,branch) * dustExtent * (.62 + fibers * .74);
-    float diffuseDust = smoothstep(.40,.70,foreground) * .55;
-    radiance *= exp(-(denseVeins * 3.8 + diffuseDust * 1.3) * u_dust);
     vec3 color = vec3(1.0) - exp(-radiance * u_brightness * 1.45);
     color = pow(max(color,vec3(0.0)),vec3(0.82));
+    vec3 coreDirection = normalize(vec3(0.40, 0.06, 0.92));
+    vec3 secondCore = normalize(vec3(-0.72, -0.10, -0.68));
+    float coreAngle = acos(clamp(dot(rayDirection, coreDirection), -1.0, 1.0));
+    float secondAngle = acos(clamp(dot(rayDirection, secondCore), -1.0, 1.0));
+    float coreCloud = exp(-pow(coreAngle / 0.46, 2.0));
+    float secondCloud = exp(-pow(secondAngle / 0.34, 2.0));
+    float filaments = fbm(rayDirection * 7.2 + vec3(2.4, 5.8, 8.1));
+    float distantNoise = fbm(rayDirection * 3.25 + vec3(13.0, 1.7, 5.3));
+    float distantFine = fbm(rayDirection * 13.0 + vec3(4.1, 9.2, 2.7));
+    float galacticBand = exp(-pow((rayDirection.y + 0.10 * sin(rayDirection.x * 2.8 + 0.6)) / 0.34, 2.0));
+    float gasVeil = galacticBand * smoothstep(0.28, 0.82, distantNoise) * (0.34 + distantFine * 0.66);
+    color *= 1.0 - galacticBand * smoothstep(0.54, 0.82, distantFine) * 0.22;
+    color += mix(vec3(0.08, 0.17, 0.28), vec3(0.48, 0.62, 0.70), distantFine) * gasVeil * 0.38;
+    color += vec3(0.24, 0.36, 0.48) * coreCloud * (0.32 + filaments * 0.74);
+    color += vec3(0.20, 0.29, 0.42) * secondCloud * (0.22 + filaments * 0.52);
+    vec3 stars = proceduralStars(rayDirection);
     vec2 textPoint = (uv - vec2(0.49,0.46)) / vec2(mix(0.36,0.52,mobile),0.32);
     float textShade = 1.0 - 0.30 * exp(-dot(textPoint,textPoint) * 1.5);
     float edge = smoothstep(0.0,0.12,uv.y) * smoothstep(0.0,0.10,1.0-uv.y);
     color *= textShade * edge;
-    vec3 base = vec3(0.012,0.020,0.035);
-    outColor = vec4(base + color * vec3(0.84,0.92,1.0),1.0);
+    vec3 base = vec3(0.009,0.016,0.029);
+    vec3 sky = base + color * vec3(0.84,0.92,1.0) + stars * vec3(0.90,0.95,1.0);
+    vec4 planet = drawPlanet(rayDirection, normalize(vec3(-0.62, 0.32, 0.72)), 0.0075, vec3(0.44, 0.66, 0.88), 0.0);
+    sky = mix(sky, planet.rgb, planet.a);
+    planet = drawPlanet(rayDirection, normalize(vec3(0.48, 0.10, 0.87)), 0.012, vec3(0.75, 0.62, 0.44), 1.0);
+    sky = mix(sky, planet.rgb, planet.a);
+    planet = drawPlanet(rayDirection, normalize(vec3(-0.36, -0.42, -0.84)), 0.0060, vec3(0.42, 0.72, 0.76), 0.0);
+    sky = mix(sky, planet.rgb, planet.a);
+    planet = drawPlanet(rayDirection, normalize(vec3(0.18, 0.67, -0.72)), 0.0065, vec3(0.86, 0.56, 0.40), 0.0);
+    sky = mix(sky, planet.rgb, planet.a);
+    planet = drawPlanet(rayDirection, normalize(vec3(-0.80, -0.18, -0.57)), 0.0052, vec3(0.39, 0.60, 0.88), 1.0);
+    sky = mix(sky, planet.rgb, planet.a);
+    planet = drawPlanet(rayDirection, normalize(vec3(0.78, -0.28, -0.56)), 0.0058, vec3(0.93, 0.77, 0.52), 0.0);
+    sky = mix(sky, planet.rgb, planet.a);
+    outColor = vec4(sky, 1.0);
   }`;
 
 /** 只持有传入画布的资源；同一 DOM 画布可在 StrictMode 清理后重新创建引擎。 */
@@ -203,7 +261,7 @@ export function createNebulaRenderer(
         depth: false,
         stencil: false,
         preserveDrawingBuffer: true,
-        powerPreference: 'low-power',
+        powerPreference: 'high-performance',
       });
       if (!context) throw new Error('WebGL2 unavailable');
       vertex = compile(context, context.VERTEX_SHADER, vertexSource);
@@ -341,13 +399,13 @@ export function createNebulaRenderer(
       gl.uniform2f(gpu.resolution, width, height);
       gl.uniform1f(gpu.brightness, lastOptions.brightness);
       gl.uniform1f(gpu.dust, lastOptions.dust);
-      // Rx(pitch) * Ry(yaw) 的逆矩阵，按 WebGL 列主序上传；三角函数每次重绘只算一次。
+      // 世界坐标到相机坐标旋转的逆矩阵，按 WebGL 列主序上传。
       const cy = Math.cos(lastOptions.yaw), sy = Math.sin(lastOptions.yaw);
       const cp = Math.cos(lastOptions.pitch), sp = Math.sin(lastOptions.pitch);
       gl.uniformMatrix3fv(gpu.viewRotation, false, new Float32Array([
-        cy, 0, sy,
-        sp * sy, cp, -sp * cy,
-        -cp * sy, sp, cp * cy,
+        cy, 0, -sy,
+        -sp * sy, cp, -sp * cy,
+        cp * sy, sp, cp * cy,
       ]));
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       gl.flush();
@@ -394,8 +452,8 @@ export function createNebulaRenderer(
       lastOptions = {
         brightness: Number.isFinite(brightness) ? Math.max(0.2, Math.min(2, brightness)) : 1,
         dust: Number.isFinite(dust) ? Math.max(0, Math.min(1.5, dust)) : 0.7,
-        // 有限视角也保证前景尘埃射线求交的分母远离零。
-        yaw: Number.isFinite(yaw) ? Math.max(-Math.PI / 3, Math.min(Math.PI / 3, yaw)) : 0,
+        // 水平视角连续绕行一整圈；俯仰仍留出安全余量，避免穿过云层极点。
+        yaw: Number.isFinite(yaw) ? Math.atan2(Math.sin(yaw), Math.cos(yaw)) : 0,
         pitch: Number.isFinite(pitch) ? Math.max(-Math.PI / 3, Math.min(Math.PI / 3, pitch)) : 0,
       };
       hasRendered = true;

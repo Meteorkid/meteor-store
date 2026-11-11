@@ -112,6 +112,7 @@ export default function HelpPanel() {
       {/* 背景遮罩 — 仅移动端 */}
       <div
         className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+        data-transparency-surface="overlay"
         onClick={closePanel}
         aria-hidden="true"
       />
@@ -119,7 +120,8 @@ export default function HelpPanel() {
       {/* 面板 */}
       <div
         ref={panelRef}
-        className="fixed right-0 top-0 z-50 flex h-full flex-col border-l border-white/[0.08] bg-black/85 backdrop-blur-xl"
+        className="fixed right-0 top-0 z-50 flex h-full flex-col border-l border-white/[0.08] bg-[var(--site-modal-bg)] backdrop-blur-xl"
+        data-transparency-surface="panel"
         style={{ width: state.width, maxWidth: '100%' }}
         role="complementary"
         aria-label={isZh ? '帮助面板' : 'Help panel'}

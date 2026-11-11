@@ -130,8 +130,8 @@ function NebulaHeroSection({ productCount, webAppCount, freeCount, helpCount }: 
                   <CelestialText className={styles.panelHeading} text="PERSPECTIVE" spacing={11} weight={7} decorative />
                   <div className={styles.viewModes}>
                     {([
-                      ['follow', 'FOLLOW', english ? 'Follow the pointer' : '跟随鼠标'],
-                      ['drag', 'DRAG', english ? 'Drag to rotate the view' : '按住空白处拖拽旋转'],
+                      ['follow', 'FOLLOW', english ? 'Follow the pointer across the sky' : '跟随鼠标环绕星空'],
+                      ['drag', 'DRAG', english ? 'Drag to look around the 360 degree sky sphere' : '按住空白处拖拽，球面环顾 360°'],
                       ['off', 'STILL', english ? 'Turn off pointer interaction' : '关闭鼠标交互'],
                     ] as const).map(([mode, text, label]) => <button key={mode} type="button" aria-label={label} title={label} aria-pressed={interactionMode === mode} onClick={() => {
                       setViewMode(mode);
@@ -142,7 +142,7 @@ function NebulaHeroSection({ productCount, webAppCount, freeCount, helpCount }: 
                     </button>)}
                   </div>
                   <div className={styles.viewActions}>
-                    <button type="button" aria-label={english ? 'Slow automatic rotation' : '缓慢自动旋转'} aria-pressed={autoRotate} onClick={() => setAutoRotate(value => !value)}>
+                    <button type="button" aria-label={english ? 'Continuous automatic orbit' : '连续自动环绕'} aria-pressed={autoRotate} onClick={() => setAutoRotate(value => !value)}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true"><ellipse cx="12" cy="12" rx="10" ry="5" transform="rotate(-35 12 12)" /><circle cx="12" cy="12" r="2" /></svg>
                       <CelestialText className={styles.controlLabel} text="ORBIT" spacing={8} weight={7} decorative />
                     </button>

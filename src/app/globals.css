@@ -94,6 +94,7 @@
   --site-hero-gradient: linear-gradient(120deg, #c084fc 0%, #818cf8 20%, #60a5fa 40%, #a78bfa 60%, #f472b6 80%, #c084fc 100%);
   --site-back-to-top: rgb(139 92 246 / .35);
   --site-modal-bg: rgb(20 16 34 / .8);
+  --site-solid-panel: #181426;
   --site-brand-tail: rgb(167 139 250 / .5);
   --site-brand-line-mid: rgb(167 139 250 / .6);
   --site-brand-line-end: #c4b5fd;
@@ -128,6 +129,7 @@
   --site-hero-gradient: linear-gradient(120deg, #c084fc 0%, #818cf8 20%, #60a5fa 40%, #a78bfa 60%, #f472b6 80%, #c084fc 100%);
   --site-back-to-top: rgb(139 92 246 / .35);
   --site-modal-bg: rgb(20 16 34 / .8);
+  --site-solid-panel: #181426;
   --site-brand-tail: rgb(167 139 250 / .5);
   --site-brand-line-mid: rgb(167 139 250 / .6);
   --site-brand-line-end: #c4b5fd;
@@ -164,6 +166,7 @@
   --site-hero-gradient: linear-gradient(120deg, #e4f6fb 0%, #a8d9e8 25%, #7eb8d2 50%, #c0e7f2 72%, #8cc6dc 100%);
   --site-back-to-top: rgb(70 137 165 / .55);
   --site-modal-bg: rgb(6 16 25 / .9);
+  --site-solid-panel: #08131d;
   --site-brand-tail: rgb(182 216 232 / .55);
   --site-brand-line-mid: rgb(182 216 232 / .55);
   --site-brand-line-end: #d8eff7;
@@ -263,6 +266,12 @@ body {
 .site-grid {
   background-image: linear-gradient(var(--site-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--site-grid-line) 1px, transparent 1px);
   background-size: 24px 24px;
+}
+
+/* 产品页的长星区在首尾渐隐，滚动经过 section 边界时不会突然重开一张星图。 */
+.products-atlas-field {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
 }
 
 .site-glow-top {
@@ -534,10 +543,10 @@ html {
 /* Pulse Glow Animation */
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--site-accent) 30%, transparent);
   }
   50% {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+    box-shadow: 0 0 40px color-mix(in srgb, var(--site-accent) 60%, transparent);
   }
 }
 
@@ -576,7 +585,7 @@ html {
 .story-meteor-line__track {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(192, 132, 252, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--site-accent-soft) 50%, transparent), transparent);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 1.2s cubic-bezier(0.32, 0.72, 0, 1);
@@ -587,7 +596,7 @@ html {
   width: 24px;
   height: 8px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(192, 132, 252, 0.8), transparent);
+  background: radial-gradient(circle, color-mix(in srgb, var(--site-accent-soft) 80%, transparent), transparent);
   opacity: 0;
   transform: translateX(-24px);
 }
@@ -608,7 +617,7 @@ html {
 .letter-body {
   /* 格距与字号成套：格距约为字号的 2.2 倍，接近真实信纸（行距 8mm / 字高 4mm） */
   --letter-rule-h: 34px;
-  --letter-rule: rgba(214, 202, 255, 0.13);
+  --letter-rule: color-mix(in srgb, var(--site-accent-soft) 13%, transparent);
   position: relative;
   font-size: 15px;
 }
@@ -646,7 +655,7 @@ html {
 }
 
 /* 信纸左侧的装订线。比横向格线略重一点，才读得出是装订线而不是又一条格线；
-   但仍取格线同族的紫——暖色在这套紫调里太跳。
+   但仍取格线与主题强调色的同族色——暖色在这套冷色材质里太跳。
    窄屏没有富余的横向空间，会贴到视口边缘，所以只在 md 以上出现。 */
 @media (min-width: 768px) {
   .letter-body::before {
@@ -659,8 +668,8 @@ html {
     background: linear-gradient(
       to bottom,
       transparent,
-      rgba(196, 181, 253, 0.24) 6%,
-      rgba(196, 181, 253, 0.24) 94%,
+      color-mix(in srgb, var(--site-accent-soft) 24%, transparent) 6%,
+      color-mix(in srgb, var(--site-accent-soft) 24%, transparent) 94%,
       transparent
     );
   }
@@ -825,7 +834,14 @@ html {
   .glass, .glass-lg, .glass-card {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    background: rgb(24, 20, 38) !important;
+    background: var(--site-solid-panel) !important;
+  }
+  [data-transparency-surface] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  [data-transparency-surface="panel"] {
+    background-color: var(--site-solid-panel) !important;
   }
   /* 实色面板上不再需要镜面高光 */
   .glass-card::after {
@@ -1213,6 +1229,17 @@ html {
   width: 3px;
   border-radius: 2px;
   background: rgb(var(--blog-accent) / 0.8);
+}
+
+/* Markdown 表格使用独立的横向滚动容器，窄屏不能把整页宽度撑开。 */
+.markdown-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+.markdown-table-scroll > table {
+  width: max-content;
+  min-width: 100%;
 }
 
 /* 入场：索引行依次浮现（装饰性，不阻塞交互） */

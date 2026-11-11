@@ -17,7 +17,7 @@ export default function PageSkeleton() {
         }}
       />
       {/* Header skeleton */}
-      <div className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-xl">
+      <div className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-xl" data-transparency-surface="panel">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

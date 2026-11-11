@@ -30,6 +30,7 @@ describe('markdownToHtml', () => {
   describe('GFM 扩展（旧的手写解析器不支持）', () => {
     it('表格', () => {
       const html = markdownToHtml('| A | B |\n|---|---|\n| 1 | 2 |');
+      expect(html).toContain('<div class="markdown-table-scroll"><table>');
       expect(html).toContain('<th>A</th>');
       expect(html).toContain('<td>1</td>');
     });

@@ -260,7 +260,7 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
           <button type="button" disabled={!isDailyHistoryDate(previousDate, today)} onClick={() => changeDate(previousDate)} aria-label={copy.previous} className={buttonClass}>←</button>
           <label className="sr-only" htmlFor="daily-date">{copy.dateLabel}</label>
           <input id="daily-date" type="date" value={date} min={shiftDailyDate(today, -29)} max={today} onChange={event => changeDate(event.target.value)}
-            className="min-h-11 min-w-0 rounded-xl border border-white/15 bg-black px-3 py-2 text-sm text-white" />
+            className="min-h-11 min-w-0 rounded-xl border border-white/15 bg-background px-3 py-2 text-sm text-white" />
           <button type="button" disabled={date === today} onClick={() => changeDate(nextDate)} aria-label={copy.next} className={buttonClass}>→</button>
           {date !== today && <Link href={viewAll ? '/daily?view=all' : '/daily'} className={buttonClass}>{copy.today}</Link>}
         </div>

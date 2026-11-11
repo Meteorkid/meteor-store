@@ -82,7 +82,8 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
         {/* 顶部星云 */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(88,28,135,0.18),transparent_55%)]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-72"
+          style={{ backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% 0%, var(--site-glow-deep), transparent 55%)' }}
         />
 
         <div className="container mx-auto px-4 py-8 md:py-12">

@@ -44,7 +44,7 @@ function TimelineRow({ row, now, locale, copy, onSelectRound }: {
   return <div className="flex items-stretch border-b border-white/10 last:border-b-0" data-timeline-row={row.key}>
     <button type="button" onClick={event => onSelectRound(round.id, event.currentTarget)} aria-haspopup="dialog"
       aria-label={`${name} · ${copy.timelineShowRounds}`}
-      className={`${LABEL_COL} ${focusClass} sticky left-0 z-30 shrink-0 border-r border-white/10 bg-zinc-950 px-3 py-2.5 text-left`}>
+      className={`${LABEL_COL} ${focusClass} sticky left-0 z-30 shrink-0 border-r border-white/10 bg-background px-3 py-2.5 text-left`}>
       <span className="flex items-start gap-1.5 t-footnote font-semibold text-white/90">
         {row.changed && <span aria-hidden className="mt-1 h-2 w-2 shrink-0 rounded-full border border-amber-300/80" />}
         <span className="line-clamp-2 break-words">{row.university}</span>
@@ -137,7 +137,7 @@ export default function MastersTimeline({ rounds, now, locale, copy, onSelectRou
       <div role="region" aria-label={copy.timelineChart} tabIndex={0} className={`max-w-full overflow-x-auto overscroll-x-contain rounded-2xl border border-white/15 ${focusClass}`}>
         <div style={zoomed ? { minWidth: `${Math.max(760, timeline.months.length * 88 + 240)}px` } : undefined}>
           <div className="flex items-stretch border-b border-white/10 bg-white/[0.03]">
-            <div className={`${LABEL_COL} sticky left-0 z-30 flex shrink-0 items-end border-r border-white/10 bg-zinc-950 px-3 py-2 t-footnote text-white/70`}>{copy.school}</div>
+            <div className={`${LABEL_COL} sticky left-0 z-30 flex shrink-0 items-end border-r border-white/10 bg-background px-3 py-2 t-footnote text-white/70`}>{copy.school}</div>
             <div className="relative min-w-0 flex-1">
               <div className="relative h-7 border-b border-white/10">
                 {years.map(year => <span key={year.year} data-timeline-year={year.year} style={{ left: `${year.left}%`, width: `${year.width}%` }} className="absolute inset-y-0 flex items-center justify-center border-r border-white/10 t-footnote font-semibold tabular-nums text-white/85 last:border-r-0">{year.year}</span>)}

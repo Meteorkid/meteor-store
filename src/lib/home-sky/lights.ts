@@ -1,10 +1,13 @@
+import { createDirectionFromAngles } from './camera';
+
 export type SkyLayer = 0 | 1 | 2;
 
 export interface SkyLight {
   x: number;
   y: number;
-  screenX: number;
-  screenY: number;
+  worldX: number;
+  worldY: number;
+  worldZ: number;
   layer: SkyLayer;
   depth: number;
   scale: number;
@@ -65,7 +68,8 @@ function seededRandom(seed: number): () => number {
 export function createLights(): SkyLight[] {
   const random = seededRandom(749215);
   const clusters = Array.from({ length: 11 }, () => ({ x: .12 + random() * .76, y: .12 + random() * .76 }));
-  return Array.from({ length: 20000 }, (_, id) => {
+  // 天幕按完整经度铺开，单屏只显示约四分之一；总量提高后仍保持原首页的星光密度。
+  return Array.from({ length: 40000 }, (_, id) => {
     let x = random();
     let y = random();
     if (id % 6 === 0) {
@@ -83,8 +87,15 @@ export function createLights(): SkyLight[] {
     const duration = cycle * (.50 + random() * .25);
     const twinkleCycle = 2.8 + random() * 5.2;
     const distance = ((x - .5) / .39) ** 2 + ((y - .48) / .28) ** 2;
+    const longitude = (x - .5) * Math.PI * 2;
+    const latitude = (.5 - y) * Math.PI;
+    const direction = createDirectionFromAngles(longitude, latitude);
     return {
-      x, y, screenX: 0, screenY: 0, layer, depth, scale, opacityGain, cycle, duration,
+      x, y,
+      worldX: direction.x,
+      worldY: direction.y,
+      worldZ: direction.z,
+      layer, depth, scale, opacityGain, cycle, duration,
       envelopeType, phase: random() * cycle, styleIndex: id % PHONE_STYLES.length,
       colorIndex: Math.floor(random() * STAR_COLORS.length),
       radius: layer === 0 ? .24 + random() * .29 : layer === 1 ? .48 + random() * .27 : .70 + random() * .38,

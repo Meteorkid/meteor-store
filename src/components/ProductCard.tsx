@@ -24,7 +24,7 @@ export default async function ProductCard({ product, priority = false, mansion, 
   return (
     <TransitionLink
       href={`/products/${product.id}`}
-      className="glass-card group relative rounded-[1.75rem] p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(91,33,182,0.22)]"
+      className="glass-card group relative rounded-[1.75rem] p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgb(var(--site-glass-shadow)/0.22)]"
     >
       {/* Background gradient */}
       <div className={`absolute inset-0 bg-gradient-to-br ${product.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />

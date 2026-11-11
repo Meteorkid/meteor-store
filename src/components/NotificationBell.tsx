@@ -173,7 +173,7 @@ export default function NotificationBell() {
       </button>
 
       {hasOpened && (
-        <div id={panelId} role="region" aria-label={t('title')} hidden={!open} className={styles.popup}>
+        <div id={panelId} role="region" aria-label={t('title')} hidden={!open} className={styles.popup} data-transparency-surface="panel">
           <div className={styles.heading}>
             <p className="text-sm font-medium text-white">{t('title')}</p>
             <button type="button" className={styles.close} aria-label={locale === 'en' ? 'Close notifications' : '关闭公告面板'} onClick={() => { setOpen(false); ref.current?.querySelector('button')?.focus(); }}>

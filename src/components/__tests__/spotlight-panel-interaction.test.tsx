@@ -45,6 +45,7 @@ vi.mock('next-intl', async original => {
   };
 });
 vi.mock('@/i18n/navigation', () => ({ useRouter: () => ({ push: hooks.push }) }));
+vi.mock('../theme/ThemeProvider', () => ({ useOptionalSiteTheme: () => null }));
 
 import SpotlightSearchPanel from '../SpotlightSearchPanel';
 
@@ -166,9 +167,9 @@ describe('Spotlight 面板顺序、翻译与焦点关闭契约', () => {
     expect(announced).toBe(locale === 'zh' ? '找到 1 条结果' : '1 result found');
   });
 
-  it('短查询仍使用不透明深色底，信息文字没有低于 white/60 的档位', async () => {
+  it('短查询使用当前主题的不透明深色底，信息文字没有低于 white/60 的档位', async () => {
     await typeQuery('a');
-    expect(nodes(props => (props.style as { backgroundColor?: string })?.backgroundColor === 'rgb(18, 14, 32)')).toHaveLength(1);
+    expect(nodes(props => (props.style as { backgroundColor?: string })?.backgroundColor === 'var(--site-modal-bg)')).toHaveLength(1);
     expect(nodes(props => /text-white\/(?:15|20|25|30|35|40|50)(?!\d)/.test(String(props.className)))).toHaveLength(0);
   });
 });

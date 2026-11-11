@@ -352,22 +352,49 @@ describe('首页星空引擎', () => {
     expect(images).toHaveLength(0);
   });
 
-  it('暂停时跟随仍改变投影，星光亮度不走时钟；复位后回到原图并停止额外帧', () => {
+  it('暂停时跟随仍改变可见天幕；复位后回到原图并停止额外帧', () => {
     const controller = create({ paused: true, interactionMode: 'follow' }, stage);
     const stars = stage.layer('stars').context;
     const baseline = stars.lastFrame;
     pointer('pointermove', stage.width * .9, stage.height * .2);
     doc.defaultView.advance(900);
     expect(stars.lastFrame).not.toEqual(baseline);
-    expect(stars.lastFrame.map(drawing => drawing.alpha)).toEqual(baseline.map(drawing => drawing.alpha));
-    expect(renderers[0].render.mock.calls.length).toBeLessThanOrEqual(12);
-    expect(renderers[0].render).toHaveBeenLastCalledWith(expect.objectContaining({ yaw: .096, pitch: .048 }));
+    expect(stars.lastFrame.every(drawing => drawing.alpha >= 0 && drawing.alpha <= 1)).toBe(true);
+    expect(renderers[0].render.mock.calls.length).toBeLessThanOrEqual(18);
+    expect(renderers[0].render).toHaveBeenLastCalledWith(expect.objectContaining({
+      yaw: expect.closeTo(Math.PI * .8, 5),
+      pitch: expect.closeTo(Math.PI * .28 * .6, 5),
+    }));
     expect(doc.defaultView.frames.size).toBe(0);
     controller.setState({ paused: true, peopleVisible: false, resetView: 1 });
     doc.defaultView.advance(1000);
     expect(stars.lastFrame).toEqual(baseline);
     expect(renderers[0].render).toHaveBeenLastCalledWith(expect.objectContaining({ yaw: 0, pitch: 0 }));
     expect(doc.defaultView.frames.size).toBe(0);
+  });
+
+  it('拖拽跨越一整圈不会在正负180度处倒转，最终投影回到基准', () => {
+    create({ paused: true, interactionMode: 'drag' }, stage);
+    const stars = stage.layer('stars').context;
+    const baseline = stars.lastFrame;
+    pointer('pointerdown', 350, 100);
+    let x = 350;
+    for (let i = 0; i < 4; i++) {
+      x -= (stage.width * 2 / .9) / 4;
+      pointer('pointermove', x, 100);
+    }
+    doc.defaultView.advance(150);
+    pointer('pointerup', x, 100);
+    doc.defaultView.advance(1000);
+    const final = stars.lastFrame;
+    expect(final).toHaveLength(baseline.length);
+    final.forEach((drawing, index) => {
+      expect(drawing.coordinates).toHaveLength(baseline[index].coordinates.length);
+      drawing.coordinates.forEach((value, coordinate) => {
+        expect(value).toBeCloseTo(baseline[index].coordinates[coordinate], 7);
+      });
+      expect(drawing.alpha).toBeCloseTo(baseline[index].alpha, 7);
+    });
   });
 
   it.each(['button', 'nav', '[data-sky-controls]', 'svg'])('%s及其子元素不会开始拖动或阻止点击', blockedBy => {

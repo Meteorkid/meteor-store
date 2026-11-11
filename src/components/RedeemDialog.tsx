@@ -90,6 +90,7 @@ export default function RedeemDialog({ isOpen, onClose }: RedeemDialogProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        data-transparency-surface="overlay"
         onClick={onClose}
       />
 

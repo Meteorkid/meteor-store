@@ -162,7 +162,7 @@ function MastersHubForIdentity({ kind = 'masters', year, nowIso, rounds, userId,
     if (filtered.some(round => round.id === roundId)) setDetailSelection({ roundId, trigger });
   };
   const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-white disabled:opacity-40';
-  const selectClass = 'mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-zinc-950 px-3 text-sm text-white';
+  const selectClass = 'mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-background px-3 text-sm text-white';
   const saveWatch = (input: MastersWatchInput) => { void updateWatch(input.roundId, input); };
   const renderRound = (round: MastersRound, idPrefix = 'round') => {
     const watch = watches.find(item => item.roundId === round.id);

@@ -196,9 +196,9 @@ function ConstellationField() {
         >
           <defs>
             <linearGradient id="pricing-orbit" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#a78bfa" stopOpacity="0" />
-              <stop offset="50%" stopColor="#a78bfa" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--site-accent)" stopOpacity="0" />
+              <stop offset="50%" stopColor="var(--site-accent)" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="var(--site-accent)" stopOpacity="0" />
             </linearGradient>
           </defs>
           {/* 贯穿三卡的星轨 */}
@@ -213,7 +213,7 @@ function ConstellationField() {
           <path
             d="M 16 34 L 50 30 L 84 34"
             fill="none"
-            stroke="#a78bfa"
+            stroke="var(--site-accent)"
             strokeOpacity="0.28"
             strokeWidth="0.2"
             strokeLinecap="round"
@@ -266,7 +266,7 @@ function ConstellationField() {
           <path
             d="M10 2 C3 20, 17 34, 10 50 C3 66, 17 80, 10 98"
             fill="none"
-            stroke="#a78bfa"
+            stroke="var(--site-accent)"
             strokeOpacity="0.42"
             strokeWidth="0.6"
             strokeLinecap="round"
@@ -274,7 +274,7 @@ function ConstellationField() {
           <path
             d="M10 16 L10 50 L10 84"
             fill="none"
-            stroke="#a78bfa"
+            stroke="var(--site-accent)"
             strokeOpacity="0.24"
             strokeWidth="0.35"
             strokeDasharray="1.5 2.5"

@@ -37,6 +37,21 @@ const NEXT_IMAGE_WIDTHS = [640, 828, 1200, 1920];
 const NEXT_IMAGE_DEFAULT_WIDTH = 1200;
 const NEXT_IMAGE_QUALITY = 75;
 
+/** 宽表格在窄屏里独立滚动，避免把整篇文章撑出横向溢出。 */
+function rehypeScrollableTables() {
+  return (tree: Root) => {
+    visit(tree, 'element', (node: Element, index, parent) => {
+      if (node.tagName !== 'table' || index === undefined || !parent) return;
+      parent.children[index] = {
+        type: 'element',
+        tagName: 'div',
+        properties: { className: ['markdown-table-scroll'] },
+        children: [node],
+      };
+    });
+  };
+}
+
 /**
  * 把外链图片的 src 改写为 /_next/image?url=...&w=...&q=...，
  * 让原生 <img> 也能享受 next/image 的 webp/avif 转换和响应式尺寸。
@@ -79,6 +94,7 @@ const processor = unified()
     protocols: ['http', 'https'],
   })
   .use(rehypeSanitize, schema)
+  .use(rehypeScrollableTables)
   // sanitize 之后改写图片 src，让原生 <img> 走 next/image 优化端点
   .use(rehypeNextImage)
   .use(rehypeStringify);

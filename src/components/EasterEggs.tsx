@@ -14,9 +14,9 @@ export function showToast(message: string, duration = 4200) {
     'position:fixed', 'bottom:24px', 'left:50%', 'transform:translateX(-50%) translateY(16px)',
     'max-width:min(90vw,420px)', 'padding:12px 20px', 'border-radius:14px',
     // 液态玻璃：模糊+饱和+顶部高光内描边
-    'background:rgba(24,16,44,0.6)', 'border:1px solid rgba(255,255,255,0.1)',
+    'background:var(--site-modal-bg, rgba(24,16,44,0.6))', 'border:1px solid var(--site-border, rgba(255,255,255,0.1))',
     'backdrop-filter:blur(20px) saturate(1.6)', '-webkit-backdrop-filter:blur(20px) saturate(1.6)',
-    'color:#e9d5ff', 'font-size:14px', 'line-height:1.6', 'z-index:9999',
+    'color:var(--site-accent-soft, #e9d5ff)', 'font-size:14px', 'line-height:1.6', 'z-index:9999',
     'box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.45)',
     'opacity:0', 'transition:opacity .3s cubic-bezier(0.32,0.72,0,1), transform .3s cubic-bezier(0.32,0.72,0,1)',
     'pointer-events:none', 'text-align:center',
@@ -45,7 +45,7 @@ function spawnStreakAt(x: number, y: number) {
   streak.setAttribute('aria-hidden', 'true');
   streak.style.cssText = [
     'position:fixed', `top:${y}px`, `left:${x}px`, 'width:90px', 'height:2px',
-    'background:linear-gradient(90deg,transparent,#c4b5fd,#fff)', 'border-radius:2px',
+    'background:linear-gradient(90deg,transparent,var(--site-accent, #c4b5fd),#fff)', 'border-radius:2px',
     'z-index:9998', 'pointer-events:none', `transform:rotate(${angle}deg)`,
     'transition:transform 1.1s cubic-bezier(.2,.6,.3,1), opacity .4s ease .7s', 'opacity:1',
   ].join(';');
@@ -258,7 +258,7 @@ export default function EasterEggs() {
         streak.setAttribute('aria-hidden', 'true');
         streak.style.cssText = [
           'position:fixed', 'bottom:80px', 'left:-120px', 'width:100px', 'height:2px',
-          'background:linear-gradient(90deg,transparent,#c4b5fd,#fff)', 'border-radius:2px',
+          'background:linear-gradient(90deg,transparent,var(--site-accent, #c4b5fd),#fff)', 'border-radius:2px',
           'z-index:9998', 'pointer-events:none', 'transform:rotate(-8deg)',
           'transition:left 1.4s cubic-bezier(.2,.6,.3,1), opacity .4s ease 1s', 'opacity:1',
         ].join(';');

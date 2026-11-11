@@ -44,15 +44,16 @@ export default async function ProductsPage({ params }: Props) {
       <Header />
 
       <main>
-        {/* ── 页首 ── */}
-        <section className="relative overflow-hidden px-4 pt-16 pb-10 md:pt-24 md:pb-12">
-          <CelestialField seed="products-hero" rgb={dragon.rgb} count={64} />
-          {/* 顶部光晕：让玻璃有可折射的东西，纯黑底上 backdrop-filter 读不出来 */}
+        <div className="relative overflow-hidden">
+          <CelestialField seed="products-atlas" rgb={dragon.rgb} count={128} className="products-atlas-field" />
+          {/* 顶部光晕贯穿首屏与第一条产品线，避免两段独立背景在滚动时重新起图。 */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 -translate-y-1/3 rounded-full blur-3xl"
+            className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[860px] -translate-x-1/2 -translate-y-1/3 rounded-full blur-3xl"
             style={{ background: `radial-gradient(circle, rgb(${dragon.rgb} / 0.10) 0%, transparent 70%)` }}
           />
+        {/* ── 页首 ── */}
+        <section className="relative flex min-h-[calc(100svh-76px)] items-center px-4 py-16 lg:min-h-[calc(100svh-88px)] lg:py-20">
           <div className="container relative mx-auto max-w-3xl text-center">
             <p className="t-eyebrow mb-5 uppercase text-white/45">Meteor Products</p>
             {/* text-balance：中文长标题在窄一点的容器里会把最后一两个字甩成孤行，
@@ -62,15 +63,26 @@ export default async function ProductsPage({ params }: Props) {
             </h1>
             <p className="t-body mx-auto max-w-xl text-pretty text-white/60">{t('description')}</p>
           </div>
+          <div className="absolute inset-x-4 bottom-20 mx-auto max-w-5xl"><PassOwnedBadge /></div>
+          <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-1/2 flex -translate-x-1/2 flex-col items-center">
+            <span
+              className="h-14 w-px"
+              style={{ background: `linear-gradient(to bottom, transparent, rgb(${dragon.rgb} / 0.42))` }}
+            />
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ background: `rgb(${dragon.rgb} / 0.9)`, boxShadow: `0 0 12px rgb(${dragon.rgb} / 0.55)` }}
+            />
+          </div>
         </section>
 
-        <div className="container mx-auto px-4">
-          <PassOwnedBadge />
-        </div>
-
         {/* ── 主线星区 · 东方青龙 ── */}
-        <section className="relative overflow-hidden py-14 md:py-20">
-          <CelestialField seed="line-azure-dragon" rgb={dragon.rgb} />
+        <section className="relative pb-12 pt-10 md:pb-16 md:pt-14">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-px"
+            style={{ background: `linear-gradient(90deg, transparent, rgb(${dragon.rgb} / 0.28), transparent)` }}
+          />
           <div className="container relative mx-auto px-4">
             <SectionHeading
               symbol={dragon.label[locale as Locale]}
@@ -105,6 +117,7 @@ export default async function ProductsPage({ params }: Props) {
             </div>
           </div>
         </section>
+        </div>
 
         {/* ── 星轨分隔：两个星区之间的过渡 ── */}
         <div aria-hidden="true" className="relative mx-auto my-2 h-px w-full max-w-4xl">
@@ -121,8 +134,8 @@ export default async function ProductsPage({ params }: Props) {
         </div>
 
         {/* ── 实验室星区 · 北方玄武 ── */}
-        <section id="lab" className="relative scroll-mt-20 overflow-hidden py-14 md:py-20">
-          <CelestialField seed="lab-black-tortoise" rgb={tortoise.rgb} />
+        <section id="lab" className="relative scroll-mt-24 overflow-hidden py-14 md:py-20">
+          <CelestialField seed="lab-black-tortoise" rgb={tortoise.rgb} className="products-atlas-field" />
           <div className="container relative mx-auto px-4">
             <SectionHeading
               symbol={tortoise.label[locale as Locale]}

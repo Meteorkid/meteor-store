@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useReducedMotion } from '@/lib/motion';
+import { useOptionalSiteTheme } from './theme/ThemeProvider';
 
 // ═══════════════════════════════════════
 // 史瓦西黑洞：逐像素积分零测地线，光线是真的被弯的
@@ -40,6 +41,9 @@ const holeFragShader = /* glsl */ `
   varying vec2 vUv;
   uniform float uTime;
   uniform float uAspect;
+  uniform vec3 uStarBase;
+  uniform vec3 uStarAccent;
+  uniform vec3 uCorona;
 
   // 单位取史瓦西半径 rs = 1
   const float CAM_R = 11.0;   // 相机到黑洞的距离
@@ -100,8 +104,8 @@ const holeFragShader = /* glsl */ `
     vec3 j = (vec3(hash13(c + 11.0), hash13(c + 23.0), hash13(c + 37.0)) - 0.5) * 0.7;
     float d = length(f - j);
     float inten = pow(max(0.0, 1.0 - d * 2.2), sharp);
-    // 少量星点偏站点紫，其余接近白，和页面自己的星空同一调子
-    vec3 col = mix(vec3(0.86, 0.89, 1.00), vec3(0.72, 0.55, 1.00),
+    // 少量星点带主题强调色，其余接近白，和页面自己的星空同一调子
+    vec3 col = mix(uStarBase, uStarAccent,
                    step(0.62, hash13(c + 53.0)));
     return col * inten * (0.55 + 0.45 * hash13(c + 71.0));
   }
@@ -228,7 +232,7 @@ const holeFragShader = /* glsl */ `
     disk = disk / (1.0 + disk * 0.55);
     vec3 emissive = disk;
 
-    // ── 外冕：站点品牌紫，把黑洞缝进页面背景 ──
+    // ── 外冕：跟随站点主题，把黑洞缝进页面背景 ──
     // 纯加法（不进 alpha），星空从里面透出来
     // 起点必须推到阴影边缘（scr = 2.598 / (FOV·CAM_R) ≈ 0.39）和光子环之外：贴着阴影起的话，
     // 视界边上会箍一圈饱和的藏青，读起来是道硬边而不是光晕
@@ -236,7 +240,7 @@ const holeFragShader = /* glsl */ `
     float corona = pow(fall, 1.8) * smoothstep(0.50, 0.76, scr);
     // 只在视界内扣掉外冕（那里必须纯黑）。不能按 alpha 扣：
     // 盘面一挡就把外冕也挖掉，暗侧盘面会在紫色光晕上抠出一块硬边黑影
-    emissive += vec3(0.42, 0.28, 0.98) * corona * 0.16 * (captured ? 0.0 : 1.0);
+    emissive += uCorona * corona * 0.16 * (captured ? 0.0 : 1.0);
 
     // ── 边缘保险：保证 scr ≥ 1.0 时严格为 0 ──
     // 起点压到 0.84 之后才收：盘外缘投影在 scr ≈ 0.99，收太早会把还看得见的盘面一起削掉
@@ -248,10 +252,37 @@ const holeFragShader = /* glsl */ `
   }
 `;
 
-function Scene() {
+interface BlackHolePalette {
+  starBase: [number, number, number];
+  starAccent: [number, number, number];
+  corona: [number, number, number];
+  fallbackA: string;
+  fallbackB: string;
+}
+
+const PALETTES: Record<'classic' | 'nebula', BlackHolePalette> = {
+  classic: {
+    starBase: [.86, .89, 1], starAccent: [.72, .55, 1], corona: [.42, .28, .98],
+    fallbackA: '120,70,250', fallbackB: '150,70,235',
+  },
+  nebula: {
+    starBase: [.86, .93, .98], starAccent: [.53, .77, .90], corona: [.30, .64, .82],
+    fallbackA: '70,132,165', fallbackB: '126,184,214',
+  },
+};
+
+function Scene({ palette }: { palette: BlackHolePalette }) {
   const { size } = useThree();
   const holeRef = useRef<THREE.Mesh>(null);
   const aspect = size.height > 0 ? size.width / size.height : 1;
+
+  useEffect(() => {
+    if (!holeRef.current) return;
+    const uniforms = (holeRef.current.material as THREE.ShaderMaterial).uniforms;
+    (uniforms.uStarBase.value as THREE.Vector3).set(...palette.starBase);
+    (uniforms.uStarAccent.value as THREE.Vector3).set(...palette.starAccent);
+    (uniforms.uCorona.value as THREE.Vector3).set(...palette.corona);
+  }, [palette]);
 
   useFrame((state) => {
     if (!holeRef.current) return;
@@ -266,7 +297,13 @@ function Scene() {
       <shaderMaterial
         vertexShader={quadVertShader}
         fragmentShader={holeFragShader}
-        uniforms={{ uTime: { value: 0 }, uAspect: { value: 1 } }}
+        uniforms={{
+          uTime: { value: 0 },
+          uAspect: { value: 1 },
+          uStarBase: { value: new THREE.Vector3(...palette.starBase) },
+          uStarAccent: { value: new THREE.Vector3(...palette.starAccent) },
+          uCorona: { value: new THREE.Vector3(...palette.corona) },
+        }}
         transparent
         premultipliedAlpha
         depthWrite={false}
@@ -278,6 +315,8 @@ function Scene() {
 
 export default function BlackHole() {
   const reducedMotion = useReducedMotion();
+  const theme = useOptionalSiteTheme()?.theme ?? 'nebula';
+  const palette = PALETTES[theme];
   const wrapRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -304,7 +343,7 @@ export default function BlackHole() {
           className="absolute inset-0"
           style={{
             background: [
-              'radial-gradient(circle closest-side at 50% 50%, rgba(120,70,250,0) 42%, rgba(120,70,250,0.22) 52%, rgba(150,70,235,0.12) 68%, rgba(150,70,235,0) 92%)',
+              `radial-gradient(circle closest-side at 50% 50%, rgba(${palette.fallbackA},0) 42%, rgba(${palette.fallbackA},0.22) 52%, rgba(${palette.fallbackB},0.12) 68%, rgba(${palette.fallbackB},0) 92%)`,
               // 左侧更亮，对应动画版朝向观者转的那一侧
               'radial-gradient(circle closest-side at 34% 52%, rgba(240,150,40,0.16) 0%, rgba(240,150,40,0) 46%)',
             ].join(', '),
@@ -325,7 +364,7 @@ export default function BlackHole() {
         gl={{ antialias: false, alpha: true, premultipliedAlpha: true, powerPreference: 'high-performance' }}
         style={{ width: '100%', height: '100%' }}
       >
-        <Scene />
+        <Scene palette={palette} />
       </Canvas>
     </div>
   );

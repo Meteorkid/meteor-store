@@ -1,4 +1,3 @@
-import { createFrameGuard } from '@/lib/motion';
 import { createPhoneSprites, createPointSprites, PHONE_ATLAS_URL, releaseSprites, type PhoneSprites } from './atlas';
 import { createLights, PHONE_STYLES, phoneAlpha, smooth, starAlpha, type SkyLight } from './lights';
 import { createNebulaRenderer, type NebulaRenderer } from './nebula';
@@ -20,7 +19,8 @@ export interface HomeSkyController {
 
 const OVERSCAN = 36;
 const TRANSITION_SECONDS = .65;
-const NEBULA_FRAME_INTERVAL = 1000 / 12;
+const NEBULA_FRAME_INTERVAL = 1000 / 30;
+const PAINT_INTERVAL = 1000 / 60;
 const DRAG_EXCLUSIONS = 'a,button,input,textarea,select,nav,summary,label,h1,h2,h3,h4,h5,h6,p,svg,[role="button"],[role="link"],[role="slider"],[contenteditable],[data-celestial-text],[data-sky-controls]';
 const mountedEngines = new WeakMap<HTMLElement, HomeSkyController>();
 
@@ -77,7 +77,6 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
   let autoRotate = initial.autoRotate ?? false;
   let resetView = initial.resetView ?? 0;
   const camera = createSkyCamera({ interactionMode, autoRotate });
-  let paintedPose: SkyCameraPose = { yaw: NaN, pitch: NaN };
   let drag: { pointerId: number; x: number; y: number; time: number } | null = null;
   let peopleVisible = false;
   let peopleBlend = 0;
@@ -90,11 +89,10 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
   let raf: number | null = null;
   let lastTick: number | null = null;
   let lastPaint: number | null = null;
-  let frameInterval = 1000 / 30;
-  const guardFrame = createFrameGuard(() => { frameInterval = 1000 / 20; });
   const cacheTimes = [-Infinity, -Infinity];
+  const cachePoses: SkyCameraPose[] = [{ yaw: NaN, pitch: NaN }, { yaw: NaN, pitch: NaN }];
   const cacheDirty = [false, false];
-  const cacheIntervals = [1 / 12, 1 / 20];
+  const cacheIntervals = [1000 / 15, 1000 / 24];
 
   function isVisible(): boolean {
     return !disposed && !doc.hidden && viewportVisible && width > 0 && height > 0;
@@ -112,6 +110,7 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
 
   function invalidatePhoneCaches(): void {
     cacheTimes[0] = cacheTimes[1] = -Infinity;
+    cachePoses[0] = cachePoses[1] = { yaw: NaN, pitch: NaN };
   }
 
   function clearPhoneCaches(): void {
@@ -145,7 +144,7 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     if (resized) nebula.resize(width, height, dpr);
     if (!resized && (!nebulaNeedsPaint() || frameNow - lastNebulaPaint < NEBULA_FRAME_INTERVAL)) return;
     const pose = camera.getPose();
-    nebula.render({ brightness: 1, dust: .7, yaw: pose.yaw, pitch: pose.pitch });
+    nebula.render({ brightness: 1.7, dust: .7, yaw: pose.yaw, pitch: pose.pitch });
     nebulaSize = size;
     nebulaPose = pose;
     lastNebulaPaint = frameNow;
@@ -174,25 +173,29 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     image.src = PHONE_ATLAS_URL;
   }
 
-  function paintPhoneCache(index: number, project: ReturnType<typeof createSkyProjector>): void {
+  function paintPhoneCache(index: number, project: ReturnType<typeof createSkyProjector>, pose: SkyCameraPose): void {
     if (peopleBlend <= 0) return;
     const target = phoneContexts[index];
-    const elapsed = sceneTime - cacheTimes[index];
+    const elapsed = frameNow - cacheTimes[index];
     const interval = cacheIntervals[index];
-    if (!target || elapsed + 1e-7 < interval) return;
+    const poseChanged = pose.yaw !== cachePoses[index].yaw || pose.pitch !== cachePoses[index].pitch;
+    const settled = !camera.isMoving(false);
+    if (!target || (elapsed + 1e-7 < interval && !(settled && poseChanged))) return;
     cacheTimes[index] = Number.isFinite(cacheTimes[index])
       ? cacheTimes[index] + Math.max(1, Math.floor((elapsed + 1e-7) / interval)) * interval
-      : sceneTime;
+      : frameNow;
     target.setTransform(dpr, 0, 0, dpr, 0, 0);
     target.clearRect(0, 0, width + OVERSCAN * 2, height + OVERSCAN * 2);
     cacheDirty[index] = true;
+    cachePoses[index] = pose;
     for (const light of lightLayers[index]) {
       const alpha = phoneAlpha(light, sceneTime);
       if (alpha <= .004) continue;
       const sprite = phoneSprites[light.styleIndex]?.[index];
       if (!sprite) continue;
       const meta = PHONE_STYLES[light.styleIndex];
-      const position = project(light.screenX, light.screenY, light.depth);
+      const position = project(light.worldX, light.worldY, light.worldZ, light.depth);
+      if (!position.visible) continue;
       const size = handSize * light.scale * position.scale;
       target.globalAlpha = alpha;
       target.drawImage(sprite, position.x + OVERSCAN - meta.ledX * size, position.y + OVERSCAN - meta.ledY * size, size, size);
@@ -206,17 +209,13 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     ctx.clearRect(0, 0, width, height);
     const pose = camera.getPose();
     const project = createSkyProjector(width, height, pose);
-    if (pose.yaw !== paintedPose.yaw || pose.pitch !== paintedPose.pitch) {
-      // 相机移动时缓存也在同一帧更新，避免手机LED落后于对应星光。
-      invalidatePhoneCaches();
-      paintedPose = pose;
-    }
     for (const light of activeLights) {
       const alpha = starAlpha(light, sceneTime);
       if (alpha < .018) continue;
       const sprite = pointSprites[light.colorIndex];
       if (!sprite) continue;
-      const position = project(light.screenX, light.screenY, light.depth);
+      const position = project(light.worldX, light.worldY, light.worldZ, light.depth);
+      if (!position.visible) continue;
       const size = light.radius * 15 * position.scale;
       ctx.globalAlpha = alpha;
       ctx.drawImage(sprite, position.x - size / 2, position.y - size / 2, size, size);
@@ -227,15 +226,16 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
       clearPhoneCaches();
       return;
     }
-    paintPhoneCache(0, project);
-    paintPhoneCache(1, project);
+    paintPhoneCache(0, project, pose);
+    paintPhoneCache(1, project, pose);
     for (const light of lightLayers[2]) {
       const alpha = phoneAlpha(light, sceneTime) * peopleBlend;
       if (alpha <= .004) continue;
       const sprite = phoneSprites[light.styleIndex]?.[2];
       if (!sprite) continue;
       const meta = PHONE_STYLES[light.styleIndex];
-      const position = project(light.screenX, light.screenY, light.depth);
+      const position = project(light.worldX, light.worldY, light.worldZ, light.depth);
+      if (!position.visible) continue;
       const size = handSize * light.scale * position.scale;
       ctx.globalAlpha = alpha;
       ctx.drawImage(sprite, position.x - meta.ledX * size, position.y - meta.ledY * size, size, size);
@@ -262,12 +262,11 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
         transitionDone = true;
       }
     }
-    // 暂停时也必须绘制过渡终态，否则最后一帧可能被30fps节流跳过。
-    if (lastPaint === null || now - lastPaint >= frameInterval - .25 || transitionDone) {
+    // 相机每个显示帧更新，画面最多 60fps；避免 120Hz 屏幕无收益地重复两倍绘制。
+    if (lastPaint === null || now - lastPaint >= PAINT_INTERVAL - .25 || transitionDone) {
       paint();
       renderNebula();
       lastPaint = now;
-      guardFrame(now);
     }
     if (canAnimate()) raf = win.requestAnimationFrame(animate);
     else lastTick = lastPaint = null;
@@ -299,13 +298,9 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
       synchronizeLoop();
       return;
     }
-    activeLights = allLights.slice(0, width < 621 ? 8000 : 20000);
+    activeLights = allLights.slice(0, width < 621 ? 20000 : 40000);
     lightLayers = [[], [], []];
-    for (const light of activeLights) {
-      light.screenX = light.x * width;
-      light.screenY = light.y * height;
-      lightLayers[light.layer].push(light);
-    }
+    for (const light of activeLights) lightLayers[light.layer].push(light);
     handSize = (width < 621 ? 90 : 96) * .32 * .72;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);

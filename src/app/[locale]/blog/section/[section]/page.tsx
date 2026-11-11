@@ -99,7 +99,8 @@ export default async function BlogSectionPage({ params, searchParams }: SectionP
                   <span
                     id={`star-reason-${section.id}`}
                     role="tooltip"
-                    className="pointer-events-none absolute left-0 top-full z-30 mt-2 w-max max-w-[min(18rem,calc(100vw-2rem))] translate-y-1 rounded-xl border border-white/10 bg-black/90 px-3 py-2 text-xs leading-relaxed text-white/75 opacity-0 shadow-xl backdrop-blur-md transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100"
+                    className="pointer-events-none absolute left-0 top-full z-30 mt-2 w-max max-w-[min(18rem,calc(100vw-2rem))] translate-y-1 rounded-xl border border-[color:var(--site-border)] bg-[var(--site-modal-bg)] px-3 py-2 text-xs leading-relaxed text-white/75 opacity-0 shadow-xl backdrop-blur-md transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100"
+                    data-transparency-surface="panel"
                   >
                     {starReason}
                   </span>

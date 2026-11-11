@@ -43,7 +43,7 @@ export default function InstallCommand({ product }: { product: LocalizedProduct 
       <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Quick start</p>
       <h2 className="mb-6 text-2xl font-bold text-white md:text-3xl">{t('runIn30s')}</h2>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_32px_rgba(0,0,0,0.4)]">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_32px_rgba(0,0,0,0.4)]" data-transparency-surface="panel">
         {/* 终端标题栏 */}
         <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5">
           <div className="flex items-center gap-2" aria-hidden="true">

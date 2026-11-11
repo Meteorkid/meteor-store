@@ -154,7 +154,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
               </div>
             )}
           </div>
-          <ProductVisual product={product} priority className="shadow-[0_35px_100px_rgba(76,29,149,0.28)]" transitionName={`product-visual-${product.id}`} />
+          <ProductVisual product={product} priority className="shadow-[0_35px_100px_rgb(var(--site-glass-shadow)/0.28)]" transitionName={`product-visual-${product.id}`} />
         </section>
 
         <InstallCommand product={product} />

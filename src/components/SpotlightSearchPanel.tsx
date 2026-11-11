@@ -15,6 +15,7 @@ import {
 } from '@/lib/search-index';
 import type { Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
+import { useOptionalSiteTheme } from './theme/ThemeProvider';
 
 // ── 常量 ──────────────────────────────────────────────
 
@@ -109,6 +110,7 @@ interface SearchAPIResponse {
 // ── 主组件 ────────────────────────────────────────────
 
 export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFocus?: boolean) => void }) {
+  const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
   const router = useRouter();
   const locale = useLocale() as Locale;
   const t = useTranslations('SpotlightSearch');
@@ -233,11 +235,11 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
   // ── 光晕色调 ────────────────────────────────────────
   const glowHue = useMemo(() => {
     if (parsedQuery.groupFilter === '博客') return 30;   // 暖金
-    if (parsedQuery.groupFilter === '产品') return 260;  // 蓝紫
+    if (parsedQuery.groupFilter === '产品') return siteTheme === 'nebula' ? 202 : 260;
     if (parsedQuery.groupFilter === '帮助') return 200;  // 青
     if (quickMath) return 140;                           // 绿
-    return 270;                                          // 默认紫
-  }, [parsedQuery.groupFilter, quickMath]);
+    return siteTheme === 'nebula' ? 202 : 270;
+  }, [parsedQuery.groupFilter, quickMath, siteTheme]);
 
   // ── 导航 ────────────────────────────────────────────
   const close = useCallback((restoreFocus = true) => {
@@ -481,6 +483,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
       {/* 遮罩 */}
       <div
         className={`absolute inset-0 bg-black/45 backdrop-blur-[2px] ${isClosing ? 'animate-spotlight-fade-out' : 'animate-spotlight-fade'}`}
+        data-transparency-surface="overlay"
         onClick={handleMaskClick} aria-hidden="true"
       />
 
@@ -498,7 +501,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
       {/* 玻璃面板 */}
       <div
         className={`glass-lg relative w-full max-w-xl rounded-2xl overflow-hidden ${isClosing ? 'animate-spotlight-panel-out' : 'animate-spotlight-panel-in'}`}
-        style={{ backgroundColor: 'rgb(18, 14, 32)' }}
+        style={{ backgroundColor: 'var(--site-modal-bg)' }}
       >
         {/* 输入行 */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.08]">

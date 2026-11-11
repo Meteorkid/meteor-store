@@ -145,7 +145,7 @@ export default function HelpCenterSearch({
           ref={listRef}
           id="help-search-results"
           role="listbox"
-          className="glass-lg absolute inset-x-0 top-full z-50 mt-2 max-h-[22rem] overflow-y-auto rounded-2xl border border-white/10 bg-black/95 p-2 shadow-2xl"
+          className="glass-lg absolute inset-x-0 top-full z-50 mt-2 max-h-[22rem] overflow-y-auto rounded-2xl border border-[color:var(--site-border)] bg-[var(--site-modal-bg)] p-2 shadow-2xl"
         >
           {results.map((entry, index) => (
             <li
@@ -170,7 +170,7 @@ export default function HelpCenterSearch({
       )}
 
       {open && query.trim() && results.length === 0 && (
-        <div className="glass-lg absolute inset-x-0 top-full z-50 mt-2 rounded-2xl border border-white/10 bg-black/95 p-6 text-center shadow-2xl">
+        <div className="glass-lg absolute inset-x-0 top-full z-50 mt-2 rounded-2xl border border-[color:var(--site-border)] bg-[var(--site-modal-bg)] p-6 text-center shadow-2xl">
           <p id="help-search-empty" role="status" className="text-white/60">{noResults}</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <button
