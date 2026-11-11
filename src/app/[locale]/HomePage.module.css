@@ -1,2 +1,2 @@
-.home { --home-header-height:88px; background:var(--site-home-bg); }
+.home { position:relative; isolation:isolate; --home-header-height:88px; background:var(--site-home-bg); }
 @media (max-width:1023px) { .home { --home-header-height:76px; } }

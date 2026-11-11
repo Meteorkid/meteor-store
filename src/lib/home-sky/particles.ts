@@ -87,6 +87,16 @@ export function attractParticle(
   return { x: x + dx * pull, y: y + dy * pull, influence };
 }
 
+/** 首页纵向粒子层的可见度：离开 Hero 后出现，黑洞进入视口前退场。 */
+export function homeParticleOpacity(scrollY: number, heroBottom: number, blackHoleTop: number, viewportHeight: number): number {
+  const viewport = Math.max(1, viewportHeight);
+  const heroExit = heroBottom <= 0 ? 1 : Math.min(1, Math.max(0, (scrollY + viewport - heroBottom) / 180));
+  if (!Number.isFinite(blackHoleTop)) return heroExit;
+  const distanceToBlackHole = blackHoleTop - scrollY;
+  const blackHoleExit = Math.min(1, Math.max(0, (distanceToBlackHole - viewport * .12) / (viewport * .58)));
+  return Math.min(heroExit, blackHoleExit);
+}
+
 export function createParticleSprites(doc: Document): Array<HTMLCanvasElement | null> {
   return PARTICLE_COLORS.map(color => {
     const sprite = doc.createElement('canvas');

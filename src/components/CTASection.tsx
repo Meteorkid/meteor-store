@@ -30,6 +30,7 @@ export default function CTASection() {
       <div className="container mx-auto px-4">
         <Link
           href="/products"
+          data-home-particle-end="true"
           // 黑洞画在 canvas 里，读屏软件拿不到任何内容，
           // 可访问名只能挂在链接上，否则这就是一个没有名字的链接
           aria-label={t('browseProducts')}

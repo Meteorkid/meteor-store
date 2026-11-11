@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { attractParticle, createParticles, particleAlpha, particleDrift, PARTICLE_COLORS } from '../particles';
+import { attractParticle, createParticles, homeParticleOpacity, particleAlpha, particleDrift, PARTICLE_COLORS } from '../particles';
 
 describe('首页宇宙尘埃', () => {
   it('使用固定种子生成低亮度、球面分布且带景深的粒子', () => {
@@ -39,5 +39,13 @@ describe('首页宇宙尘埃', () => {
     const nearCenter = attractParticle(90, 0, 100, 0, 100, 40);
     expect(edge.influence).toBeLessThan(nearCenter.influence);
     expect(edge.x - 1).toBeLessThan(nearCenter.x - 90);
+  });
+
+  it('纵向粒子层在 Hero 后出现，并在黑洞进入视口前退场', () => {
+    expect(homeParticleOpacity(0, 900, 8000, 900)).toBe(0);
+    expect(homeParticleOpacity(180, 900, 8000, 900)).toBe(1);
+    expect(homeParticleOpacity(6800, 900, 8000, 900)).toBeGreaterThan(0);
+    expect(homeParticleOpacity(7800, 900, 8000, 900)).toBeLessThan(.5);
+    expect(homeParticleOpacity(7920, 900, 8000, 900)).toBe(0);
   });
 });
