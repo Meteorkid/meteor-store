@@ -203,8 +203,10 @@ afterEach(() => {
 describe('首页星空引擎', () => {
   it('默认只画星光，不加载或显现手机；星云不会随动画帧重复计算', () => {
     create();
-    expect(stage.children).toHaveLength(5);
+    expect(stage.children).toHaveLength(6);
     expect(stage.layer('stars').context.lastFrame.length).toBeGreaterThan(1000);
+    expect(stage.layer('particles').context.lastFrame.length).toBeGreaterThan(240);
+    expect(Math.max(...stage.layer('particles').context.lastFrame.map(drawing => drawing.alpha))).toBeLessThan(.64);
     expect(images).toHaveLength(0);
     expect(stage.layer('far-phones').style.opacity).toBe('0');
     expect(stage.layer('mid-phones').context.lastFrame).toHaveLength(0);
@@ -337,7 +339,7 @@ describe('首页星空引擎', () => {
 
     create();
     first.dispose();
-    expect(stage.children).toHaveLength(5);
+    expect(stage.children).toHaveLength(6);
     expect(renderers[1].render).toHaveBeenCalledTimes(1);
     expect(doc.count('visibilitychange')).toBe(1);
   });
@@ -346,7 +348,7 @@ describe('首页星空引擎', () => {
     const first = create();
     create();
     expect(renderers[0].dispose).toHaveBeenCalledTimes(1);
-    expect(stage.children).toHaveLength(5);
+    expect(stage.children).toHaveLength(6);
     expect(doc.defaultView.frames.size).toBe(1);
     first.setState({ peopleVisible: true, paused: false });
     expect(images).toHaveLength(0);
@@ -370,6 +372,18 @@ describe('首页星空引擎', () => {
     doc.defaultView.advance(1000);
     expect(stars.lastFrame).toEqual(baseline);
     expect(renderers[0].render).toHaveBeenLastCalledWith(expect.objectContaining({ yaw: 0, pitch: 0 }));
+    expect(doc.defaultView.frames.size).toBe(0);
+  });
+
+  it('鼠标进入时只重绘粒子层的磁吸位置，关闭交互后停止吸附', () => {
+    const controller = create({ paused: true, interactionMode: 'drag' }, stage);
+    const particles = stage.layer('particles').context;
+    const baseline = particles.lastFrame;
+    pointer('pointermove', stage.width * .62, stage.height * .44);
+    doc.defaultView.advance(250);
+    expect(particles.lastFrame).not.toEqual(baseline);
+    controller.setState({ paused: true, peopleVisible: false, interactionMode: 'off' });
+    doc.defaultView.advance(800);
     expect(doc.defaultView.frames.size).toBe(0);
   });
 
@@ -400,7 +414,7 @@ describe('首页星空引擎', () => {
   it.each(['button', 'nav', '[data-sky-controls]', 'svg'])('%s及其子元素不会开始拖动或阻止点击', blockedBy => {
     create({ paused: true, interactionMode: 'drag' }, stage);
     const event = pointer('pointerdown', 100, 100, { blockedBy });
-    pointer('pointermove', 180, 140);
+    pointer('pointermove', 180, 140, { blockedBy });
     expect(event.defaultPrevented).toBe(false);
     expect(stage.captures.size).toBe(0);
     expect(doc.defaultView.frames.size).toBe(0);

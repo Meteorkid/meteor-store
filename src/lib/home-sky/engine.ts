@@ -2,6 +2,7 @@ import { createPhoneSprites, createPointSprites, PHONE_ATLAS_URL, releaseSprites
 import { createLights, PHONE_STYLES, phoneAlpha, smooth, starAlpha, type SkyLight } from './lights';
 import { createNebulaRenderer, type NebulaRenderer } from './nebula';
 import { createSkyCamera, createSkyProjector, type SkyCameraPose, type SkyInteractionMode } from './camera';
+import { attractParticle, createParticles, createParticleSprites, particleAlpha, particleDrift, releaseParticleSprites, type SkyParticle } from './particles';
 
 export interface HomeSkyState {
   peopleVisible: boolean;
@@ -20,6 +21,7 @@ export interface HomeSkyController {
 const OVERSCAN = 36;
 const TRANSITION_SECONDS = .65;
 const NEBULA_FRAME_INTERVAL = 1000 / 30;
+const PARTICLE_FRAME_INTERVAL = 1000 / 30;
 const PAINT_INTERVAL = 1000 / 60;
 const DRAG_EXCLUSIONS = 'a,button,input,textarea,select,nav,summary,label,h1,h2,h3,h4,h5,h6,p,svg,[role="button"],[role="link"],[role="slider"],[contenteditable],[data-celestial-text],[data-sky-controls]';
 const mountedEngines = new WeakMap<HTMLElement, HomeSkyController>();
@@ -51,15 +53,20 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
 
   const fallbackCanvas = makeLayer('fallback');
   const nebulaCanvas = makeLayer('nebula');
+  const particleCanvas = makeLayer('particles');
   const phoneCanvases = [makeLayer('far-phones', true), makeLayer('mid-phones', true)];
   const canvas = makeLayer('stars');
   const ctx = canvas.getContext('2d');
+  const particleContext = particleCanvas.getContext('2d');
   const phoneContexts = phoneCanvases.map(layer => layer.getContext('2d'));
   const reduceQuery = win.matchMedia('(prefers-reduced-motion: reduce)');
   const finePointerQuery = win.matchMedia('(hover: hover) and (pointer: fine)');
   const allLights = createLights();
   const pointSprites = createPointSprites(doc);
+  const allParticles = createParticles();
+  const particleSprites = createParticleSprites(doc);
   let activeLights: SkyLight[] = [];
+  let activeParticles: SkyParticle[] = [];
   let lightLayers: SkyLight[][] = [[], [], []];
   let phoneSprites: PhoneSprites = [];
   let atlasImage: HTMLImageElement | null = null;
@@ -68,6 +75,8 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
   let nebulaSize = '';
   let nebulaPose: SkyCameraPose = { yaw: NaN, pitch: NaN };
   let lastNebulaPaint = -Infinity;
+  let lastParticlePaint = -Infinity;
+  const attraction = { x: 0, y: 0, targetX: 0, targetY: 0, strength: 0, targetStrength: 0 };
   let frameNow = 0;
   let disposed = false;
   let viewportVisible = true;
@@ -99,7 +108,14 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
   }
 
   function canAnimate(): boolean {
-    return isVisible() && ctx !== null && (!paused || transition !== null || camera.isMoving(!paused) || nebulaNeedsPaint());
+    return isVisible() && ctx !== null && (!paused || transition !== null || camera.isMoving(!paused) || nebulaNeedsPaint() || attractionMoving());
+  }
+
+  function attractionMoving(): boolean {
+    if (Math.max(attraction.targetStrength, attraction.strength) <= .005) return false;
+    return Math.abs(attraction.targetX - attraction.x) > .5
+      || Math.abs(attraction.targetY - attraction.y) > .5
+      || Math.abs(attraction.targetStrength - attraction.strength) > .005;
   }
 
   function nebulaNeedsPaint(): boolean {
@@ -173,6 +189,47 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     image.src = PHONE_ATLAS_URL;
   }
 
+  function paintParticles(pose: SkyCameraPose): void {
+    if (!isVisible() || !particleContext) return;
+    const elapsed = frameNow - lastParticlePaint;
+    if (elapsed + 1e-7 < PARTICLE_FRAME_INTERVAL) return;
+    lastParticlePaint = Number.isFinite(lastParticlePaint)
+      ? lastParticlePaint + Math.max(1, Math.floor((elapsed + 1e-7) / PARTICLE_FRAME_INTERVAL)) * PARTICLE_FRAME_INTERVAL
+      : frameNow;
+    particleContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+    particleContext.clearRect(0, 0, width, height);
+    particleContext.globalCompositeOperation = 'lighter';
+    const fade = 1 - peopleBlend * .58;
+    attraction.x += (attraction.targetX - attraction.x) * .28;
+    attraction.y += (attraction.targetY - attraction.y) * .28;
+    attraction.strength += (attraction.targetStrength - attraction.strength) * .20;
+    const attractionRadius = width < 621 ? 118 : 200;
+    const attractionStrength = width < 621 ? 32 : 56;
+    for (const particle of activeParticles) {
+      const sprite = particleSprites[particle.colorIndex];
+      if (!sprite) continue;
+      const drift = particleDrift(particle, sceneTime);
+      const parallaxX = Math.sin(pose.yaw) * (2 + particle.depth * 9);
+      const parallaxY = -Math.sin(pose.pitch) * (2 + particle.depth * 7);
+      const baseX = particle.x * width + drift.x + parallaxX;
+      const baseY = particle.y * height + drift.y + parallaxY;
+      const size = particle.size * (width < 621 ? .86 : 1) * (1 + particle.depth * .45);
+      const attracted = attractParticle(
+        baseX,
+        baseY,
+        attraction.x,
+        attraction.y,
+        attractionRadius,
+        attractionStrength * attraction.strength,
+      );
+      particleContext.globalAlpha = particleAlpha(particle, sceneTime) * fade * (1 + attracted.influence * .58);
+      particleContext.drawImage(sprite, attracted.x - size / 2, attracted.y - size / 2, size, size);
+    }
+    particleContext.globalAlpha = 1;
+    particleContext.globalCompositeOperation = 'source-over';
+    particleCanvas.style.opacity = String(1 - peopleBlend * .42);
+  }
+
   function paintPhoneCache(index: number, project: ReturnType<typeof createSkyProjector>, pose: SkyCameraPose): void {
     if (peopleBlend <= 0) return;
     const target = phoneContexts[index];
@@ -209,6 +266,7 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     ctx.clearRect(0, 0, width, height);
     const pose = camera.getPose();
     const project = createSkyProjector(width, height, pose);
+    paintParticles(pose);
     for (const light of activeLights) {
       const alpha = starAlpha(light, sceneTime);
       if (alpha < .018) continue;
@@ -299,11 +357,14 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
       return;
     }
     activeLights = allLights.slice(0, width < 621 ? 20000 : 40000);
+    activeParticles = allParticles.slice(0, width < 621 ? 280 : 420);
     lightLayers = [[], [], []];
     for (const light of activeLights) lightLayers[light.layer].push(light);
     handSize = (width < 621 ? 90 : 96) * .32 * .72;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
+    particleCanvas.width = Math.round(width * dpr);
+    particleCanvas.height = Math.round(height * dpr);
     for (const layer of phoneCanvases) {
       layer.width = Math.round((width + OVERSCAN * 2) * dpr);
       layer.height = Math.round((height + OVERSCAN * 2) * dpr);
@@ -363,6 +424,15 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
     if (!pointerAllowed(pointer)) return;
     const bounds = pointerBounds();
     if (bounds.width <= 0 || bounds.height <= 0) return;
+    const target = pointer.target as Element | null;
+    const blocked = typeof target?.closest === 'function' && !!target.closest(DRAG_EXCLUSIONS);
+    if (!blocked && interactionMode !== 'off') {
+      attraction.targetX = pointer.clientX - bounds.left;
+      attraction.targetY = pointer.clientY - bounds.top;
+      attraction.targetStrength = 1;
+    } else {
+      attraction.targetStrength = 0;
+    }
     if (drag && drag.pointerId === pointer.pointerId) {
       camera.dragBy((pointer.clientX - drag.x) / bounds.width, (pointer.clientY - drag.y) / bounds.height, (pointer.timeStamp - drag.time) / 1000);
       drag = { pointerId: pointer.pointerId, x: pointer.clientX, y: pointer.clientY, time: pointer.timeStamp };
@@ -405,12 +475,14 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
 
   function onPointerLeave(): void {
     if (disposed || drag) return;
+    attraction.targetStrength = 0;
     camera.leave();
     synchronizeLoop();
   }
 
   function onPointerUnavailable(): void {
     if (disposed) return;
+    attraction.targetStrength = 0;
     releaseDrag(false);
     camera.cancelInput();
     synchronizeLoop();
@@ -433,6 +505,7 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
       const nextMode = next.interactionMode ?? interactionMode;
       if (nextMode !== interactionMode) releaseDrag(false);
       interactionMode = nextMode;
+      if (interactionMode === 'off') attraction.targetStrength = 0;
       autoRotate = next.autoRotate ?? autoRotate;
       camera.setOptions({ interactionMode, autoRotate });
       if (next.resetView !== undefined && Number.isFinite(next.resetView) && next.resetView !== resetView) {
@@ -483,6 +556,7 @@ export function createHomeSkyEngine(stage: HTMLElement, initial: Partial<HomeSky
       nebula?.dispose();
       nebula = null;
       releaseSprites(pointSprites);
+      releaseParticleSprites(particleSprites);
       for (const sprites of phoneSprites) releaseSprites(sprites);
       phoneSprites = [];
       allLights.length = activeLights.length = 0;
