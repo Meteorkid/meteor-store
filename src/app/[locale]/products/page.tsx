@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import PassOwnedBadge from '@/components/PassOwnedBadge';
 import CelestialField from '@/components/CelestialField';
+import ProductStarStory from '@/components/ProductStarStory';
 import { products, localizeProduct } from '@/data/products';
 import { flagshipProductIds, selectLabProducts, selectProductLine } from '@/data/product-tracks';
 import { FOUR_SYMBOLS, mansionsOf } from '@/data/celestial';
@@ -54,6 +55,7 @@ export default async function ProductsPage({ params }: Props) {
           />
         {/* ── 页首 ── */}
         <section className="relative flex min-h-[calc(100svh-76px)] items-center px-4 py-16 lg:min-h-[calc(100svh-88px)] lg:py-20">
+          <ProductStarStory rgb={dragon.rgb} />
           <div className="container relative mx-auto max-w-3xl text-center">
             <p className="t-eyebrow mb-5 uppercase text-white/45">Meteor Products</p>
             {/* text-balance：中文长标题在窄一点的容器里会把最后一两个字甩成孤行，

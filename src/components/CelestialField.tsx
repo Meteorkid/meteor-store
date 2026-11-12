@@ -1,5 +1,5 @@
 /**
- * 星区背景：星点 + 星座连线，铺在区块底下作为氛围层。
+ * 星区背景：用确定性的星点铺在区块底下作为氛围层。
  *
  * **位置必须是确定性的**：用 Math.random() 会让服务端和客户端算出两套坐标，
  * React 水合时报 hydration 不匹配。这里用和 StarMap 同一套字符串哈希，
@@ -56,9 +56,7 @@ export default function CelestialField({ seed, rgb, count = 48, className = '' }
     };
   });
 
-  // 星座连线：只连前若干颗，连成一条蜿蜒的轨迹而不是网
-  const path = stars.slice(0, 7).map((s, i) => `${i === 0 ? 'M' : 'L'} ${s.x.toFixed(1)} ${s.y.toFixed(1)}`).join(' ');
-
+  // 长区块经过 slice 放宽后，跨星连线会变成贯穿卡片的长斜线；只保留独立星点。
   return (
     <svg
       aria-hidden="true"
@@ -66,7 +64,6 @@ export default function CelestialField({ seed, rgb, count = 48, className = '' }
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="xMidYMid slice"
     >
-      <path d={path} fill="none" stroke={`rgb(${rgb} / 0.14)`} strokeWidth="0.75" strokeLinecap="round" />
       {stars.map((s, i) => (
         <circle
           key={i}
