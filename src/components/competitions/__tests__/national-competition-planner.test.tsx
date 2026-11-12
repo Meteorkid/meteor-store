@@ -4,7 +4,7 @@ vi.mock('@/i18n/navigation', () => ({
   Link: ({ href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a href={String(href)} {...props} />,
 }));
 import {
-  competitionSources,
+  competitionCalendarSources,
   nationalCompetitionClassNotes,
   nationalCompetitions,
 } from '@/data/national-competitions';
@@ -23,7 +23,7 @@ function render(locale: 'zh' | 'en' = 'zh', overrides: Partial<CompetitionFilter
     competitions={nationalCompetitions}
     filters={{ ...filters, ...overrides }}
     bClassNote={nationalCompetitionClassNotes.b[locale]}
-    sources={competitionSources}
+    sources={competitionCalendarSources}
   />);
 }
 
@@ -38,7 +38,9 @@ describe('国家级学科竞赛规划表', () => {
     expect(html).toContain('2026-06 — 2026-08');
     expect(html).toContain('已结束');
     expect(html).toContain('nuedcchina.com');
-    expect(html).toContain('国家级 B 类没有固定赛事名单');
+    expect(html).toContain('国家级 B 类通常没有固定名单');
+    expect(html).not.toContain('广东技术师范大学');
+    expect(html).not.toContain('查看学校年度认定通知');
     expect(html).toContain('2025');
   });
 

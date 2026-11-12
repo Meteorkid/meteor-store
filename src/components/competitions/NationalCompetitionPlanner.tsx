@@ -18,8 +18,6 @@ interface Props {
   filters: CompetitionFilters;
   bClassNote: string;
   sources: {
-    classification2025: string;
-    classification2026: string;
     calendar2025: string;
     calendar2026: string;
   };
@@ -95,7 +93,6 @@ export default function NationalCompetitionPlanner({ locale, year, years, nowIso
             <aside id="b-class" className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.06] p-5">
               <p className="t-eyebrow text-amber-200">{copy.bTitle}</p>
               <p className="mt-3 text-sm leading-6 text-white/70">{bClassNote}</p>
-              <a href={sources.classification2026} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-10 items-center text-sm font-semibold text-amber-100 underline underline-offset-4">{copy.bRuleSource} ↗</a>
             </aside>
           </div>
 
@@ -185,8 +182,6 @@ function OfficialLink({ competition, label, missing }: { competition: NationalCo
 }
 function SourceList({ copy, sources }: { copy: CompetitionCalendarCopy; sources: Props['sources'] }) {
   return <footer className="mt-10 border-t border-white/10 pt-6"><p className="t-eyebrow text-white/50">{copy.sourceTitle}</p><div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/60">
-    <a href={sources.classification2025} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-white">{copy.source2025} ↗</a>
-    <a href={sources.classification2026} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-white">{copy.source2026} ↗</a>
     <a href={sources.calendar2025} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-white">{copy.sourceCalendar2025} ↗</a>
     <a href={sources.calendar2026} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-white">{copy.sourceCalendar2026} ↗</a>
   </div></footer>;

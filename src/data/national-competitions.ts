@@ -28,21 +28,19 @@ export interface NationalCompetition {
 export const competitionCalendarYears = [2026, 2025] as const;
 export type CompetitionCalendarYear = (typeof competitionCalendarYears)[number];
 
-export const competitionSources = {
-  classification2025: 'https://gpnu.edu.cn/info/1039/61234.htm',
-  classification2026: 'https://www.gpnu.edu.cn/info/1039/65303.htm',
+export const competitionCalendarSources = {
   calendar2025: 'https://jwc.svcci.cn/info/1018/1843.htm',
   calendar2026: 'https://jjglxy.sxfu.cn/info/1008/6962.htm',
 } as const;
 
 export const nationalCompetitionClassNotes: Record<'a' | 'b', LocalizedText> = {
   a: {
-    zh: '按广东技术师范大学 2025 年学科竞赛分类表整理。A 类会随排行榜与学校年度通知动态调整。',
-    en: 'Based on Guangdong Polytechnic Normal University’s 2025 competition classification. Class A changes with annual ranking and university notices.',
+    zh: 'A 类名单供年度规划参考。各高校会参考排行榜与当年文件动态调整，最终类别以你所在学校的通知为准。',
+    en: 'The Class A list is a planning reference. Universities adjust it annually using ranking catalogs and current-year documents; your own institution’s notice is authoritative.',
   },
   b: {
-    zh: '国家级 B 类没有固定赛事名单：除学科竞赛排行榜外，由教育部教学委员会、教指委、全国性一级学会（协会）或具有重大影响力的企业主办，并按学校当年要求报备认定。',
-    en: 'Class B has no fixed public list. Outside the ranking catalog, it covers national teaching committees, national first-level societies, and highly influential organizer competitions, subject to the university’s current-year review.',
+    zh: '国家级 B 类通常没有固定名单。除排行榜赛事外，常见于教育部教学委员会、教指委、全国性一级学会（协会）或具有重大影响力的企业主办项目；最终资格以你所在学校当年文件和赛事通知为准。',
+    en: 'Class B usually has no fixed list. Outside ranking catalogs, it commonly covers national teaching committees, national first-level societies, and competitions from highly influential organizers. Your institution’s current-year rules and the event notice are authoritative.',
   },
 };
 

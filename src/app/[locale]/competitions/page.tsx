@@ -7,7 +7,7 @@ import NationalCompetitionPlanner from '@/components/competitions/NationalCompet
 import { competitionCalendarText } from '@/components/competitions/text';
 import {
   competitionCalendarYears,
-  competitionSources,
+  competitionCalendarSources,
   nationalCompetitionClassNotes,
   nationalCompetitions,
 } from '@/data/national-competitions';
@@ -59,7 +59,7 @@ export default async function CompetitionsPage({ params, searchParams }: {
       competitions={nationalCompetitions}
       filters={filters}
       bClassNote={nationalCompetitionClassNotes.b[typedLocale]}
-      sources={competitionSources}
+      sources={competitionCalendarSources}
     />
     <Footer />
   </div>;
