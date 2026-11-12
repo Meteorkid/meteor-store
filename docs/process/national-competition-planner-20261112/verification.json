@@ -1,0 +1,38 @@
+{
+  "checkedAt": "2026-11-12T07:42:52Z",
+  "runtimeCommit": "172546e717a4106f643bbcd9cca4b9fd7e06e73e",
+  "buildId": "build-TfctsWXpff2fKS",
+  "pm2Pid": 3028781,
+  "rollback": "/var/backups/meteor-store-runtime-0dHFzNu4",
+  "pages": {
+    "zh": "https://www.imagentx.top/zh/competitions",
+    "en": "https://www.imagentx.top/en/competitions"
+  },
+  "data": {
+    "classA": 57,
+    "with2025Window": 51,
+    "with2026Window": 51,
+    "pendingDates": 6
+  },
+  "productionBrowser": {
+    "filterQuery": "电子设计",
+    "filterStatus": "ended",
+    "resultCount": 1,
+    "yearLinkPreservedFilters": true,
+    "navigationEntryVisible": true,
+    "pageErrors": 0
+  },
+  "discovery": {
+    "spotlight": "passed",
+    "sitemap": "passed"
+  },
+  "tests": {
+    "filesPassed": 376,
+    "filesSkipped": 4,
+    "testsPassed": 3968,
+    "testsSkipped": 47,
+    "typecheck": "passed",
+    "changedFileLint": "passed"
+  },
+  "health": { "status": "healthy", "database": "ok", "redis": "ok" }
+}
