@@ -12,12 +12,12 @@ vi.mock('../HeroCanvas', () => ({ default: () => <i data-legacy-sky="particles" 
 vi.mock('../MeteorShower', () => ({ default: () => <i data-legacy-sky="meteors" /> }));
 import ExperienceAwareChrome from '../ExperienceAwareChrome';
 
-describe('首页背景只挂载一套', () => {
-  it.each(['/', '/zh', '/en', '/zh/', '/en/'])('%s 退出旧背景但保留搜索和帮助', pathname => {
+describe('首页复用全站背景层', () => {
+  it.each(['/', '/zh', '/en', '/zh/', '/en/'])('%s 挂载与产品页相同的背景层并保留搜索和帮助', pathname => {
     state.pathname = pathname;
     state.fullscreen = false;
     const html = renderToStaticMarkup(<ExperienceAwareChrome><p>content</p></ExperienceAwareChrome>);
-    expect(html).not.toContain('data-legacy-sky');
+    expect(html.match(/data-legacy-sky=/g)).toHaveLength(3);
     expect(html).toContain('data-preserved="search"');
     expect(html).toContain('data-preserved="help"');
     expect(html).toContain('content');

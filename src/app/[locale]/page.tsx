@@ -3,7 +3,6 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
-import HomePageParticles from '@/components/home/HomePageParticles';
 import ProductShowcase from '@/components/ProductShowcase';
 import ProductDemo from '@/components/ProductDemo';
 import FeaturesSection from '@/components/FeaturesSection';
@@ -46,8 +45,6 @@ export default async function Home({
     <div className={`${styles.home} min-h-screen text-foreground`}>
       <Header variant="celestial" />
 
-      {/* 首页纵向粒子层：Hero 以下持续存在，黑洞接近时渐隐 */}
-      <HomePageParticles />
 
       {/* Hero Section */}
       {/* Hero 的四个数字由服务端从真实数据算出：产品总数、可在浏览器直接打开的数量、
