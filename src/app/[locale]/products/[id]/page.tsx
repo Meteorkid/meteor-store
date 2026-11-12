@@ -15,7 +15,9 @@ import ProductPricingCards from '@/components/ProductPricingCards';
 import { getAppTrialHref } from '@/data/app-manifest';
 import { products, localizeProduct } from '@/data/products';
 import { getProductWithCurrentDownloads } from '@/lib/product-updates/catalog';
-import { ANNUAL_DISCOUNT, SHOW_PRICING } from '@/lib/constants';
+import { ANNUAL_DISCOUNT, SHOW_PRICING, SITE_URL } from '@/lib/constants';
+import { safeJsonLd } from '@/lib/seo';
+import { buildBreadcrumbSchema, buildProductSchema } from '@/lib/structured-data';
 import { routing, type Locale } from '@/i18n/routing';
 import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
 import { getSession } from '@/lib/auth';
@@ -49,6 +51,9 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   const { locale, id } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'ProductDetailPage' });
+  // 面包屑的文字必须与页面上真实可见的导航一致，所以直接复用 Header 的译名，
+  // 而不是在产品页再写一套「产品/首页」——两处一旦不同步，结构化数据就在说谎
+  const tNav = await getTranslations({ locale, namespace: 'Header' });
   const { annual } = await searchParams;
   const raw = await getProductWithCurrentDownloads(id);
   if (!raw) notFound();
@@ -61,8 +66,22 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   // 领过码就把下载区的引导换成「去账户页查看」，不再劝人重复领取一次。
   const licenseClaimed = softwareTrial ? await hasClaimedLicense(id) : false;
 
+  // 产品实体 + 面包屑。价格是否下发跟着 SHOW_PRICING 走，见 structured-data.ts 的说明。
+  const productSchema = buildProductSchema({ product, locale: locale as Locale, showPricing: SHOW_PRICING });
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: tNav('home'), url: `${SITE_URL}/${locale}` },
+    { name: tNav('products'), url: `${SITE_URL}/${locale}/products` },
+    { name: product.name, url: `${SITE_URL}/${locale}/products/${product.id}` },
+  ]);
+
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* 结构化数据：JSON-LD 是数据块不是可执行脚本，不受 CSP script-src 约束，
+          与 blog/[slug] 的做法一致，无需 nonce */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd([productSchema, breadcrumbSchema]) }}
+      />
       <Header />
       <main className="container mx-auto px-4 py-12">
         <TransitionLink href="/products" className="mb-10 inline-flex items-center gap-2 text-gray-400 transition-colors hover:text-white">

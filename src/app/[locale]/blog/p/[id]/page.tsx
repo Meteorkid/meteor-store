@@ -22,6 +22,7 @@ import PostStats from '@/components/PostStats';
 import PostReportButton from '@/components/PostReportButton';
 import { isAdminSession } from '@/lib/admin';
 import { safeJsonLd } from '@/lib/seo';
+import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import { SITE_URL } from '@/lib/constants';
 
 interface UserPostPageProps {
@@ -113,26 +114,40 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
     );
   }
   const editHref = `/blog/submit?id=${post.id}${isAdmin ? '&admin=1' : ''}`;
+  const tNav = await getTranslations({ locale, namespace: 'Header' });
+
+  // 面包屑指向源语言地址（canonical 也是它），避免为译文另造一条层级
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: tNav('home'), url: `${SITE_URL}/${sourceLocale}` },
+    { name: tNav('blog'), url: `${SITE_URL}/${sourceLocale}/blog` },
+    ...(section
+      ? [{ name: section.label[sourceLocale as Locale], url: `${SITE_URL}/${sourceLocale}/blog/section/${section.slug}` }]
+      : []),
+    { name: post.title, url: `${SITE_URL}/${sourceLocale}/blog/p/${post.id}` },
+  ]);
 
   return (
     <div className="blog-scope min-h-screen bg-black text-white" style={blogScopeStyle(post.sectionId)}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: safeJsonLd({
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            headline: post.title,
-            description: post.excerpt,
-            datePublished: post.publishedAt,
-            author: { '@type': 'Person', name: post.authorName || 'Anonymous' },
-            articleSection: section?.label[locale as Locale],
-            url: `${SITE_URL}/${sourceLocale}/blog/p/${post.id}`,
-            mainEntityOfPage: {
-              '@type': 'WebPage',
-              '@id': `${SITE_URL}/${sourceLocale}/blog/p/${post.id}`,
+          __html: safeJsonLd([
+            {
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              headline: post.title,
+              description: post.excerpt,
+              datePublished: post.publishedAt,
+              author: { '@type': 'Person', name: post.authorName || 'Anonymous' },
+              articleSection: section?.label[locale as Locale],
+              url: `${SITE_URL}/${sourceLocale}/blog/p/${post.id}`,
+              mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': `${SITE_URL}/${sourceLocale}/blog/p/${post.id}`,
+              },
             },
-          }),
+            breadcrumbSchema,
+          ]),
         }}
       />
       <BlogReadingProgress />

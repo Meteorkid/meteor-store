@@ -32,7 +32,14 @@ vi.mock('@/components/ProductPricingCards', () => ({
 vi.mock('@/lib/product-updates/catalog', () => ({
   getProductWithCurrentDownloads: async (id: string) => products.find((product) => product.id === id),
 }));
-vi.mock('@/lib/constants', () => ({ SHOW_PRICING: true, ANNUAL_DISCOUNT: 0.8, OPERATOR: {} }));
+// 展开真实导出再覆盖需要改的字段：只写死三个字段的话，产品页将来引用任何
+// 新常量（如 SITE_URL）都会在 import 阶段就炸掉，而报错指向的是被测组件
+vi.mock('@/lib/constants', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/constants')>()),
+  SHOW_PRICING: true,
+  ANNUAL_DISCOUNT: 0.8,
+  OPERATOR: {},
+}));
 
 import ProductCard from '../ProductCard';
 import ProductPage from '@/app/[locale]/products/[id]/page';

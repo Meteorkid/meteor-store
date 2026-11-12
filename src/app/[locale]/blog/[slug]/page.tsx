@@ -15,6 +15,7 @@ import PostStats from '@/components/PostStats';
 import AdminGithubEditLink from '@/components/AdminGithubEditLink';
 import { routing, type Locale } from '@/i18n/routing';
 import { safeJsonLd } from '@/lib/seo';
+import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import { SITE_URL } from '@/lib/constants';
 
 interface BlogPostPageProps {
@@ -51,6 +52,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'BlogPostPage' });
+  const tNav = await getTranslations({ locale, namespace: 'Header' });
 
   const posts = getBlogPosts(locale as Locale);
   const post = posts.find((p) => p.slug === slug);
@@ -69,6 +71,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     3,
   );
 
+  // 层级与页面顶部真实的「返回某分区」链接一致：首页 → 博客 → 分区 → 文章。
+  // 没有分区的文章少一层，不硬凑。
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: tNav('home'), url: `${SITE_URL}/${locale}` },
+    { name: tNav('blog'), url: `${SITE_URL}/${locale}/blog` },
+    ...(section
+      ? [{ name: section.label[locale as Locale], url: `${SITE_URL}/${locale}/blog/section/${section.slug}` }]
+      : []),
+    { name: post.title, url: `${SITE_URL}/${locale}/blog/${post.slug}` },
+  ]);
+
   return (
     <div
       className="blog-scope min-h-screen bg-black text-white"
@@ -77,21 +90,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: safeJsonLd({
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            headline: post.title,
-            description: post.excerpt,
-            datePublished: post.date,
-            author: { '@type': 'Person', name: 'meteor' },
-            articleSection: section?.label[locale as Locale],
-            keywords: post.tags.join(', '),
-            url: `${SITE_URL}/${locale}/blog/${post.slug}`,
-            mainEntityOfPage: {
-              '@type': 'WebPage',
-              '@id': `${SITE_URL}/${locale}/blog/${post.slug}`,
+          __html: safeJsonLd([
+            {
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              headline: post.title,
+              description: post.excerpt,
+              datePublished: post.date,
+              author: { '@type': 'Person', name: 'meteor' },
+              articleSection: section?.label[locale as Locale],
+              keywords: post.tags.join(', '),
+              url: `${SITE_URL}/${locale}/blog/${post.slug}`,
+              mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': `${SITE_URL}/${locale}/blog/${post.slug}`,
+              },
             },
-          }),
+            breadcrumbSchema,
+          ]),
         }}
       />
       <BlogReadingProgress />

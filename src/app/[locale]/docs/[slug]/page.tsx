@@ -17,6 +17,8 @@ import HelpToc from '@/components/help/HelpToc';
 import { OpenInPanelButton } from '@/components/help/OpenInPanelButton';
 import { Link } from '@/i18n/navigation';
 import { routing, type Locale } from '@/i18n/routing';
+import { safeJsonLd } from '@/lib/seo';
+import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import { SITE_URL } from '@/lib/constants';
 
 interface HelpArticlePageProps {
@@ -66,6 +68,17 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
 
   const categoryLabel = category.label[currentLocale];
   const relatedArticles = await getRelatedHelpArticles(currentLocale, article);
+  const tNav = await getTranslations({ locale, namespace: 'Header' });
+
+  // 层级对齐帮助中心首页的实际结构：首页 → 帮助 → 分类 → 文章。
+  // 分类在首页是一个锚点区块而不是独立路由，所以用带 hash 的地址，
+  // 不能指向一个 404 的 /docs/category/xxx
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: tNav('home'), url: `${SITE_URL}/${locale}` },
+    { name: tNav('docs'), url: `${SITE_URL}/${locale}/docs` },
+    { name: categoryLabel, url: `${SITE_URL}/${locale}/docs#${category.id}` },
+    { name: article.title, url: `${SITE_URL}/${locale}/docs/${article.slug}` },
+  ]);
 
   const { html, headings } = renderHelpMarkdown({
     content: article.content,
@@ -268,33 +281,37 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
       </main>
       <Footer />
 
-      {/* JSON-LD */}
+      {/* JSON-LD：HowTo/FAQPage 描述「这篇怎么用」，BreadcrumbList 描述「它在哪」，
+          两者是不同维度，合并成一个数组下发而不是互相覆盖 */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': article.kind === 'troubleshooting' ? 'FAQPage' : 'HowTo',
-            name: article.title,
-            description: article.excerpt,
-            url: `${SITE_URL}/${currentLocale}/docs/${article.slug}`,
-            dateModified: article.updatedAt,
-            ...(article.kind === 'troubleshooting'
-              ? {
-                  mainEntity: headings.map((h) => ({
-                    '@type': 'Question',
-                    name: h.text,
-                    acceptedAnswer: { '@type': 'Answer', text: '' },
-                  })),
-                }
-              : {
-                  step: headings.map((h, i) => ({
-                    '@type': 'HowToStep',
-                    position: i + 1,
-                    name: h.text,
-                  })),
-                }),
-          }),
+          __html: safeJsonLd([
+            {
+              '@context': 'https://schema.org',
+              '@type': article.kind === 'troubleshooting' ? 'FAQPage' : 'HowTo',
+              name: article.title,
+              description: article.excerpt,
+              url: `${SITE_URL}/${currentLocale}/docs/${article.slug}`,
+              dateModified: article.updatedAt,
+              ...(article.kind === 'troubleshooting'
+                ? {
+                    mainEntity: headings.map((h) => ({
+                      '@type': 'Question',
+                      name: h.text,
+                      acceptedAnswer: { '@type': 'Answer', text: '' },
+                    })),
+                  }
+                : {
+                    step: headings.map((h, i) => ({
+                      '@type': 'HowToStep',
+                      position: i + 1,
+                      name: h.text,
+                    })),
+                  }),
+            },
+            breadcrumbSchema,
+          ]),
         }}
       />
     </div>
