@@ -6,7 +6,7 @@ Five groups organize the site. Each group has an overview link and specific dest
 
 - **Products** — Featured products, free tools, the lab, browser experiences, and open-source projects. When sales are enabled, "Meteor Pass & pricing" opens `/pricing`.
 - **Daily** — English, papers, AI, events, open source, contests, and internships. A channel link temporarily opens all channels and jumps to that section without changing what you follow.
-- **Learn & explore** — Pathfinder’s learning directions, planner, opportunity catalog, topics, and saved items, plus the separate year-round master’s application calendar.
+- **Learn & explore** — Pathfinder’s learning directions, planner, opportunity catalog, topics, and saved items, plus the national competition planner and the separate year-round master’s application calendar.
 - **Writing** — All blog articles, six sections, tags, and the publishing API guide. Article listings also offer RSS feeds.
 - **Help** — The help center at `/docs`, the site’s story, support for the creator, contact details, and feedback.
 

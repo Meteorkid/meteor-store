@@ -83,7 +83,7 @@ const PAGE_ENGLISH: Record<string, { title: string; subtitle?: string }> = {
 // 导航也含私人入口；只将已确认公开的路径纳入索引，新增私人页不会意外被收录。
 const PUBLIC_NAV_PATHS = new Set([
   '/daily', '/masters', '/phd', '/pathfinder', '/pathfinder/directions/ai', '/pathfinder/plan',
-  '/pathfinder/opportunities', '/pathfinder/topics', '/pathfinder/weekly',
+  '/pathfinder/opportunities', '/competitions', '/pathfinder/topics', '/pathfinder/weekly',
   '/blog/tags', '/blog/api-guide', '/support',
 ]);
 const NAV_SEARCH_ALIASES: Record<string, string> = {
@@ -94,6 +94,7 @@ const NAV_SEARCH_ALIASES: Record<string, string> = {
   directions: '学习路径 学习方向 learning path roadmap directions',
   plan: '学习路径 学习计划 规划 learning path study planner plan',
   opportunities: '实习 应届 开源 比赛 竞赛 internship graduate open source competition opportunities',
+  competitions: '国家 学科竞赛 比赛 国A 国B 报名 时间 日历 national competition contest planner register',
 };
 
 function navigationPageEntries(locale: Locale): SearchEntry[] {

@@ -53,6 +53,9 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
               <Link href="/pathfinder/plan" className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-sm font-semibold text-white hover:bg-white/[0.08]">
                 {t('buildPlan')}
               </Link>
+              <Link href="/competitions" className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-sm font-semibold text-white hover:bg-white/[0.08]">
+                {locale === 'en' ? 'Competition planner' : '国家学科竞赛表'}
+              </Link>
             </div>
           </div>
           <form action={`/${locale}/pathfinder/opportunities`} className="glass rounded-2xl p-3">

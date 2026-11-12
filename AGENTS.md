@@ -84,7 +84,14 @@
 - 管理员手机顶栏保留直接到`/admin`的“管理”按钮；手机菜单首项为管理入口，不能再埋到账户链接末尾。游客/普通用户不显示，服务端权限检查不变。
 - 密码及MFA登录成功响应均包含实时计算的`isAdmin`和`emailVerified`，与`/api/auth/me`保持显示语义一致；不把管理员身份写入JWT。否则AuthProvider直接保存成功响应后，管理入口会消失到刷新为止。
 
-## 排版：全站字阶
+### 国家学科竞赛规划表
+
+- `/competitions` 是“学习与机会”下的公开规划页；数据结构唯一来源为 `src/data/national-competitions.ts`，筛选与月份窗口状态在 `src/lib/national-competitions.ts`。导航、搜索和 sitemap 都从这套入口进入。
+- A 类清单以用户提供的广师大 2025 校表为准，共 57 项；B 类不是固定名单，只展示学校年度认定规则，不能为了填表虚构 B 类赛事。学校每年动态调整类别，页面上要保留当年通知链接。
+- 赛事日期按年份独立保存，当前有 2025/2026 两个公开月历快照；来源只有月份时只能标“月份窗口”，不得补造成精确日或赛事起止承诺。公开日历匹配不到的 6 项显示“待公布”，每年新增时单独补数据，不覆盖旧年份。
+- 新年度数据需通过 `national-competitions.test.ts`：57 项、唯一 ID、合法官网、月份格式、两个年份计数和待公布边界。页面筛选使用 URL 参数，服务端输出桌面表格与手机卡片，不依赖登录或数据库。
+
+ ## 排版：全站字阶
 
 定义在 `src/app/globals.css`。**尺寸、字重、行高、字距是成套定义的**，不要只改字号——
 大字要负字距、小字要正字距，一个固定的 `letter-spacing` 在某个尺寸上一定是错的。
@@ -1541,3 +1548,13 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - **开发者**: meteor
 - **邮箱**: meteor@stu.gpnu.edu.cn
 - **网站**: https://imagentx.top
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

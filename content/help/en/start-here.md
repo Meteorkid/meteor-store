@@ -24,7 +24,7 @@ Pick a path based on what you want to do:
 - **Browse what is available** — Open Products and choose "Explore all products." The page includes the main tools and lab projects. Each product explains its features and how to get it.
 - **Try something for free** — Some products have a ¥0 tier that you can claim after signing in. The anatomy, gesture, and fluid demos are public; Tollow requires sign-in to sync your progress. Follow the requirements shown at each entry.
 - **Explore Meteor Pass** — Open "Meteor Pass & pricing" under Products. Pass covers the main product line. Lab projects are already free, so you do not need Pass for them. Check the product-line and entitlement details for coverage of future products.
-- **Read a little every day** — Open Daily for English, papers, AI, events, open source, contests, or internships. The year-round master’s application calendar is under Learn & explore.
+- **Read a little every day** — Open Daily for English, papers, AI, events, open source, contests, or internships. Learn & explore also includes the national competition planner and year-round master’s application calendar.
 - **Read or submit articles** — Open Writing to browse all articles or a section, with RSS available. Your account menu provides the submission entry after sign-in. Posts become public after review.
 - **Get help or contact the maker** — Open Help for the help center, contact details, or feedback.
 

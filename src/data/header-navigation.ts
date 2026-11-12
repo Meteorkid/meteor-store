@@ -87,6 +87,7 @@ export function getHeaderNavigation(showPricing: boolean): HeaderNavGroup[] {
           id: 'opportunities', label: { zh: '机会与申请', en: 'Opportunities & applications' },
           links: [
             { id: 'opportunities', href: '/pathfinder/opportunities', label: { zh: '机会库', en: 'Opportunity catalog' } },
+            { id: 'competitions', href: '/competitions', label: { zh: '国家学科竞赛表', en: 'National competition planner' } },
             { id: 'masters', href: '/masters', label: { zh: '硕士申请日历', en: 'Master’s application calendar' } },
             { id: 'phd', href: '/phd', label: { zh: '博士申请日历', en: 'PhD application calendar' } },
           ],
