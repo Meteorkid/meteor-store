@@ -1,9 +1,9 @@
 {
-  "checkedAt": "2026-11-12T07:42:52Z",
-  "runtimeCommit": "172546e717a4106f643bbcd9cca4b9fd7e06e73e",
+  "checkedAt": "2026-11-12T08:05:54Z",
+  "runtimeCommit": "e6ea5bb0ac477473d232b7b76e504e986c3cdb84",
   "buildId": "build-TfctsWXpff2fKS",
-  "pm2Pid": 3028781,
-  "rollback": "/var/backups/meteor-store-runtime-0dHFzNu4",
+  "pm2Pid": 3030863,
+  "rollback": "/var/backups/meteor-store-runtime-YcTZfQaV",
   "pages": {
     "zh": "https://www.imagentx.top/zh/competitions",
     "en": "https://www.imagentx.top/en/competitions"
@@ -20,7 +20,8 @@
     "resultCount": 1,
     "yearLinkPreservedFilters": true,
     "navigationEntryVisible": true,
-    "pageErrors": 0
+    "pageErrors": 0,
+    "schoolSpecificTextLinksAbsent": true
   },
   "discovery": {
     "spotlight": "passed",

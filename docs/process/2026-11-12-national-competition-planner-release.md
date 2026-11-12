@@ -1,13 +1,13 @@
 # 2026-11-12 国家学科竞赛规划表上线
 
-状态：已上线并通过生产浏览器验收。运行提交 `172546e`，生产 `BUILD_ID=build-TfctsWXpff2fKS`，PM2 PID `3028781`。
+状态：已上线并通过生产浏览器验收。运行提交 `e6ea5bb`，生产 `BUILD_ID=build-TfctsWXpff2fKS`，PM2 PID `3030863`。
 
 ## 上线内容
 
 - 新公开页 `/zh/competitions`、`/en/competitions`，从“学习与机会 → 机会与申请”进入，Pathfinder 首页也提供入口。
 - 保留广师大 2025 分类表里的 57 项国家级 A 类赛事；2025、2026 两个年度分别保存报名窗口。
 - 51 项在两年都有公开月份窗口；理律杯、桃李杯、全国大学生音乐大赛、职业技术师范院校教学能力比赛、田家炳杯和世界传统武术锦标赛没有公开日期，显示“待公布”。
-- 国家级 B 类没有固定名单，页面只展示学校的年度认定规则和 2026 学校通知，没有虚构赛事。
+- 国家级 B 类通常没有固定名单，页面只展示通用认定参考，并提示最终资格以用户所在学校和赛事当年通知为准；不展示任何学校专属名称或认定通知链接。
 - 支持年份、关键词、主学科、报名状态筛选和排序；切换年份保留当前筛选。桌面为表格，手机为卡片。
 - 新页面进入二级导航、Spotlight、sitemap 和帮助中心导航说明。
 
@@ -15,7 +15,7 @@
 
 - 赛事名称、主办单位与 A 类分类来自用户附件中的《广东技术师范大学学科竞赛分类表（2025）》。
 - 报名时间来自 2025、2026 公开高校竞赛月历，只有月份精度，页面明确标为“月份窗口”。没有把月份推断成具体日期。
-- 2026 学校分类表附件需要验证码下载，本次没有绕过。页面链接学校 2026 通知，后续拿到正式附件时可继续更新名单。
+- 2026 学校分类表附件需要验证码下载，本次没有绕过；归属学校只作为内部资料记录，不出现在公开页面。
 
 ## 并发送代
 
@@ -27,9 +27,10 @@
 - 全量测试 3,968 项通过、47 项跳过；TypeScript、改动文件 ESLint 和 `git diff --check` 通过。
 - 生产构建生成 446 个页面，新增 `/[locale]/competitions` 路由；激活后 PM2、数据库和 Redis 健康。
 - 生产中文、英文页面均 200；Spotlight 检索“学科竞赛”返回 `/competitions`；sitemap 含中英文地址。
+- 最终修订后生产 HTML 不含“广东技术师范大学”、`gpnu.edu.cn/info/1039/65303` 或“查看学校年度认定通知”；B 类卡显示“以你所在学校当年文件和赛事通知为准”。
 - 线上 Chrome 实测输入“电子设计”并选择“已结束”后只返回 1 项，年份 2025 链接保留查询与状态参数。
 - 展开“学习与机会”二级导航可见“国家学科竞赛表”；桌面与手机截图无裁切或交互错误，浏览器无页面错误。
-- 回滚目录：`/var/backups/meteor-store-runtime-0dHFzNu4`。
+- 回滚目录：`/var/backups/meteor-store-runtime-YcTZfQaV`。
 
 ## 未覆盖
 
@@ -37,4 +38,4 @@
 - 2026 学校分类表附件未取得，没有宣称 2026 A/B 名单已经按学校文件逐项更新。
 - B 类不存在固定名单，不能提供 57 项之外的“完整 B 类赛事表”。
 
-证据：[核验摘要](national-competition-planner-20261112/verification.json)、[桌面筛选截图](national-competition-planner-20261112/desktop-filtered.png)、[手机顶部](national-competition-planner-20261112/mobile-top.png)、[手机列表](national-competition-planner-20261112/mobile-list.png)。
+证据：[核验摘要](national-competition-planner-20261112/verification.json)、[桌面页面](national-competition-planner-20261112/desktop-filtered.png)、[手机顶部](national-competition-planner-20261112/mobile-top.png)、[手机 B 类说明](national-competition-planner-20261112/mobile-b-class.png)、[手机列表](national-competition-planner-20261112/mobile-list.png)。
