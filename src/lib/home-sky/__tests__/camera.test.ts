@@ -43,7 +43,7 @@ describe('星空相机', () => {
     expect(cameraUp.scale).not.toBeCloseTo(cameraLevel.scale, 2);
   });
 
-  it('跟随采用阻尼，离开后归位并停止额外帧；暂停也允许手动查看', () => {
+  it('跟随采用阻尼，离开后定格当前朝向并停止额外帧；暂停也允许手动查看', () => {
     const camera = createSkyCamera({ interactionMode: 'follow', autoRotate: false });
     camera.follow(1, -1);
     const first = camera.tick(1 / 60, false);
@@ -53,7 +53,21 @@ describe('星空相机', () => {
     expect(camera.getPose()).toEqual({ yaw: Math.PI, pitch: Math.PI * .28 });
     camera.leave();
     for (let i = 0; i < 100; i++) camera.tick(1 / 60, false);
-    expect(camera.getPose()).toEqual({ yaw: 0, pitch: 0 });
+    expect(camera.getPose()).toEqual({ yaw: Math.PI, pitch: Math.PI * .28 });
+    expect(camera.isMoving(false)).toBe(false);
+  });
+
+  it('切换交互方式也保留当前观察方向', () => {
+    const camera = createSkyCamera({ interactionMode: 'drag', autoRotate: false });
+    camera.beginDrag();
+    camera.dragBy(.3, -.2, 1 / 60);
+    camera.endDrag(false);
+    for (let i = 0; i < 100; i++) camera.tick(1 / 60, false);
+    const before = camera.getPose();
+    camera.setOptions({ interactionMode: 'follow', autoRotate: false });
+    expect(camera.getPose()).toEqual(before);
+    camera.cancelInput();
+    expect(camera.getPose()).toEqual(before);
     expect(camera.isMoving(false)).toBe(false);
   });
 

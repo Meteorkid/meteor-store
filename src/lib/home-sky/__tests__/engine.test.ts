@@ -368,6 +368,11 @@ describe('首页星空引擎', () => {
       pitch: expect.closeTo(Math.PI * .28 * .6, 5),
     }));
     expect(doc.defaultView.frames.size).toBe(0);
+    const keptView = stars.lastFrame;
+    pointer('pointerleave', stage.width * .9, stage.height * .2);
+    doc.defaultView.advance(1000);
+    expect(stars.lastFrame).toEqual(keptView);
+    expect(doc.defaultView.frames.size).toBe(0);
     controller.setState({ paused: true, peopleVisible: false, resetView: 1 });
     doc.defaultView.advance(1000);
     expect(stars.lastFrame).toEqual(baseline);

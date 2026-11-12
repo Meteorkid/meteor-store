@@ -104,8 +104,9 @@ export function createSkyCamera(initial: SkyCameraOptions) {
         stopInertia();
         mode = next.interactionMode;
         yaw = normalizeCameraYaw(yaw);
-        targetYaw = mode === 'follow' ? 0 : yaw;
-        targetPitch = mode === 'follow' ? 0 : pitch;
+        // 切换交互方式时保留当前观察方向；只有 RESET 才回到初始天顶。
+        targetYaw = yaw;
+        targetPitch = pitch;
       }
     },
     follow(x: number, y: number): void {
@@ -116,7 +117,8 @@ export function createSkyCamera(initial: SkyCameraOptions) {
       stopInertia();
     },
     leave(): void {
-      if (mode === 'follow') targetYaw = targetPitch = 0;
+      // 指针离开只停止输入，保留最后朝向，避免画面机械地弹回中心。
+      stopInertia();
     },
     beginDrag(): void {
       if (mode !== 'drag') return;
@@ -144,7 +146,6 @@ export function createSkyCamera(initial: SkyCameraOptions) {
     cancelInput(): void {
       dragging = false;
       stopInertia();
-      if (mode === 'follow') targetYaw = targetPitch = 0;
     },
     reset(): void {
       const current = currentPose();
