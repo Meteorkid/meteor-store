@@ -31,7 +31,7 @@
 
 ### 自动化
 
-- `pnpm test`：385 个文件，4029 通过 / 47 跳过（含新增 review 8 例、gpa 14 例、study 服务 7 例、study 路由 9 例、工作台页面 4 例、导出/注销新增断言）。
+- `pnpm test`：389 个文件（385 通过 / 4 跳过），4060 通过 / 47 跳过（含新增 review 8 例、gpa 14 例、study 服务 7 例、study 路由 9 例、工作台页面 4 例、导出/注销新增断言）。
 - `pnpm exec eslint src`：0 error（4 个既有文件 warning 与本次无关）。
 - `pnpm exec tsc --noEmit`：0 错误。
 - `pnpm build`：通过，产物含 3 个页面与 5 个 API 路由。
@@ -52,11 +52,29 @@
 - 移动端 390×844：三个页面无横向溢出（scrollWidth = clientWidth）。
 - 导航：桌面悬停「学习与机会」出现「我的学习」三分区入口，链接与描述正确。
 
+### 生产部署与线上核对（2026-11-14 凌晨）
+
+按约定先迁移、后切应用：
+
+- 代码：`eacc8f2` → `635ae8f` → `ae1e6f5` → `efe0113`（HEAD）；origin / gitee / gitlab 三端 main 均指向 `efe0113`。
+- 部署来源：从 GitHub main 全新克隆到 `/tmp/meteor-deploy-20261113`（`deploy/deploy-local.sh` 要求 main 分支 + 干净工作区；本地工作区有其它会话的未提交改动，未触碰、未提交）。
+- 迁移：`drizzle/0056_romantic_shooting_star.sql` 已在生产执行，ledger 56 → 57，末条 hash `a8ef3389db0eec0c188d1070d3a91aa1e02725e5bf52bc82642eac3e498ed77c`。
+- 构建与切换：`BUILD_ID=build-TfctsWXpff2fKS`，PM2 `meteor-store` online（核对时 uptime 29 分钟、unstable restarts 0），13 个产品封面按 3 种宽度预热。
+- 回滚目录：`/var/backups/meteor-store-runtime-VIKSYZiH`。
+
+线上只读核对：
+
+- `GET /api/health` 返回 `{"status":"healthy"}`，self / database（1ms）/ redis（274ms）全部 ok。
+- 生产三表的列名、类型、可空性与索引和迁移文件逐条一致；三表 0 行，`users=24`、`posts=23` 与部署前相同。
+- 匿名 `GET /api/study/{courses,deadlines,problems,reviews,summary}` 全部 401。
+- 匿名浏览器访问 `/zh/study`、`/zh/study/courses`、`/zh/study/algorithms` 与 `/en/study` → 307 到对应语言的 `/login?next=...`。
+- 构建产物含 `[locale]/study`、`en/study`、`zh/study` 与 `api/study/{courses,deadlines,problems,reviews,summary}`；导航二级菜单「学习与机会 → 我的学习」三分区入口指向 `/zh/study`。
+
 ### 未覆盖 / 边界
 
-- 未在生产部署与验证；迁移 0056 尚未在线上执行。
+- **线上登录态未实测**：没有可用的生产会话凭据，且不改凭据、不向生产用户表写测试数据，所以三个页面的登录态渲染与课程/截止/题目/复习的写入流程在线上尚未执行。本地隔离环境已覆盖同一套代码与同一份表结构；建议用现有账号打开 `/zh/study` 补看真实数据（申请截止、日刊状态、收藏计数）的展示。
 - 未测试真实移动设备触屏、Safari/Firefox。
-- 工作台的硕士/博士申请截止分区依赖生产数据，本地库无申请数据，仅验证了降级与空态路径；上线后需补看真实申请数据的展示。
+- 工作台的硕士/博士申请截止分区在本地库无申请数据，仅验证了降级与空态路径；线上展示需登录后补看。
 - 铃铛学习分区在本地库用制造数据验证；未验证与真实日刊提醒同时出现时的布局。
 
 ## 回滚
