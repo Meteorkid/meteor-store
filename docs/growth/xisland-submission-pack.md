@@ -219,7 +219,43 @@ Gemini CLI、Cursor、Windsurf 会话时，权限请求、代理提问、任务�
 **上传建议**：英文站用英文截图；中文站（如适用）附一张中文截图证明有中文界面。
 `xisland-03/04` 是**唯一的本地化证据**，投中文目录站时务必带上。
 
-## 五、数字溯源核对（2026-11-13 逐项验证）
+## 五、表单可直接复制的字段值
+
+多数目录站的提交表单是纯文本输入，**logo 字段要的是 URL 而不是文件上传**。
+以下值可直接复制（部署后生效）：
+
+| 字段 | 值 |
+|---|---|
+| **Name** | `XIsland (by Meteor Store)` |
+| **URL** | `https://www.imagentx.top/zh/products/xisland` |
+| **Logo URL** | `https://www.imagentx.top/products/xisland/icon-512.png` |
+| **Logo URL（备选）** | `https://www.imagentx.top/products/xisland/icon-256.png` |
+| **Short description** | 见第二节「Short description」（英文）/ 第三节（中文） |
+| **Long description** | 见第二节「Long description」 |
+| **Category** | `Developer Tools` / `AI Developer Tools` |
+| **Pricing** | `Free (limited-time free license; 14-day trial available)` |
+| **Platform** | `macOS 14.0+` |
+
+**⚠️ 注意**：`https://www.imagentx.top/icon-512.png` 是 **Meteor Store 店铺图标**（紫色 M），
+**不要用它提交 XIsland 产品条目**。产品图标是上面那两个 `products/xisland/icon-*.png`。
+
+### 已知需登录的表单（无法自动化）
+
+实测 2026-11-13，以下站的提交页要求先登录，需要你自己的账号操作：
+
+| 站点 | 状态 |
+|---|---|
+| ProductCool | 需登录 |
+| Wayfindio | 需登录 |
+
+以下站**无需登录**，可直接填表：
+
+| 站点 | 状态 | 表单字段 |
+|---|---|---|
+| AI Toolz Dir | 无需登录 | `name` / `url` / `logo`(URL) / `shortDesc` / `longDesc` / `email` |
+| Toolfio | 无需登录 | 未逐项提取 |
+
+## 六、数字溯源核对（2026-11-13 逐项验证）
 
 文案里每个数字都必须能指到来源，**不得凭印象写**。本次核对结果：
 
@@ -246,7 +282,7 @@ Gemini CLI、Cursor、Windsurf 会话时，权限请求、代理提问、任务�
 curl -sL https://api.github.com/repos/Meteorkid/XIsland/releases/latest | grep tag_name
 ```
 
-## 六、提交后必须做的事
+## 七、提交后必须做的事
 
 每提交一个站，立刻记录并在 3-7 天后复查：
 
