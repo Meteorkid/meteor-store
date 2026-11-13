@@ -1,0 +1,196 @@
+/**
+ * 雅思写作对照的文案。
+ *
+ * 与其它学习页一致：本地文案模块，不走 messages JSON。
+ * 页面是公开的（游客也能读），所以这里的措辞要能对陌生人说清楚「这是在干什么」。
+ */
+
+export const ieltsText = {
+  zh: {
+    metaTitle: '雅思写作对照 · 5 分与 8 分逐句对比',
+    metaDescription: '同一篇雅思作文的 5 分版与 8 分版左右对照：逐句标注词汇、句式、衔接与任务回应上的升级点，Task 1 与 Task 2 都有。',
+    eyebrow: 'IELTS WRITING',
+    title: '雅思写作对照',
+    description: '每组是同一篇作文的两个版本：左边 5 分档，右边 8 分档。8 分版没有换题目、也没有加新论点，只是把同样的意思写得更好——点开任意一句，看它具体改了什么。',
+    library: '对照库',
+    libraryCount: (count: number) => `${count} 组对照`,
+    filterTask: '题型',
+    filterTopic: '主题',
+    filterAll: '全部',
+    taskLabels: {
+      task2: 'Task 2 大作文',
+      'task1-academic': 'Task 1 学术类',
+      'task1-general': 'Task 1 书信（G 类）',
+    },
+    categoryLabels: {
+      opinion: '观点类',
+      discussion: '讨论类',
+      'problem-solution': '问题解决类',
+      'advantage-disadvantage': '利弊类',
+      'two-part': '双重提问',
+      table: '表格题',
+      'line-graph': '折线图',
+      'bar-chart': '柱状图',
+      'pie-chart': '饼图',
+      process: '流程图',
+      map: '地图题',
+      'letter-formal': '正式书信',
+      'letter-semi-formal': '半正式书信',
+      'letter-informal': '私人书信',
+    } as Record<string, string>,
+    topicLabels: {
+      education: '教育',
+      technology: '科技',
+      environment: '环境',
+      work: '工作',
+      service: '服务',
+      health: '健康',
+      society: '社会',
+      urban: '城市',
+    } as Record<string, string>,
+    empty: '这个筛选下还没有对照，换一个条件看看。',
+    emptyLibrary: '对照库暂时为空。',
+    open: '开始对照',
+    openHint: '左右对照 + 逐句说明',
+    studiedBadge: '已学',
+    bookmarkedBadge: '已收藏',
+    loginToMark: '登录后可以标记已学和收藏',
+    bandLow: '5 分档',
+    bandHigh: '8 分档',
+    bandLowFull: '5 分档原文',
+    bandHighFull: '8 分档升级版',
+    words: (count: number) => `${count} 词`,
+    segments: (count: number) => `${count} 处升级`,
+    promptTitle: '题目',
+    dataTitle: '题目数据',
+    viewSegments: '逐句对照',
+    viewFull: '全文阅读',
+    viewHint: '逐句模式点一句看说明；全文模式适合先自己读一遍再回来对照。',
+    focusAll: '全部升级点',
+    showNotes: '显示说明',
+    hideNotes: '隐藏说明',
+    clickHint: '点任意一句看它改了什么',
+    noteLabel: '改动说明',
+    lowLabel: '5 分版',
+    highLabel: '8 分版',
+    criteriaTitle: '四项评分维度怎么拉开差距',
+    takeawaysTitle: '可以直接抄走的写法',
+    progressTitle: '学习状态',
+    markStudied: '标记已学',
+    unmarkStudied: '取消已学',
+    markBookmarked: '收藏',
+    unmarkBookmarked: '取消收藏',
+    progressSaved: '已保存',
+    progressFailed: '保存失败，请稍后重试',
+    progressLogin: '登录后保存学习状态',
+    backToLibrary: '← 返回对照库',
+    prevPair: '上一组',
+    nextPair: '下一组',
+    relatedTitle: '其它对照',
+    notFound: '没有找到这组对照。',
+  },
+  en: {
+    metaTitle: 'IELTS writing side by side · band 5 vs band 8',
+    metaDescription: 'The same IELTS essay written at band 5 and at band 8, line by line, with the vocabulary, grammar, cohesion and task-response upgrades marked for Task 1 and Task 2.',
+    eyebrow: 'IELTS WRITING',
+    title: 'IELTS writing, side by side',
+    description: 'Every set is one essay in two versions: band 5 on the left, band 8 on the right. The higher band does not change the topic or add new ideas — it simply says the same things better. Click any sentence to see exactly what changed.',
+    library: 'Library',
+    libraryCount: (count: number) => `${count} sets`,
+    filterTask: 'Task',
+    filterTopic: 'Topic',
+    filterAll: 'All',
+    taskLabels: {
+      task2: 'Task 2 essay',
+      'task1-academic': 'Task 1 academic',
+      'task1-general': 'Task 1 letter (General)',
+    },
+    categoryLabels: {
+      opinion: 'Opinion',
+      discussion: 'Discussion',
+      'problem-solution': 'Problem & solution',
+      'advantage-disadvantage': 'Advantages & disadvantages',
+      'two-part': 'Two-part question',
+      table: 'Table',
+      'line-graph': 'Line graph',
+      'bar-chart': 'Bar chart',
+      'pie-chart': 'Pie chart',
+      process: 'Process',
+      map: 'Map',
+      'letter-formal': 'Formal letter',
+      'letter-semi-formal': 'Semi-formal letter',
+      'letter-informal': 'Informal letter',
+    } as Record<string, string>,
+    topicLabels: {
+      education: 'Education',
+      technology: 'Technology',
+      environment: 'Environment',
+      work: 'Work',
+      service: 'Service',
+      health: 'Health',
+      society: 'Society',
+      urban: 'Urban',
+    } as Record<string, string>,
+    empty: 'No sets match this filter yet.',
+    emptyLibrary: 'The library is empty for now.',
+    open: 'Compare',
+    openHint: 'Side by side, sentence by sentence',
+    studiedBadge: 'Studied',
+    bookmarkedBadge: 'Saved',
+    loginToMark: 'Sign in to mark sets as studied or saved',
+    bandLow: 'Band 5',
+    bandHigh: 'Band 8',
+    bandLowFull: 'Band 5 version',
+    bandHighFull: 'Band 8 upgrade',
+    words: (count: number) => `${count} words`,
+    segments: (count: number) => `${count} upgrades`,
+    promptTitle: 'Question',
+    dataTitle: 'Question data',
+    viewSegments: 'Sentence by sentence',
+    viewFull: 'Full essays',
+    viewHint: 'In sentence view, click a line to read the note. In full view, read both essays first and come back.',
+    focusAll: 'All upgrades',
+    showNotes: 'Show notes',
+    hideNotes: 'Hide notes',
+    clickHint: 'Click any sentence to see what changed',
+    noteLabel: 'What changed',
+    lowLabel: 'Band 5',
+    highLabel: 'Band 8',
+    criteriaTitle: 'How the four criteria separate the bands',
+    takeawaysTitle: 'Phrases worth borrowing',
+    progressTitle: 'Your progress',
+    markStudied: 'Mark as studied',
+    unmarkStudied: 'Undo studied',
+    markBookmarked: 'Save',
+    unmarkBookmarked: 'Remove',
+    progressSaved: 'Saved',
+    progressFailed: 'Could not save. Please try again.',
+    progressLogin: 'Sign in to keep your progress',
+    backToLibrary: '← Back to the library',
+    prevPair: 'Previous set',
+    nextPair: 'Next set',
+    relatedTitle: 'Other sets',
+    notFound: 'That set could not be found.',
+  },
+} as const;
+
+export type IeltsLocale = keyof typeof ieltsText;
+
+export function ieltsCopy(locale: string) {
+  return ieltsText[locale === 'en' ? 'en' : 'zh'];
+}
+
+/** 题型 / 主题的展示名：没有配置的取值原样显示，避免后台加了新分类就显示成空白。 */
+export function categoryLabel(locale: string, category: string): string {
+  const labels = ieltsCopy(locale).categoryLabels;
+  return labels[category] ?? category;
+}
+
+export function topicLabel(locale: string, topic: string): string {
+  const labels = ieltsCopy(locale).topicLabels;
+  return labels[topic] ?? topic;
+}
+
+export function taskLabel(locale: string, task: keyof typeof ieltsText.zh.taskLabels): string {
+  return ieltsCopy(locale).taskLabels[task];
+}

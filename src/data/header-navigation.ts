@@ -82,6 +82,7 @@ export function getHeaderNavigation(showPricing: boolean): HeaderNavGroup[] {
             { id: 'study', href: '/study', label: { zh: '学习工作台', en: 'Study workbench' }, description: { zh: '今天要交的、要复习的，一页看完', en: 'Deadlines, reviews and today at a glance' } },
             { id: 'study-courses', href: '/study/courses', label: { zh: '课程与 GPA', en: 'Courses & GPA' }, description: { zh: '作业考试截止与成绩核算', en: 'Assignments, exams and grade tracking' } },
             { id: 'study-algorithms', href: '/study/algorithms', label: { zh: '算法训练', en: 'Algorithm practice' }, description: { zh: '按间隔复习刷过的题', en: 'Spaced review for solved problems' } },
+            { id: 'study-ielts', href: '/study/ielts', label: { zh: '雅思写作对照', en: 'IELTS writing side by side' }, description: { zh: '同一篇作文的 5 分档与 8 分档逐句对照', en: 'One essay at band 5 and band 8, line by line' } },
           ],
         },
         {

@@ -14,8 +14,9 @@ describe('全站二级导航', () => {
   it('保留五个清晰分组，每组包含总览和两到三列', () => {
     const groups = getHeaderNavigation(true);
     expect(groups.map(group => group.id)).toEqual(['products', 'daily', 'learn', 'content', 'help']);
-    // 原有 40 个入口、独立博士申请入口、学科竞赛规划入口与学习工作台三入口。
-    expect(links().length).toBeLessThanOrEqual(45);
+    // 原有 40 个入口、独立博士申请入口、学科竞赛规划入口、学习工作台三入口与雅思写作对照。
+    // 这个上限是「别再往里塞」的闸门，不是目标值：每加一个入口都要同时改这里。
+    expect(links().length).toBeLessThanOrEqual(46);
     for (const group of groups) {
       expect(group.sections.length).toBeGreaterThanOrEqual(2);
       expect(group.sections.length).toBeLessThanOrEqual(3);

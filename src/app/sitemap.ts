@@ -5,6 +5,7 @@ import { getFeedPosts, getFeedTags } from '@/data/blog-feed';
 import { helpArticles, isHelpArticleVisible } from '@/data/help-articles';
 import { SHOW_PRICING, SITE_URL } from '@/lib/constants';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
+import { listIeltsPairs } from '@/lib/ielts/catalog';
 
 const BASE_URL = SITE_URL;
 const LOCALES = ['zh', 'en'] as const;
@@ -28,13 +29,15 @@ export function getHelpSitemapEntries(): MetadataRoute.Sitemap {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
-  const [localizedFeeds, pathfinderItems] = await Promise.all([
+  const [localizedFeeds, pathfinderItems, ieltsPairs] = await Promise.all([
     Promise.all(LOCALES.map(async locale => {
       const [posts, tags] = await Promise.all([getFeedPosts(locale), getFeedTags(locale)]);
       return { locale, posts, tags };
     })),
     // 只取「可上手」条目，见下方 pathfinderItemPages 的说明。
     listCatalogItems({ learningEligible: true }),
+    // 雅思写作对照：公开的范文页，正文是共享内容，可以进搜索
+    listIeltsPairs(),
   ]);
 
   const staticPages = [
@@ -56,6 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/masters`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.7 },
     { url: `${BASE_URL}/phd`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.7 },
     { url: `${BASE_URL}/competitions`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.7 },
+    { url: `${BASE_URL}/study/ielts`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.7 },
     { url: `${BASE_URL}/pathfinder/opportunities`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.7 },
     { url: `${BASE_URL}/pathfinder/plan`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.6 },
     { url: `${BASE_URL}/pathfinder/topics`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.5 },
@@ -124,6 +128,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const helpPages = getHelpSitemapEntries();
+
+  // 雅思写作对照的每一组详情页：左右对照 + 逐句说明，是站内少见的原创长文，
+  // 值得单独收录；slug 稳定，下架后这里自然消失（listIeltsPairs 只返回公开的）。
+  const ieltsPairPages = ieltsPairs.flatMap((pair) =>
+    LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/study/ielts/${pair.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh/study/ielts/${pair.slug}`,
+          en: `${BASE_URL}/en/study/ielts/${pair.slug}`,
+        },
+      },
+    }))
+  );
 
   // 只收录「可上手」的条目（`learningEligible`）。
   //
@@ -223,6 +244,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedStaticPages,
     ...productPages,
     ...helpPages,
+    ...ieltsPairPages,
     ...pathfinderItemPages,
     ...blogSectionPages,
     ...blogPostPages,

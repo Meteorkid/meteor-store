@@ -7,14 +7,15 @@ const NAV_ITEMS = [
   { key: 'dashboard', href: '/study' },
   { key: 'courses', href: '/study/courses' },
   { key: 'algorithms', href: '/study/algorithms' },
+  { key: 'ielts', href: '/study/ielts' },
 ] as const;
 
 const LABELS = {
-  zh: { dashboard: '学习工作台', courses: '课程与 GPA', algorithms: '算法训练', aria: '学习工作台导航' },
-  en: { dashboard: 'Workbench', courses: 'Courses & GPA', algorithms: 'Algorithm practice', aria: 'Study navigation' },
+  zh: { dashboard: '学习工作台', courses: '课程与 GPA', algorithms: '算法训练', ielts: '雅思写作', aria: '学习工作台导航' },
+  en: { dashboard: 'Workbench', courses: 'Courses & GPA', algorithms: 'Algorithm practice', ielts: 'IELTS writing', aria: 'Study navigation' },
 } as const;
 
-/** 三个学习页之间的切换；只负责高亮与跳转，不参与数据加载。 */
+/** 学习页之间的切换；只负责高亮与跳转，不参与数据加载。 */
 export default function StudySubnav() {
   const pathname = usePathname();
   const locale = useLocale() === 'en' ? 'en' : 'zh';
