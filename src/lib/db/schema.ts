@@ -3,6 +3,7 @@ import { pgTable, text, integer, bigint, boolean, numeric, primaryKey, index, un
 import type { DailyChannelId, DailyEditionChannelId, DailyContent, DailyStatus } from '../daily/types';
 import type { DailyPanelSettings } from '../daily/panel-types';
 import type { MastersRegion, MastersRoundDetails, MastersWatchInput } from '../masters/types';
+import type { StudyCourseStatus, StudyDeadlineKind, StudyDeadlineStatus, StudyProblemDifficulty, StudyProblemStatus } from '../study/types';
 
 export const mastersRounds = pgTable('masters_rounds', {
   id: text('id').primaryKey(),
@@ -924,4 +925,81 @@ export const pathfinderItemTags = pgTable('pathfinder_item_tags', {
   primaryKey({ columns: [t.itemId, t.dimension, t.tag] }),
   index('pathfinder_item_tags_dimension_tag_idx').on(t.dimension, t.tag, t.itemId),
   check('pathfinder_item_tags_dimension_valid', sql`${t.dimension} in ('topic', 'skill', 'career', 'format')`),
+]);
+
+/**
+ * 学习工作台的私人数据（0056）。
+ *
+ * 三张表都以 userId 归属，无外键——与全站约定一致：注销/删除时由服务层清理，
+ * 不做数据库级联，避免误删他人数据或留下无法解释的孤儿行。
+ * 全部为「一人一份」的记录型数据，没有跨用户读取路径。
+ */
+
+/** 课程与成绩：GPA 的数据源。term 是自由文本（如 2026-2027-1），只用于分组展示。 */
+export const studyCourses = pgTable('study_courses', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  term: text('term').notNull(),
+  name: text('name').notNull(),
+  credits: numeric('credits', { precision: 4, scale: 1, mode: 'number' }).notNull(),
+  /** 百分制成绩；NULL = 尚未出分，不计入加权平均与 GPA */
+  score: numeric('score', { precision: 5, scale: 1, mode: 'number' }),
+  status: text('status').$type<StudyCourseStatus>().notNull().default('in-progress'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  index('study_courses_user_term_idx').on(t.userId, t.term),
+  check('study_courses_status_check', sql`${t.status} IN ('in-progress', 'completed')`),
+  check('study_courses_credits_check', sql`${t.credits} >= 0.5 AND ${t.credits} <= 20`),
+  check('study_courses_score_check', sql`${t.score} IS NULL OR (${t.score} >= 0 AND ${t.score} <= 100)`),
+]);
+
+/** 作业/考试截止事项。courseId 可空（课程删除后由服务层置空，保留事项本身）。 */
+export const studyDeadlines = pgTable('study_deadlines', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  courseId: text('course_id'),
+  title: text('title').notNull(),
+  kind: text('kind').$type<StudyDeadlineKind>().notNull().default('assignment'),
+  /** ISO 时刻或 YYYY-MM-DD；有明确时刻才存时刻 */
+  dueAt: text('due_at').notNull(),
+  status: text('status').$type<StudyDeadlineStatus>().notNull().default('open'),
+  notes: text('notes'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  index('study_deadlines_user_due_idx').on(t.userId, t.dueAt),
+  check('study_deadlines_kind_check', sql`${t.kind} IN ('assignment', 'exam', 'project', 'other')`),
+  check('study_deadlines_status_check', sql`${t.status} IN ('open', 'done')`),
+]);
+
+/**
+ * 算法训练题与间隔复习状态。
+ *
+ * 复习字段直接挂在题目行上：一道题只有一条复习计划，拆表只会多一次 join。
+ * 「已解决」才进入复习队列；改回未解决不删历史 stage，但查询按 status 过滤。
+ */
+export const studyProblems = pgTable('study_problems', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  title: text('title').notNull(),
+  topic: text('topic').notNull().default(''),
+  difficulty: text('difficulty').$type<StudyProblemDifficulty>().notNull().default('medium'),
+  url: text('url'),
+  status: text('status').$type<StudyProblemStatus>().notNull().default('todo'),
+  notes: text('notes'),
+  /** 已复习轮次 0–5；未进入复习时为 0 */
+  reviewStage: integer('review_stage').notNull().default(0),
+  /** 下次复习日期 YYYY-MM-DD（北京时间）；NULL = 不在复习队列 */
+  reviewDueOn: text('review_due_on'),
+  reviewIntervalDays: integer('review_interval_days').notNull().default(1),
+  lastReviewedOn: text('last_reviewed_on'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  index('study_problems_user_status_idx').on(t.userId, t.status),
+  index('study_problems_user_review_idx').on(t.userId, t.reviewDueOn),
+  check('study_problems_difficulty_check', sql`${t.difficulty} IN ('easy', 'medium', 'hard')`),
+  check('study_problems_status_check', sql`${t.status} IN ('todo', 'solved')`),
+  check('study_problems_review_stage_check', sql`${t.reviewStage} >= 0 AND ${t.reviewStage} <= 5`),
 ]);
