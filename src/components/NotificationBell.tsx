@@ -12,6 +12,7 @@ import { EMPTY_MASTERS_NOTICES, ensureMastersNotices, getMastersNoticeState, mar
 import { EMPTY_PHD_NOTICES, ensurePhdNotices, getPhdNoticeState, markPhdRead, subscribePhdNotices } from '@/lib/phd/notice-client';
 import { EMPTY_MONITORING_STATE, getMonitoringState, hasUnreadMonitoring, markMonitoringRead, subscribeMonitoring, watchMonitoring } from '@/lib/monitoring-client';
 import { monitoringText } from '@/lib/monitoring-types';
+import StudyReminderSection from '@/components/study/StudyReminderSection';
 import styles from './NotificationBell.module.css';
 
 const TAB_IDS = ['daily', 'announcements', 'reminders'] as const;
@@ -232,6 +233,7 @@ export default function NotificationBell() {
             {applicationGroups.every(group => group.state.notices.length === 0 && !group.state.failed) && <p className="px-4 pt-4 t-footnote text-white/65">{userId
               ? (locale === 'en' ? 'No application reminders right now.' : '当前没有申请提醒。')
               : (locale === 'en' ? 'Sign in to view your application reminders.' : '登录后可查看你的申请提醒。')}</p>}
+            <StudyReminderSection userId={userId} active={open && activeTab === 'reminders'} locale={locale === 'en' ? 'en' : 'zh'} />
             <div className="flex flex-wrap gap-x-5 px-4 py-3">
               <Link href="/masters" className="inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">{locale === 'en' ? 'Master’s calendar' : '硕士申请日历'} →</Link>
               <Link href="/phd" className="inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">{locale === 'en' ? 'PhD calendar' : '博士申请日历'} →</Link>

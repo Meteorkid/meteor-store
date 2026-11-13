@@ -17,6 +17,9 @@ import {
   posts,
   postTags,
   reports,
+  studyCourses,
+  studyDeadlines,
+  studyProblems,
   tollowBookProgress,
   tollowPracticeSessions,
   tollowTextFavorites,
@@ -57,6 +60,9 @@ export async function deleteUserAccount(input: DeleteUserAccountInput): Promise<
     db.delete(tollowBookProgress).where(eq(tollowBookProgress.userId, input.userId)),
     db.delete(tollowPracticeSessions).where(eq(tollowPracticeSessions.userId, input.userId)),
     db.delete(tollowTextFavorites).where(eq(tollowTextFavorites.userId, input.userId)),
+    db.delete(studyCourses).where(eq(studyCourses.userId, input.userId)),
+    db.delete(studyDeadlines).where(eq(studyDeadlines.userId, input.userId)),
+    db.delete(studyProblems).where(eq(studyProblems.userId, input.userId)),
     db.delete(likes).where(
       postIds.length > 0
         ? or(eq(likes.userId, input.userId), inArray(likes.targetId, postIds))

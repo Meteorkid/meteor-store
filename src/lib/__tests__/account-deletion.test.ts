@@ -12,6 +12,9 @@ import {
   phdWatches,
   personalAccessTokens,
   postSections,
+  studyCourses,
+  studyDeadlines,
+  studyProblems,
   tollowBookProgress,
   tollowPracticeSessions,
   tollowTextFavorites,
@@ -101,6 +104,13 @@ describe('账户数据删除顺序', () => {
     expect(state.deletedTables).toContain(mastersWatches);
     expect(state.deletedTables).toContain(phdNotices);
     expect(state.deletedTables).toContain(phdWatches);
+    expect(state.deletedTables).toContain(studyCourses);
+    expect(state.deletedTables).toContain(studyDeadlines);
+    expect(state.deletedTables).toContain(studyProblems);
+    for (const table of [studyCourses, studyDeadlines, studyProblems]) {
+      expect(state.deletedConditions.find(item => item.table === table)?.params).toEqual(['U1']);
+      expect(state.deletedTables.indexOf(table)).toBeLessThan(state.deletedTables.indexOf(users));
+    }
     expect(state.deletedTables).not.toContain(mastersRounds);
     expect(state.deletedTables).not.toContain(phdRounds);
     for (const table of [phdNotices, phdWatches]) {

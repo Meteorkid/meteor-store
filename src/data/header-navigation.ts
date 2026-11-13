@@ -73,14 +73,24 @@ export function getHeaderNavigation(showPricing: boolean): HeaderNavGroup[] {
     },
     {
       id: 'learn', label: { zh: '学习与机会', en: 'Learn & explore' },
-      description: { zh: '按方向学习，寻找机会，跟进申请。', en: 'Find a learning direction, explore opportunities and track applications.' },
+      description: { zh: '从学习工作台出发：记录课程与算法练习，按方向学习，跟进申请。', en: 'Start from your study workbench: courses, algorithm practice, learning paths and applications.' },
       overview: { id: 'pathfinder', href: '/pathfinder', label: { zh: '探索 Pathfinder', en: 'Explore Pathfinder' } },
       sections: [
+        {
+          id: 'my-study', label: { zh: '我的学习', en: 'My study' },
+          links: [
+            { id: 'study', href: '/study', label: { zh: '学习工作台', en: 'Study workbench' }, description: { zh: '今天要交的、要复习的，一页看完', en: 'Deadlines, reviews and today at a glance' } },
+            { id: 'study-courses', href: '/study/courses', label: { zh: '课程与 GPA', en: 'Courses & GPA' }, description: { zh: '作业考试截止与成绩核算', en: 'Assignments, exams and grade tracking' } },
+            { id: 'study-algorithms', href: '/study/algorithms', label: { zh: '算法训练', en: 'Algorithm practice' }, description: { zh: '按间隔复习刷过的题', en: 'Spaced review for solved problems' } },
+          ],
+        },
         {
           id: 'learning', label: { zh: '找到学习方向', en: 'Build a learning path' },
           links: [
             { id: 'directions', href: '/pathfinder/directions/ai', label: { zh: '学习方向', en: 'Learning directions' } },
             { id: 'plan', href: '/pathfinder/plan', label: { zh: '学习计划', en: 'Study planner' } },
+            { id: 'topics', href: '/pathfinder/topics', label: { zh: '按主题浏览', en: 'Browse topics' } },
+            { id: 'weekly', href: '/pathfinder/weekly', label: { zh: '本周精选', en: 'Weekly picks' } },
           ],
         },
         {
@@ -90,13 +100,6 @@ export function getHeaderNavigation(showPricing: boolean): HeaderNavGroup[] {
             { id: 'competitions', href: '/competitions', label: { zh: '国家学科竞赛表', en: 'National competition planner' } },
             { id: 'masters', href: '/masters', label: { zh: '硕士申请日历', en: 'Master’s application calendar' } },
             { id: 'phd', href: '/phd', label: { zh: '博士申请日历', en: 'PhD application calendar' } },
-          ],
-        },
-        {
-          id: 'discover', label: { zh: '继续发现', en: 'Keep exploring' },
-          links: [
-            { id: 'topics', href: '/pathfinder/topics', label: { zh: '按主题浏览', en: 'Browse topics' } },
-            { id: 'weekly', href: '/pathfinder/weekly', label: { zh: '本周精选', en: 'Weekly picks' } },
             { id: 'saved', href: '/pathfinder/saved', label: { zh: '我的收藏', en: 'Saved opportunities' } },
           ],
         },

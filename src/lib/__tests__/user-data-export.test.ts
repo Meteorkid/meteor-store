@@ -11,6 +11,9 @@ import {
   personalAccessTokens,
   postSections,
   posts,
+  studyCourses,
+  studyDeadlines,
+  studyProblems,
   tollowBookProgress,
   tollowPracticeSessions,
   tollowTextFavorites,
@@ -134,6 +137,19 @@ const tollowFavoriteRows = [{
   updatedAt: '2026-08-23T00:00:00.000Z',
 }];
 
+const studyCourseRows = [
+  { userId: 'U1', term: '2026-2027-1', name: '数据结构', credits: 4, score: 92, status: 'completed', createdAt: '2026-09-01T00:00:00Z', updatedAt: '2026-11-01T00:00:00Z', privateNote: 'must-not-export' },
+  { userId: 'U2', term: '2026-2027-1', name: '其他人的课', credits: 3, score: null, status: 'in-progress' },
+];
+const studyDeadlineRows = [
+  { userId: 'U1', courseId: 'course-1', title: '第三次作业', kind: 'assignment', dueAt: '2026-11-20', status: 'open', notes: null, createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-01T00:00:00Z', privateNote: 'must-not-export' },
+  { userId: 'U2', courseId: null, title: '别人的作业', kind: 'assignment', dueAt: '2026-11-21', status: 'open', notes: null },
+];
+const studyProblemRows = [
+  { userId: 'U1', title: '两数之和', topic: '数组', difficulty: 'easy', url: 'https://leetcode.cn/problems/two-sum/', status: 'solved', notes: null, reviewStage: 2, reviewDueOn: '2026-11-16', reviewIntervalDays: 7, lastReviewedOn: '2026-11-09', createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-09T00:00:00Z', privateNote: 'must-not-export' },
+  { userId: 'U2', title: '别人的题', topic: '', difficulty: 'medium', url: null, status: 'todo', notes: null },
+];
+
 vi.mock('../db', () => ({
   db: {
     select: (selection?: Record<string, unknown>) => ({
@@ -160,6 +176,12 @@ vi.mock('../db', () => ({
             return [Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection))];
           }
           if (table === mastersWatches) return [{ roundId: 'round-1', status: 'preparing', reminders: true }];
+          if (table === studyCourses || table === studyDeadlines || table === studyProblems) {
+            const query = new PgDialect().sqlToQuery(condition!);
+            const rows = table === studyCourses ? studyCourseRows : table === studyDeadlines ? studyDeadlineRows : studyProblemRows;
+            return rows.filter(row => query.params.includes(row.userId))
+              .map(row => Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection)));
+          }
           if (table === phdWatches || table === phdNotices) {
             const query = new PgDialect().sqlToQuery(condition!);
             phdQueries.push(query);
@@ -282,6 +304,26 @@ describe('用户数据导出', () => {
     expect(refundQueries[0].params).toEqual(['owned-order']);
     expect(JSON.stringify(exported.commerce.refundAttempts)).not.toContain('other-request');
     expect(JSON.stringify(exported.commerce.refundAttempts)).not.toContain('must-not-export');
+  });
+
+  it('学习数据只导出本人记录，字段白名单不含 userId 与内部字段', async () => {
+    const { exportUserData } = await import('../user-data-export');
+    const exported = await exportUserData('U1', 'user@example.com');
+    expect(exported.study.courses).toEqual([{
+      term: '2026-2027-1', name: '数据结构', credits: 4, score: 92, status: 'completed',
+      createdAt: '2026-09-01T00:00:00Z', updatedAt: '2026-11-01T00:00:00Z',
+    }]);
+    expect(exported.study.deadlines).toEqual([{
+      courseId: 'course-1', title: '第三次作业', kind: 'assignment', dueAt: '2026-11-20',
+      status: 'open', notes: null, createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-01T00:00:00Z',
+    }]);
+    expect(exported.study.problems).toEqual([{
+      title: '两数之和', topic: '数组', difficulty: 'easy', url: 'https://leetcode.cn/problems/two-sum/',
+      status: 'solved', notes: null, reviewStage: 2, reviewDueOn: '2026-11-16', reviewIntervalDays: 7,
+      lastReviewedOn: '2026-11-09', createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-09T00:00:00Z',
+    }]);
+    const serialized = JSON.stringify(exported.study);
+    expect(serialized).not.toMatch(/userId|must-not-export|U2|其他人的课|别人的/);
   });
 
   it('没有本人订单时不查询全站退款记录', async () => {

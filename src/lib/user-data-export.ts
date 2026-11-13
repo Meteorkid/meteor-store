@@ -22,6 +22,9 @@ import {
   posts,
   postTags,
   reports,
+  studyCourses,
+  studyDeadlines,
+  studyProblems,
   tollowBookProgress,
   tollowPracticeSessions,
   tollowTextFavorites,
@@ -55,6 +58,9 @@ export async function exportUserData(userId: string, email: string) {
     mastersNoticeRows,
     phdWatchRows,
     phdNoticeRows,
+    studyCourseRows,
+    studyDeadlineRows,
+    studyProblemRows,
   ] = await Promise.all([
     db.select({
       id: users.id,
@@ -219,6 +225,19 @@ export async function exportUserData(userId: string, email: string) {
     db.select({ roundId: phdNotices.roundId, kind: phdNotices.kind, leadDays: phdNotices.leadDays,
       dateVersion: phdNotices.dateVersion, createdAt: phdNotices.createdAt, readAt: phdNotices.readAt })
       .from(phdNotices).where(eq(phdNotices.userId, userId)),
+    db.select({ term: studyCourses.term, name: studyCourses.name, credits: studyCourses.credits,
+      score: studyCourses.score, status: studyCourses.status, createdAt: studyCourses.createdAt,
+      updatedAt: studyCourses.updatedAt }).from(studyCourses).where(eq(studyCourses.userId, userId)),
+    db.select({ courseId: studyDeadlines.courseId, title: studyDeadlines.title, kind: studyDeadlines.kind,
+      dueAt: studyDeadlines.dueAt, status: studyDeadlines.status, notes: studyDeadlines.notes,
+      createdAt: studyDeadlines.createdAt, updatedAt: studyDeadlines.updatedAt })
+      .from(studyDeadlines).where(eq(studyDeadlines.userId, userId)),
+    db.select({ title: studyProblems.title, topic: studyProblems.topic, difficulty: studyProblems.difficulty,
+      url: studyProblems.url, status: studyProblems.status, notes: studyProblems.notes,
+      reviewStage: studyProblems.reviewStage, reviewDueOn: studyProblems.reviewDueOn,
+      reviewIntervalDays: studyProblems.reviewIntervalDays, lastReviewedOn: studyProblems.lastReviewedOn,
+      createdAt: studyProblems.createdAt, updatedAt: studyProblems.updatedAt })
+      .from(studyProblems).where(eq(studyProblems.userId, userId)),
   ]);
 
   const postIds = postRows.map((post) => post.id);
@@ -299,6 +318,7 @@ export async function exportUserData(userId: string, email: string) {
     daily: { preferences: dailyPreferenceRows[0] ?? null },
     masters: { applications: mastersWatchRows, notices: mastersNoticeRows },
     phd: { applications: phdWatchRows, notices: phdNoticeRows },
+    study: { courses: studyCourseRows, deadlines: studyDeadlineRows, problems: studyProblemRows },
     tollow: {
       bookProgress: tollowProgressRows,
       practiceSessions: tollowSessionRows,

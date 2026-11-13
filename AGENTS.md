@@ -1499,6 +1499,16 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - 全文与预览共用`daily/navigation.ts`的条目/词汇锚点；登录回跳只放行合法date/view/受限hash。Next同页pushState不发hashchange，定位有界等待提交且不拦修饰键开新页；减少动画时即时定位。午夜只更新日期导航，不替换当前阅读或作答。
 - GitHub Universe专题RSS复用现有采集任务，品牌筛选须在SQL和JS两层一致，并限定两个GitHub来源；不猜活动时间，不因新接源重发已用URL。三批验收见`docs/process/2026-10-24-daily-experience-three-batches.md`。
 
+## 学习工作台（2026-11-13）
+
+- 三个私人页：`/study`（工作台）、`/study/courses`（课程与 GPA）、`/study/algorithms`（算法训练与间隔复习）。均登录可见，metadata 带 `robots: noindex`，不进 sitemap 与公开搜索索引；导航在「学习与机会」组第一分区「我的学习」。
+- 数据是三张纯私人表：`study_courses` / `study_deadlines` / `study_problems`（迁移 0056，无外键，userId 归属）。`user-data-export` 与 `account-deletion` 都已包含；删除课程时服务层把关联截止事项的 `courseId` 置空，不级联删除事项。
+- API 在 `/api/study/{courses,deadlines,problems,reviews,summary}`，全部核对 `X-Study-User`、限流、`no-store`；`problems` 的 PATCH 只在 `todo → solved` 且尚未排期时写入初始复习（1 天后），重新标记已解决不清零既有进度。复习动作只对「已解决」题目生效。
+- 复习间隔 1/3/7/14/30/60 天（`src/lib/study/review.ts` 纯函数，stage 封顶 5）；日期统一用北京时间 `dailyDate()` 口径，不按时刻比较。「忘了」回到 1 天档重新巩固。
+- GPA 只做两件有确定答案的事：加权平均分（Σ学分×分数/Σ学分）与常见 4.0 分档参考换算（`src/lib/study/gpa.ts`）。页面必须保留「按常见 4.0 分档换算，具体以学校规定为准」的说明，未出分课程不计入两个指标。
+- 工作台聚合分区各自 `allSettled` 独立降级：单个来源失败只显示该分区「读取失败」，不能伪装成空数据。铃铛「提醒」标签的学习分区是只读计数（今日复习数 + 7 天内课程截止数），不产生未读状态，与管理员监控分区同一约定。
+- 文案用各页本地 text 模块（`src/components/study/*-text.ts`），不进 messages JSON。
+
 ## 硕士申请日历（官方来源自动同步）
 
 - `/masters` 与 `/admin/masters`，服务在 `src/lib/masters/`。申请轮次是长期记录，不能塞进 30 天日刊快照，也不能按单一官方 URL 把不同年份合并。

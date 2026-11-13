@@ -22,6 +22,9 @@ const ALLOWED_LOGIN_RETURNS = new Set([
   '/pathfinder/opportunities',
   '/pathfinder/topics',
   '/pathfinder/organizations',
+  '/study',
+  '/study/courses',
+  '/study/algorithms',
 ]);
 
 export function normalizeLoginReturn(value: string | null | undefined): string {
