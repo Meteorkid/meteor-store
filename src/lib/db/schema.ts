@@ -4,6 +4,7 @@ import type { DailyChannelId, DailyEditionChannelId, DailyContent, DailyStatus }
 import type { DailyPanelSettings } from '../daily/panel-types';
 import type { MastersRegion, MastersRoundDetails, MastersWatchInput } from '../masters/types';
 import type { StudyCourseStatus, StudyDeadlineKind, StudyDeadlineStatus, StudyProblemDifficulty, StudyProblemStatus } from '../study/types';
+import type { IeltsPairContent, IeltsPairSource, IeltsPairStatus, IeltsTask } from '../ielts/types';
 
 export const mastersRounds = pgTable('masters_rounds', {
   id: text('id').primaryKey(),
@@ -1002,4 +1003,51 @@ export const studyProblems = pgTable('study_problems', {
   check('study_problems_difficulty_check', sql`${t.difficulty} IN ('easy', 'medium', 'hard')`),
   check('study_problems_status_check', sql`${t.status} IN ('todo', 'solved')`),
   check('study_problems_review_stage_check', sql`${t.reviewStage} >= 0 AND ${t.reviewStage} <= 5`),
+]);
+
+/**
+ * 雅思写作对照：一组 = 同一篇作文的 5 分版与 8 分版，逐句对齐。
+ *
+ * 表里同时容纳两类内容：仓库文件里的精选对照（随代码上线）与后台生成/改写的对照。
+ * 运行时按 slug 合并，数据库行优先——所以文件里那一组可以不改代码就下架或改写，
+ * 生成的新对照也不必等下一次部署。
+ *
+ * content 为 NULL 表示「正文仍用文件里的那份，这一行只覆盖状态或排序」；
+ * status 为 'hidden' 时该 slug 整体从公开页消失（文件版本也不会回填）。
+ */
+export const ieltsPairs = pgTable('ielts_pairs', {
+  id: text('id').primaryKey(),
+  slug: text('slug').notNull(),
+  task: text('task').$type<IeltsTask>().notNull(),
+  category: text('category').notNull(),
+  topic: text('topic').notNull(),
+  status: text('status').$type<IeltsPairStatus>().notNull().default('draft'),
+  sortOrder: integer('sort_order').notNull().default(0),
+  content: jsonb('content').$type<IeltsPairContent>(),
+  source: text('source').$type<IeltsPairSource>().notNull().default('generated'),
+  publishedAt: text('published_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  uniqueIndex('ielts_pairs_slug_idx').on(t.slug),
+  index('ielts_pairs_task_status_idx').on(t.task, t.status),
+  check('ielts_pairs_task_check', sql`${t.task} IN ('task2', 'task1-academic', 'task1-general')`),
+  check('ielts_pairs_status_check', sql`${t.status} IN ('draft', 'published', 'hidden')`),
+  check('ielts_pairs_source_check', sql`${t.source} IN ('curated', 'generated')`),
+]);
+
+/**
+ * 每人对每组对照的学习状态：已学 / 收藏，两个时间戳各自可空。
+ *
+ * 与收藏一样用复合主键防重复；不做外键，下架或删除一组对照后记录保留作留痕。
+ */
+export const ieltsProgress = pgTable('ielts_progress', {
+  userId: text('user_id').notNull(),
+  pairSlug: text('pair_slug').notNull(),
+  studiedAt: text('studied_at'),
+  bookmarkedAt: text('bookmarked_at'),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  primaryKey({ columns: [t.userId, t.pairSlug] }),
+  index('ielts_progress_user_bookmark_idx').on(t.userId, t.bookmarkedAt),
 ]);
