@@ -1,6 +1,7 @@
 import { products, localizeProduct } from '@/data/products';
 import { blogSections } from '@/data/blog-sections';
 import { helpArticles, helpCategories, isHelpArticleVisible } from '@/data/help-articles';
+import { xislandIntegrations } from '@/data/xisland-integrations';
 import { SHOW_PRICING, SITE_URL } from '@/lib/constants';
 
 /**
@@ -42,7 +43,13 @@ export function GET() {
     const product = localizeProduct(raw, DEFAULT_LOCALE);
     // 状态标注让 agent 知道这款能不能马上用，而不是把 coming_soon 当成在售
     const state = raw.status === 'coming_soon' ? '（即将推出）' : '';
-    return `- [${product.name}](${productUrl(raw.id)})${state}: ${product.tagline}`;
+    // XIsland 的集成广度是它的核心差异，单看 tagline 看不出来，这里补一句。
+    // 措辞守住 README 口径：说「集成路线」不说「已支持」。
+    const extra =
+      raw.id === 'xisland'
+        ? `（${xislandIntegrations.length} 条 AI 编程代理集成路线）`
+        : '';
+    return `- [${product.name}](${productUrl(raw.id)})${state}: ${product.tagline}${extra}`;
   });
 
   const docsLines = helpCategories.flatMap((category) => {

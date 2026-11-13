@@ -131,6 +131,32 @@ describe('buildProductSchema', () => {
     });
     expect(schema).not.toHaveProperty('codeRepository');
   });
+
+  it('featureList 有值时按数组下发，无值时整个字段省略', () => {
+    const withFeatures = buildProductSchema({
+      product: realProduct('xisland'),
+      locale: 'zh',
+      showPricing: true,
+      featureList: ['Claude Code — 原生 settings hooks（契约测试通过）'],
+    });
+    expect(withFeatures.featureList).toEqual(['Claude Code — 原生 settings hooks（契约测试通过）']);
+
+    // 空数组不下发：对搜索引擎没有信息量，还会让校验工具报噪音
+    const emptyList = buildProductSchema({
+      product: realProduct('xisland'),
+      locale: 'zh',
+      showPricing: true,
+      featureList: [],
+    });
+    expect(emptyList).not.toHaveProperty('featureList');
+
+    const noList = buildProductSchema({
+      product: realProduct('xisland'),
+      locale: 'zh',
+      showPricing: true,
+    });
+    expect(noList).not.toHaveProperty('featureList');
+  });
 });
 
 describe('buildBreadcrumbSchema', () => {

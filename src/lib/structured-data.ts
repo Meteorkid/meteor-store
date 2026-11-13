@@ -58,6 +58,14 @@ export type ProductSchemaInput = {
    * 是「结构化数据与可见内容不符」，属于搜索引擎明确会处罚的情形。
    */
   showPricing: boolean;
+  /**
+   * 可选：能力清单，逐条写进 `featureList`。
+   *
+   * 传入的内容必须**在页面上可见**（Google 要求结构化数据与可见内容一致），
+   * 且措辞要与页面文案相同。XIsland 传的是 30 条集成路线及其验证状态 ——
+   * 状态文字一并写入，避免被读成「已全面支持」。
+   */
+  featureList?: string[];
 };
 
 /**
@@ -68,7 +76,7 @@ export type ProductSchemaInput = {
  * 一旦被识别，惩罚是整站富媒体结果资格被撤，代价远大于收益。
  * 等真有用户评价数据（且可在页面上看到）再加。
  */
-export function buildProductSchema({ product, locale, showPricing }: ProductSchemaInput) {
+export function buildProductSchema({ product, locale, showPricing, featureList }: ProductSchemaInput) {
   const url = `${SITE_URL}/${locale}/products/${product.id}`;
   const operatingSystems = deriveOperatingSystems(product.platforms);
   const version = product.downloads?.find((download) => download.version)?.version;
@@ -94,6 +102,9 @@ export function buildProductSchema({ product, locale, showPricing }: ProductSche
     // 版本号取自下载目录（线上真源），不是源码兜底值，所以能反映用户实际拿到的包
     ...(version ? { softwareVersion: version } : {}),
     ...(product.github ? { codeRepository: product.github } : {}),
+    // 能力清单：数组形式，schema.org 接受多值。留空则整个字段省略，
+    // 不下发空数组（空数组对搜索引擎没有信息量，还会让校验工具报噪音）
+    ...(featureList && featureList.length > 0 ? { featureList } : {}),
     ...(showPricing && lowestPrice !== undefined
       ? {
           isAccessibleForFree: lowestPrice === 0,

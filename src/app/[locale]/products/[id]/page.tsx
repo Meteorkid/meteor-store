@@ -14,6 +14,14 @@ import PassOwnedBadge from '@/components/PassOwnedBadge';
 import ProductPricingCards from '@/components/ProductPricingCards';
 import { getAppTrialHref } from '@/data/app-manifest';
 import { products, localizeProduct } from '@/data/products';
+import {
+  countIntegrationsByStatus,
+  formatIntegrationCopy,
+  integrationSectionCopy,
+  integrationStatusLabels,
+  xislandIntegrations,
+  type Integration,
+} from '@/data/xisland-integrations';
 import { getProductWithCurrentDownloads } from '@/lib/product-updates/catalog';
 import { ANNUAL_DISCOUNT, SHOW_PRICING, SITE_URL } from '@/lib/constants';
 import { safeJsonLd } from '@/lib/seo';
@@ -67,7 +75,20 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   const licenseClaimed = softwareTrial ? await hasClaimedLicense(id) : false;
 
   // 产品实体 + 面包屑。价格是否下发跟着 SHOW_PRICING 走，见 structured-data.ts 的说明。
-  const productSchema = buildProductSchema({ product, locale: locale as Locale, showPricing: SHOW_PRICING });
+  const productSchema = buildProductSchema({
+    product,
+    locale: locale as Locale,
+    showPricing: SHOW_PRICING,
+    // 集成路线写进 featureList：页面上可见，措辞与页面一致（含验证状态）。
+    // 其他产品没有这个概念，只给 XIsland 传。
+    featureList:
+      product.id === 'xisland'
+        ? xislandIntegrations.map(
+            (item) =>
+              `${item.name} — ${item.route[locale as Locale]}（${integrationStatusLabels[item.status][locale as Locale]}）`,
+          )
+        : undefined,
+  });
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: tNav('home'), url: `${SITE_URL}/${locale}` },
     { name: tNav('products'), url: `${SITE_URL}/${locale}/products` },
@@ -184,6 +205,61 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
 
         <ProductDemoEmbed product={product} />
 
+        {/* 集成路线只在 XIsland 上展示：它是这款产品的核心差异，其他产品没有这个概念。
+            措辞严格跟着 README 的验证状态走，不做「已全面支持」的笼统声明 —— 见
+            src/data/xisland-integrations.ts 顶部说明。
+            文案取自 integrationSectionCopy（与数据同文件，避免数字漂移）。 */}
+        {product.id === 'xisland' && (() => {
+          const loc = locale as Locale;
+          const counts = countIntegrationsByStatus();
+          const total = xislandIntegrations.length;
+          const verified = counts.verified + counts['contract-partial'];
+          const vars = { total, verified };
+          // 前 12 条常驻可见（覆盖主流代理），其余收进折叠区。
+          // 用原生 <details> 而不是客户端 state：无 JS 也能展开，且不增加客户端包体。
+          const primary = xislandIntegrations.slice(0, 12);
+          const rest = xislandIntegrations.slice(12);
+          return (
+            <section className="mb-20">
+              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">
+                {integrationSectionCopy.eyebrow[loc]}
+              </p>
+              <h2 className="mb-4 text-2xl font-bold text-white md:text-3xl">
+                {integrationSectionCopy.title[loc]}
+              </h2>
+              <p className="mb-6 max-w-3xl leading-relaxed text-gray-400">
+                {formatIntegrationCopy(integrationSectionCopy.intro[loc], vars)}
+              </p>
+
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {primary.map((item) => (
+                  <IntegrationCard key={item.name} item={item} locale={loc} />
+                ))}
+              </ul>
+
+              <details className="group mt-3">
+                <summary className="cursor-pointer list-none rounded-2xl border border-white/10 bg-white/[0.035] px-6 py-4 text-center text-sm font-semibold text-violet-200 transition-colors hover:border-white/20 hover:bg-white/[0.06] [&::-webkit-details-marker]:hidden">
+                  <span className="group-open:hidden">
+                    {formatIntegrationCopy(integrationSectionCopy.toggle[loc], vars)}
+                  </span>
+                  <span className="hidden group-open:inline">
+                    {integrationSectionCopy.collapse[loc]}
+                  </span>
+                </summary>
+                <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {rest.map((item) => (
+                    <IntegrationCard key={item.name} item={item} locale={loc} />
+                  ))}
+                </ul>
+              </details>
+
+              <p className="mt-6 max-w-3xl text-sm leading-relaxed text-gray-500">
+                {integrationSectionCopy.note[loc]}
+              </p>
+            </section>
+          );
+        })()}
+
         <section className="mb-20">
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Highlights</p>
           <h2 className="mb-7 text-2xl font-bold text-white md:text-3xl">{t('features')}</h2>
@@ -299,6 +375,30 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
       </main>
       <Footer />
     </div>
+  );
+}
+
+/**
+ * 单条集成路线的卡片。
+ *
+ * 状态用**文字 + 颜色**双重表达，不只靠颜色 —— 色盲用户与灰度打印下
+ * 仍能区分「真机验证通过」和「契约测试通过」。这是本站的无障碍约定。
+ */
+function IntegrationCard({ item, locale }: { item: Integration; locale: Locale }) {
+  const statusStyle =
+    item.status === 'contract'
+      ? 'border-white/15 bg-white/[0.04] text-gray-400'
+      : 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200';
+  return (
+    <li className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <span className="text-sm font-semibold text-white">{item.name}</span>
+        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] leading-tight ${statusStyle}`}>
+          {integrationStatusLabels[item.status][locale]}
+        </span>
+      </div>
+      <p className="mt-2 text-xs leading-relaxed text-gray-500">{item.route[locale]}</p>
+    </li>
   );
 }
 
