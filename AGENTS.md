@@ -1509,6 +1509,16 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - 工作台聚合分区各自 `allSettled` 独立降级：单个来源失败只显示该分区「读取失败」，不能伪装成空数据。铃铛「提醒」标签的学习分区是只读计数（今日复习数 + 7 天内课程截止数），不产生未读状态，与管理员监控分区同一约定。
 - 文案用各页本地 text 模块（`src/components/study/*-text.ts`），不进 messages JSON。
 
+## 雅思写作对照（2026-11-14）
+
+- 页面 `/study/ielts`（对照库）与 `/study/ielts/[slug]`（逐句对照）。**这是学习区里唯一公开、可被搜索引擎收录的页面**：范文是共享内容不是私人数据，游客直接读，登录只是为了记住「已学 / 收藏」；其余学习页保持 `noindex` + 登录可见。sitemap 收录列表页与每一组详情页（带双语 alternates）。
+- 内容模型是「一组 = 同一篇作文的 5 分档与 8 分档」：正文**只存逐句对齐的 segments**，两版全文由 `essayParagraphs` 推导。协议（`src/lib/ielts/types.ts`）强制段落编号从 1 连续、每段两版句数一致——左右两栏错位是这个页面唯一不能出的错，所以宁可在协议层拒绝。
+- 内容来自两处，运行时按 slug 合并（`src/lib/ielts/catalog.ts`）：文件精选 `src/data/ielts/batch-*.ts`（随代码上线，空库也有内容）+ 表 `ielts_pairs`（后台生成或改写）。规则：数据库 `hidden` 把该 slug 整体下架（文件版本也不回填）、`published` 且有 content 整组替换、content 为空只覆盖状态与排序、`draft` 不公开、**读数据库失败退回只用文件内容**（公开页不因数据库抖动变空白）。每条规则在 `src/lib/ielts/__tests__/catalog.test.ts` 里各有一条测试。
+- 内容也进 CI：`src/lib/ielts/__tests__/curated-content.test.ts` 自动 glob `batch-*.ts`，检查协议、段落/句数对齐、两版词数区间与说明完整度。**加新对照先让这个测试通过**，别手改断言去迁就内容。
+- 生成新对照走 `src/lib/ielts/generator.ts`（DeepSeek，与每日英语同一把 key）：提示词要求「8 分版是 5 分版的升级、逐句对齐」，zod + 词数校验兜底，不合法重试一次再报错——**绝不把对不齐的两栏写进内容库**。生成结果是草稿，后台发布后才公开；生成动作单独限流。
+- 学习状态在 `ielts_progress`（迁移 0057，复合主键 `(user_id, pair_slug)`，`studiedAt` / `bookmarkedAt` 各自可空）。接口 `/api/ielts/progress`：未登录 401、跨站 403、`X-Ielts-User` 对不上 409、限流 30 次/分钟、响应 `no-store`；切换后回读真实状态返回，客户端不做乐观更新。
+- 文案在 `src/components/ielts/ielts-text.ts`（本地模块，不进 messages JSON），与其它学习页一致。
+
 ## 硕士申请日历（官方来源自动同步）
 
 - `/masters` 与 `/admin/masters`，服务在 `src/lib/masters/`。申请轮次是长期记录，不能塞进 30 天日刊快照，也不能按单一官方 URL 把不同年份合并。
