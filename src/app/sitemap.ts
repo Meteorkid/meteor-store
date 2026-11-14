@@ -127,8 +127,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
-  const helpPages = getHelpSitemapEntries();
+  // 只有 XIsland 有同类工具对比页（其余产品走页面里的 notFound 分支）。
+  // 它不依赖品牌名——搜「Vibe Island alternative」这类词时才有机会命中，
+  // 所以值得单独收录，尽管优先级低于产品页本身。
+  const alternativesPages = LOCALES.map((locale) => ({
+    url: `${BASE_URL}/${locale}/products/xisland/alternatives`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.5,
+    alternates: {
+      languages: {
+        zh: `${BASE_URL}/zh/products/xisland/alternatives`,
+        en: `${BASE_URL}/en/products/xisland/alternatives`,
+      },
+    },
+  }));
 
+  const helpPages = getHelpSitemapEntries();
   // 雅思写作对照的每一组详情页：左右对照 + 逐句说明，是站内少见的原创长文，
   // 值得单独收录；slug 稳定，下架后这里自然消失（listIeltsPairs 只返回公开的）。
   const ieltsPairPages = ieltsPairs.flatMap((pair) =>
@@ -243,6 +258,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...localizedStaticPages,
     ...productPages,
+    ...alternativesPages,
     ...helpPages,
     ...ieltsPairPages,
     ...pathfinderItemPages,
