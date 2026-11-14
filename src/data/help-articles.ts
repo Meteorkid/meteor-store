@@ -470,6 +470,58 @@ export const helpArticles: HelpArticleMeta[] = [
     },
   },
 
+  {
+    slug: 'xisland-agent-hooks',
+    category: 'products',
+    kind: 'how-to',
+    // products 分类已用到 110，120 是下一个空位（唯一性由 help.test.ts 守住）
+    order: 120,
+    readingMinutes: 7,
+    updatedAt: '2026-11-14',
+    commercial: false,
+    relatedSlugs: ['product-updates', 'macos-cannot-open-app', 'technical-support'],
+    title: {
+      zh: 'XIsland 如何接入 Claude Code 与 Codex 的 hooks',
+      en: 'How XIsland hooks into Claude Code and Codex',
+    },
+    excerpt: {
+      zh: '拆开看 hook 机制：XIsland 把什么写进 ~/.claude/settings.json 和 ~/.codex/hooks.json，事件如何经 di-bridge 与 Unix socket 送到刘海面板，以及面板没反应时按什么顺序排查。',
+      en: 'A look inside the hook mechanism: what XIsland writes into ~/.claude/settings.json and ~/.codex/hooks.json, how events travel through di-bridge and a Unix socket to the notch panel, and what to check when the panel stays silent.',
+    },
+    keywords: {
+      zh: [
+        'XIsland',
+        'Claude Code hooks',
+        'PreToolUse',
+        'PostToolUse',
+        'settings.json',
+        'hooks.json',
+        'Codex hooks',
+        'di-bridge',
+        'Unix socket',
+        'hook 配置',
+        '状态同步',
+        'macOS 灵动岛',
+        '权限审批',
+      ],
+      en: [
+        'XIsland',
+        'Claude Code hooks',
+        'PreToolUse',
+        'PostToolUse',
+        'settings.json',
+        'hooks.json',
+        'Codex hooks',
+        'di-bridge',
+        'Unix socket',
+        'hook configuration',
+        'status sync',
+        'macOS Dynamic Island',
+        'permission approval',
+      ],
+    },
+  },
+
   // ========== 博客与社区 (3) ==========
   {
     slug: 'browse-blog-tags-and-rss',

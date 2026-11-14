@@ -61,4 +61,14 @@ describe('/llms.txt', () => {
     const body = await fetchText();
     expect(body).toContain(`${SITE_URL}/sitemap.xml`);
   });
+
+  it('XIsland 的集成机制用散文写清楚，并指向逐条拆解的文档', async () => {
+    const body = await fetchText();
+    // agent 读到的必须是「怎么接起来的」，而不是只有 30 行客户端名单
+    expect(body).toContain('di-bridge');
+    expect(body).toContain('Unix socket');
+    expect(body).toContain('Claude Code hooks');
+    // 链接从数据推导，文章改名或被过滤时这一段应当整体消失
+    expect(body).toContain(`${SITE_URL}/zh/docs/xisland-agent-hooks`);
+  });
 });
