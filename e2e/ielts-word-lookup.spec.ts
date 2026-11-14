@@ -37,6 +37,7 @@ test('失败可重试，全文和关闭查义不改变英文', async ({ page }) 
   await page.getByRole('switch', { name: '点词查义', exact: true }).click();
   await expect(page.locator('[data-lookup-word]')).toHaveCount(0);
   expect(await page.locator('[data-essay-side="low"]').first().innerText()).toBe(english);
+  await page.getByRole('button', { name: '显示改动标记', exact: true }).click();
   await expect(page.locator('mark[data-change]').first()).toBeVisible();
   await page.getByRole('switch', { name: '点词查义', exact: true }).click();
   await page.getByRole('button', { name: '全文阅读', exact: true }).click();

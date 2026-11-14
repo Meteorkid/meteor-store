@@ -35,6 +35,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 1,
           low: 'Some people agree with this idea, but other people do not agree, so this topic is very controversial.',
           high: 'Supporters see free access as a matter of fairness, whereas critics doubt that it can be funded, so the disagreement is both moral and practical.',
+          expressionEdits: [
+            {
+              before: 'but other people do not agree',
+              after: 'whereas critics doubt that it can be funded',
+              focus: 'cohesion',
+              explanation: {
+                zh: 'whereas 对照两方立场，同时交代反对的具体理由。',
+                en: 'Whereas contrasts the two positions and introduces the reason for the objection.',
+              },
+            },
+          ],
           translationZh: {
             low: '有些人赞成这个想法，但另一些人不赞成，所以这个话题很有争议。',
             high: '支持者认为免费接受大学教育关乎公平，而反对者怀疑能否为此提供资金，因此双方的分歧既涉及道德，也涉及实际可行性。',
@@ -49,6 +60,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 1,
           low: 'In my opinion, free university education is good for the society, but it also have some problems.',
           high: 'In my view, free university education brings clear social benefits, although it has to be introduced in a way that public finances can sustain.',
+          expressionEdits: [
+            {
+              before: 'is good for the society',
+              after: 'brings clear social benefits',
+              focus: 'lexis',
+              explanation: {
+                zh: '把笼统的 good for 换成“带来社会效益”，观点更具体。',
+                en: 'Replace the vague good for with a clear statement of the social benefit.',
+              },
+            },
+          ],
           translationZh: {
             low: '在我看来，免费大学教育对社会有好处，但它也有一些问题。',
             high: '在我看来，免费大学教育能带来明显的社会效益，但必须以公共财政能够持续承受的方式推行。',
@@ -63,6 +85,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 2,
           low: 'Firstly, free education give every student the same chance to go to university, because poor students can not pay the fees by themselves.',
           high: 'To begin with, free tuition gives every capable student the same chance to enter university, regardless of whether their family can afford the fees.',
+          expressionEdits: [
+            {
+              before: 'because poor students can not pay the fees by themselves',
+              after: 'regardless of whether their family can afford the fees',
+              focus: 'grammar',
+              explanation: {
+                zh: '用 regardless of whether 引出“不论家庭是否负担得起”的条件，突出机会平等。',
+                en: 'Regardless of whether makes equal access independent of a family’s ability to pay.',
+              },
+            },
+          ],
           translationZh: {
             low: '首先，免费教育让每个学生都有同样的上大学机会，因为贫困学生无法自己支付学费。',
             high: '首先，免学费让每个有能力的学生都有同样的大学入学机会，无论其家庭是否付得起学费。',
@@ -91,6 +124,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 2,
           low: 'For example, in many places, a student who is very good at study can not go to university because his family have no money.',
           high: 'In many places, talented school-leavers are unable to take up a place simply because there is no money at home to support them.',
+          expressionEdits: [
+            {
+              before: 'a student who is very good at study',
+              after: 'talented school-leavers',
+              focus: 'lexis',
+              explanation: {
+                zh: '用紧凑的名词短语指称有能力的毕业生，避免绕着 good 描述。',
+                en: 'A precise noun phrase identifies talented students without a long good-at description.',
+              },
+            },
+          ],
           translationZh: {
             low: '例如，在很多地方，一个学习很好的学生会因为家里没钱而无法上大学。',
             high: '在许多地方，有才华的中学毕业生仅仅因为家里无钱支持，就无法接受大学录取并入学。',
@@ -133,6 +177,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 3,
           low: 'Secondly, free university education also have some bad points, so we should think about it carefully.',
           high: 'A second consideration is the financial burden that such a policy places on the state.',
+          expressionEdits: [
+            {
+              before: 'some bad points',
+              after: 'the financial burden',
+              focus: 'lexis',
+              explanation: {
+                zh: '把含糊的“缺点”命名为财政负担，让段落主题一眼可见。',
+                en: 'Name the financial burden directly so the paragraph’s concern is immediately clear.',
+              },
+            },
+          ],
           translationZh: {
             low: '其次，免费大学教育也有一些不好的地方，所以我们应该认真考虑。',
             high: '第二个需要考虑的问题，是这项政策给政府带来的财政负担。',
@@ -175,6 +230,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 3,
           low: 'But I think the government can find the money if they really want to do it, because education is very important.',
           high: 'Even so, this is a question of priorities rather than an argument against the principle itself.',
+          expressionEdits: [
+            {
+              before: 'But I think',
+              after: 'Even so',
+              focus: 'cohesion',
+              explanation: {
+                zh: 'Even so 承接已承认的成本，再转回支持立场，转折更紧密。',
+                en: 'Even so concedes the cost already discussed before returning to the supporting position.',
+              },
+            },
+          ],
           translationZh: {
             low: '但我认为，只要政府真的想做，就能找到这笔钱，因为教育非常重要。',
             high: '即便如此，这也只是如何安排优先次序的问题，而不是反对这一原则本身的理由。',
@@ -203,6 +269,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 4,
           low: 'It can help the poor students, but it can also make the government spend too much money every year.',
           high: 'It opens the door for students who would otherwise be excluded, yet it places a heavy burden on public finances.',
+          expressionEdits: [
+            {
+              before: 'help the poor students',
+              after: 'opens the door for students who would otherwise be excluded',
+              focus: 'grammar',
+              explanation: {
+                zh: 'who would otherwise… 说明没有这项政策时的结果，让受益对象更清楚。',
+                en: 'Who would otherwise… explains what would happen without the policy and clarifies who benefits.',
+              },
+            },
+          ],
           translationZh: {
             low: '它可以帮助贫困学生，但也可能让政府每年花费太多钱。',
             high: '它为原本会被挡在大学门外的学生打开了机会之门，却也给公共财政带来了沉重负担。',
@@ -217,6 +294,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 4,
           low: 'So I think the government should think about it carefully and maybe do it step by step.',
           high: 'I would therefore support a gradual expansion, funded from a clearly identified budget, rather than an immediate universal subsidy.',
+          expressionEdits: [
+            {
+              before: 'do it step by step',
+              after: 'support a gradual expansion',
+              focus: 'lexis',
+              explanation: {
+                zh: '把口语化的 step by step 写成渐进扩展政策，结论更明确。',
+                en: 'A gradual expansion turns an informal step-by-step suggestion into a clear policy position.',
+              },
+            },
+          ],
           translationZh: {
             low: '所以我认为政府应该认真考虑，也许可以一步一步地推行。',
             high: '因此，我会支持在明确划定的预算支持下逐步扩大免费大学教育，而不是立即向所有学生提供补贴。',
@@ -470,6 +558,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 1,
           low: 'Some people think technology make people closer, but other people think it make people further.',
           high: 'Some argue that these tools bring people closer, while others believe they push them further apart.',
+          expressionEdits: [
+            {
+              before: 'make people further',
+              after: 'push them further apart',
+              focus: 'accuracy',
+              explanation: {
+                zh: '描述关系疏远要用 further apart；原表达缺少 apart，含义不完整。',
+                en: 'Further apart expresses distance in a relationship; further alone leaves the meaning incomplete.',
+              },
+            },
+          ],
           translationZh: {
             low: '有些人认为科技让人们更亲近，但另一些人认为它让人们更疏远。',
             high: '有人主张，这些工具拉近了人与人之间的距离；另一些人则认为，它们让彼此更加疏远。',
@@ -484,6 +583,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 1,
           low: 'I think technology is good for talking with people, but it also can make some problems.',
           high: 'In my view, technology widens the circle of people we can reach, but it cannot by itself make a relationship deeper.',
+          expressionEdits: [
+            {
+              before: 'is good for talking with people',
+              after: 'widens the circle of people we can reach',
+              focus: 'lexis',
+              explanation: {
+                zh: '把“有利于交流”具体化为扩大可联系的人际范围，便于后文讨论。',
+                en: 'Specify the benefit as a wider circle of contacts, giving the discussion a clear focus.',
+              },
+            },
+          ],
           translationZh: {
             low: '我认为科技有助于与人交流，但它也可能带来一些问题。',
             high: '在我看来，科技扩大了我们能够联系到的人群范围，但仅凭科技本身并不能让一段关系更加深厚。',
@@ -540,6 +650,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 2,
           low: 'For example, a student who study abroad can see his parents every week by video call, so he do not feel lonely in a new place.',
           high: 'A student studying abroad, for instance, can see his parents every week by video call, which keeps loneliness at a distance in an unfamiliar place.',
+          expressionEdits: [
+            {
+              before: 'so he do not feel lonely in a new place',
+              after: 'which keeps loneliness at a distance in an unfamiliar place',
+              focus: 'grammar',
+              explanation: {
+                zh: '用 which 接回视频通话的作用，将例子与结果连成一句。',
+                en: 'Which links the video call to its effect, connecting the example and result in one sentence.',
+              },
+            },
+          ],
           translationZh: {
             low: '例如，一个在国外读书的学生可以每周通过视频通话见到父母，所以他在新地方不会感到孤独。',
             high: '例如，一名留学生可以每周通过视频通话见到父母，这让他身处陌生环境时也能远离孤独感。',
@@ -554,6 +675,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 3,
           low: 'On the other hand, some people say technology make people less close, and I think this is also true.',
           high: 'On the other hand, critics argue that constant connectivity can weaken the very ties it is meant to serve, and this concern is a fair one.',
+          expressionEdits: [
+            {
+              before: 'make people less close',
+              after: 'weaken the very ties it is meant to serve',
+              focus: 'lexis',
+              explanation: {
+                zh: '把“变得不亲近”写成削弱本应维护的关系，点出技术的反作用。',
+                en: 'The phrase identifies the paradox: technology can weaken the ties it is designed to support.',
+              },
+            },
+          ],
           translationZh: {
             low: '另一方面，有些人说科技让人们不那么亲近，我认为这也是真的。',
             high: '另一方面，反对者认为，持续在线可能削弱它原本应当维系的那些关系，而这种担忧是有道理的。',
@@ -596,6 +728,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 3,
           low: 'So maybe the relation between people become weaker and weaker, and people feel more alone.',
           high: 'Relationships may therefore grow broader but noticeably shallower, leaving people more isolated than before.',
+          expressionEdits: [
+            {
+              before: 'weaker and weaker',
+              after: 'broader but noticeably shallower',
+              focus: 'lexis',
+              explanation: {
+                zh: '用 broader / shallower 的对照，区分关系的数量与深度。',
+                en: 'Broader versus shallower distinguishes the reach of relationships from their depth.',
+              },
+            },
+          ],
           translationZh: {
             low: '所以，人与人之间的关系可能会越来越弱，人们也会感到更加孤单。',
             high: '因此，人际关系的范围可能变得更广，深度却明显变浅，使人们比以前更加孤立。',
@@ -638,6 +781,17 @@ export const batchA: IeltsPairSeed[] = [
           paragraph: 4,
           low: 'So I think we should use technology in a good way, and we should not spend too much time on it every day.',
           high: 'The sensible approach is to use these tools deliberately, rather than to let them fill every quiet moment of the day.',
+          expressionEdits: [
+            {
+              before: 'use technology in a good way',
+              after: 'use these tools deliberately',
+              focus: 'lexis',
+              explanation: {
+                zh: 'deliberately 强调有意识地选择使用方式，比笼统的 good way 更可操作。',
+                en: 'Deliberately calls for intentional use, making the recommendation more precise than a good way.',
+              },
+            },
+          ],
           translationZh: {
             low: '所以我认为，我们应该好好使用科技，每天也不应该在上面花太多时间。',
             high: '明智的做法是有意识地使用这些工具，而不是任由它们填满一天中每一个安静的片刻。',

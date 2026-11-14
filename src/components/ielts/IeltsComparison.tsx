@@ -7,6 +7,8 @@ import { diffIeltsSentence, type IeltsDiffPart } from '@/lib/ielts/diff';
 import styles from './IeltsComparison.module.css';
 import { lookupWordTokens, normalizeLookupWord, type WordLookupRequest } from '@/lib/ielts/word-lookup';
 import IeltsWordLookupPanel from './IeltsWordLookupPanel';
+import { expressionEditsForParagraph } from '@/lib/ielts/expression-edits';
+import IeltsExpressionBlocks from './IeltsExpressionBlocks';
 
 const FOCUS_ORDER: IeltsFocus[] = ['task', 'cohesion', 'lexis', 'grammar', 'accuracy'];
 interface Props { slug: string; locale: IeltsLocale; segments: IeltsSegment[] }
@@ -16,7 +18,8 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
   const copy = ieltsCopy(locale);
   const [view, setView] = useState<'segments' | 'full'>('segments');
   const [focus, setFocus] = useState<'all' | IeltsFocus>('all');
-  const [showChanges, setShowChanges] = useState(true);
+  const [showChanges, setShowChanges] = useState(false);
+  const noteButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const [wordLookupEnabled, setWordLookupEnabled] = useState(true);
   const [lookup, setLookup] = useState<{ request: WordLookupRequest; anchor: HTMLElement } | null>(null);
   const pointerStart = useRef<{ x: number; y: number; element: HTMLElement } | null>(null);
@@ -30,6 +33,18 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
     segments.forEach((segment, index) => { (grouped[segment.paragraph - 1] ??= []).push(index); });
     return grouped;
   }, [segments]);
+
+  function locateExpression(index: number) {
+    setLookup(null);
+    setOpenRows(current => current.includes(index) ? current : [...current, index]);
+    requestAnimationFrame(() => {
+      const button = noteButtons.current[index];
+      button?.focus({ preventScroll: true });
+      button?.closest('[data-sentence-index]')?.scrollIntoView({
+        block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+      });
+    });
+  }
 
   function chooseWord(anchor: HTMLElement, word: string, segmentIndex: number, side: 'low' | 'high') {
     setLookup({ request: { slug, segmentIndex, side, word: normalizeLookupWord(word) }, anchor });
@@ -151,6 +166,8 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
               <h3>{copy.paragraphLabel(paragraphIndex + 1)}</h3>
               <span>{copy.sentenceCount(indices.length)}</span>
             </header>
+            <IeltsExpressionBlocks edits={expressionEditsForParagraph(segments, paragraphIndex + 1)}
+              paragraph={paragraphIndex + 1} locale={locale} focus={focus} onLocate={locateExpression} />
             <div className={styles.columnHeadings} aria-hidden="true">
               <span data-side="low">{copy.bandLowFull}</span><span data-side="high">{copy.bandHighFull}</span>
             </div>
@@ -159,7 +176,7 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
               const open = openRows.includes(index);
               const focused = focus !== 'all' && segment.focus.includes(focus);
               const noteId = `ielts-note-${index}`;
-              return <div key={index} className={styles.sentenceCard} data-focused={focused} data-note-open={open} data-sentence-index={index}>
+              return <div key={index} id={`ielts-sentence-${index}`} className={styles.sentenceCard} data-focused={focused} data-note-open={open} data-sentence-index={index}>
                 <div className={styles.sentencePair}>
                   <div className={`${styles.englishCell} ${styles.lowCell}`}>
                     <p className={styles.mobileLabel}>{copy.lowLabel}</p>
@@ -174,7 +191,7 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
                 </div>
                 <div className={styles.rowFooter}>
                   <span>{copy.sentenceLabel(index + 1)}</span>
-                  <button type="button" className={styles.noteButton} aria-expanded={open} aria-controls={noteId}
+                  <button type="button" ref={element => { noteButtons.current[index] = element; }} className={styles.noteButton} aria-expanded={open} aria-controls={noteId}
                     aria-label={`${copy.sentenceLabel(index + 1)} · ${copy.noteLabel}`}
                     onClick={() => setOpenRows(current => current.includes(index) ? current.filter(item => item !== index) : [...current, index])}>
                     {copy.noteLabel}<span aria-hidden="true">{open ? '−' : '+'}</span>

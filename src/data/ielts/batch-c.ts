@@ -43,6 +43,17 @@ Poland          2      7     17`,
           paragraph: 1,
           low: 'The table gives information about the percentage of electricity from renewable sources in Costa Rica, Denmark, Japan and Poland in 2000, 2010 and 2020.',
           high: 'The table compares the share of electricity produced from renewable sources in Costa Rica, Denmark, Japan and Poland at three points in time: 2000, 2010 and 2020.',
+          expressionEdits: [
+            {
+              before: 'gives information about the percentage of electricity',
+              after: 'compares the share of electricity',
+              focus: 'lexis',
+              explanation: {
+                zh: 'compares 明确图表任务，share 准确指代占比。',
+                en: 'Compares identifies the chart’s purpose, while share precisely names the proportion.',
+              },
+            },
+          ],
           translationZh: {
             low: '这张表提供了哥斯达黎加、丹麦、日本和波兰在 2000 年、2010 年和 2020 年来自可再生能源的电力所占百分比的信息。',
             high: '该表比较了哥斯达黎加、丹麦、日本和波兰在 2000 年、2010 年及 2020 年这三个时间点的可再生能源发电占比。',
@@ -57,6 +68,17 @@ Poland          2      7     17`,
           paragraph: 2,
           low: 'The four countries are all different, and their figures change in different ways.',
           high: 'Overall, renewable sources accounted for a rising share in all four countries, with Costa Rica recording the highest proportion and Poland the lowest, while Denmark saw the sharpest increase.',
+          expressionEdits: [
+            {
+              before: 'their figures change in different ways',
+              after: 'renewable sources accounted for a rising share in all four countries',
+              focus: 'task',
+              explanation: {
+                zh: '概述先指出四国共同上升的主趋势，不停留在“变化不同”。',
+                en: 'The overview first identifies the shared upward trend instead of merely saying that changes differ.',
+              },
+            },
+          ],
           translationZh: {
             low: '这四个国家都不一样，而且它们的数字以不同方式变化。',
             high: '总体来看，可再生能源在四个国家的发电占比均有所上升，其中哥斯达黎加的占比最高，波兰最低，而丹麦的增幅最大。',
@@ -85,6 +107,17 @@ Poland          2      7     17`,
           paragraph: 3,
           low: 'The number of renewable electricity in Denmark is 15% in 2000, 33% in 2010 and 65% in 2020, so this is a big rise and the figure is two times bigger than in 2000.',
           high: 'Denmark, by contrast, began at just 15% in 2000 and climbed steeply to 33% in 2010 and 65% in 2020, roughly four times its starting figure.',
+          expressionEdits: [
+            {
+              before: 'two times bigger than in 2000',
+              after: 'roughly four times its starting figure',
+              focus: 'accuracy',
+              explanation: {
+                zh: '65 ÷ 15 约为 4.3；roughly four times 正确概括倍数并保留近似。',
+                en: '65 divided by 15 is about 4.3; roughly four times gives an accurate approximate comparison.',
+              },
+            },
+          ],
           translationZh: {
             low: '丹麦的可再生能源电量在 2000 年是 15%，在 2010 年是 33%，在 2020 年是 65%，所以这是很大的增长，而且这个数字比 2000 年大两倍。',
             high: '相比之下，丹麦的占比在 2000 年起初仅为 15%，随后大幅升至 2010 年的 33% 和 2020 年的 65%，大约是起始值的四倍。',
@@ -99,6 +132,17 @@ Poland          2      7     17`,
           paragraph: 3,
           low: "Denmark's figure is bigger than before, and Costa Rica's figure is bigger than before too.",
           high: 'As a result, although Costa Rica remained well ahead, the gap between them was far smaller in 2020 than in 2000.',
+          expressionEdits: [
+            {
+              before: "Denmark's figure is bigger than before, and Costa Rica's figure is bigger than before too",
+              after: 'the gap between them was far smaller in 2020 than in 2000',
+              focus: 'task',
+              explanation: {
+                zh: '从重复描述各自上涨，转为比较两国差距如何变化。',
+                en: 'Move from repeating two separate increases to comparing how the gap between the countries changed.',
+              },
+            },
+          ],
           translationZh: {
             low: '丹麦的数字比以前大，哥斯达黎加的数字也比以前大。',
             high: '因此，尽管哥斯达黎加仍明显领先，两国在 2020 年的差距却比 2000 年小得多。',
@@ -141,6 +185,17 @@ Poland          2      7     17`,
           paragraph: 4,
           low: 'The number of renewable electricity in Poland is 2% in 2000, 7% in 2010 and 17% in 2020, and the figure does not change a lot.',
           high: 'Poland, the lowest of the four throughout, started at just 2%, yet it also made steady progress, reaching 7% in 2010 and 17% in 2020.',
+          expressionEdits: [
+            {
+              before: 'the figure does not change a lot',
+              after: 'made steady progress, reaching 7% in 2010 and 17% in 2020',
+              focus: 'accuracy',
+              explanation: {
+                zh: '2% 到 17% 不是几乎不变；用具体终点展示持续增长。',
+                en: 'A rise from 2% to 17% is not little change; the endpoints make the sustained growth clear.',
+              },
+            },
+          ],
           translationZh: {
             low: '波兰的可再生能源电量在 2000 年是 2%，在 2010 年是 7%，在 2020 年是 17%，而且这个数字变化不大。',
             high: '波兰的占比始终是四国中最低的，起初仅为 2%，但也稳步增长，到 2010 年达到 7%，到 2020 年达到 17%。',
@@ -423,6 +478,17 @@ Write at least 150 words. Begin your letter as follows: Dear Sir or Madam,`,
           paragraph: 1,
           low: 'Hi, I want to tell you about some problems with the photography course at your centre, because I am not happy with it.',
           high: 'Dear Sir or Madam, I am writing to express my dissatisfaction with the evening photography course that I recently took at your centre.',
+          expressionEdits: [
+            {
+              before: 'I want to tell you about some problems',
+              after: 'I am writing to express my dissatisfaction',
+              focus: 'lexis',
+              explanation: {
+                zh: '正式投诉信先直接说明写信目的，语气明确且礼貌。',
+                en: 'A formal complaint states its purpose directly with a clear, polite opening.',
+              },
+            },
+          ],
           translationZh: {
             low: '嗨，我想跟你说说你们中心摄影课的一些问题，因为我对这门课不满意。',
             high: '尊敬的先生或女士：我写此信是想表达对近期在贵中心参加的晚间摄影课程的不满。',
@@ -437,6 +503,17 @@ Write at least 150 words. Begin your letter as follows: Dear Sir or Madam,`,
           paragraph: 2,
           low: 'I did the evening photography course at your centre, and I paid for it before the course started.',
           high: 'I enrolled on the evening photography course at your centre and paid the course fee in advance.',
+          expressionEdits: [
+            {
+              before: 'paid for it before the course started',
+              after: 'paid the course fee in advance',
+              focus: 'lexis',
+              explanation: {
+                zh: 'the course fee 指明款项，in advance 紧凑表达提前付款。',
+                en: 'The course fee names the payment, and in advance expresses its timing concisely.',
+              },
+            },
+          ],
           translationZh: {
             low: '我在你们中心上了晚间摄影课，而且在课程开始前就付了钱。',
             high: '我报名参加了贵中心的晚间摄影课程，并提前支付了课程费用。',
@@ -465,6 +542,17 @@ Write at least 150 words. Begin your letter as follows: Dear Sir or Madam,`,
           paragraph: 3,
           low: 'The teacher was late many times and he did not teach us many things about the camera.',
           high: 'Unfortunately, the course did not meet my expectations: the tutor arrived late on several occasions and covered far less material than the course description suggested.',
+          expressionEdits: [
+            {
+              before: 'was late many times',
+              after: 'arrived late on several occasions',
+              focus: 'lexis',
+              explanation: {
+                zh: '用具体事件表述迟到情况，适合正式信件中列举投诉事实。',
+                en: 'Describe the repeated incidents in a measured form suitable for a formal complaint.',
+              },
+            },
+          ],
           translationZh: {
             low: '老师迟到了很多次，而且他没教我们多少关于相机的东西。',
             high: '遗憾的是，这门课程未达到我的预期：教师多次迟到，讲授的内容也远少于课程介绍所述。',
@@ -493,6 +581,17 @@ Write at least 150 words. Begin your letter as follows: Dear Sir or Madam,`,
           paragraph: 3,
           low: 'And some lessons finished early, so we lost a lot of time and we did not learn enough to use the camera well.',
           high: 'As a result, several lessons ended early and a considerable amount of teaching time was lost.',
+          expressionEdits: [
+            {
+              before: 'And some lessons finished early',
+              after: 'As a result, several lessons ended early',
+              focus: 'cohesion',
+              explanation: {
+                zh: 'As a result 将课时损失与上文问题连接成因果。',
+                en: 'As a result connects the loss of teaching time to the problems described above.',
+              },
+            },
+          ],
           translationZh: {
             low: '而且有些课提前结束了，所以我们损失了很多时间，也没学到足够的东西来用好相机。',
             high: '结果，有几节课提前结束，损失了相当多的教学时间。',
@@ -507,6 +606,17 @@ Write at least 150 words. Begin your letter as follows: Dear Sir or Madam,`,
           paragraph: 4,
           low: 'So I want you to give me my money back, or you can let me do the course again for free.',
           high: 'I would therefore be grateful if you could either refund the fee or allow me to attend the course again at no extra cost.',
+          expressionEdits: [
+            {
+              before: 'I want you to give me my money back',
+              after: 'I would therefore be grateful if you could either refund the fee',
+              focus: 'grammar',
+              explanation: {
+                zh: 'would be grateful if you could 委婉提出诉求；refund 准确表达退款。',
+                en: 'Would be grateful if you could makes the request polite, while refund states the remedy precisely.',
+              },
+            },
+          ],
           translationZh: {
             low: '所以我想让你把钱退给我，或者你可以让我免费再上一次这门课。',
             high: '因此，如果您能退还课程费用，或允许我无需额外付费再次参加这门课程，我将不胜感激。',
@@ -535,6 +645,17 @@ Write at least 150 words. Begin your letter as follows: Dear Sir or Madam,`,
           paragraph: 5,
           low: 'Please answer me as soon as possible. Yours faithfully,',
           high: 'I look forward to your reply and hope that we can resolve this matter. Yours faithfully,',
+          expressionEdits: [
+            {
+              before: 'Please answer me as soon as possible',
+              after: 'I look forward to your reply and hope that we can resolve this matter',
+              focus: 'lexis',
+              explanation: {
+                zh: '结尾同时期待回复与解决问题，保持正式、合作的语气。',
+                en: 'The closing requests a response and a resolution while maintaining a formal, cooperative tone.',
+              },
+            },
+          ],
           translationZh: {
             low: '请尽快答复我。此致敬礼。',
             high: '期待您的回复，并希望我们能够解决此事。此致敬礼。',

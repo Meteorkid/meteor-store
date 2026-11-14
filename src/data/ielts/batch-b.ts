@@ -204,6 +204,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 1,
           low: 'Nowadays, traffic congestion become a very serious problem in many big city, and many people think the government should do something about it.',
           high: 'Traffic congestion has grown into a serious problem in many large cities, and governments are under mounting pressure to act.',
+          expressionEdits: [
+            {
+              before: 'many people think the government should do something about it',
+              after: 'governments are under mounting pressure to act',
+              focus: 'lexis',
+              explanation: {
+                zh: '用 under mounting pressure to act 表示行动压力不断增加，压缩空泛表述。',
+                en: 'Under mounting pressure to act expresses growing public pressure in a compact phrase.',
+              },
+            },
+          ],
           translationZh: {
             low: '如今，交通拥堵成了许多大城市一个非常严重的问题，许多人认为政府应该为此做点什么。',
             high: '交通拥堵已逐渐成为许多大城市的严重问题，各地政府面临着越来越大的行动压力。',
@@ -232,6 +243,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 2,
           low: 'Firstly, there are too many car in the city because the number of people is increasing very fast, and the public transport is not good enough.',
           high: 'One major cause is the sheer number of private cars, which keeps rising as urban populations grow, while public transport has failed to keep pace.',
+          expressionEdits: [
+            {
+              before: 'the public transport is not good enough',
+              after: 'public transport has failed to keep pace',
+              focus: 'lexis',
+              explanation: {
+                zh: 'keep pace 把交通服务不足与人口增长联系起来，原因更有针对性。',
+                en: 'Keep pace connects insufficient transport to population growth rather than a vague lack of quality.',
+              },
+            },
+          ],
           translationZh: {
             low: '首先，城市里的汽车太多，因为人口增长很快，而且公共交通不够好。',
             high: '一个主要原因是私家车数量庞大，而且随着城市人口增长还在不断增加，公共交通却未能跟上这一增长。',
@@ -260,6 +282,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 2,
           low: 'Also, the roads in old city is very narrow and the traffic lights are not working good, so cars must wait for a long time.',
           high: 'In older districts, narrow roads and poorly timed traffic lights make matters worse, leaving drivers waiting at junctions for long periods.',
+          expressionEdits: [
+            {
+              before: 'so cars must wait for a long time',
+              after: 'leaving drivers waiting at junctions for long periods',
+              focus: 'grammar',
+              explanation: {
+                zh: '用 leaving 引出前述道路问题的结果，让因果自然衔接。',
+                en: 'Leaving introduces the consequence of the road problems without another separate clause.',
+              },
+            },
+          ],
           translationZh: {
             low: '此外，老城区的道路很窄，交通信号灯也运作不佳，所以汽车必须等很长时间。',
             high: '在较老的城区，狭窄的道路和配时不合理的交通信号灯使情况更加严重，导致司机在路口长时间等待。',
@@ -274,6 +307,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 3,
           low: 'To solve this problem, government should build more roads and wider streets, so more cars can go at the same time.',
           high: 'To tackle congestion, governments should expand road capacity and widen key routes, allowing more vehicles to move at the same time.',
+          expressionEdits: [
+            {
+              before: 'build more roads and wider streets',
+              after: 'expand road capacity and widen key routes',
+              focus: 'lexis',
+              explanation: {
+                zh: '用道路容量和主要路线准确描述基础设施措施。',
+                en: 'Road capacity and key routes describe the infrastructure measures more precisely.',
+              },
+            },
+          ],
           translationZh: {
             low: '为了解决这个问题，政府应该修建更多道路和更宽的街道，让更多汽车能够同时通行。',
             high: '为应对拥堵，政府应提高道路通行能力，并拓宽主要路线，让更多车辆能够同时通行。',
@@ -302,6 +346,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 3,
           low: 'Finally, they can also tell people to use bicycle or walk to work, and this is good for the environment too.',
           high: 'Promoting cycling and walking to work would ease congestion and benefit the environment at the same time.',
+          expressionEdits: [
+            {
+              before: 'tell people to use bicycle or walk to work',
+              after: 'Promoting cycling and walking to work',
+              focus: 'grammar',
+              explanation: {
+                zh: '动名词短语作主语，把建议写成清晰的政策行动。',
+                en: 'A gerund phrase turns the recommendation into a clear policy action serving as the subject.',
+              },
+            },
+          ],
           translationZh: {
             low: '最后，政府还可以告诉人们骑自行车或步行上班，这也对环境有好处。',
             high: '推广骑车和步行上班会缓解拥堵，同时也有利于环境。',
@@ -316,6 +371,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 4,
           low: 'I think the most important thing is that the government must spend more money on the subway system, because subway is very fast and never have traffic jam.',
           high: 'In my view, the most effective measure is heavy investment in subway systems, which are fast and rarely held up by traffic.',
+          expressionEdits: [
+            {
+              before: 'never have traffic jam',
+              after: 'rarely held up by traffic',
+              focus: 'accuracy',
+              explanation: {
+                zh: '把绝对的 never 改成 rarely，避免声称地铁永远不受交通影响。',
+                en: 'Rarely replaces the absolute never and avoids an overly categorical claim.',
+              },
+            },
+          ],
           translationZh: {
             low: '我认为最重要的是，政府必须在地铁系统上投入更多资金，因为地铁很快，而且从来不会堵车。',
             high: '在我看来，最有效的措施是大力投资地铁系统；地铁速度快，而且很少因交通拥堵而受阻。',
@@ -358,6 +424,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 5,
           low: 'In conclusion, traffic jam is a big problem and it have many reasons.',
           high: 'In conclusion, traffic congestion stems from a range of causes, and it remains a serious problem for large cities.',
+          expressionEdits: [
+            {
+              before: 'it have many reasons',
+              after: 'stems from a range of causes',
+              focus: 'lexis',
+              explanation: {
+                zh: 'stem from 明确表达“源于”，适合总结问题的多种原因。',
+                en: 'Stem from clearly expresses origin and works well when summarising several causes.',
+              },
+            },
+          ],
           translationZh: {
             low: '总之，交通堵塞是个大问题，而且有很多原因。',
             high: '总之，交通拥堵源于多种原因，而且仍是大城市面临的严重问题。',
@@ -650,6 +727,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 1,
           low: 'Some people think it is good and some people think it is bad, so I will talk about both sides in this essay.',
           high: 'Opinions differ on whether this trend does more good than harm, and this essay will examine both sides before reaching a clear conclusion.',
+          expressionEdits: [
+            {
+              before: 'it is good and some people think it is bad',
+              after: 'this trend does more good than harm',
+              focus: 'lexis',
+              explanation: {
+                zh: 'more good than harm 将好坏并列改成利弊权衡，贴合题型。',
+                en: 'More good than harm frames the issue as a balance of advantages and disadvantages.',
+              },
+            },
+          ],
           translationZh: {
             low: '有些人认为这很好，有些人认为这不好，所以本文将讨论这两个方面。',
             high: '对于这一趋势是否利大于弊，人们看法不一；本文将考察两个方面，然后得出明确结论。',
@@ -664,6 +752,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 2,
           low: 'Firstly, working at home can save a lot of time, because people do not need to take the bus or train to the company every day.',
           high: 'On the positive side, working from home saves a considerable amount of time, as employees no longer have to commute to the office by bus or train each day.',
+          expressionEdits: [
+            {
+              before: 'take the bus or train to the company every day',
+              after: 'commute to the office by bus or train each day',
+              focus: 'lexis',
+              explanation: {
+                zh: 'commute 专指日常通勤，用一个准确动词表达往返上班。',
+                en: 'Commute names regular travel to work precisely instead of a general journey.',
+              },
+            },
+          ],
           translationZh: {
             low: '首先，在家工作可以节省很多时间，因为人们不需要每天坐公交或火车去公司。',
             high: '从积极的一面看，在家办公节省了相当多的时间，因为员工不再需要每天乘公交或火车去办公室上班。',
@@ -678,6 +777,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 2,
           low: 'Secondly, they can have more free time to stay with their family, and this is good for their family relationship.',
           high: 'It also gives them more free time to spend with their families, which in turn strengthens family relationships.',
+          expressionEdits: [
+            {
+              before: 'and this is good for their family relationship',
+              after: 'which in turn strengthens family relationships',
+              focus: 'cohesion',
+              explanation: {
+                zh: 'in turn 连接“增加家庭时间”与“改善关系”的下一步结果。',
+                en: 'In turn connects more family time to the further result of stronger relationships.',
+              },
+            },
+          ],
           translationZh: {
             low: '其次，他们可以有更多空闲时间陪伴家人，这对家庭关系有好处。',
             high: '在家办公也让他们有更多空闲时间陪伴家人，进而增进家庭关系。',
@@ -734,6 +844,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 3,
           low: 'Also, some people cannot control themselves good, so they will watch TV or play phone when they should work.',
           high: 'Some also struggle to discipline themselves, so they end up watching television or scrolling through their phones when they should be working.',
+          expressionEdits: [
+            {
+              before: 'cannot control themselves good',
+              after: 'struggle to discipline themselves',
+              focus: 'lexis',
+              explanation: {
+                zh: 'struggle to discipline themselves 准确表达自律困难，替代生硬搭配。',
+                en: 'Struggle to discipline themselves expresses difficulty with self-control in a natural phrase.',
+              },
+            },
+          ],
           translationZh: {
             low: '此外，有些人不能很好地控制自己，所以他们会在应该工作的时候看电视或玩手机。',
             high: '有些人也难以自律，结果在本该工作的时候看起了电视或刷起了手机。',
@@ -748,6 +869,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 4,
           low: 'In my opinion, the advantages are bigger than the disadvantages, because time is very important for everyone and people can use the saved time to do many things.',
           high: 'In my view, the advantages carry more weight, since time is a precious resource and the hours saved can be devoted to other things.',
+          expressionEdits: [
+            {
+              before: 'the advantages are bigger than the disadvantages',
+              after: 'the advantages carry more weight',
+              focus: 'lexis',
+              explanation: {
+                zh: 'carry more weight 表示比较后的重要性更高，而非字面上的大小。',
+                en: 'Carry more weight compares the importance of the benefits rather than their literal size.',
+              },
+            },
+          ],
           translationZh: {
             low: '在我看来，优点大于缺点，因为时间对每个人都很重要，而且人们可以用省下的时间做很多事情。',
             high: '在我看来，优势更为重要，因为时间是一种宝贵资源，省下的时间可以投入其他事情。',
@@ -776,6 +908,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 4,
           low: 'For example, they can use the meeting to know what the workers are doing and give them some help.',
           high: 'Such meetings allow managers to see how their staff are progressing and to offer practical help when it is needed.',
+          expressionEdits: [
+            {
+              before: 'use the meeting to know what the workers are doing',
+              after: 'Such meetings allow managers to see how their staff are progressing',
+              focus: 'cohesion',
+              explanation: {
+                zh: 'Such meetings 回指前句措施，再说明它如何帮助管理。',
+                en: 'Such meetings refers back to the proposed measure and explains how it helps management.',
+              },
+            },
+          ],
           translationZh: {
             low: '例如，公司可以利用会议了解员工正在做什么，并给予他们一些帮助。',
             high: '这样的会议能让管理者了解员工的工作进展，并在需要时提供切实帮助。',
@@ -804,6 +947,17 @@ export const batchB: IeltsPairSeed[] = [
           paragraph: 5,
           low: 'Everyone should choose the way that is good for them, and the government should make some rules to make it better.',
           high: 'Individuals should choose the arrangement that suits them best, while governments should set sensible rules for this new way of working.',
+          expressionEdits: [
+            {
+              before: 'the way that is good for them',
+              after: 'the arrangement that suits them best',
+              focus: 'lexis',
+              explanation: {
+                zh: '用 suits them best 强调与个人情况的适配，结论更精确。',
+                en: 'Suits them best highlights the fit with individual circumstances and sharpens the conclusion.',
+              },
+            },
+          ],
           translationZh: {
             low: '每个人都应该选择对自己好的方式，而政府应该制定一些规则，让这种工作方式变得更好。',
             high: '个人应选择最适合自己的安排，而政府应为这种新的工作方式制定合理规则。',

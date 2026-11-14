@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { IeltsPairContentSchema, IeltsLearningSchema, countWords, type IeltsFocus, type IeltsPairContent, type IeltsTask } from './types';
+import { IeltsPairContentSchema, IeltsLearningSchema, IeltsExpressionEditSchema, countWords, type IeltsFocus, type IeltsPairContent, type IeltsTask } from './types';
 
 /**
  * 用 DeepSeek 生成一组新的 5 分 / 8 分对照。
@@ -32,6 +32,7 @@ const generatedSchema = z.object({
     high: z.string().trim().min(1).max(600),
     focus: z.array(z.enum(['task', 'cohesion', 'lexis', 'grammar', 'accuracy'])).min(1).max(3),
     translationZh: z.object({ low: z.string().trim().min(1).max(1200), high: z.string().trim().min(1).max(1200) }).strict(),
+    expressionEdits: z.array(IeltsExpressionEditSchema).min(1).max(2).optional(),
     note: z.object({ zh: z.string().trim().min(1).max(400), en: z.string().trim().min(1).max(400) }).strict(),
   }).strict()).min(6).max(30),
   criteria: z.array(z.object({
@@ -88,6 +89,9 @@ ${TASK_GUIDE[request.task]}
 note 用中英双语说明这一句具体改了什么、为什么更高分，要具体到词和结构（例如「think → maintain：把主观看法换成可论证的动词」），
 不要写「更高级」这种空话。${request.task === 'task2' ? 'segments 12–20 个。' : 'segments 8–14 个。'}
 
+每段挑选1–2个代表性表达配对，在相应segment上提供expressionEdits（每句最多2条）：
+{before:原文中的短语,after:升级版对应的短语,focus:task/cohesion/lexis/grammar/accuracy之一,explanation:{zh,en}}。
+before必须原样连续出现在该句low，after必须原样连续出现在high，两者不能相同；优先选择语义对应短语，不能把不相干的字面差异强行配对。每段至少有一处重点，说明具体的写作改进。
 每个 segment 还必须有 translationZh:{low,high}，分别忠实翻译两边原句。
 中文自然通顺，但保留各自的立场、否定、程度、数字、例子及限定，不能把高分版的意思补进低分版。
 低分版的语法问题不必在中文中模仿；事实或数字错误仍按原意翻译，纠错写入 note，不偷改译文。
@@ -258,6 +262,8 @@ export async function generateIeltsPair(request: IeltsGenerationRequest): Promis
       const parsed = generatedSchema.parse(normalizeModelJson(raw));
       const content = IeltsPairContentSchema.parse({ ...parsed, bandLow: 5, bandHigh: 8 });
       assertWordCounts(request.task, content);
+      const covered = new Set(content.segments.filter(segment => segment.expressionEdits?.length).map(segment => segment.paragraph));
+      if (content.segments.some(segment => !covered.has(segment.paragraph))) throw new Error('每段至少需要一处有效表达块');
       essay = content;
       break;
     } catch (error) {

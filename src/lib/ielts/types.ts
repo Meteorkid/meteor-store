@@ -32,6 +32,15 @@ const bilingual = (max: number) => z.object({
 const BilingualTextSchema = bilingual(400);
 const BilingualLongTextSchema = bilingual(1200);
 
+/** 人工或生成阶段明确配对的表达块，不由字面差异算法推测语义关系。 */
+export const IeltsExpressionEditSchema = z.object({
+  before: z.string().trim().min(1).max(300),
+  after: z.string().trim().min(1).max(300),
+  focus: IeltsFocusSchema,
+  explanation: BilingualTextSchema,
+}).strict();
+export type IeltsExpressionEdit = z.infer<typeof IeltsExpressionEditSchema>;
+
 /** 讲解绑定到正文中的具体段落/句子，避免范文更新后仍显示另一篇的笔记。 */
 export const IeltsLearningSchema = z.object({
   taskAnalysis: bilingual(1800),
@@ -68,12 +77,25 @@ export const IeltsSegmentSchema = z.object({
   high: z.string().trim().min(1).max(600),
   focus: z.array(IeltsFocusSchema).min(1).max(3),
   note: BilingualTextSchema,
+  expressionEdits: z.array(IeltsExpressionEditSchema).min(1).max(2).optional(),
   /** 两版分别翻译，保留原句立场、数量与限定；旧版正文允许尚无译文。 */
   translationZh: z.object({
     low: z.string().trim().min(1).max(1200),
     high: z.string().trim().min(1).max(1200),
   }).strict().optional(),
-}).strict();
+}).strict().superRefine((segment, context) => {
+  segment.expressionEdits?.forEach((edit, index) => {
+    if (!segment.low.includes(edit.before)) {
+      context.addIssue({ code: 'custom', path: ['expressionEdits', index, 'before'], message: '原表达必须原样出现在本句低分版中' });
+    }
+    if (!segment.high.includes(edit.after)) {
+      context.addIssue({ code: 'custom', path: ['expressionEdits', index, 'after'], message: '升级表达必须原样出现在本句高分版中' });
+    }
+    if (edit.before === edit.after) {
+      context.addIssue({ code: 'custom', path: ['expressionEdits', index], message: '表达块必须包含实际改写' });
+    }
+  });
+});
 export type IeltsSegment = z.infer<typeof IeltsSegmentSchema>;
 
 export const IeltsPairContentSchema = z.object({

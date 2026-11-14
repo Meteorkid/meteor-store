@@ -40,7 +40,7 @@
 .paragraphHeader h3 { font-size: 1rem; font-weight: 600; color: #fff; }
 .paragraphHeader > span { font-size: 0.8125rem; color: rgb(255 255 255 / 65%); }
 .columnHeadings { display: none; }
-.sentenceCard { border-top: 1px solid var(--reader-line); background: rgb(5 8 12 / 78%); }
+.sentenceCard { border-top: 1px solid var(--reader-line); background: rgb(5 8 12 / 78%); scroll-margin-top: 8rem; }
 .sentenceCard:last-child { border-bottom: 1px solid var(--reader-line); }
 .sentenceCard[data-focused='true'] { box-shadow: inset 3px 0 #bda5ee; }
 .sentenceCard[data-note-open='true'] { background: rgb(17 21 28 / 95%); }

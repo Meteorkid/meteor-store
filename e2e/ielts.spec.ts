@@ -66,6 +66,7 @@ test.describe('雅思写作对照', () => {
     expect(await low.evaluate(node => getComputedStyle(node).fontFamily))
       .not.toBe(await high.evaluate(node => getComputedStyle(node).fontFamily));
     const before = { low: await low.innerText(), high: await high.innerText() };
+    await page.getByRole('button', { name: '显示改动标记', exact: true }).click();
     await expect(page.locator('mark[data-change="removed"]').first()).toBeVisible();
     await expect(page.locator('mark[data-change="added"]').first()).toBeVisible();
     await page.getByRole('button', { name: '隐藏改动标记', exact: true }).click();
