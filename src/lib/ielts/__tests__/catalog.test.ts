@@ -1,6 +1,24 @@
-import { describe, expect, it } from 'vitest';
-import { mergeIeltsPairs, validCuratedPairs, type IeltsPairRow } from '../catalog';
-import type { IeltsFocus, IeltsPairSeed } from '../types';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SQL } from 'drizzle-orm';
+import { PgDialect } from 'drizzle-orm/pg-core';
+import { curatedIeltsPairs } from '@/data/ielts';
+import { getIeltsPair, listIeltsPairs, mergeIeltsPairs, validCuratedPairs, type IeltsPairRow } from '../catalog';
+import { IeltsPairSeedSchema, type IeltsFocus, type IeltsPairSeed } from '../types';
+
+const queries = vi.hoisted(() => ({
+  select: vi.fn(), from: vi.fn(), where: vi.fn(), limit: vi.fn(), orderBy: vi.fn(),
+}));
+vi.mock('@/lib/db', () => ({ db: { select: queries.select } }));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  queries.select.mockReturnValue({ from: queries.from });
+  queries.from.mockReturnValue({ where: queries.where, orderBy: queries.orderBy });
+  queries.where.mockReturnValue({ limit: queries.limit });
+  queries.limit.mockResolvedValue([]);
+  queries.orderBy.mockResolvedValue([]);
+});
+afterEach(() => vi.restoreAllMocks());
 
 /**
  * 合并规则是这一页最容易出错的地方：文件里的精选内容与数据库里的内容
@@ -64,6 +82,24 @@ describe('精选内容校验', () => {
     const kept = validCuratedPairs([seed('good-one'), broken]);
     expect(kept.map(item => item.slug)).toEqual(['good-one']);
   });
+
+  it('默认静态精选只校验一次，再次读取复用结果', () => {
+    const parse = vi.spyOn(IeltsPairSeedSchema, 'safeParse');
+    const first = validCuratedPairs();
+    const firstCalls = parse.mock.calls.length;
+    expect(first.length).toBeGreaterThanOrEqual(6);
+    expect(validCuratedPairs()).toBe(first);
+    expect(parse).toHaveBeenCalledTimes(firstCalls);
+  });
+
+  it('显式传入的内容始终重新校验，同一数组改坏后不会命中静态缓存', () => {
+    const content = [seed('custom-one')];
+    expect(validCuratedPairs(content)).toHaveLength(1);
+    content[0].sortOrder = -1;
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(validCuratedPairs(content)).toEqual([]);
+    expect(log).toHaveBeenCalledOnce();
+  });
 });
 
 describe('合并规则', () => {
@@ -111,5 +147,77 @@ describe('合并规则', () => {
   it('数据库可以新增文件里没有的对照', () => {
     const merged = mergeIeltsPairs([seed('a')], [row('generated-one', { content: seed('generated-one').content, sortOrder: 2 })]);
     expect(merged.map(item => item.slug)).toEqual(['generated-one', 'a']);
+  });
+});
+
+describe('公开单篇读取', () => {
+  const curated = curatedIeltsPairs[0];
+
+  it('仅点查目标 slug，并限制一行，不读取全库列表', async () => {
+    const result = await getIeltsPair(curated.slug);
+    expect(result?.slug).toBe(curated.slug);
+    expect(result?.source).toBe('curated');
+    const query = new PgDialect().sqlToQuery(queries.where.mock.calls[0][0] as SQL);
+    expect(query.sql).toBe('"ielts_pairs"."slug" = $1');
+    expect(query.params).toEqual([curated.slug]);
+    expect(queries.limit).toHaveBeenCalledWith(1);
+    expect(queries.orderBy).not.toHaveBeenCalled();
+  });
+
+  it('空数据库下原有六组精选仍可逐篇读取', async () => {
+    for (const original of curatedIeltsPairs.slice(0, 6)) {
+      expect(await getIeltsPair(original.slug)).toMatchObject({ slug: original.slug, source: 'curated' });
+    }
+  });
+
+  it('published 正文覆盖精选，空正文仅覆盖元数据并保留精选来源', async () => {
+    const replacement = seed('replacement').content;
+    queries.limit.mockResolvedValueOnce([row(curated.slug, { content: replacement, sortOrder: 2 })]);
+    expect(await getIeltsPair(curated.slug)).toMatchObject({ content: replacement, source: 'generated', sortOrder: 2 });
+    queries.limit.mockResolvedValueOnce([row(curated.slug, { content: null, sortOrder: 3 })]);
+    expect(await getIeltsPair(curated.slug)).toMatchObject({ content: curated.content, source: 'curated', sortOrder: 3 });
+  });
+
+  it('发布后再下架与重新发布即时生效，不缓存数据库状态', async () => {
+    queries.limit.mockResolvedValueOnce([])
+      .mockResolvedValueOnce([row(curated.slug, { status: 'hidden' })])
+      .mockResolvedValueOnce([row(curated.slug, { status: 'published', sortOrder: 7 })]);
+    expect(await getIeltsPair(curated.slug)).not.toBeNull();
+    expect(await getIeltsPair(curated.slug)).toBeNull();
+    expect(await getIeltsPair(curated.slug)).toMatchObject({ sortOrder: 7 });
+    expect(queries.select).toHaveBeenCalledTimes(3);
+  });
+
+  it('数据库草稿不会覆盖精选，也不会把仅存数据库的草稿公开', async () => {
+    queries.limit.mockResolvedValueOnce([row(curated.slug, { status: 'draft', content: seed('draft').content })]);
+    expect(await getIeltsPair(curated.slug)).toMatchObject({ source: 'curated', content: curated.content });
+    queries.limit.mockResolvedValueOnce([row('only-draft', { status: 'draft', content: seed('draft').content })]);
+    expect(await getIeltsPair('only-draft')).toBeNull();
+  });
+
+  it('数据库独有的发布内容可读，空正文或未知 slug 返回空', async () => {
+    queries.limit.mockResolvedValueOnce([row('new-public', { content: seed('new-public').content })]);
+    expect(await getIeltsPair('new-public')).toMatchObject({ slug: 'new-public', source: 'generated' });
+    queries.limit.mockResolvedValueOnce([row('empty-public')]);
+    expect(await getIeltsPair('empty-public')).toBeNull();
+    expect(await getIeltsPair('unknown-slug')).toBeNull();
+  });
+
+  it('数据库异常仍回退对应精选，未知 slug 不会冒出其他精选', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    queries.limit.mockRejectedValue(new Error('offline'));
+    expect(await getIeltsPair(curated.slug)).toMatchObject({ slug: curated.slug, source: 'curated' });
+    expect(await getIeltsPair('unknown-slug')).toBeNull();
+  });
+
+  it('列表继续全量合并与排序，每次读取新状态，失败继续降级精选', async () => {
+    queries.orderBy.mockResolvedValueOnce([row(curated.slug, { status: 'hidden' })])
+      .mockResolvedValueOnce([row(curated.slug, { sortOrder: 0 })]);
+    expect((await listIeltsPairs()).some(pair => pair.slug === curated.slug)).toBe(false);
+    expect((await listIeltsPairs())[0]).toMatchObject({ slug: curated.slug, sortOrder: 0 });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    queries.orderBy.mockRejectedValueOnce(new Error('offline'));
+    expect((await listIeltsPairs()).some(pair => pair.slug === curated.slug)).toBe(true);
+    expect(queries.where).not.toHaveBeenCalled();
   });
 });

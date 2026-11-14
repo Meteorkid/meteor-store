@@ -50,14 +50,19 @@ export interface IeltsPairRow {
   updatedAt?: string;
 }
 
-/** 文件里的精选对照先过一遍协议：坏数据丢弃并留痕，不让一组坏内容把整页拖垮。 */
-export function validCuratedPairs(seeds: IeltsPairSeed[] = curatedIeltsPairs): IeltsPairSeed[] {
+let cachedCuratedPairs: IeltsPairSeed[] | undefined;
+let curatedPairsBySlug: Map<string, IeltsPairSeed> | undefined;
+
+/** 默认精选随代码固定，只校验一次；显式传入的内容每次重新校验。 */
+export function validCuratedPairs(seeds?: IeltsPairSeed[]): IeltsPairSeed[] {
+  if (seeds === undefined && cachedCuratedPairs) return cachedCuratedPairs;
   const valid: IeltsPairSeed[] = [];
-  for (const seed of seeds) {
+  for (const seed of seeds ?? curatedIeltsPairs) {
     const parsed = IeltsPairSeedSchema.safeParse(seed);
     if (parsed.success) valid.push(parsed.data);
     else console.error('雅思对照内容不合法，已跳过', seed?.slug, parsed.error.issues[0]?.message);
   }
+  if (seeds === undefined) cachedCuratedPairs = valid;
   return valid;
 }
 
@@ -116,8 +121,17 @@ export async function listIeltsPairs(): Promise<IeltsPairRecord[]> {
 }
 
 export async function getIeltsPair(slug: string): Promise<IeltsPairRecord | null> {
-  const pairs = await listIeltsPairs();
-  return pairs.find(pair => pair.slug === slug) ?? null;
+  curatedPairsBySlug ??= new Map(validCuratedPairs().map(seed => [seed.slug, seed]));
+  const curated = curatedPairsBySlug.get(slug);
+  const seeds = curated ? [curated] : [];
+  try {
+    // 数据库状态不缓存：后台发布或下架后，下一次读取就遵循同一套合并规则。
+    const row = await findIeltsPairRow(slug);
+    return mergeIeltsPairs(seeds, row ? [row] : [])[0] ?? null;
+  } catch (error) {
+    console.error('雅思对照读取失败，退回精选内容', error);
+    return mergeIeltsPairs(seeds, [])[0] ?? null;
+  }
 }
 
 /** 后台用：连同未发布的数据库行一起列出，并标出哪些 slug 会被下架覆盖。 */

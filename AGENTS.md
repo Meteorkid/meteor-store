@@ -1511,6 +1511,8 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 
 ## 雅思写作对照（2026-11-14）
 
+- 文件精选现为100组（Task 2 / Academic / General = 60 / 25 / 15），原六组保持不变，新增94组在`generated-corpus.json`，由`batch-expansion.ts`接入。题目计划为`expansion-plan.ts`，离线扩充脚本保留每题失败与审订记录；导出前必须通过`ielts-corpus.test.ts`及原表达块契约，每段1–3处真实短语重点，不能拿整句复制成卡片。列表全摘要搜索、每批24组，不能只搜索已展示卡片。扩容验收见`docs/process/2026-11-14-ielts-corpus-100.md`。
+
 - 页面 `/study/ielts`（对照库）与 `/study/ielts/[slug]`（逐句对照）。**这是学习区里唯一公开、可被搜索引擎收录的页面**：范文是共享内容不是私人数据，游客直接读，登录只是为了记住「已学 / 收藏」；其余学习页保持 `noindex` + 登录可见。sitemap 收录列表页与每一组详情页（带双语 alternates）。
 - 内容模型是「一组 = 同一篇作文的 5 分档与 8 分档」：正文**只存逐句对齐的 segments**，两版全文由 `essayParagraphs` 推导。协议（`src/lib/ielts/types.ts`）强制段落编号从 1 连续、每段两版句数一致——左右两栏错位是这个页面唯一不能出的错，所以宁可在协议层拒绝。
 - 内容来自两处，运行时按 slug 合并（`src/lib/ielts/catalog.ts`）：文件精选 `src/data/ielts/batch-*.ts`（随代码上线，空库也有内容）+ 表 `ielts_pairs`（后台生成或改写）。规则：数据库 `hidden` 把该 slug 整体下架（文件版本也不回填）、`published` 且有 content 整组替换、content 为空只覆盖状态与排序、`draft` 不公开、**读数据库失败退回只用文件内容**（公开页不因数据库抖动变空白）。每条规则在 `src/lib/ielts/__tests__/catalog.test.ts` 里各有一条测试。

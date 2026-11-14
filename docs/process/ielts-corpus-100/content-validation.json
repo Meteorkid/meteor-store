@@ -1,0 +1,968 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T12:26:26.518Z",
+  "source": {
+    "entrypoint": "src/data/ielts/index.ts",
+    "exportName": "curatedIeltsPairs",
+    "gitHead": "8070c356a3924e73035bf44d00a8a5835328862c",
+    "generatedCorpus": "src/data/ielts/generated-corpus.json",
+    "generatedCorpusSha256": "aa7b9805b52425250b35513a68b57c531e96bc861b396a6b9e2cb2e11275f28c",
+    "reviewRunDirectory": "/tmp/meteor-ielts-100-sYlzD5dx",
+    "evidenceArchive": "/Users/meteor/obsidian/项目总结/附件/2026-11-14-雅思100篇扩容验收"
+  },
+  "measurementScope": {
+    "validation": "Offline corpus structure, internal references, content counts, word ranges and textual duplicate checks.",
+    "bandLabels": "5/8 are pedagogical comparison labels, not official IELTS scores validated by this file.",
+    "editorialProvenance": "Manual/editorial records document direct Codex-agent editing/review, separate from generation/reviewer API outputs; they do not establish human-examiner approval.",
+    "reviewIndependence": "Separate recorded review activity is evidenced. Independence of reviewer identity from authorship, or independent human review, is not verified.",
+    "counts": "Aligned paragraphs and sentence pairs are counted once; both-version totals are separate. Vocabulary counts are contextual term entries, not deduplicated words."
+  },
+  "catalog": {
+    "total": 100,
+    "original": 6,
+    "added": 94,
+    "tasks": {
+      "task1-academic": 25,
+      "task1-general": 15,
+      "task2": 60
+    },
+    "categories": {
+      "advantage-disadvantage": 12,
+      "bar-chart": 5,
+      "discussion": 12,
+      "letter-formal": 5,
+      "letter-informal": 5,
+      "letter-semi-formal": 5,
+      "line-graph": 5,
+      "map": 3,
+      "opinion": 12,
+      "pie-chart": 4,
+      "problem-solution": 12,
+      "process": 3,
+      "table": 5,
+      "two-part": 12
+    },
+    "originalSlugs": [
+      "task1-academic-table-energy",
+      "task1-general-letter-complaint",
+      "task2-advantage-remote-work",
+      "task2-discussion-technology",
+      "task2-opinion-university-education",
+      "task2-problem-solution-city-traffic"
+    ]
+  },
+  "contentCounts": {
+    "all": {
+      "pairs": 100,
+      "alignedSentencePairs": 1342,
+      "englishSentenceSegments": 2684,
+      "alignedParagraphs": 409,
+      "essayParagraphsBothVersions": 818,
+      "chineseTranslations": {
+        "low": 1342,
+        "high": 1342,
+        "total": 2684,
+        "sentencePairsWithBoth": 1342
+      },
+      "bilingualSentenceNotes": 1342,
+      "expressionCards": 806,
+      "contextualVocabularyEntries": 612,
+      "paragraphAnalyses": 409,
+      "techniqueEntries": 309,
+      "mistakeEntries": 210
+    },
+    "originalSix": {
+      "pairs": 6,
+      "alignedSentencePairs": 74,
+      "englishSentenceSegments": 148,
+      "alignedParagraphs": 27,
+      "essayParagraphsBothVersions": 54,
+      "chineseTranslations": {
+        "low": 74,
+        "high": 74,
+        "total": 148,
+        "sentencePairsWithBoth": 74
+      },
+      "bilingualSentenceNotes": 74,
+      "expressionCards": 39,
+      "contextualVocabularyEntries": 48,
+      "paragraphAnalyses": 27,
+      "techniqueEntries": 26,
+      "mistakeEntries": 22
+    },
+    "added94": {
+      "pairs": 94,
+      "alignedSentencePairs": 1268,
+      "englishSentenceSegments": 2536,
+      "alignedParagraphs": 382,
+      "essayParagraphsBothVersions": 764,
+      "chineseTranslations": {
+        "low": 1268,
+        "high": 1268,
+        "total": 2536,
+        "sentencePairsWithBoth": 1268
+      },
+      "bilingualSentenceNotes": 1268,
+      "expressionCards": 767,
+      "contextualVocabularyEntries": 564,
+      "paragraphAnalyses": 382,
+      "techniqueEntries": 283,
+      "mistakeEntries": 188
+    }
+  },
+  "wordCounts": {
+    "counter": "src/lib/ielts/types.ts:countWords; alphabetic tokens with internal apostrophes/hyphens; digits are excluded.",
+    "all": {
+      "overall": {
+        "pairs": 100,
+        "low": {
+          "min": 151,
+          "max": 300
+        },
+        "high": {
+          "min": 150,
+          "max": 312
+        }
+      },
+      "byTask": {
+        "task2": {
+          "pairs": 60,
+          "low": {
+            "min": 250,
+            "max": 300
+          },
+          "high": {
+            "min": 254,
+            "max": 312
+          }
+        },
+        "task1-academic": {
+          "pairs": 25,
+          "low": {
+            "min": 151,
+            "max": 196
+          },
+          "high": {
+            "min": 150,
+            "max": 221
+          }
+        },
+        "task1-general": {
+          "pairs": 15,
+          "low": {
+            "min": 153,
+            "max": 186
+          },
+          "high": {
+            "min": 157,
+            "max": 209
+          }
+        }
+      }
+    },
+    "originalSix": {
+      "overall": {
+        "pairs": 6,
+        "low": {
+          "min": 155,
+          "max": 287
+        },
+        "high": {
+          "min": 187,
+          "max": 304
+        }
+      },
+      "byTask": {
+        "task2": {
+          "pairs": 4,
+          "low": {
+            "min": 271,
+            "max": 287
+          },
+          "high": {
+            "min": 264,
+            "max": 304
+          }
+        },
+        "task1-academic": {
+          "pairs": 1,
+          "low": {
+            "min": 161,
+            "max": 161
+          },
+          "high": {
+            "min": 196,
+            "max": 196
+          }
+        },
+        "task1-general": {
+          "pairs": 1,
+          "low": {
+            "min": 155,
+            "max": 155
+          },
+          "high": {
+            "min": 187,
+            "max": 187
+          }
+        }
+      }
+    },
+    "added94": {
+      "overall": {
+        "pairs": 94,
+        "low": {
+          "min": 151,
+          "max": 300
+        },
+        "high": {
+          "min": 150,
+          "max": 312
+        }
+      },
+      "byTask": {
+        "task2": {
+          "pairs": 56,
+          "low": {
+            "min": 250,
+            "max": 300
+          },
+          "high": {
+            "min": 254,
+            "max": 312
+          }
+        },
+        "task1-academic": {
+          "pairs": 24,
+          "low": {
+            "min": 151,
+            "max": 196
+          },
+          "high": {
+            "min": 150,
+            "max": 221
+          }
+        },
+        "task1-general": {
+          "pairs": 14,
+          "low": {
+            "min": 153,
+            "max": 186
+          },
+          "high": {
+            "min": 157,
+            "max": 209
+          }
+        }
+      },
+      "enforcedRanges": {
+        "task2": {
+          "low": [
+            250,
+            300
+          ],
+          "high": [
+            250,
+            320
+          ]
+        },
+        "task1-academic": {
+          "low": [
+            150,
+            200
+          ],
+          "high": [
+            150,
+            230
+          ]
+        },
+        "task1-general": {
+          "low": [
+            150,
+            200
+          ],
+          "high": [
+            150,
+            230
+          ]
+        }
+      }
+    },
+    "legacyBoundary": "New-94 strict ranges are not retroactively imposed on the preserved original six."
+  },
+  "qualityChecks": {
+    "new94Audit": {
+      "function": "auditIeltsCorpusPair",
+      "auditedPairs": 94,
+      "pairsWithErrors": 0,
+      "totalErrors": 0,
+      "errors": []
+    },
+    "all100Duplicates": {
+      "function": "findCorpusDuplicates",
+      "comparedPairs": 100,
+      "duplicatePairCount": 0,
+      "duplicates": [],
+      "method": "Exact normalized slug/prompt matches and high-version five-word shingle Jaccard above 0.6 after common-phrase exclusions.",
+      "limits": "Textual overlap only; not semantic uniqueness, external originality clearance or plagiarism certification."
+    },
+    "originalFilesAgainstGitHead": {
+      "allByteIdentical": true,
+      "allSha256Identical": true,
+      "files": [
+        {
+          "file": "src/data/ielts/batch-a.ts",
+          "currentBytes": 89772,
+          "headBytes": 89772,
+          "currentSha256": "b41cf5b438c07d3f3968d419aba17d3ddc4440efcb928d8ee1461414599bea5c",
+          "headSha256": "b41cf5b438c07d3f3968d419aba17d3ddc4440efcb928d8ee1461414599bea5c",
+          "byteIdentical": true,
+          "sha256Identical": true
+        },
+        {
+          "file": "src/data/ielts/batch-b.ts",
+          "currentBytes": 93959,
+          "headBytes": 93959,
+          "currentSha256": "a717e97dbd9abf9ded029913722cfb842045664226d768a8c47b32e15ef5668a",
+          "headSha256": "a717e97dbd9abf9ded029913722cfb842045664226d768a8c47b32e15ef5668a",
+          "byteIdentical": true,
+          "sha256Identical": true
+        },
+        {
+          "file": "src/data/ielts/batch-c.ts",
+          "currentBytes": 82820,
+          "headBytes": 82820,
+          "currentSha256": "b96f3647678369aaaaa42e71c4b22a74bcb219c7b9395995adb5e9e8b3496298",
+          "headSha256": "b96f3647678369aaaaa42e71c4b22a74bcb219c7b9395995adb5e9e8b3496298",
+          "byteIdentical": true,
+          "sha256Identical": true
+        }
+      ]
+    }
+  },
+  "editorialReviewEvidence": {
+    "recordFiles": 46,
+    "uniqueSlugsWithAnyRecordedEditorialReview": 44,
+    "completePairReview": {
+      "uniqueSlugs": 15,
+      "slugs": [
+        "task1-academic-process-paper-recycling",
+        "task1-academic-table-library-branches",
+        "task1-general-formal-room-enquiry",
+        "task2-discussion-ai-customer-service",
+        "task2-discussion-assessment-methods",
+        "task2-discussion-health-prevention",
+        "task2-discussion-water-responsibility",
+        "task2-opinion-advertising-disclosure",
+        "task2-opinion-free-drinking-water",
+        "task2-opinion-library-digital-help",
+        "task2-opinion-local-history-curriculum",
+        "task2-opinion-public-science-access",
+        "task2-opinion-school-start-times",
+        "task2-opinion-urban-tree-budgets",
+        "task2-opinion-work-messages"
+      ],
+      "recordCount": 15,
+      "finalEnglishTextMismatchSlugs": []
+    },
+    "boundedNumericFlowTaskScopeReview": {
+      "uniqueSlugs": 14,
+      "slugs": [
+        "task1-academic-bar-campus-transport",
+        "task1-academic-bar-household-time",
+        "task1-academic-bar-leisure-age",
+        "task1-academic-bar-museum-arrivals",
+        "task1-academic-line-river-ferry",
+        "task1-academic-line-solar-output",
+        "task1-academic-map-community-garden",
+        "task1-academic-map-library-redesign",
+        "task1-academic-map-riverside-site",
+        "task1-academic-pie-building-energy",
+        "task1-academic-pie-student-spending",
+        "task1-academic-process-paper-recycling",
+        "task1-academic-table-household-water",
+        "task1-academic-table-library-branches"
+      ]
+    },
+    "targetedEditorialReview": {
+      "uniqueSlugs": 17,
+      "slugs": [
+        "task1-academic-bar-reusable-cups",
+        "task1-academic-line-evening-courses",
+        "task1-academic-line-internet-access",
+        "task1-academic-line-library-loans",
+        "task1-academic-pie-waste-treatment",
+        "task1-academic-process-device-refurbishment",
+        "task1-academic-process-seed-bank",
+        "task1-academic-table-training-outcomes",
+        "task1-general-semi-formal-landlord-repair",
+        "task1-general-semi-formal-meeting-change",
+        "task2-discussion-tourism-limits",
+        "task2-opinion-volunteer-choice",
+        "task2-problem-solution-household-food-waste",
+        "task2-problem-solution-seasonal-tourism",
+        "task2-two-part-health-information",
+        "task2-two-part-local-crafts",
+        "task2-two-part-night-time-cities"
+      ]
+    },
+    "limitedReviewOnly": {
+      "uniqueSlugs": 29,
+      "slugs": [
+        "task1-academic-bar-campus-transport",
+        "task1-academic-bar-household-time",
+        "task1-academic-bar-leisure-age",
+        "task1-academic-bar-museum-arrivals",
+        "task1-academic-bar-reusable-cups",
+        "task1-academic-line-evening-courses",
+        "task1-academic-line-internet-access",
+        "task1-academic-line-library-loans",
+        "task1-academic-line-river-ferry",
+        "task1-academic-line-solar-output",
+        "task1-academic-map-community-garden",
+        "task1-academic-map-library-redesign",
+        "task1-academic-map-riverside-site",
+        "task1-academic-pie-building-energy",
+        "task1-academic-pie-student-spending",
+        "task1-academic-pie-waste-treatment",
+        "task1-academic-process-device-refurbishment",
+        "task1-academic-process-seed-bank",
+        "task1-academic-table-household-water",
+        "task1-academic-table-training-outcomes",
+        "task1-general-semi-formal-landlord-repair",
+        "task1-general-semi-formal-meeting-change",
+        "task2-discussion-tourism-limits",
+        "task2-opinion-volunteer-choice",
+        "task2-problem-solution-household-food-waste",
+        "task2-problem-solution-seasonal-tourism",
+        "task2-two-part-health-information",
+        "task2-two-part-local-crafts",
+        "task2-two-part-night-time-cities"
+      ]
+    },
+    "notCountedAsCompleteReview": {
+      "manualWritingRevisionOnlyEvidence": {
+        "artifactFiles": 43,
+        "slugs": [
+          "task1-academic-bar-reusable-cups",
+          "task1-academic-line-evening-courses",
+          "task1-academic-line-internet-access",
+          "task1-academic-line-library-loans",
+          "task1-academic-pie-council-budget",
+          "task1-academic-pie-waste-treatment",
+          "task1-academic-process-device-refurbishment",
+          "task1-academic-process-seed-bank",
+          "task1-academic-table-commuting-options",
+          "task1-academic-table-library-branches",
+          "task1-academic-table-training-outcomes",
+          "task1-general-formal-room-enquiry",
+          "task1-general-formal-volunteer-application",
+          "task1-general-informal-house-sitting",
+          "task1-general-informal-thank-you-help",
+          "task1-general-semi-formal-meeting-change",
+          "task1-general-semi-formal-neighbour-noise",
+          "task2-advantage-cashless-shops",
+          "task2-advantage-citizen-science",
+          "task2-advantage-multigenerational-living",
+          "task2-advantage-pedestrian-streets",
+          "task2-advantage-self-service-lockers",
+          "task2-discussion-news-local-global",
+          "task2-discussion-tourism-limits",
+          "task2-opinion-free-drinking-water",
+          "task2-opinion-local-history-curriculum",
+          "task2-opinion-school-start-times",
+          "task2-opinion-volunteer-choice",
+          "task2-problem-solution-museum-participation",
+          "task2-problem-solution-neighbour-isolation",
+          "task2-problem-solution-new-staff-turnover",
+          "task2-problem-solution-reading-habits",
+          "task2-problem-solution-seasonal-tourism",
+          "task2-problem-solution-sedentary-routines",
+          "task2-two-part-adult-learning",
+          "task2-two-part-career-breaks",
+          "task2-two-part-customer-reviews",
+          "task2-two-part-digital-convenience",
+          "task2-two-part-local-crafts",
+          "task2-two-part-night-time-cities",
+          "task2-two-part-remote-friendships",
+          "task2-two-part-short-video-news",
+          "task2-two-part-urban-wildlife"
+        ],
+        "rule": "Writing-only files do not count as complete review; a slug may qualify through a separate explicit complete-review record."
+      },
+      "manualPairsWithoutReviewRecord": {
+        "count": 1,
+        "slugs": [
+          "task2-opinion-repair-information"
+        ]
+      },
+      "modelReviewArtifacts": {
+        "artifactFileCount": 188,
+        "rule": "All model/API review files are excluded from direct editorial review counts; multiple artifact files may belong to one call."
+      }
+    },
+    "normalizationBoundary": "Review coverage applies to recorded snapshots before final expression-card normalization. The current new-94 audit verifies final structure/reference/card guards; it does not imply a second complete semantic reading of every normalized pair.",
+    "records": [
+      {
+        "slug": "task1-academic-bar-campus-transport",
+        "record": "task1-academic-bar-campus-transport/editorial-review.json",
+        "recordSha256": "d017279a100bba948b55d9b96469fe55641cff28d9f6bd3baa10cd7015870b3f",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/任务范围复核：修正乘汽车不等于驾驶、学生分母不等于全部校区人口、实际使用比例不等于偏好；概述限定在各校区内。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=d1ce6393b81419c0fa87a95d1bfa1947074c5481ea16ffe8ea9a20b14e6812c5。正文词数171/187，其余audit通过；2项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-bar-household-time",
+        "record": "task1-academic-bar-household-time/editorial-review.json",
+        "recordSha256": "79c13540819ffce9b39c4e9d8f4ad35b83288e997aab8c3da72daee9935b2876",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/任务范围复核：纠正15不是35的一半；园艺仅有最大比例差，绝对差与做饭并列25分钟，同步相关解析与词卡。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=cd8fb4408ced82e18dbe6bc00a2ab46f9efc1dc967951d9f352780423ad008e1。正文词数191/221，其余audit通过；17项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-bar-leisure-age",
+        "record": "task1-academic-bar-leisure-age/editorial-review.json",
+        "recordSha256": "8aa5622d77db1302f64e35cc53e1b4e47ffe4d06f50c9c1f45211b2a1c89d9e9",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/任务范围复核：纠正横截面年龄组被写成个体随年龄变化、参与比例被称活动频率；修正share不可数的错误讲解。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=aa6da6a8febb3f548bf2a2732080a057a757b2667b4492362cf954f2a9536a4f。正文词数175/205，其余audit通过；0项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-bar-museum-arrivals",
+        "record": "task1-academic-bar-museum-arrivals/editorial-review.json",
+        "recordSha256": "9c31fc7e01085517a787d6074449927c88f9d4138631905467168d8737fe6ff7",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/任务范围复核：将开放时间纠正为入馆时间；合计统一为平均入馆人次，并明确66.7%的工作日分母。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=3cd11aea7448f841c940cfbe16c13b583d98de832c914bdd9bd8b0b6e0134768。正文词数178/178，其余audit通过；6项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-bar-reusable-cups",
+        "record": "task1-academic-bar-reusable-cups/editorial-review.json",
+        "recordSha256": "34a906649d4753a9c870d4aa70922d21aa4f2a0df883fe6fb5b44baa57e5c27b",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial review; no model-review API call, no human-examiner or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-line-evening-courses",
+        "record": "task1-academic-line-evening-courses/editorial-review.json",
+        "recordSha256": "cf6cdbddc83d5631d74ff01c2630ec1d8d7d50acade5dfde0552df44e8807367",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy review; no model-review API call or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-line-internet-access",
+        "record": "task1-academic-line-internet-access/editorial-review.json",
+        "recordSha256": "92e30ba29cb0dbec2906032bcea7432bbb0591833e8f7ccd727ba12ea68c4216",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy review; no model-review API call or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-line-library-loans",
+        "record": "task1-academic-line-library-loans/editorial-review.json",
+        "recordSha256": "810158e1e6ef955765620c56156fd00e4cc5f9f50d12d8590f90bbcd6a5ab6c0",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy review; no model-review API call or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-line-river-ferry",
+        "record": "task1-academic-line-river-ferry/editorial-review.json",
+        "recordSha256": "1933187a6f6d7600f13967ca0f15eaf346c2e81ec2f01bcf769169acd7f9d864",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/任务范围复核：统一出行次数而非独立乘客数；修正tripled中文含义、完整句被误称片段、steadily被讲成等速增长。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=757f000b6a7b48020c65ad0432431c8daf2738a167ed8713fd469e80e9f6b936。正文词数169/171，其余audit通过；2项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-line-solar-output",
+        "record": "task1-academic-line-solar-output/editorial-review.json",
+        "recordSha256": "5eada597c202755ecbb0effd51c469686d42fa53e64eaf57ab444674801b3dcd",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/任务范围复核：将六个选定月份与全年、连续六个月区分，限定峰值与比较范围；修正被动句/名词化和though词性讲解。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=f9c371b55faecbcd32854ad7383e72f30eebca61a1b90243e79ef18939034b64。正文词数186/193，其余audit通过；0项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-map-community-garden",
+        "record": "task1-academic-map-community-garden/editorial-review.json",
+        "recordSha256": "5f86b5407585b563f2d93d736ec3f07f50a9148a57fcd99160ab3d6b5d351fb1",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/流程/任务范围复核：核实四个改造地块和五个保留地块；澄清入口为南边界中央，纠正has become被误称被动语态。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=6a0bf6638b3dd08528a17c5872a746e3e2b485a308ea892933da33b1ca7d5d6d。词数157/171，其余audit通过；2项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-map-library-redesign",
+        "record": "task1-academic-map-library-redesign/editorial-review.json",
+        "recordSha256": "3d9f78c36ba312d9c5e1b15fbdee8f185e30e9373862145d40819701f73dbe79",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/流程/任务范围复核：地图位置与面积核对正确；删除无依据的staffed属性，纠正dedicated必须带to与被动语态必优等讲解。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=e2d51b2eaba773154d4ed750d359c5d9c22334f0e1c61d07d01ba61a91289310。词数189/219，其余audit通过；5项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-map-riverside-site",
+        "record": "task1-academic-map-riverside-site/editorial-review.json",
+        "recordSha256": "24b3512097ed241a8297f6d2133233a8d4aa03f1bf75d762bb0547dce728e18e",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/流程/任务范围复核：核对九宫格东西顺序、河流道路及保留入口；纠正flanking主动宾语与flanked by被动结构混用。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=907ba99901d87cf661637595a4319c9719f819d8267b8a63205c846ba7d4198c。词数175/196，其余audit通过；4项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-pie-building-energy",
+        "record": "task1-academic-pie-building-energy/editorial-review.json",
+        "recordSha256": "690043b33a36bcfdc3e8b55e34b18f80c2529749c9928a812154f9aa563cd6d8",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/流程/任务范围复核：区分能源供应/电力/消耗，删除总可再生能源推断；同为四来源，改为份额更均衡；明确燃气份额3倍而绝对量1.5倍。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=47dcd6fbaafe33c26cc77b6abaa293664c7091527e995eb81eafdd0c910ccf4b。词数170/198，其余audit通过；1项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-pie-student-spending",
+        "record": "task1-academic-pie-student-spending/editorial-review.json",
+        "recordSha256": "e083f8ccca4bd5dc6c65863d5ddc96bb29358ef04c5af0dab477fa8fe04303cf",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/流程/任务范围复核：纠正“租房者多数类别更高”并补回学习资料比较；200 CU为交通休闲各自金额；删除0住房支出的无依据原因。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=eb39e89f1fab980076dcf505cc31dc597885cdfdec6c56f8e7ae80f0f73bdf0b。词数178/178，其余audit通过；0项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-pie-waste-treatment",
+        "record": "task1-academic-pie-waste-treatment/editorial-review.json",
+        "recordSha256": "27ae193ffbcfbd9289968ef8725ea267dc66abf397f5375ebe246a9aa9cdffe6",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy review; no model-review API call or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-process-device-refurbishment",
+        "record": "task1-academic-process-device-refurbishment/editorial-review.json",
+        "recordSha256": "2f01345bc15df759d2065f6d76313af2717168d4928c23a8b6e40859071e6567",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy review; no model-review API call or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-process-paper-recycling",
+        "record": "task1-academic-process-paper-recycling/manual-review.json",
+        "recordSha256": "9aed4d71ebb292b5d7e241913e701cb800d1b711d0ffe228f0f55d16e6145304",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete field coverage or detailed full-pair alignment/editorial checks.",
+        "scopeEvidence": "Internal process accuracy, alignment, translations and teaching notes; not external originality clearance or official scoring.",
+        "reviewedArtifact": "manual-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-process-paper-recycling",
+        "record": "task1-academic-process-paper-recycling/editorial-review.json",
+        "recordSha256": "da8f16f0905ce2411f4b356d9c6fac023ab9d6da13669e165ad30f0236e13454",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工复核未发现需修改的数字、流程或任务范围错误。核对七个主步骤、筛滤移除物、压制排水、过滤回流到第三阶段、另加新水、干燥后卷绕；没有补造流量、去向或节水比例。 正文及学习笔记保持原样，未生成替代pair。原approved SHA256=310c723fd0b576677cd0a0dcbd0232713e228809c33e8a1eebe3deb5ef2988a2。其余audit通过；13项表达卡问题交主线程统一处理。",
+        "reviewedArtifact": "approved.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-process-seed-bank",
+        "record": "task1-academic-process-seed-bank/editorial-review.json",
+        "recordSha256": "d07a4d36492f8e474e1e8e3403a386477b614ae7141479cf159d4339fa054d12",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy review; no model-review API call or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-table-household-water",
+        "record": "task1-academic-table-household-water/editorial-review.json",
+        "recordSha256": "04639508f01470a7f0f3e8055395281b19b504c69d1479b69fb12efa46072c13",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工数字/流程/任务范围复核：删除人均用量低即效率高的推断，纠正times more与times as much；重写误判人均比较和also的讲解，替换相关词卡。 已同步受影响译文、表达引用与学习说明；原approved未改，SHA256=3ca9cc9d86bc502468086c832dfac95d4a04ebe7a9e71dd64533c27bfcce1321。词数161/181，其余audit通过；1项表达卡密度/整句卡问题交主线程统一处理。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-table-library-branches",
+        "record": "task1-academic-table-library-branches/manual-review.json",
+        "recordSha256": "a56fea3997d436700540a26912a5e4f4c9d2de308e8507ac02987b2f44f6fbcb",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete field coverage or detailed full-pair alignment/editorial checks.",
+        "scopeEvidence": "Checked the supplied prompt, internal factual consistency, alignment, translation meaning and teaching claims. This is not external originality clearance or official band scoring.",
+        "reviewedArtifact": "manual-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-table-library-branches",
+        "record": "task1-academic-table-library-branches/editorial-review.json",
+        "recordSha256": "eb9a00b7106a6f82debac8c66c0a6160c2268ae13cc77d80f86715cb22294808",
+        "classification": "numeric_flow_and_task_scope_review",
+        "classificationReason": "Bounded quantitative/process/task-scope review, not promoted to unrestricted complete review.",
+        "scopeEvidence": "人工复核未发现需修改的数字、流程或任务范围错误。核对四馆藏书/年度到访/座位、60千次差值、东馆6比1及其余3比1、西馆120对南馆60座；说明已明确比率不是借阅量、独立人数或效率。 正文及学习笔记保持原样，未生成替代pair。原approved SHA256=9874708f07b131544b914004a6e70d090ab8c8a5db847d252335e5542ac30495。其余audit通过；2项表达卡问题交主线程统一处理。",
+        "reviewedArtifact": "approved.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-academic-table-training-outcomes",
+        "record": "task1-academic-table-training-outcomes/editorial-review.json",
+        "recordSha256": "8834af20db144cd7b4aa17f085559b0497717d12d992ebaa4b7d8218c8432470",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy review; no model-review API call or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-general-formal-room-enquiry",
+        "record": "task1-general-formal-room-enquiry/manual-review.json",
+        "recordSha256": "2bb8c212cae8d05dea93ac66c8d978b0c920c1f34d926d3caa2a6b2ea13d803f",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete field coverage or detailed full-pair alignment/editorial checks.",
+        "scopeEvidence": "Checked the supplied prompt, internal factual consistency, alignment, translation meaning and teaching claims. This is not external originality clearance or official band scoring.",
+        "reviewedArtifact": "manual-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-general-semi-formal-landlord-repair",
+        "record": "task1-general-semi-formal-landlord-repair/editorial-review.json",
+        "recordSha256": "3f84f680ae757cf1589ecbe023929929777ce631a6b807a38a1e0db112814193",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy correction; no model-review API call and no official-band or human-examiner claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task1-general-semi-formal-meeting-change",
+        "record": "task1-general-semi-formal-meeting-change/editorial-review.json",
+        "recordSha256": "c224b57543ddd77f0959a469bcec63d82ddb7b66b525ee0a5d2cb6fe483ad297",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy correction; no model-review API call and no official-band or human-examiner claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-discussion-ai-customer-service",
+        "record": "task2-discussion-ai-customer-service/manual-review.json",
+        "recordSha256": "cc8781f26abaf4b573d38a186331d1974c7897466778cdb49855de43e8071405",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete field coverage or detailed full-pair alignment/editorial checks.",
+        "scopeEvidence": "Prompt coverage, internal alignment, translations, teaching claims and word-card accuracy; not external originality clearance or official scoring.",
+        "reviewedArtifact": "manual-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-discussion-assessment-methods",
+        "record": "task2-discussion-assessment-methods/editorial-review.json",
+        "recordSha256": "bd4757c9c613a127405b30c7d6b82b1939990ee8d0bbdb5383325683bb20100a",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete semantics, translation and teaching review scope.",
+        "scopeEvidence": "完整语义/译文/讲解审读；新卡片数量和长度约束由root统一收敛。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-discussion-health-prevention",
+        "record": "task2-discussion-health-prevention/editorial-review.json",
+        "recordSha256": "1b5a16687746b6f2ad2e36102f501dfbc939274fc7f7ef8e19988abbac5926c2",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete semantics, translation and teaching review scope.",
+        "scopeEvidence": "完整语义/译文/讲解审读；新卡片数量和长度约束由root统一收敛。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-discussion-tourism-limits",
+        "record": "task2-discussion-tourism-limits/editorial-review.json",
+        "recordSha256": "56955bc3f9ee08330fb438a059c8ee147c0826e373a9bcf2515ad76338f63149",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy correction; no model-review API call and no official-band or human-examiner claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-discussion-water-responsibility",
+        "record": "task2-discussion-water-responsibility/editorial-review.json",
+        "recordSha256": "ad390640296aeee1184c7262b55c22bb077841871ccef095c5e79d19ef089a29",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete semantics, translation and teaching review scope.",
+        "scopeEvidence": "完整语义/译文/讲解审读；新卡片数量和长度约束由root统一收敛。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-opinion-advertising-disclosure",
+        "record": "task2-opinion-advertising-disclosure/editorial-review.json",
+        "recordSha256": "9e073c9df77461c5b8cb23f1016e783e60b8b04ec62d2f2962ce1f4b64bf6f13",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete semantics, translation and teaching review scope.",
+        "scopeEvidence": "完整语义/译文/讲解审读；新卡片数量和长度约束由root统一收敛。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-opinion-free-drinking-water",
+        "record": "task2-opinion-free-drinking-water/manual-review.json",
+        "recordSha256": "f47269063069b3e049132bac7910a02cfae8832893fe4ce98789d61042082b6f",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete field coverage or detailed full-pair alignment/editorial checks.",
+        "scopeEvidence": "人工审读范围：固定题干与 expansion-plan 的 metadata 一致；15 句对的 low/high 正文及段落编号与 manual-pilot-writing.json 逐字核对未改，SHA-256 为 7719019407bdb5a23f575de36f220520f7042c1ea5f912849fa0a0f4882e69c9；分别核对两版中文译文、双语说明、精确表达块及每段覆盖；核对四项 criteria、takeaways、四段解析、三条原句技巧、两项低稿真实错误或表达弱点、六条精确引用词汇。核对同意程度、all 的分阶段回应、例子与预算/卫生/维护条件一致，无新增统计、价格或医疗效果；未将部分同意或更复杂词汇当成自动加分。IeltsPairSeedSchema 与 auditIeltsCorpusPair 均通过，正文词数 low=279、high=280。这是内容审读与离线协议检查，不是官方雅思评分；未调用外部 API。",
+        "reviewedArtifact": "manual-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-opinion-library-digital-help",
+        "record": "task2-opinion-library-digital-help/editorial-review.json",
+        "recordSha256": "31e4027caa281c4dd47187a18614bf0cf856971b6da025543a742e8d577df2ad",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete semantics, translation and teaching review scope.",
+        "scopeEvidence": "完整语义/译文/讲解审读；新卡片数量和长度约束由root统一收敛。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-opinion-local-history-curriculum",
+        "record": "task2-opinion-local-history-curriculum/manual-review.json",
+        "recordSha256": "a2eab2f10401c5378d480b34576c350126c3c45157a351ad872546068bf611c5",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete field coverage or detailed full-pair alignment/editorial checks.",
+        "scopeEvidence": "单篇协议、完整性与编辑复核；5/8为教学档位标签，未接受真实考官评分。本次未作全100篇重复检测。",
+        "reviewedArtifact": "manual-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-opinion-public-science-access",
+        "record": "task2-opinion-public-science-access/editorial-review.json",
+        "recordSha256": "acdef3f53a4ef90727dca4e8b890c30ec87fca8181547aceb1148d310e60b71a",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete semantics, translation and teaching review scope.",
+        "scopeEvidence": "完整语义/译文/讲解审读；新卡片数量和长度约束由root统一收敛。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-opinion-school-start-times",
+        "record": "task2-opinion-school-start-times/manual-review.json",
+        "recordSha256": "9538165c9fb45c242494058823cd9e9a6b3624f094ec10aabc4ccc3102630cd0",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete field coverage or detailed full-pair alignment/editorial checks.",
+        "scopeEvidence": "Checked the supplied prompt, internal factual consistency, alignment, translation meaning and teaching claims. This is not external originality clearance or official band scoring.",
+        "reviewedArtifact": "manual-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-opinion-urban-tree-budgets",
+        "record": "task2-opinion-urban-tree-budgets/editorial-review.json",
+        "recordSha256": "47716bfbc35b0e7a64f9537e4f41578859d0a6e17431814f11fba2750c77037a",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete semantics, translation and teaching review scope.",
+        "scopeEvidence": "完整语义/译文/讲解审读；新卡片数量和长度约束由root统一收敛。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-opinion-volunteer-choice",
+        "record": "task2-opinion-volunteer-choice/editorial-review.json",
+        "recordSha256": "5926328fe664d0369f78f6b9417df62397eee0136b855684d2260a3a9d74eda4",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial review; no model-review API call, no human-examiner or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-opinion-work-messages",
+        "record": "task2-opinion-work-messages/editorial-review.json",
+        "recordSha256": "6b63a56b7c155667b00a026ef81027ddddc06e732f5337c1c7a349942e3a7064",
+        "classification": "complete_pair_editorial_review",
+        "classificationReason": "Explicit complete semantics, translation and teaching review scope.",
+        "scopeEvidence": "完整语义/译文/讲解审读；新卡片数量和长度约束由root统一收敛。",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-problem-solution-household-food-waste",
+        "record": "task2-problem-solution-household-food-waste/editorial-review.json",
+        "recordSha256": "1b0835388bbfcd1358c2a326139d30c602acd451f86f36620e70236eaa4af40c",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy correction; no model-review API call and no official-band or human-examiner claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-problem-solution-seasonal-tourism",
+        "record": "task2-problem-solution-seasonal-tourism/editorial-review.json",
+        "recordSha256": "a48d1457b6fe32dc58985ccf7123a1f7b7ab923e945a798d6e0117e287d7271e",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial accuracy correction; no model-review API call and no official-band or human-examiner claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-two-part-health-information",
+        "record": "task2-two-part-health-information/editorial-review.json",
+        "recordSha256": "7bd160bf5bb4408d9e10d2eb152d4019b4cd1653787f02a93c4b3e51e45903ff",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Narrow wording review of segment13: distinguish private reading from guarantees about platform data privacy; align both versions and translations.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-two-part-local-crafts",
+        "record": "task2-two-part-local-crafts/editorial-review.json",
+        "recordSha256": "2fd087f5774970495ae68868e6627b62767a33c02c5da21297599dbafc1cc92f",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial review; no model-review API call, no human-examiner or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      },
+      {
+        "slug": "task2-two-part-night-time-cities",
+        "record": "task2-two-part-night-time-cities/editorial-review.json",
+        "recordSha256": "3a172bf9a64e900c17fa6c222a30475f0a85100e984122c37ef310a5f18f7dc4",
+        "classification": "targeted_editorial_review",
+        "classificationReason": "Targeted accuracy correction or narrow wording/segment review.",
+        "scopeEvidence": "Targeted Codex editorial review; no model-review API call, no human-examiner or official-band claim.",
+        "reviewedArtifact": "editorial-reviewed-pair.json",
+        "finalEnglishTextMatchesReviewedArtifact": true
+      }
+    ]
+  }
+}

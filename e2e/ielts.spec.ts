@@ -18,8 +18,9 @@ test.describe('雅思写作对照', () => {
     await expect.poll(() => cards.count()).toBeGreaterThanOrEqual(6);
 
     await page.getByRole('button', { name: 'Task 1 书信（G 类）' }).click();
-    await expect.poll(() => cards.count()).toBe(1);
-    await expect(cards.first()).toContainText('书信');
+    // 扩容后书信类不再只有一篇；每张结果都应属于所选题型。
+    await expect.poll(() => cards.count()).toBeGreaterThanOrEqual(1);
+    for (const card of await cards.all()) await expect(card).toContainText('Task 1 书信（G 类）');
 
     await page.getByRole('button', { name: '全部' }).first().click();
     await expect.poll(() => cards.count()).toBeGreaterThanOrEqual(6);

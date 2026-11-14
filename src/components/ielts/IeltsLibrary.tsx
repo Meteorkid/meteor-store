@@ -6,11 +6,12 @@ import type { IeltsTask } from '@/lib/ielts/types';
 import { categoryLabel, ieltsCopy, topicLabel, type IeltsLocale } from './ielts-text';
 
 /**
- * 对照库列表：按题型和主题筛选，点开进入逐句对照。
+ * 对照库列表：搜索标题、题干和主题，按题型和主题筛选。
  *
- * 筛选在客户端做——一组对照的元数据只有几百字节，六到几十组一次取完
- * 比每次筛选都回服务器便宜，也不会在切换筛选时整页闪一下。
+ * 全量摘要参与筛选，卡片分批展示，避免后面的内容搜不到或一次挂载过多卡片。
  */
+
+const PAGE_SIZE = 24;
 
 export interface IeltsLibraryItem {
   slug: string;
@@ -35,6 +36,8 @@ export default function IeltsLibrary({ locale, items }: Props) {
   const copy = ieltsCopy(locale);
   const [task, setTask] = useState<'all' | IeltsTask>('all');
   const [topic, setTopic] = useState<'all' | string>('all');
+  const [query, setQuery] = useState('');
+  const [shownCount, setShownCount] = useState(PAGE_SIZE);
 
   const tasks = useMemo(() => {
     const order: IeltsTask[] = ['task2', 'task1-academic', 'task1-general'];
@@ -43,39 +46,62 @@ export default function IeltsLibrary({ locale, items }: Props) {
 
   const topics = useMemo(() => [...new Set(items.map(item => item.topic))].sort(), [items]);
 
-  const visible = items.filter(item => (task === 'all' || item.task === task) && (topic === 'all' || item.topic === topic));
+  const filtered = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    return items.filter(item => {
+      if (task !== 'all' && item.task !== task) return false;
+      if (topic !== 'all' && item.topic !== topic) return false;
+      const text = `${item.title} ${item.prompt} ${item.topic} ${topicLabel(locale, item.topic)}`;
+      return !search || text.toLowerCase().includes(search);
+    });
+  }, [items, task, topic, query, locale]);
+  const visible = filtered.slice(0, shownCount);
 
   const chipClass = (active: boolean) =>
-    `min-h-8 shrink-0 rounded-full border px-3 text-xs transition-colors ${
+    `min-h-11 min-w-11 shrink-0 rounded-full border px-3 text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 ${
       active ? 'border-violet-400/60 bg-violet-400/15 text-white' : 'border-white/12 text-white/60 hover:text-white/85'
     }`;
 
   return (
     <div>
       <div className="space-y-3 border-b border-white/10 pb-5">
+        <label className="block max-w-xl">
+          <span className="t-footnote text-white/60">{copy.searchLabel}</span>
+          <input
+            type="search"
+            value={query}
+            onChange={event => { setQuery(event.target.value); setShownCount(PAGE_SIZE); }}
+            placeholder={copy.searchPlaceholder}
+            className="mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-white/5 px-3 text-base text-white placeholder:text-white/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300"
+          />
+        </label>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="t-footnote w-12 text-white/40">{copy.filterTask}</span>
-          <button type="button" onClick={() => setTask('all')} aria-pressed={task === 'all'} className={chipClass(task === 'all')}>
+          <span className="t-footnote w-12 text-white/60">{copy.filterTask}</span>
+          <button type="button" onClick={() => { setTask('all'); setShownCount(PAGE_SIZE); }} aria-pressed={task === 'all'} className={chipClass(task === 'all')}>
             {copy.filterAll}
           </button>
           {tasks.map(value => (
-            <button key={value} type="button" onClick={() => setTask(value)} aria-pressed={task === value} className={chipClass(task === value)}>
+            <button key={value} type="button" onClick={() => { setTask(value); setShownCount(PAGE_SIZE); }} aria-pressed={task === value} className={chipClass(task === value)}>
               {copy.taskLabels[value]}
             </button>
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="t-footnote w-12 text-white/40">{copy.filterTopic}</span>
-          <button type="button" onClick={() => setTopic('all')} aria-pressed={topic === 'all'} className={chipClass(topic === 'all')}>
+          <span className="t-footnote w-12 text-white/60">{copy.filterTopic}</span>
+          <button type="button" onClick={() => { setTopic('all'); setShownCount(PAGE_SIZE); }} aria-pressed={topic === 'all'} className={chipClass(topic === 'all')}>
             {copy.filterAll}
           </button>
           {topics.map(value => (
-            <button key={value} type="button" onClick={() => setTopic(value)} aria-pressed={topic === value} className={chipClass(topic === value)}>
+            <button key={value} type="button" onClick={() => { setTopic(value); setShownCount(PAGE_SIZE); }} aria-pressed={topic === value} className={chipClass(topic === value)}>
               {topicLabel(locale, value)}
             </button>
           ))}
         </div>
       </div>
+
+      <p role="status" aria-live="polite" className="mt-4 t-footnote text-white/60">
+        {copy.searchCount(visible.length, filtered.length)}
+      </p>
 
       {visible.length === 0 ? (
         <p className="mt-8 t-body text-white/60">{items.length === 0 ? copy.emptyLibrary : copy.empty}</p>
@@ -105,6 +131,17 @@ export default function IeltsLibrary({ locale, items }: Props) {
             </li>
           ))}
         </ul>
+      )}
+      {visible.length < filtered.length && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setShownCount(count => count + PAGE_SIZE)}
+            className="min-h-11 rounded-full border border-violet-400/40 bg-violet-400/10 px-5 text-sm text-violet-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300"
+          >
+            {copy.loadMore(Math.min(PAGE_SIZE, filtered.length - visible.length))}
+          </button>
+        </div>
       )}
     </div>
   );
