@@ -2,6 +2,7 @@ import type { IeltsPairSeed } from '@/lib/ielts/types';
 import { batchA } from './batch-a';
 import { batchB } from './batch-b';
 import { batchC } from './batch-c';
+import { batchExpansion } from './batch-expansion';
 
 /**
  * 随代码上线的精选对照。
@@ -11,4 +12,4 @@ import { batchC } from './batch-c';
  *
  * 后台生成的对照不在这里，它们在数据库里，运行时按 slug 合并（见 lib/ielts/catalog.ts）。
  */
-export const curatedIeltsPairs: IeltsPairSeed[] = [...batchA, ...batchB, ...batchC];
+export const curatedIeltsPairs: IeltsPairSeed[] = [...batchA, ...batchB, ...batchC, ...batchExpansion];

@@ -36,7 +36,7 @@ describe('IELTS 表达块内容契约', () => {
     expect(expressionEditsForParagraph(items, 3)).toEqual([]);
   });
 
-  it('六篇精选的每个段落都有真实配对，且主展示保持短语或分句长度', () => {
+  it('每篇精选的各段都有真实配对，且主展示保持短语或分句长度', () => {
     expect(seeds.length).toBeGreaterThanOrEqual(6);
     for (const seed of seeds) {
       for (const paragraph of new Set(seed.content.segments.map(item => item.paragraph))) {
