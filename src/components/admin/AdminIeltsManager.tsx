@@ -307,7 +307,7 @@ export default function AdminIeltsManager({ initialRows, initialPairs, locale }:
           <button type="submit" className={primaryButton} disabled={busy}>
             {generating ? t('生成中…', 'Generating…') : t('生成新对照', 'Generate pair')}
           </button>
-          <span className="t-footnote text-white/45">{t('一次生成通常需要十几秒，请勿重复点击。', 'One generation usually takes ten seconds or more; do not click twice.')}</span>
+          <span className="t-footnote text-white/45">{t('正在生成正文、学习笔记与生词表，通常需要几十秒，请勿重复点击。', 'Generating essays, study notes and vocabulary usually takes several dozen seconds; please do not click twice.')}</span>
         </div>
       </form>
 

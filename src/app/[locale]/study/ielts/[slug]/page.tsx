@@ -8,6 +8,7 @@ import { getIeltsProgressEntry } from '@/lib/ielts/service';
 import { IELTS_CRITERION_LABELS, countWords, type IeltsCriterionKey } from '@/lib/ielts/types';
 import { categoryLabel, ieltsCopy, topicLabel } from '@/components/ielts/ielts-text';
 import IeltsComparison from '@/components/ielts/IeltsComparison';
+import IeltsLearningNotes, { IeltsStudyLinks } from '@/components/ielts/IeltsLearningNotes';
 import IeltsProgressActions from '@/components/ielts/IeltsProgressActions';
 
 export const dynamic = 'force-dynamic';
@@ -87,11 +88,14 @@ export default async function IeltsPairPage({ params }: { params: Promise<{ loca
         <p className="mt-3 t-footnote text-white/45">
           {copy.bandLow} {copy.words(lowWords)} · {copy.bandHigh} {copy.words(highWords)} · {copy.segments(content.segments.length)}
         </p>
+        <IeltsStudyLinks locale={typedLocale} />
       </header>
 
       <div className="mt-8">
-        <IeltsComparison locale={typedLocale} segments={content.segments} />
+        <IeltsComparison slug={slug} locale={typedLocale} segments={content.segments} />
       </div>
+
+      <IeltsLearningNotes content={content} locale={typedLocale} />
 
       <section className="mt-12 border-t border-white/10 pt-8" aria-labelledby="ielts-criteria">
         <h2 id="ielts-criteria" className="t-title-2 text-white">{copy.criteriaTitle}</h2>
@@ -102,8 +106,8 @@ export default async function IeltsPairPage({ params }: { params: Promise<{ loca
             return (
               <div key={key} className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <dt className="flex items-center gap-2 t-title-4 text-white">
-                  <span className="rounded-md border border-violet-400/30 bg-violet-400/10 px-1.5 py-0.5 text-[11px] text-violet-200">{IELTS_CRITERION_LABELS[key].short[typedLocale]}</span>
-                  {IELTS_CRITERION_LABELS[key][typedLocale]}
+                  <span className="rounded-md border border-violet-400/30 bg-violet-400/10 px-1.5 py-0.5 text-[11px] text-violet-200">{key === 'TR' && pair.task !== 'task2' ? 'TA' : IELTS_CRITERION_LABELS[key].short[typedLocale]}</span>
+                  {key === 'TR' && pair.task !== 'task2' ? (typedLocale === 'zh' ? '任务完成度' : 'Task Achievement') : IELTS_CRITERION_LABELS[key][typedLocale]}
                 </dt>
                 <dd className="mt-2 t-footnote text-white/70">{note[typedLocale]}</dd>
               </div>

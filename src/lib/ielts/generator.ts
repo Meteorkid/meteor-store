@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { IeltsPairContentSchema, countWords, type IeltsFocus, type IeltsPairContent, type IeltsTask } from './types';
+import { IeltsPairContentSchema, IeltsLearningSchema, countWords, type IeltsFocus, type IeltsPairContent, type IeltsTask } from './types';
 
 /**
  * 用 DeepSeek 生成一组新的 5 分 / 8 分对照。
  *
  * 与每日英语同一条路子（同一个 endpoint、同一把 key、同样按字节数封顶），
  * 区别在于要求模型输出的是「同一篇作文的两个版本」，而且必须逐句对齐：
- * 这一步靠提示词约束，靠 zod 兜底——生成结果不合法就重试一次，再不行就报错，
+ * 这一步靠提示词约束，靠 zod 兜底——生成结果不合法时有限次重试，再失败就报错，
  * 绝不把半成品写进内容库让读者看到对不齐的左右两栏。
  *
  * 生成出来的内容是草稿：后台点「发布」之后才会出现在公开页。
@@ -31,6 +31,7 @@ const generatedSchema = z.object({
     low: z.string().trim().min(1).max(600),
     high: z.string().trim().min(1).max(600),
     focus: z.array(z.enum(['task', 'cohesion', 'lexis', 'grammar', 'accuracy'])).min(1).max(3),
+    translationZh: z.object({ low: z.string().trim().min(1).max(1200), high: z.string().trim().min(1).max(1200) }).strict(),
     note: z.object({ zh: z.string().trim().min(1).max(400), en: z.string().trim().min(1).max(400) }).strict(),
   }).strict()).min(6).max(30),
   criteria: z.array(z.object({
@@ -87,6 +88,9 @@ ${TASK_GUIDE[request.task]}
 note 用中英双语说明这一句具体改了什么、为什么更高分，要具体到词和结构（例如「think → maintain：把主观看法换成可论证的动词」），
 不要写「更高级」这种空话。${request.task === 'task2' ? 'segments 12–20 个。' : 'segments 8–14 个。'}
 
+每个 segment 还必须有 translationZh:{low,high}，分别忠实翻译两边原句。
+中文自然通顺，但保留各自的立场、否定、程度、数字、例子及限定，不能把高分版的意思补进低分版。
+低分版的语法问题不必在中文中模仿；事实或数字错误仍按原意翻译，纠错写入 note，不偷改译文。
 criteria 恰好 4 条，key 分别为 TR、CC、LR、GRA，note 用中英双语说明 5 分版为什么只到 5 分、8 分版在这一维度做了什么。
 takeaways 给 2–5 条可以直接抄走的写法，中英各一份，意思对应。
 
@@ -98,7 +102,7 @@ takeaways 给 2–5 条可以直接抄走的写法，中英各一份，意思对
 {
   "prompt": { "en": "英文题干", "zh": "中文说明" },
   "title": { "zh": "中文标题", "en": "English title" },
-  "segments": [{ "paragraph": 1, "low": "5 分版的一句", "high": "8 分版对应的那一句", "focus": ["lexis"], "note": { "zh": "中文说明", "en": "English note" } }],
+  "segments": [{ "paragraph": 1, "low": "5 分版的一句", "high": "8 分版对应的那一句", "focus": ["lexis"], "translationZh": {"low":"对应低分原句的译文","high":"对应高分原句的译文"}, "note": { "zh": "中文说明", "en": "English note" } }],
   "criteria": [{ "key": "TR", "note": { "zh": "中文", "en": "English" } }],
   "takeaways": { "zh": ["写法一", "写法二"], "en": ["Phrase one", "Phrase two"] }
 }`;
@@ -120,7 +124,10 @@ async function readCompletion(response: Response): Promise<unknown> {
       const { done, value } = await reader.read();
       if (done) break;
       bytes += value.byteLength;
-      if (bytes > MAX_RESPONSE_BYTES) throw new Error('雅思生成响应过大');
+      if (bytes > MAX_RESPONSE_BYTES) {
+        await reader.cancel();
+        throw new Error('雅思生成响应过大');
+      }
       body += decoder.decode(value, { stream: true });
     }
     body += decoder.decode();
@@ -201,43 +208,80 @@ function buildSlug(request: IeltsGenerationRequest): string {
   return [request.task, clean(request.category), clean(request.topic), suffix].filter(Boolean).join('-').slice(0, 60);
 }
 
+/** 两阶段生成共用一个截止时间，包含正文、笔记及重试，早于反向代理的 60 秒超时。 */
+async function requestModelJson(apiKey: string, system: string, input: string, signal: AbortSignal): Promise<unknown> {
+  const response = await fetch(DEEPSEEK_ENDPOINT, {
+    method: 'POST',
+    signal,
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: 'deepseek-chat', temperature: 0.8, max_tokens: 8000,
+      response_format: { type: 'json_object' },
+      messages: [{ role: 'system', content: system }, { role: 'user', content: input }],
+    }),
+  });
+  if (!response.ok) {
+    await response.body?.cancel();
+    throw new Error(`DeepSeek 返回 ${response.status}`);
+  }
+  const completion = completionSchema.parse(await readCompletion(response));
+  return parseModelJson(completion.choices[0].message.content);
+}
+
+const LEARNING_PROMPT = `为给出的原创雅思对照写学习笔记与词汇卡，不能改写正文。
+两版是教学示例，不能宣称获得官方评分。评价准确性、论证、语气与搭配，不把生僻词等同高分。
+Task 1 侧重任务完成度、数据准确/概述或书信要点与语气，Task 2 侧重立场与论证。
+逐段说明作用及两版差异；三条技巧各引用一个真实句子索引，说明如何迁移使用。
+选六个升级版中的词或短语：term 必须逐字连续出现在所引 high 句中，保留原词形；
+segmentIndex 是 segments 数组的零起始索引，不是段落号。词性准确，解释本文语境、易错搭配，附自然原创例句和中文翻译。
+所有说明中英双语。简洁但具体：审题中文150字内，段落讲解80字内，技巧100字内，用法60字内；英文意思对应。
+不编音标、分数、新闻或来源。只输出如下 JSON，paragraphs 覆盖全部段落，techniques 恰好3条，mistakes 恰好2条，vocabulary 恰好6条：
+{
+  "taskAnalysis": {"zh":"审题与本篇思路", "en":"Question analysis"},
+  "paragraphs": [{"paragraph":1, "role":{"zh":"段落作用","en":"Role"}, "analysis":{"zh":"具体拆解","en":"Analysis"}}],
+  "techniques": [{"title":{"zh":"技巧","en":"Technique"}, "explanation":{"zh":"结合实际句子解释","en":"Explanation"}, "segmentIndex":0}],
+  "mistakes": [{"zh":"本篇易错点","en":"Pitfall"}],
+  "vocabulary": [{"term":"exact phrase", "partOfSpeech":"noun phrase", "meaning":{"zh":"本篇释义","en":"Meaning"}, "usage":{"zh":"搭配与误用","en":"Usage"}, "collocations":["a natural collocation"], "example":{"en":"An original example sentence.","zh":"忠实的中文翻译。"}, "segmentIndex":0}]
+}`;
+
 export async function generateIeltsPair(request: IeltsGenerationRequest): Promise<IeltsGenerationResult> {
   const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
   if (!apiKey) throw new Error('DEEPSEEK_API_KEY 未配置');
-
-  let lastError: unknown = null;
+  const signal = AbortSignal.timeout(50_000);
+  let lastError = '';
+  let essay: IeltsPairContent | undefined;
   for (let attempt = 0; attempt < ATTEMPTS; attempt += 1) {
     try {
-      const response = await fetch(DEEPSEEK_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          temperature: 1.1,
-          max_tokens: 8000,
-          response_format: { type: 'json_object' },
-          messages: [
-            { role: 'system', content: systemPrompt(request) },
-            {
-              role: 'user',
-              content: attempt === 0
-                ? '请生成这一组对照。'
-                : `上一次的输出没有通过校验：${String(lastError)}。请重新生成，特别注意两版逐句对齐、段落编号连续、词数达标。`,
-            },
-          ],
-        }),
-      });
-
-      if (!response.ok) throw new Error(`DeepSeek 返回 ${response.status}`);
-      const completion = completionSchema.parse(await readCompletion(response));
-      const parsed = generatedSchema.parse(normalizeModelJson(parseModelJson(completion.choices[0].message.content)));
+      const raw = await requestModelJson(apiKey, systemPrompt(request), attempt === 0
+        ? '请生成这一组对照。'
+        : `上次校验失败：${lastError.slice(0, 800)}。请核对逐句对齐、段落编号与词数。`, signal);
+      const parsed = generatedSchema.parse(normalizeModelJson(raw));
       const content = IeltsPairContentSchema.parse({ ...parsed, bandLow: 5, bandHigh: 8 });
-      const wordCounts = assertWordCounts(request.task, content);
-      return { slug: buildSlug(request), content, wordCounts };
+      assertWordCounts(request.task, content);
+      essay = content;
+      break;
     } catch (error) {
-      lastError = error instanceof Error ? error.message : error;
+      if (signal.aborted) throw new Error('雅思对照生成超时，请稍后重试');
+      lastError = error instanceof Error ? error.message : String(error);
     }
   }
+  if (!essay) throw new Error(`雅思对照生成失败：${lastError}`);
 
-  throw new Error(`雅思对照生成失败：${String(lastError)}`);
+  // 笔记失败只重试笔记；保留已经验证的正文，防止引用前一版句子。
+  lastError = '';
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const input = JSON.stringify({ task: request.task, prompt: essay.prompt,
+        segments: essay.segments.map(({ paragraph, low, high }) => ({ paragraph, low, high })),
+        ...(lastError ? { validationError: lastError.slice(0, 800) } : {}),
+      });
+      const learning = IeltsLearningSchema.parse(await requestModelJson(apiKey, LEARNING_PROMPT, input, signal));
+      const content = IeltsPairContentSchema.parse({ ...essay, learning });
+      return { slug: buildSlug(request), content, wordCounts: assertWordCounts(request.task, content) };
+    } catch (error) {
+      if (signal.aborted) throw new Error('雅思学习笔记生成超时，请稍后重试');
+      lastError = error instanceof Error ? error.message : String(error);
+    }
+  }
+  throw new Error(`雅思学习笔记生成失败：${lastError}`);
 }

@@ -8,6 +8,7 @@ import { findIeltsPairRow, validCuratedPairs } from '@/lib/ielts/catalog';
 import { IELTS_CRITERION_LABELS, IeltsPairSlugSchema, countWords, type IeltsCriterionKey } from '@/lib/ielts/types';
 import { categoryLabel, ieltsCopy, topicLabel } from '@/components/ielts/ielts-text';
 import IeltsComparison from '@/components/ielts/IeltsComparison';
+import IeltsLearningNotes, { IeltsStudyLinks } from '@/components/ielts/IeltsLearningNotes';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,11 +77,14 @@ export default async function IeltsPreviewPage({ params }: Props) {
         <p className="mt-3 t-footnote text-white/60">
           {copy.bandLow} {copy.words(lowWords)} · {copy.bandHigh} {copy.words(highWords)} · {copy.segments(content.segments.length)}
         </p>
+        <IeltsStudyLinks locale={typedLocale} />
       </header>
 
       <div className="mt-8">
-        <IeltsComparison locale={typedLocale} segments={content.segments} />
+        <IeltsComparison slug={slug} locale={typedLocale} segments={content.segments} />
       </div>
+
+      <IeltsLearningNotes content={content} locale={typedLocale} />
 
       <section className="mt-12 border-t border-white/10 pt-8" aria-labelledby="ielts-preview-criteria">
         <h2 id="ielts-preview-criteria" className="t-title-2 text-white">{copy.criteriaTitle}</h2>
@@ -91,8 +95,8 @@ export default async function IeltsPreviewPage({ params }: Props) {
             return (
               <div key={key} className="rounded-2xl border border-white/10 p-4">
                 <dt className="t-title-4 text-white">
-                  <span className="mr-2 text-violet-200">{key}</span>
-                  {IELTS_CRITERION_LABELS[key][typedLocale]}
+                  <span className="mr-2 text-violet-200">{key === 'TR' && pair.task !== 'task2' ? 'TA' : key}</span>
+                  {key === 'TR' && pair.task !== 'task2' ? (typedLocale === 'zh' ? '任务完成度' : 'Task Achievement') : IELTS_CRITERION_LABELS[key][typedLocale]}
                 </dt>
                 <dd className="mt-2 t-body text-white/70">{note[typedLocale]}</dd>
               </div>

@@ -51,8 +51,8 @@ describe('雅思后台正文预览', () => {
     expect(html).toContain(escaped(seed.content.prompt[locale]));
     expect(html).toContain(escaped(seed.content.prompt[locale === 'zh' ? 'en' : 'zh']));
     for (const segment of seed.content.segments) {
-      expect(html).toContain(escaped(segment.low));
-      expect(html).toContain(escaped(segment.high));
+      expect(html.replace(/<[^>]*>/g, '')).toContain(escaped(segment.low));
+      expect(html.replace(/<[^>]*>/g, '')).toContain(escaped(segment.high));
       expect(html).toContain(escaped(segment.note[locale]));
     }
     for (const criterion of seed.content.criteria) expect(html).toContain(escaped(criterion.note[locale]));

@@ -49,12 +49,99 @@ test.describe('雅思写作对照', () => {
 
   test('升级维度筛选可以切换', async ({ page }) => {
     await page.goto(PAIR);
-    const chip = page.getByRole('button', { name: '词汇' }).first();
-    await expect(chip).toHaveAttribute('aria-pressed', 'false');
-    await chip.click();
-    await expect(chip).toHaveAttribute('aria-pressed', 'true');
-    await chip.click();
-    await expect(chip).toHaveAttribute('aria-pressed', 'false');
+    const focus = page.getByRole('combobox', { name: '关注重点' });
+    await focus.selectOption('lexis');
+    await expect(focus).toHaveValue('lexis');
+    await expect(page.locator('[data-focused="true"]').first()).toBeVisible();
+    await focus.selectOption('all');
+    await expect(page.locator('[data-focused="true"]')).toHaveCount(0);
+  });
+
+  test('两栏字体不同，词级标记可关闭且不改变正文', async ({ page }) => {
+    await page.goto(PAIR);
+    const low = page.locator('[data-essay-side="low"]').first();
+    const high = page.locator('[data-essay-side="high"]').first();
+    await expect(low).toBeVisible();
+    await expect(high).toBeVisible();
+    expect(await low.evaluate(node => getComputedStyle(node).fontFamily))
+      .not.toBe(await high.evaluate(node => getComputedStyle(node).fontFamily));
+    const before = { low: await low.innerText(), high: await high.innerText() };
+    await expect(page.locator('mark[data-change="removed"]').first()).toBeVisible();
+    await expect(page.locator('mark[data-change="added"]').first()).toBeVisible();
+    await page.getByRole('button', { name: '隐藏改动标记', exact: true }).click();
+    await expect(page.locator('mark[data-change]')).toHaveCount(0);
+    expect({ low: await low.innerText(), high: await high.innerText() }).toEqual(before);
+    await page.getByRole('button', { name: '显示改动标记', exact: true }).click();
+    await page.getByRole('button', { name: '全文阅读', exact: true }).click();
+    await expect(page.locator('mark[data-change="added"]').first()).toBeVisible();
+  });
+
+  test('详细笔记、生词卡、原句和双语例句可读', async ({ page }) => {
+    await page.goto(PAIR);
+    await page.getByRole('link', { name: '详细学习笔记', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '逐段拆解', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '易错点与改进空间', exact: true })).toBeVisible();
+    const words = page.locator('[data-vocabulary]');
+    await expect(words).toHaveCount(8);
+    const card = words.first();
+    await card.locator('summary').click();
+    await expect(card.getByText('用法与辨析', { exact: true })).toBeVisible();
+    await expect(card.getByText('常用搭配', { exact: true })).toBeVisible();
+    await expect(card.getByText('迁移例句', { exact: true })).toBeVisible();
+    await expect(card.locator('p[lang="en"]')).toBeVisible();
+    await expect(card.locator('p[lang="zh"]')).toBeVisible();
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  });
+
+  test('逐句译文默认关闭，切换阅读模式保留选择，关闭不改变英文', async ({ page }) => {
+    await page.goto(PAIR);
+    const toggle = page.getByRole('switch', { name: '中文翻译', exact: true });
+    await expect(toggle).toHaveAttribute('aria-checked', 'false');
+    await expect(page.locator('[data-translation-side]')).toHaveCount(0);
+    const english = async (side: string) => (await page.locator(`[data-essay-side="${side}"]`).allTextContents()).join(' ');
+    const before = { low: await english('low'), high: await english('high') };
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+    await expect(page.locator('[data-translation-side="low"]')).toHaveCount(15);
+    await expect(page.locator('[data-translation-side="high"]')).toHaveCount(15);
+    const lowTranslation = await page.locator('[data-translation-side="low"]').first().innerText();
+    const highTranslation = await page.locator('[data-translation-side="high"]').first().innerText();
+    expect(lowTranslation).not.toBe(highTranslation);
+    expect({ low: await english('low'), high: await english('high') }).toEqual(before);
+    await page.getByRole('button', { name: '全文阅读', exact: true }).click();
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+    await expect(page.locator('[data-translation-side="low"]')).toHaveCount(15);
+    expect({ low: await english('low'), high: await english('high') }).toEqual(before);
+    await toggle.click();
+    await expect(page.locator('[data-translation-side]')).toHaveCount(0);
+    expect({ low: await english('low'), high: await english('high') }).toEqual(before);
+    await page.getByRole('button', { name: '逐句对照', exact: true }).click();
+    await expect(toggle).toHaveAttribute('aria-checked', 'false');
+  });
+
+  test('中英设置和译文在窄屏可用，桌面两侧译文顶边对齐', async ({ page }) => {
+    await page.goto('/en/study/ielts/task2-opinion-university-education');
+    const toggle = page.getByRole('switch', { name: 'Chinese translation', exact: true });
+    await toggle.focus();
+    await page.keyboard.press('Space');
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+    const low = page.locator('[data-translation-side="low"]').first();
+    const high = page.locator('[data-translation-side="high"]').first();
+    await expect(low).toBeVisible();
+    if ((page.viewportSize()?.width ?? 0) >= 768) {
+      const left = (await low.boundingBox())!;
+      const right = (await high.boundingBox())!;
+      expect(Math.abs(left.y - right.y)).toBeLessThanOrEqual(1);
+    }
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+    await expect(low).toBeVisible();
+    await page.getByRole('button', { name: 'Show notes', exact: true }).click();
+    const firstNote = page.locator('ol li button').first();
+    await expect(firstNote).toHaveAttribute('aria-expanded', 'true');
+    await firstNote.click();
+    await expect(firstNote).toHaveAttribute('aria-expanded', 'false');
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
   });
 
   test('未登录时给登录入口而不是按钮', async ({ page }) => {

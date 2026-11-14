@@ -32,6 +32,32 @@ const bilingual = (max: number) => z.object({
 const BilingualTextSchema = bilingual(400);
 const BilingualLongTextSchema = bilingual(1200);
 
+/** 讲解绑定到正文中的具体段落/句子，避免范文更新后仍显示另一篇的笔记。 */
+export const IeltsLearningSchema = z.object({
+  taskAnalysis: bilingual(1800),
+  paragraphs: z.array(z.object({
+    paragraph: z.number().int().min(1).max(8),
+    role: bilingual(200),
+    analysis: BilingualLongTextSchema,
+  }).strict()).min(1).max(8),
+  techniques: z.array(z.object({
+    title: bilingual(200),
+    explanation: BilingualLongTextSchema,
+    segmentIndex: z.number().int().min(0).max(29),
+  }).strict()).min(3).max(6),
+  mistakes: z.array(BilingualLongTextSchema).min(2).max(5),
+  vocabulary: z.array(z.object({
+    term: z.string().trim().min(1).max(100),
+    partOfSpeech: z.string().trim().min(1).max(60),
+    meaning: bilingual(400),
+    usage: bilingual(800),
+    collocations: z.array(z.string().trim().min(1).max(120)).min(1).max(3),
+    example: bilingual(600),
+    segmentIndex: z.number().int().min(0).max(29),
+  }).strict()).min(6).max(12),
+}).strict();
+export type IeltsLearning = z.infer<typeof IeltsLearningSchema>;
+
 /**
  * 一个对齐句对：同一句话的两个版本 + 为什么这样改。
  * paragraph 从 1 开始，两版段落数必须一致（同一段里同一位置）。
@@ -42,6 +68,11 @@ export const IeltsSegmentSchema = z.object({
   high: z.string().trim().min(1).max(600),
   focus: z.array(IeltsFocusSchema).min(1).max(3),
   note: BilingualTextSchema,
+  /** 两版分别翻译，保留原句立场、数量与限定；旧版正文允许尚无译文。 */
+  translationZh: z.object({
+    low: z.string().trim().min(1).max(1200),
+    high: z.string().trim().min(1).max(1200),
+  }).strict().optional(),
 }).strict();
 export type IeltsSegment = z.infer<typeof IeltsSegmentSchema>;
 
@@ -56,6 +87,8 @@ export const IeltsPairContentSchema = z.object({
   criteria: z.array(z.object({ key: IeltsCriterionKeySchema, note: BilingualLongTextSchema }).strict()).length(4),
   /** 可以直接抄走的表达或写法，2–5 条 */
   takeaways: z.object({ zh: z.array(z.string().trim().min(2).max(200)).min(2).max(5), en: z.array(z.string().trim().min(2).max(200)).min(2).max(5) }).strict(),
+  // 兼容已发布的旧 JSON；新生成内容和文件精选必须提供完整学习笔记。
+  learning: IeltsLearningSchema.optional(),
 }).strict().superRefine((value, context) => {
   const keys = value.criteria.map(item => item.key);
   if (new Set(keys).size !== keys.length) {
@@ -70,6 +103,29 @@ export const IeltsPairContentSchema = z.object({
   const contiguous = value.segments.every((segment, index) => index === 0 || segment.paragraph >= value.segments[index - 1].paragraph);
   if (!contiguous) {
     context.addIssue({ code: 'custom', path: ['segments'], message: '段落编号必须按顺序排列' });
+  }
+  if (value.learning) {
+    const annotated = value.learning.paragraphs.map(item => item.paragraph);
+    if (annotated.length !== used.length || annotated.some((paragraph, index) => paragraph !== used[index])) {
+      context.addIssue({ code: 'custom', path: ['learning', 'paragraphs'], message: '每个正文段落须按顺序有一条讲解' });
+    }
+    value.learning.techniques.forEach((item, index) => {
+      if (!value.segments[item.segmentIndex]) {
+        context.addIssue({ code: 'custom', path: ['learning', 'techniques', index, 'segmentIndex'], message: '讲解引用的句子不存在' });
+      }
+    });
+    const terms = new Set<string>();
+    value.learning.vocabulary.forEach((item, index) => {
+      const term = item.term.toLowerCase();
+      const sentence = value.segments[item.segmentIndex]?.high.toLowerCase();
+      const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const wholeTerm = new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, 'u');
+      if (!sentence || !wholeTerm.test(sentence)) {
+        context.addIssue({ code: 'custom', path: ['learning', 'vocabulary', index], message: '生词必须原样出现在对应升级句中' });
+      }
+      if (terms.has(term)) context.addIssue({ code: 'custom', path: ['learning', 'vocabulary', index], message: '生词不可重复' });
+      terms.add(term);
+    });
   }
 });
 export type IeltsPairContent = z.infer<typeof IeltsPairContentSchema>;
