@@ -23,6 +23,13 @@ describe('buildIndex', () => {
     expect(productEntries.some(e => e.title === 'OmniCrawl')).toBe(true);
   });
 
+  it('产品关键词进索引：搜 hooks 能命中 XIsland', () => {
+    // 「hooks」只出现在集成路线表里，名称/标语/特性列表都没有这个词。
+    // 不把 product.keywords 并进索引，站内搜 hooks 就完全搜不到这款产品。
+    const results = searchEntries('hooks', 'zh');
+    expect(results.some(e => e.href === '/products/xisland')).toBe(true);
+  });
+
   it('包含页面/帮助/彩蛋分组', () => {
     const groups = new Set(index.map(e => e.group));
     expect(groups.has('页面')).toBe(true);

@@ -161,7 +161,10 @@ export function buildIndex(locale: Locale): SearchEntry[] {
       subtitle: p.tagline,
       group: '产品',
       href: `/products/${p.id}`,
-      keywords: [p.id, p.name, p.tagline, p.description, categoryLabels[p.category] || p.category, ...p.features]
+      // `p.keywords` 是产品数据里的检索词（如 XIsland 的 `Claude Code hooks`）。
+      // 不并进来，用户搜「hooks」在站内搜不到这款产品 —— 名称、标语和特性列表
+      // 里都没有这个词，只有集成表里有，而那张表不进索引。
+      keywords: [p.id, p.name, p.tagline, p.description, categoryLabels[p.category] || p.category, ...p.features, ...p.keywords]
         .join(' ')
         .toLowerCase(),
     }),

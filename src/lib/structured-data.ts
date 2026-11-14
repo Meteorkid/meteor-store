@@ -102,6 +102,10 @@ export function buildProductSchema({ product, locale, showPricing, featureList }
     // 版本号取自下载目录（线上真源），不是源码兜底值，所以能反映用户实际拿到的包
     ...(version ? { softwareVersion: version } : {}),
     ...(product.github ? { codeRepository: product.github } : {}),
+    // 关键词：schema.org 的 `keywords` 接受逗号分隔文本。
+    // 取自 `product.keywords`（产品数据里的单一来源），不在这里另写一份——
+    // 两处各维护一套词，必然漂移成「结构化数据说支持、页面上找不到」。
+    ...(product.keywords.length > 0 ? { keywords: product.keywords.join(', ') } : {}),
     // 能力清单：数组形式，schema.org 接受多值。留空则整个字段省略，
     // 不下发空数组（空数组对搜索引擎没有信息量，还会让校验工具报噪音）
     ...(featureList && featureList.length > 0 ? { featureList } : {}),

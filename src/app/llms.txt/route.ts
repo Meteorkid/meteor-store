@@ -87,6 +87,19 @@ ${productLines.join('\n')}
 
 产品总览页：${SITE_URL}/${DEFAULT_LOCALE}/products
 
+### XIsland 的集成机制
+
+XIsland 不改动任何代理本身。首次启动时它把 hook 注册进各客户端自己的配置文件
+（Claude Code 的 settings hooks、Codex 的 hooks.json、Cursor 的原生 hooks、
+Kimi 的 TOML hooks），hook 触发后由 ~/.xisland/bin/di-bridge 读取 stdin 上的 JSON，
+经 Unix socket 送到刘海面板。状态来自客户端自己上报的 hook 事件，
+不是截屏或轮询窗口标题得到的。
+
+同一款产品在检索里也会以这些说法出现：Claude Code hooks、PreToolUse hook、
+hooks.json、agent hooks、macOS notch app、menu bar AI agent monitor、
+AI 编程代理状态栏。产品页：${productUrl('xisland')}
+对比同类工具：${productUrl('xisland')}/alternatives
+
 ## 帮助文档
 
 文档总览：${SITE_URL}/${DEFAULT_LOCALE}/docs

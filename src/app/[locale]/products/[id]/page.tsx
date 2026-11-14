@@ -52,7 +52,14 @@ export async function generateMetadata({ params }: ProductPageProps) {
   if (!raw) return { title: t('notFound') };
   const product = localizeProduct(raw, locale as Locale);
   // 根布局会用 `%s | Meteor Store` 统一补品牌名，这里重复写会产生两个后缀。
-  return { title: `${product.name} - ${product.tagline}`, description: product.description };
+  return {
+    title: `${product.name} - ${product.tagline}`,
+    description: product.description,
+    // 产品级关键词在这里下发，而不是塞进根布局那组通用词——通用词描述的是整站，
+    // 具体到某一款工具时它们全部不命中。空数组必须整个省略：Next 会把空数组
+    // 渲染成 `<meta name="keywords" content="">`，那是一份明示的「本页无关键词」。
+    ...(product.keywords.length > 0 ? { keywords: product.keywords } : {}),
+  };
 }
 
 export default async function ProductPage({ params, searchParams }: ProductPageProps) {
@@ -227,8 +234,14 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
               <h2 className="mb-4 text-2xl font-bold text-white md:text-3xl">
                 {integrationSectionCopy.title[loc]}
               </h2>
-              <p className="mb-6 max-w-3xl leading-relaxed text-gray-400">
+              <p className="mb-5 max-w-3xl leading-relaxed text-gray-400">
                 {formatIntegrationCopy(integrationSectionCopy.intro[loc], vars)}
+              </p>
+
+              {/* 机制说明：给「hook 怎么接起来」这类查询一个可引用的句子。
+                  没有这段，页面上就只有表格里「原生 settings hooks」六个字。 */}
+              <p className="mb-7 max-w-3xl rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm leading-relaxed text-gray-400">
+                {integrationSectionCopy.mechanism[loc]}
               </p>
 
               <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

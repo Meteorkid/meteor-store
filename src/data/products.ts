@@ -25,12 +25,31 @@ export interface DownloadLink {
   sha256?: string;
 }
 
+/**
+ * 产品级检索关键词，双语分列（沿用 `help-articles.ts` 的既有形状）。
+ *
+ * **用途**：产品页 `<meta name="keywords">`、JSON-LD 的 `keywords` 字段，
+ * 以及给 AI 检索/站内搜索的召回线索。
+ *
+ * **诚实边界**：Google 自 2009 年起公开表示不使用 meta keywords 排序，
+ * Bing 亦然。所以这组词的定位**不是**提升 Google 排名，而是：
+ * ① 让读取 JSON-LD 的 AI 抽取链路拿到显式的实体标签；
+ * ② 让站内搜索与未来的向量召回有稳定的同义词表。
+ *
+ * **写法约束**：只准写产品真实具备的能力、真实支持的客户端名、
+ * 真实采用的机制名（如 `settings hooks`、`hooks.json`）。塞竞品名或
+ * 未支持的技术名，属于关键词堆砌，既可能招致人工惩罚，也会让 AI 抽取出错误实体关系。
+ */
+export type ProductKeywords = { zh: string[]; en: string[] };
+
 export interface Product {
   id: string;
   name: LocalizedText;
   tagline: LocalizedText;
   description: LocalizedText;
   features: LocalizedText[];
+  /** 产品级检索关键词，见 `ProductKeywords` 的说明。省略即该产品不下发关键词。 */
+  keywords?: ProductKeywords;
   pricing: {
     id: string;
     name: LocalizedText;
@@ -112,6 +131,8 @@ export interface LocalizedProduct {
   tagline: string;
   description: string;
   features: string[];
+  /** 拍平后的检索关键词，空数组表示该产品没有配置关键词 */
+  keywords: string[];
   pricing: {
     id: string;
     name: string;
@@ -538,6 +559,68 @@ export const products: Product[] = [
       { zh: '美观的动画效果', en: 'Beautiful animations' },
       { zh: '低资源占用', en: 'Low resource usage' },
     ],
+    /**
+     * 关键词覆盖的重点是**机制词**而不是形容词：用户（和 AI）搜的是
+     * 「claude code hooks 怎么看状态」，不是「好看的 macOS 应用」。
+     * 每个词都能在 README 的集成表或「How It Works」里找到对应事实，
+     * 没有一个是硬塞的。
+     */
+    keywords: {
+      zh: [
+        'XIsland',
+        'X Island',
+        'macOS 灵动岛',
+        '刘海面板',
+        '菜单栏应用',
+        'AI 编程代理',
+        'AI 编码代理',
+        'Claude Code',
+        'Codex CLI',
+        'Gemini CLI',
+        'Cursor',
+        'Windsurf',
+        'GitHub Copilot CLI',
+        'Qwen Code',
+        'Kimi Code',
+        'CodeBuddy',
+        'Claude Code hooks',
+        'PreToolUse hook',
+        'hooks.json',
+        'settings hooks',
+        '代理状态监控',
+        '多代理管理',
+        '权限审批',
+        '配额追踪',
+        'SSH 远程管理',
+      ],
+      en: [
+        'XIsland',
+        'X Island',
+        'macOS Dynamic Island',
+        'notch app',
+        'menu bar app',
+        'AI coding agents',
+        'AI agent monitor',
+        'Claude Code',
+        'Codex CLI',
+        'Gemini CLI',
+        'Cursor',
+        'Windsurf',
+        'GitHub Copilot CLI',
+        'Qwen Code',
+        'Kimi Code',
+        'CodeBuddy',
+        'Claude Code hooks',
+        'PreToolUse hook',
+        'hooks.json',
+        'settings hooks',
+        'agent status',
+        'multi-agent management',
+        'permission approval',
+        'quota tracking',
+        'SSH remote manager',
+      ],
+    },
     pricing: [
       // 限时免费：价格直接置 0，原价留在 originalPrice 里只用于划线展示。
       // 领取走 /api/claim，会写一条 ¥0 已支付订单并**照常发放永久激活码**（邮件 + 账户页），
@@ -973,6 +1056,7 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
     tagline: product.tagline[locale],
     description: product.description[locale],
     features: product.features.map((f) => f[locale]),
+    keywords: product.keywords?.[locale] ?? [],
     pricing: product.pricing.map((p) => ({
       id: p.id,
       name: p.name[locale],

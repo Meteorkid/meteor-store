@@ -97,6 +97,13 @@ export async function generateMetadata({
       "open source",
       "Next.js",
       "React component library",
+      // 下面几个是站点当前的主线（旗舰产品是 XIsland），产品页还会各自下发更精确的词。
+      // 这里只放「描述整站」的词，别把单个产品的长尾词堆到根布局 ——
+      // 根布局的 keywords 会出现在每一页，包括博客文章。
+      "AI coding agents",
+      "Claude Code",
+      "macOS menu bar app",
+      "agent hooks",
     ],
     authors: [{ name: "Meteor Store" }],
     creator: "Meteor Store",

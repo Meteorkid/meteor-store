@@ -157,6 +157,36 @@ describe('buildProductSchema', () => {
     });
     expect(noList).not.toHaveProperty('featureList');
   });
+
+  it('keywords 按 schema.org 约定用逗号连接，没有配置时省略整个字段', () => {
+    const withKeywords = buildProductSchema({
+      product: realProduct('xisland'),
+      locale: 'zh',
+      showPricing: true,
+    });
+    // schema.org 的 keywords 是 Text，多个标签用逗号分隔（不是数组）
+    expect(typeof withKeywords.keywords).toBe('string');
+    expect(withKeywords.keywords).toContain('Claude Code hooks');
+
+    const noKeywords = buildProductSchema({
+      product: realProduct('statux'),
+      locale: 'zh',
+      showPricing: true,
+    });
+    // 没配关键词的产品不能下发空字符串或空数组——那等于声明「本产品无标签」
+    expect(noKeywords).not.toHaveProperty('keywords');
+  });
+
+  it('英文页下发英文关键词，不混中文', () => {
+    const schema = buildProductSchema({
+      product: realProduct('xisland', 'en'),
+      locale: 'en',
+      showPricing: true,
+    });
+    expect(schema.keywords).toContain('macOS Dynamic Island');
+    // 中文词混进英文页会削弱语言相关性信号
+    expect(schema.keywords).not.toMatch(/[\u4e00-\u9fa5]/);
+  });
 });
 
 describe('buildBreadcrumbSchema', () => {

@@ -62,6 +62,22 @@ export const integrationSectionCopy = {
     zh: '我们如实标注每条路线的验证状态。配置文件存在不等于客户端会加载它并端到端可用，所以这里不做「已全面支持」的笼统声明。',
     en: 'We label the verification status of every route honestly. A config file existing does not prove the client loads it or works end to end, so we avoid blanket claims of full support.',
   },
+  /**
+   * 集成机制说明。
+   *
+   * **这段的存在理由是检索**：全部 30 条路线只写「原生 settings hooks」这一列短语，
+   * 页面上没有任何一处解释 hook 是怎么接起来的，于是搜「Claude Code hooks 如何看到状态」
+   * 的人（和代为检索的 AI）拿不到可引用的句子。这里把 README「How It Works」的
+   * 链路用散文写清楚，术语自然出现，不必堆词。
+   *
+   * 事实来源：README「How It Works」——`di-bridge` 装在 `~/.xisland/bin/`，
+   * 首次启动写入各客户端配置，hook 触发后经 stdin JSON → Unix socket → SessionManager。
+   * 改这段前先确认代码仍是这条链路，别照着旧描述写。
+   */
+  mechanism: {
+    zh: '机制上 XIsland 不改动这些代理本身。首次启动时它把 hook 注册进各客户端自己的配置文件（Claude Code 的 settings hooks、Codex 的 hooks.json、Cursor 的原生 hooks、Kimi 的 TOML hooks），事件触发后由一个常驻在 ~/.xisland/bin/ 的 di-bridge 桥接进程读取 stdin 上的 JSON，经 Unix socket 送到面板。状态来自客户端自己上报的 hook 事件，不靠截屏或轮询窗口标题去猜。',
+    en: 'Mechanically, XIsland does not patch the agents. On first launch it registers a hook in each client’s own config file (Claude Code settings hooks, Codex hooks.json, Cursor native hooks, Kimi TOML hooks). When the hook fires, a small bridge binary at ~/.xisland/bin/di-bridge reads the JSON from stdin and forwards it over a Unix socket to the panel. Status comes from the client’s own hook events — not from screen scraping or polling window titles.',
+  },
   toggle: { zh: '展开全部 {total} 条路线', en: 'Show all {total} routes' },
   collapse: { zh: '收起', en: 'Collapse' },
 } as const;
