@@ -80,7 +80,8 @@ cleanup_tunnel() {
   pkill -f "ssh .*-L ${TUNNEL_PORT}:127.0.0.1:5432" 2>/dev/null || true
   # 旧产物成功替换后就没用了；构建失败时也一起清掉，避免 .next.bak-* 堆积
   # （历史上曾累积 8.4G / 17 个目录）。
-  if [[ -n "$NEXT_BACKUP" && -d "$NEXT_BACKUP" ]]; then rm -rf "$NEXT_BACKUP"; fi
+  # 删除可能被本机守卫拦下（批量删除配额），失败也不能影响部署结果
+  if [[ -n "${NEXT_BACKUP}" && -d "${NEXT_BACKUP}" ]]; then rm -rf "${NEXT_BACKUP}" || true; fi
 }
 trap cleanup_tunnel EXIT INT TERM
 ssh "${SSH_OPTS[@]}" -f -N -o ExitOnForwardFailure=yes \
@@ -100,7 +101,7 @@ export DATABASE_URL="$BUILD_DATABASE_URL"
 if [[ -d .next ]]; then
   NEXT_BACKUP=".next.bak-$(date +%Y%m%d-%H%M%S)"
   mv .next "$NEXT_BACKUP"
-  echo "   旧产物已移出：$NEXT_BACKUP（构建结束后自动清理）"
+  echo "   旧产物已移出：${NEXT_BACKUP}（构建结束后自动清理）"
 fi
 
 if ! SKIP_TYPE_CHECK=1 pnpm build; then
