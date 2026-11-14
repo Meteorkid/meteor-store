@@ -63,3 +63,16 @@ export function buildAlternateUrls(pathname: string | null | undefined): Alterna
     },
   };
 }
+
+/**
+ * 软 404 页面的标题。
+ *
+ * Next 的 catch-all 在本项目会让不存在的路径**返回 200**（已实测确认），
+ * 只调 `notFound()` 而不给标题，页面会继承站点默认标题——看上去像首页。
+ * 这种「标题是首页、内容是未找到」的页面一旦被索引，就是一条重复内容。
+ *
+ * 所以未找到分支必须同时做两件事：给一个明确的标题、下发 noindex。
+ */
+export function notFoundTitle(locale: string): string {
+  return locale === 'en' ? 'Page not found' : '页面未找到';
+}

@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
-import { safeJsonLd } from '@/lib/seo';
+import { notFoundTitle, safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import { markdownToHtml } from '@/lib/markdown';
 import { localizeProduct, products } from '@/data/products';
@@ -29,7 +29,9 @@ interface ChangelogPageProps {
 
 export async function generateMetadata({ params }: ChangelogPageProps) {
   const { locale, id } = await params;
-  if (!isChangelogProduct(id)) return {};
+  // 返回空对象会让页面继承站点默认标题，看上去像首页——软 404 一旦被索引，
+  // 就是一个「标题是首页、内容是未找到」的重复页。这里显式给标题并关掉索引。
+  if (!isChangelogProduct(id)) return { title: notFoundTitle(locale), robots: { index: false, follow: false } };
   const loc = locale as Locale;
   const raw = products.find((item) => item.id === id);
   if (!raw) return {};

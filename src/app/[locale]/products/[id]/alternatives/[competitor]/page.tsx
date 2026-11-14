@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
-import { safeJsonLd } from '@/lib/seo';
+import { notFoundTitle, safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import { alternativeProducts, alternativesPageCopy } from '@/data/xisland-alternatives';
 import {
@@ -35,7 +35,8 @@ function resolve(locale: string, id: string, competitor: string) {
 export async function generateMetadata({ params }: CompetitorPageProps) {
   const { locale, id, competitor } = await params;
   const found = resolve(locale, id, competitor);
-  if (!found) return {};
+  // 同 changelog：不给标题会继承站点默认标题，形成软 404 重复页
+  if (!found) return { title: notFoundTitle(locale), robots: { index: false, follow: false } };
   return {
     title: found.detail.title[found.loc],
     description: found.detail.metaDescription[found.loc],

@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
-import { safeJsonLd } from '@/lib/seo';
+import { notFoundTitle, safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import {
   ALTERNATIVES_VERIFIED_ON,
@@ -23,7 +23,8 @@ interface AlternativesPageProps {
 
 export async function generateMetadata({ params }: AlternativesPageProps) {
   const { locale, id } = await params;
-  if (id !== 'xisland') return {};
+  // 软 404 处理，理由见 changelog 页同名分支
+  if (id !== 'xisland') return { title: notFoundTitle(locale), robots: { index: false, follow: false } };
   const loc = locale as Locale;
   return {
     title: alternativesPageCopy.title[loc],
