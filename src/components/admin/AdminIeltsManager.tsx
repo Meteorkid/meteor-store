@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent, type ReactNode } from 'react';
+import { Link } from '@/i18n/navigation';
 import { formatAdminTimestamp } from '@/lib/admin-date';
 import type { IeltsPairSource, IeltsPairStatus, IeltsTask } from '@/lib/ielts/types';
 
@@ -340,6 +341,9 @@ export default function AdminIeltsManager({ initialRows, initialPairs, locale }:
                     { label: t('更新时间', 'Updated'), value: formatAdminTimestamp(row.updatedAt, locale) },
                   ]}
                 >
+                  <Link href={`/admin/ielts/${row.slug}`} locale={locale} className={`${buttonClass} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400`}>
+                    {t('预览', 'Preview')}
+                  </Link>
                   {row.status !== 'published' && (
                     <button type="button" className={buttonClass} disabled={busy} onClick={() => publish(row.slug)}>
                       {t('发布', 'Publish')}
@@ -392,6 +396,9 @@ export default function AdminIeltsManager({ initialRows, initialPairs, locale }:
                   { label: t('排序', 'Order'), value: String(pair.sortOrder) },
                 ]}
               >
+                <Link href={`/study/ielts/${pair.slug}`} locale={locale} className={`${buttonClass} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400`}>
+                  {t('预览', 'Preview')}
+                </Link>
                 <button type="button" className={buttonClass} disabled={busy} onClick={() => hide(pair.slug, true)}>
                   {t('下架', 'Unpublish')}
                 </button>

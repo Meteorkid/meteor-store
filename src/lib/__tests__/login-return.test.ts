@@ -4,6 +4,16 @@ import { products } from '@/data/products';
 import { appIds } from '@/data/app-manifest';
 
 describe('normalizeLoginReturn', () => {
+  it.each(['/study/ielts', '/study/ielts/task2-education-01', `/study/ielts/${'a'.repeat(60)}`])('雅思登录后返回原列表或对照：%s', value => {
+    expect(normalizeLoginReturn(value)).toBe(value);
+    expect(new URL(buildLoginHref(value), 'https://store.test').searchParams.get('next')).toBe(value);
+  });
+  it.each(['/study/ielts/ab', `/study/ielts/${'a'.repeat(61)}`, '/study/ielts/ABC',
+    '/study/ielts/abc/extra', '/study/ielts/../admin', '/study/ielts/abc%2fadmin',
+    '/study/ielts/abc?next=https://evil.example', '/study/ielts/abc#admin', '/study/ielts/abc\n',
+    '/study/ielts?next=https://evil.example'])('雅思回跳拒绝非法 slug 与额外参数：%s', value => {
+    expect(normalizeLoginReturn(value)).toBe('/');
+  });
   it.each(['/masters?year=2020', '/masters?year=2100', '/phd', '/phd?year=2027'])('申请页回跳保留学位与合法入学年份：%s', value => {
     expect(normalizeLoginReturn(value)).toBe(value);
     expect(new URL(buildLoginHref(value), 'https://store.test').searchParams.get('next')).toBe(value);

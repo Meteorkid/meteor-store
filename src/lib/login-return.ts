@@ -25,6 +25,7 @@ const ALLOWED_LOGIN_RETURNS = new Set([
   '/study',
   '/study/courses',
   '/study/algorithms',
+  '/study/ielts',
 ]);
 
 export function normalizeLoginReturn(value: string | null | undefined): string {
@@ -34,6 +35,9 @@ export function normalizeLoginReturn(value: string | null | undefined): string {
   if (admissions?.[0] === value && Number(admissions[1]) >= 2020 && Number(admissions[1]) <= 2100) return value;
   const daily = normalizeDailyReturn(value);
   if (daily) return daily;
+
+  const ieltsMatch = /^\/study\/ielts\/[a-z0-9-]{3,60}$/.exec(value);
+  if (ieltsMatch?.[0] === value) return value;
 
   // 投稿编辑只接受文章 ID 和入口标记；实际编辑权限仍由页面及 API 校验。
   const submitMatch = /^\/blog\/submit\?id=[A-Za-z0-9_-]{1,64}(?:&admin=1)?$/.exec(value);

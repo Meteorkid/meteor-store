@@ -4,6 +4,8 @@ import type { SQL } from 'drizzle-orm';
 import {
   blogImages,
   dailyPreferences,
+  ieltsPairs,
+  ieltsProgress,
   mastersNotices,
   mastersRounds,
   mastersWatches,
@@ -107,10 +109,11 @@ describe('账户数据删除顺序', () => {
     expect(state.deletedTables).toContain(studyCourses);
     expect(state.deletedTables).toContain(studyDeadlines);
     expect(state.deletedTables).toContain(studyProblems);
-    for (const table of [studyCourses, studyDeadlines, studyProblems]) {
+    for (const table of [studyCourses, studyDeadlines, studyProblems, ieltsProgress]) {
       expect(state.deletedConditions.find(item => item.table === table)?.params).toEqual(['U1']);
       expect(state.deletedTables.indexOf(table)).toBeLessThan(state.deletedTables.indexOf(users));
     }
+    expect(state.deletedTables).not.toContain(ieltsPairs);
     expect(state.deletedTables).not.toContain(mastersRounds);
     expect(state.deletedTables).not.toContain(phdRounds);
     for (const table of [phdNotices, phdWatches]) {
@@ -156,5 +159,14 @@ describe('账户数据删除顺序', () => {
     expect(state.deletedTables).not.toContain(users);
     expect(state.deletedTables).not.toContain(phdRounds);
     expect(state.deletedTables).not.toContain(mastersRounds);
+  });
+
+  it('雅思学习记录清理失败时保留账号，不删除共享范文', async () => {
+    state.failTable = ieltsProgress;
+    const { deleteUserAccount } = await import('../account-deletion');
+    await expect(deleteUserAccount({ userId: 'U1', email: 'user@example.com', avatarUrl: null }))
+      .rejects.toThrow('cleanup failed');
+    expect(state.deletedTables).not.toContain(users);
+    expect(state.deletedTables).not.toContain(ieltsPairs);
   });
 });

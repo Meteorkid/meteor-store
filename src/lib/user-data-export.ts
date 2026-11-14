@@ -11,6 +11,7 @@ import {
   phdNotices,
   phdWatches,
   feedbacks,
+  ieltsProgress,
   inviteRedemptions,
   licenseKeys,
   likes,
@@ -61,6 +62,7 @@ export async function exportUserData(userId: string, email: string) {
     studyCourseRows,
     studyDeadlineRows,
     studyProblemRows,
+    ieltsProgressRows,
   ] = await Promise.all([
     db.select({
       id: users.id,
@@ -238,6 +240,9 @@ export async function exportUserData(userId: string, email: string) {
       reviewIntervalDays: studyProblems.reviewIntervalDays, lastReviewedOn: studyProblems.lastReviewedOn,
       createdAt: studyProblems.createdAt, updatedAt: studyProblems.updatedAt })
       .from(studyProblems).where(eq(studyProblems.userId, userId)),
+    db.select({ pairSlug: ieltsProgress.pairSlug, studiedAt: ieltsProgress.studiedAt,
+      bookmarkedAt: ieltsProgress.bookmarkedAt, updatedAt: ieltsProgress.updatedAt })
+      .from(ieltsProgress).where(eq(ieltsProgress.userId, userId)),
   ]);
 
   const postIds = postRows.map((post) => post.id);
@@ -319,6 +324,7 @@ export async function exportUserData(userId: string, email: string) {
     masters: { applications: mastersWatchRows, notices: mastersNoticeRows },
     phd: { applications: phdWatchRows, notices: phdNoticeRows },
     study: { courses: studyCourseRows, deadlines: studyDeadlineRows, problems: studyProblemRows },
+    ielts: { progress: ieltsProgressRows },
     tollow: {
       bookProgress: tollowProgressRows,
       practiceSessions: tollowSessionRows,

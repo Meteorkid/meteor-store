@@ -5,6 +5,7 @@ import type { SQL } from 'drizzle-orm';
 import {
   blogImages,
   dailyPreferences,
+  ieltsProgress,
   mastersWatches,
   phdNotices,
   phdWatches,
@@ -25,6 +26,12 @@ import {
 let ownedOrderRows: Array<{ id: string }> = [];
 const refundQueries: Array<{ sql: string; params: unknown[] }> = [];
 const phdQueries: Array<{ sql: string; params: unknown[] }> = [];
+const ieltsQueries: Array<{ sql: string; params: unknown[] }> = [];
+const ieltsProgressRows = [
+  { userId: 'U1', pairSlug: 'task2-education-01', studiedAt: '2026-11-14T00:00:00Z', bookmarkedAt: null, updatedAt: '2026-11-14T00:00:00Z', privateNote: 'must-not-export' },
+  { userId: 'U1', pairSlug: 'task2-environment-01', studiedAt: null, bookmarkedAt: '2026-11-14T01:00:00Z', updatedAt: '2026-11-14T01:00:00Z' },
+  { userId: 'U2', pairSlug: 'other-ielts-pair', studiedAt: null, bookmarkedAt: '2026-11-14T00:00:00Z', updatedAt: '2026-11-14T00:00:00Z' },
+];
 const phdWatchRows = [
   { userId: 'U1', roundId: 'phd-round-1', status: 'preparing', reminders: true, createdAt: '2026-10-29T00:00:00Z', updatedAt: '2026-10-29T01:00:00Z', internalNote: 'must-not-export' },
   { userId: 'U2', roundId: 'other-phd-round', status: 'interested', reminders: false },
@@ -176,6 +183,12 @@ vi.mock('../db', () => ({
             return [Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection))];
           }
           if (table === mastersWatches) return [{ roundId: 'round-1', status: 'preparing', reminders: true }];
+          if (table === ieltsProgress) {
+            const query = new PgDialect().sqlToQuery(condition!);
+            ieltsQueries.push(query);
+            return ieltsProgressRows.filter(row => query.params.includes(row.userId))
+              .map(row => Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection)));
+          }
           if (table === studyCourses || table === studyDeadlines || table === studyProblems) {
             const query = new PgDialect().sqlToQuery(condition!);
             const rows = table === studyCourses ? studyCourseRows : table === studyDeadlines ? studyDeadlineRows : studyProblemRows;
@@ -201,6 +214,7 @@ describe('用户数据导出', () => {
     ownedOrderRows = [];
     refundQueries.length = 0;
     phdQueries.length = 0;
+    ieltsQueries.length = 0;
     accountRows = [{
       id: 'U1',
       email: 'user@example.com',
@@ -331,5 +345,16 @@ describe('用户数据导出', () => {
     const exported = await exportUserData('U1', 'user@example.com');
     expect(exported.commerce.refundAttempts).toEqual([]);
     expect(refundQueries).toHaveLength(0);
+  });
+
+  it('雅思已学与收藏只导出本人记录及字段白名单', async () => {
+    const { exportUserData } = await import('../user-data-export');
+    const exported = await exportUserData('U1', 'user@example.com');
+    expect(exported.ielts).toEqual({ progress: [
+      { pairSlug: 'task2-education-01', studiedAt: '2026-11-14T00:00:00Z', bookmarkedAt: null, updatedAt: '2026-11-14T00:00:00Z' },
+      { pairSlug: 'task2-environment-01', studiedAt: null, bookmarkedAt: '2026-11-14T01:00:00Z', updatedAt: '2026-11-14T01:00:00Z' },
+    ] });
+    expect(ieltsQueries).toMatchObject([{ sql: '"ielts_progress"."user_id" = $1', params: ['U1'] }]);
+    expect(JSON.stringify(exported.ielts)).not.toMatch(/userId|must-not-export|other-ielts-pair/);
   });
 });
