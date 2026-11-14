@@ -1,3 +1,4 @@
+import { listDueVocabulary, countDueVocabulary } from './vocabulary-service';
 import { eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { postFavorites, pathfinderSaves } from '@/lib/db/schema';
@@ -165,4 +166,12 @@ export async function loadSavedCounts(userId: string): Promise<SavedCounts> {
     db.select({ count: sql<number>`count(*)::int` }).from(pathfinderSaves).where(eq(pathfinderSaves.userId, userId)),
   ]);
   return { blog: blog[0]?.count ?? 0, pathfinder: pathfinder[0]?.count ?? 0 };
+}
+
+/** 生词队列仅预览前五张，完整到期数量单独统计，避免列表截断影响提醒。 */
+export async function loadVocabularyReviewSection(userId: string, today = dailyDate()) {
+  const [entries, dueCount] = await Promise.all([
+    listDueVocabulary(userId, today, 5), countDueVocabulary(userId, today),
+  ]);
+  return { entries, dueCount };
 }

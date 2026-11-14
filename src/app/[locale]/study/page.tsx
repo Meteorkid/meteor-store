@@ -6,10 +6,11 @@ import { dailyDate } from '@/lib/daily/types';
 import { dailyChannels } from '@/lib/daily/channels';
 import { dashboardText } from '@/components/study/dashboard-text';
 import ReviewQueue from '@/components/study/ReviewQueue';
+import VocabularyReviewQueue from '@/components/study/VocabularyReviewQueue';
 import { studyDatePart, studyRelativeDays } from '@/lib/study/format';
 import {
   loadApplicationDeadlines, loadCourseDeadlines, loadDailySection,
-  loadPlanSection, loadReviewSection, loadSavedCounts, loadSavedDeadlines,
+  loadPlanSection, loadReviewSection, loadSavedCounts, loadSavedDeadlines, loadVocabularyReviewSection,
 } from '@/lib/study/dashboard';
 
 export const dynamic = 'force-dynamic';
@@ -40,7 +41,7 @@ export default async function StudyDashboardPage({ params }: { params: Promise<{
   const userId = session!.userId;
   const today = dailyDate();
 
-  const [courseResult, applicationResult, savedResult, reviewResult, dailyResult, planResult, countsResult] = await Promise.allSettled([
+  const [courseResult, applicationResult, savedResult, reviewResult, dailyResult, planResult, countsResult, vocabularyResult] = await Promise.allSettled([
     loadCourseDeadlines(userId, today),
     loadApplicationDeadlines(userId),
     loadSavedDeadlines(userId, typedLocale),
@@ -48,6 +49,7 @@ export default async function StudyDashboardPage({ params }: { params: Promise<{
     loadDailySection(today),
     loadPlanSection(userId),
     loadSavedCounts(userId),
+    loadVocabularyReviewSection(userId, today),
   ]);
 
   const courseDeadlines = courseResult.status === 'fulfilled' ? courseResult.value : null;
@@ -57,6 +59,7 @@ export default async function StudyDashboardPage({ params }: { params: Promise<{
   const daily = dailyResult.status === 'fulfilled' ? dailyResult.value : null;
   const plan = planResult.status === 'fulfilled' ? planResult.value : undefined;
   const counts = countsResult.status === 'fulfilled' ? countsResult.value : null;
+  const vocabulary = vocabularyResult.status === 'fulfilled' ? vocabularyResult.value : null;
   const deadlinesFailed = courseDeadlines === null || applicationDeadlines === null || savedDeadlines === null;
 
   return (
@@ -124,6 +127,20 @@ export default async function StudyDashboardPage({ params }: { params: Promise<{
               <ReviewQueue initialProblems={reviews} ownerId={userId} locale={typedLocale} />
             </div>
           )}
+        </section>
+
+        <section aria-labelledby="study-vocabulary-reviews" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="study-vocabulary-reviews" className="t-title-3 text-white">{copy.vocabularyTitle}</h2>
+            <Link href="/study/vocabulary" className="inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">{copy.openVocabulary} →</Link>
+          </div>
+          {vocabulary === null ? <p role="status" className="mt-4 t-footnote text-amber-200">{copy.loadFailed}</p> : <>
+            <p className="mt-3 t-footnote text-white/75">{copy.vocabularyDue.replace('{count}', String(vocabulary.dueCount))}</p>
+            <div className="mt-4"><VocabularyReviewQueue
+              key={userId}
+              initialEntries={vocabulary.entries} ownerId={userId} locale={typedLocale} />
+            </div>
+          </>}
         </section>
 
         <section aria-labelledby="study-daily" className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">

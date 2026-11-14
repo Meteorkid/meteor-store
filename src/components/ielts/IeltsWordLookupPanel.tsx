@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { WordLookupResultSchema, type WordLookupRequest, type WordLookupResult } from '@/lib/ielts/word-lookup';
+import VocabularySaveAction from '@/components/study/VocabularySaveAction';
 import styles from './IeltsWordLookupPanel.module.css';
 
 interface Props {
@@ -112,7 +113,7 @@ export default function IeltsWordLookupPanel({ request, locale, anchor, onClose 
 
     void fetch('/api/ielts/word-lookup', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Ielts-Lookup-Version': '2' },
       body: JSON.stringify({ slug, segmentIndex, side, word }),
       signal: controller.signal,
       cache: 'no-store',
@@ -259,6 +260,7 @@ export default function IeltsWordLookupPanel({ request, locale, anchor, onClose 
           <div><dt>{text.meaning}</dt><dd lang="zh">{result.entry.meaningZh}</dd></div>
           {result.entry.usageZh && <div><dt>{text.usage}</dt><dd lang="zh">{result.entry.usageZh}</dd></div>}
         </dl>
+        <VocabularySaveAction saveToken={result.saveToken} sourceKey={result.sourceKey} returnTo={`/study/ielts/${request.slug}`} locale={locale} />
       </>}
     </div>
     <footer className={styles.footer}>

@@ -26,6 +26,7 @@ const ALLOWED_LOGIN_RETURNS = new Set([
   '/study/courses',
   '/study/algorithms',
   '/study/ielts',
+  '/study/vocabulary',
 ]);
 
 export function normalizeLoginReturn(value: string | null | undefined): string {

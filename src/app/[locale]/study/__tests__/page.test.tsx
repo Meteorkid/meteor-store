@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   loadDailySection: vi.fn(),
   loadPlanSection: vi.fn(),
   loadSavedCounts: vi.fn(),
+  loadVocabularyReviewSection: vi.fn(),
 }));
 
 vi.mock('@/lib/auth', () => ({ getSession: mocks.getSession }));
@@ -28,6 +29,7 @@ vi.mock('@/lib/study/dashboard', () => ({
   loadDailySection: mocks.loadDailySection,
   loadPlanSection: mocks.loadPlanSection,
   loadSavedCounts: mocks.loadSavedCounts,
+  loadVocabularyReviewSection: mocks.loadVocabularyReviewSection,
 }));
 vi.mock('next-intl/server', () => ({ setRequestLocale: vi.fn() }));
 vi.mock('@/components/study/ReviewQueue', () => ({
@@ -35,6 +37,8 @@ vi.mock('@/components/study/ReviewQueue', () => ({
     <div>REVIEW_QUEUE:{initialProblems.map(problem => problem.title).join(',')}</div>
   ),
 }));
+
+vi.mock('@/components/study/VocabularyReviewQueue', () => ({ default: () => <div>VOCABULARY_QUEUE</div> }));
 
 import StudyDashboardPage, { dynamic } from '../page';
 
@@ -55,6 +59,7 @@ function setupAll() {
   mocks.loadDailySection.mockResolvedValue([{ channel: 'english', title: '今日英语' }]);
   mocks.loadPlanSection.mockResolvedValue(null);
   mocks.loadSavedCounts.mockResolvedValue({ blog: 2, pathfinder: 1 });
+  mocks.loadVocabularyReviewSection.mockResolvedValue({ entries: [], dueCount: 2 });
 }
 
 beforeEach(() => {
@@ -79,6 +84,8 @@ describe('学习工作台页', () => {
     expect(html).toContain('数据结构');
     expect(html).toContain('REVIEW_QUEUE:两数之和');
     expect(html).toContain('今日英语');
+    expect(html).toContain('VOCABULARY_QUEUE');
+    expect(html).toContain('今天有 2 个词待复习');
     expect(html).toContain(copy.planEmpty);
     expect(html).toContain('>2<');
     expect(html).toContain('>1<');
@@ -88,9 +95,11 @@ describe('学习工作台页', () => {
   it('单分区失败只降级该分区，不伪装成空数据', async () => {
     mocks.loadReviewSection.mockRejectedValue(new Error('offline'));
     mocks.loadDailySection.mockRejectedValue(new Error('offline'));
+    mocks.loadVocabularyReviewSection.mockRejectedValue(new Error('offline'));
     const html = renderToStaticMarkup(await StudyDashboardPage({ params: Promise.resolve({ locale: 'zh' }) }));
     expect(html).toContain(copy.loadFailed);
     expect(html).not.toContain('REVIEW_QUEUE');
+    expect(html).not.toContain('VOCABULARY_QUEUE');
     expect(html).not.toContain(copy.dailyEmpty);
     // 其他分区不受影响
     expect(html).toContain('第三次作业');

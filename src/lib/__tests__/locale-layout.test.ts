@@ -15,3 +15,9 @@ describe('locale 布局的 404 边界', () => {
     expect(metadataGuard).toBeLessThan(metadataTranslations);
   });
 });
+
+describe('locale 布局的导航滚动', () => {
+  it('声明平滑滚动，让 Next 在切页时临时禁用它并正确回到顶部', () => {
+    expect(source).toMatch(/<html\b[^>]*data-scroll-behavior=["']smooth["']/);
+  });
+});

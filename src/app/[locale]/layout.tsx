@@ -206,6 +206,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale === "zh" ? "zh-CN" : "en"}
+      data-scroll-behavior="smooth"
       data-theme={initialTheme}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
