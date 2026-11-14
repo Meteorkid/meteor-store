@@ -20,23 +20,28 @@ test('点击教材词汇显示中文，Escape关闭并恢复到词', async ({ pa
 });
 
 test('失败可重试，全文和关闭查义不改变英文', async ({ page }) => {
-  let requests = 0;
+  // 开发模式重挂载可能中止首个请求；只有实际观察到错误后才进入成功阶段。
+  let retryReady = false;
   await page.route(endpoint, route => {
-    requests += 1;
     const data = route.request().postDataJSON();
-    return route.fulfill({ status: requests === 1 ? 503 : 200, contentType: 'application/json', body: JSON.stringify(requests === 1 ? { error: 'unavailable' } : result(data.word)) });
+    return route.fulfill({ status: retryReady ? 200 : 503, contentType: 'application/json', body: JSON.stringify(retryReady ? result(data.word) : { error: 'unavailable' }) });
   });
   await page.goto(PAIR);
   const english = await page.locator('[data-essay-side="low"]').first().innerText();
+  await expect(page.locator('mark[data-change]').first()).toBeVisible();
   await page.locator('[data-lookup-word="nowadays"]').first().click();
   const panel = page.getByRole('dialog');
   await expect(panel.getByRole('alert')).toContainText('暂时不可用');
+  retryReady = true;
   await panel.getByRole('button', { name: '重试', exact: true }).click();
   await expect(panel.getByText('AI 语境释义', { exact: true })).toBeVisible();
   await panel.getByRole('button', { name: '关闭词语释义' }).click();
   await page.getByRole('switch', { name: '点词查义', exact: true }).click();
   await expect(page.locator('[data-lookup-word]')).toHaveCount(0);
   expect(await page.locator('[data-essay-side="low"]').first().innerText()).toBe(english);
+  await expect(page.locator('mark[data-change]').first()).toBeVisible();
+  await page.getByRole('button', { name: '隐藏改动标记', exact: true }).click();
+  await expect(page.locator('mark[data-change]')).toHaveCount(0);
   await page.getByRole('button', { name: '显示改动标记', exact: true }).click();
   await expect(page.locator('mark[data-change]').first()).toBeVisible();
   await page.getByRole('switch', { name: '点词查义', exact: true }).click();

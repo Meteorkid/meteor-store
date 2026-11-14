@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { Fragment, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent, type MouseEvent } from 'react';
 import { IELTS_FOCUS_LABELS, type IeltsFocus, type IeltsSegment } from '@/lib/ielts/types';
 import { ieltsCopy, type IeltsLocale } from './ielts-text';
 import { diffIeltsSentence, type IeltsDiffPart } from '@/lib/ielts/diff';
@@ -11,6 +11,32 @@ import { expressionEditsForParagraph } from '@/lib/ielts/expression-edits';
 import IeltsExpressionBlocks from './IeltsExpressionBlocks';
 
 const FOCUS_ORDER: IeltsFocus[] = ['task', 'cohesion', 'lexis', 'grammar', 'accuracy'];
+const PALETTES = ['amber-mint', 'rose-sky', 'violet-gold', 'yellow-cyan'] as const;
+type HighlightPalette = typeof PALETTES[number];
+const PALETTE_KEY = 'ielts:highlight-palette';
+const PALETTE_EVENT = 'ielts:highlight-palette-changed';
+const defaultPalette = () => PALETTES[0];
+
+function isPalette(value: string | null): value is HighlightPalette {
+  return PALETTES.some(palette => palette === value);
+}
+
+function readPalette(): HighlightPalette {
+  try {
+    const value = window.localStorage.getItem(PALETTE_KEY);
+    return isPalette(value) ? value : defaultPalette();
+  } catch { return defaultPalette(); }
+}
+
+function subscribePalette(listener: () => void) {
+  window.addEventListener('storage', listener);
+  window.addEventListener(PALETTE_EVENT, listener);
+  return () => {
+    window.removeEventListener('storage', listener);
+    window.removeEventListener(PALETTE_EVENT, listener);
+  };
+}
+
 interface Props { slug: string; locale: IeltsLocale; segments: IeltsSegment[] }
 
 /** 阅读设置相互独立；译文随句子存储，开关只改变呈现，不请求外部翻译服务。 */
@@ -18,7 +44,10 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
   const copy = ieltsCopy(locale);
   const [view, setView] = useState<'segments' | 'full'>('segments');
   const [focus, setFocus] = useState<'all' | IeltsFocus>('all');
-  const [showChanges, setShowChanges] = useState(false);
+  const [showChanges, setShowChanges] = useState(true);
+  const savedPalette = useSyncExternalStore(subscribePalette, readPalette, defaultPalette);
+  const [temporaryPalette, setTemporaryPalette] = useState<HighlightPalette | null>(null);
+  const palette = temporaryPalette ?? savedPalette;
   const noteButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const [wordLookupEnabled, setWordLookupEnabled] = useState(true);
   const [lookup, setLookup] = useState<{ request: WordLookupRequest; anchor: HTMLElement } | null>(null);
@@ -44,6 +73,18 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
         block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
       });
     });
+  }
+
+  function changePalette(value: string) {
+    if (!isPalette(value)) return;
+    try {
+      window.localStorage.setItem(PALETTE_KEY, value);
+      setTemporaryPalette(null);
+      window.dispatchEvent(new Event(PALETTE_EVENT));
+    } catch {
+      // 浏览器禁止写入偏好时，当前阅读页仍可即时换色。
+      setTemporaryPalette(value);
+    }
   }
 
   function chooseWord(anchor: HTMLElement, word: string, segmentIndex: number, side: 'low' | 'high') {
@@ -100,7 +141,7 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
   }
 
   return (
-    <div className={styles.reader}>
+    <div className={styles.reader} data-highlight-palette={palette}>
       <div className={styles.toolbar}>
         <div className={styles.primaryControls}>
           <div role="group" aria-label={copy.readingMode} className={styles.modeGroup}>
@@ -121,6 +162,13 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
           <button type="button" aria-pressed={showChanges} onClick={() => { setLookup(null); setShowChanges(value => !value); }} className={styles.controlButton}>
             {showChanges ? copy.hideChanges : copy.showChanges}
           </button>
+          <label className={styles.focusLabel}>
+            <span aria-hidden="true" className={styles.palettePreview}><span /><span /></span>
+            {copy.highlightPalette}
+            <select value={palette} onChange={event => changePalette(event.target.value)} className={styles.focusSelect}>
+              {PALETTES.map(id => <option key={id} value={id}>{copy.highlightPalettes[id]}</option>)}
+            </select>
+          </label>
           {view === 'segments' && <>
             <label className={styles.focusLabel}>{copy.focusLabel}
               <select value={focus} onChange={event => setFocus(event.target.value as 'all' | IeltsFocus)} className={styles.focusSelect}>

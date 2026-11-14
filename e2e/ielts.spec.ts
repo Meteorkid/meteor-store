@@ -58,7 +58,7 @@ test.describe('雅思写作对照', () => {
     await expect(page.locator('[data-focused="true"]')).toHaveCount(0);
   });
 
-  test('两栏字体不同，词级标记可关闭且不改变正文', async ({ page }) => {
+  test('两栏字体不同，默认标记可关闭且不改变正文', async ({ page }) => {
     await page.goto(PAIR);
     const low = page.locator('[data-essay-side="low"]').first();
     const high = page.locator('[data-essay-side="high"]').first();
@@ -67,15 +67,21 @@ test.describe('雅思写作对照', () => {
     expect(await low.evaluate(node => getComputedStyle(node).fontFamily))
       .not.toBe(await high.evaluate(node => getComputedStyle(node).fontFamily));
     const before = { low: await low.innerText(), high: await high.innerText() };
-    await page.getByRole('button', { name: '显示改动标记', exact: true }).click();
-    await expect(page.locator('mark[data-change="removed"]').first()).toBeVisible();
-    await expect(page.locator('mark[data-change="added"]').first()).toBeVisible();
+    const removed = page.locator('mark[data-change="removed"]').first();
+    const added = page.locator('mark[data-change="added"]').first();
+    await expect(removed).toBeVisible();
+    await expect(added).toBeVisible();
+    await expect(removed).toHaveCSS('text-decoration-style', 'dashed');
+    await expect(added).toHaveCSS('text-decoration-style', 'solid');
     await page.getByRole('button', { name: '隐藏改动标记', exact: true }).click();
     await expect(page.locator('mark[data-change]')).toHaveCount(0);
     expect({ low: await low.innerText(), high: await high.innerText() }).toEqual(before);
     await page.getByRole('button', { name: '显示改动标记', exact: true }).click();
     await page.getByRole('button', { name: '全文阅读', exact: true }).click();
-    await expect(page.locator('mark[data-change="added"]').first()).toBeVisible();
+    await expect(removed).toBeVisible();
+    await expect(added).toBeVisible();
+    await expect(removed).toHaveCSS('text-decoration-style', 'dashed');
+    await expect(added).toHaveCSS('text-decoration-style', 'solid');
   });
 
   test('详细笔记、生词卡、原句和双语例句可读', async ({ page }) => {

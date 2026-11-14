@@ -26,30 +26,32 @@ export default function IeltsExpressionBlocks({ edits, paragraph, locale, focus,
       <h4 id={headingId}>{copy.expressionTitle}</h4>
       <span>{copy.expressionHint}</span>
     </div>
-    <div className={styles.grid}>
-      {edits.map((edit, index) => <article key={`${edit.segmentIndex}-${edit.editIndex}`} className={styles.block}
+    <ul className={styles.rows} role="list">
+      {edits.map((edit, index) => <li key={`${edit.segmentIndex}-${edit.editIndex}`} className={styles.block}
         data-expression-block data-priority={index === 0 ? 'primary' : 'supporting'} data-focus-match={focus === edit.focus}>
         <div className={styles.blockHeader}>
           <span className={styles.category}>{IELTS_FOCUS_LABELS[edit.focus][locale]}</span>
           <span className={styles.position}>{index === 0 ? copy.expressionPrimary : copy.expressionSupporting}</span>
         </div>
-        <div className={styles.change}>
-          <div className={styles.before}>
-            <span className={styles.version}>{copy.expressionBefore}</span>
-            <p lang="en" data-expression-side="before">{edit.before}</p>
+        <div className={styles.content}>
+          <div className={styles.change}>
+            <div className={styles.before}>
+              <span className={styles.version}>{copy.expressionBefore}</span>
+              <p lang="en" data-expression-side="before">{edit.before}</p>
+            </div>
+            <span className={styles.arrow} aria-hidden="true" />
+            <div className={styles.after}>
+              <span className={styles.version}>{copy.expressionAfter}</span>
+              <p lang="en" data-expression-side="after">{edit.after}</p>
+            </div>
           </div>
-          <span className={styles.arrow} aria-hidden="true">→</span>
-          <div className={styles.after}>
-            <span className={styles.version}>{copy.expressionAfter}</span>
-            <p lang="en" data-expression-side="after">{edit.after}</p>
-          </div>
+          <p className={styles.explanation}>{edit.explanation[locale]}</p>
         </div>
-        <p className={styles.explanation}>{edit.explanation[locale]}</p>
         <a className={styles.source} href={`#ielts-sentence-${edit.segmentIndex}`}
           onClick={event => locate(event, edit.segmentIndex)}>
           {copy.locateExpression} <span>{copy.sentenceLabel(edit.segmentIndex + 1)} <span aria-hidden="true">↗</span></span>
         </a>
-      </article>)}
-    </div>
+      </li>)}
+    </ul>
   </section>;
 }
