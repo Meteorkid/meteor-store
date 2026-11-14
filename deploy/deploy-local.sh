@@ -92,9 +92,6 @@ echo "==> 2. 本地生产构建（NEXT_PUBLIC_* 与线上一致，见 .env.produ
 export NODE_ENV=production
 # 显式导出会压过 .env.local 里的 Neon 地址：Next 只填充未定义的变量。
 export DATABASE_URL="$BUILD_DATABASE_URL"
-# 本机构建常在 finalize 阶段被沙箱的 safe-delete 守卫拦下（批量清理 .next 触发配额），
-# 退出码为 1 但产物其实是完整的。**不能只看退出码**：BUILD_ID 出现也不代表成功，
-# 必须同时确认 sitemap 本体已经生成——它是构建期读生产库渲染的，缺了就是真失败。
 # 先整体挪走旧产物，不要在原地清理：本会话的沙箱删除守卫会在 next build
 # 清理 .next/turbopack 时报 SAFE_DELETE_BULK_CONFIRM_REQUIRED 并直接中止构建，
 # 那是环境限制，不是代码问题。挪走后 Turbopack 从空目录开始，不触发批量删除。
@@ -104,14 +101,7 @@ if [[ -d .next ]]; then
   echo "   旧产物已移出：${NEXT_BACKUP}（构建结束后自动清理）"
 fi
 
-if ! SKIP_TYPE_CHECK=1 pnpm build; then
-  if [[ -s .next/BUILD_ID && -s .next/server/app/sitemap.xml.body ]]; then
-    echo "⚠️  构建以非零码结束，但 BUILD_ID 与 sitemap 均在，判定产物完整，继续部署。" >&2
-  else
-    echo "ERROR: 构建失败且产物不完整（缺 BUILD_ID 或 sitemap.xml.body），中止。" >&2
-    exit 1
-  fi
-fi
+SKIP_TYPE_CHECK=1 bash deploy/build-verified.sh
 unset DATABASE_URL
 
 echo "==> 3. 打包 .next（排除 .next/dev 开发缓存，避免产物膨胀到数百 MB）"

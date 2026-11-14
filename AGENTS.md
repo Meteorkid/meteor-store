@@ -1447,6 +1447,7 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - **部署方式**: **push 到 main 不会自动部署**。服务器只有 2G 内存，`pnpm build` 会 OOM，
   所以构建放在本地：`bash deploy/deploy-local.sh`（本地构建 → 上传 `.next` → 重启 PM2）。
   `.github/workflows/deploy.yml` 是 `workflow_dispatch` 手动触发的备选路径，不由 push 触发
+- 发布构建统一经过`deploy/build-verified.sh`：只读数据库预检、构建进程`METEOR_BUILD_DB_POOL_SIZE=2`、静态页并发1。正常运行未设置该变量时每池仍10；不要把构建变量写进生产环境。构建退出非零或日志出现数据库查询失败/内容降级均须停止上传，已有BUILD_ID或sitemap也不能放行。备用Workflow没有可用只读数据库通道时应明确停止，不发布空数据；其通道配置不在本次本机发布范围。
 - **构建机的 `.next/cache` 绝不上生产**（`deploy-local.sh` 已 `--exclude='.next/cache'`）。
   服务器解包前 `mv .next .next.rollback` 再整包展开，所以本地缓存会原样替换线上那份，
   而 `unstable_cache` / fetch 缓存就存在 `.next/cache/fetch-cache` 里。

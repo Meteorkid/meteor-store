@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { getDatabasePoolSize } from './pool-size';
 import { orders, licenseKeys, paymentRefundAttempts, softwareLicenseCodes, softwareLicenseDevices, softwareLicenseTrials, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags, studyCourses, studyDeadlines, studyProblems } from './schema';
 
 type DrizzleDB = ReturnType<typeof drizzle>;
@@ -25,8 +26,9 @@ let _pool: Pool | null = null;
  *    毫秒级降到微秒级。同样地，那些「把多个 count 压成单条子查询」的优化
  *    仍然有效，只是不再是性能关键。
  *
- * 连接池上限设 10：PM2 以 fork 模式跑单进程，10 条足够；服务端
- * `max_connections = 30`，留出余量给 pg_dump 备份和手工 psql。
+ * 普通运行每个连接池上限保持10；服务端 max_connections = 30。
+ * 构建worker可加载不同服务端模块，不能只按worker数量估算总连接。
+ * 构建进程用 METEOR_BUILD_DB_POOL_SIZE 单独限额，避免和线上进程争抢连接。
  */
 function getDb(): DrizzleDB {
   if (!_db) {
@@ -36,7 +38,7 @@ function getDb(): DrizzleDB {
     }
     _pool = new Pool({
       connectionString: url,
-      max: 10,
+      max: getDatabasePoolSize(process.env.METEOR_BUILD_DB_POOL_SIZE),
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 10_000,
     });
