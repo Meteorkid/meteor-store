@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -28,16 +28,23 @@ printf sitemap > .next/server/app/sitemap.xml.body
 printf '%s\n' "$FAKE_BUILD_OUTPUT"
 exit "$FAKE_BUILD_EXIT"
 `, { mode: 0o700 });
-  return spawnSync('bash', [resolve('deploy/build-verified.sh')], {
+  const execute = () => spawnSync('bash', [resolve('deploy/build-verified.sh')], {
     cwd: dir, encoding: 'utf8',
     env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, TMPDIR: dir,
       DATABASE_URL: 'postgresql://fixture.invalid/test', FAKE_BUILD_OUTPUT: output, FAKE_BUILD_EXIT: String(exit), FAKE_PREFLIGHT_EXIT: '0', ...extra },
   });
+  return { ...execute(), repeat: execute, directory: dir };
 }
 
 describe('发布构建拒绝错误与内容降级', () => {
   it('干净构建通过，普通警告不当成数据错误', () => {
     expect(build('Warning: Custom Cache-Control headers\nCompiled successfully').status).toBe(0);
+  });
+  it('同一临时目录重复构建仍创建独立日志并保留旧日志', () => {
+    const first = build('clean build');
+    expect(first.status).toBe(0);
+    expect(first.repeat().status).toBe(0);
+    expect(readdirSync(first.directory).filter(name => name.startsWith('meteor-store-build-'))).toHaveLength(2);
   });
   it('即便已有BUILD_ID和sitemap，构建非零也拒绝', () => {
     expect(build('failed after writing artifacts', 1).status).not.toBe(0);

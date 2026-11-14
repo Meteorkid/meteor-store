@@ -23,7 +23,7 @@ try {
 } finally { await client?.end(); }
 NODE
 
-build_log=$(mktemp "${TMPDIR:-/tmp}/meteor-store-build-XXXXXXXX.log")
+build_log=$(mktemp "${TMPDIR:-/tmp}/meteor-store-build-XXXXXXXX")
 chmod 600 "$build_log"
 echo "构建日志保留于：$build_log"
 if ! pnpm build 2>&1 | tee "$build_log"; then
