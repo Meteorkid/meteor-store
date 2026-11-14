@@ -17,7 +17,7 @@ jobs:
 
       - name: Setup pnpm
         # pnpm 版本由 package.json 的 packageManager 唯一锁定，避免重复配置冲突
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node
         uses: actions/setup-node@v4
