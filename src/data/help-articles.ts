@@ -471,6 +471,29 @@ export const helpArticles: HelpArticleMeta[] = [
   },
 
   {
+    slug: 'xnook-shortcuts-and-nookflow',
+    category: 'products',
+    kind: 'how-to',
+    // products 分类顺序号：120 已被 xisland-agent-hooks 占用
+    order: 130,
+    readingMinutes: 6,
+    updatedAt: '2026-11-14',
+    commercial: false,
+    relatedSlugs: ['macos-cannot-open-app', 'product-updates', 'technical-support'],
+    title: {
+      zh: 'X Nook 快捷键、NookFlow 与笔记导出',
+      en: 'X Nook shortcuts, NookFlow and note export',
+    },
+    excerpt: {
+      zh: '灵动岛工具中心的用法：⌘0–⌘4 与 ⌘N 的分工、两种展开方式、NookFlow 怎么把任务和笔记文件串起来、笔记导出的两种格式，以及和 X Island 同时安装时的行为。',
+      en: 'Using the Dynamic Island tool centre: what ⌘0–⌘4 and ⌘N do, the two ways to expand it, how NookFlow links a task to its notes and files, the two export formats, and how it behaves alongside X Island.',
+    },
+    keywords: {
+      zh: ['X Nook', 'XNook', 'macOS', '灵动岛', '快捷键', 'NookFlow', '笔记', '日历', '文件托盘', 'Markdown 导出', '刘海', '菜单栏'],
+      en: ['X Nook', 'XNook', 'macOS', 'Dynamic Island', 'keyboard shortcuts', 'NookFlow', 'notes', 'calendar', 'file tray', 'Markdown export', 'notch', 'menu bar'],
+    },
+  },
+  {
     slug: 'xisland-agent-hooks',
     category: 'products',
     kind: 'how-to',

@@ -249,27 +249,34 @@ function Field({ label, value, note }: { label: string; value: string; note?: st
 function ProductName({ item }: { item: AlternativeProduct }) {
   const name = <span className="font-semibold text-white">{item.name}</span>;
   const cls = 'transition-colors hover:text-violet-200';
+  // 竞品名指向站内的两两对比子页（承接「XIsland vs X」这类具体查询），
+  // 官网地址另开一个小链接，读者要核对原文时仍然点得到。
+  const href = item.self ? item.href : `/products/xisland/alternatives/${item.id}`;
   return (
     <span className="block">
-      {item.self ? (
-        <Link href={item.href} className={cls}>
-          {name}
-        </Link>
-      ) : (
-        <a href={item.href} target="_blank" rel="noopener noreferrer" className={cls}>
-          {name}
-        </a>
-      )}
-      {item.repo && (
+      <Link href={href} className={cls}>
+        {name}
+      </Link>
+      <span className="mt-1 flex gap-3">
         <a
-          href={item.repo}
+          href={item.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-1 inline-block text-xs text-gray-500 underline underline-offset-2 transition-colors hover:text-gray-300"
+          className="text-xs text-gray-500 underline underline-offset-2 transition-colors hover:text-gray-300"
         >
-          GitHub
+          {item.self ? 'GitHub' : '官网'}
         </a>
-      )}
+        {item.repo && (
+          <a
+            href={item.repo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-gray-500 underline underline-offset-2 transition-colors hover:text-gray-300"
+          >
+            GitHub
+          </a>
+        )}
+      </span>
     </span>
   );
 }

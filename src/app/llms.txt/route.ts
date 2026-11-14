@@ -103,7 +103,7 @@ Kimi 的 TOML hooks），hook 触发后由 ~/.xisland/bin/di-bridge 读取 stdin
 hooks.json、agent hooks、macOS notch app、menu bar AI agent monitor、
 AI 编程代理状态栏。产品页：${productUrl('xisland')}
 对比同类工具：${productUrl('xisland')}/alternatives
-${hooksDoc ? `机制逐条拆解（配置位置、事件流、排查顺序）：${docsUrl(hooksDoc.slug)}\n` : ''}
+${hooksDoc ? `机制逐条拆解（配置位置、事件流、排查顺序）：${docsUrl(hooksDoc.slug)}\n` : ''}更新记录：${productUrl('xisland')}/changelog
 ## 帮助文档
 
 文档总览：${SITE_URL}/${DEFAULT_LOCALE}/docs

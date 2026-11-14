@@ -1,0 +1,574 @@
+{
+ "xisland": [
+  {
+   "tag": "v2.0.18",
+   "name": "X Island v2.0.18 — 审批任务图 MCP 与自动接入",
+   "published": "2026-11-06",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.18",
+   "prerelease": false,
+   "summary": "# X Island v2.0.18 — 审批任务图 MCP 与自动接入\n\n日期：2026-11-06\n\n本版把审批上下文地图扩展为可被实时 Agent 写入的本地任务图，并补齐首次授权、客户端自动配置、连接证据和错误恢复。所有 MCP 能力只处理本地任务结构，不能批准命令、回答问题、修改文件或替代原客户端的信任确认。\n\n## English summary\n\nv2.0.18 turns the approval context map into a local task graph that running agents can write to over MCP, and fills in the surrounding pieces: first-run consent, guarded client configuration, connection evidence, and error recovery. The MCP surface only shapes local task nodes — it cannot approve commands, answer questions, edit files, or stand in for the host client's own trust decision.\n\nNew in this release: a `d"
+  },
+  {
+   "tag": "v2.0.17",
+   "name": "X Island v2.0.17 — 审批上下文地图",
+   "published": "2026-11-05",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.17",
+   "prerelease": false,
+   "summary": "# X Island v2.0.17 — 审批上下文地图\n\n日期：2026-11-05\n\n本版把审批从“只看当前请求”扩展为一次可以快速完成的上下文确认：先看任务、计划和文件变化，再看原因与影响范围，最后批准、拒绝或带着批注回到对应会话。\n\n## 审批上下文地图\n\n- 审批卡片新增四层节点地图：任务、计划、文件变更、待审批。\n- 默认只展开「待审批」，任务、计划和变更各显示一行摘要；需要时再单独展开，避免面板一次拉得过长。\n- 计划组显示计划标题层级和条数；变更组显示文件数，并支持按新建、修改、删除筛选。\n- 新建使用绿色，修改使用橙色，删除使用红色；摘要中的彩色胶囊可以直接打开对应筛选结果。\n- 「原因/范围」会从权限描述或待审计划中提取一段可读说明，长文本会截断。\n\n## 节点批注与回跳\n\n- 任务、计划条目和文件条目提供批注入口。\n- 可以生成两类预填消息：向 Agent 提问，或要求 Agent 调整该节点。\n- 消息包含被引用的分组和节点标题，复制后使用现有会话跳转能力回到对应聊天或终端。\n- 无法取得稳定聊天或终端定位时，界面会提示原因，不会把应用窗口跳转冒充精确会话跳转。\n\n## 较上一轮\n\n- 每轮任务完成时保存上下文地图快照，按会话保留最近 20 轮；全局最多保留 300 个会话。\n- 展开「较上一轮」可查看新增文件、移除文件、文件类型变化和计划标题变化。\n- 差"
+  },
+  {
+   "tag": "v2.0.16",
+   "name": "X Island v2.0.16",
+   "published": "2026-11-04",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.16",
+   "prerelease": false,
+   "summary": "# X Island v2.0.16 — 通知与自动化、切换显示修复\n\n日期：2026-11-04\n\n本版新增「通知与自动化」设置页，把系统通知、外部推送、不打扰策略、会话生命周期、诊断导出与防休眠集中到一处，全部默认关闭。同时修复了切换应用时岛被误隐藏、菜单项点击无反应等问题。\n\n## 系统通知\n\n- 会话需要审批、完成或出错时可在通知中心提醒；默认只读，不提供任何决定按钮。\n- 可在设置中显式开启「允许在通知里直接批准 / 拒绝」；回执需请求 ID 精确匹配，过期或重复点击一律忽略。\n- 请求被消费后自动撤回对应通知，避免残留可点击的旧通知。\n\n## 外部推送\n\n- 支持 Bark、ntfy、钉钉、飞书、企业微信、Slack、Telegram 与自定义 Webhook。\n- 默认仅在锁屏或屏保时推送；正文出本机前统一脱敏，推送只发文本、不代替审批。\n- 每个渠道可单独选择订阅的事件，并提供发送测试（返回真实 HTTP 状态）。\n\n## 不打扰与生命周期\n\n- 锁屏、屏保、显示器睡眠三态独立判断；静默时段支持跨午夜，审批类事件不受静默限制。\n- 支持静默目录与子会话抑制；未读事项可按设定延迟追加提醒。\n- 30 分钟无活动自动隐藏、同工作目录只保留最近活跃一条；隐藏只影响显示，搜索可找回，待审批与未查看完成的会话永不隐藏。\n\n## 诊断与防休眠\n\n- 一键导出脱敏诊断包：白名单设"
+  },
+  {
+   "tag": "v2.0.15",
+   "name": "X Island v2.0.15 — 授权状态与激活码体验修复",
+   "published": "2026-10-27",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.15",
+   "prerelease": false,
+   "summary": "# X Island v2.0.15 — 授权状态与激活码体验修复\n\n日期：2026-10-27\n\n本版修复了试用或授权到期、解绑、网络请求迟到及本机凭证存储异常时的边界行为，并统一了激活码和期限名称。已有历史与设置保留，升级无需重新购买。沿用 2.0.14 的 WorkBuddy 完成提醒与自动切回修复。\n\n## 授权到期与恢复\n\n- 阻止了授权锁定前已入队、但尚未处理的审批、问题和计划请求在锁定后重新出现或被自动答复。\n- 保留了已接受的历史写入，恢复授权后可以继续接收新的交互请求。\n- 取消了停止授权检查时仍在进行的激活、试用和解绑请求，迟到结果不会重新更新界面或启动截止计时器。\n- 区分了暂时网络故障与服务器明确撤销：暂时故障仍允许使用未过期的离线凭证，明确撤销后停止放行。\n\n## 解绑与凭证存储\n\n- 修复了服务器明确返回授权失效后，解绑流程仍保留旧可用状态的问题。\n- 修复了服务器已完成解绑、但本机保存失败时未立即锁定的问题。\n- 支持了临时存储异常恢复后的安全重试，保留了不可解码的旧记录，不会用空记录覆盖它。\n- 保留了已观察到的撤销结果，存储恢复后不会重新使用此前的有效凭证。\n\n## 激活界面\n\n- 将期限统一为 **一个月 / 一年 / 永久**，英文统一为 **1 month / 1 year / Lifetime**。\n- 将旧版离线码的提示统一为“激活码”，"
+  },
+  {
+   "tag": "v2.0.14",
+   "name": "X Island v2.0.14 — WorkBuddy 完成提醒与自动切回修复",
+   "published": "2026-10-27",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.14",
+   "prerelease": false,
+   "summary": "# X Island v2.0.14 — WorkBuddy 完成提醒与自动切回修复\n\n日期：2026-10-27\n\n本版修复了 WorkBuddy 已经完成任务，X Island 却仍把它显示为空闲、没有提醒用户查看结果的问题。开启“任务提醒”后，WorkBuddy 主任务成功完成会自动显示 X Island；当前显示 X Nook 时，也会切回 X Island。\n\n## 完成提醒恢复正常\n\n- 修复了 WorkBuddy 最终完成状态的识别，成功任务会记录完成时间并显示“已完成·未查看”。\n- 接通了已有任务提醒流程，完成后会显示 X Island，并按现有动画设置触发吉祥物提醒。\n- 保留了实际回复内容，完成状态文案不会覆盖助手正文，也不会多插入一条相同回复。\n- 保留了查看确认规则，打开任务详情、成功主动跳转或在历史页标为已查看后，结果会解除未查看标记。\n\n## 同一聊天可以持续提醒\n\n- 修复了同一 WorkBuddy 聊天继续提问后的提醒衔接，新一轮开始后恢复活动，下一轮完成时会再次提示查看。\n- 复用了已有完成事件去重，同一完成状态内重复收到结束通知不会再次抢占岛体显示。\n- 保留了已查看结果的确认状态，重复结束通知不会把它重新变为未查看。\n- 保留了提醒开关的作用，关闭提醒时仍保存完成结果和待查看状态，但不会因此自动切回。\n\n## 正确区分结束原因\n\n- 保留了普"
+  },
+  {
+   "tag": "v2.0.13",
+   "name": "XIsland 2.0.13",
+   "published": "2026-10-27",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.13",
+   "prerelease": false,
+   "summary": "# X Island v2.0.13 — 14 天试用与软件激活\n\n日期：2026-10-27\n\n本版接入了软件内的试用和激活机制：安装包可以免费下载，首次启用联网后开始完整的 14 天试用，之后可选择月付、年付或永久使用授权。网站与 GitHub 分发的本版安装包遵循相同规则。\n\n## 试用与激活\n\n- 新增了“设置 → 软件授权”，可以查看授权类型、使用期限和离线使用期限，并输入 XIsland 对应的激活码。\n- 为试用提供了完整的 14×24 小时，重新下载或重装不会重新开始服务器已登记的试用。\n- 支持了月度、年度和永久激活码；购买适用套餐后，网站会为对应软件分别提供激活码，付款记录和码可在账户中查看。\n- 为每份产品授权提供了最多 3 台设备，续费延长原授权期限并沿用设备记录，不重复增加设备名额。\n- 增加了本机解绑和网站设备管理入口，换机时可以释放旧设备名额后在新设备激活。\n- 支持了管理员赠送的月度、年度和永久授权。\n\n月付和年付按订单的授权期限使用，到期后需要续费；永久授权无需续费。首次试用、激活和解绑均需要联网。\n\n## 离线使用与到期行为\n\n已成功核验的设备可以在显示的离线期限内继续使用，最长为 **7 天**，且不会越过试用或订阅的实际到期时间。永久授权仍需定期联网核验设备状态。\n\n运行期间会定期核验，并在唤醒、回到应用和到期时重新判断权限；暂时断网不会取消"
+  },
+  {
+   "tag": "v2.0.12",
+   "name": "X Island v2.0.12 — 任务提醒、统一收起与连续双岛切换",
+   "published": "2026-10-27",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.12",
+   "prerelease": false,
+   "summary": "# X Island v2.0.12 — 任务提醒、统一收起与连续双岛切换\n\n日期：2026-10-27\n\n本版新增了任务完成与交互提醒，将自动收起简化为一个开关和一个延迟，并改进了与 X Nook 的双指切换、回弹和果冻动画。\n\n## 新增：任务提醒\n\n- 新增了默认开启的“任务提醒”，可从展开面板的铃铛按钮、右键菜单或“设置 → 通用”统一开关。\n- 为新确认完成的任务增加了自动切回 X Island 和吉祥物双跳提醒，动画结束后继续保留“完成未查看”标记。\n- 为审批、提问和计划审阅增加了自动切回并展开，用户仍需主动批准、拒绝或回答。\n- 为只能观察状态的客户端保留了总览与跳转入口，等待状态不会被误显示成可在岛内操作的审批能力。\n- 为短时间集中到达的提醒增加了合并与交互优先处理，重复事件、历史回放和已解决的旧请求不会反复切回。\n- 将未查看的完成任务优先放入最近任务图标候选，待处理请求仍保持最高优先级。\n- 让吉祥物提醒仅在岛可见时短暂播放，并遵循“减少动态”和“禁用动画”设置。\n\n自动显示岛、展开列表和悬停都不会把完成结果标为已查看；打开任务详情、成功主动跳转到对应会话或显式确认后，才沿用已有查看确认规则。最近任务数量和完成会话保留期继续生效，未查看标记不代表无限期驻留。\n\n## 变更：一个自动收起开关、一个延迟\n\n- 将原来三种容易混淆的收起延迟统一为“自动收起”开关和"
+  },
+  {
+   "tag": "v2.0.11",
+   "name": "X Island v2.0.11 — 简化吉祥物数字显示",
+   "published": "2026-10-25",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.11",
+   "prerelease": false,
+   "summary": "# X Island v2.0.11 — 简化吉祥物数字显示\n\n本版精简了吉祥物周围的数字：移除了图标右下角的任务编号，以及折叠栏图标组旁的 `+N` 溢出数量，让小尺寸吉祥物的造型、表情和状态更容易辨认。\n\n## 吉祥物显示\n\n- 移除了共享吉祥物组件右下角的数字编号，折叠栏、任务列表、详情及其他使用该组件的位置同步生效。\n- 移除了无刘海遮挡布局中图标组旁的 `+N`，超出折叠显示数量的任务仍可在展开列表中查看。\n- 保留了各客户端独立的吉祥物造型，同一聊天／任务继续使用固定配色。\n- 保留了表情和右上角的状态角标，包括等待授权、等待回答、计划审查、错误及完成未查看等状态。\n\n## 图例与任务识别\n\n- 更新了中文、英文、韩文、日文和法文图例，以“造型认软件、配色区分聊天、表情和角标认状态”说明现有显示方式。\n- 更新了更多任务的查找说明，可展开灵动岛查看完整列表，再根据聊天标题和任务内容定位。\n- 保留了辅助功能标签和悬停说明中的任务身份、状态与标题，数字隐藏只作用于可见角标。\n\n## 原有设置与数据\n\n“最近任务数量”仍控制折叠栏显示的任务图标数量，待处理交互的优先级和最近活动排序继续沿用；活跃／总会话计数、完整展开列表、历史记录及完成结果的查看确认行为保持原有规则。\n\n从 2.0.10 升级无需重置偏好、重新分配任务身份或迁移数据库，已有聊天的配色和记录可以继续使用。\n\n"
+  },
+  {
+   "tag": "v2.0.10",
+   "name": "X Island v2.0.10 — 精确会话跳转与悬停收起修复",
+   "published": "2026-10-24",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.10",
+   "prerelease": false,
+   "summary": "# X Island v2.0.10 — 精确会话跳转与悬停收起修复\n\n本版修复了点击任务后只激活软件、未定位对应聊天或标签页的问题，新增按会话身份发起的跳转与明确的失败提示；同时统一了自动收起行为，让鼠标停在展开面板或岛内时保持展开，离开后再按设置计时。\n\n## 按对应聊天和终端标签发起跳转\n\n会话列表、详情、Agent Flow 和待处理请求使用同一套跳转与结果反馈；同一项目目录中的不同聊天会按各自身份定位。\n\n| 客户端 | 本版已实现的定位方式 | 使用条件 |\n| --- | --- | --- |\n| Codex 桌面 | 使用原生线程链接打开指定聊天 | 需要有效的原生线程 UUID，目前覆盖本地线程 |\n| Cursor | 使用原生 agent 链接打开指定聊天 | 需要对应的原生会话 ID，目标须能被客户端找到 |\n| WorkBuddy | 使用原生聊天链接打开指定任务 | 覆盖已核验的本地命令 hook 会话 |\n| iTerm2 | 按唯一会话 ID 或 TTY 选择对应分屏、标签和窗口 | 必须找到唯一匹配的终端会话 |\n| Apple Terminal | 按 TTY 选择对应标签和窗口 | 需要可用的 TTY 标识，旧记录可能缺少该信息 |\n| WezTerm | 按 pane ID 选择对应终端分屏 | 需要桥接上报 pane ID，且导航命令成功"
+  },
+  {
+   "tag": "v2.0.9",
+   "name": "X Island v2.0.9 — Codex 聊天标题修复",
+   "published": "2026-10-24",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.9",
+   "prerelease": false,
+   "summary": "# X Island v2.0.9 — Codex 聊天标题修复\n\n本次修复了 Codex 回复授权或确认问题后，灵动岛把内部回复标签显示成聊天标题的问题，让任务卡片和历史列表重新显示可读的用户答案。\n\n## 聊天标题恢复可读\n\n- 修复了确认弹窗回复被当成整段内部消息保存的问题，现在会提取实际答案，例如“设置已打开，可以继续”。\n- 修复了任务卡片、收起态图标提示及历史列表中出现内部回复标签的问题，旧记录也会按同一规则显示可读标题。\n- 多项回答按原顺序保留，回复后附加的正文继续保留，长标题沿用现有截断规则。\n- 空回复、截断或结构损坏的内部消息不再覆盖已有有效标题，新会话缺少有效标题时使用项目名。\n\n## 兼容旧记录与旧桥接\n\n- 新消息在进入会话、聊天历史及保存路径前完成解析，避免内部问题编号等元数据继续成为任务提示。\n- 兼容尚未更新的桥接程序发送的原始回复包装，应用端也会完成相同处理。\n- 已有历史记录仅调整标题显示，原始提示和聊天内容继续保留，没有数据库结构变更，也不批量重写历史。\n- 同一聊天的任务编号、配色和吉祥物归属保持不变，完成未查看与会话生命周期规则保持原样。\n\n## 保留正常文本和客户端行为\n\n- 仅识别 Codex 的精确顶层问答回复包装，普通文字、XML、代码围栏和行内标签说明继续按原文处理。\n- 其他客户端的消息不套用 Codex 专用解析规则。\n- "
+  },
+  {
+   "tag": "v2.0.8",
+   "name": "X Island v2.0.8 — 软件吉祥物、任务配色与完成未查看",
+   "published": "2026-10-24",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.8",
+   "prerelease": false,
+   "summary": "# X Island v2.0.8 — 软件吉祥物、任务配色与完成未查看\n\n这次让灵动岛中的图标同时表达三个信息：**造型识别软件，颜色和编号识别聊天／任务，表情和角标识别状态**。多个客户端、多个任务并行时，不再全是同一张机器人脸。\n\n## 每个客户端有自己的角色\n\n- 31 个已支持客户端都有独立轮廓，覆盖收起态、会话卡片、阻塞列表和授权／回答／计划审查面板。\n- 现有圆角终端机器人只给 **Codex**；其他示例包括 Claude Code 螃蟹、Gemini 四角星、Cursor 指针、WorkBuddy 公文包、Kimi 月牙、DeepSeek 鲸鱼、Roo 长耳角色和 PearAI 梨形角色。\n- 既有 Hermes 类型保留独立预留造型，**不代表新增 Hermes 接入支持**。\n- 这些是 XIsland 自定义角色，不宣称是各客户端的官方吉祥物，也不改变既有客户端适配能力。\n\n![软件造型和状态预览](https://github.com/Meteorkid/XIsland/releases/download/v2.0.8/mascot-guide-dark.png)\n\n## 不同聊天／任务固定颜色与编号\n\n- 这里的“窗口”指**聊天或任务标签页**，不是操作系统窗口编号，也不会把当前焦点窗口猜测当成真实归属。\n- 每个客户端内按任务首次出现分配独立编号；同"
+  },
+  {
+   "tag": "v2.0.7",
+   "name": "X Island v2.0.7 — 连接稳定性与 VS Code 观察接入修复",
+   "published": "2026-10-23",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.7",
+   "prerelease": false,
+   "summary": "# X Island v2.0.7 — 连接稳定性与 VS Code 观察接入修复\n\n本次修复本地连接的资源计数与读取时限，并将 VS Code 配套扩展改为通过原生桥接投递，避免正式身份检查把观察事件挡在面板外。\n\n## 连接更稳定\n\n- **连接配额只归还一次。** 修复了连接关闭或取消后，销毁对象时再次归还配额的问题；此前可能低估仍在使用的连接数量，使 32 个并发连接的限制失效。\n- **整条消息共用 10 秒读取时限。** 不再让每个新分片重新获得完整等待时间，避免慢速发送长期占用连接。\n- **超时残帧会被拒绝。** 即使已经收到的片段恰好是合法 JSON，也不会把尚未结束的请求当成完整事件。\n- 保留了首个换行结束一帧、真正 EOF 结束旧格式消息、大消息读取与请求半关闭后写回审批结果的行为。\n\n## VS Code 配套扩展 1.0.1\n\n- Roo Code 与实验性的 PearAI Roo fork 观察事件改由固定路径的 `di-bridge` 原生进程发送，解决 Node 直接连接与正式进程白名单冲突的问题。\n- 保持既有进程身份检查，没有为此开放任意 Node 进程；扩展启动桥接不经过 shell。\n- 保留了消息顺序、队尾流式合并、队列大小限制、业务事件与心跳各自的过期时间，以及窗口退出时的有限等待。\n- 消息交给桥接后不重放，避免断线时重复记账或重复处"
+  },
+  {
+   "tag": "v2.0.6",
+   "name": "X Island v2.0.6",
+   "published": "2026-10-23",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.6",
+   "prerelease": false,
+   "summary": "# X Island v2.0.6 — 安全加固与动效手感修正\n\n本次集中加固更新通道与本地连接的安全性，并修正展开／收起的动效取向、为收起过程加上兜底保护。\n\n> 若你正在使用 2.0.5，本次更新不影响「最近任务数量」等已有设置，偏好项与历史数据全部保留。\n\n## 安全加固\n\n这一版修复了若干在源码审计中发现的问题，其中一项影响所有在线更新的用户。\n\n### 更新通道\n\n- 安装更新前新增发布者身份校验：校验下载包的签名身份是否与官方一致，而不只是校验签名本身是否自洽。\n- 更新包的下载来源收窄为官方仓库域名，非官方来源的下载地址会被拒绝。\n\n### 本地连接\n\n- 新增对端进程身份校验，仅接受来自 X Island 自身调用链的连接，并检测桥接程序是否被替换或篡改。\n- 新增并发连接上限、读取超时与交互式连接空闲超时，避免大量空连接堆积导致顶部面板失去响应。\n- 桥接工具改为按内容校验并自动修复：文件被改动时会重建，不再依赖修改时间判断。\n- 相关配置目录权限收紧为仅当前用户可访问。\n\n#### 发布前修复\n\n对端校验在开发过程中出现过两处会让面板**完全失联**的缺陷，都在发布前发现并修掉了。记录在此，因为它们的表现（面板毫无反应）与「校验生效」很像，容易被误判为正常拦截：\n\n1. **读错了系统常量。** 最初用 `0x005` 读取对端 UID，但这个值在 macOS "
+  },
+  {
+   "tag": "v2.0.5",
+   "name": "X Island v2.0.5 — 最近任务数量可调",
+   "published": "2026-10-23",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.5",
+   "prerelease": false,
+   "summary": "# X Island v2.0.5 — 最近任务数量可调\n\n本次增加了收起态的任务数量设置，让灵动岛可以少显示几个吉祥物，同时保留完整任务列表和总数。\n\n## 可以选择显示最近几个任务\n\n- 在“设置 → 显示 → 收起态模块”新增了“最近任务数量”，可选 **1、2、3、4、5**，默认 **3**。\n- 普通布局最多横排所选数量的图标，超出部分以“+N”汇总，例如 8 个任务、显示 3 个时，会显示 3 个图标和“+5”。\n- 刘海遮挡布局只在所选数量的任务候选中轮换，减少动态效果时显示首个候选。\n- 等待授权、回答或计划审核的实际请求优先展示，其余按最近活动排序，因此刚恢复活动的旧任务也能重新出现。\n- 相同活动时间使用稳定顺序，减少图标在刷新时不必要的换位。\n\n## 数量设置会自动保存\n\n- 调节数量后立即生效，重新打开设置仍保留上次选择。\n- 关闭“显示 Agent 图标”时，数量选项会禁用但不被清空，重新开启后继续使用原值。\n- 异常或越界偏好会限制在 1–5 范围内。\n- 展开列表、搜索筛选、活跃数、总数、待处理请求及历史数据继续保持完整，数量限制只作用于收起态图标。\n- 补齐了中文、英文、韩文、日文和法文标题及说明。\n\n## 如何使用\n\n打开 X Island 设置，进入“显示”，向下找到“收起态模块”，将“最近任务数量”设为喜欢的数量。如果此项不可选，请先开启上方"
+  },
+  {
+   "tag": "v2.0.4",
+   "name": "X Island v2.0.4 — 双岛切换与显示可靠性修复",
+   "published": "2026-10-22",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.4",
+   "prerelease": false,
+   "summary": "# X Island v2.0.4 — 双岛切换与显示可靠性修复\n\n本次修复了 X Island 与 XNook 切换时“目标没有打开，当前岛却消失”的问题，重点完善启动、显示确认、失败恢复和连续切换。建议同时更新到 [XNook 1.3.18](https://github.com/Meteorkid/XNook/releases/tag/v1.3.18)。\n\n## 切换目标未运行时，会先尝试打开\n\n- 改为按目标应用的正式安装路径打开显示命令，减少构建副本、备份 App 或默认 URL 处理器导致的误跳转。\n- 保留当前岛，直到确认目标应用的实际岛体已经出现在屏幕上，才让当前岛让位。\n- 为目标缺失、启动失败及 8 秒未显示增加了保留／恢复处理。\n- 阻止了重复手势或点击重复启动目标应用。\n\n## 首次使用也能完成双向切换\n\n- 修复了依赖对方先运行并登记旧协议版本的问题，安装包已声明切换能力时即可尝试打开。\n- 修复了默认 URL 处理器与实际安装位置不一致时，切换入口被错误判为异常的问题。\n- 保留了应用启动早期收到的显示命令，窗口创建后会继续处理。\n- 将启动显示判断改为检查对方岛体是否可见，避免“进程在后台运行”被当成“已经显示”。\n\n## 连续切换和桌面变化更稳定\n\n- 为每次切换增加了独立请求标识，已取消请求的启动回调、轮询和超时结果不会再影响新操作。\n- 为跨应用"
+  },
+  {
+   "tag": "v2.0.3",
+   "name": "X Island v2.0.3 — 授权引导与接入窗口修复",
+   "published": "2026-10-22",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.3",
+   "prerelease": false,
+   "summary": "# X Island v2.0.3 — 授权引导与接入窗口修复\n\n本次更新让“待授权”有清楚的下一步：设置页直接显示操作方法，打开授权步骤时能找到对应软件，客户端无法打开时也会给出明确反馈。\n\n## 更容易找到授权方法\n\n- 在 Codex“待授权”下新增了提示，明确右侧勾选只表示启用接入，仍需在 Codex 中确认信任。\n- 新增了“查看授权步骤”入口，并直接展示 Review hooks → 选择 X Island 项 → Allow selected 的操作路径。\n- 将授权窗口内的三个步骤改为默认可见，包含审查钩子、确认所选项，以及启动任务后重新检查接通状态。\n- 将操作按钮明确标为“打开 Codex 确认”，并补齐了中英文提示。\n- 说明了未变配置的有效授权会被记住，配置变更或撤销授权后需要重新审阅。\n\n## 修复窗口定位与状态变化\n\n- 修复了“查看授权步骤”只打开软件总列表、用户仍需寻找 Codex 的问题。\n- 支持在已有窗口中重新定位同一软件，并自动展开目标所在的分组。\n- 支持 Codex 转为“等待活动”“已接入”或已关闭后的定位，展示当前状态。\n- 保留了普通菜单打开窗口时的滚动位置，后台回查不会反复把列表拉回目标行。\n\n## 客户端启动失败也有反馈\n\n- 为桌面应用未找到和启动失败分别增加了可操作的提示。\n- 修复了仅检测到 CLI 时，点击“打开客户端”"
+  },
+  {
+   "tag": "v2.0.2",
+   "name": "X Island v2.0.2 — 历史、性能与可靠性更新",
+   "published": "2026-10-20",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.2",
+   "prerelease": false,
+   "summary": "# X Island v2.0.2 — 历史数据、运行流畅度与可靠性更新\n\n本次更新集中改善长会话和大历史库的使用体验，补齐历史分页、搜索和完整导出，并加强审批、自动配置、退出保存和更新失败时的数据保护。\n\n本次提供 **macOS 14 及以上、Apple Silicon（arm64）** 安装包；Windows 源码修复同步提交，仍为独立的 **0.1.8 开发预览**，本次不发布新的 Windows 安装包。\n\n## 历史记录与统计\n\n- 新增了每页 100 条的历史分页，修复了旧记录受列表上限影响而无法完整查看的问题。\n- 新增了全库搜索，支持提示词、工作目录、客户端名称与简称、模型和会话 ID，并支持中文及大小写匹配。\n- 修复了删除末页记录后停留在无效页的问题，删除后会回到有效页。\n- 新增了全历史 JSON 导出，保留完整会话、工具输入输出和聊天内容，不受当前搜索结果或分页限制。\n- 导出完成后增加了实际会话数量、保存路径和 Finder 定位入口。\n- 移除了统计只读取前 5,000 条历史的限制，并修复了镜像会话跨批次重复统计和历史变化后未及时刷新的问题。\n- 补齐了历史保留期的启动检查和每小时维护，并保留未完成会话及“永不清理”设置。\n- 为读取、统计和导出失败增加了明确提示与重试，避免把失败显示成空历史或导出成功。\n\n导出格式和文件保护规则见[历史导出说明]("
+  },
+  {
+   "tag": "v2.0.1",
+   "name": "X Island v2.0.1",
+   "published": "2026-10-17",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.1",
+   "prerelease": false,
+   "summary": "# X Island v2.0.1\n\n本次更新简化了 AI 软件的首次接入：自动准备支持的配置，并在需要用户确认时显示清晰的授权引导。\n\n## 新增\n\n- 增加了统一的“软件接入与授权”窗口，可从菜单栏或设置打开。\n- 增加了已安装软件检测，只为已启用且支持自动配置的来源准备配置。\n- 增加了 Codex 实际信任状态检查，并引导用户在 Codex 中审阅和信任 X Island hooks。\n- 增加了 WorkBuddy 插件和 Kiro V3 配置文件的自动准备，可直接从界面在 Finder 中取用。\n\n## 改进与修复\n\n- 记住了同一配置的提醒与接通状态，避免每次启动重复设置。\n- 区分了“待配置”“待授权”“等待活动”和“已接入”，不再仅凭配置文件存在显示连接成功。\n- 修复了检查过程中关闭窗口后再次弹出、开关变化后未及时刷新，以及短任务活动在检查期间漏记的问题。\n- 支持了配置被客户端重写后的自动修复，并保留用户修改过的接入文件。\n\n## 使用与范围\n\n信任操作仍在原客户端由用户确认；X Island 不会替用户授予信任。需要外部 Agent、服务地址或启动参数的来源仍需完成一次性设置。Kiro 文件面向 2.31.0 V3 模板，生成成功不代表已检测本机版本或已被客户端加载。\n\n“已接入”表示当前配置收到有效活动，不代表所有功能、客户端版本和服务商均已验收。详细范围"
+  },
+  {
+   "tag": "v2.0.0",
+   "name": "X Island v2.0.0",
+   "published": "2026-10-16",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v2.0.0",
+   "prerelease": false,
+   "summary": "# X Island v2.0.0\n\n> 31 项基础接入路线；完整客户端验收范围见下方说明。\n\n## 新增\n\n- 补齐了 Kiro CLI 2.31.0 V3 观察配置导出，并增加了 GLM 在 Claude Code、OpenCode、Cline、Pi 中的模型显示、筛选和历史记录。\n- 扩展了多款 AI 编程工具的独立接入方式，并在设置中区分原生 hooks、插件、进程包装器和外部 ACP 通道。\n- 增加了 WorkBuddy 插件导出及独立来源识别，避免与 CodeBuddy CLI 会话混淆。\n- 增加了 Roo Code 观察扩展、默认关闭的 PearAI 实验入口，以及 Zed、JetBrains 外部 Agent 的 ACP 接入。\n- 增加了 Kimi 新版客户端的后台任务、排队、压缩和恢复状态跟踪。\n\n## 修复\n\n- 修复了部分工具停止后被过早判为完成，以及关闭后未执行工具仍显示运行中的问题。\n- 修复了迟到事件、重复事件和多轮任务导致的会话身份、工具结果及历史记录错配。\n- 修复了 Claude 新会话和首条提示未及时保存，以及 Codewhale 子代理失败、取消和真实结果丢失的问题。\n- 修复了多问题切换后的键盘焦点、自定义答案、多选答案和中文分片内容处理问题。\n- 简化了空闲界面的状态展示，并改进了活动提示与减少动态效果设置的一致性。\n\n## 适配范"
+  },
+  {
+   "tag": "v1.13.1",
+   "name": "X Island v1.13.1",
+   "published": "2026-09-16",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.13.1",
+   "prerelease": false,
+   "summary": "## 更新内容\n\n- 补齐了计划全文阅读和多行反馈，权限请求可展开完整说明、路径及文件改动。\n- 修复了同类 Agent 请求错配、迟到批准和问题选项变化后复用旧答案的问题。\n- 增加了审批发送超时与失败反馈，并修复了多项审批结束后的 xnook 显示恢复。\n- 修复了历史追加保存遗漏、工具结果未更新，以及后续回答覆盖上一轮回答的问题。\n- 增加了历史格式升级前的一致性备份，保存失败的会话可保留并重试。\n- 统一了系统与应用的减少动态效果设置，减少了短文本与零速度跑马灯的无效刷新。\n- 完善了内联待办去重、活跃/总计轮换、本地化和测试环境隔离。\n\n## 升级与验证\n\n- 本安装包适用于 Apple Silicon，最低 macOS 14；首次历史格式升级前会在数据库同级 `HistoryBackups` 目录创建包含已提交 WAL 的恢复点，原恢复点不会被覆盖。\n- [历史备份与恢复说明](https://github.com/Meteorkid/XIsland/blob/v1.13.1/docs/history-recovery.md)。\n- 本地415项Swift测试、CLI测试、Release构建、DMG签名和内容一致性检查通过；隔离界面验证覆盖500行计划、多行反馈和10个问题选项。\n- 后台周期快照、自动重启恢复、历史搜索分页和长期性能基线仍属于后续工作，本次未声称达到完"
+  },
+  {
+   "tag": "v1.13.0",
+   "name": "X Island v1.13.0",
+   "published": "2026-08-14",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.13.0",
+   "prerelease": false,
+   "summary": "## Changes\n\n- 适配市面主流 AI 编程工具：新增 Roo Code / PearAI / Zed AI / JetBrains AI 支持，将 Windsurf 从 Cursor 中拆分为独立工具，并更新支持矩阵。\n- 修复多显示器/多桌面（Spaces）下审批面板误判主界面所在屏幕、展开位置错误的问题，现在审批时会在当前主界面所在屏幕展开面板。\n- 版本号更新至 v1.13.0，同步 CHANGELOG 与 Cask 校验和。\n\n- Add support for mainstream AI coding tools: Roo Code, PearAI, Zed AI, JetBrains AI; split Windsurf out of Cursor as a standalone tool.\n- Fix the approval panel expanding on the wrong screen under multiple displays/Spaces; it now expands on the screen of the active main interface.\n- Bump to v1.13.0; sync CHANGELOG and Cask checksum.\n\n## macOS Gatekeeper\n\nIf macOS blocks t"
+  },
+  {
+   "tag": "v1.12.0",
+   "name": "X Island v1.12.0",
+   "published": "2026-07-31",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.12.0",
+   "prerelease": false,
+   "summary": "## Changes\n\n- 新增灵动岛高度无极调节功能（8-120pt 范围）\n- 新增 AppStorageSlider 组件，支持点击数值手动输入精确值\n- 升级 Display 和 Behavior 面板中所有滑块为无极调节\n- IslandSizeCalculator 使用用户设置的高度替代硬编码值\n- NotchWindow 初始化使用用户设置的高度\n\n<!-- Every GitHub release MUST include this block in the release notes body. -->\n\n## macOS Gatekeeper\n\nIf macOS blocks the app after installing from the DMG, run:\n\n```bash\nxattr -cr /Applications/X\\ Island.app\n```\n\nAlternatively: **System Settings → Privacy & Security** → scroll to the message about X Island → **Open Anyway**.\n\n## Checksums\n\nXIsland-1.12.0.dmg SHA256: 5f8f69fb08625ab3facd635afec6f523e5edd144a5a92a"
+  },
+  {
+   "tag": "v1.10.2",
+   "name": "X Island v1.10.2",
+   "published": "2026-07-15",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.10.2",
+   "prerelease": false,
+   "summary": "## v1.10.2\n\n- 灵动岛面板顶部不再留空：窗口顶边向上延伸 6px 越出屏幕顶端，消除 1px 缝隙和抗锯齿偏差。\n- 面板从上往下展开，顶边固定锚在屏幕外，高度变化只向下生长，视觉更稳定。\n- 收起态、拖动、多屏切换、展开/收起动画均统一使用越界机制，避免顶边抖动。\n\n**SHA256:** `e9b213ac388d526e87e0f33f3752e471bc41e5c91216823135c579a66d86382d`"
+  },
+  {
+   "tag": "v1.10.1",
+   "name": "X Island v1.10.1",
+   "published": "2026-07-14",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.10.1",
+   "prerelease": false,
+   "summary": "## 修复内容\n\n- 修复点击 Trae 权限审批“允许执行”后 X Island 可能被系统直接终止的问题。\n- 审批、问题回答和方案确认写回已断开的 Unix socket 时不再触发 `SIGPIPE`。\n- 增加断连写回回归测试，确保对端提前退出时应用仍保持运行。\n\n## 问题原因\n\n`v1.10.0` 新增 Trae 双向审批后，Trae 开始进入延迟 socket 写回路径。当 bridge 在用户完成审批前关闭连接，X Island 向该连接写回结果会收到 `SIGPIPE`，导致进程被 macOS 直接终止。\n\n<!-- Every GitHub release MUST include this block in the release notes body. -->\n\n## macOS Gatekeeper\n\nIf macOS blocks the app after installing from the DMG, run:\n\n```bash\nxattr -cr /Applications/X\\ Island.app\n```\n\nAlternatively: **System Settings → Privacy & Security** → scroll to the message about X Island → **Open Anyway**.\n\n## "
+  },
+  {
+   "tag": "v1.10.0",
+   "name": "X Island v1.10.0",
+   "published": "2026-07-14",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.10.0",
+   "prerelease": false,
+   "summary": "## 更新内容\n\n本版新增 **Agent Flow 项目视图**，并扩展 Trae 系列客户端支持，让 Codex、Trae、Trae CN 与 TRAE SOLO CN 的会话状态、人工阻塞和审批请求可以在 X Island 中统一呈现和处理。\n\n### Agent Flow\n\n- 新增按项目聚合的 Agent Flow 视图，统一展示项目中的活跃会话、运行状态和阻塞原因。\n- 区分等待用户回答、等待方案确认、等待权限审批和工具失败等阻塞类型。\n- 支持未分组会话和多语言阻塞文案。\n\n### Trae 与审批\n\n- 新增 Trae、Trae CN 和 TRAE SOLO CN 的应用识别、前台检测、终端跳转与设置页展示。\n- Trae 权限请求接入 DIBridge 审批响应，可直接在灵动岛中允许或拒绝操作。\n- TRAE SOLO CN 使用已确认的 IDE `claudeCode.hooks` 设置路径。\n\n### 稳定性\n\n- 修复 DIBridge 与 SocketServer 大消息测试中的同步读写阻塞。\n- 修正应用切换、更新校验和测试 fixture。\n- 将 `.codegraph/daemon.pid` 作为本机运行态文件忽略。\n\n<!-- Every GitHub release MUST include this block in the release "
+  },
+  {
+   "tag": "v1.9.2",
+   "name": "X Island v1.9.2",
+   "published": "2026-07-05",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.9.2",
+   "prerelease": false,
+   "summary": "## 更新内容\n\n- 修复 URL Scheme 一致性问题\n- 切换时检查目标应用是否已安装"
+  },
+  {
+   "tag": "v1.9.1",
+   "name": "X Island v1.9.1",
+   "published": "2026-07-05",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.9.1",
+   "prerelease": false,
+   "summary": "## 更新内容\n\n- 添加自动检查更新功能（可在设置中开关）\n- 启动时自动检查更新\n- 每 24 小时定时检查更新"
+  },
+  {
+   "tag": "v1.9.0",
+   "name": "X Island v1.9.0",
+   "published": "2026-07-04",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.9.0",
+   "prerelease": false,
+   "summary": "> 本次 Release 先发布源码与更新说明；如需本地安装包，可使用仓库中的 `Scripts/build.sh` 与 `Scripts/package-dmg.sh` 生成。\n\n## v1.9.0 (2026-07-05)\n\n本版为 **双岛联动、收起态信息与动效控制** 版本。相对 v1.8.0，X Island 从“能切换”继续推进到“切得准、启动不重叠、收起态更有信息密度、动画和显示更可调”，同时把应用图标、浅色模式、终端跳转和更新入口也一并收口。\n\n### 与 v1.8.0 对比\n\n| 维度 | v1.8.0 | v1.9.0 |\n|------|--------|--------|\n| **双岛切换** | 具备基础 URL Scheme 与横滑能力 | 新增启动显示仲裁、收起态独占响应、对方应用状态检查、切换测试入口 |\n| **收起态信息** | 内容较固定 | 新增收起态模块开关、活动跑马灯速度与内容模式（活动 / 项目 / 自动轮换） |\n| **交互动画** | 动效强度基本固定 | 新增展开动画强度三档、果冻动画强度三档、磁吸偏移与悬停果冻效果 |\n| **展开方式** | 主要依赖点击 / 旧交互 | 新增仅收起态生效的双指下滑展开，避免和展开内容滚动冲突 |\n| **显示与维护** | 图标与浅色模式、终端跳转仍有打磨空间 | 更新应用图标，优化浅色模"
+  },
+  {
+   "tag": "v1.8.0",
+   "name": "v1.8.0: 完整浅色模式支持",
+   "published": "2026-06-13",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.8.0",
+   "prerelease": false,
+   "summary": "## v1.8.0\n\n### 新增\n- 完整浅色模式支持：ThemeManager 直接设置 NSApp.appearance，确保所有视图颜色自动适配\n\n### 修复\n- 修复 ChatHistoryView/SessionFilterBar/MarkdownView/PillBadge/ExportView 在浅色模式下文字不可见\n- 修复 DIBridge force unwrap 和 L10n 韩文翻译错误\n- 修复 TerminalJumpManager AppleScript 同步执行和换行转义\n- 合并 NotchContentView 重复 onChange 处理器\n- 清理 IslandSizeCalculator 死代码"
+  },
+  {
+   "tag": "v1.7.0",
+   "name": "v1.7.0 - 面板交互与布局修复",
+   "published": "2026-06-11",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.7.0",
+   "prerelease": false,
+   "summary": "## 修复\n\n- **卡片点击跳转**：将 childrenSection/recapSection 移出 jump Button，消除嵌套 Button 导致的点击冲突\n- **收起态 hit frame**：向下扩展覆盖展开内容区域，防止鼠标悬空无法重新展开\n- **布局循环**：expandedContent 使用显式 expandedHeight 替代 nil，打破 SwiftUI 无限递归导致的 97% CPU 卡死\n- **手势干扰**：移除 simultaneousGesture(TapGesture()) 避免干扰子视图手势识别"
+  },
+  {
+   "tag": "v1.6.5",
+   "name": "v1.6.5",
+   "published": "2026-06-08",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.6.5",
+   "prerelease": false,
+   "summary": "## v1.6.5\n\n### 吉祥物轮换优化\n- 图标按状态优先级排序，等待处理会话（error/waiting*）轮换时间延长至 5s\n- 变速轮换：waiting 5s / active 0.8s / idle 0.6s，突出重要会话\n\n### 展开面板交互改进\n- 展开时显示总会话数（含已完成），折叠时交替显示活跃/总计\n- 展开时 hitFrame 覆盖整个面板，防止鼠标移入内容区误收起\n- hitFrame 限制在屏幕可见范围内，避免覆盖菜单栏\n\n### 其他改进\n- 添加「永久」选项保留已完成会话，兼容旧版配置\n- isRunning 统一包含 .compacting 状态"
+  },
+  {
+   "tag": "v1.6.4",
+   "name": "v1.6.4 死锁修复与安全加固",
+   "published": "2026-06-08",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.6.4",
+   "prerelease": false,
+   "summary": "## 修复内容\n\n### 死锁/卡死修复\n-  改为  后台执行，避免主线程同步阻塞外部进程检测\n-  移除无用的  状态和  回调，纯时间戳驱动消除竞态\n\n### 安全修复\n- AppleScript 中  转义双引号和反斜杠，防止脚本注入\n\n### 动画优化\n-  刷新频率 0.08s → 0.15s，减少多实例同时运行时的重绘开销\n-  从  +  改为  + ，视图消失时自动取消\n\n### 会话管理\n- 展开面板显示所有会话（含已完成），recap 始终可见\n- 设置项「悬停展开面板」控制鼠标悬停行为\n- 已完成会话保留最近 20 个，防止内存无限增长"
+  },
+  {
+   "tag": "v1.6.3",
+   "name": "v1.6.3 动画性能优化与代码质量提升",
+   "published": "2026-06-08",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.6.3",
+   "prerelease": false,
+   "summary": "## 优化内容\n\n### 动画性能\n- MascotView TimelineView 频率从 60fps 降至 30fps，降低多实例 CPU 负担\n- RotatingSessionIcon 改用 TimelineView 驱动，消除 Timer 生命周期泄漏\n- ToolCompletionEffect 改用 .task 模式，视图消失时自动取消\n\n### 线程安全\n- TerminalJumpManager 添加 SessionSnapshot 结构体，避免后台线程读取 @Observable 对象的数据竞争\n\n### 代码质量\n- SessionManager 添加 trulyActiveSessions（仅运行中）和 subagentMap 预计算\n- dismissSession 去掉重复 save，scheduleLingerCleanup 加去重\n- handleContextCompact 恢复前检查 error/completed 状态\n- SessionListView 动画 value 改为 count 避免高频触发\n- activeCountLabel 交替间隔 3s→5s，会话计数区分活跃/总计"
+  },
+  {
+   "tag": "v1.6.2",
+   "name": "v1.6.2: 吉祥物轮换 + 会话重要性排序",
+   "published": "2026-06-08",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.6.2",
+   "prerelease": false,
+   "summary": "## ✨ 新功能\n\n### 吉祥物轮换\n- CollapsedPillView obscured leading icon 每 3 秒自动轮换显示不同会话的吉祥物表情\n- 真正的 crossfade 淡入淡出动画（两 slot 架构）\n- `reduceMotion` 无障碍设置下自动跳过轮换\n\n### 会话重要性排序\n- 展开列表按状态优先级排序：error > waiting > active > thinking > compacting > idle > completed\n- 同优先级按最近活动时间降序\n- `SessionStatus` 新增 `statusPriority` 计算属性\n\n## 🐛 Bug 修复\n- `needsAttention` 红点改为 per-session 检查（修复所有 icon 同时显示红点的问题）\n- `activeCountLabel` 轮换现在尊重 `reduceMotion` 设置\n- Timer 生命周期管理（onAppear/onDisappear 防止泄漏）\n\n## 📦 文件变更\n- `AgentSession.swift` — `statusPriority` 属性\n- `SessionManager.swift` — `filteredSessions` 排序\n- `CollapsedPillView.swift` — 吉"
+  },
+  {
+   "tag": "v1.6.1",
+   "name": "X Island v1.6.1",
+   "published": "2026-05-17",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.6.1",
+   "prerelease": false,
+   "summary": "## v1.6.1 — 性能优化与 UX 打磨\n\n在 v1.6.0 安全审计修复基础上，针对主线程阻塞、重复计算、CPU 空转等问题进行 6 项手术式优化。\n\n### 改动概要\n\n| # | 改动 | 效果 |\n|---|------|------|\n| 1 | SocketServer `diLog` → `os.Logger` | 消除 MainActor 磁盘 I/O |\n| 2 | MarkdownView `parseBlocks` 缓存 + `Hashable` | 解析只在 init 时执行一次 |\n| 3 | NotchWindow Timer 暂停/恢复 | 窗口隐藏时停止 2Hz 轮询 |\n| 4 | SessionManager 字典索引 | O(n) → O(1) 查找 |\n| 5 | QuotaTracker SQLite 后台化 | SQLite I/O 离开主线程 |\n| 6 | 无障碍标签 | 展开头部按钮添加 accessibilityLabel |\n\n**验证**: `swift build` 通过，`swift test` 213 tests / 0 failures\n**改动范围**: 9 files, +110/-51\n\n\n<!-- Every GitHub release MUST include this block in the re"
+  },
+  {
+   "tag": "v1.6.0",
+   "name": "X Island v1.6.0",
+   "published": "2026-05-17",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.6.0",
+   "prerelease": false,
+   "summary": "## X Island v1.6.0 — 安全审计修复版本\n\n基于约 100 个审视角度的全面审查，修复 **2 个 Critical 安全漏洞**、**4 个 High 级问题**。\n\n### 安全修复\n\n| 问题 | 严重度 | 修复 |\n|------|--------|------|\n| SSH 命令注入 | **Critical** | Process 参数数组 + 输入校验 |\n| Socket 权限 755 | **Critical** | fchmod 600 + 目录 700 |\n| Socket 数据竞争 | **High** | OSAllocatedUnfairLock |\n| NotchWindow 跨 Actor | **High** | 快照 + nonisolated |\n| Keychain 无 ACL | **High** | WhenUnlockedThisDeviceOnly |\n| 更新无完整性校验 | **High** | SHA256 + codesign --verify |\n\n### 其他改进\n\n- 删除 IslandHoverManager 死代码（135 行）\n- Package.swift testTarget path 显式声明\n- 新增 GitHub Actions CI 流水线\n\n### 测试\n\n213 tests, 0"
+  },
+  {
+   "tag": "v1.5.2",
+   "name": "X Island v1.5.2",
+   "published": "2026-05-17",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.5.2",
+   "prerelease": false,
+   "summary": "## X Island v1.5.2 — 稳定性推荐版本\n\n本版为 v1.5.1 的文档与打包修正，同时作为**从 v1.4.0 升级的推荐稳定版本**。\n\n### 与 v1.4.0 完整对比\n\n| 维度 | v1.4.0 | v1.5.2 |\n|------|--------|--------|\n| 长时间运行稳定性 | 偶发主线程卡死、CPU 飙高 100% | 9 项阻塞修复，CPU 空转 <1% |\n| 内存/资源泄漏 | Timer/Observer 不释放，缓存无限增长 | deinit 清理 + 孤立缓存定期清理 |\n| 展开无操作收起 | 固定 ~10s | 偏好可调，支持「永不」 |\n| 鼠标离开收起 | 固定 0.5s | 偏好可调，可关闭 |\n| 代码组织 | 三处重复逻辑，889 行 God View | 统一解析路径，提取 SizeCalculator |\n| 测试 | ~125 条 | 212+ 条 |\n| 许可证 | 无 | MIT LICENSE |\n\n### 性能修复详情\n\n- **TerminalJumpManager**: `NSAppleScript` + `Process` + `CGWindowList` 从主线程迁移至 `Task.detached`\n- **Hover Timer**: 0.1s → 0.3s，`onDisappear"
+  },
+  {
+   "tag": "v1.5.1",
+   "name": "X Island v1.5.1",
+   "published": "2026-05-17",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.5.1",
+   "prerelease": false,
+   "summary": "## v1.5.1 (2026-05-17)\n\n本版为**相对上一正式发布 [v1.4.0](https://github.com/Meteorkid/XIsland/releases/tag/v1.4.0) 的汇总更新**：在 v1.4.0 的 Agent 扩展、面板与勿扰、Bypass、子 Agent 可视化等能力之上，补上**长时间运行稳定性**、**可配置的展开/收起节奏**，并做了一轮**结构重构与测试补强**。\n\n### 与 v1.4.0 对比（高层）\n\n| 维度 | v1.4.0 | v1.5.1 |\n|------|--------|--------|\n| 长时间挂机 / 多会话 | 偶发主线程卡死、CPU 飙高 | 终端跳转、Keychain、窗口枚举等迁至后台；Hover 轮询降频并在视图消失时停止；窗口释放 Timer/观察者 |\n| 展开后无操作收起 | 固定约 **10s** | **偏好可调**（秒），可选 **永不** |\n| 鼠标离开岛后收起 | 固定 **0.5s** | **偏好可调**（多档），可 **关闭** 该规则 |\n| 代码组织 | — | `IslandSizeCalculator` 统一尺寸；`SessionManager` 合并重复 session 查找/创建路径 |\n| 测试 | 约 **125** 条 | **212+** 条"
+  },
+  {
+   "tag": "v1.4.0",
+   "name": "X Island v1.4.0 — Agent 扩展 + Vibe Island 功能补齐 + 多语言完善",
+   "published": "2026-05-15",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.4.0",
+   "prerelease": false,
+   "summary": "## v1.4.0 (2026-05-16)\n\n### 新增 Agent 支持\n\n- **Aider**: 完整支持，通过索引信号文件接入\n- **Kiro**: 完整支持，通过 Spec hook 接入\n- **CodeBuddy**: 完整支持，通过配置 hook 接入\n- **Droid (Factory)**: 基础支持\n\n### 新功能\n\n- **面板尺寸自定义**: 偏好设置中可调整面板宽度 (320-600px) 和最大高度 (320-700px)，步长 20px\n- **定时勿扰 (Quiet Hours)**: 基于时间的自动静音，支持跨午夜区间 (如 22:00-07:00)，状态栏显示 moon 图标\n- **右键上下文菜单**: 收起状态右键可快速静音/取消静音、打开偏好设置、退出；展开状态增加关闭所有会话选项\n- **Session 回顾总结 (Recap)**: 已完成的 session 显示可展开/收起的 AI 生成摘要\n- **自定义静音规则 (Mute Rules)**: 基于正则表达式的静音规则，可按 Agent 类型、工具名或工作目录匹配事件\n- **Bypass/自动模式**: 自动批准所有权限请求、问题回答和计划审查，状态栏显示闪电图标\n- **Subagent 嵌套可视化**: 子 Agent session 左侧紫色竖线 + 缩进，父卡"
+  },
+  {
+   "tag": "v1.3.5",
+   "name": "X Island v1.3.5",
+   "published": "2026-05-15",
+   "url": "https://github.com/Meteorkid/XIsland/releases/tag/v1.3.5",
+   "prerelease": false,
+   "summary": "## X Island v1.3.5\n\n### 新功能\n\n- **多语言支持**: 新增韩文、日文、法文，共支持 5 种语言（简中/EN/KO/JA/FR）\n- **配额追踪**: Kimi、DeepSeek、GLM API 余额查询，设置面板中可查看\n- **外接显示器**: 灵动岛自动跟随鼠标跨屏切换\n- **流式思考**: Agent 推理时显示实时脉冲动画思考状态\n- **活动日志**: 全会话工具调用按时间线展示\n- **工具事件详情**: 自动解析测试结果和行数统计\n- **新 Agent**: GLM (智谱)、Kimi (月之暗面)、DeepSeek\n- **SSH 远程管理**: 设置面板中配置远程服务器\n\n### 修复\n\n- 修复 19 个测试失败（环境变量前缀 + URL 路径大小写）\n- 全部 125 个 Swift XCTest 测试通过\n\n## macOS Gatekeeper\n\n如果 macOS 拦截了 DMG 安装的应用，请运行:\n\n```bash\nxattr -cr /Applications/X\\ Island.app\n```\n\n或者: **系统设置 → 隐私与安全性** → 找到 X Island 的提示 → **仍要打开**。"
+  }
+ ],
+ "xnook": [
+  {
+   "tag": "v1.3.30",
+   "name": "X Nook v1.3.30 — 日历连续跨月滚动",
+   "published": "2026-10-30",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.30",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.30 — 日历连续跨月滚动\n\n日期：2026-10-30\n\n本版修复了 v1.3.29 本机验收中发现的日期范围边界：基本滚动已经可用，但滚动到边缘后无法继续跨月。\n\n## 修复\n\n- 概览与独立日历都支持双指左右连续浏览更早或更晚的日期，接近边缘时会自动补充日期。\n- 补充日期时保留原来的画面位置，减少回跳，并控制长时间浏览的资源占用。\n- 保留了左右翻页、远期日期、回今天和组件自动适配，以及 v1.3.29 的日历与其他系统权限修复。\n\n## 验证与安装包\n\n定向回归 **35 项全部通过**，覆盖双向纯滚动80天、跨月与跨年、小数位移、视图复用、远期跳转、边缘选日、缩放、回今天和夏令时。完整回归 **XNook 1233 项，101 条件跳过、0 失败；共享授权核心 31 项，1 条件跳过、0 失败**。同一安装包已在本机验收，用户确认连续跨月与放手停留正常；日历权限显示“已允许”，其他原配置已恢复。详细记录见[连续跨月验证](https://github.com/Meteorkid/XNook/blob/v1.3.30/docs/verification/2026-10-30-calendar-continuous-month-scroll.md)。\n\n安装包面向 Apple Silicon **arm64**，最低 macOS **14**，沿"
+  },
+  {
+   "tag": "v1.3.29",
+   "name": "X Nook v1.3.29 — 日历滚动与系统权限状态修复",
+   "published": "2026-10-30",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.29",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.29 — 日历滚动与系统权限状态修复\n\n日期：2026-10-30\n\n本版为概览日历补齐了原生横向滚动，并修复了日历、播放器自动化和登录项的权限状态显示。建议使用日历与媒体功能的用户更新。\n\n## 日历浏览\n\n- 概览与独立日历共用了原生日期滚动条，可用触控板双指左右浏览日期。\n- 保留了左右翻页按钮、3/5/7 天步长和远期日期导航，翻页后日期条会同步定位。\n- 修复了滚动停在非整格位置时，界面刷新可能将日期条拉回中心的问题。\n\n## 权限与设置\n\n- 补齐了安装包所需的日历签名声明，并增加了打包检查，避免缺少必要权限声明的安装包继续生成。\n- 自动化权限改为分别显示 Apple Music 与 Spotify 的状态，刷新时只查询已运行的播放器，不会启动播放器或弹出授权请求。\n- 登录项开关与状态说明统一跟随系统设置，修改失败时会保留实际状态并显示原因。\n- 日历权限变化后，设置页会刷新授权状态，继续区分完全访问、仅写入、拒绝和受限等情况。\n\n升级后若系统重新询问日历访问，请在概览点击“允许读取日历”，并在 macOS 弹窗中确认完全访问；系统确认后，设置页会显示“已允许”。\n\n## 升级兼容\n\n保留了已有任务、待办入口开关、布局方案、媒体氛围、双岛联动、笔记和文件托盘，以及 1.3.28 的软件授权修复；无需重置配置或清空内容。\n\n## 验证与安装"
+  },
+  {
+   "tag": "v1.3.28",
+   "name": "X Nook v1.3.28 — 授权状态与激活体验修复",
+   "published": "2026-10-27",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.28",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.28 — 授权状态与激活体验修复\n\n日期：2026-10-27\n\n本版修复解绑、网络请求取消和临时安全存储故障后的授权状态，并统一激活码与使用期限的中英文文案。建议使用软件授权功能的用户更新。\n\n## 授权与设备管理\n\n- 服务器已确认设备授权无效时，客户端立即停止接受旧租约，重启后也保留这一状态。\n- 服务器解绑成功后立即停用本机，本地凭据保存失败也不会继续显示已激活。\n- 钥匙串读取或写入短暂失败后可重试恢复，不需要为此清除原授权，也不会用旧缓存恢复已经确认的撤销状态。\n- 退出过程会取消尚未完成的激活与验证请求，迟到响应不会重新激活或写入新凭据。\n- 旧版离线激活码的迁移提示和空码错误会保留到界面上，页面刷新不再清空原因；成功验证后会清除旧错误。\n\n授权协议、现有凭据格式、三设备限制和最长七天离线规则均保持不变。\n\n## 激活界面\n\n- 将正常界面统一为 **激活码、一个月、一年、永久**，英文为 **Activation code、1 month、1 year、Lifetime**。\n- 明确了购买或管理员赠送后在官网账户查看激活码的步骤。\n- 保留了试用与付费授权的区别，试用状态不会显示付费设备解绑入口。\n\n## 升级兼容\n\n保留了 1.3.27 新增的 **在概览显示待办入口** 开关及已有开关状态，也保留布局方案、媒体氛围、双岛联动、任务、"
+  },
+  {
+   "tag": "v1.3.27",
+   "name": "X Nook v1.3.27 — 概览待办入口独立开关",
+   "published": "2026-10-27",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.27",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.27 — 概览待办入口独立开关\n\n日期：2026-10-27\n\n本版修复了概览底部“待办 0”无法独立隐藏的问题。\n\n## 新增与修复\n\n- 新增了 **在概览显示待办入口** 开关，在 **设置 → 显示 → NookFlow** 中调整，也可直接搜索 **待办入口**。\n- 关闭后移除了概览底部的待办按钮和占位，并同步收起已展开的待办收件箱。\n- 保留了待办数据、布局、任务组件内部的入口，以及已保存的开关选择。\n\n为兼容已有使用习惯，开关默认开启；如果你已经在本机修复版中关闭，升级后会继续保持关闭。该入口仅在“当前任务”和“最近任务”组件均隐藏时出现。\n\n本版基于 v1.3.26，继续保留布局方案、媒体氛围、双岛联动与软件授权功能。\n\n## 验证与安装包\n\n相关 42 项检查全部通过，覆盖入口开关切换、空与非空待办、组件显隐、中英文设置搜索，以及原布局和待办数据保留；关闭入口后离屏面板高度减少 32pt。本机修复版已确认入口消失、新开关关闭，其他配置恢复。\n\n发布前完整回归：XNook 1203 项（1108 通过、95 条件跳过），授权核心 17 项（16 通过、1 条件跳过），均为零失败；严格签名、Hardened Runtime、正式授权公钥、DMG 校验与只读挂载后逐文件及权限一致性均通过。\n\n安装包面向 Apple Silicon **ar"
+  },
+  {
+   "tag": "v1.3.26",
+   "name": "XNook 1.3.26",
+   "published": "2026-10-27",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.26",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.26 — 布局、媒体氛围与软件授权\n\n日期：2026-10-27\n\n本版将软件授权与最新布局方案、媒体氛围、连续双岛联动整合，升级保留已有笔记、任务、文件托盘、布局与外观偏好。\n\n## 试用与授权\n\n在 **设置 → 授权** 联网开始 14 天完整功能试用，或输入从官网购买、管理员发放的邀请码，激活月度、年度或永久使用权。\n\n- 每份付费授权最多绑定 **3 台设备**，可在授权页解绑本机后换机。\n- 首次试用、激活、刷新和解绑需要联网，验证后可离线使用最长 **7 天**，且不能超过试用或月度、年度授权的期限。\n- 永久使用权无需续费，但仍需至少每 7 天联网核验一次。\n- 旧版 `XNK1` 离线邀请码需联系管理员迁移。\n\n到期后停止主面板、媒体轮询、日历与任务提醒、Claude 通知监听、双岛预览和全局快捷键，保留激活、购买和本地资料导出；重新验证后恢复原配置。尚未保存的笔记继续保留在内存中，导出包含最新编辑内容。常驻与休眠唤醒都会检查期限，校准误设的系统时间后可通过联网验证恢复。\n\n购买入口：[XNook 官网](https://www.imagentx.top/zh/products/xnook)。设备识别使用硬件标识的 SHA-256 哈希，原始硬件标识不发送到服务器，授权凭据存放于本机钥匙串。\n\n## 布局方案\n\n- 保留了标准三组件、专"
+  },
+  {
+   "tag": "v1.3.24",
+   "name": "X Nook v1.3.24 — 布局方案、媒体氛围与双岛联动",
+   "published": "2026-10-27",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.24",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.24 — 布局方案、媒体氛围与双岛联动\n\n日期：2026-10-27\n\n本版加入可保存的布局方案和封面氛围效果，并整合 X Nook 与 X Island 的连续预览、提醒让位和按钮反馈修复。\n\n## 布局方案\n\n- 新增了标准三组件、专注任务、轻量媒体三套内置布局，并用缩略图展示组件排列。\n- 新增了“自定义布局 1、2…”的另存功能，支持重命名、更新和删除。\n- 为未保存草稿增加了切换确认，应用方案时也会检查其他窗口的同期修改。\n- 让内置方案按内容收拢空态高度，并修正任务与笔记并排时的自动宽度计算。\n- 保留了用户手动调整的组件尺寸，以及旧布局、笔记、文件和任务数据。\n\n在设置中搜索 **布局方案** 可直接选择和管理方案；在 **编辑布局 → 布局方案** 中选择时，方案会先载入草稿，点击保存后生效。\n\n## 媒体氛围与按钮\n\n- 新增了 **关闭、封面柔光、动态模糊** 三档效果，默认使用封面柔光。\n- 将封面色彩限制在媒体卡片背景内，保留横向封面、文字和播放按钮的位置。\n- 让动态背景在暂停、隐藏或减少动态时停止流动，重新播放时延续原有位置。\n- 将设置、关闭和媒体主按钮统一为轻微缩放反馈，移除了图标擦除、闪黑和上浮位移。\n\n在设置中搜索 **媒体氛围** 可切换效果。动态模式采用低速背景流动，不改变播放内容、歌词或窗口测量。\n\n## 双岛联"
+  },
+  {
+   "tag": "v1.3.23",
+   "name": "X Nook v1.3.23 — 面板高度与布局编辑优化",
+   "published": "2026-10-25",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.23",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.23\n\n日期：2026-10-25\n\n本版集中改善面板高度与布局编辑：减少详情页多余留白，让高度设置、组件选择、拖动、缩放和保存更容易理解。\n\n## 面板高度\n\n- 修复了切换详情页或改变宽度后，正确的内容高度被后续回调清掉、窗口停在默认高度的问题。\n- 新增了独立的“展开高度”模式，位置为 **设置 → 显示 → 面板尺寸**。\n- “自动贴合内容”随当前页面收紧；“自定义高度上限”限制最大展开高度，内容较少时仍收紧，超出时滚动显示。\n- 保留了已有高度数值、自定义高度上限默认 200pt 和旧配置行为，并将宽度适配与高度模式分开。\n\n## 布局编辑\n\n- 固定了编辑工具栏与操作说明，滚动画布时仍可查看提示、调整尺寸、保存和取消。\n- 明确了操作方式：单击组件选中，直接拖标题移动，拖右下角缩放，无需双击或长按。\n- 补充了窄窗口说明：组件自动换行，拖标题调整顺序，拖角调整高度，布局宽度在宽窗口显示。\n- 增加了选中描边、清楚的拖动条和缩放把手，以及隐藏组件的恢复入口。\n- 将宽度改为“1/3 宽、半宽、2/3 宽、整行”，高度改为带点数的档位名称，区别于面板整体高度。\n- 增加了只读组件预览和未保存状态，编辑时不会触发组件原操作。\n- 未修改时显示“完成”并直接退出，避免仅查看布局就写入自定义尺寸；实际修改仍在保存后生效。\n\n## 按钮与兼容性\n\n- "
+  },
+  {
+   "tag": "v1.3.22",
+   "name": "X Nook v1.3.22 — 概览返回与功能整合",
+   "published": "2026-10-25",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.22",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.22\n\n日期：2026-10-25\n\n本版让媒体、日历、笔记和文件详情页左上角始终显示带文字的“概览”按钮，点击即可回到组件概览。窄窗口会为按钮文字和物理刘海留出空间，离开笔记时也会先保存当前编辑。\n\n本版同时收录了 v1.3.21 发布后已提交、已进入本机候选的界面与功能整合，包括横向媒体卡片、背景预设、待办收件箱、任务资料、歌词工具和播放进度定位。以下更新均以公开的 [v1.3.21](https://github.com/Meteorkid/XNook/blob/main/docs/releases/1.3.21.md) 为比较基线。\n\n## 详情页返回概览\n\n- 媒体、日历、笔记和文件详情页左上角改为固定的“概览”按钮，窄窗口不再只显示当前工具图标或需要展开菜单才能返回。\n- 按钮保留完整文字，标题栏两侧空间不足时整体移到物理刘海下方，避免遮挡设置和关闭按钮。\n- 点击“概览”后窗口继续展开，恢复组件概览并保留当前任务、保存的布局和各组件数据。\n- 离开正在编辑的笔记前先保存，保存失败时继续留在详情页，避免未保存内容被导航带走。\n- 保留了布局编辑期间的导航限制和原有网页链接编辑保护。\n\n## 概览布局与外观\n\n- 媒体卡片改为横向封面与曲目信息布局，播放按钮沿用封面配色，详情页提供更完整的曲目信息、歌词和播放进度。\n- 默认概览按启用组件数量调"
+  },
+  {
+   "tag": "v1.3.21",
+   "name": "X Nook v1.3.21 — 修复原生网格标题拖动",
+   "published": "2026-10-24",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.21",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.21\n\n日期：2026-10-24\n\n本版修复了 v1.3.20 在正式灵动岛窗口中拖动组件标题无法换位的问题，建议使用网格编辑器的用户升级。\n\n本次为网格拖动补丁；六模块布局、笔记、任务、日历及其他完整功能介绍见 [v1.3.20 发行说明](https://github.com/Meteorkid/XNook/blob/main/docs/releases/1.3.20.md)。\n\n## 修复内容\n\n- 修复了正式灵动岛中标题按钮的点击识别拦截移动手势的问题，拖动标题现在可以移动组件并吸附到网格。\n- 保留了点击标题选择组件的操作，右下角缩放、保存、取消与恢复默认继续沿用原有流程。\n- 仅调整了标题区域的拖动手势优先级，未修改布局存储格式、迁移逻辑或业务数据处理。\n\n已有布局可继续读取，不需要重置布局；v1.3.20 的原标签与安装包保持不变，修复通过新的 v1.3.21 版本提供。\n\n## 问题与验证经过\n\nv1.3.20 发布前，独立测试宿主中的原生渲染与 800pt 窗口鼠标拖动已通过；安装到本机正式应用后，发现正式灵动岛的 NSPanel 中标题只能被选中、无法通过拖动换位，而右下角缩放可以正常工作。\n\n本次在同一台机器、同一个 800pt 正式灵动岛窗口和相同鼠标坐标下进行了 A/B 对照，只改变标题拖动手势的优先级：原版无法移动，修复候选"
+  },
+  {
+   "tag": "v1.3.20",
+   "name": "X Nook v1.3.20 — 原生网格编辑器与概览布局优化",
+   "published": "2026-10-24",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.20",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.20\n\n日期：2026-10-24\n\n> **已知问题与升级提示：** 本机安装后确认，v1.3.20 的正式灵动岛窗口中，点击组件标题可以选中，但拖动标题可能无法移动组件；右下角缩放仍可工作。建议升级至修复此问题的 [v1.3.21](https://github.com/Meteorkid/XNook/blob/main/docs/releases/1.3.21.md)，最终发行与安装校验状态见该版本说明。v1.3.20 原标签与安装包保持不变。\n\n本版加入原生网格布局编辑器，让媒体、日历、笔记、文件托盘、当前任务和最近任务都能独立安排位置与大小，并重新整理了默认概览的排版。\n\n相对 v1.3.19，本版同时发布了此前已合入主分支的完整笔记与任务工作流、日历刷新、面板自动适配、媒体与 GIF 优化，以及设置窗口修复。\n\n## 新增：自己安排六个模块\n\n- 增加了原生布局编辑器，可从概览右侧的布局图标或设置中的“打开布局编辑器”进入。\n- 支持拖动模块标题调整位置、拖动右下角调整大小，释放后自动吸附网格并让其他模块避让。\n- 提供了三分之一、二分之一、三分之二和整行四种宽度，以及分档高度、显示开关和无需拖拽的前移／后移操作。\n- 将当前任务与最近任务拆成了独立模块，可分别决定位置、大小和是否显示。\n- 增加了布局草稿、保存、取消与恢复默认，只有点击“保"
+  },
+  {
+   "tag": "v1.3.19",
+   "name": "X Nook v1.3.19",
+   "published": "2026-10-22",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.19",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.19\n\n发布日期：2026-10-22\n\n本版加入任务网页链接的保存与编辑，并保留 v1.3.18 的双岛切换修复及经典面板默认尺寸。\n\n## 新增\n\n- 为正在进行的任务和最近任务记录增加了网页链接入口，点击任务标题即可打开。\n- 支持添加 HTTP/HTTPS 网页、设置标题、交给默认浏览器打开，以及解除关联；每个任务最多保存 20 项。\n- 增加了已保存链接的标题和地址编辑，保存后保留原来的列表位置；取消编辑保持原内容。\n\n## 可靠性\n\n- 检测重复地址和过期的编辑内容，避免覆盖其他操作已经保存的新值。\n- 保存失败时保留输入，并提供重新读取入口；无法读取的旧任务数据会保留并阻止继续覆盖。\n- 链接详情打开时暂停面板自动收起，编辑期间先保存或取消再关闭；显式双岛切换继续按原流程处理。\n- 兼容旧任务记录，已结束任务的链接也可以继续维护。\n\n## 使用方式\n\n1. 展开 X Nook，点击当前任务标题或最近任务记录。\n2. 在“网页链接”中输入地址和可选标题，点击“添加链接”。\n3. 已保存链接可选择“打开”“编辑链接”或“解除关联”。\n\n## 安装与验证\n\n- 安装包：`XNook-1.3.19.dmg`，Apple Silicon（arm64），macOS 14 或更高版本。\n- 使用与上一版相同的 ad-hoc 本地签名，签名完整性已验证；尚"
+  },
+  {
+   "tag": "v1.3.18",
+   "name": "X Nook v1.3.18 — 双岛联动与窗口可靠性修复",
+   "published": "2026-10-22",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.18",
+   "prerelease": false,
+   "summary": "# X Nook v1.3.18\n\n发布日期：2026-10-22\n\n本版改善 X Nook 与 X Island 之间的切换可靠性，并将面板默认最大高度调整为 200pt。\n\n## 双岛切换\n\n- **确认目标显示后再隐藏来源岛。** 修复了打开目标应用成功但目标岛尚未出现时，来源岛已经隐藏的问题；现在以目标应用的可见岛窗口作为切换完成条件。\n- **失败时保留可用入口。** 目标启动失败、未显示窗口，或系统打开回调没有返回时，8 秒超时会结束当前请求并保留或恢复来源岛，随后可再次切换。\n- **补齐冷启动显示请求。** 目标 App 尚未创建窗口时收到的显示指令会保留到初始化完成，减少首次启动时没有显示岛的情况。\n- **首次使用即可识别联动能力。** 已安装的目标应用通过安装包中的身份和 URL 协议声明进行识别，旧协议登记不再让尚未启动过的目标被禁用。\n- **正确区分设置窗口与岛窗口。** 显示确认按目标 App 的进程、精确窗口层级和可见状态检查，避免把 X Island 的设置窗口当作岛已经出现。\n- **旧请求不覆盖新操作。** 重复手势不会重复发起同一切换，过期的隐藏通知和迟到的完成回调不会再次隐藏用户刚显示的岛。\n- **减少全屏与桌面切换竞态。** 手动显示、隐藏和双岛切换会作废之前的异步全屏判断，防止旧结果覆盖用户当前操作。\n- **启动时保证有可见入口。*"
+  },
+  {
+   "tag": "v1.3.17",
+   "name": "X Nook v1.3.17",
+   "published": "2026-10-17",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.17",
+   "prerelease": false,
+   "summary": "本版修复了 Apple Music 歌词偶发缺失、加载等待及系统主题刷新问题。\n\n### 修复\n\n- 歌词服务短暂失败后，同一首歌可以自动重试恢复。\n- 已取得的纯歌词会先显示，后续搜索失败时也会保留，并可升级为同步歌词。\n- 封面读取与播放信息分开处理，减少切歌时歌词清空、跳动和更新延迟。\n- 关闭歌词或切歌后，旧请求不会再覆盖当前内容。\n- 修复了跟随系统外观时的重复刷新循环。\n\n### 下载与验证\n\n- 安装包：`XNook-1.3.17.dmg`，适用于 Apple Silicon（arm64），macOS 14 或更高版本。\n- 从版本标签对应的干净源码构建；179 项测试通过，DMG 挂载内容和签名完整性检查通过。\n- 安装包采用 ad-hoc 签名，未经过 Apple 公证。\n- SHA-256：`cc41e3407fc04b8de9c50189aac6fedcb86750a6dfa7d96b96b652fc8f8c526a`。\n\n完整更新记录见 [CHANGELOG](https://github.com/Meteorkid/XNook/blob/v1.3.17/CHANGELOG.md)。"
+  },
+  {
+   "tag": "v1.3.16",
+   "name": "v1.3.16",
+   "published": "2026-08-20",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.16",
+   "prerelease": false,
+   "summary": "本版修复 v1.3.15 歌词匹配与时间轴中的若干缺陷。\n\n### 修复\n\n- 修复核心歌名匹配从未生效的问题：括号内的版本/来源标注在比较前就已被剥离，\"光亮 (大型纪录片《紫禁城》主题歌)\"这类带标注的歌名始终匹配不上。\n- 修复 `q=` 全文搜索兜底把词间空格一并删除的问题，\"Shape of You\"这类英文歌名此前几乎必然无果。\n- 修复播放器未提供时长时翻唱匹配会忽略艺术家、仅凭歌名接受候选的问题——同名不同曲（如两首\"Hello\"）会整首显示错误歌词。\n- 修复拿不到权威播放位置时歌词时间轴无界漂移：定时器会以陈旧基准持续外推且永不校准，表现为歌词行乱跳、进度条乱走，并持续耗电。\n- 修复切歌时未重置同步基准，新歌开头可能出现凭空累积的播放进度。\n- 修复歌词换行时 ticker 整体重建导致的抖动。\n\n### 优化\n\n- 歌词缓存不再以时长为键：时长晚于曲目信息到达会写出多份缓存且二次查询必然未命中。\n- 歌词缓存增加内容校验与 30 天有效期，哈希碰撞或已损坏的条目不再永久生效。\n- 歌词缓存读写移出主线程，磁盘繁忙时不再影响界面流畅度。\n- 网络重试仅针对超时、连接失败等可恢复错误，不再对确定性失败做无谓重试。\n\n### 性能\n\n- 滚动文字在无需滚动时不再逐帧重绘，此前会跟随屏幕刷新率持续重绘一行静止文本。\n- 音频波形动画在暂停时不再空转。\n- Apple"
+  },
+  {
+   "tag": "v1.3.15",
+   "name": "v1.3.15",
+   "published": "2026-08-01",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.15",
+   "prerelease": false,
+   "summary": "本版集中提升歌词实时显示的稳定性与匹配率。\n\n## 新增\n\n- 歌词磁盘缓存：按标题/艺术家/专辑/时长哈希存储，切回已放过的歌秒出歌词，LRU 策略上限 5MB。\n- 多阶段歌词匹配：严格匹配 → 核心歌名（去括号）匹配 → 翻唱/cover 匹配，提升中文歌曲与翻唱版本的命中率。\n- LRCLIB `q=` 全文搜索兜底：当 `track_name+artist_name` 无果时，用核心歌名做全文搜索，覆盖更多变体。\n- 纯歌词首句兜底显示：无同步时间轴时仍展示首句歌词，而非直接回退到标题。\n\n## 修复\n\n- 修复 AppleScript 位置采样偶发失败时歌词被清空、ticker 闪烁回标题的问题，现在保留上一行等待下次校准。\n- 修复切歌后歌词加载完成但推进定时器未启动导致歌词卡在首行不滚动的问题。\n- 修复短歌名（≤2 字符）误匹配更长歌名的问题，例如\"光\"不再误匹配\"光年\"。\n\n**Full Changelog**: https://github.com/Meteorkid/XNook/compare/v1.3.14...v1.3.15"
+  },
+  {
+   "tag": "v1.3.14",
+   "name": "X Nook v1.3.14",
+   "published": "2026-07-15",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.14",
+   "prerelease": false,
+   "summary": "## 新增\n- 点击展开面板中的专辑封面，可直接打开当前播放来源的 Music 或 Spotify。\n\n## 修复\n- 播放、暂停、上一首和下一首现在会直接控制当前显示的 Music 或 Spotify 曲目。\n- 当应用专用控制不可用时，会自动回退到系统媒体控制命令。"
+  },
+  {
+   "tag": "v1.3.13",
+   "name": "v1.3.13",
+   "published": "2026-07-15",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.13",
+   "prerelease": false,
+   "summary": "本版优化窗口顶部越界量，减少内容空间浪费。\n\n## 优化\n\n- **窗口顶部越界量从 6px 调整为 4px**：4px 已足够覆盖 `setFrame` 偏差与抗锯齿，同时减少 2px 内容空间浪费，展开面板内容更贴顶。\n- 顶部 header padding 保持 6px 不变，仍足够覆盖越界量，可见区无空隙。\n\n---\n\n**SHA256**: `328d74623584258cc91110e184888a8df5836d50ed690b5dc632982eb86d3f42`"
+  },
+  {
+   "tag": "v1.3.12",
+   "name": "v1.3.12",
+   "published": "2026-07-15",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.12",
+   "prerelease": false,
+   "summary": "本版修正展开面板高度语义，使展开动画与 X Island 一致；并修复打开设置时的收起动画卡顿。\n\n## 修复\n\n- **展开面板高度语义修正**：从「下限撑高」改为「上限裁切」，与 X Island 的 `panelMaxHeight` 语义一致。内容不足上限时按实际高度展开，不再被强制撑高到 400pt，展开动画从顶部向下丝滑过渡。\n- **打开设置卡顿修复**：将 `openPreferences()` 推迟到下一 runloop 执行，避免 NSPanel 首次创建与 SettingsView 加载阻塞主线程导致收起动画前几帧丢帧。\n- **文案更新**：设置项文案更新为「面板最大高度」，准确反映上限语义。\n\n---\n\n**SHA256**: `e12041d436e19f5f6bfc29933c3374597abe60e945445c20b5aee8c94af188fb`"
+  },
+  {
+   "tag": "v1.3.11",
+   "name": "X Nook v1.3.11",
+   "published": "2026-07-14",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.11",
+   "prerelease": false,
+   "summary": "## 新增与改进\n- 展开面板新增基础高度调节，内容较少时也可保留更舒展的面板空间。\n- NookFlow 新增“显示最近任务”开关，可隐藏已完成任务列表而不影响进行中的任务。\n- “无操作隐藏”支持 0.01 秒精度调节，并以两位小数显示。\n- Music 封面按曲目缓存，减少重复读取封面带来的等待。\n\n## 修复\n- 修复 Music 或 Spotify 的脚本调用变慢、卡住时媒体信息和歌词不再刷新的问题。\n- 修复旧播放器请求晚到时可能覆盖新曲目播放进度的问题，歌词时间轴跟随更稳定。\n- 优化菜单和拖拽期间的媒体定时器运行方式，避免歌词推进短暂停顿。"
+  },
+  {
+   "tag": "v1.3.10",
+   "name": "X Nook v1.3.10",
+   "published": "2026-07-13",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.10",
+   "prerelease": false,
+   "summary": "## Music 歌词时间轴修复\n\n- 修复 Music 重启或切歌后，ScriptingBridge 持续返回 `0` 导致歌词时间轴反复归零的问题。\n- Music 与 Spotify 现优先使用 AppleScript 的实时播放位置；当 AppleScript 不可用时，仍回退使用 ScriptingBridge。\n- 新增播放位置优先级回归测试，覆盖 Bridge 返回 `0` 与 AppleScript 不可用场景。\n\n## 验证\n\n- 从隔离工作树打包，未包含尚未发布的面板基础高度改动。\n- 完整测试通过：101 项。\n- DMG SHA256：`a08f195221e8b82fb0ac83eb40016e99fa4464c427e4f83ef487f1eb239585c1`。"
+  },
+  {
+   "tag": "v1.3.9",
+   "name": "X Nook v1.3.9",
+   "published": "2026-07-13",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.9",
+   "prerelease": false,
+   "summary": "**Full Changelog**: https://github.com/Meteorkid/XNook/compare/v1.3.7...v1.3.9"
+  },
+  {
+   "tag": "v1.3.7",
+   "name": "X Nook v1.3.7",
+   "published": "2026-07-13",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.7",
+   "prerelease": false,
+   "summary": "**Full Changelog**: https://github.com/Meteorkid/XNook/compare/v1.3.6...v1.3.7"
+  },
+  {
+   "tag": "v1.3.6",
+   "name": "X Nook v1.3.6",
+   "published": "2026-07-13",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.6",
+   "prerelease": false,
+   "summary": "**Full Changelog**: https://github.com/Meteorkid/XNook/compare/v1.3.5...v1.3.6"
+  },
+  {
+   "tag": "v1.3.5",
+   "name": "X Nook v1.3.5",
+   "published": "2026-07-13",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.5",
+   "prerelease": false,
+   "summary": "## 可靠性修复\n\n- 修复实时歌词链路：支持多时间戳 LRC、优先同步歌词，并在专辑、时长与真实播放位置变化时重新匹配。\n- 修复手动隐藏灵动岛后，切换桌面时意外重新显示的问题。\n- 日历筛选现已持久化，提醒音只扫描已选日历；已提醒事件跨重启去重。\n- 修复新建空笔记未编辑即退出时丢失的问题。\n\n## 更新与联动\n\n- 更新流程调整为检查版本后打开官方发布页，不再尝试安装与当前 ad-hoc 签名策略不兼容的更新包。\n- 双岛联动状态改为要求对方明确声明协议兼容，避免旧版被误报为已就绪。\n\n## 质量\n\n- 补充歌词、日历筛选和联动协议回归测试。\n- 全量测试通过：87 项。\n\n> 注：X Island 需要同步支持新的协议握手，联动设置才会显示为“已就绪”。"
+  },
+  {
+   "tag": "v1.3.4",
+   "name": "X Nook v1.3.4",
+   "published": "2026-07-12",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.4",
+   "prerelease": false,
+   "summary": "## 更新内容\n\n### Bug 修复\n- 修复果冻动画仅首次进入触发，后续不再触发的问题\n- 修复关闭「自然滚动」时双指下滑展开面板失效\n- 修复开机时两个灵动岛同时显示（文件锁原子仲裁）\n- 修复灵动岛切换时面板短暂以展开态闪烁\n- 统一 isSwitchingApps 清除机制，避免竞争条件\n- 启动仲裁增加应用运行状态检查\n\n### 安全增强\n- 更新签名验证：合并读取 stdout/stderr + Apple Root CA 证书链校验\n- 使用独立 Pipe 避免 stdout/stderr 交错\n\n### 代码质量\n- 修复 18+ 项代码审查问题（稳定性/安全/性能）\n- 统一 Observable 模式（@Published → @Observable）\n- 窗口注入 + UserDefaults 版本控制重构\n\n**SHA256:** `60eebede5da94e6f5f74b13d8a8857e76dc2e97e6e1f4015b13836a0be3100c1`"
+  },
+  {
+   "tag": "v1.3.3",
+   "name": "X Nook v1.3.3",
+   "published": "2026-07-05",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.3",
+   "prerelease": false,
+   "summary": "## 更新内容\n\n- 修复 URL Scheme 一致性问题\n- 切换时检查目标应用是否已安装"
+  },
+  {
+   "tag": "v1.3.2",
+   "name": "X Nook v1.3.2",
+   "published": "2026-07-05",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.2",
+   "prerelease": false,
+   "summary": "## 更新内容\n\n- 添加自动检查更新功能（可在设置中开关）\n- 启动时自动检查更新\n- 每 24 小时定时检查更新"
+  },
+  {
+   "tag": "v1.3.1",
+   "name": "X Nook v1.3.1",
+   "published": "2026-07-05",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.1",
+   "prerelease": false,
+   "summary": "## 更新内容\n\n- 添加应用内更新安装功能\n- 统一版本号管理\n- 优化发布流程"
+  },
+  {
+   "tag": "v1.3.0",
+   "name": "X Nook v1.3.0",
+   "published": "2026-07-04",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.3.0",
+   "prerelease": false,
+   "summary": "> 本次 Release 先发布源码与更新说明，应用包可通过仓库内构建脚本本地生成。\n\n## v1.3.0 (2026-07-05)\n\n本版为 **跨岛联动与设置收口** 版本。相对 v1.2.1，X Nook 不再只是一个单体灵动岛，而是补齐了与 X Island 的切换协议、启动显示仲裁和更多可见可调的日常设置，同时把媒体、文件托盘、图标与核心交互再打磨了一轮。\n\n### 相对 v1.2.1 的重点变化\n\n| 维度 | v1.2.1 | v1.3.0 |\n|------|--------|--------|\n| **灵动岛联动** | 只能各自显示，缺少稳定切换 | 新增双指横滑切换、URL Scheme 联动、收起态窗口归属判断、启动显示仲裁 |\n| **个性化显示** | 主题与默认值分散，运行态和设置页不一致 | 新增系统 / 浅色 / 深色主题，统一默认值注册，设置页与实际行为保持一致 |\n| **提醒与权限** | 日历只负责显示 | 新增日历提醒音、提前时间、静音时段、权限快捷入口 |\n| **媒体与内容** | GIF、歌词、文件托盘能力较基础 | 新增多 GIF 管理与持久化、歌词兜底优化、托盘拖入拖出与高亮反馈 |\n| **更新与诊断** | 版本信息可见性较弱 | 新增更新检查状态、最新版本信息、打开发布页入口 |\n\n### 联动与切换\n\n- 新增 **双指"
+  },
+  {
+   "tag": "v1.2.1",
+   "name": "v1.2.1",
+   "published": "2026-06-20",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.2.1",
+   "prerelease": false,
+   "summary": "## 🐛 修复\n\n### 内存泄漏\n- NotchContentView: NotificationCenter observer 保存 token，onDisappear 时正确移除\n- MusicVisualizerView: Timer 存储为 @State，播放状态切换时先 stop 旧 Timer，onDisappear invalidate\n- CalendarScroller: 添加 dismantleNSView 方法，视图销毁时清理 NotificationCenter observer\n- MediaManager: deinit 中 invalidate infoTimer/progressTimer\n\n### 性能优化\n- CalendarWidgetView: DateFormatter 改为 static let 缓存，避免每次创建新实例\n- hoverTimer 去掉多余的 Task { @MainActor } 包装\n\n### 代码清理\n- 移除 autoCollapseDelay 死设置（代码中从未读取，设置无效）"
+  },
+  {
+   "tag": "v1.2",
+   "name": "v1.2",
+   "published": "2026-06-19",
+   "url": "https://github.com/Meteorkid/XNook/releases/tag/v1.2",
+   "prerelease": false,
+   "summary": "## ✨ 新功能\n\n### 果冻动画\n- 鼠标从下方进入药丸时触发弹性果冻动效\n- 支持三档强度设置（弱 / 中 / 强），在设置 → 辅助功能中调整\n- 弹跳动画：先大幅弹起再回弹到稍大状态，离开时直接恢复\n\n### 磁吸效果\n- 鼠标靠近药丸 80pt 范围内时，药丸自动向鼠标方向水平偏移\n- 最大偏移 8pt，离开范围后弹簧动画恢复原位\n\n### 透明光标\n- 鼠标悬停药丸时推入透明光标，隐藏系统光标\n- 离开药丸时恢复系统光标\n- 应用退出时自动恢复光标（防止异常退出导致光标残留）\n\n### 窗口顶部延伸\n- 窗口向上延伸 6pt，使屏幕顶端在窗口内部\n- 修复触控板双指下滑在屏幕最顶端无法触发的问题\n\n## 🐛 修复\n\n- 修复果冻动画快速晃动鼠标时的时序错乱（引入 generation counter）\n- 修复全局滚动监听器线程安全问题\n- 修复设置面板 enabledWidgets 状态不同步\n\n## 🧹 代码优化\n\n- 移除 autoCollapseDelay dead code\n- 移除调试日志文件写入代码\n- 移除重复 Spacer\n- 更新 README 添加新功能说明\n\n## 📦 系统要求\n\n- macOS 14.0+ (Sonoma)\n- Xcode 15+"
+  }
+ ]
+}

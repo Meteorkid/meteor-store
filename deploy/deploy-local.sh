@@ -37,9 +37,20 @@ if [[ "$CURRENT_BRANCH" != "main" ]]; then
   exit 1
 fi
 git fetch origin main
-if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]]; then
-  echo "⚠️  本地 main 与 origin/main 不一致（有未 push 的提交或落后远端）。" >&2
-  echo "   请先 git push / git pull 对齐后再部署。" >&2
+# 落后与领先必须分开报：两种情形的后果完全不同。
+#   落后 → 这次构建会把别人已经上线的提交回退掉（2026-11-13 真实事故：
+#          本地停在分叉点直接构建，线上 /zh/competitions 变回 404 兜底页）。
+#   领先 → 线上源码与产物对不上，服务器 git 里没有对应的提交。
+BEHIND=$(git rev-list --count HEAD..origin/main)
+AHEAD=$(git rev-list --count origin/main..HEAD)
+if [[ "$BEHIND" != "0" ]]; then
+  echo "⛔ 本地落后 origin/main $BEHIND 个提交。现在构建会把线上回退。" >&2
+  echo "   请先：git stash push -u -m wip -- <待保护文件> && git merge --ff-only origin/main" >&2
+  exit 1
+fi
+if [[ "$AHEAD" != "0" ]]; then
+  echo "⛔ 本地领先 origin/main $AHEAD 个提交，尚未 push。" >&2
+  echo "   服务器源码来自 git，产物却来自本地，两者会不一致。请先 push。" >&2
   exit 1
 fi
 
@@ -76,7 +87,17 @@ echo "==> 2. 本地生产构建（NEXT_PUBLIC_* 与线上一致，见 .env.produ
 export NODE_ENV=production
 # 显式导出会压过 .env.local 里的 Neon 地址：Next 只填充未定义的变量。
 export DATABASE_URL="$BUILD_DATABASE_URL"
-SKIP_TYPE_CHECK=1 pnpm build
+# 本机构建常在 finalize 阶段被沙箱的 safe-delete 守卫拦下（批量清理 .next 触发配额），
+# 退出码为 1 但产物其实是完整的。**不能只看退出码**：BUILD_ID 出现也不代表成功，
+# 必须同时确认 sitemap 本体已经生成——它是构建期读生产库渲染的，缺了就是真失败。
+if ! SKIP_TYPE_CHECK=1 pnpm build; then
+  if [[ -s .next/BUILD_ID && -s .next/server/app/sitemap.xml.body ]]; then
+    echo "⚠️  构建以非零码结束，但 BUILD_ID 与 sitemap 均在，判定产物完整，继续部署。" >&2
+  else
+    echo "ERROR: 构建失败且产物不完整（缺 BUILD_ID 或 sitemap.xml.body），中止。" >&2
+    exit 1
+  fi
+fi
 unset DATABASE_URL
 
 echo "==> 3. 打包 .next（排除 .next/dev 开发缓存，避免产物膨胀到数百 MB）"

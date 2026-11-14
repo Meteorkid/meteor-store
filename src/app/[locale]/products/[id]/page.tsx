@@ -23,6 +23,7 @@ import {
   type Integration,
 } from '@/data/xisland-integrations';
 import { getProductWithCurrentDownloads } from '@/lib/product-updates/catalog';
+import { isChangelogProduct } from '@/data/product-changelog';
 import { ANNUAL_DISCOUNT, SHOW_PRICING, SITE_URL } from '@/lib/constants';
 import { safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema, buildProductSchema } from '@/lib/structured-data';
@@ -207,6 +208,20 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
         <InstallCommand product={product} />
 
         <DownloadSection product={product} licenseClaimed={licenseClaimed} />
+
+        {/* 更新日志入口。放在下载区之后而不是导航里：它是「装完之后」才会看的页面，
+            放在这里既不抢首屏，也让爬虫有一条从产品页直达的路径。 */}
+        {isChangelogProduct(product.id) && (
+          <p className="mb-20 -mt-12">
+            <Link
+              href={`/products/${product.id}/changelog`}
+              className="inline-flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
+            >
+              {locale === 'en' ? 'Full changelog' : '查看完整更新日志'}
+              <span aria-hidden>→</span>
+            </Link>
+          </p>
+        )}
 
         <ProductGallery product={product} />
 

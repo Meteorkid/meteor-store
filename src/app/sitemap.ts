@@ -6,6 +6,8 @@ import { helpArticles, isHelpArticleVisible } from '@/data/help-articles';
 import { SHOW_PRICING, SITE_URL } from '@/lib/constants';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
 import { listIeltsPairs } from '@/lib/ielts/catalog';
+import { CHANGELOG_PRODUCT_IDS } from '@/data/product-changelog';
+import { alternativeDetails } from '@/data/xisland-alternative-details';
 
 const BASE_URL = SITE_URL;
 const LOCALES = ['zh', 'en'] as const;
@@ -143,6 +145,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   }));
 
+  // 更新日志：版本号每周都可能变，用 weekly 而不是 monthly。
+  // 这是站内唯一会「自己长大」的页面，靠它维持抓取频率。
+  const changelogPages = CHANGELOG_PRODUCT_IDS.flatMap((productId) =>
+    LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/products/${productId}/changelog`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.5,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh/products/${productId}/changelog`,
+          en: `${BASE_URL}/en/products/${productId}/changelog`,
+        },
+      },
+    })),
+  );
+
+  // 两两对比子页。总表承接「有哪些替代品」，子页承接「XIsland vs X」，
+  // 是两类不同的查询，必须各有自己的地址。
+  const alternativeDetailPages = alternativeDetails.flatMap((detail) =>
+    LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/products/xisland/alternatives/${detail.id}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh/products/xisland/alternatives/${detail.id}`,
+          en: `${BASE_URL}/en/products/xisland/alternatives/${detail.id}`,
+        },
+      },
+    })),
+  );
+
   const helpPages = getHelpSitemapEntries();
   // 雅思写作对照的每一组详情页：左右对照 + 逐句说明，是站内少见的原创长文，
   // 值得单独收录；slug 稳定，下架后这里自然消失（listIeltsPairs 只返回公开的）。
@@ -259,6 +295,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedStaticPages,
     ...productPages,
     ...alternativesPages,
+    ...alternativeDetailPages,
+    ...changelogPages,
     ...helpPages,
     ...ieltsPairPages,
     ...pathfinderItemPages,
