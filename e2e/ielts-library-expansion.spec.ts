@@ -90,6 +90,15 @@ test('题型主题组合筛选准确，切换条件重新展示首批', async ({
   }
 });
 
+test('英文多行题干粘贴到单行搜索框后仍命中原题', async ({ page }) => {
+  const last = pairs.at(-1)!;
+  expect(last.content.prompt.en).toContain('\n');
+  await page.goto('/en/study/ielts');
+  await page.getByRole('searchbox', { name: 'Search the library', exact: true }).fill(last.content.prompt.en);
+  await expect(cards(page)).toHaveCount(1);
+  await expect(cards(page).first()).toHaveAttribute('href', `/en/study/ielts/${last.slug}`);
+});
+
 for (const locale of ['zh', 'en'] as const) {
   const en = locale === 'en';
   test(`${locale} 对照库在 375px 可搜索加载，控件至少 44px 且无横向溢出`, async ({ page }) => {

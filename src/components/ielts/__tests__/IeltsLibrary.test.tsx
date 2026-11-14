@@ -107,6 +107,18 @@ describe('100 组摘要的对照库浏览', () => {
     expect(render()).toContain('科学</button>');
   });
 
+  it('英文多行题干粘贴为空格后仍可整题搜索', () => {
+    locale = 'en';
+    const prompt = 'Write to your friend.\r\n- thank them for their help;\n- invite them for a meal.';
+    items = [{ ...summaries[99], prompt }];
+    render();
+    // Chrome 粘贴进单行搜索框后，题干的换行会变为空格。
+    search(prompt.replace(/\r?\n/g, ' '));
+    expect(cardSlugs()).toEqual(['synthetic-100']);
+    search('  invite   them for a meal.  ');
+    expect(cardSlugs()).toEqual(['synthetic-100']);
+  });
+
   it('题型与主题组合筛选覆盖后续内容，变化后重置展示量', () => {
     click('继续加载 24 组');
     expect(click('Task 2 大作文')).toContain('找到 60 组对照，已展示 24 组');

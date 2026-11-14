@@ -47,12 +47,13 @@ export default function IeltsLibrary({ locale, items }: Props) {
   const topics = useMemo(() => [...new Set(items.map(item => item.topic))].sort(), [items]);
 
   const filtered = useMemo(() => {
-    const search = query.trim().toLowerCase();
+    // 单行搜索框会将粘贴题干中的换行转为空格，双方使用同一空白规则。
+    const search = query.trim().toLowerCase().replace(/\s+/g, ' ');
     return items.filter(item => {
       if (task !== 'all' && item.task !== task) return false;
       if (topic !== 'all' && item.topic !== topic) return false;
       const text = `${item.title} ${item.prompt} ${item.topic} ${topicLabel(locale, item.topic)}`;
-      return !search || text.toLowerCase().includes(search);
+      return !search || text.toLowerCase().replace(/\s+/g, ' ').includes(search);
     });
   }, [items, task, topic, query, locale]);
   const visible = filtered.slice(0, shownCount);
