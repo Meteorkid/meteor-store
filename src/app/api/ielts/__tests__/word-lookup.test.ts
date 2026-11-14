@@ -27,6 +27,13 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe('/api/ielts/word-lookup', () => {
+  it('收藏凭据只给v2客户端，旧严格客户端仍收到原协议', async () => {
+    const withReceipt = { ...result, saveToken: 'signed.receipt', sourceKey: 'a'.repeat(64) };
+    mock.lookup.mockResolvedValue(withReceipt);
+    expect(await (await POST(request())).json()).toEqual(result);
+    expect(await (await POST(request(input, { 'X-Ielts-Lookup-Version': '2' }))).json()).toEqual(withReceipt);
+  });
+
   it('公开读取不要求登录，返回共享协议且所有响应no-store', async () => {
     const response = await POST(request({ ...input, word: 'Bank' }));
     expect(response.status).toBe(200);

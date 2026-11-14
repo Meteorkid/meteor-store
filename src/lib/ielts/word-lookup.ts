@@ -26,6 +26,8 @@ export type WordMeaning = z.infer<typeof WordMeaningSchema>;
 export const WordLookupResultSchema = z.object({
   entry: WordMeaningSchema,
   source: z.enum(['lesson', 'ai']),
+  saveToken: z.string().max(16 * 1024).optional(),
+  sourceKey: z.string().regex(/^[a-f0-9]{64}$/).optional(),
 }).strict();
 export type WordLookupResult = z.infer<typeof WordLookupResultSchema>;
 

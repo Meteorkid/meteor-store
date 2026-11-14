@@ -50,7 +50,10 @@ export async function POST(request: NextRequest) {
     }
     const input = WordLookupRequestSchema.safeParse(await readBody(request));
     if (!input.success) return json({ error: 'invalid' }, 400);
-    return json(await lookupIeltsWord(input.data));
+    const result = await lookupIeltsWord(input.data);
+    // 已打开的旧阅读页采用严格响应协议；凭据只返回给明确支持收藏的新客户端。
+    return json(request.headers.get('x-ielts-lookup-version') === '2'
+      ? result : { entry: result.entry, source: result.source });
   } catch (error) {
     if (error instanceof WordLookupError) return json({ error: error.code }, error.status, error.retryAfter);
     return json({ error: 'unavailable' }, 503);

@@ -5,6 +5,7 @@ import type { DailyPanelSettings } from '../daily/panel-types';
 import type { MastersRegion, MastersRoundDetails, MastersWatchInput } from '../masters/types';
 import type { StudyCourseStatus, StudyDeadlineKind, StudyDeadlineStatus, StudyProblemDifficulty, StudyProblemStatus } from '../study/types';
 import type { IeltsPairContent, IeltsPairSource, IeltsPairStatus, IeltsTask } from '../ielts/types';
+import type { VocabularySnapshot } from '../study/vocabulary-types';
 
 export const mastersRounds = pgTable('masters_rounds', {
   id: text('id').primaryKey(),
@@ -1003,6 +1004,32 @@ export const studyProblems = pgTable('study_problems', {
   check('study_problems_difficulty_check', sql`${t.difficulty} IN ('easy', 'medium', 'hard')`),
   check('study_problems_status_check', sql`${t.status} IN ('todo', 'solved')`),
   check('study_problems_review_stage_check', sql`${t.reviewStage} >= 0 AND ${t.reviewStage} <= 5`),
+]);
+
+/** 私人生词及原句快照；没有公共内容外键，来源下架不删除收藏。 */
+export const studyVocabulary = pgTable('study_vocabulary', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  sourceKey: text('source_key').notNull(),
+  snapshot: jsonb('snapshot').$type<VocabularySnapshot>().notNull(),
+  reviewStage: integer('review_stage').notNull().default(0),
+  reviewDueOn: text('review_due_on').notNull(),
+  reviewIntervalDays: integer('review_interval_days').notNull().default(1),
+  lastReviewedOn: text('last_reviewed_on'),
+  revision: integer('revision').notNull().default(1),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, t => [
+  uniqueIndex('study_vocabulary_user_source_idx').on(t.userId, t.sourceKey),
+  index('study_vocabulary_user_due_idx').on(t.userId, t.reviewDueOn),
+  index('study_vocabulary_user_created_idx').on(t.userId, t.createdAt, t.id),
+  check('study_vocabulary_source_key_check', sql`${t.sourceKey} ~ '^[0-9a-f]{64}$'`),
+  check('study_vocabulary_snapshot_check', sql`jsonb_typeof(${t.snapshot}) = 'object' AND octet_length(${t.snapshot}::text) <= 16384`),
+  check('study_vocabulary_stage_check', sql`${t.reviewStage} BETWEEN 0 AND 5`),
+  check('study_vocabulary_interval_check', sql`${t.reviewIntervalDays} = (ARRAY[1, 3, 7, 14, 30, 60])[${t.reviewStage} + 1]`),
+  check('study_vocabulary_revision_check', sql`${t.revision} >= 1`),
+  check('study_vocabulary_due_check', sql`${t.reviewDueOn} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' AND ${t.reviewDueOn}::date::text = ${t.reviewDueOn}`),
+  check('study_vocabulary_reviewed_check', sql`${t.lastReviewedOn} IS NULL OR (${t.lastReviewedOn} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' AND ${t.lastReviewedOn}::date::text = ${t.lastReviewedOn})`),
 ]);
 
 /**

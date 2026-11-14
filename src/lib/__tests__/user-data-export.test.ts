@@ -15,6 +15,7 @@ import {
   studyCourses,
   studyDeadlines,
   studyProblems,
+  studyVocabulary,
   tollowBookProgress,
   tollowPracticeSessions,
   tollowTextFavorites,
@@ -23,6 +24,10 @@ import {
   paymentRefundAttempts,
 } from '../db/schema';
 
+const vocabularyRows = [
+  { userId: 'U1', snapshot: { word: 'tuition', sentence: 'Tuition should be free.', meaningZh: '学费' }, reviewStage: 1, reviewDueOn: '2026-11-17', reviewIntervalDays: 3, lastReviewedOn: '2026-11-14', createdAt: '2026-11-14T00:00:00Z', updatedAt: '2026-11-14T01:00:00Z', privateDebug: 'not-exported' },
+  { userId: 'U2', snapshot: { word: 'other-owner' }, privateDebug: 'not-exported' },
+];
 let ownedOrderRows: Array<{ id: string }> = [];
 const refundQueries: Array<{ sql: string; params: unknown[] }> = [];
 const phdQueries: Array<{ sql: string; params: unknown[] }> = [];
@@ -183,6 +188,11 @@ vi.mock('../db', () => ({
             return [Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection))];
           }
           if (table === mastersWatches) return [{ roundId: 'round-1', status: 'preparing', reminders: true }];
+          if (table === studyVocabulary) {
+            const query = new PgDialect().sqlToQuery(condition!);
+            return vocabularyRows.filter(row => query.params.includes(row.userId))
+              .map(row => Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection)));
+          }
           if (table === ieltsProgress) {
             const query = new PgDialect().sqlToQuery(condition!);
             ieltsQueries.push(query);
@@ -210,6 +220,15 @@ vi.mock('../db', () => ({
 }));
 
 describe('用户数据导出', () => {
+  it('导出生词快照和复习状态，不含其他账号及内部字段', async () => {
+    const { exportUserData } = await import('../user-data-export');
+    const exported = await exportUserData('U1', 'u1@example.com');
+    expect(exported.study.vocabulary).toHaveLength(1);
+    expect(exported.study.vocabulary[0]).toMatchObject({ snapshot: { word: 'tuition', meaningZh: '学费' }, reviewStage: 1, reviewDueOn: '2026-11-17' });
+    expect(Object.keys(exported.study.vocabulary[0]).sort()).toEqual(['snapshot', 'reviewStage', 'reviewDueOn', 'reviewIntervalDays', 'lastReviewedOn', 'createdAt', 'updatedAt'].sort());
+    expect(JSON.stringify(exported.study.vocabulary)).not.toContain('other-owner');
+  });
+
   beforeEach(() => {
     ownedOrderRows = [];
     refundQueries.length = 0;

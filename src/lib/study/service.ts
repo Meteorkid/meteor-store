@@ -1,3 +1,4 @@
+import { countDueVocabulary } from './vocabulary-service';
 import { randomUUID } from 'node:crypto';
 import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
@@ -204,9 +205,9 @@ export async function reviewStudyProblem(userId: string, input: StudyReviewInput
 }
 
 /** 工作台铃铛的轻量摘要：今日复习数 + 7 天内课程截止数。 */
-export async function getStudySummary(userId: string): Promise<{ dueReviews: number; upcomingDeadlines: number }> {
+export async function getStudySummary(userId: string): Promise<{ dueReviews: number; upcomingDeadlines: number; dueVocabulary: number }> {
   const today = dailyDate();
-  const [reviews, deadlines] = await Promise.all([
+  const [reviews, deadlines, dueVocabulary] = await Promise.all([
     db.select({ count: sql<number>`count(*)::int` }).from(studyProblems)
       .where(and(eq(studyProblems.userId, userId), eq(studyProblems.status, 'solved'),
         sql`${studyProblems.reviewDueOn} IS NOT NULL AND ${studyProblems.reviewDueOn} <= ${today}`)),
@@ -214,8 +215,9 @@ export async function getStudySummary(userId: string): Promise<{ dueReviews: num
       .where(and(eq(studyDeadlines.userId, userId), eq(studyDeadlines.status, 'open'),
         // dueAt 可能是日期或 ISO 时刻：统一截到日期段再比，避免带时刻的第 7 天被漏掉
         sql`left(${studyDeadlines.dueAt}, 10) <= ${shiftDate(today, 7)}`)),
+    countDueVocabulary(userId, today),
   ]);
-  return { dueReviews: reviews[0]?.count ?? 0, upcomingDeadlines: deadlines[0]?.count ?? 0 };
+  return { dueReviews: reviews[0]?.count ?? 0, upcomingDeadlines: deadlines[0]?.count ?? 0, dueVocabulary };
 }
 
 function shiftDate(date: string, days: number): string {

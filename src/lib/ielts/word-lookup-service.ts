@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { getIeltsPair } from './catalog';
 import { rateLimit } from '@/lib/rate-limit';
+import { issueVocabularyReceipt } from './vocabulary-receipt';
 import {
   findLessonWordMeaning, normalizeLookupWord, sentenceContainsWord,
   WordLookupRequestSchema, WordLookupResultSchema, WordMeaningSchema,
@@ -106,18 +107,29 @@ export async function lookupIeltsWord(input: WordLookupRequest): Promise<WordLoo
   if (!pair) throw new WordLookupError('not_found');
   const sentence = pair.content.segments[request.segmentIndex]?.[request.side];
   if (!sentence || !sentenceContainsWord(sentence, request.word)) throw new WordLookupError('invalid');
+  // 凭据绑定本次真正展示的原句与释义；收藏时无需再次调用模型。
+  // 缓存只存释义，签名在每次已验证公开来源后生成，不能串用另一篇文章的来源。
+  const addSaveReceipt = (result: WordLookupResult): WordLookupResult => {
+    const signed = issueVocabularyReceipt({
+      ...result.entry, source: result.source, sentence,
+      sentenceZh: pair.content.segments[request.segmentIndex].translationZh?.[request.side] ?? null,
+      pairSlug: pair.slug, titleZh: pair.content.title.zh, titleEn: pair.content.title.en,
+      side: request.side, segmentIndex: request.segmentIndex,
+    });
+    return signed ? { ...result, ...signed } : result;
+  };
   const lesson = findLessonWordMeaning(pair.content, request);
   if (lesson) {
     const result = WordLookupResultSchema.safeParse(lesson);
-    if (result.success) return result.data;
+    if (result.success) return addSaveReceipt(result.data);
   }
 
   const key = JSON.stringify([request.word, request.side, sentence]);
   const saved = cache.get(key);
-  if (saved && saved.expiresAt > Date.now()) return saved.result;
+  if (saved && saved.expiresAt > Date.now()) return addSaveReceipt(saved.result);
   if (saved) cache.delete(key);
   const running = pending.get(key);
-  if (running) return running;
+  if (running) return running.then(addSaveReceipt);
   const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
   if (!apiKey) throw new WordLookupError('unavailable');
   if (pending.size >= 8) throw new WordLookupError('rate_limited', 2);
@@ -132,5 +144,5 @@ export async function lookupIeltsWord(input: WordLookupRequest): Promise<WordLoo
     throw new WordLookupError('unavailable');
   }).finally(() => pending.delete(key));
   pending.set(key, work);
-  return work;
+  return work.then(addSaveReceipt);
 }

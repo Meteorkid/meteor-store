@@ -407,6 +407,13 @@
       "when": 1794590896930,
       "tag": "0057_giant_annihilus",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1794646086665,
+      "tag": "0058_study_vocabulary",
+      "breakpoints": true
     }
   ]
 }
