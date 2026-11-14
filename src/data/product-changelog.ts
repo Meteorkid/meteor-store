@@ -42,8 +42,14 @@ export function isChangelogProduct(id: string): id is ChangelogProductId {
   return (CHANGELOG_PRODUCT_IDS as readonly string[]).includes(id);
 }
 
-/** 正文里最多展示多少个版本的全文，其余只列摘要行。 */
-export const FULL_BODY_LIMIT = 10;
+/**
+ * 正文里最多展示多少个版本的全文，其余只列摘要行。
+ *
+ * 定在 6 是实测出来的：10 个全文让页面 gzip 后约 110KB，是产品页（79KB）的 1.4 倍，
+ * 移动端 LCP 会明显吃亏；6 个仍然覆盖最近一个季度的改动，更早的用一行摘要 + 原文链接
+ * 承接，信息没有丢失，只是不在首屏竞争带宽。
+ */
+export const FULL_BODY_LIMIT = 6;
 
 type RawRelease = {
   tag_name?: string;
