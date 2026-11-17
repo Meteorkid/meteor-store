@@ -103,8 +103,14 @@ export interface Product {
    */
   macBundleName?: string;
   media?: {
+    /** 静态封面（1600×900），列表与分享兜底用 */
     cover: string;
+    /** 演示片，H.264 720p。务必来自 1080p 宣传片，不要再用 GIF 转码的老文件 */
     demo?: string;
+    /** VP9 备用源，比 MP4 小 30–50%，浏览器按 <source> 顺序自选 */
+    demoWebm?: string;
+    /** 演示片海报帧，`preload="none"` 时先显示它，避免黑框 */
+    demoPoster?: string;
     screenshots: {
       src: string;
       alt: LocalizedText;
@@ -178,8 +184,14 @@ export interface LocalizedProduct {
    */
   macBundleName?: string;
   media?: {
+    /** 静态封面（1600×900），列表与分享兜底用 */
     cover: string;
+    /** 演示片，H.264 720p。务必来自 1080p 宣传片，不要再用 GIF 转码的老文件 */
     demo?: string;
+    /** VP9 备用源，比 MP4 小 30–50%，浏览器按 <source> 顺序自选 */
+    demoWebm?: string;
+    /** 演示片海报帧，`preload="none"` 时先显示它，避免黑框 */
+    demoPoster?: string;
     screenshots: {
       src: string;
       alt: string;
@@ -268,11 +280,14 @@ export const products: Product[] = [
     gradient: 'from-purple-500 to-pink-500',
     platforms: ['Python', 'CLI', 'API'],
     media: {
-      cover: '/products/omnicrawl/cover.webp',
-      demo: '/products/omnicrawl/demo.mp4',
+      cover: '/products/omnicrawl/cover-v2.webp',
+      demo: '/products/omnicrawl/demo-v2.mp4',
+      demoWebm: '/products/omnicrawl/demo-v2.webm',
+      demoPoster: '/products/omnicrawl/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/omnicrawl/screenshot-1.webp', alt: { zh: 'OmniCrawl 核心特性与对比表格', en: 'OmniCrawl core features and comparison table' } },
-        { src: '/products/omnicrawl/screenshot-2.webp', alt: { zh: 'OmniCrawl 安装与快速开始', en: 'OmniCrawl installation and quick start' } },
+        { src: '/products/omnicrawl/screenshot-1-v2.webp', alt: { zh: 'OmniCrawl 命令行 — 子命令与参数一览', en: 'OmniCrawl CLI — commands and options' } },
+        { src: '/products/omnicrawl/screenshot-2-v2.webp', alt: { zh: 'OmniCrawl 核心特性与引擎对比表', en: 'OmniCrawl core features and engine comparison' } },
+        { src: '/products/omnicrawl/screenshot-3-v2.webp', alt: { zh: 'OmniCrawl 安装与快速开始', en: 'OmniCrawl installation and quick start' } },
       ],
     },
   },
@@ -335,8 +350,16 @@ export const products: Product[] = [
     gradient: 'from-red-500 to-orange-500',
     platforms: ['Web'],
     media: {
-      cover: '/products/ex-memory/cover-motion.webp',
-      screenshots: [],
+      cover: '/products/ex-memory/cover-v2.webp',
+      demo: '/products/ex-memory/demo-v2.mp4',
+      demoWebm: '/products/ex-memory/demo-v2.webm',
+      demoPoster: '/products/ex-memory/demo-poster-v2.webp',
+      screenshots: [
+        { src: '/products/ex-memory/screenshot-1-v2.webp', alt: { zh: 'Ex-Memory 导入表单 — 从自己导出的聊天记录开始', en: 'Ex-Memory import form — start from your own chat export' } },
+        { src: '/products/ex-memory/screenshot-2-v2.webp', alt: { zh: 'Ex-Memory 对话界面 — 左侧镜像资料，右侧聊天', en: 'Ex-Memory chat — mirror profile on the left, conversation on the right' } },
+        { src: '/products/ex-memory/screenshot-3-v2.webp', alt: { zh: 'Ex-Memory 原话出处 — 每条回复都能追到原始聊天', en: 'Ex-Memory provenance — every reply traces back to the original chat' } },
+        { src: '/products/ex-memory/screenshot-4-v2.webp', alt: { zh: 'Ex-Memory 记忆衰减 — 不常提的事会慢慢模糊', en: 'Ex-Memory decay — details fade when they are not recalled' } },
+      ],
     },
   },
   {
@@ -409,11 +432,15 @@ export const products: Product[] = [
     gradient: 'from-gray-500 to-blue-500',
     platforms: ['Web', '3D', 'Mobile'],
     media: {
-      cover: '/products/skeleton-anatomy/cover.webp',
-      demo: '/products/skeleton-anatomy/demo.mp4',
+      cover: '/products/skeleton-anatomy/cover-v2.webp',
+      demo: '/products/skeleton-anatomy/demo-v2.mp4',
+      demoWebm: '/products/skeleton-anatomy/demo-v2.webm',
+      demoPoster: '/products/skeleton-anatomy/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/skeleton-anatomy/screenshot-1.webp', alt: { zh: 'Skeleton Anatomy 三维骨骼总览', en: 'Skeleton Anatomy 3D skeleton overview' } },
-        { src: '/products/skeleton-anatomy/screenshot-2.webp', alt: { zh: 'Skeleton Anatomy 骨骼详情界面', en: 'Skeleton Anatomy bone detail view' } },
+        { src: '/products/skeleton-anatomy/screenshot-1-v2.webp', alt: { zh: 'Skeleton Anatomy 全身骨骼 — 206 块骨头整体视图', en: 'Skeleton Anatomy full body — all 206 bones' } },
+        { src: '/products/skeleton-anatomy/screenshot-2-v2.webp', alt: { zh: 'Skeleton Anatomy 扫描定位 — 逐块高亮选中骨骼', en: 'Skeleton Anatomy scan — bones highlighted one by one' } },
+        { src: '/products/skeleton-anatomy/screenshot-3-v2.webp', alt: { zh: 'Skeleton Anatomy 颅骨特写 — 旋转观察骨缝', en: 'Skeleton Anatomy skull close-up — rotate to inspect sutures' } },
+        { src: '/products/skeleton-anatomy/screenshot-4-v2.webp', alt: { zh: 'Skeleton Anatomy 骨骼测验 — 看图选骨的练习模式', en: 'Skeleton Anatomy quiz — name that bone' } },
       ],
     },
   },
@@ -487,11 +514,13 @@ export const products: Product[] = [
     gradient: 'from-blue-500 to-cyan-500',
     platforms: ['AI Agent', 'Design', 'CLI'],
     media: {
-      cover: '/products/ui-design-system/cover.webp',
-      demo: '/products/ui-design-system/demo.mp4',
+      cover: '/products/ui-design-system/cover-v2.webp',
+      demo: '/products/ui-design-system/demo-v2.mp4',
+      demoWebm: '/products/ui-design-system/demo-v2.webm',
+      demoPoster: '/products/ui-design-system/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/ui-design-system/screenshot-1.webp', alt: { zh: 'UI Design System 首页架构展示', en: 'UI Design System homepage architecture' } },
-        { src: '/products/ui-design-system/screenshot-2.webp', alt: { zh: 'UI Design System 组件浏览', en: 'UI Design System component browser' } },
+        { src: '/products/ui-design-system/screenshot-1-v2.webp', alt: { zh: 'UI Design System 首页 — 三层 token 与核心特性', en: 'UI Design System home — token layers and core features' } },
+        { src: '/products/ui-design-system/screenshot-2-v2.webp', alt: { zh: 'UI Design System 组件浏览 — 五百个变量与十七个组件', en: 'UI Design System component browser — 500 variables, 17 components' } },
       ],
     },
   },
@@ -535,11 +564,13 @@ export const products: Product[] = [
     gradient: 'from-green-500 to-emerald-500',
     platforms: ['macOS', 'iTerm2', 'CLI'],
     media: {
-      cover: '/products/statux/cover.webp',
-      demo: '/products/statux/demo.mp4',
+      cover: '/products/statux/cover-v2.webp',
+      demo: '/products/statux/demo-v2.mp4',
+      demoWebm: '/products/statux/demo-v2.webm',
+      demoPoster: '/products/statux/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/statux/screenshot-1.webp', alt: { zh: 'Statux --help 命令帮助', en: 'Statux --help command reference' } },
-        { src: '/products/statux/screenshot-2.webp', alt: { zh: 'Statux TUI 配置界面', en: 'Statux TUI configuration interface' } },
+        { src: '/products/statux/screenshot-1-v2.webp', alt: { zh: 'Statux 终端状态行 — 模型、token、成本、耗时一次显示', en: 'Statux status line — model, tokens, cost and elapsed time' } },
+        { src: '/products/statux/screenshot-2-v2.webp', alt: { zh: 'Statux TUI 配置界面 — 自己拼要显示的字段', en: 'Statux TUI config — choose which fields to show' } },
       ],
     },
   },
@@ -671,11 +702,15 @@ export const products: Product[] = [
     gradient: 'from-indigo-500 to-purple-500',
     platforms: ['macOS', 'Menu Bar', 'AI Agent'],
     media: {
-      cover: '/products/xisland/cover.webp',
-      demo: '/products/xisland/demo.mp4',
+      cover: '/products/xisland/cover-v2.webp',
+      demo: '/products/xisland/demo-v2.mp4',
+      demoWebm: '/products/xisland/demo-v2.webm',
+      demoPoster: '/products/xisland/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/xisland/screenshot-1.webp', alt: { zh: 'XIsland 展开面板 — 多代理实时状态', en: 'XIsland expanded panel — multi-agent real-time status' } },
-        { src: '/products/xisland/screenshot-2.webp', alt: { zh: 'XIsland 提问面板 — 交互式决策', en: 'XIsland question panel — interactive decisions' } },
+        { src: '/products/xisland/screenshot-1-v2.webp', alt: { zh: 'XIsland 展开总表 — 31 个代理的模型、任务与剩余配额', en: 'XIsland expanded table — 31 agents with model, task and quota' } },
+        { src: '/products/xisland/screenshot-2-v2.webp', alt: { zh: 'XIsland 审批面板 — 危险命令先问再执行', en: 'XIsland approval panel — risky commands ask first' } },
+        { src: '/products/xisland/screenshot-3-v2.webp', alt: { zh: 'XIsland 方案确认 — 改代码前先看它打算怎么做', en: 'XIsland plan review — see the plan before the diff' } },
+        { src: '/products/xisland/screenshot-4-v2.webp', alt: { zh: 'XIsland 收起状态 — 一颗胶囊显示 12 个代理在运行', en: 'XIsland collapsed pill — 12 agents running' } },
       ],
     },
   },
@@ -730,11 +765,15 @@ export const products: Product[] = [
     gradient: 'from-yellow-500 to-orange-500',
     platforms: ['Web', 'Typing', 'Analytics'],
     media: {
-      cover: '/products/tollow/cover.webp',
-      demo: '/products/tollow/demo.mp4',
+      cover: '/products/tollow/cover-v2.webp',
+      demo: '/products/tollow/demo-v2.mp4',
+      demoWebm: '/products/tollow/demo-v2.webm',
+      demoPoster: '/products/tollow/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/tollow/screenshot-1.webp', alt: { zh: 'Tollow 精选书单 — 论语、道德经、唐诗三百首', en: 'Tollow curated bookshelf — Analects, Tao Te Ching, 300 Tang Poems' } },
-        { src: '/products/tollow/screenshot-2.webp', alt: { zh: 'Tollow 打字练习 — 论语 WPM/准确率统计', en: 'Tollow typing practice — Analects WPM/accuracy stats' } },
+        { src: '/products/tollow/screenshot-1-v2.webp', alt: { zh: 'Tollow 书库 — 十一部公版书', en: 'Tollow library — eleven public-domain books' } },
+        { src: '/products/tollow/screenshot-2-v2.webp', alt: { zh: 'Tollow 论语卡 — 章节与篇目', en: 'Tollow Analects card — chapters and sections' } },
+        { src: '/products/tollow/screenshot-3-v2.webp', alt: { zh: 'Tollow 正文打字 — 打错的字用朱红标出', en: 'Tollow typing — mistakes marked in vermilion' } },
+        { src: '/products/tollow/screenshot-4-v2.webp', alt: { zh: 'Tollow 四格统计 — 速度、准确率、进度、错字', en: 'Tollow stats — speed, accuracy, progress, mistakes' } },
       ],
     },
   },
@@ -793,11 +832,15 @@ export const products: Product[] = [
     gradient: 'from-pink-500 to-rose-500',
     platforms: ['macOS', 'Menu Bar', 'Utility'],
     media: {
-      cover: '/products/xnook/cover.webp',
-      demo: '/products/xnook/demo.mp4',
+      cover: '/products/xnook/cover-v2.webp',
+      demo: '/products/xnook/demo-v2.mp4',
+      demoWebm: '/products/xnook/demo-v2.webm',
+      demoPoster: '/products/xnook/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/xnook/screenshot-1.webp', alt: { zh: 'XNook 收起药丸 — 媒体播放状态', en: 'XNook collapsed pill — media playback status' } },
-        { src: '/products/xnook/screenshot-2.webp', alt: { zh: 'XNook 展开面板 — 媒体播放+日历+文件托盘', en: 'XNook expanded panel — media + calendar + file tray' } },
+        { src: '/products/xnook/screenshot-1-v2.webp', alt: { zh: 'XNook 整体面板 — 媒体、日历、文件托盘三栏', en: 'XNook full panel — media, calendar and file tray' } },
+        { src: '/products/xnook/screenshot-2-v2.webp', alt: { zh: 'XNook 媒体控制 — 顶边直接切歌', en: 'XNook media controls — switch tracks from the menu bar' } },
+        { src: '/products/xnook/screenshot-3-v2.webp', alt: { zh: 'XNook 日历 — 今天的日程和待办', en: 'XNook calendar — today’s schedule and reminders' } },
+        { src: '/products/xnook/screenshot-4-v2.webp', alt: { zh: 'XNook 文件托盘 — 拖进来暂存，随时取走', en: 'XNook file tray — drop files in, grab them later' } },
       ],
     },
   },
@@ -851,11 +894,15 @@ export const products: Product[] = [
     gradient: 'from-cyan-500 to-blue-500',
     platforms: ['Web', 'WebGL', 'Camera'],
     media: {
-      cover: '/products/chakra-visualizer/cover.webp',
-      demo: '/products/chakra-visualizer/demo.mp4',
+      cover: '/products/chakra-visualizer/cover-v2.webp',
+      demo: '/products/chakra-visualizer/demo-v2.mp4',
+      demoWebm: '/products/chakra-visualizer/demo-v2.webm',
+      demoPoster: '/products/chakra-visualizer/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/chakra-visualizer/screenshot-1.webp', alt: { zh: 'Chakra Visualizer 忍术特效界面', en: 'Chakra Visualizer jutsu effects interface' } },
-        { src: '/products/chakra-visualizer/screenshot-2.webp', alt: { zh: 'Chakra Visualizer 手势捕捉', en: 'Chakra Visualizer hand-seal capture' } },
+        { src: '/products/chakra-visualizer/screenshot-1-v2.webp', alt: { zh: 'Chakra Visualizer 手势识别 — 取景框内 21 个关键点连线', en: 'Chakra Visualizer hand tracking — 21 landmarks in the camera frame' } },
+        { src: '/products/chakra-visualizer/screenshot-2-v2.webp', alt: { zh: 'Chakra Visualizer 八个结印 — 当前手势高亮', en: 'Chakra Visualizer eight hand seals — current seal highlighted' } },
+        { src: '/products/chakra-visualizer/screenshot-3-v2.webp', alt: { zh: 'Chakra Visualizer 螺旋手里剑 — 结完印后的风遁特效', en: 'Chakra Visualizer Rasenshuriken — wind release effect after the seals' } },
+        { src: '/products/chakra-visualizer/screenshot-4-v2.webp', alt: { zh: 'Chakra Visualizer 忍术卡片墙 — 21 个忍术一览', en: 'Chakra Visualizer jutsu card wall — 21 jutsu at a glance' } },
       ],
     },
   },
@@ -895,10 +942,15 @@ export const products: Product[] = [
     gradient: 'from-sky-500 to-indigo-500',
     platforms: ['Web', 'WebGL', 'Mobile'],
     media: {
-      cover: '/products/webgl-fluid-sim/cover.webp',
-      demo: '/products/webgl-fluid-sim/demo.mp4',
+      cover: '/products/webgl-fluid-sim/cover-v2.webp',
+      demo: '/products/webgl-fluid-sim/demo-v2.mp4',
+      demoWebm: '/products/webgl-fluid-sim/demo-v2.webm',
+      demoPoster: '/products/webgl-fluid-sim/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/webgl-fluid-sim/screenshot-1.webp', alt: { zh: 'WebGL Fluid Sim 流体模拟效果', en: 'WebGL Fluid Sim fluid simulation effect' } },
+        { src: '/products/webgl-fluid-sim/screenshot-1-v2.webp', alt: { zh: 'WebGL Fluid Sim 启动溅射 — 指针划过的第一片流体', en: 'WebGL Fluid Sim startup splash — the first fluid trail' } },
+        { src: '/products/webgl-fluid-sim/screenshot-2-v2.webp', alt: { zh: 'WebGL Fluid Sim 水纹模式 — 实时求解的涟漪', en: 'WebGL Fluid Sim ripple mode — real-time solved ripples' } },
+        { src: '/products/webgl-fluid-sim/screenshot-3-v2.webp', alt: { zh: 'WebGL Fluid Sim 涡旋爆发 — 卷起的染料涡流', en: 'WebGL Fluid Sim vortex burst — rolling dye vortices' } },
+        { src: '/products/webgl-fluid-sim/screenshot-4-v2.webp', alt: { zh: 'WebGL Fluid Sim 手势控制 — 五个指尖同时拖动流体', en: 'WebGL Fluid Sim gesture control — five fingertips stirring' } },
       ],
     },
   },
@@ -937,11 +989,11 @@ export const products: Product[] = [
     gradient: 'from-emerald-500 to-teal-500',
     platforms: ['macOS', 'Windows', 'Mobile'],
     media: {
-      cover: '/products/claude-phone-control/cover.webp',
-      demo: '/products/claude-phone-control/demo.mp4',
-      screenshots: [
-        { src: '/products/claude-phone-control/screenshot-1.webp', alt: { zh: 'Claude Phone Control 终端启动界面', en: 'Claude Phone Control terminal launch screen' } },
-      ],
+      cover: '/products/claude-phone-control/cover-v2.webp',
+      demo: '/products/claude-phone-control/demo-v2.mp4',
+      demoWebm: '/products/claude-phone-control/demo-v2.webm',
+      demoPoster: '/products/claude-phone-control/demo-poster-v2.webp',
+      screenshots: [],
     },
   },
   {
@@ -979,10 +1031,13 @@ export const products: Product[] = [
     gradient: 'from-amber-500 to-orange-500',
     platforms: ['Web', 'React', 'TypeScript'],
     media: {
-      cover: '/products/cursor-source-analyzer/cover.webp',
-      demo: '/products/cursor-source-analyzer/demo.mp4',
+      cover: '/products/cursor-source-analyzer/cover-v2.webp',
+      demo: '/products/cursor-source-analyzer/demo-v2.mp4',
+      demoWebm: '/products/cursor-source-analyzer/demo-v2.webm',
+      demoPoster: '/products/cursor-source-analyzer/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/cursor-source-analyzer/screenshot-1.webp', alt: { zh: 'Cursor Source Analyzer 架构概览', en: 'Cursor Source Analyzer architecture overview' } },
+        { src: '/products/cursor-source-analyzer/screenshot-1-v2.webp', alt: { zh: 'Cursor Source Analyzer 主界面 — 一个编辑器拆成四层', en: 'Cursor Source Analyzer main view — an editor split into four layers' } },
+        { src: '/products/cursor-source-analyzer/screenshot-2-v2.webp', alt: { zh: 'Cursor Source Analyzer 四层架构图 — VS Code 基座、AI 集成层、索引检索层、Agent 编排层', en: 'Cursor Source Analyzer four-layer map — VS Code core, AI layer, index layer, agent orchestration' } },
       ],
     },
   },
@@ -1039,9 +1094,15 @@ export const products: Product[] = [
     platforms: ['macOS 14.2+', 'Apple Silicon'],
     macBundleName: 'DuoCast.app',
     media: {
-      cover: '/products/duocast/cover.webp',
+      cover: '/products/duocast/cover-v2.webp',
+      demo: '/products/duocast/demo-v2.mp4',
+      demoWebm: '/products/duocast/demo-v2.webm',
+      demoPoster: '/products/duocast/demo-poster-v2.webp',
       screenshots: [
-        { src: '/products/duocast/screenshot-1.webp', alt: { zh: 'DuoCast 多路音频输出与独立通道控制', en: 'DuoCast audio outputs and independent channel controls' } },
+        { src: '/products/duocast/screenshot-1-v2.webp', alt: { zh: 'DuoCast 分路输出 — 同一首歌送到三副耳机', en: 'DuoCast split output — one song to three pairs of headphones' } },
+        { src: '/products/duocast/screenshot-2-v2.webp', alt: { zh: 'DuoCast 通道控制 — 每路独立音量、延迟与 EQ', en: 'DuoCast channel controls — per-route volume, delay and EQ' } },
+        { src: '/products/duocast/screenshot-3-v2.webp', alt: { zh: 'DuoCast 延迟补偿 — 把有线那几路拖到与蓝牙对齐', en: 'DuoCast delay compensation — align wired routes with Bluetooth' } },
+        { src: '/products/duocast/screenshot-4-v2.webp', alt: { zh: 'DuoCast 热插拔 — 拔掉一副只断那一路', en: 'DuoCast hot-swap — unplug one route, the rest keep playing' } },
       ],
     },
   },
@@ -1098,6 +1159,8 @@ export function localizeProduct(product: Product, locale: Locale): LocalizedProd
       ? {
           cover: product.media.cover,
           demo: product.media.demo,
+          demoWebm: product.media.demoWebm,
+          demoPoster: product.media.demoPoster,
           screenshots: product.media.screenshots.map((s) => ({ src: s.src, alt: s.alt[locale] })),
         }
       : undefined,

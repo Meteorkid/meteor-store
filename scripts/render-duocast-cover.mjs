@@ -112,7 +112,7 @@ for (let index = 0; index < frameCount; index += 1) {
   if (index === frameCount - 1) {
     const poster = await sharp(png).webp({ quality: 92, effort: 6 }).toBuffer();
     await writeFile(join(output, 'cover-motion.webp'), poster);
-    await writeFile(join(output, 'cover.webp'), poster);
+    await writeFile(join(output, 'cover-v2.webp'), poster);
   }
 }
 const encoded = spawnSync('ffmpeg', [
@@ -129,7 +129,7 @@ const probed = spawnSync('ffprobe', [
 if (probed.status !== 0) throw new Error(probed.stderr || 'ffprobe 检查失败');
 const probe = JSON.parse(probed.stdout);
 const files = [];
-for (const filename of ['cover-motion.mp4', 'cover-motion.webp', 'cover.webp', 'screenshot-1.webp']) {
+for (const filename of ['cover-motion.mp4', 'cover-motion.webp', 'cover-v2.webp', 'screenshot-1.webp']) {
   const data = await readFile(join(output, filename));
   files.push({ filename, bytes: data.length, sha256: createHash('sha256').update(data).digest('hex') });
 }

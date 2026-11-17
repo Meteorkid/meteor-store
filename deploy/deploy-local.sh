@@ -174,18 +174,21 @@ echo "  <- trial 路由状态码"
 # 部署会整个换掉 .next，**图片优化缓存（.next/cache/images）也跟着没了**。
 # 缓存空的时候每张封面都要现做一次 sharp 转换，而这台机器只有 2G 内存、
 # 空闲常年在 200MB 上下——头几个访客会撞上超时或失败，看到的就是一张裂图。
-# 这里先把产品列表页的封面挨个拉一遍，把缓存填热再放用户进来。
+# 这里先把产品页真正会渲染的图拉一遍：静态封面 + 首张界面实景，把缓存填热再放人进来。
+# **路径必须从 products.ts 里读**：2026-11 媒体重做后文件名带了 `-v2` 版本后缀，
+# 早先写死的 `cover.webp` 已经不存在，照旧拼路径会预热一堆 404。
 # 逐个串行、失败不阻断部署（|| true）：预热本身不成功也只是回到原来的状态。
 echo "==> 预热 next/image 缓存（部署清空了 .next/cache/images）"
 warmed=0
-for id in $(grep -oE "^    id: '[a-z0-9-]+'" src/data/products.ts | sed "s/.*'\(.*\)'/\1/"); do
+for path in $(grep -oE "'/products/[a-z0-9-]+/(cover|screenshot-1)-v2\.webp'" src/data/products.ts | tr -d "'" | sort -u); do
+  encoded=${path//\//%2F}
   for w in 375 768 1536; do
     curl -s -o /dev/null --max-time 20 \
-      "https://www.imagentx.top/_next/image?url=%2Fproducts%2F${id}%2Fcover.webp&w=${w}&q=75" || true
+      "https://www.imagentx.top/_next/image?url=${encoded}&w=${w}&q=75" || true
   done
   warmed=$((warmed + 1))
 done
-echo "  已预热 $warmed 个产品封面 × 3 种宽度"
+echo "  已预热 ${warmed} 张产品图 × 3 种宽度"
 
 # 同步公开镜像（Gitee / GitLab）。
 #
