@@ -12,6 +12,7 @@ import DownloadSection from '@/components/DownloadSection';
 import ProductDemoEmbed from '@/components/ProductDemoEmbed';
 import PassOwnedBadge from '@/components/PassOwnedBadge';
 import ProductPricingCards from '@/components/ProductPricingCards';
+import PermissionNote from '@/components/PermissionNote';
 import { getAppTrialHref } from '@/data/app-manifest';
 import { products, localizeProduct } from '@/data/products';
 import {
@@ -222,6 +223,11 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
             </Link>
           </p>
         )}
+
+        {/* 辅助功能授权说明。紧跟下载/更新日志，因为它是「装好之后第一次点
+            『继续下一步』」才会撞上的问题；是否渲染由组件按 productId 判断，
+            单测钉住其他产品页不会出现这段。 */}
+        <PermissionNote productId={product.id} locale={locale as Locale} />
 
         <ProductGallery product={product} />
 

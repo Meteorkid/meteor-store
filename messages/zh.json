@@ -873,7 +873,6 @@
     "clickToZoom": "点击图片可放大查看",
     "demoAlt": "{name} 宣传片",
     "filmBadge": "宣传片",
-    "zoomAriaDemo": "放大查看：{name} 动态演示",
     "zoomAriaScreenshot": "放大查看：{alt}",
     "productInterface": "{name} 产品界面",
     "coverAlt": "{name} 原型操作动画：{description}",

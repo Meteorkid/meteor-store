@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { useReducedMotion } from '@/lib/motion';
 
 interface ImageLightboxProps {
   src: string;
@@ -13,15 +12,19 @@ interface ImageLightboxProps {
   trigger?: HTMLElement;
 }
 
+/**
+ * 截图放大灯箱。
+ *
+ * 只服务静态截图。产品演示片改成内联 `<video controls preload="none">` 之后
+ * 不再进灯箱——原地播放加系统全屏就够了，套一层灯箱等于再塞一套控制条。
+ * 要恢复「点演示片开灯箱」再单独设计，别顺手把 video 分支塞回来。
+ */
 export default function ImageLightbox({ src, alt, onClose, trigger }: ImageLightboxProps) {
   const t = useTranslations('common');
-  const reducedMotion = useReducedMotion();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const onCloseRef = useRef(onClose);
   useEffect(() => { onCloseRef.current = onClose; });
-  useEffect(() => { if (reducedMotion) videoRef.current?.pause(); }, [reducedMotion]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -49,9 +52,6 @@ export default function ImageLightbox({ src, alt, onClose, trigger }: ImageLight
     };
   }, [trigger]);
 
-  // 产品演示片已从 GIF 换成 MP4，灯箱要同时认图片和视频两种来源
-  const isVideo = /\.(mp4|webm)$/i.test(src);
-
   return (
     <dialog
       ref={dialogRef}
@@ -62,12 +62,12 @@ export default function ImageLightbox({ src, alt, onClose, trigger }: ImageLight
       aria-modal="true"
       aria-label={alt}
     >
-      {/* 保留播放器内部原生键盘顺序，只在弹窗首尾拦住通往浏览器界面的 Tab。 */}
+      {/* 灯箱里只有关闭按钮，首尾两个哨兵都把 Tab 送回它，别让焦点漏到背后的页面 */}
       <span
         className="sr-only"
         tabIndex={0}
         aria-hidden="true"
-        onFocus={() => (videoRef.current ?? closeRef.current)?.focus({ preventScroll: true })}
+        onFocus={() => closeRef.current?.focus({ preventScroll: true })}
       />
       <button
         ref={closeRef}
@@ -81,29 +81,15 @@ export default function ImageLightbox({ src, alt, onClose, trigger }: ImageLight
         </svg>
       </button>
       <div className="relative max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
-        {isVideo ? (
-          <video
-            ref={videoRef}
-            src={src}
-            aria-label={alt}
-            className="max-h-[90vh] w-auto rounded-xl object-contain"
-            controls
-            autoPlay={!reducedMotion}
-            muted
-            loop
-            playsInline
-          />
-        ) : (
-          <Image
-            src={src}
-            alt={alt}
-            width={1920}
-            height={1200}
-            className="max-h-[90vh] w-auto rounded-xl object-contain"
-            quality={95}
-            priority
-          />
-        )}
+        <Image
+          src={src}
+          alt={alt}
+          width={1920}
+          height={1200}
+          className="max-h-[90vh] w-auto rounded-xl object-contain"
+          quality={95}
+          priority
+        />
         <p className="mt-3 text-center text-sm text-white/50">{alt}</p>
       </div>
       <span className="sr-only" tabIndex={0} aria-hidden="true" onFocus={() => closeRef.current?.focus({ preventScroll: true })} />

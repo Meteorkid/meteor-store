@@ -873,7 +873,6 @@
     "clickToZoom": "Click image to zoom in",
     "demoAlt": "{name} product film",
     "filmBadge": "Film",
-    "zoomAriaDemo": "Zoom in: {name} Live Demo",
     "zoomAriaScreenshot": "Zoom in: {alt}",
     "productInterface": "{name} Interface",
     "coverAlt": "{name} product interaction animation: {description}",
