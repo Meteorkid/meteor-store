@@ -76,17 +76,34 @@ if [[ "$PROD_DB_URL" != *"@127.0.0.1:5432"* ]]; then
 fi
 BUILD_DATABASE_URL="${PROD_DB_URL/@127.0.0.1:5432/@127.0.0.1:$TUNNEL_PORT}"
 NEXT_BACKUP=""
+# 只清理自己建的隧道：若复用了手工开的排障隧道，部署结束不该把它一并杀掉。
+TUNNEL_OWNED=0
 cleanup_tunnel() {
-  pkill -f "ssh .*-L ${TUNNEL_PORT}:127.0.0.1:5432" 2>/dev/null || true
+  if [[ "${TUNNEL_OWNED}" == "1" ]]; then
+    pkill -f "ssh .*-L ${TUNNEL_PORT}:127.0.0.1:5432" 2>/dev/null || true
+  fi
   # 旧产物成功替换后就没用了；构建失败时也一起清掉，避免 .next.bak-* 堆积
   # （历史上曾累积 8.4G / 17 个目录）。
   # 删除可能被本机守卫拦下（批量删除配额），失败也不能影响部署结果
   if [[ -n "${NEXT_BACKUP}" && -d "${NEXT_BACKUP}" ]]; then rm -rf "${NEXT_BACKUP}" || true; fi
 }
 trap cleanup_tunnel EXIT INT TERM
-ssh "${SSH_OPTS[@]}" -f -N -o ExitOnForwardFailure=yes \
-  -L "${TUNNEL_PORT}:127.0.0.1:5432" "$SERVER"
-echo "   隧道就绪：127.0.0.1:${TUNNEL_PORT} -> 生产库"
+# 端口已在监听就复用，不重复建：排障时通常先手工开一条带 keepalive 的隧道，
+# 此时再无条件新建会因端口占用 + ExitOnForwardFailure 直接失败。
+if (exec 3<>"/dev/tcp/127.0.0.1/${TUNNEL_PORT}") 2>/dev/null; then
+  exec 3>&- 2>/dev/null || true
+  echo "   复用已存在的隧道：127.0.0.1:${TUNNEL_PORT} -> 生产库"
+else
+  # keepalive 三件套不是可选优化。缺了它，链路被中间设备静默丢弃时 ssh 不会察觉，
+  # 转发退化成半开连接：pg 端报 "timeout exceeded when trying to connect"，
+  # 而 next build 会照常跑完，产出一份「只展示文件文章」的降级 sitemap——
+  # 正是 build-verified.sh 那条降级扫描要拦的状态。2026-11-17 真实踩过。
+  ssh "${SSH_OPTS[@]}" -f -N -o ExitOnForwardFailure=yes \
+    -o ServerAliveInterval=15 -o ServerAliveCountMax=4 -o TCPKeepAlive=yes \
+    -L "${TUNNEL_PORT}:127.0.0.1:5432" "$SERVER"
+  TUNNEL_OWNED=1
+  echo "   隧道就绪：127.0.0.1:${TUNNEL_PORT} -> 生产库"
+fi
 
 echo "==> 2. 本地生产构建（NEXT_PUBLIC_* 与线上一致，见 .env.production）"
 export NODE_ENV=production
