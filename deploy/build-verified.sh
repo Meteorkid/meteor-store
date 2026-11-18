@@ -4,7 +4,13 @@ set -euo pipefail
 [[ -n "${DATABASE_URL:-}" ]] || { echo 'ERROR: 发布构建缺少 DATABASE_URL' >&2; exit 1; }
 export PGOPTIONS="${PGOPTIONS:+$PGOPTIONS }-c default_transaction_read_only=on -c transaction_read_only=on"
 export PGAPPNAME=meteor-store-build
-export METEOR_BUILD_DB_POOL_SIZE=2
+# 构建期连接池上限。默认 2 是给「本地直连」留的，但构建期真正读库的并发点比想象的多：
+# 每个标签页/分区的 generateMetadata 都会拉一次投稿列表，百来个页面同时渲染时，
+# 池 2 的排队时间会超过 pg 的 10s 连接超时，表现为大量
+# 「timeout exceeded when trying to connect」（2026-11-17 实测：池2×105 并发 ≈ 10s，池6 ≈ 3s）。
+# 服务器 max_connections=30，线上 PM2 常驻约 7–10 条，构建 worker 是每进程一份池，
+# 所以 6 已经是安全上限；要临时调，用环境变量覆盖，不要改默认值。
+export METEOR_BUILD_DB_POOL_SIZE="${METEOR_BUILD_DB_POOL_SIZE:-2}"
 
 node --input-type=module <<'NODE'
 import pg from 'pg';
