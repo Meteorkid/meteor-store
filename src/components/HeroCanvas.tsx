@@ -2,8 +2,22 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from '@/i18n/navigation';
+import type { SiteTheme } from '@/lib/appearance';
 import { createFrameGuard, useReducedMotion } from '@/lib/motion';
 import { useOptionalSiteTheme } from './theme/ThemeProvider';
+
+const PARTICLE_PALETTES = {
+  classic: { accentRgb: '139,92,246', starRgb: '255,255,255', hueBase: 260, dotSpread: 60, sparkSpread: 45, streakSpread: 40 },
+  nebula: { accentRgb: '126,184,214', starRgb: '255,255,255', hueBase: 194, dotSpread: 34, sparkSpread: 26, streakSpread: 24 },
+  horizon: { accentRgb: '238,145,104', starRgb: '255,237,206', hueBase: 16, dotSpread: 30, sparkSpread: 24, streakSpread: 28 },
+} as const satisfies Record<SiteTheme, {
+  accentRgb: string;
+  starRgb: string;
+  hueBase: number;
+  dotSpread: number;
+  sparkSpread: number;
+  streakSpread: number;
+}>;
 
 export default function HeroCanvas({ className = '' }: { className?: string }) {
   const pathname = usePathname();
@@ -16,8 +30,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
     if (reduced || isQuiet) return;
     const canvas = ref.current;
     if (!canvas) return;
-    const accentRgb = siteTheme === 'nebula' ? '126,184,214' : '139,92,246';
-    const hueBase = siteTheme === 'nebula' ? 194 : 260;
+    const { accentRgb, starRgb, hueBase, dotSpread, sparkSpread, streakSpread } = PARTICLE_PALETTES[siteTheme];
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let W = 0, H = 0, connectR = 0, cursorR = 0;
@@ -69,7 +82,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
         vx: (Math.random() - 0.5) * 0.4,
         vy: (Math.random() - 0.5) * 0.4,
         r: Math.random() * 2 + 1,
-        hue: hueBase + Math.random() * (siteTheme === 'nebula' ? 34 : 60),
+        hue: hueBase + Math.random() * dotSpread,
       }));
     }
 
@@ -122,7 +135,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
           vx: Math.cos(a) * (2 + Math.random() * 3),
           vy: Math.sin(a) * (2 + Math.random() * 3),
           life: 1, r: Math.random() * 2 + 1,
-          hue: hueBase + Math.random() * (siteTheme === 'nebula' ? 26 : 45),
+          hue: hueBase + Math.random() * sparkSpread,
         });
       }
     };
@@ -158,7 +171,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
         const tw = 0.4 + 0.6 * Math.sin(t * s.sp + s.phase);
         ctx.beginPath();
         ctx.arc(s.x + px, s.y + py, s.r * dpr, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${tw * 0.6})`;
+        ctx.fillStyle = `rgba(${starRgb},${tw * 0.6})`;
         ctx.fill();
       }
 
@@ -263,7 +276,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
           vx: top ? (Math.random() - 0.2) * 5 : -(4 + Math.random() * 3),
           vy: top ? 4 + Math.random() * 2 : 2 + Math.random() * 2,
           life: 1, len: 50 + Math.random() * 40,
-          hue: hueBase + Math.random() * (siteTheme === 'nebula' ? 24 : 40),
+          hue: hueBase + Math.random() * streakSpread,
         });
       }
       for (let i = streaks.length - 1; i >= 0; i--) {

@@ -257,7 +257,7 @@ export default function MeteorShower() {
     let beidouNext = performance.now() + 18000 + Math.random() * 25000;
     const drawBeidou = (alpha: number) => {
       const pts = BEIDOU.map((b) => ({ x: b.x * canvas.width, y: b.y * canvas.height }));
-      ctx.strokeStyle = `rgba(205,205,255,${0.5 * alpha})`;
+      ctx.strokeStyle = `rgba(${horizon ? '255,193,141' : '205,205,255'},${0.5 * alpha})`;
       ctx.lineWidth = 1.5;
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
@@ -270,7 +270,7 @@ export default function MeteorShower() {
       BEIDOU.forEach((p, i) => {
         ctx.beginPath();
         ctx.arc(p.x * canvas.width, p.y * canvas.height, i === 0 ? 3.2 : 2.4, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(232,232,244,${alpha})`;
+        ctx.fillStyle = `rgba(${horizon ? '255,237,206' : '232,232,244'},${alpha})`;
         ctx.fill();
       });
     };
