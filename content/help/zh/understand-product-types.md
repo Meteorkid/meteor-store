@@ -10,7 +10,7 @@ Meteor Store 上架的产品虽然都叫「产品」，但它们拿到手的方�
 
 打开之前，系统会在服务端校验你的账户是否有这个产品的授权。
 
-目前一部分产品支持站内打开，比如 Tollow、Chakra Visualizer 和 WebGL Fluid Simulation。产品详情页如果带有「免费试用」区块，就说明它是站内应用。
+目前一部分产品支持站内打开，比如 Tollow、Chakra Visualizer 和 Floatlight。产品详情页如果带有「免费试用」区块，就说明它是站内应用。
 
 ## 可下载应用（需要安装到电脑上）
 

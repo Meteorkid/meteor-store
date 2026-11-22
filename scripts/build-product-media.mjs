@@ -81,10 +81,10 @@ const products = [
     cut: [7, 23],
     posterAt: 8.2,
     stills: [
-      { src: 'promo/fluid/WebGL-Fluid-Sim-宣传包/03-截帧/截帧-01-启动溅射.png', alt: { zh: 'WebGL Fluid Sim 启动溅射 — 指针划过的第一片流体', en: 'WebGL Fluid Sim startup splash — the first fluid trail' } },
-      { src: 'promo/fluid/WebGL-Fluid-Sim-宣传包/03-截帧/截帧-03-水纹模式.png', alt: { zh: 'WebGL Fluid Sim 水纹模式 — 实时求解的涟漪', en: 'WebGL Fluid Sim ripple mode — real-time solved ripples' } },
-      { src: 'promo/fluid/WebGL-Fluid-Sim-宣传包/03-截帧/截帧-04-涡旋爆发.png', alt: { zh: 'WebGL Fluid Sim 涡旋爆发 — 卷起的染料涡流', en: 'WebGL Fluid Sim vortex burst — rolling dye vortices' } },
-      { src: 'promo/fluid/WebGL-Fluid-Sim-宣传包/03-截帧/截帧-07-手势五指尖.png', alt: { zh: 'WebGL Fluid Sim 手势控制 — 五个指尖同时拖动流体', en: 'WebGL Fluid Sim gesture control — five fingertips stirring' } },
+      { src: 'promo/fluid/WebGL-Fluid-Sim-宣传包/03-截帧/截帧-01-启动溅射.png', alt: { zh: 'Floatlight 启动溅射 — 指针划过的第一片流体', en: 'Floatlight startup splash — the first fluid trail' } },
+      { src: 'promo/fluid/WebGL-Fluid-Sim-宣传包/03-截帧/截帧-03-水纹模式.png', alt: { zh: 'Floatlight 水纹模式 — 实时求解的涟漪', en: 'Floatlight ripple mode — real-time solved ripples' } },
+      { src: 'promo/fluid/WebGL-Fluid-Sim-宣传包/03-截帧/截帧-04-涡旋爆发.png', alt: { zh: 'Floatlight 涡旋爆发 — 卷起的染料涡流', en: 'Floatlight vortex burst — rolling dye vortices' } },
+      { src: 'promo/fluid/WebGL-Fluid-Sim-宣传包/03-截帧/截帧-07-手势五指尖.png', alt: { zh: 'Floatlight 手势控制 — 五个指尖同时拖动流体', en: 'Floatlight gesture control — five fingertips stirring' } },
     ],
   },
   {

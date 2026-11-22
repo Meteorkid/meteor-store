@@ -68,7 +68,7 @@ const i18n = {
         waterMode: 'water mode',
         common: 'Essentials',
         advanced: 'Advanced settings',
-        controls: 'Fluid controls',
+        controls: 'Floatlight controls',
         closeControls: 'Close controls',
         cameraRequesting: 'Requesting camera access…',
         cameraTimeout: 'Camera permission timed out. Allow it in the address bar, then retry.',
@@ -113,7 +113,7 @@ const i18n = {
         waterMode: '水纹模式',
         common: '常用设置',
         advanced: '高级设置',
-        controls: '流体控制',
+        controls: 'Floatlight 控制面板',
         closeControls: '关闭控制面板',
         cameraRequesting: '正在请求摄像头权限…',
         cameraTimeout: '摄像头授权等待超时，请在地址栏允许摄像头后重试。',
@@ -130,7 +130,7 @@ let currentLang = inheritedLang.startsWith('zh') ? 'zh' : 'en';
 function t(key) { return i18n[currentLang][key] || key; }
 
 function updatePageTexts() {
-    document.title = currentLang === 'zh' ? 'WebGL 流体模拟' : 'WebGL Fluid Simulation';
+    document.title = 'Floatlight';
 }
 
 function switchLang() {
@@ -932,8 +932,8 @@ function startGUI () {
     captureFolder.add({ fun: captureScreenshot }, 'fun').name(t('screenshot'));
 
     let github = advancedFolder.add({ fun : () => {
-        window.open('https://github.com/Meteorkid/webgl-fluid-sim');
-    } }, 'fun').name('Github');
+        window.open('https://github.com/Meteorkid/floatlight', '_blank', 'noopener,noreferrer');
+    } }, 'fun').name('GitHub');
     github.__li.className = 'cr function bigFont';
     github.__li.style.borderLeft = '3px solid #8C8C8C';
     let githubIcon = document.createElement('span');
@@ -968,7 +968,7 @@ function captureScreenshot () {
 
     let captureCanvas = textureToCanvas(texture, target.width, target.height);
     let datauri = captureCanvas.toDataURL();
-    downloadURI('fluid.png', datauri);
+    downloadURI('floatlight.png', datauri);
 }
 
 function framebufferToTexture (target) {

@@ -10,7 +10,7 @@ These products are pure web applications — there is nothing to download or ins
 
 Before rendering the app, the server checks that your account is authorized for that product.
 
-A subset of products currently support in-browser access, such as Tollow, Chakra Visualizer, and WebGL Fluid Simulation. If a product detail page shows a "Free Trial" section, it is a web app.
+A subset of products currently support in-browser access, such as Tollow, Chakra Visualizer, and Floatlight. If a product detail page shows a "Free Trial" section, it is a web app.
 
 ## Downloadable apps (install on your computer)
 

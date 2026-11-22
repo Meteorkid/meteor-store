@@ -664,7 +664,6 @@
     "followGithub": "Browse products",
     "descOmnicrawl": "All-in-one crawler framework built on Scrapling + curl_cffi + Playwright. One API, three engines, automatic anti-bot bypass.",
     "descChakraVisualizer": "Captures hand gestures via webcam, recognizes Naruto hand seals, and plays jutsu effects. Pure frontend implementation.",
-    "descWebglFluidSim": "Real-time WebGL fluid simulation. GPU-accelerated, smooth 60fps, with gesture interaction and camera background overlay.",
     "descClaudePhoneControl": "Remotely control Claude Code on Mac/Windows from your phone browser. One command to start, scan to connect.",
     "descCursorSourceAnalyzer": "Interactive analysis of the Cursor AI editor's internal architecture. 9 dimensions with a ReactFlow diagram."
   },

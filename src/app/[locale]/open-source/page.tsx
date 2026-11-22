@@ -32,7 +32,6 @@ const languageColors: Record<string, string> = {
 const projectMeta: Record<string, { language: string; descKey: string }> = {
   omnicrawl: { language: 'Python', descKey: 'descOmnicrawl' },
   'chakra-visualizer': { language: 'TypeScript', descKey: 'descChakraVisualizer' },
-  'webgl-fluid-sim': { language: 'TypeScript', descKey: 'descWebglFluidSim' },
   'claude-phone-control': { language: 'TypeScript', descKey: 'descClaudePhoneControl' },
   'cursor-source-analyzer': { language: 'TypeScript', descKey: 'descCursorSourceAnalyzer' },
 };

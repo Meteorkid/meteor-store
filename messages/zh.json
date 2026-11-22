@@ -664,7 +664,6 @@
     "followGithub": "浏览全部产品",
     "descOmnicrawl": "基于 Scrapling + curl_cffi + Playwright 的全能爬虫框架，一套 API 三个引擎，自动绕过反爬。",
     "descChakraVisualizer": "用摄像头捕捉手势，识别火影忍者结印并播放忍术特效。纯前端实现。",
-    "descWebglFluidSim": "基于 WebGL 的实时流体模拟，GPU 加速丝滑 60fps，支持手势交互与摄像头背景叠加。",
     "descClaudePhoneControl": "用手机浏览器远程控制 Mac/Windows 上的 Claude Code，一行命令启动，扫码即连。",
     "descCursorSourceAnalyzer": "交互式剖析 Cursor AI 编辑器的内部架构，9 大分析维度，ReactFlow 架构图。"
   },

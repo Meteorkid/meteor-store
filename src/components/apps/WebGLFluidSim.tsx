@@ -5,7 +5,7 @@ import { loadMediaPipe } from '@/lib/apps/mediapipe';
 import './fluid-sim.css';
 
 /**
- * WebGL 流体模拟容器组件。
+ * Floatlight 站内体验容器组件。
  * fluidSim 模块在 import 时自执行初始化（读取 #fluidCanvas、启动动画循环），
  * 因此必须在 canvas 挂载之后（useEffect 内）再动态 import。
  * 卸载时调用 destroyFluidSim 停止动画循环并销毁 dat.gui。
@@ -75,7 +75,7 @@ export default function WebGLFluidSim({ locale = 'zh' }: { locale?: string }) {
           }
         })
         .catch((err) => {
-          console.error('WebGL Fluid Sim init error:', err);
+          console.error('Floatlight init error:', err);
         });
     })();
 
@@ -109,7 +109,7 @@ export default function WebGLFluidSim({ locale = 'zh' }: { locale?: string }) {
       {!simulationReady && (
         <div className="fluid-sim-loading" role="status" aria-live="polite">
           <span aria-hidden="true" />
-          <strong>{locale === 'en' ? 'Initializing the fluid field…' : '正在初始化流体场…'}</strong>
+          <strong>{locale === 'en' ? 'Initializing Floatlight…' : '正在启动 Floatlight…'}</strong>
         </div>
       )}
       <canvas id="fluidCanvas" />
