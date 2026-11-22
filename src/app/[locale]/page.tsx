@@ -40,6 +40,12 @@ export default async function Home({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const language = locale === 'en' ? 'en' : 'zh';
+  const orbitProducts = products.map(({ id, name, tagline }) => ({
+    id,
+    name: name[language],
+    tagline: tagline[language],
+  }));
 
   return (
     <div className={`${styles.home} min-h-screen text-foreground`}>
@@ -54,7 +60,8 @@ export default async function Home({
         productCount={products.length}
         webAppCount={webAppCount}
         freeCount={labProductIds.length}
-        helpCount={localizeHelpArticles(locale as 'zh' | 'en').length}
+        helpCount={localizeHelpArticles(language).length}
+        orbitProducts={orbitProducts}
       />
 
       {/* Partners Section */}

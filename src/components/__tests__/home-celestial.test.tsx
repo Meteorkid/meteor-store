@@ -1,9 +1,14 @@
+import { Children, isValidElement } from 'react';
 import type { AnchorHTMLAttributes } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
+import { products } from '@/data/products';
+import type { SiteTheme } from '@/lib/appearance';
+import type { OrbitProduct } from '../OrbitHeroSection';
 
-const state = vi.hoisted(() => ({ locale: 'zh', reduced: false, theme: 'nebula' as 'classic' | 'nebula' | 'horizon' }));
+const state = vi.hoisted(() => ({ locale: 'zh', reduced: false, theme: 'nebula' as SiteTheme }));
 vi.mock('next-intl', () => ({ useLocale: () => state.locale, useTranslations: () => (key: string) => key }));
+vi.mock('next-intl/server', () => ({ setRequestLocale: vi.fn() }));
 vi.mock('@/lib/motion', () => ({ useReducedMotion: () => state.reduced }));
 vi.mock('@/i18n/navigation', () => ({
   usePathname: () => '/zh',
@@ -15,12 +20,17 @@ vi.mock('../theme/ThemeProvider', () => ({
 vi.mock('../home/HomeSky', () => ({
   default: ({ peopleVisible, paused, interactionMode, autoRotate }: { peopleVisible: boolean; paused: boolean; interactionMode: string; autoRotate: boolean }) => <div data-sky-people={String(peopleVisible)} data-sky-paused={String(paused)} data-sky-view={interactionMode} data-sky-orbit={String(autoRotate)} />,
 }));
+vi.mock('../OrbitHeroSection', () => ({
+  default: ({ products }: { products: readonly OrbitProduct[] }) =>
+    <section data-orbit-hero>{products.map(product => <p key={product.id} data-product={product.id}>{product.name} · {product.tagline}</p>)}</section>,
+}));
 import HeroSection from '../HeroSection';
+import Home from '@/app/[locale]/page';
 
-function render(locale: string, reduced = false) {
+function render(locale: string, reduced = false, orbitProducts?: readonly OrbitProduct[]) {
   state.locale = locale;
   state.reduced = reduced;
-  return renderToStaticMarkup(<HeroSection productCount={19} webAppCount={8} freeCount={7} helpCount={31} />);
+  return renderToStaticMarkup(<HeroSection productCount={19} webAppCount={8} freeCount={7} helpCount={31} orbitProducts={orbitProducts} />);
 }
 
 describe('首页星光首屏', () => {
@@ -102,5 +112,21 @@ describe('首页星光首屏', () => {
     const reduced = render('en', true);
     expect(reduced).toMatch(/aria-pressed="false" aria-disabled="true"[^>]*>Auto-Orbit/);
     expect(reduced).toContain('Polar View');
+  });
+
+  it('行星轨道使用服务端传入的本地化产品，不挂载其他主题首屏', () => {
+    state.theme = 'orbit';
+    const html = render('zh', false, [{ id: 'xisland', name: 'XIsland', tagline: '产品副标题' }]);
+    expect(html).toContain('data-orbit-hero');
+    expect(html).toContain('data-product="xisland">XIsland · 产品副标题');
+    expect(html).not.toMatch(/data-home-celestial|data-classic-hero|data-horizon-hero/);
+  });
+
+  it.each(['zh', 'en'] as const)('首页向行星轨道传入完整的 %s 产品目录', async locale => {
+    const page = await Home({ params: Promise.resolve({ locale }) });
+    const hero = Children.toArray(page.props.children).find(child => isValidElement(child) && child.type === HeroSection);
+    expect(isValidElement<{ orbitProducts: readonly OrbitProduct[] }>(hero) && hero.props.orbitProducts).toEqual(
+      products.map(({ id, name, tagline }) => ({ id, name: name[locale], tagline: tagline[locale] })),
+    );
   });
 });

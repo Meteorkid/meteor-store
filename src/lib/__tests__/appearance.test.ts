@@ -15,18 +15,19 @@ describe('site appearance persistence', () => {
     expect(isSiteTheme('classic')).toBe(true);
     expect(isSiteTheme('nebula')).toBe(true);
     expect(isSiteTheme('horizon')).toBe(true);
+    expect(isSiteTheme('orbit')).toBe(true);
     expect(isSiteTheme('light')).toBe(false);
     expect(isSiteTheme(null)).toBe(false);
   });
 
-  it('服务端首屏识别黑洞主题 cookie，未知值回退星云主题', async () => {
+  it.each(['horizon', 'orbit'])('服务端首屏识别已保存的 %s，未知值回退星云主题', async (theme) => {
     const get = vi.fn()
-      .mockReturnValueOnce({ value: 'horizon' })
+      .mockReturnValueOnce({ value: theme })
       .mockReturnValueOnce({ value: 'light' });
     cookies.mockResolvedValue({ get });
     const { getInitialSiteTheme } = await import('../site-theme-server');
 
-    await expect(getInitialSiteTheme()).resolves.toBe('horizon');
+    await expect(getInitialSiteTheme()).resolves.toBe(theme);
     await expect(getInitialSiteTheme()).resolves.toBe('nebula');
     expect(get).toHaveBeenCalledWith(THEME_COOKIE);
   });
@@ -59,5 +60,7 @@ describe('site appearance persistence', () => {
     expect(resolveGuestTheme()).toBe('classic');
     values.set(GUEST_THEME_KEY, 'horizon');
     expect(resolveGuestTheme()).toBe('horizon');
+    values.set(GUEST_THEME_KEY, 'orbit');
+    expect(resolveGuestTheme()).toBe('orbit');
   });
 });

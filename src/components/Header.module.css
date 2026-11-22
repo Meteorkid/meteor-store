@@ -38,6 +38,16 @@ html[data-theme="horizon"] .header {
   --site-nav-highlight: rgb(251 166 114 / .13);
 }
 
+html[data-theme="orbit"] .header {
+  --site-header-surface: rgb(5 7 13 / 94%);
+  --site-header-panel-a: rgb(17 24 38 / 98%);
+  --site-header-panel-b: rgb(9 13 23 / 98%);
+  --site-header-accent: var(--site-accent);
+  --site-header-accent-soft: var(--site-accent-soft);
+  --site-header-solid: #0b0f1a;
+  --site-nav-highlight: rgb(255 180 84 / .13);
+}
+
 .headerSurface {
   background: var(--site-header-surface);
   -webkit-backdrop-filter: blur(24px) saturate(1.5);
@@ -156,6 +166,13 @@ html[data-theme="horizon"] .mobilePanel {
   --site-header-mobile-b: #100c12;
   --site-header-accent: var(--site-accent);
   --site-header-accent-soft: #f9d7be;
+}
+
+html[data-theme="orbit"] .mobilePanel {
+  --site-header-mobile-a: #101624;
+  --site-header-mobile-b: #05070d;
+  --site-header-accent: var(--site-accent);
+  --site-header-accent-soft: var(--site-accent-soft);
 }
 
 .header a:focus-visible, .header button:focus-visible, .mobilePanel a:focus-visible, .mobilePanel button:focus-visible { outline: 2px solid var(--site-header-accent); outline-offset: 3px; }

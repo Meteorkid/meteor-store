@@ -328,6 +328,10 @@ const PALETTES: Record<SiteTheme, BlackHolePalette> = {
     starBase: [.96, .9, .8], starAccent: [.62, .71, .98], corona: [.98, .45, .26],
     fallbackA: '225,104,57', fallbackB: '141,68,62',
   },
+  orbit: {
+    starBase: [.91, .93, .97], starAccent: [.99, .73, .44], corona: [.34, .49, .71],
+    fallbackA: '93,126,177', fallbackB: '141,170,215',
+  },
 };
 
 function Scene({ palette }: { palette: BlackHolePalette }) {

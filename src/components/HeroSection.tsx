@@ -8,6 +8,7 @@ import CelestialText from './home/CelestialText';
 import HomeSky from './home/HomeSky';
 import ClassicHeroSection from './ClassicHeroSection';
 import HorizonHeroSection from './HorizonHeroSection';
+import OrbitHeroSection, { type OrbitProduct } from './OrbitHeroSection';
 import { useOptionalSiteTheme } from './theme/ThemeProvider';
 import styles from './HeroSection.module.css';
 
@@ -16,6 +17,7 @@ interface HeroSectionProps {
   webAppCount: number;
   freeCount: number;
   helpCount: number;
+  orbitProducts?: readonly OrbitProduct[];
 }
 
 function EntryArrow() {
@@ -25,6 +27,7 @@ function EntryArrow() {
 /** 首屏只拥有自己的星空；统计仍来自服务端真实目录，显示状态不写入账号或缓存。 */
 export default function HeroSection(props: HeroSectionProps) {
   const theme = useOptionalSiteTheme()?.theme ?? 'nebula';
+  if (theme === 'orbit') return <OrbitHeroSection products={props.orbitProducts ?? []} />;
   if (theme === 'horizon') return <HorizonHeroSection {...props} />;
   return theme === 'classic' ? <ClassicHeroSection {...props} /> : <NebulaHeroSection {...props} />;
 }

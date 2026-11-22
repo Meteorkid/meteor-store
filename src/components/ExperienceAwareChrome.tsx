@@ -8,6 +8,7 @@ import HeroCanvas from '@/components/HeroCanvas';
 import MeteorShower from '@/components/MeteorShower';
 import SpotlightSearch from '@/components/SpotlightSearch';
 import HelpPanel from '@/components/help/HelpPanel';
+import { useOptionalSiteTheme } from '@/components/theme/ThemeProvider';
 import { isFullscreenExperiencePath } from '@/lib/fullscreen-experience';
 
 /** 商城视觉层与浮层；全屏体验页只保留传入的应用内容。 */
@@ -15,6 +16,8 @@ export default function ExperienceAwareChrome({ children }: { children: ReactNod
   const pathname = usePathname();
   const fullscreenExperience = isFullscreenExperiencePath(pathname);
   const helpExperience = /^\/(?:zh|en)?\/docs(?:\/|$)/.test(pathname);
+  const theme = useOptionalSiteTheme()?.theme;
+  const orbitHomepage = theme === 'orbit' && /^\/(?:zh|en)?\/?$/.test(pathname);
 
   return (
     <>
@@ -22,8 +25,8 @@ export default function ExperienceAwareChrome({ children }: { children: ReactNod
         <>
           <EasterEggs />
           <SpotlightSearch />
-          {!helpExperience && <><FilmGrain /><HeroCanvas /><MeteorShower /></>}
-          {helpExperience && <FilmGrain />}
+          <FilmGrain />
+          {!helpExperience && !orbitHomepage && <><HeroCanvas /><MeteorShower /></>}
         </>
       )}
       {children}
