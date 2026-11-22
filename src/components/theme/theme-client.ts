@@ -1,18 +1,14 @@
 'use client';
 
-import { DEFAULT_SITE_THEME, GUEST_THEME_KEY, SITE_THEMES, THEME_COOKIE, type SiteTheme } from '@/lib/appearance';
+import { DEFAULT_SITE_THEME, GUEST_THEME_KEY, THEME_COOKIE, isSiteTheme, type SiteTheme } from '@/lib/appearance';
 
 const listeners = new Set<() => void>();
 let activeTheme: SiteTheme | null = null;
 
-function isTheme(value: unknown): value is SiteTheme {
-  return SITE_THEMES.includes(value as SiteTheme);
-}
-
 export function readGuestTheme(): SiteTheme | null {
   try {
     const value = window.localStorage.getItem(GUEST_THEME_KEY);
-    return isTheme(value) ? value : null;
+    return isSiteTheme(value) ? value : null;
   } catch {
     return null;
   }
@@ -38,7 +34,7 @@ export function initializeTheme(initial: SiteTheme): SiteTheme {
 }
 
 export function getActiveTheme(): SiteTheme {
-  return activeTheme ?? 'nebula';
+  return activeTheme ?? DEFAULT_SITE_THEME;
 }
 
 export function subscribeTheme(listener: () => void): () => void {

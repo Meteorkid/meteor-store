@@ -78,7 +78,7 @@
     inset 0 -0.5px 0 0 hsla(0, 0%, 100%, 0.067),
     inset 0 0.5px 0 0 rgba(0, 0, 0, 0.467);
 
-  /* 两套视觉主题都保持暗色；组件优先读取这组变量。 */
+  /* 所有视觉主题都保持暗色，组件优先读取这组变量。 */
   --site-accent: rgb(196 181 253);
   --site-accent-soft: rgb(216 214 230 / .62);
   --site-border: rgb(255 255 255 / .08);
@@ -224,6 +224,72 @@
   --pink-6: #73bbce;
 }
 
+:root:root[data-theme="horizon"] {
+  --background: #0b090e;
+  --foreground: #f7eee6;
+  --card: #17121b;
+  --card-foreground: var(--foreground);
+  --popover: #1b151e;
+  --popover-foreground: var(--foreground);
+  --primary: #ffc08a;
+  --primary-foreground: #25120c;
+  --secondary: #2c202b;
+  --secondary-foreground: #f7eee6;
+  --accent: #ffab72;
+  --accent-foreground: #24100a;
+  --border: #4d383f;
+  --input: #4d383f;
+  --site-accent: #ffc18d;
+  --site-accent-soft: #d9bcac;
+  --site-border: rgb(255 191 143 / .18);
+  --site-panel: rgb(28 21 28 / .8);
+  --site-choice: rgb(248 148 98 / .14);
+  --site-home-bg: #0b090e;
+  --site-page-atmosphere: radial-gradient(ellipse at 82% 12%, rgb(157 63 41 / .14), transparent 48%), radial-gradient(ellipse at 12% 68%, rgb(69 77 118 / .11), transparent 38%);
+  --site-glass-a: 238 145 104;
+  --site-glass-b: 22 16 24;
+  --site-glass-c: 116 115 157;
+  --site-glass-shadow: 161 78 57;
+  --site-brand-gradient: linear-gradient(135deg, #ffe6b8, #ffb380 56%, #e79a8d);
+  --site-hero-gradient: linear-gradient(120deg, #fff1d3, #ffc791 48%, #ed997a 85%);
+  --site-back-to-top: rgb(175 84 55 / .45);
+  --site-modal-bg: rgb(24 17 24 / .95);
+  --site-solid-panel: #1b151e;
+  --site-brand-tail: rgb(249 156 108 / .52);
+  --site-brand-line-mid: rgb(255 175 121 / .6);
+  --site-brand-line-end: #ffcea5;
+  --site-grid-line: rgb(239 168 128 / .05);
+  --site-glow-deep: rgb(151 57 38 / .2);
+  --site-glow-accent: rgb(235 126 80 / .15);
+  --site-glow-soft: rgb(132 136 183 / .1);
+
+  /* 兼容仍以紫色工具类表达品牌前景和背景的组件。 */
+  --color-purple-50: #fff6ee;
+  --color-purple-100: #ffebdf;
+  --color-purple-200: #ffdcc6;
+  --color-purple-300: #ffc19a;
+  --color-purple-400: #f4a77e;
+  --color-purple-500: #b45d4a;
+  --color-purple-600: #a34a3a;
+  --color-purple-700: #85382d;
+  --color-purple-800: #662c28;
+  --color-purple-900: #512725;
+  --color-purple-950: #2d191d;
+  --color-violet-50: var(--color-purple-50);
+  --color-violet-100: var(--color-purple-100);
+  --color-violet-200: var(--color-purple-200);
+  --color-violet-300: var(--color-purple-300);
+  --color-violet-400: var(--color-purple-400);
+  --color-violet-500: var(--color-purple-500);
+  --color-violet-600: var(--color-purple-600);
+  --color-violet-700: var(--color-purple-700);
+  --color-violet-800: var(--color-purple-800);
+  --color-violet-900: var(--color-purple-900);
+  --color-violet-950: var(--color-purple-950);
+  --pink-6: #a85455;
+  --purple-6: var(--color-purple-600);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -290,8 +356,10 @@ body {
   box-shadow: inset 0 1px 0 rgb(var(--site-glass-a) / .2), 0 8px 40px rgb(var(--site-glass-shadow) / .15);
 }
 
-/* 页面外壳在星云主题下承接同一层冷色深空，不再用纯黑截断全站氛围。 */
-html[data-theme="nebula"] .min-h-screen.bg-black {
+/* 页面外壳承接主题背景。 */
+html[data-theme="nebula"] .min-h-screen.bg-black,
+html[data-theme="horizon"] .min-h-screen.bg-black,
+html[data-theme="horizon"] body {
   background-color: var(--background);
   background-image: var(--site-page-atmosphere);
   background-attachment: fixed;

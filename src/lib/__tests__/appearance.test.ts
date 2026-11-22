@@ -1,17 +1,34 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { GUEST_THEME_KEY, THEME_COOKIE, isSiteTheme } from '../appearance';
 
+const cookies = vi.hoisted(() => vi.fn());
+vi.mock('next/headers', () => ({ cookies }));
+
 afterEach(() => {
+  cookies.mockReset();
   vi.unstubAllGlobals();
   vi.resetModules();
 });
 
 describe('site appearance persistence', () => {
-  it('只接受两套已实现主题', () => {
+  it('只接受已实现主题', () => {
     expect(isSiteTheme('classic')).toBe(true);
     expect(isSiteTheme('nebula')).toBe(true);
+    expect(isSiteTheme('horizon')).toBe(true);
     expect(isSiteTheme('light')).toBe(false);
     expect(isSiteTheme(null)).toBe(false);
+  });
+
+  it('服务端首屏识别黑洞主题 cookie，未知值回退星云主题', async () => {
+    const get = vi.fn()
+      .mockReturnValueOnce({ value: 'horizon' })
+      .mockReturnValueOnce({ value: 'light' });
+    cookies.mockResolvedValue({ get });
+    const { getInitialSiteTheme } = await import('../site-theme-server');
+
+    await expect(getInitialSiteTheme()).resolves.toBe('horizon');
+    await expect(getInitialSiteTheme()).resolves.toBe('nebula');
+    expect(get).toHaveBeenCalledWith(THEME_COOKIE);
   });
 
   it('游客切换同时写 DOM、活动 cookie 与本机偏好，并通知订阅者', async () => {
@@ -22,10 +39,10 @@ describe('site appearance persistence', () => {
     const { applyTheme, subscribeTheme } = await import('../../components/theme/theme-client');
     const listener = vi.fn();
     const unsubscribe = subscribeTheme(listener);
-    applyTheme('classic', true);
-    expect(documentElement.dataset.theme).toBe('classic');
-    expect((document as unknown as { cookie: string }).cookie).toContain(`${THEME_COOKIE}=classic`);
-    expect(values.get(GUEST_THEME_KEY)).toBe('classic');
+    applyTheme('horizon', true);
+    expect(documentElement.dataset.theme).toBe('horizon');
+    expect((document as unknown as { cookie: string }).cookie).toContain(`${THEME_COOKIE}=horizon`);
+    expect(values.get(GUEST_THEME_KEY)).toBe('horizon');
     expect(listener).toHaveBeenCalledOnce();
     unsubscribe();
   });
@@ -40,5 +57,7 @@ describe('site appearance persistence', () => {
     expect(resolveGuestTheme()).toBe('nebula');
     values.set(GUEST_THEME_KEY, 'classic');
     expect(resolveGuestTheme()).toBe('classic');
+    values.set(GUEST_THEME_KEY, 'horizon');
+    expect(resolveGuestTheme()).toBe('horizon');
   });
 });

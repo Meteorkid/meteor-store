@@ -2,7 +2,7 @@ import type { AnchorHTMLAttributes } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
-const state = vi.hoisted(() => ({ locale: 'zh', reduced: false, theme: 'nebula' as 'classic' | 'nebula' }));
+const state = vi.hoisted(() => ({ locale: 'zh', reduced: false, theme: 'nebula' as 'classic' | 'nebula' | 'horizon' }));
 vi.mock('next-intl', () => ({ useLocale: () => state.locale, useTranslations: () => (key: string) => key }));
 vi.mock('@/lib/motion', () => ({ useReducedMotion: () => state.reduced }));
 vi.mock('@/i18n/navigation', () => ({
@@ -64,5 +64,43 @@ describe('首页星光首屏', () => {
     expect(html).toContain('data-classic-hero');
     expect(html).toContain('headingLine1');
     expect(html).not.toContain('data-sky-people');
+  });
+
+  it('黑洞视界首屏保留首页入口与服务端目录统计', () => {
+    state.theme = 'horizon';
+    const html = render('zh');
+    expect(html).toContain('data-horizon-hero');
+    expect(html).toMatch(/data-horizon-dock="true"[^>]*>[\s\S]*?目录统计[\s\S]*?观测控制/);
+    expect(html).toContain('越过视界');
+    expect(html).toContain('href="/zh/products"');
+    expect(html).toContain('href="/zh/study"');
+    expect(html).toContain('href="/zh/docs"');
+    expect(html).toMatch(/<dt>目录产品<\/dt><dd>19<\/dd>/);
+    expect(html).toMatch(/<dt>在线应用<\/dt><dd>8<\/dd>/);
+    expect(html).toMatch(/<dt>免费实验作品<\/dt><dd>7<\/dd>/);
+    expect(html).toMatch(/<dt>帮助文档<\/dt><dd>31<\/dd>/);
+    expect(html).not.toContain('data-sky-people');
+    expect(html).not.toContain('data-classic-hero');
+
+    const english = render('en');
+    expect(english).toContain('Beyond the');
+    expect(english).toContain('href="/en/study"');
+  });
+
+  it('黑洞首屏保留原演示公开的控制范围，减少动态仅暂停自动环绕', () => {
+    state.theme = 'horizon';
+    const html = render('en');
+    expect(html).toContain('data-black-hole-viewport');
+    expect(html).toMatch(/<details class="[^"]+"><summary/);
+    expect(html).toContain('More settings</summary>');
+    expect(html.indexOf('Lensed Overlook')).toBeLessThan(html.indexOf('<details'));
+    expect(html).toMatch(/aria-pressed="true">Lensed Overlook/);
+    expect(html).toMatch(/aria-pressed="true">Doppler/);
+    expect(html).toMatch(/aria-pressed="true" aria-disabled="false">Auto-Orbit/);
+    expect(html).toMatch(/min="0.7" max="1.7" step="0.05" value="1.22"/);
+    expect(html).toMatch(/min="0.2" max="2" step="0.1" value="1"/);
+    const reduced = render('en', true);
+    expect(reduced).toMatch(/aria-pressed="false" aria-disabled="true"[^>]*>Auto-Orbit/);
+    expect(reduced).toContain('Polar View');
   });
 });

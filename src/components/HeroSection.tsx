@@ -7,6 +7,7 @@ import { useReducedMotion } from '@/lib/motion';
 import CelestialText from './home/CelestialText';
 import HomeSky from './home/HomeSky';
 import ClassicHeroSection from './ClassicHeroSection';
+import HorizonHeroSection from './HorizonHeroSection';
 import { useOptionalSiteTheme } from './theme/ThemeProvider';
 import styles from './HeroSection.module.css';
 
@@ -24,6 +25,7 @@ function EntryArrow() {
 /** 首屏只拥有自己的星空；统计仍来自服务端真实目录，显示状态不写入账号或缓存。 */
 export default function HeroSection(props: HeroSectionProps) {
   const theme = useOptionalSiteTheme()?.theme ?? 'nebula';
+  if (theme === 'horizon') return <HorizonHeroSection {...props} />;
   return theme === 'classic' ? <ClassicHeroSection {...props} /> : <NebulaHeroSection {...props} />;
 }
 

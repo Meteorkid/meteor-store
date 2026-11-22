@@ -112,7 +112,8 @@
 
 ### 材质与颜色
 
-- **全站只有暗色一套主题，不跟随系统深浅色。** 不要加 `@media (prefers-color-scheme: light)`、
+- **全站主题均为暗色，不跟随系统深浅色。** 可选经典紫夜、星云星海和黑洞视界；主题标识由
+  `src/lib/appearance.ts` 统一维护，账号外观接口和首屏使用同一名单。不要加 `@media (prefers-color-scheme: light)`、
   也不要加 `dark:` 变体——整套设计（玻璃、光晕、流星、粒子、`text-white/60` 的对比度基线）
   都以暗底为前提，翻转背景会直接白底白字。四个地方共同保证：
   `globals.css` 的 `:root:root` 固定暗色 token 并声明 `color-scheme: dark`、

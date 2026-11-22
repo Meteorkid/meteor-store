@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import type { SiteTheme } from '@/lib/appearance';
 import { useReducedMotion } from '@/lib/motion';
 import { useOptionalSiteTheme } from './theme/ThemeProvider';
 
@@ -44,6 +45,11 @@ const holeFragShader = /* glsl */ `
   uniform vec3 uStarBase;
   uniform vec3 uStarAccent;
   uniform vec3 uCorona;
+  uniform bool uViewport;
+  uniform float uInclination;
+  uniform float uAzimuth;
+  uniform bool uDoppler;
+  uniform float uGlow;
 
   // 单位取史瓦西半径 rs = 1
   const float CAM_R = 11.0;   // 相机到黑洞的距离
@@ -124,12 +130,18 @@ const holeFragShader = /* glsl */ `
   void main() {
     vec2 p = (vUv - 0.5) * 2.0;
     p.x *= uAspect;
+    // 首屏采用较窄的视场突出黑洞，窄屏则拉远以容纳吸积盘。
+    if (uViewport) p *= 0.60 * max(1.0, 1.15 / uAspect);
     float scr = length(p);
 
     // ── 相机 ──
     vec3 camPos = vec3(0.0, sin(TILT), -cos(TILT)) * CAM_R;
+    if (uViewport) {
+      camPos = vec3(cos(uInclination) * sin(uAzimuth), sin(uInclination), -cos(uInclination) * cos(uAzimuth)) * CAM_R;
+    }
     vec3 fwd = normalize(-camPos);
-    vec3 rgt = normalize(cross(vec3(0.0, 1.0, 0.0), fwd));
+    // 极向预设正对盘面，直接用方位角构造右向量，避免叉乘退化。
+    vec3 rgt = uViewport ? vec3(cos(uAzimuth), 0.0, sin(uAzimuth)) : normalize(cross(vec3(0.0, 1.0, 0.0), fwd));
     vec3 upv = cross(fwd, rgt);
     vec3 dir = normalize(fwd + (p.x * rgt + p.y * upv) * FOV);
 
@@ -149,6 +161,11 @@ const holeFragShader = /* glsl */ `
     float trans = 1.0;   // 剩余透过率，前向合成用
     bool escaped = false;
     vec3 escDir = vec3(0.0);
+    const vec3 gold = vec3(255.0, 210.0, 122.0) / 255.0;
+    const vec3 orange = vec3(255.0, 138.0, 42.0) / 255.0;
+    const vec3 starlight = vec3(157.0, 184.0, 255.0) / 255.0;
+    // 观测视图绘出流入内缘的稀薄等离子体。
+    float emissionInner = uViewport ? 1.64 : D_IN;
 
     for (int i = 0; i < STEPS; i++) {
       float r = length(pos);
@@ -162,17 +179,34 @@ const holeFragShader = /* glsl */ `
       vec3 np = pos + vel * dt + 0.5 * a * dt * dt;
       vec3 nv = vel + a * dt;
 
+      // 观测首屏叠加盘面上方的发光气体，软化平面盘和透镜像之间的过渡。
+      if (uViewport) {
+        vec3 plasma = (pos + np) * 0.5;
+        float height = abs(plasma.y);
+        if (height < 0.22) {
+          float radius = length(plasma.xz);
+          float edge = clamp((radius - D_IN) / (D_OUT - D_IN), 0.0, 1.0);
+          float profile = smoothstep(D_IN, D_IN + 0.38, radius) * pow(1.0 - edge, 1.20);
+          float vertical = 1.0 - smoothstep(0.04, 0.22, height);
+          disk += mix(gold, orange, edge) * (profile * vertical * dt * uGlow * 0.22 * trans);
+        }
+      }
+
       // 穿过赤道面 → 命中吸积盘
       if (pos.y * np.y < 0.0) {
         float f = pos.y / (pos.y - np.y);
         vec3 hit = mix(pos, np, f);
         float hr = length(hit);
-        if (hr > D_IN && hr < D_OUT) {
-          float tRad = (hr - D_IN) / (D_OUT - D_IN);
+        if (hr > emissionInner && hr < D_OUT) {
+          float tRad = (hr - emissionInner) / (D_OUT - emissionInner);
 
           // 内侧亮，外侧快速暗下去（外缘必须自然熄灭，不能靠裁剪）
           float radial = pow(1.0 - tRad, 2.0);
           radial += 0.6 * exp(-pow((hr - D_IN) / 0.6, 2.0));   // 内缘再加一道亮边
+          if (uViewport) {
+            radial = (pow(1.0 - tRad, 1.42) + 0.3 * exp(-pow((hr - D_IN) / 0.6, 2.0)))
+                   * smoothstep(emissionInner, D_IN, hr);
+          }
 
           // 开普勒较差自转：内圈转得快，盘面纹理跟着一起转
           float sp = uTime * 1.7 / pow(hr, 1.5);
@@ -188,7 +222,9 @@ const holeFragShader = /* glsl */ `
           // 压到 0.1 就成了一块「不透明但几乎不发光」的黑色穹顶
           vec3 orbit = normalize(cross(vec3(0.0, 1.0, 0.0), hit));
           float beta = dot(orbit, normalize(vel)) * (1.1 / sqrt(hr));
+          if (uViewport) beta = -beta;
           float dop = clamp(1.0 + 1.5 * beta, 0.24, 2.4);
+          if (uViewport && !uDoppler) dop = 1.0;
 
           float bright = dens * dop;
 
@@ -196,6 +232,12 @@ const holeFragShader = /* glsl */ `
           vec3 col = mix(vec3(1.00, 0.94, 0.80), vec3(0.99, 0.66, 0.20),
                          smoothstep(0.0, 0.34, tRad));
           col = mix(col, vec3(0.74, 0.27, 0.05), smoothstep(0.30, 1.0, tRad));
+          if (uViewport) {
+            col = mix(gold, orange, smoothstep(0.0, 0.35, tRad));
+            col = mix(col, vec3(0.86, 0.23, 0.03), smoothstep(0.4, 1.0, tRad));
+            if (uDoppler) col = mix(col, starlight, 0.14 * smoothstep(0.12, 0.48, beta));
+            bright *= uGlow;
+          }
 
           // 前向 alpha 合成：先命中的先遮挡，透过率随之衰减。
           // 遮挡只取决于**密度**，不能带上多普勒——beaming 改变的是亮度不是厚度。
@@ -221,7 +263,8 @@ const holeFragShader = /* glsl */ `
     if (escaped && !captured) {
       float bend = 1.0 - dot(escDir, dir);              // 0（没弯）→ 2（掉头）
       float lensWeight = smoothstep(0.02, 0.35, bend);
-      disk += starField(escDir) * lensWeight * trans * 2.3;
+      if (uViewport) disk += starField(escDir) * mix(0.80, 2.3, lensWeight) * trans;
+      else disk += starField(escDir) * lensWeight * trans * 2.3;
     }
 
     // 落入视界的像素本身就是全遮挡；盘面则按累计不透明度
@@ -245,8 +288,20 @@ const holeFragShader = /* glsl */ `
     // ── 边缘保险：保证 scr ≥ 1.0 时严格为 0 ──
     // 起点压到 0.84 之后才收：盘外缘投影在 scr ≈ 0.99，收太早会把还看得见的盘面一起削掉
     float guard = smoothstep(1.0, 0.84, scr);
-    emissive *= guard;
-    alpha *= guard;
+    // 首屏画布覆盖整个观测区，远场星光也在画布上绘制。
+    if (uViewport) {
+      // 光子环两侧的散射把亮弧和稀薄盘面连起来，保留内侧阴影的轮廓。
+      float offset = scr - 0.37;
+      float ring = smoothstep(-0.006, 0.016, offset) * (1.0 - smoothstep(0.035, 0.073, offset));
+      float strength = mix(0.38, 0.68, smoothstep(-0.42, 0.42, p.x))
+                     * (1.0 - smoothstep(0.55, 1.25, abs(uInclination)));
+      emissive = max(emissive, mix(gold, orange, smoothstep(0.015, 0.072, offset)) * ring * strength * uGlow);
+      emissive += vec3(5.0, 5.0, 8.0) / 255.0 * (1.0 - alpha);
+      alpha = 1.0;
+    } else {
+      emissive *= guard;
+      alpha *= guard;
+    }
 
     gl_FragColor = vec4(emissive, clamp(alpha, 0.0, 1.0));
   }
@@ -260,7 +315,7 @@ interface BlackHolePalette {
   fallbackB: string;
 }
 
-const PALETTES: Record<'classic' | 'nebula', BlackHolePalette> = {
+const PALETTES: Record<SiteTheme, BlackHolePalette> = {
   classic: {
     starBase: [.86, .89, 1], starAccent: [.72, .55, 1], corona: [.42, .28, .98],
     fallbackA: '120,70,250', fallbackB: '150,70,235',
@@ -268,6 +323,10 @@ const PALETTES: Record<'classic' | 'nebula', BlackHolePalette> = {
   nebula: {
     starBase: [.86, .93, .98], starAccent: [.53, .77, .90], corona: [.30, .64, .82],
     fallbackA: '70,132,165', fallbackB: '126,184,214',
+  },
+  horizon: {
+    starBase: [.96, .9, .8], starAccent: [.62, .71, .98], corona: [.98, .45, .26],
+    fallbackA: '225,104,57', fallbackB: '141,68,62',
   },
 };
 
@@ -300,6 +359,7 @@ function Scene({ palette }: { palette: BlackHolePalette }) {
         uniforms={{
           uTime: { value: 0 },
           uAspect: { value: 1 },
+          uViewport: { value: false },
           uStarBase: { value: new THREE.Vector3(...palette.starBase) },
           uStarAccent: { value: new THREE.Vector3(...palette.starAccent) },
           uCorona: { value: new THREE.Vector3(...palette.corona) },
@@ -366,6 +426,182 @@ export default function BlackHole() {
       >
         <Scene palette={palette} />
       </Canvas>
+    </div>
+  );
+}
+
+interface BlackHoleViewportProps {
+  inclination: number;
+  azimuth: number;
+  doppler: boolean;
+  glow: number;
+  spin: number;
+  autoOrbit: boolean;
+}
+
+// 测地线积分的成本取决于实际渲染像素数，而不是 CSS 盒子的大小。
+const VIEWPORT_PIXEL_LIMIT = 460_000;
+const MIN_VIEWPORT_FRAME_TIME = 1000 / 30;
+
+export function BlackHoleViewport({ inclination, azimuth, doppler, glow, spin, autoOrbit }: BlackHoleViewportProps) {
+  const reducedMotion = useReducedMotion();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const redrawRef = useRef<(() => void) | null>(null);
+  const controls = useRef({ inclination, azimuth, doppler, glow, spin, autoOrbit, reducedMotion });
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    controls.current = { inclination, azimuth, doppler, glow, spin, autoOrbit, reducedMotion };
+    redrawRef.current?.();
+  }, [inclination, azimuth, doppler, glow, spin, autoOrbit, reducedMotion]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      const context = canvas.getContext('webgl2', {
+        antialias: false, alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true,
+      });
+      if (!context) return;
+      renderer = new THREE.WebGLRenderer({ canvas, context });
+    } catch {
+      // 无可用的 WebGL2 上下文时保留首屏静态图。
+      return;
+    }
+
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const uniforms = {
+      uTime: { value: 0 },
+      uAspect: { value: 1 },
+      uViewport: { value: true },
+      uInclination: { value: 0.150 },
+      uAzimuth: { value: 0 },
+      uDoppler: { value: true },
+      uGlow: { value: 1.22 },
+      uStarBase: { value: new THREE.Vector3(.92, .93, 1) },
+      uStarAccent: { value: new THREE.Vector3(157 / 255, 184 / 255, 1) },
+      uCorona: { value: new THREE.Vector3(1, 138 / 255, 42 / 255) },
+    };
+    const material = new THREE.ShaderMaterial({
+      vertexShader: quadVertShader, fragmentShader: holeFragShader, uniforms, depthTest: false, depthWrite: false,
+    });
+    const scene = new THREE.Scene();
+    const camera = new THREE.Camera();
+    const quad = new THREE.Mesh(geometry, material);
+    quad.frustumCulled = false;
+    scene.add(quad);
+
+    let visible = true;
+    let contextLost = false;
+    let frame = 0;
+    let hasSize = false;
+    let hasPainted = false;
+    let lastPaint = 0;
+    let orbitOffset = 0;
+
+    function draw(now: number) {
+      const options = controls.current;
+      const delta = lastPaint ? Math.min((now - lastPaint) / 1000, .07) : 0;
+      lastPaint = now;
+      if (!options.reducedMotion) {
+        uniforms.uTime.value += delta * options.spin;
+        if (options.autoOrbit) orbitOffset = (orbitOffset + delta * 0.14) % (2 * Math.PI);
+      }
+      uniforms.uInclination.value = options.inclination;
+      uniforms.uAzimuth.value = options.azimuth + orbitOffset;
+      uniforms.uDoppler.value = options.doppler;
+      uniforms.uGlow.value = options.glow;
+      renderer.render(scene, camera);
+      if (!hasPainted) {
+        hasPainted = true;
+        setReady(true);
+      }
+    }
+
+    function cancelFrame() {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+    }
+
+    function scheduleFrame() {
+      if (frame || !hasSize || !visible || contextLost || controls.current.reducedMotion) return;
+      frame = requestAnimationFrame(now => {
+        frame = 0;
+        if (now - lastPaint >= MIN_VIEWPORT_FRAME_TIME) draw(now);
+        scheduleFrame();
+      });
+    }
+
+    function redraw() {
+      if (controls.current.reducedMotion) cancelFrame();
+      if (!contextLost && hasSize && visible) draw(performance.now());
+      scheduleFrame();
+    }
+
+    function resize() {
+      const { width, height } = renderer.domElement.getBoundingClientRect();
+      hasSize = width > 0 && height > 0;
+      if (!hasSize || contextLost) return;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, Math.sqrt(VIEWPORT_PIXEL_LIMIT / (width * height))));
+      renderer.setSize(width, height, false);
+      uniforms.uAspect.value = width / height;
+      redraw();
+    }
+
+    function onContextLost(event: Event) {
+      event.preventDefault();
+      contextLost = true;
+      hasPainted = false;
+      cancelFrame();
+      setReady(false);
+    }
+
+    function onContextRestored() {
+      contextLost = false;
+      lastPaint = 0;
+      resize();
+    }
+
+    canvas.addEventListener('webglcontextlost', onContextLost);
+    canvas.addEventListener('webglcontextrestored', onContextRestored);
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(canvas);
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      lastPaint = 0;
+      if (visible) redraw();
+      else cancelFrame();
+    });
+    visibilityObserver.observe(canvas);
+    redrawRef.current = redraw;
+    // 在排首个动画帧前绘制，静态图覆盖 JS 与着色器初始化的间隙。
+    resize();
+
+    return () => {
+      redrawRef.current = null;
+      cancelFrame();
+      visibilityObserver.disconnect();
+      resizeObserver.disconnect();
+      canvas.removeEventListener('webglcontextlost', onContextLost);
+      canvas.removeEventListener('webglcontextrestored', onContextRestored);
+      geometry.dispose();
+      material.dispose();
+      renderer.dispose();
+    };
+  }, []);
+
+  return (
+    <div className="pointer-events-none absolute inset-0" aria-hidden="true" data-black-hole-viewport data-black-hole-ready={ready}>
+      {!ready && (
+        <div className="absolute inset-0" style={{ background: [
+          'radial-gradient(circle closest-side, #000 64%, #ffd27a 65%, #ff8a2a 66%, #ff8a2a50 70%, transparent 86%) center/100% 95% no-repeat',
+          'radial-gradient(ellipse 46% 11% at 50% 53%, #ffd27a 8%, #ff8a2a 37%, #9a351564 77%, transparent 100%)',
+          '#050508',
+        ].join(', ') }} />
+      )}
+      <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" style={{ opacity: ready ? 1 : 0 }} />
     </div>
   );
 }

@@ -34,7 +34,8 @@ export default function StarMap({ posts }: StarMapProps) {
   const t = useTranslations('StarMap');
   const locale = useLocale() as Locale;
   const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
-  const lineColor = siteTheme === 'nebula' ? 'rgba(182,216,232,0.22)' : 'rgba(167,139,250,0.2)';
+  const lineRgb = siteTheme === 'horizon' ? '255 193 141' : siteTheme === 'nebula' ? '182 216 232' : '167 139 250';
+  const lineColor = `rgb(${lineRgb} / ${siteTheme === 'nebula' ? .22 : .2})`;
 
   const nodes = useMemo(() => {
     const sorted = [...posts].sort((a, b) => a.eventDate.localeCompare(b.eventDate));
@@ -117,7 +118,7 @@ export default function StarMap({ posts }: StarMapProps) {
           <polyline
             points={line}
             fill="none"
-            stroke={siteTheme === 'nebula' ? 'rgba(182,216,232,0.38)' : 'rgba(167,139,250,0.35)'}
+            stroke={`rgb(${lineRgb} / ${siteTheme === 'nebula' ? .38 : .35})`}
             strokeWidth="1.5"
             strokeLinejoin="round"
             strokeLinecap="round"

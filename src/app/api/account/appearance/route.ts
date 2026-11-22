@@ -3,13 +3,13 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getSession } from '@/lib/auth';
 import { assertMatchingOrigin } from '@/lib/csrf';
-import { isSiteTheme } from '@/lib/appearance';
+import { SITE_THEMES, isSiteTheme } from '@/lib/appearance';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
 const headers = { 'Cache-Control': 'no-store' };
-const BodySchema = z.object({ theme: z.enum(['classic', 'nebula']) }).strict();
+const BodySchema = z.object({ theme: z.enum(SITE_THEMES) }).strict();
 
 export async function GET() {
   const session = await getSession();

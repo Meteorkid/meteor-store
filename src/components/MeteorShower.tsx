@@ -61,8 +61,9 @@ export default function MeteorShower() {
     const night = isLateNight();
     const speedScale = night ? 0.7 : 1;
     const nebula = siteTheme === 'nebula';
-    const baseHue = night ? 30 : nebula ? 194 : 265; // 深夜保留暖橙，其余跟随主题
-    const hueSpread = night ? 30 : 50;
+    const horizon = siteTheme === 'horizon';
+    const baseHue = night ? 30 : horizon ? 16 : nebula ? 194 : 265;
+    const hueSpread = night || horizon ? 30 : 50;
 
     const resize = () => {
       canvas.width = canvas.offsetWidth;
@@ -200,6 +201,15 @@ export default function MeteorShower() {
         'pointer-events:none',
         'letter-spacing:0.04em',
       ].join(';');
+
+      if (horizon) {
+        tail.style.background = 'linear-gradient(90deg, transparent, rgb(255 180 123 / .6) 65%, #fff2d6)';
+        tailGlow.style.background = 'linear-gradient(90deg, transparent, rgb(238 145 104 / .4))';
+        head.style.background = 'radial-gradient(circle, #fff2d6 10%, var(--site-accent) 48%, transparent 100%)';
+        head.style.boxShadow = '0 0 12px 4px rgb(var(--site-glass-a) / .5)';
+        label.style.color = 'var(--site-accent)';
+        label.style.textShadow = '0 0 8px rgb(var(--site-glass-a) / .5)';
+      }
 
       wrapper.appendChild(tailGlow);
       wrapper.appendChild(tail);
@@ -347,7 +357,7 @@ export default function MeteorShower() {
             'radial-gradient(1px 1px at 12% 28%, rgba(255,255,255,.5) 50%, transparent 50%),' +
             'radial-gradient(1.5px 1.5px at 68% 12%, rgba(255,255,255,.4) 50%, transparent 50%),' +
             'radial-gradient(1px 1px at 42% 64%, rgba(255,255,255,.35) 50%, transparent 50%),' +
-            `radial-gradient(2px 2px at 85% 45%, ${siteTheme === 'nebula' ? 'rgba(182,216,232,.4)' : 'rgba(196,181,253,.4)'} 50%, transparent 50%),` +
+            'radial-gradient(2px 2px at 85% 45%, color-mix(in srgb, var(--site-accent) 40%, transparent) 50%, transparent 50%),' +
             'radial-gradient(1px 1px at 25% 82%, rgba(255,255,255,.3) 50%, transparent 50%)',
         }}
       />

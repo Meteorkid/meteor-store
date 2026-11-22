@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
+import { SITE_THEMES } from '../appearance';
 
 /**
  * 架构约束测试：全站只提供暗色视觉主题，不跟随系统深浅色。
@@ -55,10 +56,11 @@ describe('全站暗色主题的固定', () => {
     expect(css).not.toMatch(/--secondary:\s*var\(--gray-2\)/);
   });
 
-  it('两套可选主题都声明为暗色，不出现浅色分支', () => {
+  it('每套可选主题都有对应配色，不出现浅色分支', () => {
     const css = stripComments(globals);
-    expect(css).toMatch(/:root:root\[data-theme="classic"\]/);
-    expect(css).toMatch(/:root:root\[data-theme="nebula"\]/);
+    for (const theme of SITE_THEMES) {
+      expect(css).toContain(`:root:root[data-theme="${theme}"]`);
+    }
     expect(css).toMatch(/--site-home-bg:\s*#09070f/);
     expect(css).toMatch(/--site-home-bg:\s*#030509/);
     expect(css).not.toMatch(/data-theme="light"/);
@@ -87,7 +89,7 @@ describe('全站暗色主题的固定', () => {
   });
 
   it('组件里没有 dark: 变体', () => {
-    // 只有一套主题，dark: 变体永远不生效，出现即是误解
+    // 所有主题都保持暗色，切换由 data-theme 管理。
     const offenders = collectFiles(SRC, ['.tsx', '.ts'])
       .filter((file) => /\bclassName=[^>]*\bdark:/.test(readFileSync(file, 'utf8')))
       .map((file) => file.replace(`${process.cwd()}/`, ''));
