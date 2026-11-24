@@ -96,9 +96,9 @@ function NebulaHeroSection({ productCount, webAppCount, freeCount, helpCount }: 
                 {!english && <CelestialText className={styles.entrySub} text="PRODUCTS" spacing={12} weight={7} decorative />}
                 <EntryArrow />
               </Link>
-              <Link className={`${styles.entry} ${styles.entrySecondary}`} href="/playground">
-                <span className={styles.entryMain}>{english ? 'Try apps online' : '在线体验'}</span>
-                {!english && <CelestialText className={styles.entrySub} text="TRY ONLINE" spacing={12} weight={7} decorative />}
+              <Link className={`${styles.entry} ${styles.entrySecondary}`} href="/docs">
+                <span className={styles.entryMain}>{english ? 'View help' : '查看帮助'}</span>
+                {!english && <CelestialText className={styles.entrySub} text="HELP" spacing={12} weight={7} decorative />}
                 <EntryArrow />
               </Link>
             </div>

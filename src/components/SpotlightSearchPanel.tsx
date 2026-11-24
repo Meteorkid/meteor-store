@@ -589,7 +589,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
               <p className="text-sm text-white/60 text-center">
                 {t('empty')}{' '}
                 <button className="text-purple-300 hover:text-purple-200 underline underline-offset-2"
-                  onClick={() => { close(false); router.push('/playground'); }}>{t('browseApps')}</button>
+                  onClick={() => { close(false); router.push('/products'); }}>{t('browseProducts')}</button>
               </p>
               <div className="flex justify-center gap-2">
                 <button className="text-xs text-white/60 hover:text-white/80 transition-colors underline underline-offset-2"

@@ -297,7 +297,7 @@ describe('公开功能页搜索与本地化', () => {
     expect(find('打字')[0]).toBe('/apps/tollow/trial');
     const expected = [...appIds.map(getAppTrialHref), '/apps/ex-memory'];
     expect(find('在线体验').slice(0, expected.length).sort()).toEqual(expected.sort());
-    expect(find('在线体验')).toContain('/playground');
+    expect(find('在线体验')).not.toContain('/playground');
   });
 
   it('私人收藏、账号、后台及草稿页面不进入公共索引，apps 只暴露体验入口', () => {

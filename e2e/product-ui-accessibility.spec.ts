@@ -58,21 +58,16 @@ test('减少动画时视频灯箱保留控制条并等待用户播放', async ({
 });
 
 for (const locale of ['en', 'zh']) {
-  test(`${locale} Playground选中状态、翻译与静态演示`, async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    const identity = page.waitForResponse(response => response.url().endsWith('/api/auth/me'));
+  test(`${locale} 旧在线体验链接转到产品目录，可从产品页打开全屏应用`, async ({ page }) => {
+    const response = await page.request.get(`/${locale}/playground`, { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(new URL(response.headers().location, response.url()).pathname).toBe(`/${locale}/products`);
     await page.goto(`/${locale}/playground`);
-    await identity;
-    for (const name of ['OmniCrawl', 'Ex-Memory', 'Statux', 'Tollow']) {
-      const selector = page.getByRole('button', { name, exact: true });
-      await selector.click();
-      await expect(selector).toHaveAttribute('aria-pressed', 'true');
-      await expect(page.locator('main button[aria-pressed="true"]')).toHaveCount(1);
-      await page.getByRole('button', { name: locale === 'en' ? 'Click to run the demo' : '点击运行演示' }).click();
-      const content = await page.locator('main').innerText();
-      expect(content).not.toContain('▌');
-      if (locale === 'en') expect(content).not.toMatch(/[\u3400-\u9fff]/);
-      else expect(content).toMatch(/[\u3400-\u9fff]/);
-    }
+    await expect(page).toHaveURL(new RegExp(`/${locale}/products$`));
+    await page.locator('main a[href$="/products/tollow"]:visible').first().click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}/products/tollow$`));
+    const experience = page.locator(`main a[href="/${locale}/apps/tollow/trial"]`).first();
+    await expect(experience).toBeVisible();
+    await expect(experience).toHaveAttribute('target', '_blank');
   });
 }

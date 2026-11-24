@@ -1485,19 +1485,6 @@
     "totalCount": "共 {total} 个标签",
     "noMatch": "没有匹配的标签"
   },
-  "PlaygroundPage": {
-    "metaTitle": "在线体验与产品演示",
-    "metaDescription": "在浏览器中打开 Meteor Store 应用，或观看产品的操作演示。",
-    "title": "在线体验",
-    "description": "选择一个应用，在新窗口全屏使用。",
-    "openApp": "打开应用",
-    "openNamedApp": "打开 {name}（新窗口）",
-    "needsApiKey": "需登录并自备模型 API Key",
-    "needsAccount": "需登录，可同步练习与收藏",
-    "guestAccess": "无需登录",
-    "demos": "产品演示",
-    "demoDescription": "选择产品，观看预设的终端操作示例。"
-  },
   "NotFoundPage": {
     "title": "镜中无此页",
     "description": "这个页面可能去打工赚学费了，替它向你道个歉。",
@@ -1562,7 +1549,7 @@
     "popularLabel": "热门",
     "hint": "⌘K 打开 · ↑↓ 选择 · Enter 直达 · 支持拼音",
     "empty": "没有匹配结果。可以换个关键词，或",
-    "browseApps": "浏览在线应用",
+    "browseProducts": "浏览产品",
     "groupProduct": "产品",
     "groupPage": "页面",
     "groupHelp": "帮助",
@@ -1586,48 +1573,6 @@
     "filteredCount": "仅显示{group} · {count} 条",
     "clearFilter": "清除过滤",
     "showMore": "显示更多（共 {count} 条）…"
-  },
-  "PlaygroundTabs": {
-    "descOmnicrawl": "三引擎爬虫框架：一行命令，自动选择最优引擎。",
-    "descExMemory": "基于真实聊天记录的个人记忆镜像。下方为虚构示例的流程演示，未实际上传或调用模型。",
-    "descStatux": "iTerm2 状态栏里的 AI Agent 监控面板。",
-    "descTollow": "沉浸式长文打字练习，选一本书开始。",
-    "viewDetails": "查看详情 →",
-    "readDocs": "查看帮助",
-    "demos": {
-      "omnicrawl": {
-        "install": "# 安装 OmniCrawl",
-        "auto": "# 用 auto 引擎抓取页面",
-        "protected": "# 对付有 WAF 保护的站点"
-      },
-      "exMemory": {
-        "import": "1. 选择聊天文件或应用内的虚构示例",
-        "consent": "阅读在线存储与模型处理说明，确认有权使用所选记录。",
-        "persona": "2. 填写镜像名称与记录中的目标说话人",
-        "create": "导入成功后，基于记录创建人物记忆镜像。",
-        "chat": "3. 开始 AI 模拟对话",
-        "question": "示例提问：记录里提到过哪些周末安排？",
-        "answer": "核对生成回复与原始记录；AI 模拟内容可能出错。",
-        "correct": "4. 纠正人物信息与记忆，再继续对话"
-      },
-      "statux": {
-        "detected": "[Statux] 检测到 iTerm2 v3.5.2 ✓",
-        "registered": "[Statux] 状态栏组件已注册",
-        "config": "[Statux] 配置文件: ~/.config/statux/config.toml",
-        "watching": "[Statux] 实时更新中... (Ctrl+C 退出)"
-      },
-      "tollow": {
-        "choose": "# 浏览器打开后选择书籍...",
-        "books": "  📚 可用书籍:",
-        "book1": "  1. 《黑客与画家》 - Paul Graham",
-        "book2": "  2. 《代码大全》 - Steve McConnell",
-        "book3": "  3. 《人月神话》 - Frederick Brooks",
-        "chapter": "  当前段落 (第 3 章):",
-        "quote1": "  \"好的设计是简单的设计。从数学到绘画，",
-        "quote2": "   你总是听到这句话。在数学中，它意味着",
-        "quote3": "   更短的证明往往是更好的证明...\""
-      }
-    }
   },
   "TopicProposal": {
     "validationError": "标题至少 4 个字，理由至少 10 个字",
@@ -1668,10 +1613,6 @@
     "nightGreeting1": "这么晚还醒着？没关系，流星也醒着。",
     "nightGreeting2": "深夜的网速和思绪一样，容易飘远。慢慢逛，不着急。",
     "nightGreeting3": "今天不管发生了什么，都过去了。真的。"
-  },
-  "TerminalDemo": {
-    "runDemo": "看演示",
-    "replayAria": "重新播放"
   },
   "MeteorShower": {
     "wishButtonText": "☄ 许个愿？",

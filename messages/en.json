@@ -1485,19 +1485,6 @@
     "totalCount": "{total} tags in total",
     "noMatch": "No matching tags"
   },
-  "PlaygroundPage": {
-    "metaTitle": "Browser apps and product demos",
-    "metaDescription": "Open Meteor Store apps in your browser or watch a product walkthrough.",
-    "title": "Browser apps",
-    "description": "Choose an app to open it full-screen in a new window.",
-    "openApp": "Open app",
-    "openNamedApp": "Open {name} (new window)",
-    "needsApiKey": "Sign-in and your model API keys required",
-    "needsAccount": "Sign in to sync practice and favorites",
-    "guestAccess": "No sign-in required",
-    "demos": "Product demos",
-    "demoDescription": "Choose a product to watch a scripted terminal walkthrough."
-  },
   "NotFoundPage": {
     "title": "Not in the Mirror",
     "description": "This page may have gone off to earn tuition. Apologies on its behalf.",
@@ -1562,7 +1549,7 @@
     "popularLabel": "Popular",
     "hint": "⌘K to open · ↑↓ to select · Enter to open",
     "empty": "No matches. Try another search or",
-    "browseApps": "browse online apps",
+    "browseProducts": "browse products",
     "groupProduct": "Products",
     "groupPage": "Pages",
     "groupHelp": "Help",
@@ -1586,48 +1573,6 @@
     "filteredCount": "{group} only · {count, plural, one {# result} other {# results}}",
     "clearFilter": "Clear filter",
     "showMore": "Show more ({count} total)…"
-  },
-  "PlaygroundTabs": {
-    "descOmnicrawl": "Three-engine crawler framework: one command, auto-selects the best engine.",
-    "descExMemory": "A personal memory mirror from real chat records. The fictional workflow below does not upload data or call a model.",
-    "descStatux": "AI Agent monitoring panel in the iTerm2 status bar.",
-    "descTollow": "Immersive long-form typing practice — pick a book to start.",
-    "viewDetails": "View details →",
-    "readDocs": "View help",
-    "demos": {
-      "omnicrawl": {
-        "install": "# Install OmniCrawl",
-        "auto": "# Fetch a page with the auto engine",
-        "protected": "# Fetch a site protected by a WAF"
-      },
-      "exMemory": {
-        "import": "1. Choose a chat file or the fictional example in the app",
-        "consent": "Read the online storage and model-processing notice, and confirm you have permission to use the records.",
-        "persona": "2. Enter a mirror name and the target speaker from the records",
-        "create": "After import succeeds, create a personal memory mirror from the records.",
-        "chat": "3. Start an AI-simulated conversation",
-        "question": "Example question: Which weekend plans appear in these records?",
-        "answer": "Check generated replies against the original records; AI simulations can be wrong.",
-        "correct": "4. Correct persona details and memories, then continue chatting"
-      },
-      "statux": {
-        "detected": "[Statux] Detected iTerm2 v3.5.2 ✓",
-        "registered": "[Statux] Status bar component registered",
-        "config": "[Statux] Config: ~/.config/statux/config.toml",
-        "watching": "[Statux] Updating live... (Ctrl+C to exit)"
-      },
-      "tollow": {
-        "choose": "# Choose a book in the browser...",
-        "books": "  📚 Available books:",
-        "book1": "  1. Hackers & Painters - Paul Graham",
-        "book2": "  2. Code Complete - Steve McConnell",
-        "book3": "  3. The Mythical Man-Month - Frederick Brooks",
-        "chapter": "  Current passage (Chapter 3):",
-        "quote1": "  \"Good design is simple. From mathematics to painting,",
-        "quote2": "   you hear this again and again. In mathematics, it means",
-        "quote3": "   shorter proofs are often better proofs...\""
-      }
-    }
   },
   "TopicProposal": {
     "validationError": "Title needs at least 4 characters, reason at least 10",
@@ -1668,10 +1613,6 @@
     "nightGreeting1": "Still up this late? It's okay — the meteors are too.",
     "nightGreeting2": "Late-night internet and thoughts both drift. Take your time, no rush.",
     "nightGreeting3": "Whatever happened today is over now. Really."
-  },
-  "TerminalDemo": {
-    "runDemo": "Watch demo",
-    "replayAria": "Replay"
   },
   "MeteorShower": {
     "wishButtonText": "☄ Make a wish?",

@@ -118,6 +118,15 @@ afterEach(() => {
 });
 
 describe('Spotlight 面板顺序、翻译与焦点关闭契约', () => {
+  it('无结果时引向产品目录', async () => {
+    responseEntries = [];
+    await typeQuery('no-matching-app');
+    const fallback = nodes(props => props.children === en.SpotlightSearch.browseProducts)[0];
+    expect(fallback).toBeDefined();
+    (fallback.props.onClick as () => void)();
+    expect(hooks.push).toHaveBeenCalledWith('/products');
+  });
+
   it('在全屏体验结果按 Enter，会新开对应语言的应用窗口', async () => {
     responseEntries = [{ ...entry('open-app-tollow', '产品'), href: '/apps/tollow/trial' }];
     await typeQuery('typing');
