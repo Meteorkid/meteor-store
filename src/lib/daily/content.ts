@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderSources } from '@/lib/db/schema';
 import { SITE_URL } from '@/lib/constants';
 import { cleanExternalText, normalizeIngestionUrl, toIsoDate } from '@/lib/pathfinder/ingestion/normalize';
+import { isDigestItem } from '@/lib/pathfinder/catalog-view';
 import { generateDailyEnglish } from './english-generator';
 import { loadDailyEvents } from './events';
 import { loadDailyOpenSource } from './open-source';
@@ -71,7 +72,8 @@ async function loadAiContent(date: string, used: Set<string>): Promise<DailyCont
   const end = new Date(`${shiftDailyDate(date, 1)}T00:00:00+08:00`).toISOString();
   // 直接查已发布数据库记录；目录的静态降级不能冒充当天真实采集结果。
   const rows = await db.select({
-    id: pathfinderItems.id, titleZh: pathfinderItems.titleZh, titleEn: pathfinderItems.titleEn,
+    id: pathfinderItems.id, sourceId: pathfinderItems.sourceId,
+    titleZh: pathfinderItems.titleZh, titleEn: pathfinderItems.titleEn,
     summaryZh: pathfinderItems.summaryZh, summaryEn: pathfinderItems.summaryEn,
     canonicalUrl: pathfinderItems.canonicalUrl, publishedAt: pathfinderItems.publishedAt,
     sourceName: pathfinderSources.name, trustLevel: pathfinderSources.trustLevel,
@@ -87,6 +89,13 @@ async function loadAiContent(date: string, used: Set<string>): Promise<DailyCont
   const seen = new Set<string>();
   const items: DailyLinkItem[] = [];
   for (const row of rows) {
+    /*
+     * 聚合日报（AGI Hunt）的摘要只是 RSS 元描述——「过去 24 小时全站最热 AI 动态
+     * 的结构化梳理」——不是一件事。它每天 07:24 才入库，按时间倒序永远压过当天
+     * 所有具体动态排第一，读起来就是一句空话。判定沿用机会库的 isDigestItem：
+     * 这类来源只由发现页侧栏承载，不进「AI 圈大事」的事件列表。
+     */
+    if (isDigestItem({ sourceId: row.sourceId })) continue;
     const publishedAt = toIsoDate(row.publishedAt);
     const url = normalizeIngestionUrl(row.canonicalUrl);
     if (!publishedAt || dailyDate(new Date(publishedAt)) !== date || !url
@@ -105,9 +114,9 @@ async function loadAiContent(date: string, used: Set<string>): Promise<DailyCont
   }
   return items.length > 0 ? {
     status: 'published', title: 'AI 圈大事',
-    summary: `来自当天已发布资讯的 ${items.length} 条摘要，保留原始出处与发布时间。`,
+    summary: `来自当天已发布的 ${items.length} 条具体 AI 动态，保留原始出处与发布时间。`,
     content: { kind: 'ai', items }, sourceKey: sourceKey('ai', items),
-  } : empty('AI 圈大事', '当天尚无可用的已发布资讯。');
+  } : empty('AI 圈大事', '当天暂无具体 AI 动态。');
 }
 
 /** arXiv 要求单连接及请求起点至少间隔三秒，后台并发补跑也必须串行。 */

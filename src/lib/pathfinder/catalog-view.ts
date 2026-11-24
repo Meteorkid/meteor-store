@@ -106,9 +106,10 @@ export function isActionableTask(
  *
  * 判据在来源配置上（`digest`），不在条目字段上：同一个 `ai-update` 类型里，
  * OpenAI 的单条发布是「一件事」，AGI Hunt 的日报是「一堆事的综述」，
- * 区别来自来源而不是类型。三个机会面共用这一个判定，避免各自写各自的。
+ * 区别来自来源而不是类型。各调用方共用这一个判定，避免各自写各自的。
+ * 只需要 sourceId，是因为日刊等查询只带这一列，不必构造完整目录条目。
  */
-export function isDigestItem(item: PathfinderCatalogItem): boolean {
+export function isDigestItem(item: Pick<PathfinderCatalogItem, 'sourceId'>): boolean {
   return PATHFINDER_SYNC_SOURCE_MAP.get(item.sourceId)?.digest === true;
 }
 

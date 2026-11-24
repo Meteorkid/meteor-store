@@ -66,7 +66,8 @@ function atomFeed(...entries: string[]) {
 
 function aiRow(overrides: Record<string, unknown> = {}) {
   return {
-    id: 'pf_official', titleZh: '官方更新', titleEn: 'Official update',
+    id: 'pf_official', sourceId: 'openai-news',
+    titleZh: '官方更新', titleEn: 'Official update',
     summaryZh: '官方已经发布的事实摘要。', summaryEn: 'A published source summary.',
     canonicalUrl: 'https://openai.com/news/example', publishedAt: '2026-10-14T01:00:00.000Z',
     sourceName: 'OpenAI News', trustLevel: 'official', ...overrides,
@@ -304,10 +305,12 @@ describe('arXiv 论文元数据', () => {
 });
 
 describe('已有 AI 资讯与发布会', () => {
-  it('只查询已发布 AI 资讯，使用北京时间当天边界并保留官方/聚合来源身份', async () => {
+  it('只查询已发布 AI 资讯，使用北京时间当天边界并排除聚合日报', async () => {
     const { loadDailyContent } = await import('../content');
     mocks.limit.mockResolvedValue([
-      aiRow(), aiRow({ id: 'pf_digest', canonicalUrl: 'https://agihunt.info/daily/2026-10-14', sourceName: 'AGI Hunt 日报', trustLevel: 'verified' }),
+      aiRow(),
+      aiRow({ id: 'pf_digest', sourceId: 'agihunt-daily', canonicalUrl: 'https://agihunt.info/daily/2026-10-14', sourceName: 'AGI Hunt 日报', trustLevel: 'verified' }),
+      aiRow({ id: 'pf_aggregator', sourceId: 'ai-aggregator', canonicalUrl: 'https://example.com/news', sourceName: 'AI 聚合', trustLevel: 'verified' }),
       aiRow({ id: 'pf_yesterday', canonicalUrl: 'https://openai.com/news/old', publishedAt: '2026-10-13T15:59:59.000Z' }),
       aiRow({ id: 'pf_tomorrow', canonicalUrl: 'https://openai.com/news/future', publishedAt: '2026-10-14T16:00:00.000Z' }),
     ]);
@@ -315,10 +318,21 @@ describe('已有 AI 资讯与发布会', () => {
     expect(result.status).toBe('published');
     if (result.content?.kind !== 'ai') throw new Error('Expected AI briefing');
     expect(result.content.items).toHaveLength(2);
+    expect(result.content.items.map((item) => item.id)).toEqual(['pf_official', 'pf_aggregator']);
     expect(result.content.items.map((item) => item.sourceType)).toEqual(['official', 'aggregator']);
     const query = new PgDialect().sqlToQuery(mocks.where.mock.calls[0][0] as SQL);
     expect(query.params).toEqual(['published', 'ai-update', '2026-10-13T16:00:00.000Z', '2026-10-14T16:00:00.000Z']);
     expect(query.sql).toContain('"pathfinder_items"."status"');
+  });
+
+  it('聚合日报的摘要只是元描述，只有它时也不冒充具体动态', async () => {
+    const { loadDailyContent } = await import('../content');
+    mocks.limit.mockResolvedValue([
+      aiRow({ id: 'pf_digest', sourceId: 'agihunt-daily', canonicalUrl: 'https://agihunt.info/daily/2026-10-14', sourceName: 'AGI Hunt 日报', summaryZh: '过去 24 小时全站最热 AI 动态的结构化梳理。' }),
+    ]);
+    const result = await loadDailyContent('ai', day);
+    expect(result).toMatchObject({ status: 'empty', content: null });
+    expect(result.summary).not.toContain('过去 24 小时');
   });
 
   it('按来源URL去重、排除已用内容，跳过缺摘要和不安全链接，最多五条', async () => {
