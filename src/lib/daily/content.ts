@@ -93,7 +93,7 @@ async function loadAiContent(date: string, used: Set<string>): Promise<DailyCont
      * 聚合日报（AGI Hunt）的摘要只是 RSS 元描述——「过去 24 小时全站最热 AI 动态
      * 的结构化梳理」——不是一件事。它每天 07:24 才入库，按时间倒序永远压过当天
      * 所有具体动态排第一，读起来就是一句空话。判定沿用机会库的 isDigestItem：
-     * 这类来源只由发现页侧栏承载，不进「AI 圈大事」的事件列表。
+     * 这类来源只由发现页侧栏承载，不进「每日 AI 圈内大事」的事件列表。
      */
     if (isDigestItem({ sourceId: row.sourceId })) continue;
     const publishedAt = toIsoDate(row.publishedAt);
@@ -113,10 +113,10 @@ async function loadAiContent(date: string, used: Set<string>): Promise<DailyCont
     if (items.length === 5) break;
   }
   return items.length > 0 ? {
-    status: 'published', title: 'AI 圈大事',
+    status: 'published', title: '每日 AI 圈内大事',
     summary: `来自当天已发布的 ${items.length} 条具体 AI 动态，保留原始出处与发布时间。`,
     content: { kind: 'ai', items }, sourceKey: sourceKey('ai', items),
-  } : empty('AI 圈大事', '当天暂无具体 AI 动态。');
+  } : empty('每日 AI 圈内大事', '当天暂无具体 AI 动态。');
 }
 
 /** arXiv 要求单连接及请求起点至少间隔三秒，后台并发补跑也必须串行。 */

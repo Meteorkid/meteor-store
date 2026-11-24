@@ -5,7 +5,7 @@ export const DAILY_CHANNEL_IDS = [...DAILY_EDITION_CHANNEL_IDS, 'masters'] as co
 export const dailyChannels = [
   { id: 'english', zh: '每日英语', en: 'Daily English', descriptionZh: '几个表达，一段阅读，一次小练习。', descriptionEn: 'Expressions, a short read and a quick quiz.' },
   { id: 'papers', zh: '每日论文', en: 'Daily Papers', descriptionZh: '从研究问题出发，找到值得读的论文。', descriptionEn: 'Research questions and papers worth reading.' },
-  { id: 'ai', zh: 'AI 圈大事', en: 'AI Briefing', descriptionZh: '有出处的消息，读完再看原文。', descriptionEn: 'Sourced updates with links to the original.' },
+  { id: 'ai', zh: '每日 AI 圈内大事', en: 'Daily AI Briefing', descriptionZh: '有出处的消息，读完再看原文。', descriptionEn: 'Sourced updates with links to the original.' },
   { id: 'events', zh: '发布会日历', en: 'Events', descriptionZh: '近期预告、当天活动与官方回放。', descriptionEn: 'Upcoming events, live sessions and replays.' },
   { id: 'open-source', zh: '每日开源项目', en: 'Open-source Pick', descriptionZh: '每天探索一个经过实时核验的开源项目。', descriptionEn: 'Explore one live-checked open-source project each day.' },
   { id: 'competitions', zh: '每日竞赛', en: 'Contest Watch', descriptionZh: '官方编程赛事、开赛时间与参与要求。', descriptionEn: 'Official programming contests, start times and requirements.' },

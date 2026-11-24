@@ -22,7 +22,7 @@ export default function DailyOverview({ entries, isToday, showMasters, locale, c
         {published.length > 0 && <> · {copy.read} {read}/{published.length}</>}
       </p>
     </div>
-    <ul className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3">
+    <ul className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-2 xl:grid-cols-3">
       {entries.map(({ channel, edition, status, isRead }) => {
         const content = status === 'published' ? edition?.content : null;
         const previewTitle = content && content.kind !== 'english' ? content.items[0]?.title : edition?.title;

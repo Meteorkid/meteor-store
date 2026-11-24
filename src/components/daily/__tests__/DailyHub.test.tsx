@@ -127,6 +127,26 @@ describe('空栏目回看与覆盖范围', () => {
     expect(edition.title).toBe('每日实习机会');
   });
 
+  it('旧 AI 日报标题也按新栏目名呈现，不改写历史记录', () => {
+    const edition: DailyHubProps['editions'][number] = {
+      id: 'old-ai', date: baseProps.date, channel: 'ai', status: 'published', title: 'AI 圈大事', summary: '有出处的消息。',
+      content: { kind: 'ai', items: [{ id: 'news', title: 'OpenAI 发布新模型', summary: '事件摘要', url: 'https://example.com/news', sourceName: 'OpenAI', sourceType: 'official' }] },
+      sourceKey: null, publishedAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z',
+    };
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} viewAll editions={[edition]} />);
+    expect(html).not.toContain('AI 圈大事');
+    expect(html).toContain('每日 AI 圈内大事');
+    expect(edition.title).toBe('AI 圈大事');
+  });
+
+  it('栏目导航为每个栏目提供锚点，并标出当前栏目', () => {
+    const html = renderToStaticMarkup(<DailyHub {...baseProps} viewAll />);
+    expect(html).toContain('aria-label="栏目导航"');
+    expect(html).toContain('aria-current="true"');
+    for (const channel of DAILY_EDITION_CHANNEL_IDS) expect(html).toContain(`href="#${channel}"`);
+    expect(html).toContain('href="#daily-overview"');
+  });
+
   it('没有历史、历史读取失败和本期更新失败保留不同状态', () => {
     const empty = renderToStaticMarkup(<DailyHub {...baseProps} viewAll />);
     expect(empty).toContain('可回看范围内没有更早的已发布期次');

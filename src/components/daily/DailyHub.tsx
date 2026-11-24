@@ -13,6 +13,7 @@ import { defaultMastersYear, type MastersSummary } from '@/lib/masters/types';
 import { dailyChannels, DAILY_CHANNEL_IDS, isDailyHistoryDate, shiftDailyDate, type DailyEdition, type DailyPreferences, type DailyPreferencesState, type PreviousPublishedDailyDates } from '@/lib/daily/types';
 import EditionContent from './EditionContent';
 import DailyOverview from './DailyOverview';
+import DailyChannelNav from './DailyChannelNav';
 import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, DailyPreferencesOwnerChangedError, dailyReadStorageKey, getDailyEditionEntries, latestDailyUpdate, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
 import { fetchDailyEditions, subscribeDailyDate, subscribeDailyRefresh } from './refresh';
 import { dailyText } from './text';
@@ -243,9 +244,58 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
   const readingLinkClass = 'inline-flex min-h-11 items-center text-sm font-medium text-violet-200 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2';
   const backToOverview = date === today ? copy.backToTodayOverview : copy.backToEditionOverview;
   const nextCalendar = selectedChannels.includes('masters') ? dailyChannels.find(channel => channel.id === 'masters') : undefined;
+  const sectionIds = [...editionEntries.map(entry => entry.channel.id), ...(selectedChannels.includes('masters') ? ['masters'] : [])];
+  const sectionKey = sectionIds.join('|');
+  const [activeSection, setActiveSection] = useState('daily-overview');
+
+  useEffect(() => {
+    const ids = sectionKey ? sectionKey.split('|') : [];
+    if (ids.length === 0) return;
+    // 单测的最小 window 桩没有计时器；没有计时器时保留初始高亮即可。
+    if (typeof window.setTimeout !== 'function') return;
+    const update = () => {
+      const offset = 128;
+      let current = 'daily-overview';
+      for (const id of ids) {
+        const element = document.getElementById(id);
+        if (element && element.getBoundingClientRect().top <= offset) current = id;
+      }
+      setActiveSection(current);
+    };
+    let frame = 0;
+    const schedule = (callback: () => void) => {
+      if (frame) return;
+      frame = window.setTimeout(() => { frame = 0; callback(); }, 0);
+    };
+    const syncHash = () => {
+      const hash = window.location.hash.slice(1);
+      if (ids.includes(hash)) setActiveSection(hash);
+      else update();
+    };
+    schedule(syncHash);
+    // 深链的浏览器滚动可能发生在 hydration 之后；等首轮滚动结束再对齐一次。
+    const verifyTimer = window.setTimeout(syncHash, 600);
+    const onScroll = () => schedule(update);
+    const onScrollEnd = () => schedule(update);
+    const onHash = () => {
+      const hash = window.location.hash.slice(1);
+      if (ids.includes(hash)) setActiveSection(hash);
+      else schedule(update);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scrollend', onScrollEnd);
+    window.addEventListener('hashchange', onHash);
+    return () => {
+      window.clearTimeout(verifyTimer);
+      if (frame) window.clearTimeout(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scrollend', onScrollEnd);
+      window.removeEventListener('hashchange', onHash);
+    };
+  }, [sectionKey]);
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-6xl">
       <header className="border-b border-white/10 pb-6">
         <p className="t-eyebrow text-violet-300">DAILY FRESH</p>
         <h1 className="mt-3 t-title-1 text-white">{copy.title}</h1>
@@ -318,55 +368,77 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
       {localError && <p className="mb-5 t-footnote text-amber-200" role="alert">{localError}</p>}
       {refreshFailed && <p className="mb-5 t-footnote text-amber-200" role="status">{copy.refreshFailed} <button type="button" onClick={reloadContent} className="min-h-10 underline underline-offset-4">{copy.retry}</button></p>}
 
-      {!loadFailed && <DailyOverview entries={editionEntries} isToday={date === today} showMasters={selectedChannels.includes('masters')} locale={locale} copy={copy} />}
-
       {loadFailed && selectedChannels.some(channel => channel !== 'masters') ? <section className="my-6 rounded-2xl border border-amber-300/20 p-7" role="alert">
         <h2 className="t-title-3 text-white">{copy.loadFailed}</h2><p className="mt-3 t-body text-white/70">{copy.loadFailedHint}</p>
         <button type="button" onClick={reloadContent} className={`${buttonClass} mt-5`}>{copy.retry}</button>
       </section> : selectedChannels.length === 0 ? <section className="my-6 rounded-2xl border border-white/10 px-6 py-12 text-center">
         <h2 className="t-title-3 text-white">{copy.noChannels}</h2><p className="mt-3 t-body text-white/70">{copy.noChannelsHint}</p>
         <button type="button" onClick={openSettings} className={`${buttonClass} mt-6`}>{copy.manage}</button>
-      </section> : <div className="divide-y divide-white/10">
-        {editionEntries.map(({ channel, edition, status, isRead }, index) => {
-          const published = status === 'published';
-          const previousPublished = previousPublishedDates[channel.id];
-          const useChannelTitle = channel.id === 'internships' && ['每日实习机会', '实习与应届机会'].includes(edition?.title ?? '');
-          const title = published && edition && !useChannelTitle ? edition.title : channel[locale];
-          const coverage = channel.id === 'events' ? copy.eventsCoverage : channel.id === 'competitions' ? copy.competitionsCoverage
-            : channel.id === 'internships' ? copy.internshipsCoverage : null;
-          const editionReadKey = `${date}:${channel.id}`;
-          const nextChannel = editionEntries.slice(index + 1).find(entry => entry.status === 'published')?.channel ?? nextCalendar;
-          return <article key={channel.id} id={channel.id} tabIndex={-1} className="scroll-mt-24 py-9 sm:py-12" aria-labelledby={`daily-${channel.id}-title`}>
-            <div className="mb-5 flex flex-wrap items-center gap-3">
-              <span className="font-mono text-xs text-violet-200">{String(index + 1).padStart(2, '0')}</span>
-              <p className="t-eyebrow text-violet-300">{channel[locale]}</p>
-              <span className="ml-auto t-footnote text-white/60">{copy.issue} {date}{isRead ? ` · ${copy.read}` : ''}</span>
+      </section> : <>
+        <DailyChannelNav variant="mobile" entries={editionEntries} showMasters={selectedChannels.includes('masters')}
+          activeId={activeSection} onNavigate={id => setActiveSection(id)} locale={locale} copy={copy}
+          overviewLabel={date === today ? copy.overviewToday : copy.overviewEdition} />
+        <div className="mt-2 grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)]">
+          <DailyChannelNav variant="desktop" entries={editionEntries} showMasters={selectedChannels.includes('masters')}
+            activeId={activeSection} onNavigate={id => setActiveSection(id)} locale={locale} copy={copy}
+            overviewLabel={date === today ? copy.overviewToday : copy.overviewEdition} />
+          <div className="min-w-0">
+            {!loadFailed && <DailyOverview entries={editionEntries} isToday={date === today} showMasters={selectedChannels.includes('masters')} locale={locale} copy={copy} />}
+            <div className="space-y-5 sm:space-y-6">
+            {editionEntries.map(({ channel, edition, status, isRead }, index) => {
+              const published = status === 'published';
+              const previousPublished = previousPublishedDates[channel.id];
+              // AI 栏目的历史期次仍存着旧标题，统一按频道名展示，避免旧库记录覆盖新名称。
+              const useChannelTitle = channel.id === 'ai' || (channel.id === 'internships' && ['每日实习机会', '实习与应届机会'].includes(edition?.title ?? ''));
+              const title = published && edition && !useChannelTitle ? edition.title : channel[locale];
+              const coverage = channel.id === 'events' ? copy.eventsCoverage : channel.id === 'competitions' ? copy.competitionsCoverage
+                : channel.id === 'internships' ? copy.internshipsCoverage : null;
+              const editionReadKey = `${date}:${channel.id}`;
+              const nextChannel = editionEntries.slice(index + 1).find(entry => entry.status === 'published')?.channel ?? nextCalendar;
+              const statusLabel = status === 'published' ? copy.statusPublished : status === 'empty' ? copy.statusEmpty : status === 'failed' ? copy.statusFailed : copy.statusUnpublished;
+              const statusTone = status === 'failed' ? 'border-amber-300/25 text-amber-200' : status === 'published' ? 'border-emerald-300/25 text-emerald-200' : 'border-white/15 text-white/55';
+              return <article key={channel.id} id={channel.id} tabIndex={-1} className="scroll-mt-28 overflow-hidden rounded-2xl border border-white/12 bg-white/[0.025]" aria-labelledby={`daily-${channel.id}-title`}>
+                <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-white/12 bg-white/[0.035] px-5 py-4 sm:px-8">
+                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-violet-400/30 bg-violet-400/10 font-mono text-[11px] font-semibold text-violet-200">{String(index + 1).padStart(2, '0')}</span>
+                  <div className="min-w-0">
+                    <p className="t-eyebrow text-violet-300">{channel[locale]}</p>
+                    <p className="mt-1 t-footnote text-white/50">{copy.issue} {date}</p>
+                  </div>
+                  <div className="ml-auto flex shrink-0 items-center gap-2">
+                    {published && isRead && <span className="t-footnote text-emerald-200">✓ {copy.read}</span>}
+                    <span className={`rounded-full border px-2.5 py-1 t-footnote ${statusTone}`}>{statusLabel}</span>
+                  </div>
+                </header>
+                <div className="p-5 sm:p-8">
+                  <h2 id={`daily-${channel.id}-title`} className="t-title-2 text-white">{title}</h2>
+                  {coverage && <p className="mt-3 t-footnote text-white/60">{copy.sourceCoverage}: {coverage}</p>}
+                  {published && edition?.summary && <p className="mt-3 t-body text-white/70">{edition.summary}</p>}
+                  {published && edition?.content ? <>
+                    <div className="mt-7"><EditionContent key={edition.id} content={edition.content} copy={copy} locale={locale} /></div>
+                    <button type="button" onClick={() => toggleRead(editionReadKey)} aria-pressed={isRead} className={`${buttonClass} mt-7`}>
+                      {isRead ? `✓ ${copy.read} · ${copy.markUnread}` : copy.markRead}
+                    </button>
+                  </> : <div className="mt-5 border-l-2 border-white/15 pl-4">
+                    <p className="text-sm font-semibold text-white/80">{status === 'empty' && channel.id === 'events' ? copy.emptyEvents : copy[status]}</p>
+                    <p className="mt-2 t-footnote text-white/60">{status === 'empty' ? copy.emptyHint : status === 'failed' ? copy.failedHint : copy.unpublishedHint}</p>
+                    {previousPublished && previousPublished < date && isDailyHistoryDate(previousPublished, today) ? <Link
+                      href={`/daily?date=${previousPublished}&view=all#${channel.id}`}
+                      className="mt-3 inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">
+                      {copy.latestPublished} · {previousPublished}
+                    </Link> : <p className="mt-3 t-footnote text-white/60">{previousPublishedDatesFailed ? copy.previousPublishedFailed : copy.noPreviousPublished}</p>}
+                  </div>}
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-x-5 border-t border-white/10 pt-3">
+                    <a href="#daily-overview" className={readingLinkClass}>{backToOverview}</a>
+                    {nextChannel && <a href={`#${nextChannel.id}`} className={readingLinkClass}>{copy.nextChannel} · {nextChannel[locale]} →</a>}
+                  </div>
+                </div>
+              </article>;
+            })}
+              {selectedChannels.includes('masters') && <div className="mt-1"><MastersSummaryCard summary={mastersSummary} year={defaultMastersYear(new Date(`${today}T00:00:00+08:00`))} issueDate={date} today={today} locale={locale} failed={mastersSummaryFailed} /></div>}
             </div>
-            <h2 id={`daily-${channel.id}-title`} className="t-title-2 text-white">{title}</h2>
-            {coverage && <p className="mt-3 t-footnote text-white/60">{copy.sourceCoverage}: {coverage}</p>}
-            {published && edition?.summary && <p className="mt-3 t-body text-white/70">{edition.summary}</p>}
-            {published && edition?.content ? <>
-              <div className="mt-7"><EditionContent key={edition.id} content={edition.content} copy={copy} locale={locale} /></div>
-              <button type="button" onClick={() => toggleRead(editionReadKey)} aria-pressed={isRead} className={`${buttonClass} mt-7`}>
-                {isRead ? `✓ ${copy.read} · ${copy.markUnread}` : copy.markRead}
-              </button>
-            </> : <div className="mt-5 border-l-2 border-white/15 pl-4">
-              <p className="text-sm font-semibold text-white/80">{status === 'empty' && channel.id === 'events' ? copy.emptyEvents : copy[status]}</p>
-              <p className="mt-2 t-footnote text-white/60">{status === 'empty' ? copy.emptyHint : status === 'failed' ? copy.failedHint : copy.unpublishedHint}</p>
-              {previousPublished && previousPublished < date && isDailyHistoryDate(previousPublished, today) ? <Link
-                href={`/daily?date=${previousPublished}&view=all#${channel.id}`}
-                className="mt-3 inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">
-                {copy.latestPublished} · {previousPublished}
-              </Link> : <p className="mt-3 t-footnote text-white/60">{previousPublishedDatesFailed ? copy.previousPublishedFailed : copy.noPreviousPublished}</p>}
-            </div>}
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-x-5 border-t border-white/10 pt-2">
-              <a href="#daily-overview" className={readingLinkClass}>{backToOverview}</a>
-              {nextChannel && <a href={`#${nextChannel.id}`} className={readingLinkClass}>{copy.nextChannel} · {nextChannel[locale]} →</a>}
-            </div>
-          </article>;
-        })}
-      </div>}
-      {selectedChannels.includes('masters') && <MastersSummaryCard summary={mastersSummary} year={defaultMastersYear(new Date(`${today}T00:00:00+08:00`))} issueDate={date} today={today} locale={locale} failed={mastersSummaryFailed} />}
+          </div>
+        </div>
+      </>}
       {nextCalendar && !loadFailed && editionEntries.length > 0 && <a href="#daily-overview" className={readingLinkClass}>{backToOverview}</a>}
       <p className="border-t border-white/10 pt-6 t-footnote text-white/60">{copy.readHint} {copy.readScope}</p>
     </div>
