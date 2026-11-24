@@ -14,7 +14,7 @@ export default function DailyOverview({ entries, isToday, showMasters, locale, c
   const read = published.filter(entry => entry.isRead).length;
   const title = isToday ? copy.overviewToday : copy.overviewEdition;
 
-  return <nav aria-label={title} className="mb-6 border-b border-white/10 pb-6">
+  return <nav id="daily-overview" tabIndex={-1} aria-label={title} className="mb-6 scroll-mt-24 border-b border-white/10 pb-6">
     <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
       <h2 className="t-title-4 text-white">{title}</h2>
       <p className="t-footnote text-white/60">

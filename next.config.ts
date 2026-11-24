@@ -127,7 +127,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // 文件文章迁移到数据库投稿后的 301 重定向
   async redirects() {
     const slugs: Record<string, string> = {
       // zh
@@ -150,7 +149,10 @@ const nextConfig: NextConfig = {
       'spouse-first-in-law': 'fCkmSkUaQ0E',
     };
 
-    const redirects = [];
+    const redirects = [
+      { source: '/playground', destination: '/products', permanent: true },
+      { source: '/:locale(zh|en)/playground', destination: '/:locale/products', permanent: true },
+    ];
     for (const [slug, id] of Object.entries(slugs)) {
       redirects.push({
         source: `/zh/blog/${slug}`,

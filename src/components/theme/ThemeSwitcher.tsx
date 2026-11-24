@@ -10,6 +10,7 @@ const OPTIONS = {
   classic: { zh: '经典紫夜', en: 'Classic Violet', zhMeta: '紫色流光与科技网格', enMeta: 'Violet light and precision grids', preview: styles.classicPreview },
   nebula: { zh: '星云星海', en: 'Nebula Sky', zhMeta: '银蓝星云与三维星空', enMeta: 'Silver-blue nebula and 3D stars', preview: styles.nebulaPreview },
   horizon: { zh: '黑洞视界', en: 'Event Horizon', zhMeta: '橙金吸积盘与黑曜石面板', enMeta: 'Amber accretion disk and obsidian panels', preview: styles.horizonPreview },
+  orbit: { zh: '行星轨道', en: 'Planetary Orbits', zhMeta: '暖色恒星与可探索的产品行星', enMeta: 'A warm star and explorable product planets', preview: styles.orbitPreview },
 } satisfies Record<SiteTheme, { zh: string; en: string; zhMeta: string; enMeta: string; preview: string }>;
 
 export default function ThemeSwitcher({ compact = false, headingId = 'site-theme-heading' }: { compact?: boolean; headingId?: string }) {
@@ -42,6 +43,10 @@ export default function ThemeSwitcher({ compact = false, headingId = 'site-theme
       <p className={styles.credit}>
         {english ? 'Event Horizon inspired by ' : '黑洞视界灵感来自 '}
         <a href="https://vibefather.ai/templates/black-hole-interactive-explainer" target="_blank" rel="noreferrer">{english ? 'VibeFather’s Black Hole Interactive Explainer' : 'VibeFather《黑洞交互式讲解》'}</a>
+      </p>
+      <p className={styles.credit}>
+        {english ? 'Planetary Orbits adapted from ' : '行星轨道改编自 '}
+        <a href="https://vibefather.ai/zh/templates/solar-system-3d-explainer" target="_blank" rel="noreferrer">{english ? 'VibeFather’s Solar System 3D Explainer' : 'VibeFather《太阳系 3D 讲解》'}</a>
       </p>
       {saveError && <p className={styles.error} role="alert">
         {saveError === 'accountChanged' ? (english ? 'The account changed in another tab. Reload before saving again.' : '账号已在其他标签页变化，刷新后再保存。') : (english ? 'Theme changed on this device, but the account copy could not be confirmed.' : '主题已在本设备生效，但账号保存结果未能确认。')}

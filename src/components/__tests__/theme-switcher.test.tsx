@@ -1,7 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SiteTheme } from '@/lib/appearance';
 
-const state = vi.hoisted(() => ({ theme: 'nebula' as 'classic' | 'nebula' | 'horizon', locale: 'zh' }));
+const state = vi.hoisted(() => ({ theme: 'nebula' as SiteTheme, locale: 'zh' }));
 vi.mock('next-intl', () => ({ useLocale: () => state.locale }));
 vi.mock('@/components/AuthProvider', () => ({ useAuth: () => ({ user: { id: 'u1' } }) }));
 vi.mock('../theme/ThemeProvider', () => ({
@@ -17,16 +18,25 @@ describe('ThemeSwitcher', () => {
     state.theme = 'nebula';
   });
 
-  it('同时展示三套主题，标记黑洞视界为当前选择并注明来源', () => {
+  it('同时展示四套主题，标记黑洞视界为当前选择并注明来源', () => {
     state.theme = 'horizon';
     const html = renderToStaticMarkup(<ThemeSwitcher />);
     expect(html).toContain('经典紫夜');
     expect(html).toContain('星云星海');
+    expect(html).toContain('行星轨道');
+    expect((html.match(/aria-pressed=/g) ?? [])).toHaveLength(4);
     expect(html).toMatch(/aria-pressed="true"[^>]*>(?:(?!<\/button>).)*黑洞视界/);
     expect(html).toContain('aria-label="网站主题"');
     expect((html.match(/aria-pressed="true"/g) ?? [])).toHaveLength(1);
     expect(html).toContain('保存到账号');
     expect(html).toContain('href="https://vibefather.ai/templates/black-hole-interactive-explainer"');
+  });
+
+  it('选中行星轨道时标记当前状态并显示适配来源', () => {
+    state.theme = 'orbit';
+    const html = renderToStaticMarkup(<ThemeSwitcher />);
+    expect(html).toMatch(/aria-pressed="true"[^>]*>(?:(?!<\/button>).)*行星轨道/);
+    expect(html).toContain('href="https://vibefather.ai/zh/templates/solar-system-3d-explainer"');
   });
 
   it('紧凑入口使用英文主题名和对应的署名', () => {
@@ -36,7 +46,9 @@ describe('ThemeSwitcher', () => {
     expect(html).toContain('Classic Violet');
     expect(html).toContain('Nebula Sky');
     expect(html).toContain('Event Horizon');
+    expect(html).toContain('Planetary Orbits');
     expect(html).toContain('Black Hole Interactive Explainer');
+    expect(html).toContain('Solar System 3D Explainer');
   });
 
   it('桌面按钮指向默认收起的外观面板', () => {

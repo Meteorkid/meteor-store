@@ -4,7 +4,7 @@ Ex-Memory 根据聊天记录建立个人记忆镜像，参考记录中的表达�
 
 首次使用的顺序是：**登录 → 账号模型设置 → 导入示例或资料 → 对话**。
 
-1. 在 [产品页](/products/ex-memory) 点击「在线体验」，登录 Meteor Store。
+1. 在 [产品页](/products/ex-memory) 点击「登录后打开应用」，登录 Meteor Store。已登录时直接点击「打开应用」。
 2. 打开应用内的**模型设置**，分别配置本账号的**对话模型**与**文本向量（embedding）模型**：选择服务商、填写模型名称和你自己的 API Key。前者生成画像与回复，后者将文本转换为可检索的向量；两套设置都要完成。
 3. 保存设置，再开始导入。内置对话服务支持 DeepSeek、SiliconFlow、OpenAI、Anthropic 和 Google Gemini；内置文本向量服务支持 SiliconFlow、OpenAI 和 Google Gemini。具体模型以设置页提示和服务商账户权限为准，地区可用性以服务商政策为准。
 

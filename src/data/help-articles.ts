@@ -630,17 +630,17 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'tutorial',
     order: 10,
     readingMinutes: 3,
-    updatedAt: '2026-10-24',
+    updatedAt: '2026-11-24',
     commercial: false,
     relatedSlugs: [],
-    title: { zh: '如何使用 Playground 在线体验产品', en: 'How to Use Playground to Try Products Online' },
+    title: { zh: '如何从产品页打开在线应用', en: 'How to Open a Browser App from Its Product Page' },
     excerpt: {
-      zh: '在 Playground 中直接体验产品的核心功能，无需下载或登录。',
-      en: 'Try core product features directly in the Playground without downloading or logging in.',
+      zh: '从产品详情打开全屏应用，了解哪些应用需要登录或自备模型 API Key。',
+      en: 'Launch a full-screen app from its product page and check whether you need an account or a model API key.',
     },
     keywords: {
-      zh: ['Playground', '在线体验', '试用', '演示'],
-      en: ['Playground', 'online trial', 'demo', 'try'],
+      zh: ['在线体验', '试用', '浏览器应用', '打开应用'],
+      en: ['online trial', 'browser apps', 'open app', 'try'],
     },
   },
   {

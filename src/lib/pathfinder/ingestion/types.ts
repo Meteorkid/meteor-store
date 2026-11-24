@@ -149,7 +149,7 @@ export interface IngestedPathfinderItem {
   organizationEn: string;
   difficulty: PathfinderDifficulty;
   estimatedMinutes: number | null;
-  costCny: number;
+  costCny: number | null;
   costAmount: number | null;
   costCurrency: string | null;
   costLabelZh: string | null;
@@ -171,6 +171,7 @@ export interface IngestedPathfinderItem {
   learningEligible: boolean;
   requiresManualEligibilityCheck: boolean;
   tags: string[];
+  requiresPaymentReview?: boolean;
   contentHash: string;
 }
 

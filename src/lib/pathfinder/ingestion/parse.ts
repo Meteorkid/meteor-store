@@ -11,6 +11,7 @@ import {
   toIsoDate,
 } from './normalize';
 import { isActionableIssue } from './actionable';
+import { PAYMENT_REVIEW_PREFIX, requestsPayment } from './issue-review';
 import { isStudentRelevant } from './student-relevance';
 import { topicsForItem } from './topics';
 
@@ -141,7 +142,7 @@ export function parseGithubSearch(
   const items = isRecord(payload) && Array.isArray(payload.items) ? payload.items : [];
 
   return items.slice(0, 30).flatMap((raw) => {
-    if (!isRecord(raw)) return [];
+    if (!isRecord(raw) || (typeof raw.state === 'string' && raw.state !== 'open')) return [];
     const rawUrl = typeof raw.html_url === 'string' ? raw.html_url : '';
     const url = normalizeIngestionUrl(rawUrl);
     const title = cleanExternalText(typeof raw.title === 'string' ? raw.title : '', 180);
@@ -164,7 +165,10 @@ export function parseGithubSearch(
       ? raw.labels.flatMap((label) => isRecord(label) && typeof label.name === 'string' ? [label.name] : [])
       : [];
     // issue 正文是 Markdown，不能按 HTML 清洗
-    const summary = markdownToSummary(typeof raw.body === 'string' ? raw.body : '', 320);
+    const description = typeof raw.body === 'string' ? raw.body : '';
+    const summary = markdownToSummary(description, 320);
+    const paymentReview = requestsPayment(title + ' ' + description);
+    const openedByMaintainer = raw.state === 'open' && ['OWNER', 'MEMBER'].includes(String(raw.author_association));
     const externalId = typeof raw.id === 'number' || typeof raw.id === 'string'
       ? String(raw.id)
       : url;
@@ -189,35 +193,36 @@ export function parseGithubSearch(
       organizationEn: repository || source.organization,
       difficulty: 'beginner',
       estimatedMinutes: 240,
-      costCny: 0,
-      costAmount: 0,
-      costCurrency: 'CNY',
-      costLabelZh: null,
-      costLabelEn: null,
+      costCny: paymentReview ? null : 0,
+      costAmount: paymentReview ? null : 0,
+      costCurrency: paymentReview ? null : 'CNY',
+      costLabelZh: paymentReview ? '原文包含付款指引，参与费用待核实。' : null,
+      costLabelEn: paymentReview ? 'The issue requests payment. Participation fees need review.' : null,
       device: 'computer',
       network: 'high',
       region: 'global',
       regionZh: '全球',
       regionEn: 'Global',
       remoteStatus: 'remote',
-      eligibilityZh: '适合已掌握基础 Git 操作、愿意阅读项目贡献指南的大学生；提交前请先与维护者确认。',
-      eligibilityEn: 'For students with basic Git skills who can follow the repository contribution guide; confirm with maintainers before starting.',
+      eligibilityZh: openedByMaintainer ? '此 Issue 由项目所有者或成员发布，采集时状态为开放。领取任务前请向维护者确认。' : '适合已掌握基础 Git 操作、愿意阅读项目贡献指南的大学生；提交前请先与维护者确认。',
+      eligibilityEn: openedByMaintainer ? 'Opened by a repository owner or member and open when fetched. Confirm availability with the maintainers before starting.' : 'For students with basic Git skills who can follow the repository contribution guide; confirm with maintainers before starting.',
       deadlineAt: null,
       deadlineText: '以 Issue 当前开放状态为准',
       deadlineTextZh: '以 Issue 当前开放状态为准',
       deadlineTextEn: 'While the GitHub issue remains open',
       deadlineDate: null,
       publishedAt,
-      learningEligible: source.learningEligible,
+      learningEligible: source.learningEligible && !paymentReview,
+      ...(paymentReview ? { requiresPaymentReview: true } : {}),
       // 泛搜索的 issue 可能来自任何仓库，能不能上手要人看过才知道；
       // 已策展仓库的贡献指南是公开的，没有需要逐人核对的个人资格条件
-      requiresManualEligibilityCheck: !source.curated,
+      requiresManualEligibilityCheck: !source.curated || paymentReview,
       // 仓库名归「机构」维度，原始标签大半是维护者的分诊记号；
       // 主题一律按词表从标题/摘要/标签里识别，噪声标签天然进不来
       tags: topicsForItem({ title, summary, labels }),
       contentHash: '',
     };
-    item.contentHash = contentHash(item);
+    item.contentHash = paymentReview ? PAYMENT_REVIEW_PREFIX + contentHash({ item, description }) : contentHash(item);
     return [item];
   });
 }

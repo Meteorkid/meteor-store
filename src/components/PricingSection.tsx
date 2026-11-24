@@ -11,6 +11,7 @@ import type { Locale } from '@/i18n/routing';
 interface PricingSectionProps {
   /** Pass 覆盖的主产品线工具数（见 product-tracks.ts 的 productLineIds） */
   productCount: number;
+  freeLicenseOffers?: { id: string; name: string }[];
   /**
    * 星座星图模式：三档作为星座的三颗主星，星轨连线横向贯穿卡片。
    * 首页的定价区块保持默认（false）不变，只有独立定价页开启。
@@ -39,6 +40,7 @@ interface PricingSectionProps {
  */
 export default function PricingSection({
   productCount,
+  freeLicenseOffers = [],
   cosmic = false,
   showHeader = true,
 }: PricingSectionProps) {
@@ -47,8 +49,8 @@ export default function PricingSection({
   const pass = usePassStatus();
 
   return (
-    <section id="pricing" className="py-20">
-      <div className="container mx-auto px-4">
+    <section id="pricing" className={showHeader ? 'py-20' : 'pb-20'}>
+      <div className={showHeader ? 'container mx-auto px-4' : undefined}>
         {/* Section header —— 独立定价页自带 hero 标题时隐藏，避免「定价」重复 */}
         {showHeader && (
           <div className="text-center mb-16 scroll-animate">
@@ -60,6 +62,54 @@ export default function PricingSection({
               {t('subtitle', { count: productCount })}
             </p>
           </div>
+        )}
+
+        {freeLicenseOffers.length > 0 && (
+          <table id="compare" className="mx-auto mb-10 w-full max-w-5xl table-fixed scroll-mt-24 border-collapse text-start text-sm leading-relaxed text-white/80">
+            <caption className="t-title-3 pb-4 text-start text-white">{t('compareTitle')}</caption>
+            <thead className="border-y border-white/15 bg-white/[0.04] text-start text-white">
+              <tr>
+                <th scope="col" className="w-[22%] p-2 text-start md:p-4">{t('compareFeature')}</th>
+                <th scope="col" className="w-[36%] p-2 text-start md:p-4">{t('compareSingle')}</th>
+                <th scope="col" className="p-2 text-start md:p-4">{PASS_NAME[locale]}</th>
+              </tr>
+            </thead>
+            <tbody className="[&_tr]:border-b [&_tr]:border-white/10 [&_th]:p-2 [&_th]:text-start [&_th]:align-top [&_td]:p-2 [&_td]:align-top md:[&_th]:p-4 md:[&_td]:p-4">
+              <tr>
+                <th scope="row">{t('compareCost')}</th>
+                <td>{t('compareClaimCost')}</td>
+                <td>
+                  <ul className="flex flex-wrap gap-x-3 gap-y-1">
+                    {passPlans.map(plan => (
+                      <li key={plan.id}>¥{plan.price} · {t(`activation_${plan.id}`)}</li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">{t('compareCoverage')}</th>
+                <td>
+                  {t('comparePerProduct')}
+                  <div className="flex flex-wrap gap-x-3">
+                    {freeLicenseOffers.map(offer => (
+                      <Link key={offer.id} href={`/products/${offer.id}#pricing`} className="inline-flex min-h-11 items-center text-violet-300 underline underline-offset-4">{offer.name}</Link>
+                    ))}
+                  </div>
+                </td>
+                <td>{t('comparePassCoverage', { count: productCount })}</td>
+              </tr>
+              <tr>
+                <th scope="row">{t('compareTerm')}</th>
+                <td>{t('compareSingleTerm')}</td>
+                <td>{t('comparePassTerm')}</td>
+              </tr>
+              <tr>
+                <th scope="row">{t('compareNewTools')}</th>
+                <td>{t('compareSingleFuture')}</td>
+                <td>{t('comparePassFuture')}</td>
+              </tr>
+            </tbody>
+          </table>
         )}
 
         {/* Pass 三档 —— cosmic 模式下背景铺一片星座星图：

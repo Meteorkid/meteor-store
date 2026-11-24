@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import PricingSection from '@/components/PricingSection';
 import { productLineIds } from '@/data/product-tracks';
 import { SHOW_PRICING } from '@/lib/constants';
+import { currentFreeLicenseOffers } from '@/lib/software-licenses/offers';
 
 export async function generateMetadata({
   params,
@@ -43,7 +44,7 @@ export default async function PricingPage({
       <Header />
       <main className="container mx-auto px-4 py-16 md:py-20">
         {/* Hero：眉标「定价」唯一出现一次，标题用星宿流光渐变，副标题带产品数量 */}
-        <div className="mx-auto max-w-5xl mb-14">
+        <div className="mx-auto mb-8 max-w-5xl md:mb-12">
           <p className="t-eyebrow text-primary mb-4 text-center">{t('eyebrow')}</p>
           <h1 className="t-title-1 hero-gradient mb-4 text-center">{t('title')}</h1>
           <p className="text-muted-foreground mx-auto max-w-2xl text-center text-lg">
@@ -53,6 +54,7 @@ export default async function PricingPage({
 
         <PricingSection
           productCount={productLineIds.length}
+          freeLicenseOffers={currentFreeLicenseOffers(locale === 'en' ? 'en' : 'zh')}
           cosmic
           showHeader={false}
         />

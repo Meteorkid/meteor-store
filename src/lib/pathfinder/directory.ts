@@ -133,6 +133,7 @@ export interface PathfinderWeekly {
   added: PathfinderCatalogItem[];
   /** 本周内截止，还来得及行动 */
   closing: PathfinderCatalogItem[];
+  starting: PathfinderCatalogItem[];
   /** 本周新增里最值得先看的 */
   highlights: PathfinderCatalogItem[];
   since: string;
@@ -214,8 +215,13 @@ export function buildPathfinderWeekly(
   return {
     added,
     closing,
+    starting: published.filter(item => {
+      if (!item.startsAt) return false;
+      const start = Date.parse(item.startsAt);
+      return start >= now.getTime() && start <= now.getTime() + windowDays * 86_400_000;
+    }).sort((a, b) => a.startsAt!.localeCompare(b.startsAt!)),
     // 精选只有三条，全来自同一家机构的话这个栏目就没有「精选」的意义了
-    highlights: diversifyByOrganization(sortCatalogItems(added, 'action', now)).slice(0, 3),
+    highlights: diversifyByOrganization(sortCatalogItems(added.filter(item => !item.requiresManualEligibilityCheck), 'action', now)).slice(0, 3),
     since: since.toISOString(),
     until: now.toISOString(),
   };

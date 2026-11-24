@@ -2,6 +2,7 @@
 // 纯函数实现，不依赖 DOM，便于单元测试
 
 import { localizeProducts } from '@/data/products';
+import { getBrowserExperience } from '@/data/app-manifest';
 import { localizeFaqs } from '@/data/faqs';
 import { SHOW_PRICING, categoryLabels } from '@/lib/constants';
 import { blogSections, type LocalizedText } from '@/data/blog-sections';
@@ -22,6 +23,8 @@ export interface SearchEntry {
   href: string;
   /** 参与匹配的全部文本（小写） */
   keywords: string;
+  /** 完整查询与任务词一致时，优先显示能直接完成操作的入口。 */
+  directQueries?: readonly string[];
   /** 标题拼音首字母，如 "首页" → "sy" */
   initials: string;
   /** 标题全拼（无声调、无空格），如 "首页" → "shouye" */
@@ -51,7 +54,6 @@ const STATIC_PAGES: Array<Omit<SearchEntry, 'keywords' | 'initials' | 'fullPinyi
   { id: 'page-contact', title: '联系我们', group: '页面', href: '/contact', extra: 'contact 邮箱 email' },
   { id: 'page-student', title: '学生免费计划', subtitle: '用教育邮箱验证，全部产品免费', group: '页面', href: '/student', extra: 'student 学生 edu 教育 免费 优惠 大学' },
   { id: 'page-open-source', title: '开源项目', subtitle: 'MIT 协议的真开源项目', group: '页面', href: '/open-source', extra: 'open source 开源 github MIT' },
-  { id: 'page-playground', title: 'Playground', subtitle: '在线试玩，不用安装', group: '页面', href: '/playground', extra: 'playground 试玩 demo 演示 体验' },
   { id: 'page-login', title: '登录 / 注册', subtitle: '邮箱登录或创建账户', group: '页面', href: '/login', extra: 'login register 登录 注册 账户 sign in sign up' },
   { id: 'anchor-products', title: '产品展示', subtitle: '首页 · 产品矩阵', group: '页面', href: '/#products', extra: '产品 矩阵 展示' },
   { id: 'anchor-faq', title: '常见问题', subtitle: '首页 · FAQ', group: '页面', href: '/#faq', extra: 'faq 常见 问题 疑问' },
@@ -72,7 +74,6 @@ const PAGE_ENGLISH: Record<string, { title: string; subtitle?: string }> = {
   'page-contact': { title: 'Contact' },
   'page-student': { title: 'Free student plan', subtitle: 'Verify your education email for free access' },
   'page-open-source': { title: 'Open-source projects', subtitle: 'Projects released under the MIT license' },
-  'page-playground': { title: 'Playground', subtitle: 'Try it online without installing' },
   'page-login': { title: 'Sign in / Register', subtitle: 'Sign in with email or create an account' },
   'anchor-products': { title: 'Product showcase', subtitle: 'Home · Explore the products' },
   'anchor-faq': { title: 'Frequently asked questions', subtitle: 'Home · FAQ' },
@@ -84,7 +85,7 @@ const PAGE_ENGLISH: Record<string, { title: string; subtitle?: string }> = {
 const PUBLIC_NAV_PATHS = new Set([
   '/daily', '/masters', '/phd', '/pathfinder', '/pathfinder/directions/ai', '/pathfinder/plan',
   '/pathfinder/opportunities', '/competitions', '/pathfinder/topics', '/pathfinder/weekly',
-  '/blog/tags', '/blog/api-guide', '/support',
+  '/blog/tags', '/blog/api-guide', '/support', '/study/ielts',
 ]);
 const NAV_SEARCH_ALIASES: Record<string, string> = {
   'daily-overview': '每日一新 日刊 日报 daily reading digest',
@@ -95,6 +96,7 @@ const NAV_SEARCH_ALIASES: Record<string, string> = {
   plan: '学习路径 学习计划 规划 learning path study planner plan',
   opportunities: '实习 应届 开源 比赛 竞赛 internship graduate open source competition opportunities',
   competitions: '国家 学科竞赛 比赛 国A 国B 报名 时间 日历 national competition contest planner register',
+  'study-ielts': '雅思 IELTS 雅思写作 作文 范文 写作对照 ielts writing essays',
 };
 
 function navigationPageEntries(locale: Locale): SearchEntry[] {
@@ -107,6 +109,7 @@ function navigationPageEntries(locale: Locale): SearchEntry[] {
         subtitle: link.description?.[locale] ?? group.description[locale],
         group: '页面',
         href: link.href,
+        ...(link.id === 'study-ielts' && { directQueries: ['雅思', 'ielts'] }),
         keywords: [link.label.zh, link.label.en, link.description?.[locale], group.label.zh, group.label.en,
           link.href, NAV_SEARCH_ALIASES[link.id] ?? ''].join(' ').toLowerCase(),
       })),
@@ -154,6 +157,24 @@ export function blogPostsToEntries(posts: BlogPostSearchData[]): SearchEntry[] {
 }
 export function buildIndex(locale: Locale): SearchEntry[] {
   const products = localizeProducts(locale);
+  const appEntries = products.flatMap(product => {
+    const app = getBrowserExperience(product);
+    if (!app) return [];
+    const title = locale === 'zh' ? `打开 ${product.name}` : `Open ${product.name}`;
+    const directQueries = ['在线体验', '在线试玩', 'try online', 'browser apps'];
+    if (product.id === 'tollow') directQueries.push('打字', '打字练习', 'typing', 'typing practice');
+    return [withPinyin(title, {
+      id: `open-app-${product.id}`,
+      title,
+      subtitle: app.requiresLogin
+        ? (locale === 'zh' ? '全屏应用 · 需要登录' : 'Full-screen app · Sign-in required')
+        : (locale === 'zh' ? '全屏应用 · 直接使用' : 'Full-screen app · No sign-in required'),
+      group: '产品',
+      href: app.href,
+      directQueries,
+      keywords: [product.id, product.name, product.tagline, ...product.keywords, ...directQueries].join(' ').toLowerCase(),
+    })];
+  });
   const productEntries: SearchEntry[] = products.map(p =>
     withPinyin(p.name, {
       id: `product-${p.id}`,
@@ -226,6 +247,7 @@ export function buildIndex(locale: Locale): SearchEntry[] {
 
   return [
     ...productEntries,
+    ...appEntries,
     ...pageEntries,
     ...navigationPageEntries(locale),
     ...sectionEntries,
@@ -316,6 +338,7 @@ function searchInIndex(index: SearchEntry[], query: string, limit: number, group
 
   const exact: SearchResult[] = candidates
     .map(entry => {
+      if (entry.directQueries?.includes(terms.join(' '))) return { entry, total: terms.length * 100 + 1 };
       let total = 0;
       for (const term of terms) {
         const s = scoreTerm(entry, term);

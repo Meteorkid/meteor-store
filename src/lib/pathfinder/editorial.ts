@@ -131,7 +131,7 @@ export function buildEditorialPrompt(item: PathfinderCatalogItem): string {
     '',
     `标题：${item.title.zh || item.title.en}`,
     `发布机构：${item.organization.zh || item.organization.en}`,
-    `来源：${item.source.name.zh || item.source.name.en}（${item.source.trustLevel === 'official' ? '官方一手来源' : '已交叉核验'}）`,
+    `来源：${item.source.name.zh || item.source.name.en}（${item.source.trustLevel === 'official' ? '官方一手来源' : '可查看原始链接'}）`,
     `原文地址：${item.canonicalUrl}`,
     item.publishedAt ? `发布时间：${item.publishedAt.slice(0, 10)}` : '',
     '',

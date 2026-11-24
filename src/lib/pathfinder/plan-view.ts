@@ -9,6 +9,8 @@ export interface PathfinderPlanTaskView {
   itemId: string;
   evidence: string;
   alternative: string;
+  startsAt?: string;
+  dateKind?: 'deadline';
   deadlineAt?: string;
   deadlineDate?: string;
 }

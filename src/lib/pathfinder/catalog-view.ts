@@ -228,8 +228,12 @@ export function catalogDeadlineTimestamp(
 
 /** 日期级截止用于排程时按全球最早进入该日期的 UTC+14 计算，避免把整周行动排过官方日期。 */
 export function catalogDeadlinePlanningTimestamp(
-  item: Pick<PathfinderCatalogItem, 'deadlineAt' | 'deadlineDate'>,
+  item: Pick<PathfinderCatalogItem, 'deadlineAt' | 'deadlineDate' | 'startsAt'>,
 ): number | null {
+  if (item.startsAt && !item.deadlineAt && !item.deadlineDate) {
+    const start = Date.parse(item.startsAt);
+    return Number.isFinite(start) ? start : null;
+  }
   if (item.deadlineAt) {
     const timestamp = Date.parse(item.deadlineAt);
     return Number.isFinite(timestamp) ? timestamp : null;
@@ -619,7 +623,7 @@ export function selectPathfinderHomeFeed(
     now,
   );
   const openSourceCandidates = sortByRecency(
-    published.filter((item) => item.itemType === 'open-source'),
+    published.filter((item) => item.itemType === 'open-source' && !item.requiresManualEligibilityCheck),
   );
 
   return {
@@ -647,10 +651,14 @@ function prioritizeHomeOpportunities(
   items: readonly PathfinderCatalogItem[],
   now: Date,
 ) {
-  const activeDated = sortByDeadline(items, now);
+  const upcomingContests = items.filter(item => item.startsAt && !item.deadlineAt && !item.deadlineDate
+    && Date.parse(item.startsAt) >= now.getTime());
+  const activeDated = [...sortByDeadline(items, now), ...upcomingContests]
+    .sort((left, right) => (catalogDeadlineTimestamp(left) ?? Date.parse(left.startsAt!))
+      - (catalogDeadlineTimestamp(right) ?? Date.parse(right.startsAt!)));
   const datedIds = new Set(activeDated.map((item) => item.id));
   const undated = sortByRecency(items.filter((item) => (
-    catalogDeadlineTimestamp(item, true) === null && !datedIds.has(item.id)
+    !item.startsAt && catalogDeadlineTimestamp(item, true) === null && !datedIds.has(item.id)
   )));
   return [...activeDated, ...undated];
 }

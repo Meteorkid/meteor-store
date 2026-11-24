@@ -36,6 +36,7 @@ describe('全站二级导航', () => {
     for (const id of productLineIds) expect(hrefs).toContain(`/products/${id}`);
     expect(hrefs).toContain('/products#lab');
     expect(hrefs).not.toContain('/lab');
+    expect(hrefs).not.toContain('/playground');
     expect(hrefs).toContain('/pricing');
     expect(links(false).map(link => link.href)).not.toContain('/pricing');
   });

@@ -62,8 +62,11 @@ export default function MeteorShower() {
     const speedScale = night ? 0.7 : 1;
     const nebula = siteTheme === 'nebula';
     const horizon = siteTheme === 'horizon';
-    const baseHue = night ? 30 : horizon ? 16 : nebula ? 194 : 265;
-    const hueSpread = night || horizon ? 30 : 50;
+    const orbit = siteTheme === 'orbit';
+    const baseHue = night ? 30 : orbit ? 26 : horizon ? 16 : nebula ? 194 : 265;
+    const hueSpread = orbit ? 22 : night || horizon ? 30 : 50;
+    const constellationRgb = orbit ? '171,194,229' : horizon ? '255,193,141' : '205,205,255';
+    const constellationStarRgb = orbit ? '232,236,244' : horizon ? '255,237,206' : '232,232,244';
 
     const resize = () => {
       canvas.width = canvas.offsetWidth;
@@ -202,13 +205,14 @@ export default function MeteorShower() {
         'letter-spacing:0.04em',
       ].join(';');
 
-      if (horizon) {
-        tail.style.background = 'linear-gradient(90deg, transparent, rgb(255 180 123 / .6) 65%, #fff2d6)';
-        tailGlow.style.background = 'linear-gradient(90deg, transparent, rgb(238 145 104 / .4))';
+      if (horizon || orbit) {
+        const accentRgb = orbit ? '255 180 84' : '238 145 104';
+        tail.style.background = `linear-gradient(90deg, transparent, rgb(${orbit ? accentRgb : '255 180 123'} / .6) 65%, #fff2d6)`;
+        tailGlow.style.background = `linear-gradient(90deg, transparent, rgb(${accentRgb} / .4))`;
         head.style.background = 'radial-gradient(circle, #fff2d6 10%, var(--site-accent) 48%, transparent 100%)';
-        head.style.boxShadow = '0 0 12px 4px rgb(var(--site-glass-a) / .5)';
+        head.style.boxShadow = `0 0 12px 4px rgb(${accentRgb} / .5)`;
         label.style.color = 'var(--site-accent)';
-        label.style.textShadow = '0 0 8px rgb(var(--site-glass-a) / .5)';
+        label.style.textShadow = `0 0 8px rgb(${accentRgb} / .5)`;
       }
 
       wrapper.appendChild(tailGlow);
@@ -257,7 +261,7 @@ export default function MeteorShower() {
     let beidouNext = performance.now() + 18000 + Math.random() * 25000;
     const drawBeidou = (alpha: number) => {
       const pts = BEIDOU.map((b) => ({ x: b.x * canvas.width, y: b.y * canvas.height }));
-      ctx.strokeStyle = `rgba(${horizon ? '255,193,141' : '205,205,255'},${0.5 * alpha})`;
+      ctx.strokeStyle = `rgba(${constellationRgb},${0.5 * alpha})`;
       ctx.lineWidth = 1.5;
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
@@ -270,7 +274,7 @@ export default function MeteorShower() {
       BEIDOU.forEach((p, i) => {
         ctx.beginPath();
         ctx.arc(p.x * canvas.width, p.y * canvas.height, i === 0 ? 3.2 : 2.4, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${horizon ? '255,237,206' : '232,232,244'},${alpha})`;
+        ctx.fillStyle = `rgba(${constellationStarRgb},${alpha})`;
         ctx.fill();
       });
     };

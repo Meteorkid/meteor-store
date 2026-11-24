@@ -55,7 +55,6 @@ export function getHeaderNavigation(showPricing: boolean): HeaderNavGroup[] {
           id: 'explore', label: { zh: '探索更多', en: 'Explore more' },
           links: [
             { id: 'lab', href: '/products#lab', label: { zh: '实验室', en: 'The lab' } },
-            { id: 'playground', href: '/playground', label: { zh: '在线体验', en: 'Playground' } },
             { id: 'open-source', href: '/open-source', label: { zh: '开源作品', en: 'Open-source projects' } },
           ],
         },

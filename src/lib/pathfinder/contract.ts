@@ -111,6 +111,9 @@ export function catalogItemViolations(
   }
 
   const deadline = catalogDeadlineTimestamp(item, true);
+  if (item.startsAt && Date.parse(item.startsAt) <= now.getTime()) {
+    violations.push({ rule: 'deadline', message: '该场比赛已开赛。' });
+  }
   if (deadline !== null && deadline < now.getTime()) {
     violations.push({ rule: 'deadline', message: '条目截止时间已过。' });
   }

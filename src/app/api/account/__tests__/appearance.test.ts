@@ -57,6 +57,8 @@ describe('/api/account/appearance', () => {
     expect(await (await GET()).json()).toEqual({ theme: 'classic' });
     state.storedTheme = 'horizon';
     expect(await (await GET()).json()).toEqual({ theme: 'horizon' });
+    state.storedTheme = 'orbit';
+    expect(await (await GET()).json()).toEqual({ theme: 'orbit' });
     state.storedTheme = 'light';
     expect(await (await GET()).json()).toEqual({ theme: null });
   });
@@ -73,7 +75,7 @@ describe('/api/account/appearance', () => {
     expect(state.updates).toHaveLength(0);
   });
 
-  it.each(['nebula', 'horizon'])('只更新当前账号的主题字段（%s）', async (theme) => {
+  it.each(['nebula', 'horizon', 'orbit'])('只更新当前账号的主题字段（%s）', async (theme) => {
     const response = await PATCH(request({ theme }));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ theme });

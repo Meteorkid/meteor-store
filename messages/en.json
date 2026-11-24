@@ -117,6 +117,8 @@
     "welcomeBack": "Welcome back",
     "createAccount": "Create account",
     "loginSubtitle": "Sign in to your Meteor Store account",
+    "loginToApp": "Sign in to continue to {name}",
+    "continueApp": "Continue to {name}",
     "registerSubtitle": "Register to manage orders and bookmark products",
     "nicknameLabel": "Nickname",
     "nicknameOptional": "(optional)",
@@ -367,7 +369,8 @@
     "groupFree": "Free entry points",
     "groupFreeNote": "Open source and free — the fastest way to get a feel for the line",
     "labTitle": "The Lab",
-    "trialAvailable": "Online trial · Beta"
+    "trialAvailable": "Online trial · Beta",
+    "freeLifetimeClaim": "Free lifetime code for a limited time"
   },
   "BlogPage": {
     "title": "Blog",
@@ -670,7 +673,7 @@
   "PricingPage": {
     "eyebrow": "Pricing",
     "title": "Meteor Pass · the line pass",
-    "description": "One subscription covers all {count} tools on the XIsland line, with future additions included. Pick monthly, annual, or lifetime."
+    "description": "Meteor Pass covers personal use of all {count} tools on the XIsland line, including tools added while your pass is active. Choose a month, a year, or lifetime access."
   },
   "StoryPage": {
     "title": "A Letter from the Store Owner",
@@ -845,7 +848,8 @@
     "githubSource": "GitHub source",
     "viewOnGitHub": "View on GitHub",
     "liveDemo": "Live demo",
-    "onlineExperience": "Try online",
+    "onlineExperience": "Open app",
+    "loginToExperience": "Sign in to open app",
     "features": "Features",
     "pricing": "Pricing",
     "comingSoon": "Coming Soon",
@@ -897,7 +901,7 @@
     "downloadRefresh": "Refresh account",
     "downloadHintGated": "Sign in to download. If you have not unlocked this product, choose a plan below.",
     "downloadHintPackage": "Open the package page below for installation instructions.",
-    "licenseClaimNudge": "Try every feature free for 14 days. To keep it for good, <claim>claim a free lifetime license</claim> (sign-in required, takes a minute, code sent by email).",
+    "licenseClaimNudge": "To keep this app, sign in and <claim>claim a free lifetime code</claim>. You can start with the 14-day trial.",
     "licenseClaimOwned": "Lifetime license claimed. <account>View it in your account</account>.",
     "claimLicenseCta": "Claim free license",
     "licenseClaimOwnedCta": "View my license",
@@ -913,7 +917,8 @@
     "privacyPolicy": "Privacy and data processing",
     "exMemorySetup": "After signing in, open Model settings to save your own chat and embedding API keys, providers, and models for this account. Then import an example or chat records. Chat supports OpenAI-compatible, Anthropic Messages, and Google Gemini APIs; embedding supports OpenAI-compatible and Google Gemini APIs. Each API format supports a custom public HTTPS base URL. Model requests are billed to your accounts by the selected providers; this site does not supply model credits.",
     "exMemoryTrialAvailableDesc": "Ex-Memory is free to access online with your own model API keys after sign-in. Plan purchases and free claims are not available. Model usage is billed to your accounts by the selected providers.",
-    "exMemoryStartDesc": "Sign in → Configure account model settings → Import a fictional example or your own or authorized records → Start chatting and correcting memories."
+    "exMemoryStartDesc": "Sign in → Configure account model settings → Import a fictional example or your own or authorized records → Start chatting and correcting memories.",
+    "trialClaimHint": "Try it for 14 days. Sign in during the offer to claim a free lifetime code for this app."
   },
   "ExMemoryExperiencePage": {
     "title": "Try Ex-Memory Online",
@@ -998,7 +1003,7 @@
     "title": "Why it is worth a look",
     "subtitle": "Every line below can be verified on the spot — nothing here is unfalsifiable",
     "feature1Title": "Open and play",
-    "feature1Desc": "Four apps run right in the browser — no download, no sign-up",
+    "feature1Desc": "Try Skeleton Anatomy in your browser, or sign in to open Tollow and Ex-Memory.",
     "feature1Item1": "Try without login",
     "feature1Item2": "Works on phones",
     "feature1Item3": "Nothing to install",
@@ -1086,7 +1091,7 @@
   "PricingSection": {
     "eyebrow": "Pricing",
     "title": "One pass, the whole line",
-    "subtitle": "One subscription covers all {count} tools on the XIsland line — macOS apps ship as license keys, and anything this line ships later is included. Only want one of them? You can buy it on its own.",
+    "subtitle": "Meteor Pass covers personal use of all {count} tools on the XIsland line, including tools added while your pass is active.",
     "periodMonthly": "mo",
     "periodAnnual": "yr",
     "redeemCta": "Have an invitation code? Redeem it",
@@ -1100,7 +1105,21 @@
     "activation_annual": "1 year",
     "activation_lifetime": "Lifetime",
     "activationCodesCta": "View my activation codes",
-    "activationCodesHint": "After purchase or a gift, find the codes in your account and enter them in the matching app settings."
+    "activationCodesHint": "After purchase or a gift, find the codes in your account and enter them in the matching app settings.",
+    "compareTitle": "How does a free app license compare with Meteor Pass?",
+    "compareFeature": "Feature",
+    "compareSingle": "Free app offer",
+    "compareCost": "Price",
+    "compareClaimCost": "¥0. Sign in to claim.",
+    "compareCoverage": "Apps",
+    "comparePerProduct": "Claim each app separately",
+    "comparePassCoverage": "One pass covers all {count} tools on the XIsland line for personal use. Tools offered for free can also be obtained individually.",
+    "compareTerm": "Access",
+    "compareSingleTerm": "Lifetime use of the app you claim, including future updates to that app.",
+    "comparePassTerm": "One month, one year, or lifetime. Renew monthly and annual passes manually.",
+    "compareNewTools": "New tools",
+    "compareSingleFuture": "Get other products separately.",
+    "comparePassFuture": "Included while your pass is active. Lifetime access includes future tools in the product line."
   },
   "CTASection": {
     "browseProducts": "Browse All Products"
@@ -1466,12 +1485,6 @@
     "totalCount": "{total} tags in total",
     "noMatch": "No matching tags"
   },
-  "PlaygroundPage": {
-    "metaTitle": "Playground - Meteor Store",
-    "metaDescription": "Try Meteor Store products in your browser. No install, no pay.",
-    "title": "Online Playground",
-    "description": "No install, no pay. Click run and watch products come to life."
-  },
   "NotFoundPage": {
     "title": "Not in the Mirror",
     "description": "This page may have gone off to earn tuition. Apologies on its behalf.",
@@ -1535,8 +1548,8 @@
     "clear": "Clear",
     "popularLabel": "Popular",
     "hint": "⌘K to open · ↑↓ to select · Enter to open",
-    "empty": "Nothing found — but you can try your luck at the terminal →",
-    "terminalLink": "Owner's Terminal",
+    "empty": "No matches. Try another search or",
+    "browseProducts": "browse products",
     "groupProduct": "Products",
     "groupPage": "Pages",
     "groupHelp": "Help",
@@ -1560,48 +1573,6 @@
     "filteredCount": "{group} only · {count, plural, one {# result} other {# results}}",
     "clearFilter": "Clear filter",
     "showMore": "Show more ({count} total)…"
-  },
-  "PlaygroundTabs": {
-    "descOmnicrawl": "Three-engine crawler framework: one command, auto-selects the best engine.",
-    "descExMemory": "A personal memory mirror from real chat records. The fictional workflow below does not upload data or call a model.",
-    "descStatux": "AI Agent monitoring panel in the iTerm2 status bar.",
-    "descTollow": "Immersive long-form typing practice — pick a book to start.",
-    "viewDetails": "View details →",
-    "readDocs": "View help",
-    "demos": {
-      "omnicrawl": {
-        "install": "# Install OmniCrawl",
-        "auto": "# Fetch a page with the auto engine",
-        "protected": "# Fetch a site protected by a WAF"
-      },
-      "exMemory": {
-        "import": "1. Choose a chat file or the fictional example in the app",
-        "consent": "Read the online storage and model-processing notice, and confirm you have permission to use the records.",
-        "persona": "2. Enter a mirror name and the target speaker from the records",
-        "create": "After import succeeds, create a personal memory mirror from the records.",
-        "chat": "3. Start an AI-simulated conversation",
-        "question": "Example question: Which weekend plans appear in these records?",
-        "answer": "Check generated replies against the original records; AI simulations can be wrong.",
-        "correct": "4. Correct persona details and memories, then continue chatting"
-      },
-      "statux": {
-        "detected": "[Statux] Detected iTerm2 v3.5.2 ✓",
-        "registered": "[Statux] Status bar component registered",
-        "config": "[Statux] Config: ~/.config/statux/config.toml",
-        "watching": "[Statux] Updating live... (Ctrl+C to exit)"
-      },
-      "tollow": {
-        "choose": "# Choose a book in the browser...",
-        "books": "  📚 Available books:",
-        "book1": "  1. Hackers & Painters - Paul Graham",
-        "book2": "  2. Code Complete - Steve McConnell",
-        "book3": "  3. The Mythical Man-Month - Frederick Brooks",
-        "chapter": "  Current passage (Chapter 3):",
-        "quote1": "  \"Good design is simple. From mathematics to painting,",
-        "quote2": "   you hear this again and again. In mathematics, it means",
-        "quote3": "   shorter proofs are often better proofs...\""
-      }
-    }
   },
   "TopicProposal": {
     "validationError": "Title needs at least 4 characters, reason at least 10",
@@ -1642,10 +1613,6 @@
     "nightGreeting1": "Still up this late? It's okay — the meteors are too.",
     "nightGreeting2": "Late-night internet and thoughts both drift. Take your time, no rush.",
     "nightGreeting3": "Whatever happened today is over now. Really."
-  },
-  "TerminalDemo": {
-    "runDemo": "Click to run the demo",
-    "replayAria": "Replay"
   },
   "MeteorShower": {
     "wishButtonText": "☄ Make a wish?",
@@ -2060,8 +2027,8 @@
       "directionsEyebrow": "Start with a direction",
       "directionsTitle": "Four common technical paths for university students",
       "deadlinedEyebrow": "Time-sensitive",
-      "deadlinedTitle": "Opportunities with a deadline ({count})",
-      "deadlinedNote": "Competitions and internships are the only dated items here — miss one and you wait for the next round. Undated ones stay open.",
+      "deadlinedTitle": "Competitions and internships ({count})",
+      "deadlinedNote": "Dated opportunities appear first. Check whether the date is a contest start or an application deadline, and see the source for registration details.",
       "directions": {
         "ai": {
           "title": "Artificial intelligence",
@@ -2127,16 +2094,17 @@
       },
       "trust": {
         "official": "Official source",
-        "verified": "Cross-checked"
+        "verified": "Original source linked"
       },
-      "verified": "Verified {date}",
+      "verified": "Source record updated {date}",
       "addToPlan": "Add to path",
       "manualEligibility": "Manual eligibility check",
       "published": "Published {date}",
       "noSummary": "The official source provides no summary. Open the item to read the original.",
       "originalLanguage": "Title and summary are the source original; no official translation exists yet.",
-      "actionableTask": "Ready to start",
-      "stillOpen": "Confirmed still open · {date}"
+      "actionableTask": "Specific task",
+      "stillOpen": "Last source record · {date}",
+      "startsAt": "Starts {date}"
     },
     "filters": {
       "searchLabel": "Keyword",
@@ -2182,7 +2150,7 @@
         "hybrid": "Hybrid",
         "unspecified": "Not specified"
       },
-      "taskLabel": "Only ready-to-start tasks",
+      "taskLabel": "Specific tasks only",
       "taskHint": "Hide whole-repository entries and keep open, unassigned issues"
     },
     "opportunities": {
@@ -2245,11 +2213,11 @@
       "sourceName": "Source",
       "publishedAt": "Published",
       "discoveredAt": "Added",
-      "verifiedAt": "Last verified",
+      "verifiedAt": "Source record updated",
       "unknown": "Not specified",
       "trust": {
         "official": "Official primary source",
-        "verified": "Trusted source, verified"
+        "verified": "Original source linked"
       },
       "openOriginal": "Open original page",
       "visitSource": "Visit source website",
@@ -2314,7 +2282,10 @@
       "digestAvailable": "Full text available",
       "entryVerifiedAt": "Entry last verified",
       "savedHistoryNotice": "This saved opportunity has closed and is available for your reference.",
-      "backToSaved": "Back to saved items"
+      "backToSaved": "Back to saved items",
+      "registrationDeadline": "Registration deadline",
+      "startLabel": "Contest start",
+      "alreadyStarted": "The scheduled start has passed. Check the organizer’s page for current participation and registration details."
     },
     "planPage": {
       "metaTitle": "My learning path · Meteor Pathfinder",
@@ -2456,7 +2427,9 @@
       "customMinutes": "Minutes",
       "customSubmit": "Add",
       "customCancel": "Cancel",
-      "customBadge": "Custom"
+      "customBadge": "Custom",
+      "startsAt": "Starts {date}",
+      "referenceDate": "Reference date {date}"
     },
     "sort": {
       "label": "Sort",
@@ -2484,14 +2457,14 @@
       "emptyDescription": "Save anything worth coming back to and it will show up here.",
       "browse": "Browse opportunities",
       "activeTitle": "Open ({count})",
-      "expiredTitle": "Closed ({count})",
+      "expiredTitle": "Started or closed ({count})",
       "save": "Save",
       "saved": "Saved",
       "remindMe": "Remind me before the deadline",
       "loginRequired": "Please sign in first",
       "failed": "Something went wrong, try again",
       "noActive": "You have no active saved items. Review your closed items below.",
-      "expiredDescription": "Summaries and sources are kept here for reference after the opportunity closes.",
+      "expiredDescription": "These saved dates and sources remain available for reference.",
       "loginAction": "Sign in to save",
       "sessionChanged": "Your account changed. Refresh before trying again.",
       "refreshAction": "Refresh page"
@@ -2528,7 +2501,7 @@
       "metaDescription": "What was added this week and what closes this week.",
       "eyebrow": "Weekly review",
       "title": "What is worth knowing this week",
-      "description": "Two questions only: what was added, and what closes soon. No trending chart — popularity is not the measure here.",
+      "description": "Find new opportunities, contests starting this week and upcoming application deadlines.",
       "range": "Covering {since} — {until}",
       "closingTitle": "Closing this week ({count})",
       "closingDescription": "Still open, sorted by how soon they close.",
@@ -2536,10 +2509,11 @@
       "highlightsDescription": "Picked from this week\\u2019s additions, favouring items you can act on without extra eligibility checks.",
       "addedTitle": "New this week ({count})",
       "emptyTitle": "Nothing new this week",
-      "emptyDescription": "The sync brought back no new items and nothing is closing soon. Check again next week.",
+      "emptyDescription": "No new listings, contest starts or approaching deadlines in this edition.",
       "browse": "Browse opportunities",
       "addedFeaturedNote": "Ranked by how actionable they are — {shown} shown, {rest} more available.",
-      "addedMore": "Show the other {rest}"
+      "addedMore": "Show the other {rest}",
+      "startingTitle": "Contests starting this week ({count})"
     }
   },
   "PassStatus": {

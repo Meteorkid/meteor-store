@@ -14,7 +14,7 @@ import type { Locale } from '@/i18n/routing';
  * 时才需要的东西，而站点已经收缩成一条产品线 + 一个实验室。实验室那七款走 /lab，
  * 不在首页争夺注意力——它们的作用是证明能力，不是卖钱。
  */
-export default function ProductShowcase() {
+export default function ProductShowcase({ freeLicenseIds }: { freeLicenseIds: string[] }) {
   const t = useTranslations('ProductShowcase');
   const locale = useLocale() as Locale;
 
@@ -61,7 +61,7 @@ export default function ProductShowcase() {
         <h3 className="t-title-4 mb-5 text-white/70">{t('groupCore')}</h3>
         <div className="mb-14 grid grid-cols-1 gap-6 md:grid-cols-2">
           {flagship.map((product) => (
-            <AdvancedProductCard key={product.id} product={product} />
+            <AdvancedProductCard key={product.id} product={product} freeLifetimeClaim={freeLicenseIds.includes(product.id)} />
           ))}
         </div>
 

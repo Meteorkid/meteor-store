@@ -4,7 +4,7 @@ Ex-Memory builds a personal memory mirror from chat records, uses expressions in
 
 For your first use, follow this order: **Sign in → Account model settings → Import an example or records → Chat**.
 
-1. Select **Try online** on the [product page](/products/ex-memory) and sign in with Meteor Store.
+1. Select **Sign in to open app** on the [product page](/products/ex-memory) and sign in with Meteor Store. If you're already signed in, select **Open app**.
 2. Open **Model settings** in the app. Configure a **chat model** and an **embedding model** for this account: choose each provider, enter the model name, and supply your own API key. The chat model generates profiles and replies; the embedding model converts text into vectors for retrieval. Complete both configurations.
 3. Save the settings before importing. Built-in chat providers include DeepSeek, SiliconFlow, OpenAI, Anthropic, and Google Gemini; built-in embedding providers include SiliconFlow, OpenAI, and Google Gemini. Follow the settings screen and your provider account's model permissions. Regional availability depends on the provider's policies.
 

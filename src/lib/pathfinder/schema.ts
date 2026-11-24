@@ -113,6 +113,8 @@ export const PathfinderPlanTaskSchema = z.object({
   itemId: z.string().min(1).max(160),
   evidence: z.string().min(1).max(300),
   alternative: z.string().min(1).max(500),
+  startsAt: z.string().datetime({ offset: true }).optional(),
+  dateKind: z.literal('deadline').optional(),
   deadlineAt: z.string().datetime({ offset: true }).optional(),
   deadlineDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });

@@ -1,0 +1,146 @@
+.stage {
+  --sun-x: 62%;
+  --sun-y: 46%;
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.stage[data-orbit-webgl='ready'] {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.stage:focus-visible { outline: 2px solid #ffd498; outline-offset: -3px; }
+.stage[data-dragging='true'], .stage[data-dragging='true'] .marker { cursor: grabbing; }
+
+.canvas,
+.sky,
+.orbits {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.sky { fill: #e9eefc; }
+.orbits { fill: none; stroke: rgb(185 202 226 / .19); stroke-width: .8; }
+.orbits ellipse { cx: var(--sun-x); cy: var(--sun-y); }
+.orbits .activeOrbit { stroke: rgb(255 196 120 / .55); }
+
+.sun {
+  position: absolute;
+  z-index: 1;
+  top: var(--projected-y, var(--sun-y));
+  left: var(--projected-x, var(--sun-x));
+  width: var(--visual-diameter, clamp(34px, 8.5%, 76px));
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.sunDisk {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #fff0b7, #fbc173 32%, #ed8a35 65%, #a94308);
+  box-shadow: 0 0 24px rgb(255 166 63 / .38), 0 0 58px rgb(255 143 54 / .23);
+}
+
+.stage[data-orbit-webgl='ready'] .sky,
+.stage[data-orbit-webgl='ready'] .orbits,
+.stage[data-orbit-webgl='ready'] .sunDisk,
+.stage[data-orbit-webgl='ready'] .planetDisk { visibility: hidden; }
+
+.marker {
+  --diameter: var(--visual-diameter, var(--fallback-diameter));
+  position: absolute;
+  z-index: 2;
+  top: var(--projected-y, var(--fallback-y));
+  left: var(--projected-x, var(--fallback-x));
+  display: grid;
+  place-items: center;
+  width: max(44px, calc(var(--diameter) + 10px));
+  height: max(44px, calc(var(--diameter) + 10px));
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.marker:focus-visible { outline: 2px solid #ffd498; outline-offset: 3px; }
+
+.marker[aria-pressed='true']::after {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(255 207 143 / .65);
+  border-radius: inherit;
+  box-shadow: 0 0 12px rgb(255 183 96 / .16);
+  content: '';
+  pointer-events: none;
+}
+
+.planetDisk {
+  position: relative;
+  width: var(--diameter);
+  height: var(--diameter);
+  border-radius: 50%;
+  background: radial-gradient(circle at 33% 32%, var(--planet-light), var(--planet-shade) 60%, #090b14 92%);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--planet-light) 35%, transparent);
+}
+
+[data-orbit-planet='saturn'] .planetDisk::after {
+  content: '';
+  position: absolute;
+  inset: 34% -38%;
+  border: 2px solid rgb(231 206 166 / .8);
+  border-radius: 50%;
+  transform: rotate(-21deg);
+}
+
+.planetName,
+.sunName {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  max-width: min(12rem, 34vw);
+  padding: 2px 5px;
+  transform: translateX(-50%);
+  overflow: hidden;
+  border-radius: 4px;
+  background: rgb(5 7 13 / .83);
+  color: #efeff6;
+  font-size: .8125rem;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.planetName { top: calc(50% + max(18px, var(--diameter) / 2 + 6px)); }
+.sunName { top: calc(100% + 5px); color: #ffce90; }
+.marker[aria-pressed='true'] .planetName { color: #ffce90; }
+
+@media (min-width: 1024px) {
+  .sky { mask-image: linear-gradient(to right, transparent, #000 13%); }
+}
+
+@media (max-width: 1023px) {
+  .stage { --sun-x: 50%; --sun-y: 50%; }
+  .marker { top: var(--projected-y, var(--compact-y)); left: var(--projected-x, var(--compact-x)); }
+  .sunName { top: auto; bottom: calc(100% + 5px); }
+  .marker[data-orbit-planet='uranus'] .planetName { top: auto; bottom: calc(50% + max(10px, var(--diameter) / 2 + 5px)); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .marker:hover { z-index: 3; }
+  .marker:hover:not(:focus-visible) { outline: 1px solid rgb(255 207 143 / .63); }
+}

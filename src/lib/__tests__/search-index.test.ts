@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getHeaderNavigation } from '@/data/header-navigation';
+import { appIds, getAppTrialHref } from '@/data/app-manifest';
 import { SHOW_PRICING } from '@/lib/constants';
 import { localizeHelpArticles } from '@/data/help-articles';
 import {
@@ -288,11 +289,23 @@ describe('公开功能页搜索与本地化', () => {
     }
   });
 
-  it('私人收藏、账号、后台及草稿页面不进入公共索引', () => {
+  it.each(['zh', 'en'] as const)('%s 任务词优先打开工具，含博客结果时仍列出所有可运行的应用', locale => {
+    const competingPost = { title: 'IELTS 雅思 打字 在线体验', excerpt: '', tags: [], href: '/blog/p/example' };
+    const find = (query: string) => searchEntriesWithBlogPosts(query, locale, [competingPost]).map(entry => entry.href);
+    expect(find('雅思')[0]).toBe('/study/ielts');
+    expect(find('IELTS')[0]).toBe('/study/ielts');
+    expect(find('打字')[0]).toBe('/apps/tollow/trial');
+    const expected = [...appIds.map(getAppTrialHref), '/apps/ex-memory'];
+    expect(find('在线体验').slice(0, expected.length).sort()).toEqual(expected.sort());
+    expect(find('在线体验')).not.toContain('/playground');
+  });
+
+  it('私人收藏、账号、后台及草稿页面不进入公共索引，apps 只暴露体验入口', () => {
     for (const locale of ['zh', 'en'] as const) {
       const hrefs = buildIndex(locale).map(entry => entry.href);
       expect(hrefs).not.toContain('/pathfinder/saved');
-      expect(hrefs.some(href => /^\/(account|admin|apps)(?:\/|$)/.test(href))).toBe(false);
+      expect(hrefs.some(href => /^\/(account|admin)(?:\/|$)/.test(href))).toBe(false);
+      expect(hrefs.filter(href => /^\/apps(?:\/|$)/.test(href)).sort()).toEqual([...appIds.map(getAppTrialHref), '/apps/ex-memory'].sort());
       expect(hrefs).not.toContain('/blog/my-posts');
       expect(hrefs).not.toContain('/blog/favorites');
     }

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { STATIC_PATHFINDER_ITEMS } from '@/data/pathfinder/catalog-seeds';
 import { allTopicNames } from '../ingestion/topics';
 import { buildPathfinderWeekly, WEEKLY_FEATURED_LIMIT } from '../directory';
-import { catalogActionScore, isLongOpenPosting } from '../catalog-view';
+import { catalogActionScore, catalogDeadlinePlanningTimestamp, isLongOpenPosting, selectPathfinderHomeFeed } from '../catalog-view';
 import { catalogItemFixture } from './fixtures';
 
 describe('静态种子的主题', () => {
@@ -118,3 +118,25 @@ describe('本周新增排除资讯摘要', () => {
   });
 });
 
+
+describe('周报推荐与开赛日期', () => {
+  it('独立的报名和开赛日期不会重复占首页名额，异常的开赛字段不参与排程', () => {
+    const now = new Date('2026-11-24T00:00:00Z');
+    const contest = catalogItemFixture({ itemType: 'competition', startsAt: '2026-11-28T12:00:00Z', deadlineAt: '2026-11-27T12:00:00Z' });
+    expect(selectPathfinderHomeFeed([contest], now).deadlined).toEqual([contest]);
+    expect(catalogDeadlinePlanningTimestamp({ deadlineAt: null, deadlineDate: null, startsAt: 'invalid' })).toBeNull();
+  });
+
+  it('只有报名截止进入 closing，只有可推荐的条目进入精选', () => {
+    const now = new Date('2026-11-24T00:00:00Z');
+    const sample = catalogItemFixture({ origin: 'database', publishedAt: now.toISOString(), itemType: 'competition' });
+    const startsAt = '2026-11-27T12:00:00Z';
+    const contest = { ...sample, id: 'contest', startsAt, deadlineAt: null, deadlineDate: null };
+    const deadline = { ...sample, id: 'registration', deadlineAt: startsAt };
+    const held = { ...sample, id: 'held', requiresManualEligibilityCheck: true };
+    const weekly = buildPathfinderWeekly([contest, deadline, held], now);
+    expect(weekly.starting.map(x => x.id)).toEqual(['contest']);
+    expect(weekly.closing.map(x => x.id)).toEqual(['registration']);
+    expect(weekly.highlights.map(x => x.id)).not.toContain('held');
+  });
+});

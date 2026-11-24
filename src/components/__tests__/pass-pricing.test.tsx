@@ -12,6 +12,9 @@ vi.mock('../RedeemDialog', () => ({ default: () => null }));
 import PricingSection from '../PricingSection';
 import ProductPricingCards from '../ProductPricingCards';
 import PassOwnedBadge from '../PassOwnedBadge';
+import { currentFreeLicenseOffers, hasLimitedFreeLicense } from '@/lib/software-licenses/offers';
+import { passPlans } from '@/data/pass';
+import { localizeProduct, products } from '@/data/products';
 
 beforeEach(() => {
   mocks.locale = 'zh';
@@ -21,6 +24,25 @@ beforeEach(() => {
 const renderPricing = () => renderToStaticMarkup(<PricingSection productCount={5} />);
 
 describe('真实会员状态驱动购买引导', () => {
+  it('仅给当前可领取永久码的单品入口，并从 Pass 实际售价生成对照', () => {
+    vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'true');
+    try {
+      const offers = currentFreeLicenseOffers('zh');
+      expect(offers.map(offer => offer.id)).toEqual(['xisland', 'xnook']);
+      const html = renderToStaticMarkup(<PricingSection productCount={5} freeLicenseOffers={offers} />);
+      expect(html).toContain('<table id="compare"');
+      for (const offer of offers) expect(html).toContain(`href="/products/${offer.id}#pricing"`);
+      for (const plan of passPlans) expect(html).toContain(`¥${plan.price} · PricingSection.activation_${plan.id}`);
+      const original = localizeProduct(products.find(product => product.id === 'xisland')!, 'zh');
+      expect(hasLimitedFreeLicense({ ...original, pricing: original.pricing.map(plan => ({ ...plan, price: 12 })) })).toBe(false);
+      expect(hasLimitedFreeLicense({ ...original, status: 'coming_soon' })).toBe(false);
+      vi.stubEnv('SOFTWARE_LICENSE_ENABLED', 'false');
+      expect(currentFreeLicenseOffers('en')).toEqual([]);
+      expect(renderPricing()).not.toContain('id="compare"');
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
   it('期限展示改名仍通过稳定套餐ID下单，保留历史名称兼容', () => {
     renderPricing();
     expect(mocks.paymentModal.mock.calls.map(([props]) => ({ planId: props.planId, planName: props.planName }))).toEqual([

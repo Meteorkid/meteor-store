@@ -4,6 +4,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AuthForm from '@/components/AuthForm';
 import { normalizeLoginReturn } from '@/lib/login-return';
+import { products } from '@/data/products';
+import { getBrowserExperience } from '@/data/app-manifest';
 
 export async function generateMetadata({
   params,
@@ -29,6 +31,8 @@ export default async function LoginPage({
   const { locale } = await params;
   const { verified, wechat, mfa, next } = await searchParams;
   setRequestLocale(locale);
+  const returnTo = normalizeLoginReturn(next);
+  const app = products.find(product => getBrowserExperience(product)?.href === returnTo);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -39,7 +43,8 @@ export default async function LoginPage({
           verified={verified === '1'}
           wechatError={wechat ?? null}
           mfaChallenge={mfa === '1'}
-          next={normalizeLoginReturn(next)}
+          next={returnTo}
+          appName={app?.name[locale === 'en' ? 'en' : 'zh']}
         />
       </main>
       <Footer />

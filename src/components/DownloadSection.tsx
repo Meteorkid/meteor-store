@@ -2,8 +2,8 @@ import type { ReactNode } from 'react';
 import type { LocalizedProduct } from '@/data/products';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
-import { SOFTWARE_PRODUCT_IDS } from '@/lib/software-licenses/types';
+import { SHOW_PRICING } from '@/lib/constants';
+import { hasLimitedFreeLicense } from '@/lib/software-licenses/offers';
 import DownloadCard from './DownloadCard';
 
 /** 下载区里的引导链接：与页面其他次级链接同一套视觉，可被键盘聚焦。 */
@@ -79,7 +79,7 @@ export default async function DownloadSection({
    * 线上 SOFTWARE_LICENSE_ENABLED=true 时 DMG 才放开成免费下载 + 14 天试用，
    * 开关关掉就跟着沉默，免得指一个不存在的入口。
    */
-  const showLicenseHint = isSoftwareLicensingEnabled() && SOFTWARE_PRODUCT_IDS.some((id) => id === product.id);
+  const showLicenseHint = licenseClaimed || (SHOW_PRICING && hasLimitedFreeLicense(product));
   const hintKey = downloads.every((download) => download.icon === 'pypi' || download.icon === 'npm')
     ? 'downloadHintPackage'
     : downloads.some((download) => download.gated) ? 'downloadHintGated' : 'downloadHint';

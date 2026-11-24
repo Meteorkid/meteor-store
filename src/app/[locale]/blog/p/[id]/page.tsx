@@ -251,6 +251,12 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
             dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }}
           />
 
+          {!isPreview && (post.translationOfId ?? post.id) === 'uatl7DzjFjI' && (
+            <Link href="/docs/xisland-agent-hooks" className="mt-8 inline-flex min-h-11 items-center text-sm font-medium text-violet-200 underline underline-offset-4">
+              {locale === 'en' ? 'Read the XIsland guide to Claude Code and Codex hooks' : '阅读 XIsland 的 Claude Code 与 Codex 接入指南'} →
+            </Link>
+          )}
+
           {post.tags.length > 0 && (
             <div className="t-footnote mt-16 flex flex-wrap gap-x-4 gap-y-2 border-t border-white/[0.07] pt-6">
               {post.tags.map((tag) => (

@@ -77,6 +77,19 @@ describe('日刊栏目深链', () => {
     expect(html).not.toContain('href="#papers"');
   });
 
+  it('栏末只跳到下一份可读内容，保留历史期次的概览及全年日历入口', () => {
+    const html = renderToStaticMarkup(<DailyHub {...baseProps}
+      initialPreferences={{ channels: ['papers', 'ai', 'events', 'masters'], reminders: false }}
+      editions={[{ id: 'release', date: baseProps.date, channel: 'events', status: 'published', title: '发布会', summary: '',
+        content: { kind: 'events', items: [] }, sourceKey: null, publishedAt: '2026-10-15T01:00:00Z', updatedAt: '2026-10-15T01:00:00Z' }]} />);
+    expect(html).toContain('id="daily-overview"');
+    const section = (id: string) => html.split(`<article id="${id}"`)[1]?.split('</article>')[0];
+    expect(section('papers')).toContain('href="#events"');
+    expect(section('papers')).not.toContain('href="#ai"');
+    expect(section('events')).toContain('href="#masters"');
+    expect(section('events')).toContain('回到本期概览');
+  });
+
   it('只关注全年日历时没有日刊概览或0/0进度', () => {
     const html = renderToStaticMarkup(<DailyHub {...baseProps} initialPreferences={{ channels: ['masters'], reminders: false }} />);
     expect(html).toContain('id="masters"');

@@ -109,6 +109,26 @@ describe('Pathfinder 管理接口', () => {
     });
   });
 
+  it('单条发布必须提交管理员实际看到的内容版本；版本过期返回冲突', async () => {
+    const { PATCH } = await import('../route');
+    const request = { action: 'review', id: 'test-item', decision: 'published', learningEligible: false };
+    expect((await PATCH(patchRequest(request))).status).toBe(400);
+    reviewMock.mockResolvedValue(null);
+    expect((await PATCH(patchRequest({ ...request, contentHash: 'seen-hash' }))).status).toBe(409);
+    expect(reviewMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'test-item', contentHash: 'seen-hash' }));
+  });
+
+  it('批量审核逐条传递其版本，只移除成功的条目', async () => {
+    const { PATCH } = await import('../route');
+    reviewMock.mockResolvedValueOnce({ id: 'one' }).mockResolvedValueOnce(null);
+    const response = await PATCH(patchRequest({
+      action: 'review-batch', ids: ['one', 'two'], contentHashes: { one: 'a', two: 'b' },
+      decision: 'published', learningEligible: false,
+    }));
+    expect(reviewMock).toHaveBeenNthCalledWith(2, expect.objectContaining({ id: 'two', contentHash: 'b', batch: true }));
+    expect(await response.json()).toMatchObject({ done: 1, failed: 1, doneIds: ['one'] });
+  });
+
   it('非管理员在读取与写入时都只看到 404', async () => {
     isAdminMock.mockReturnValue(false);
     const { GET, PATCH } = await import('../route');

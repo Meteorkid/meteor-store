@@ -1,0 +1,279 @@
+.hero {
+  --orbit-void: #05070d;
+  --orbit-solar: #ffb454;
+  --orbit-ink: #e8ecf4;
+  --orbit-secondary: #b6bfce;
+  --orbit-line: rgb(200 210 230 / .16);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: max(640px, calc(100svh - 64px));
+  padding: 30px max(24px, calc((100% - 1328px) / 2)) 16px;
+  background: var(--orbit-void);
+  color: var(--orbit-ink);
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+  align-self: end;
+  justify-self: start;
+  width: min(40vw, 30rem);
+  margin-bottom: clamp(52px, 12svh, 108px);
+  pointer-events: none;
+}
+
+.title {
+  max-width: 10ch;
+  text-wrap: balance;
+  text-shadow: 0 2px 24px var(--orbit-void);
+}
+
+:global(html[lang='en']) .title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+}
+
+.description {
+  max-width: 22rem;
+  margin-top: 16px;
+  color: var(--orbit-secondary);
+  text-shadow: 0 1px 12px var(--orbit-void);
+}
+
+.scene {
+  position: absolute;
+  inset: 0 0 90px;
+  z-index: 0;
+  min-width: 0;
+}
+
+.dock {
+  position: relative;
+  z-index: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(126px, .32fr) minmax(0, .95fr);
+  align-items: center;
+  gap: clamp(10px, 1.5vw, 20px);
+  min-width: 0;
+  padding: 10px clamp(10px, 1.4vw, 16px);
+  border: 1px solid var(--orbit-line);
+  border-radius: 22px;
+  background-color: #141823;
+  box-shadow: inset 0 1px 0 rgb(235 242 255 / .13), 0 14px 35px rgb(0 0 0 / .36);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .dock {
+    background-color: rgb(16 21 32 / .86);
+    -webkit-backdrop-filter: blur(14px) saturate(1.28);
+    backdrop-filter: blur(14px) saturate(1.28);
+  }
+}
+
+.planets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 3px;
+  min-width: 0;
+  padding: 2px;
+  border: 1px solid var(--orbit-line);
+  border-radius: 14px;
+  background: rgb(0 0 0 / .24);
+}
+
+.planetButton,
+.reset,
+.primary,
+.related button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: .8125rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.planetButton {
+  flex: 1 1 auto;
+  gap: 7px;
+  color: var(--orbit-secondary);
+  cursor: pointer;
+}
+
+.planetButton[aria-pressed='true'] {
+  border-color: rgb(255 209 154 / .3);
+  background: rgb(255 180 84 / .15);
+  color: #ffdfb6;
+  box-shadow: inset 0 1px 0 rgb(255 238 217 / .1);
+}
+
+.indicator {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+.planetButton[aria-pressed='true'] .indicator { background: var(--orbit-solar); border-color: var(--orbit-solar); }
+
+.clock {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 7px;
+  min-width: 0;
+}
+
+.clockButton {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--orbit-line);
+  border-radius: 11px;
+  color: var(--orbit-ink);
+  cursor: pointer;
+}
+
+.clockSpeed {
+  position: relative;
+  display: grid;
+  align-content: start;
+  min-height: 44px;
+  color: var(--orbit-secondary);
+  font-size: .75rem;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+}
+
+.clockSpeed input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  padding-top: 11px;
+  accent-color: var(--orbit-solar);
+  cursor: pointer;
+}
+
+.clockButton:disabled, .clockSpeed input:disabled { opacity: .55; cursor: default; }
+
+.details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-inline-start: clamp(8px, 1.2vw, 16px);
+  border-inline-start: 1px solid var(--orbit-line);
+}
+
+.readout { min-width: 0; }
+.readout h2 { font-size: 1rem; font-weight: 600; line-height: 1.3; }
+.readout p { margin-top: 3px; color: var(--orbit-secondary); font-size: .8125rem; line-height: 1.4; }
+.readout p strong { color: var(--orbit-ink); }
+.originalName { margin-inline-start: 8px; color: var(--orbit-secondary); font-size: .75rem; font-weight: 500; }
+.actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4px; }
+.zoomControls { display: none; }
+.zoomButton { width: 44px; padding: 0; font-size: 1rem; }
+.zoomButton:disabled { opacity: .55; cursor: default; }
+.reset { color: var(--orbit-secondary); cursor: pointer; }
+.primary { border-radius: 999px; background: #ffd19b; color: #271706; font-weight: 600; }
+
+.related { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
+.related button { color: var(--orbit-secondary); cursor: pointer; }
+.related button[aria-pressed='true'] { color: #ffdfb6; border-color: var(--orbit-line); background: rgb(255 180 84 / .12); }
+
+.catalogue summary { list-style: none; }
+.catalogue summary::-webkit-details-marker { display: none; }
+.catalogue[open] summary { color: #ffdfb6; background: rgb(255 180 84 / .12); }
+.productMenu {
+  position: absolute;
+  inset-inline-end: 10px;
+  inset-block-end: calc(100% + 8px);
+  width: min(328px, calc(100% - 20px));
+  max-height: min(52svh, 396px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border: 1px solid var(--orbit-line);
+  border-radius: 15px;
+  background: #141823;
+  box-shadow: 0 12px 35px rgb(0 0 0 / .38);
+}
+.productMenu button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 8px;
+  color: var(--orbit-ink);
+  text-align: start;
+  font-size: .8125rem;
+  cursor: pointer;
+}
+.productMenu button[aria-pressed='true'] { background: rgb(255 180 84 / .12); }
+.productMenu small { flex: none; color: var(--orbit-secondary); font-size: .75rem; }
+
+.planetButton:focus-visible, .reset:focus-visible, .primary:focus-visible,
+.clockButton:focus-visible, .clockSpeed input:focus-visible,
+.related button:focus-visible, .productMenu button:focus-visible {
+  outline: 2px solid var(--orbit-solar);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .planetButton:not([aria-pressed='true']):hover, .reset:hover, .clockButton:not(:disabled):hover,
+  .related button:not([aria-pressed='true']):hover, .productMenu button:not([aria-pressed='true']):hover { background: rgb(232 236 244 / .09); color: var(--orbit-ink); }
+  .primary:hover { background: #ffe1bb; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .planetButton, .reset, .primary, .clockButton { transition: background-color var(--duration-micro, 120ms), color var(--duration-micro, 120ms); }
+}
+
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .dock { border-color: rgb(232 236 244 / .5); -webkit-backdrop-filter: none; backdrop-filter: none; background-color: #111722; }
+}
+
+@media (1024px <= width < 1280px) {
+  .scene { bottom: 144px; }
+}
+
+@media (min-width: 1024px) {
+  .hero[data-orbit-focused='true'] .copy { opacity: 0; }
+}
+
+@media (min-width: 1280px) {
+  .zoomControls { display: inline-flex; }
+}
+
+@media (max-width: 1023px) {
+  .hero { min-height: 0; grid-template-rows: auto auto auto; gap: 10px; padding: 24px 16px 16px; }
+  .copy { width: 100%; margin-bottom: 0; }
+  .title { max-width: none; }
+  .description { margin-top: 8px; }
+  .scene { position: relative; inset: auto; min-height: clamp(288px, 61vw, 466px); margin-inline: -16px; }
+  .dock { grid-row: auto; grid-template-columns: minmax(0, 1fr) minmax(126px, .32fr); }
+  .details { grid-column: 1 / -1; border-inline-start: 0; border-top: 1px solid var(--orbit-line); padding: 8px 0 0; }
+}
+
+@media (max-width: 690px) {
+  .dock { grid-template-columns: minmax(0, 1fr); gap: 8px; border-radius: 18px; }
+  .details { grid-template-columns: minmax(0, 1fr); border-inline-start: 0; border-top: 1px solid var(--orbit-line); padding: 8px 0 0; }
+  .planetButton, .reset, .primary { padding-inline: 8px; }
+}

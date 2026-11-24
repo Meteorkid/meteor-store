@@ -91,6 +91,8 @@ export interface PathfinderCatalogItem {
   /** 官方只公布日期时保存 YYYY-MM-DD，不伪造时刻或时区。 */
   deadlineDate: string | null;
   deadlineAt: string | null;
+  /** 开赛时间；不能代替报名截止。 */
+  startsAt?: string | null;
   publishedAt: string | null;
   discoveredAt: string;
   verifiedAt: string;

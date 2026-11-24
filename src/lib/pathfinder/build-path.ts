@@ -343,8 +343,8 @@ function buildWarnings(
     && !selected.some((item) => item.id === target.id)
   ) {
     warnings.push(locale === 'zh'
-      ? `「${clip(target.title.zh, 70)}」截止太近，无法在保留准备步骤的前提下排入周计划；请立即在官网自行判断是否来得及，本路径不承诺可报名或投递。`
-      : `“${clip(target.title.en, 70)}” closes too soon to fit after a preparation step. Check the official page immediately and decide whether there is still enough time; this path does not promise an application or submission.`);
+      ? `「${clip(target.title.zh, 70)}」${target.startsAt ? '开赛' : '截止'}太近，无法在保留准备步骤的前提下排入周计划；请立即在官网自行判断是否来得及，本路径不承诺可报名或投递。`
+      : `“${clip(target.title.en, 70)}” ${target.startsAt ? 'starts' : 'closes'} too soon to fit after a preparation step. Check the official page immediately and decide whether there is still enough time; this path does not promise an application or submission.`);
   }
   if (opportunities.some((item) => catalogDeadlinePlanningTimestamp(item) === null)) {
     warnings.push(locale === 'zh'
@@ -360,7 +360,11 @@ function buildWarnings(
     if (deadline === null) continue;
 
     const daysRemaining = Math.ceil((deadline - now.getTime()) / 86_400_000);
-    if (daysRemaining < 7) {
+    if (item.startsAt && daysRemaining <= profile.durationWeeks * 7) {
+      warnings.push(locale === 'zh'
+        ? `「${clip(item.title.zh, 70)}」将在路径期间开赛。请到赛事官网核对报名安排。`
+        : `“${clip(item.title.en, 70)}” starts during this plan. Check registration details on the contest website.`);
+    } else if (daysRemaining < 7) {
       warnings.push(locale === 'zh'
         ? `「${clip(item.title.zh, 70)}」距截止不足一周，已前置真实行动；路径不承诺能够赶上。`
         : `“${clip(item.title.en, 70)}” closes in under a week. The real action is front-loaded, but the plan does not promise you can make the deadline.`);
@@ -475,6 +479,8 @@ export function buildPath(
       itemId: item.id,
       evidence: buildEvidence(phase, locale, occurrence),
       alternative: clip(buildAlternative(alternative, locale), 500),
+      ...(item.startsAt ? { startsAt: item.startsAt } : {}),
+      ...((deadlineAt || deadlineDate) ? { dateKind: 'deadline' as const } : {}),
       ...(deadlineAt ? { deadlineAt } : {}),
       ...(!deadlineAt && deadlineDate ? { deadlineDate } : {}),
     };

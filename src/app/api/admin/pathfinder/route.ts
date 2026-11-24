@@ -18,6 +18,7 @@ import { PATHFINDER_CATALOG_CACHE_TAG } from '@/lib/pathfinder/catalog';
 const ReviewSchema = z.object({
   action: z.literal('review'),
   id: z.string().min(1).max(100),
+  contentHash: z.string().min(1).max(128),
   decision: z.enum(['published', 'rejected']),
   learningEligible: z.boolean(),
 });
@@ -32,6 +33,7 @@ const ReviewSchema = z.object({
 const ReviewBatchSchema = z.object({
   action: z.literal('review-batch'),
   ids: z.array(z.string().min(1).max(100)).min(1).max(50),
+  contentHashes: z.record(z.string(), z.string().min(1).max(128)).optional(),
   decision: z.enum(['published', 'rejected']),
   learningEligible: z.boolean(),
 });
@@ -110,12 +112,13 @@ export async function PATCH(request: NextRequest) {
   if (parsed.data.action === 'review') {
     const item = await reviewPathfinderItem({
       id: parsed.data.id,
+      contentHash: parsed.data.contentHash,
       reviewerId: session.userId,
       decision: parsed.data.decision,
       learningEligible: parsed.data.learningEligible,
     });
     if (!item) {
-      return NextResponse.json({ error: '条目已被处理或不存在' }, { status: 409 });
+      return NextResponse.json({ error: '条目或审核状态已更新，请刷新并核对当前版本。' }, { status: 409 });
     }
     await logAdminAction(session, {
       action: `pathfinder.item.${parsed.data.decision}`,
@@ -139,8 +142,12 @@ export async function PATCH(request: NextRequest) {
     // 图省事直接写一条批量 UPDATE 的话，两个管理员同时点会重复处理，
     // 而且审计里只剩一条「批量」记录，事后查不出具体动了哪些条目
     for (const id of parsed.data.ids) {
+      const contentHash = parsed.data.contentHashes?.[id];
+      if (parsed.data.contentHashes && !contentHash) { failed.push(id); continue; }
       const item = await reviewPathfinderItem({
         id,
+        contentHash,
+        batch: true,
         reviewerId: session.userId,
         decision: parsed.data.decision,
         learningEligible: parsed.data.learningEligible,
@@ -162,7 +169,7 @@ export async function PATCH(request: NextRequest) {
     }
     if (done.length > 0) invalidatePathfinderCatalog();
     // 部分失败要如实返回：全成功才 ok，否则界面要说清楚少了几条
-    return NextResponse.json({ done: done.length, failed: failed.length });
+    return NextResponse.json({ done: done.length, failed: failed.length, doneIds: done });
   }
 
   if (parsed.data.action === 'archive') {

@@ -3,6 +3,7 @@ import { SHOW_PRICING } from '@/lib/constants';
 import ProductVisual from '@/components/ProductVisual';
 import TransitionLink from '@/components/TransitionLink';
 import { getTranslations } from 'next-intl/server';
+import { hasLimitedFreeLicense } from '@/lib/software-licenses/offers';
 
 interface ProductCardProps {
   product: LocalizedProduct;
@@ -70,7 +71,7 @@ export default async function ProductCard({ product, priority = false, mansion, 
                 {t(product.experienceUrl ? 'trialAvailable' : 'comingSoon')}
               </span>
             ) : minPrice === 0 ? (
-              <span className="text-success font-semibold">{t('free')}</span>
+              <span className="text-success font-semibold">{t(hasLimitedFreeLicense(product) ? 'freeLifetimeClaim' : 'free')}</span>
             ) : (
               <>
                 <span className="text-2xl font-bold text-card-foreground">¥{minPrice}</span>

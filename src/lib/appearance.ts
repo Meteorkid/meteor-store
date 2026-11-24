@@ -1,5 +1,5 @@
 /** 全站主题保持暗色，与业务频道的独立强调色分开。 */
-export const SITE_THEMES = ['classic', 'nebula', 'horizon'] as const;
+export const SITE_THEMES = ['classic', 'nebula', 'horizon', 'orbit'] as const;
 export type SiteTheme = (typeof SITE_THEMES)[number];
 export const DEFAULT_SITE_THEME: SiteTheme = 'nebula';
 export const THEME_COOKIE = 'meteor-theme';

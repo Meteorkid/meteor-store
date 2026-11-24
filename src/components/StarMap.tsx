@@ -34,7 +34,7 @@ export default function StarMap({ posts }: StarMapProps) {
   const t = useTranslations('StarMap');
   const locale = useLocale() as Locale;
   const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
-  const lineRgb = siteTheme === 'horizon' ? '255 193 141' : siteTheme === 'nebula' ? '182 216 232' : '167 139 250';
+  const lineRgb = siteTheme === 'orbit' ? '171 194 229' : siteTheme === 'horizon' ? '255 193 141' : siteTheme === 'nebula' ? '182 216 232' : '167 139 250';
   const lineColor = `rgb(${lineRgb} / ${siteTheme === 'nebula' ? .22 : .2})`;
 
   const nodes = useMemo(() => {
