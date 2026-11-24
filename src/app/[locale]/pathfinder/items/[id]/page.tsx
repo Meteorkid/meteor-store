@@ -1,3 +1,4 @@
+import { formatContestStart, hasContestStarted } from '@/lib/pathfinder/contest-time';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 import { notFound } from 'next/navigation';
@@ -82,7 +83,7 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
     network: { label: t('network'), value: t(`networks.${item.network}`) },
     remote: { label: t('remoteLabel'), value: t(`remote.${item.remoteStatus}`) },
     region: { label: t('region'), value: item.region ? localizedText(item.region, locale) : t('unknown') },
-    deadline: { label: t('deadlineLabel'), value: item.deadlineText ? localizedText(item.deadlineText, locale) : formatCatalogDeadlineDate(item, typedLocale) ?? t('unknown') },
+    deadline: { label: t(item.itemType === 'competition' ? 'registrationDeadline' : 'deadlineLabel'), value: item.deadlineText ? localizedText(item.deadlineText, locale) : formatCatalogDeadlineDate(item, typedLocale) ?? t('unknown') },
     published: { label: t('publishedAt'), value: formatDate(item.publishedAt, typedLocale) ?? t('unknown') },
   };
   // 只取已人工确认的解读；草稿永远不进渲染层
@@ -115,6 +116,7 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
    * 而「这期有多少条」既是真事实，也让人在读之前知道要面对多大的量。
    */
   const facts = [
+    ...(item.itemType === 'open-source' && item.cost.label ? [allFacts.cost] : []),
     ...CATALOG_FACT_KEYS[item.itemType].map((key) => allFacts[key]),
     ...(digest ? [{ label: t('digestItemsLabel'), value: t('digestItemCount', { count: digest.itemCount }) }] : []),
   ];
@@ -341,12 +343,14 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
             <section className="glass rounded-2xl p-5">
               <h2 className="t-title-4 text-white">{t('factsTitle')}</h2>
               <dl className="mt-4 divide-y divide-white/[0.07]">
+                {item.startsAt && <CompactFact label={t('startLabel')} value={formatContestStart(item.startsAt, pathfinderLocale)} />}
                 {facts.map((fact) => <CompactFact key={fact.label} label={fact.label} value={fact.value} />)}
               </dl>
+              {hasContestStarted(item) && <p className="mt-4 t-footnote text-white/70">{t('alreadyStarted')}</p>}
               {deadline.state === 'expired' && <p className="mt-4 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs text-red-200">{t('expired')}</p>}
             </section>
 
-            {!savedHistory && item.learningEligible && !item.requiresManualEligibilityCheck ? (
+            {!savedHistory && !hasContestStarted(item) && item.learningEligible && !item.requiresManualEligibilityCheck ? (
               <section className="rounded-2xl border border-violet-400/20 bg-violet-500/[0.08] p-5">
                 <p className="t-eyebrow text-violet-300">{t('planEyebrow')}</p>
                 <h2 className="mt-2 t-title-3 text-white">{t('planTitle')}</h2>
@@ -355,7 +359,7 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
                   {t('addToPlan')}
                 </Link>
               </section>
-            ) : !savedHistory ? (
+            ) : !savedHistory && !hasContestStarted(item) ? (
               <section className="rounded-2xl border border-white/10 p-5">
                 <p className="text-sm font-semibold text-white">{item.requiresManualEligibilityCheck ? t('manualOnlyTitle') : t('contextOnlyTitle')}</p>
                 <p className="mt-2 text-sm leading-6 text-white/60">{item.requiresManualEligibilityCheck ? t('manualOnlyDescription') : t('contextOnlyDescription')}</p>

@@ -15,6 +15,7 @@ import {
 } from '@/lib/search-index';
 import type { Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
+import { isFullscreenExperiencePath } from '@/lib/fullscreen-experience';
 import { useOptionalSiteTheme } from './theme/ThemeProvider';
 
 // ── 常量 ──────────────────────────────────────────────
@@ -253,19 +254,17 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
   }, []);
 
-  const navigate = useCallback((entry: SearchEntry) => {
+  const navigate = useCallback((entry: SearchEntry, newTab = false) => {
     saveRecentId(entry.id);
     if (query.trim()) saveSearchHistory(query);
+    if (newTab || isFullscreenExperiencePath(entry.href)) {
+      close();
+      window.open(`/${locale}${entry.href}`, '_blank', 'noopener,noreferrer');
+      return;
+    }
     close(false);
     router.push(entry.href);
-  }, [close, router, query]);
-
-  const navigateNewTab = useCallback((entry: SearchEntry) => {
-    saveRecentId(entry.id);
-    if (query.trim()) saveSearchHistory(query);
-    close();
-    window.open(`/${locale}${entry.href}`, '_blank', 'noopener,noreferrer');
-  }, [close, query, locale]);
+  }, [close, router, query, locale]);
 
   const handleClearRecent = useCallback((e: React.MouseEvent) => {
     e.stopPropagation(); removeAllRecent(); setRecentIds([]);
@@ -354,7 +353,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
           return;
         }
         if (metaKey || ctrlKey) {
-          if ('href' in activeItem) navigateNewTab(activeItem as SearchEntry);
+          if ('href' in activeItem) navigate(activeItem as SearchEntry, true);
           return;
         }
         if ('__math' in activeItem) {
@@ -415,7 +414,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
 
     const entry = entryLike as SearchEntry;
     const active = globalIdx === activeIndex;
-    const breadcrumb = getBreadcrumb(entry, locale);
+    const breadcrumb = isFullscreenExperiencePath(entry.href) ? null : getBreadcrumb(entry, locale);
 
     return (
       <button key={entry.id} data-index={globalIdx} role="option" aria-selected={active}
@@ -590,7 +589,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
               <p className="text-sm text-white/60 text-center">
                 {t('empty')}{' '}
                 <button className="text-purple-300 hover:text-purple-200 underline underline-offset-2"
-                  onClick={() => { close(false); router.push('/#terminal'); }}>{t('terminalLink')}</button>
+                  onClick={() => { close(false); router.push('/playground'); }}>{t('browseApps')}</button>
               </p>
               <div className="flex justify-center gap-2">
                 <button className="text-xs text-white/60 hover:text-white/80 transition-colors underline underline-offset-2"

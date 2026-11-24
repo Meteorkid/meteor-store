@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { PAYMENT_REVIEW_PREFIX, paymentDestination, paymentInstruction } from './issue-review';
 import { and, eq, inArray, not, notInArray, or, sql, type SQLWrapper } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderItemTags, pathfinderSources } from '@/lib/db/schema';
@@ -88,7 +89,8 @@ export async function syncPathfinderSources(
     results.push(await syncOneSource(source.config, source.row));
   }
   const maintenanceChanged = (
-    await expirePastDeadlineItems()
+    await quarantineLegacyPaymentOffers()
+    + await expirePastDeadlineItems()
     + await markUnverifiedLearningItemsStale(startedAt)
     + await archiveOldAiUpdates(startedAt)
   );
@@ -351,15 +353,15 @@ async function persistItems(
   // 即使正文没有变化，只要本轮仍从来源读到该条目，就刷新核验时间。
   // stale 条目只有在曾经人工通过或来源允许自动发布时才恢复公开。
   for (let offset = 0; offset < unchanged.length; offset += 20) {
-    await Promise.all(unchanged.slice(offset, offset + 20).map(({ existing: old }) => {
+    await Promise.all(unchanged.slice(offset, offset + 20).map(({ existing: old, item }) => {
       const restoredStatus = old.status === 'stale' || (source.adapterId === 'greenhouse' && old.status === 'expired')
-        ? restoredPathfinderStatus(old, source.autoPublish)
+        ? restoredPathfinderStatus(old, source.autoPublish && !item.requiresPaymentReview)
         : old.status;
       return db.update(pathfinderItems).set({
         verifiedAt: now,
         status: restoredStatus,
         updatedAt: now,
-      }).where(eq(pathfinderItems.id, old.id));
+      }).where(and(eq(pathfinderItems.id, old.id), eq(pathfinderItems.status, old.status), eq(pathfinderItems.contentHash, old.contentHash)));
     }));
   }
   // 大多数 Feed 条目写入后不再变化；只有 contentHash 变化的少量条目需要 UPDATE。
@@ -405,7 +407,7 @@ async function persistItems(
         deadlineDate: item.deadlineDate,
         deadlineAt: item.deadlineAt,
         publishedAt: item.publishedAt,
-        status: changedPathfinderStatus(old.status, source.autoPublish),
+        status: changedPathfinderStatus(old.status, source.autoPublish && !item.requiresPaymentReview),
         learningEligible: ['archived', 'rejected'].includes(old.status)
           ? false
           : source.autoPublish ? item.learningEligible : false,
@@ -415,7 +417,7 @@ async function persistItems(
         contentHash: item.contentHash,
         verifiedAt: now,
         updatedAt: now,
-      }).where(eq(pathfinderItems.id, old.id))
+      }).where(and(eq(pathfinderItems.id, old.id), eq(pathfinderItems.status, old.status), eq(pathfinderItems.contentHash, old.contentHash)))
     )));
   }
 
@@ -489,7 +491,7 @@ function toInsertRow(
     publishedAt: item.publishedAt,
     discoveredAt: now,
     verifiedAt: now,
-    status: source.autoPublish ? 'published' : 'pending',
+    status: source.autoPublish && !item.requiresPaymentReview ? 'published' : 'pending',
     learningEligible: item.learningEligible,
     requiresManualEligibilityCheck: item.requiresManualEligibilityCheck,
     contentHash: item.contentHash,
@@ -540,11 +542,39 @@ async function refreshSourceMembership(
     await Promise.all(rows.slice(offset, offset + 20).map((item) => db.update(pathfinderItems).set({
       verifiedAt: now,
       status: item.status === 'stale'
-        ? restoredPathfinderStatus(item, source.autoPublish)
+        ? restoredPathfinderStatus(item, source.autoPublish && !(source.adapterId === 'github' && item.requiresManualEligibilityCheck))
         : item.status,
       updatedAt: now,
-    }).where(eq(pathfinderItems.id, item.id))));
+    }).where(and(eq(pathfinderItems.id, item.id), eq(pathfinderItems.status, item.status), eq(pathfinderItems.contentHash, item.contentHash)))));
   }
+}
+
+// 历史 issue 即使已经离开 GitHub 搜索窗口，也需要出现在现有待审队列。
+async function quarantineLegacyPaymentOffers(): Promise<number> {
+  const text = sql`concat_ws(' ', ${pathfinderItems.titleEn}, ${pathfinderItems.summaryEn}, ${pathfinderItems.titleZh}, ${pathfinderItems.summaryZh})`;
+  // 历史自动推断的“免费”没有费用依据；保留人工已记录的费用，交给编辑复核。
+  const reviewed = sql`${pathfinderItems.reviewerId} is not null and ${pathfinderItems.reviewedAt} is not null`;
+  const marked = sql`${pathfinderItems.contentHash} like ${PAYMENT_REVIEW_PREFIX + '%'}`;
+  const knownFee = sql`(${reviewed} and coalesce(${pathfinderItems.costAmount}, ${pathfinderItems.costCny}) > 0)`;
+  const updated = await db.update(pathfinderItems).set({
+    status: 'pending', learningEligible: false, requiresManualEligibilityCheck: true,
+    contentHash: sql`case when ${marked} then ${pathfinderItems.contentHash} else ${PAYMENT_REVIEW_PREFIX} || ${pathfinderItems.contentHash} end`,
+    costCny: sql`case when ${knownFee} then ${pathfinderItems.costCny} end`,
+    costAmount: sql`case when ${knownFee} then ${pathfinderItems.costAmount} end`,
+    costCurrency: sql`case when ${knownFee} then ${pathfinderItems.costCurrency} end`,
+    costLabelZh: sql`case when ${knownFee} then ${pathfinderItems.costLabelZh} else '原文包含付款指引，参与费用待核实。' end`,
+    costLabelEn: sql`case when ${knownFee} then ${pathfinderItems.costLabelEn} else 'The issue requests payment. Participation fees need review.' end`,
+    reviewerId: null, reviewedAt: null, updatedAt: new Date().toISOString(),
+  }).where(and(
+    inArray(pathfinderItems.status, ['published', 'pending']),
+    eq(pathfinderItems.itemType, 'open-source'),
+    sql`${pathfinderItems.sourceId} in (select ${pathfinderSources.id} from ${pathfinderSources} where ${pathfinderSources.adapter} = 'github')`,
+    or(
+      sql`(not (${marked}) and ${text} ~* ${paymentInstruction.source} and ${text} ~* ${paymentDestination.source})`,
+      sql`(${marked} and ${pathfinderItems.status} = 'published' and (not (${reviewed}) or not ${pathfinderItems.requiresManualEligibilityCheck}))`,
+    ),
+  )).returning({ id: pathfinderItems.id });
+  return updated.length;
 }
 
 async function expirePastDeadlineItems() {
@@ -554,6 +584,7 @@ async function expirePastDeadlineItems() {
   const expiredDateBefore = new Date(nowDate.getTime() - 12 * 3_600_000).toISOString().slice(0, 10);
   const rows = await db.update(pathfinderItems).set({ status: 'expired', updatedAt: now }).where(and(
     eq(pathfinderItems.status, 'published'),
+    not(eq(pathfinderItems.sourceId, 'codeforces-contests')),
     or(
       // ISO 8601 UTC 文本按字典序可比较；所有标准 deadlineAt 都由解析层输出为 UTC ISO。
       inPast(pathfinderItems.deadlineAt, now),

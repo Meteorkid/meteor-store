@@ -108,7 +108,7 @@ beforeEach(() => {
   });
   const documentMock = Object.assign(new EventTarget(), { body: { style: { overflow: '' } }, activeElement: inputNode });
   vi.stubGlobal('document', documentMock);
-  vi.stubGlobal('window', { matchMedia: () => ({ matches: false }), location: { origin: 'https://example.test' } });
+  vi.stubGlobal('window', { open: vi.fn(), matchMedia: () => ({ matches: false }), location: { origin: 'https://example.test' } });
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ results: responseEntries }) })));
   renderSearch();
 });
@@ -118,6 +118,13 @@ afterEach(() => {
 });
 
 describe('Spotlight 面板顺序、翻译与焦点关闭契约', () => {
+  it('在全屏体验结果按 Enter，会新开对应语言的应用窗口', async () => {
+    responseEntries = [{ ...entry('open-app-tollow', '产品'), href: '/apps/tollow/trial' }];
+    await typeQuery('typing');
+    key('Enter');
+    expect(window.open).toHaveBeenCalledWith('/en/apps/tollow/trial', '_blank', 'noopener,noreferrer');
+    expect(hooks.push).not.toHaveBeenCalled();
+  });
   it('可见分组顺序、data-index 与方向键选择一致', async () => {
     await typeQuery('student');
     expect(options().map(option => option.props['data-index'])).toEqual([0, 1, 2]);

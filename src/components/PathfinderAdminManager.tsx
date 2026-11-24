@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
+import { PAYMENT_REVIEW_PREFIX } from '@/lib/pathfinder/ingestion/issue-review';
 
 interface SourceRow {
   id: string;
@@ -16,6 +17,8 @@ interface SourceRow {
 }
 
 interface ItemRow {
+  contentHash?: string;
+  sourceId?: string;
   id: string;
   itemType: string;
   titleZh: string;
@@ -143,7 +146,10 @@ export default function PathfinderAdminManager() {
         body: JSON.stringify(payload),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Request failed');
+      if (!response.ok) {
+        if (response.status === 409 && payload.action === 'review') load({ status, query, offset: 0, append: false });
+        throw new Error(result.error || 'Request failed');
+      }
       if (payload.action === 'review') {
         // 当前视图只展示一种状态；处理完成后应立即移除，避免重复审核。
         setItems((current) => current.filter((item) => item.id !== id));
@@ -166,8 +172,9 @@ export default function PathfinderAdminManager() {
    * 而且一次批太多会让「人工过一眼」退化成走过场。所以按钮上写清楚这次会处理
    * 多少条，并要求二次确认——批量发布是对外可见的动作，误点没有一键撤销。
    */
+  const bulkCandidates = items.filter(item => item.status === 'pending' && item.contentHash && !item.contentHash.startsWith(PAYMENT_REVIEW_PREFIX)).slice(0, BATCH_LIMIT);
   async function approveVisible() {
-    const ids = items.filter((item) => item.status === 'pending').slice(0, BATCH_LIMIT).map((item) => item.id);
+    const ids = bulkCandidates.map(item => item.id);
     if (ids.length === 0) return;
 
     const message = zh
@@ -184,6 +191,7 @@ export default function PathfinderAdminManager() {
         body: JSON.stringify({
           action: 'review-batch',
           ids,
+          contentHashes: Object.fromEntries(bulkCandidates.map(item => [item.id, item.contentHash])),
           decision: 'published',
           // 与逐条审核的默认一致：进入学习路径要单独判断，批量不替人做这个决定
           learningEligible: false,
@@ -194,10 +202,11 @@ export default function PathfinderAdminManager() {
       // 部分失败要说出来，否则用户只看到「少了几条」而不知道为什么
       if (result.failed > 0) {
         setError(zh
-          ? `${result.failed} 条未能处理（可能已被其他管理员处理）`
-          : `${result.failed} could not be processed (possibly handled by another admin)`);
+          ? `${result.failed} 条内容或审核状态已变化，请重新载入核对。`
+          : `Reload to review ${result.failed} entries whose content or review state changed.`);
       }
-      const doneIds = new Set(ids);
+      if (result.failed > 0) load({ status, query, offset: 0, append: false });
+      const doneIds = new Set<string>(result.doneIds ?? (result.failed === 0 ? ids : []));
       setItems((current) => current.filter((item) => !doneIds.has(item.id)));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -271,7 +280,7 @@ export default function PathfinderAdminManager() {
             <p className="mt-1 text-sm text-white/60">{zh ? '待审内容核对原文后发布；已发布内容发现失效或错误时可立即下架。' : 'Verify pending entries before publishing, and take down published entries immediately if they become invalid or incorrect.'}</p>
           </div>
           <div className="flex items-center gap-3">
-            {status === 'pending' && items.some((item) => item.status === 'pending') && (
+            {status === 'pending' && bulkCandidates.length > 0 && (
               <button
                 type="button"
                 disabled={busyId !== null}
@@ -281,8 +290,8 @@ export default function PathfinderAdminManager() {
                 {busyId === BATCH_BUSY_KEY
                   ? (zh ? '发布中…' : 'Publishing…')
                   : (zh
-                    ? `批量发布前 ${Math.min(BATCH_LIMIT, items.filter((i) => i.status === 'pending').length)} 条`
-                    : `Publish first ${Math.min(BATCH_LIMIT, items.filter((i) => i.status === 'pending').length)}`)}
+                    ? `批量发布前 ${bulkCandidates.length} 条`
+                    : `Publish first ${bulkCandidates.length}`)}
               </button>
             )}
             <span className="t-footnote text-white/60">{items.length}</span>
@@ -335,7 +344,7 @@ export default function PathfinderAdminManager() {
                 <Fact label={zh ? '时间 / 费用' : 'Time / cost'} value={`${item.estimatedMinutes ?? '—'} min · ${formatAdminCost(item, zh)}`} />
                 <Fact label={zh ? '设备 / 网络' : 'Device / network'} value={[item.device, item.network].filter(Boolean).join(' · ')} />
                 <Fact label={zh ? '地区 / 形式' : 'Region / mode'} value={[zh ? item.regionZh || item.region : item.regionEn || item.region, item.remoteStatus].filter(Boolean).join(' · ')} />
-                <Fact label={zh ? '截止' : 'Deadline'} value={(zh ? item.deadlineTextZh || item.deadlineText : item.deadlineTextEn || item.deadlineText) || item.deadlineAt || item.deadlineDate || '—'} />
+                <Fact label={item.sourceId === 'codeforces-contests' ? (zh ? '开赛' : 'Starts') : (zh ? '截止' : 'Deadline')} value={(zh ? item.deadlineTextZh || item.deadlineText : item.deadlineTextEn || item.deadlineText) || item.deadlineAt || item.deadlineDate || '—'} />
                 <Fact label={zh ? '标签' : 'Tags'} value={Object.values(item.tags ?? {}).flat().join(' · ') || '—'} />
                 <div className="sm:col-span-2 lg:col-span-3">
                   <dt className="text-white/60">{zh ? '资格条件' : 'Eligibility'}</dt>
@@ -349,20 +358,20 @@ export default function PathfinderAdminManager() {
                     <button
                       type="button"
                       disabled={busyId === item.id}
-                      onClick={() => patch({ action: 'review', id: item.id, decision: 'rejected', learningEligible: false })}
+                      onClick={() => patch({ action: 'review', id: item.id, contentHash: item.contentHash, decision: 'rejected', learningEligible: false })}
                       className="rounded-lg border border-white/10 px-3 py-2 text-sm text-white/65 disabled:opacity-40"
                     >{zh ? '驳回' : 'Reject'}</button>
                     <button
                       type="button"
                       disabled={busyId === item.id}
-                      onClick={() => patch({ action: 'review', id: item.id, decision: 'published', learningEligible: false })}
+                      onClick={() => patch({ action: 'review', id: item.id, contentHash: item.contentHash, decision: 'published', learningEligible: false })}
                       className="rounded-lg border border-violet-300/25 bg-violet-500/15 px-3 py-2 text-sm font-medium text-violet-100 disabled:opacity-40"
                     >{zh ? '发布为信息' : 'Publish as information'}</button>
                     {item.canPublishForPath && (
                       <button
                         type="button"
                         disabled={busyId === item.id}
-                        onClick={() => patch({ action: 'review', id: item.id, decision: 'published', learningEligible: true })}
+                        onClick={() => patch({ action: 'review', id: item.id, contentHash: item.contentHash, decision: 'published', learningEligible: true })}
                         className="rounded-lg bg-violet-500 px-3 py-2 text-sm font-medium text-white disabled:opacity-40"
                       >{zh ? '已核验字段，发布并用于路径' : 'Verified: publish for paths'}</button>
                     )}

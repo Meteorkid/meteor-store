@@ -25,6 +25,26 @@ import {
 
 describe('Pathfinder ingestion', () => {
   afterEach(() => vi.unstubAllGlobals());
+  it('在摘要截断前识别购买引导，普通价格讨论仍可收录', () => {
+    const source = PATHFINDER_SYNC_SOURCES.find(entry => entry.curated)!;
+    const issue = { id: 24363, title: 'Docs idea for agent spend audits',
+      html_url: 'https://github.com/run-llama/llama_index/issues/24363', state: 'open',
+      repository_url: 'https://api.github.com/repos/run-llama/llama_index',
+      author_association: 'NONE', created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+    };
+    const parse = (body: string) => parseGithubSearch(source, JSON.stringify({ items: [{ ...issue, body }] }))[0];
+    const prefix = 'Documentation example. '.repeat(23);
+    const offer = parse(prefix + ' Buy (live): POST https://example.org/buy → x402 $19 USDC.');
+    expect(offer).toMatchObject({ requiresPaymentReview: true, learningEligible: false,
+      requiresManualEligibilityCheck: true, costCny: null, costAmount: null, costCurrency: null });
+    expect(offer.summaryEn).not.toContain('USDC');
+    expect(offer.contentHash).toMatch(/^payment-v1:[a-f0-9]{64}$/);
+    expect(parse(prefix + ' Buy (live): POST https://example.org/buy → x402 $29 USDC.').contentHash)
+      .not.toBe(offer.contentHash);
+    expect(parse('Fix formatting for $19 USDC in the checkout component.').requiresPaymentReview).not.toBe(true);
+    expect(offer.eligibilityZh).not.toContain('项目所有者或成员发布');
+  });
+
   it('规范化 URL 并移除跟踪参数', () => {
     expect(normalizeIngestionUrl('https://Example.com/post/?utm_source=x&b=2&a=1#part'))
       .toBe('https://example.com/post?a=1&b=2');

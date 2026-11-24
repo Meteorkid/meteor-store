@@ -117,6 +117,8 @@
     "welcomeBack": "欢迎回来",
     "createAccount": "创建账户",
     "loginSubtitle": "登录你的 Meteor Store 账户",
+    "loginToApp": "登录后继续使用 {name}",
+    "continueApp": "继续使用 {name}",
     "registerSubtitle": "注册后可管理订单、收藏产品",
     "nicknameLabel": "昵称",
     "nicknameOptional": "(选填)",
@@ -367,7 +369,8 @@
     "groupFree": "免费入口",
     "groupFreeNote": "开源免费，装上就能用 —— 也是了解这条线最快的方式",
     "labTitle": "实验室",
-    "trialAvailable": "在线试用 · Beta"
+    "trialAvailable": "在线试用 · Beta",
+    "freeLifetimeClaim": "限时免费领永久码"
   },
   "BlogPage": {
     "title": "博客",
@@ -670,7 +673,7 @@
   "PricingPage": {
     "eyebrow": "定价",
     "title": "Meteor Pass · 产品线通行证",
-    "description": "一次订阅，覆盖 XIsland 产品线全部 {count} 款工具，以后新增的自动包含。按需选择月付、年付或买断。"
+    "description": "Meteor Pass 覆盖 XIsland 产品线的 {count} 款个人工具，以及授权有效期内加入这条产品线的新工具。可按月、按年或永久开通。"
   },
   "StoryPage": {
     "title": "一封来自店主的信",
@@ -845,7 +848,8 @@
     "githubSource": "GitHub 源码",
     "viewOnGitHub": "在 GitHub 查看",
     "liveDemo": "在线演示",
-    "onlineExperience": "在线体验",
+    "onlineExperience": "打开应用",
+    "loginToExperience": "登录后打开应用",
     "features": "功能特点",
     "pricing": "定价方案",
     "comingSoon": "即将上架",
@@ -897,7 +901,7 @@
     "downloadRefresh": "刷新账号",
     "downloadHintGated": "登录后下载；尚未获取此产品时，可在下方选择方案。",
     "downloadHintPackage": "通过下方的软件包页面查看安装说明。",
-    "licenseClaimNudge": "下载完先完整体验 14 天。要永久使用，点这里<claim>领取免费激活码</claim>（需登录，1 分钟，码发到邮箱）。",
+    "licenseClaimNudge": "想永久使用这款软件？登录后<claim>免费领永久码</claim>，也可先下载试用 14 天。",
     "licenseClaimOwned": "已领取永久激活码，<account>去账户页查看</account>。",
     "claimLicenseCta": "免费领取激活码",
     "licenseClaimOwnedCta": "查看我的激活码",
@@ -913,7 +917,8 @@
     "privacyPolicy": "隐私与数据处理",
     "exMemorySetup": "登录后，先在「模型设置」中为本账号配置自己的对话与文本向量 API Key、服务商和模型，再导入示例或聊天资料。对话支持 OpenAI 兼容、Anthropic Messages 和 Google Gemini 接口；文本向量支持 OpenAI 兼容和 Google Gemini 接口。各接口格式均可配置自定义公网 HTTPS API 基础地址。模型调用由所选服务商按你的账户计费，本站不代供模型额度。",
     "exMemoryTrialAvailableDesc": "Ex-Memory 免费开放在线体验，登录后使用自己的模型 API Key。方案购买与免费入库暂未开放；模型费用由所选服务商按你的账户计费。",
-    "exMemoryStartDesc": "登录 → 配置账号模型设置 → 导入虚构示例或本人、已获授权的资料 → 开始对话与纠正记忆。"
+    "exMemoryStartDesc": "登录 → 配置账号模型设置 → 导入虚构示例或本人、已获授权的资料 → 开始对话与纠正记忆。",
+    "trialClaimHint": "可先试用 14 天。限免期间登录即可领取这款软件的永久激活码。"
   },
   "ExMemoryExperiencePage": {
     "title": "Ex-Memory 在线体验",
@@ -998,7 +1003,7 @@
     "title": "为什么值得一试",
     "subtitle": "下面每一条都能当场核实，不写没法验证的话",
     "feature1Title": "打开就玩",
-    "feature1Desc": "四款应用在浏览器里直接运行，不用下载、不用注册",
+    "feature1Desc": "在浏览器里体验骨骼解剖等应用。Tollow 和 Ex-Memory 登录后即可打开。",
     "feature1Item1": "免登录试用",
     "feature1Item2": "手机也能开",
     "feature1Item3": "无需安装",
@@ -1086,7 +1091,7 @@
   "PricingSection": {
     "eyebrow": "定价",
     "title": "一张通行证，拿下整条产品线",
-    "subtitle": "一次订阅，覆盖 XIsland 产品线全部 {count} 款工具 —— macOS 应用发放授权码，这条线以后新增的自动包含。只想要其中一个？也可以单买。",
+    "subtitle": "Meteor Pass 覆盖 XIsland 产品线的 {count} 款个人工具。授权有效期内新增的同线工具自动包含。",
     "periodMonthly": "月",
     "periodAnnual": "年",
     "redeemCta": "有邀请码？点此兑换",
@@ -1100,7 +1105,21 @@
     "activation_annual": "一年",
     "activation_lifetime": "永久",
     "activationCodesCta": "查看我的激活码",
-    "activationCodesHint": "购买或获赠后，在账户中查看激活码，再填入对应软件的设置。"
+    "activationCodesHint": "购买或获赠后，在账户中查看激活码，再填入对应软件的设置。",
+    "compareTitle": "限免单品和 Meteor Pass 怎么选？",
+    "compareFeature": "对比项",
+    "compareSingle": "限免单品",
+    "compareCost": "费用",
+    "compareClaimCost": "¥0，登录后领取",
+    "compareCoverage": "适用软件",
+    "comparePerProduct": "每款分别领取",
+    "comparePassCoverage": "一份授权覆盖 XIsland 产品线的 {count} 款个人工具。其中免费开放的工具也可单独获取。",
+    "compareTerm": "有效期",
+    "compareSingleTerm": "领取后可永久使用该软件，包含该软件后续版本更新。",
+    "comparePassTerm": "一个月、一年或永久。月付和年付到期后可手动续期。",
+    "compareNewTools": "产品线新作",
+    "compareSingleFuture": "其他产品单独获取。",
+    "comparePassFuture": "有效期内自动包含。永久档也包含这条产品线今后推出的工具。"
   },
   "CTASection": {
     "browseProducts": "浏览全部产品"
@@ -1467,10 +1486,17 @@
     "noMatch": "没有匹配的标签"
   },
   "PlaygroundPage": {
-    "metaTitle": "Playground - Meteor Store",
-    "metaDescription": "在浏览器里试玩 Meteor Store 产品，不用安装，不用付费。",
-    "title": "在线试玩",
-    "description": "不用安装，不用付费。点击运行，看产品跑起来。"
+    "metaTitle": "在线体验与产品演示",
+    "metaDescription": "在浏览器中打开 Meteor Store 应用，或观看产品的操作演示。",
+    "title": "在线体验",
+    "description": "选择一个应用，在新窗口全屏使用。",
+    "openApp": "打开应用",
+    "openNamedApp": "打开 {name}（新窗口）",
+    "needsApiKey": "需登录并自备模型 API Key",
+    "needsAccount": "需登录，可同步练习与收藏",
+    "guestAccess": "无需登录",
+    "demos": "产品演示",
+    "demoDescription": "选择产品，观看预设的终端操作示例。"
   },
   "NotFoundPage": {
     "title": "镜中无此页",
@@ -1535,8 +1561,8 @@
     "clear": "清除",
     "popularLabel": "热门",
     "hint": "⌘K 打开 · ↑↓ 选择 · Enter 直达 · 支持拼音",
-    "empty": "什么都没找到，但你可以去终端碰碰运气 →",
-    "terminalLink": "店主的终端",
+    "empty": "没有匹配结果。可以换个关键词，或",
+    "browseApps": "浏览在线应用",
     "groupProduct": "产品",
     "groupPage": "页面",
     "groupHelp": "帮助",
@@ -1644,7 +1670,7 @@
     "nightGreeting3": "今天不管发生了什么，都过去了。真的。"
   },
   "TerminalDemo": {
-    "runDemo": "点击运行演示",
+    "runDemo": "看演示",
     "replayAria": "重新播放"
   },
   "MeteorShower": {
@@ -2060,8 +2086,8 @@
       "directionsEyebrow": "从方向开始",
       "directionsTitle": "大学生常见的四条技术路径",
       "deadlinedEyebrow": "有时间压力",
-      "deadlinedTitle": "有截止日期的机会（{count}）",
-      "deadlinedNote": "竞赛与实习是站内唯一带截止日期的内容，错过就要等下一届。没有标注日期的是长期开放，随时可投。",
+      "deadlinedTitle": "竞赛与实习（{count}）",
+      "deadlinedNote": "有明确日期的机会优先展示。开赛时间与报名截止分别标注，报名安排请查看原始链接。",
       "directions": {
         "ai": {
           "title": "人工智能",
@@ -2127,16 +2153,17 @@
       },
       "trust": {
         "official": "官方来源",
-        "verified": "已交叉核验"
+        "verified": "已收录原始链接"
       },
-      "verified": "核验于 {date}",
+      "verified": "来源记录更新于 {date}",
       "addToPlan": "加入路径",
       "manualEligibility": "资格需人工核对",
       "published": "发布于 {date}",
       "noSummary": "官方来源未提供摘要，点开可查看原文。",
       "originalLanguage": "标题与摘要为来源原文（英文），暂无官方中文版本。",
-      "actionableTask": "可直接上手",
-      "stillOpen": "最近确认仍开放 · {date}"
+      "actionableTask": "具体任务",
+      "stillOpen": "最近一次来源记录 · {date}",
+      "startsAt": "开赛 {date}"
     },
     "filters": {
       "searchLabel": "关键词",
@@ -2182,7 +2209,7 @@
         "hybrid": "混合",
         "unspecified": "未注明"
       },
-      "taskLabel": "只看可直接上手的任务",
+      "taskLabel": "只看具体任务",
       "taskHint": "排除整仓库入口，只保留当前开放、无人认领的具体 issue"
     },
     "opportunities": {
@@ -2245,11 +2272,11 @@
       "sourceName": "来源",
       "publishedAt": "发布于",
       "discoveredAt": "收录于",
-      "verifiedAt": "最近核验",
+      "verifiedAt": "来源记录更新于",
       "unknown": "未注明",
       "trust": {
         "official": "官方一手来源",
-        "verified": "可信来源，已核验"
+        "verified": "已收录原始链接"
       },
       "openOriginal": "打开原始页面",
       "visitSource": "访问来源站点",
@@ -2314,7 +2341,10 @@
       "digestAvailable": "已获取全文",
       "entryVerifiedAt": "条目最近核验",
       "savedHistoryNotice": "这条收藏已截止，现仅供你回看历史信息。",
-      "backToSaved": "返回我的收藏"
+      "backToSaved": "返回我的收藏",
+      "registrationDeadline": "报名截止",
+      "startLabel": "开赛时间",
+      "alreadyStarted": "已到开赛时间。当前参赛和报名安排请查看主办方页面。"
     },
     "planPage": {
       "metaTitle": "我的学习路径 · Meteor Pathfinder",
@@ -2456,7 +2486,9 @@
       "customMinutes": "预计分钟",
       "customSubmit": "添加",
       "customCancel": "取消",
-      "customBadge": "自定义"
+      "customBadge": "自定义",
+      "startsAt": "开赛 {date}",
+      "referenceDate": "参考日期 {date}"
     },
     "sort": {
       "label": "排序",
@@ -2484,14 +2516,14 @@
       "emptyDescription": "在机会库里看到值得回来的条目，点「收藏」就会出现在这里。",
       "browse": "去机会库看看",
       "activeTitle": "进行中（{count}）",
-      "expiredTitle": "已结束（{count}）",
+      "expiredTitle": "已开赛或已截止（{count}）",
       "save": "收藏",
       "saved": "已收藏",
       "remindMe": "截止前提醒我",
       "loginRequired": "请先登录",
       "failed": "操作失败，请重试",
       "noActive": "当前没有进行中的收藏，下方可以回看已结束条目。",
-      "expiredDescription": "保留已结束条目的摘要与来源，方便回看。",
+      "expiredDescription": "保留这些记录的时间与来源，方便回看。",
       "loginAction": "登录后收藏",
       "sessionChanged": "账号已变化，请刷新后重试。",
       "refreshAction": "刷新页面"
@@ -2528,7 +2560,7 @@
       "metaDescription": "这周新收录了什么、这周有什么要截止。",
       "eyebrow": "每周回顾",
       "title": "这周值得知道的事",
-      "description": "只回答两件事：这周多了什么、这周有什么要截止。不做热点排行——热度不是这里的判据。",
+      "description": "查看近期新增的机会、本周开赛的比赛和即将到来的报名截止时间。",
       "range": "统计区间：{since} — {until}",
       "closingTitle": "本周截止（{count}）",
       "closingDescription": "还来得及行动的条目，按截止时间从近到远。",
@@ -2536,10 +2568,11 @@
       "highlightsDescription": "从本周新增里挑的，优先能直接进入学习路径、资格不需要额外核对的条目。",
       "addedTitle": "本周新增（{count}）",
       "emptyTitle": "这周没有新变化",
-      "emptyDescription": "同步任务没有带回新条目，也没有临近截止的机会。下周再来看看。",
+      "emptyDescription": "这一期还没有新增、开赛或即将截止的记录。",
       "browse": "去机会库看看",
       "addedFeaturedNote": "按「最值得行动」排序，先给出 {shown} 条；其余 {rest} 条可展开。",
-      "addedMore": "展开其余 {rest} 条"
+      "addedMore": "展开其余 {rest} 条",
+      "startingTitle": "本周开赛（{count}）"
     }
   },
   "PassStatus": {

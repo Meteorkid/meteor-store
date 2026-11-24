@@ -44,6 +44,7 @@ export default function AuthForm({
   wechatError = null,
   mfaChallenge = false,
   next = '/',
+  appName,
 }: {
   verified?: boolean;
   wechatError?: string | null;
@@ -51,6 +52,7 @@ export default function AuthForm({
   mfaChallenge?: boolean;
   /** 服务端白名单校验后的站内回跳地址。 */
   next?: string;
+  appName?: string;
 }) {
   const t = useTranslations('LoginPage');
   const locale = useLocale();
@@ -138,7 +140,7 @@ export default function AuthForm({
           href={next}
           className="inline-block rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
         >
-          {t(next === '/' ? 'backHome' : 'continue')}
+          {appName ? t('continueApp', { name: appName }) : t(next === '/' ? 'backHome' : 'continue')}
         </Link>
       </div>
     );
@@ -326,7 +328,7 @@ export default function AuthForm({
       </div>
 
       <h1 className="mb-2 text-2xl font-bold">
-        {mode === 'login' ? t('welcomeBack') : t('createAccount')}
+        {mode === 'login' && appName ? t('loginToApp', { name: appName }) : t(mode === 'login' ? 'welcomeBack' : 'createAccount')}
       </h1>
       <p className="mb-8 text-sm text-gray-400">
         {mode === 'login' ? t('loginSubtitle') : t('registerSubtitle')}

@@ -38,7 +38,9 @@ describe('首页星光首屏', () => {
     const html = render('zh');
     expect(html).toContain('星光不远');
     expect(html).toContain('href="/zh/products"');
-    expect(html).toContain('href="/zh/docs"');
+    expect(html).toContain('浏览产品');
+    expect(html).toContain('href="/zh/playground"');
+    expect(html).toContain('在线体验');
     expect(html).toContain('data-sky-people="false"');
     expect(html).toContain('data-sky-paused="false"');
     expect(html).toContain('data-sky-view="follow"');
@@ -52,7 +54,8 @@ describe('首页星光首屏', () => {
     const html = render('en');
     expect(html).toContain('Starlight is near');
     expect(html).toContain('href="/en/products"');
-    expect(html).toContain('href="/en/docs"');
+    expect(html).toContain('href="/en/playground"');
+    expect(html).toContain('Try apps online');
     expect(html).toContain('See the people behind the starlight');
     expect(html).not.toContain('data-celestial-fallback');
   });

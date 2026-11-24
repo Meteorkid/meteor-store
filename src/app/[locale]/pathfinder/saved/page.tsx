@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import CatalogItemCard from '@/components/pathfinder/CatalogItemCard';
+import { isCatalogItemPublicAt } from '@/lib/pathfinder/catalog';
 import ReminderToggle from '@/components/pathfinder/ReminderToggle';
 import { Link, redirect } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { getSession } from '@/lib/auth';
-import { getDeadlineState } from '@/lib/pathfinder/catalog-view';
 import { getSavedPathfinderItems } from '@/lib/pathfinder/saves';
 
 export const dynamic = 'force-dynamic';
@@ -42,8 +42,8 @@ export default async function PathfinderSavedPage({
   } catch {
     console.error('[pathfinder] saved items unavailable');
   }
-  const active = saved?.filter(({ item }) => getDeadlineState(item).state !== 'expired') ?? [];
-  const expired = saved?.filter(({ item }) => getDeadlineState(item).state === 'expired') ?? [];
+  const active = saved?.filter(({ item }) => isCatalogItemPublicAt(item)) ?? [];
+  const expired = saved?.filter(({ item }) => !isCatalogItemPublicAt(item)) ?? [];
 
   return (
     <main className="container mx-auto px-4 py-10 sm:py-14 lg:py-16">
@@ -82,7 +82,7 @@ export default async function PathfinderSavedPage({
                   <div key={item.id}>
                     <CatalogItemCard item={item} locale={locale as Locale} />
                     <div className="pb-4">
-                      <ReminderToggle itemId={item.id} initialEnabled={remindDeadline} initialOwnerId={session!.userId} />
+                      {(item.deadlineAt || item.deadlineDate) && <ReminderToggle itemId={item.id} initialEnabled={remindDeadline} initialOwnerId={session!.userId} />}
                     </div>
                   </div>
                 ))}

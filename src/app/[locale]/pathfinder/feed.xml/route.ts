@@ -1,3 +1,4 @@
+import { formatContestStart } from '@/lib/pathfinder/contest-time';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
 import {
   formatCatalogDeadlineDate,
@@ -36,7 +37,9 @@ export async function GET(
         title: localizedText(item.title, pathfinderLocale),
         // 指向站内详情页而不是原文：详情页才有资格、费用、核验时间这些判断依据
         link: `/${locale}/pathfinder/items/${item.id}`,
-        description: deadline
+        description: item.startsAt
+          ? `${summary} (${pathfinderLocale === 'zh' ? '开赛' : 'Starts'} ${formatContestStart(item.startsAt, pathfinderLocale)})`
+          : deadline
           ? `${summary}${summary ? ' ' : ''}(${pathfinderLocale === 'zh' ? '截止' : 'Deadline'} ${deadline})`
           : summary,
         category: item.itemType,

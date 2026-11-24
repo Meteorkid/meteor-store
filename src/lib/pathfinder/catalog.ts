@@ -1,7 +1,8 @@
 import crypto from 'crypto';
 import { unstable_cache } from 'next/cache';
 import { STATIC_PATHFINDER_ITEMS } from '@/data/pathfinder/catalog-seeds';
-import { listDatabaseCatalogItems } from './catalog-db';
+import { getStartedCodeforcesContest, listDatabaseCatalogItems } from './catalog-db';
+import { hasContestStarted } from './contest-time';
 import { catalogDeadlineTimestamp } from './catalog-view';
 import type {
   ListCatalogItemsOptions,
@@ -55,7 +56,7 @@ async function loadCatalogSnapshot(savedItemIds?: readonly string[]): Promise<Ca
 
 const loadCachedCatalogSnapshot = unstable_cache(
   loadCatalogSnapshot,
-  ['pathfinder-public-catalog-v2'],
+  ['pathfinder-public-catalog-v3'],
   { revalidate: 60, tags: [PATHFINDER_CATALOG_CACHE_TAG] },
 );
 
@@ -106,7 +107,9 @@ export async function listPublishedSavedCatalogItems(
     throw new Error(SAVED_CONTENT_UNAVAILABLE_MESSAGE);
   }
   const ids = new Set(savedItemIds);
-  return catalogSnapshotItems(snapshot).filter((item) => item.status === 'published' && ids.has(item.id));
+  return catalogSnapshotItems(snapshot).filter(item => ids.has(item.id) && (
+    item.status === 'published' || (item.status === 'expired' && item.sourceId === 'codeforces-contests' && hasContestStarted(item))
+  ));
 }
 
 /**
@@ -117,7 +120,7 @@ export function isCatalogItemPublicAt(
   item: PathfinderCatalogItem,
   now = new Date(),
 ): boolean {
-  if (item.status !== 'published') return false;
+  if (item.status !== 'published' || hasContestStarted(item, now)) return false;
   const deadline = catalogDeadlineTimestamp(item, true);
   if (deadline !== null && deadline < now.getTime()) return false;
   return true;
@@ -126,7 +129,14 @@ export function isCatalogItemPublicAt(
 /** 按目录 ID 读取公开条目；失败降级行为与列表完全一致。 */
 export async function getCatalogItem(id: string): Promise<PathfinderCatalogItem | null> {
   if (!id.trim()) return null;
-  return (await listCatalogItems()).find((item) => item.id === id) ?? null;
+  const current = (await listCatalogItems()).find((item) => item.id === id);
+  if (current || !/^pf_[a-f0-9]{24}$/.test(id)) return current ?? null;
+  try {
+    return await getStartedCodeforcesContest(id);
+  } catch (error) {
+    console.error('[pathfinder] 读取历史赛程失败', error);
+    return null;
+  }
 }
 
 /** 相同规范 URL 时动态目录覆盖静态种子，避免同一机会显示两次。 */

@@ -1,3 +1,4 @@
+import { formatContestStart, hasContestStarted } from '@/lib/pathfinder/contest-time';
 import { getTranslations } from 'next-intl/server';
 import SaveButton from '@/components/pathfinder/SaveButton';
 import { Link } from '@/i18n/navigation';
@@ -55,6 +56,11 @@ export default async function CatalogItemCard({
     && deadlineDate
     && deadline.state !== 'expired';
 
+  const timeBadge = [
+    showDeadline && deadlineDate ? t('deadline', { date: deadlineDate }) : null,
+    item.startsAt ? t('startsAt', { date: formatContestStart(item.startsAt, pathfinderLocale) }) : null,
+  ].filter(Boolean).join(' · ');
+
   if (compact) {
     return (
       <article className="group flex flex-wrap items-baseline gap-x-3 gap-y-1 border-t border-white/10 py-3 transition-colors duration-200 hover:bg-white/[0.025]">
@@ -76,9 +82,9 @@ export default async function CatalogItemCard({
           </span>
         )}
         <span className="t-footnote text-white/60">{meta[0]}</span>
-        {showDeadline && (
+        {timeBadge && (
           <span className={`t-footnote ${deadline.state === 'urgent' ? 'text-red-200' : 'text-white/60'}`}>
-            {t('deadline', { date: deadlineDate })}
+            {timeBadge}
           </span>
         )}
       </article>
@@ -114,7 +120,7 @@ export default async function CatalogItemCard({
             {t('manualEligibility')}
           </span>
         )}
-        {showDeadline && (
+        {timeBadge && (
           <span
             className={`ml-auto rounded-full border px-2 py-1 text-[11px] ${
               deadline.state === 'urgent'
@@ -124,7 +130,7 @@ export default async function CatalogItemCard({
                   : 'border-white/10 text-white/60'
             }`}
           >
-            {t('deadline', { date: deadlineDate })}
+            {timeBadge}
           </span>
         )}
       </div>
@@ -192,7 +198,7 @@ export default async function CatalogItemCard({
               initialOwnerId={saveState.ownerId}
             />
           )}
-          {item.learningEligible && !item.requiresManualEligibilityCheck && (
+          {item.learningEligible && !item.requiresManualEligibilityCheck && !hasContestStarted(item) && (
             <Link
               href={`/pathfinder/plan?item=${encodeURIComponent(item.id)}`}
               className="rounded-lg border border-violet-400/25 bg-violet-500/10 px-3 py-1.5 text-xs font-semibold text-violet-100 transition-colors hover:bg-violet-500/20"

@@ -15,6 +15,7 @@ import CTASection from '@/components/CTASection';
 import BackToTop from '@/components/BackToTop';
 import { labProductIds, productLineIds } from '@/data/product-tracks';
 import { products } from '@/data/products';
+import { currentFreeLicenseOffers } from '@/lib/software-licenses/offers';
 import { webAppCount } from '@/data/app-manifest';
 import { localizeHelpArticles } from '@/data/help-articles';
 import { SHOW_PRICING } from '@/lib/constants';
@@ -41,6 +42,7 @@ export default async function Home({
   const { locale } = await params;
   setRequestLocale(locale);
   const language = locale === 'en' ? 'en' : 'zh';
+  const freeLicenseOffers = currentFreeLicenseOffers(language);
   const orbitProducts = products.map(({ id, name, tagline }) => ({
     id,
     name: name[language],
@@ -68,7 +70,7 @@ export default async function Home({
       <PartnersSection />
 
       {/* Products Section */}
-      <ProductShowcase />
+      <ProductShowcase freeLicenseIds={freeLicenseOffers.map(offer => offer.id)} />
 
       {/* Product Demo */}
       <ProductDemo />
@@ -78,7 +80,7 @@ export default async function Home({
 
       {/* Pricing Section —— 全站唯一的定价区块。
           数量在服务端算，且只数主产品线：Pass 不覆盖实验室那七款（它们本来就免费） */}
-      {SHOW_PRICING && <PricingSection productCount={productLineIds.length} />}
+      {SHOW_PRICING && <PricingSection productCount={productLineIds.length} freeLicenseOffers={freeLicenseOffers} />}
 
       {/* Newsletter Section */}
       <NewsletterSection />

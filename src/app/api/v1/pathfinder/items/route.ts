@@ -44,6 +44,7 @@ function serialize(item: PathfinderCatalogItem) {
     cost: item.cost,
     remoteStatus: item.remoteStatus,
     region: item.region,
+    startsAt: item.startsAt ?? null,
     deadline: {
       at: item.deadlineAt,
       date: item.deadlineDate,

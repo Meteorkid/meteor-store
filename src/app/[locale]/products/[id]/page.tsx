@@ -13,7 +13,7 @@ import ProductDemoEmbed from '@/components/ProductDemoEmbed';
 import PassOwnedBadge from '@/components/PassOwnedBadge';
 import ProductPricingCards from '@/components/ProductPricingCards';
 import PermissionNote from '@/components/PermissionNote';
-import { getAppTrialHref } from '@/data/app-manifest';
+import { getAppTrialHref, getBrowserExperience } from '@/data/app-manifest';
 import { products, localizeProduct } from '@/data/products';
 import {
   countIntegrationsByStatus,
@@ -30,6 +30,7 @@ import { safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema, buildProductSchema } from '@/lib/structured-data';
 import { routing, type Locale } from '@/i18n/routing';
 import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
+import { hasLimitedFreeLicense } from '@/lib/software-licenses/offers';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
@@ -78,8 +79,10 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
   const product = localizeProduct(raw, locale as Locale);
   const isAnnual = annual === 'true';
   const trialHref = getAppTrialHref(product.id);
+  const experienceLabel = t(getBrowserExperience(product)?.requiresLogin && !(await getSession()) ? 'loginToExperience' : 'onlineExperience');
   const primaryDownload = product.downloads?.find((download) => download.icon !== 'github');
   const softwareTrial = isSoftwareLicensingEnabled() && (id === 'xnook' || id === 'xisland');
+  const freeLicenseOffer = SHOW_PRICING && hasLimitedFreeLicense(product);
   // 领过码就把下载区的引导换成「去账户页查看」，不再劝人重复领取一次。
   const licenseClaimed = softwareTrial ? await hasClaimedLicense(id) : false;
 
@@ -140,7 +143,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                 </a>
               ) : null}
               {/* 开发者主要从 GitHub 找工具，产品页不给入口等于关掉唯一免费的发现渠道。 */}
-              {softwareTrial && (
+              {(licenseClaimed || freeLicenseOffer) && (
                 <a
                   href={licenseClaimed ? '/account#software-licenses' : '#pricing'}
                   className="inline-flex items-center gap-2 rounded-full border border-violet-400/40 bg-violet-500/10 px-5 py-2.5 text-sm font-semibold text-violet-100 transition-colors hover:bg-violet-500/20"
@@ -172,7 +175,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                   className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
                 >
                   <span aria-hidden>✦</span>
-                  {t('onlineExperience')}
+                  {experienceLabel}
                 </Link>
               )}
               {trialHref && (
@@ -183,10 +186,13 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
                   className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
                 >
                   <span aria-hidden>✦</span>
-                  {t('onlineExperience')}
+                  {experienceLabel}
                 </Link>
               )}
             </div>
+            {primaryDownload && freeLicenseOffer && !licenseClaimed && (
+              <p className="mt-3 text-sm leading-6 text-white/75">{t('trialClaimHint')}</p>
+            )}
             {product.id === 'ex-memory' && (
               <div className="mt-5 text-sm leading-relaxed text-white/70">
                 <p>{t('exMemorySetup')}</p>
@@ -324,10 +330,10 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
           <PassOwnedBadge />
           <section id="pricing" className="mb-16">
             <h2 className="mb-6 text-center text-2xl font-bold text-white">{t('pricing')}</h2>
-            {softwareTrial && <div className="mx-auto mb-6 max-w-2xl rounded-2xl border border-violet-400/20 bg-violet-500/5 p-5 text-center">
+            {freeLicenseOffer && <div className="mx-auto mb-6 max-w-2xl rounded-2xl border border-violet-400/20 bg-violet-500/5 p-5 text-center">
               <p className="text-white">{locale === 'en' ? 'Limited-time free: claim a lifetime license, no payment needed.' : '限时免费：领取永久激活码，无需付款。'}</p>
               <p className="mt-2 text-sm leading-relaxed text-white/70">{locale === 'en' ? 'Download and try every feature for 14 days. Claim the free plan below — the activation code is emailed to your registered address and also shown in your account. Up to 3 devices per product, with device unlinking.' : '下载后可先完整体验 14 天。在下方「限时免费」档领取，激活码会发到注册邮箱，也可在账户页查看。每款最多激活 3 台设备，支持解绑换机。'}</p>
-              <Link href="/pricing" className="mt-3 inline-block text-violet-300 underline underline-offset-4">{locale === 'en' ? 'See other activation options' : '查看其他激活方案'}</Link>
+              <Link href="/pricing#compare" className="mt-3 inline-flex min-h-11 items-center text-violet-300 underline underline-offset-4">{locale === 'en' ? 'Compare a single license with Meteor Pass' : '比较单品授权与 Meteor Pass'}</Link>
             </div>}
             {product.status === 'coming_soon' ? (
               <div className="glass-card mx-auto max-w-2xl rounded-3xl px-8 py-12 text-center">
@@ -395,7 +401,7 @@ export default async function ProductPage({ params, searchParams }: ProductPageP
           <div className="flex flex-wrap items-center justify-center gap-4">
             {product.experienceUrl && (
               <Link href={product.experienceUrl} target="_blank" rel="noopener noreferrer" className="rounded-full bg-violet-600 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-500">
-                {t('onlineExperience')}
+                {experienceLabel}
               </Link>
             )}
             <a

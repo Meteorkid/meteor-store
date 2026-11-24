@@ -4,7 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import zh from '../../../messages/zh.json';
 import en from '../../../messages/en.json';
 
-const state = vi.hoisted(() => ({ locale: 'en' as 'zh' | 'en', signedIn: false }));
+const state = vi.hoisted(() => ({ locale: 'en' as 'zh' | 'en', signedIn: false, showPricing: true }));
+vi.mock('@/lib/constants', async original => ({
+  ...await original<typeof import('@/lib/constants')>(),
+  get SHOW_PRICING() { return state.showPricing; },
+}));
 vi.mock('next-intl', async original => {
   const intl = await original<typeof import('next-intl')>();
   return { ...intl, useLocale: () => state.locale,
@@ -26,7 +30,7 @@ import PermissionNote from '../PermissionNote';
 import { xislandPermissionNote } from '@/data/xisland-permission';
 import { localizeProduct, products } from '@/data/products';
 
-beforeEach(() => { state.locale = 'en'; state.signedIn = false; });
+beforeEach(() => { state.locale = 'en'; state.signedIn = false; state.showPricing = true; });
 const product = (id: string) => localizeProduct(products.find(item => item.id === id)!, state.locale);
 
 describe('产品媒体与获取入口', () => {
@@ -155,6 +159,9 @@ describe('产品媒体与获取入口', () => {
       // 不需要激活码的产品不该被带上领码引导
       const binary = renderToStaticMarkup(await DownloadSection({ product: product('statux') }));
       expect(binary).not.toContain('#pricing');
+      state.showPricing = false;
+      const hiddenPricing = renderToStaticMarkup(await DownloadSection({ product: product('xisland') }));
+      expect(hiddenPricing).not.toContain('#pricing');
     } finally {
       vi.unstubAllEnvs();
     }

@@ -91,14 +91,14 @@ function NebulaHeroSection({ productCount, webAppCount, freeCount, helpCount }: 
             </p>
             <p className="sr-only">{english ? 'Independent tools, applications, writing and learning resources from Meteor Store.' : 'Meteor Store 的独立工具、应用、文字与学习资源。'}</p>
             <div className={styles.actions}>
-              <Link className={styles.entry} href="/products" aria-label={english ? 'Explore tools and products' : '探索作品与产品'}>
-                <CelestialText className={styles.entryMain} text={english ? 'WORKS' : '作品'} spacing={10} weight={4.5} decorative />
-                <CelestialText className={styles.entrySub} text={english ? 'EXPLORE' : 'WORKS'} spacing={12} weight={7} decorative />
+              <Link className={styles.entry} href="/products">
+                <span className={styles.entryMain}>{english ? 'Browse products' : '浏览产品'}</span>
+                {!english && <CelestialText className={styles.entrySub} text="PRODUCTS" spacing={12} weight={7} decorative />}
                 <EntryArrow />
               </Link>
-              <Link className={`${styles.entry} ${styles.entrySecondary}`} href="/docs" aria-label={english ? 'Read guides and help' : '查看指南与帮助'}>
-                <CelestialText className={styles.entryMain} text={english ? 'GUIDE' : '指南'} spacing={10} weight={4.5} decorative />
-                <CelestialText className={styles.entrySub} text={english ? 'HELP' : 'GUIDE'} spacing={12} weight={7} decorative />
+              <Link className={`${styles.entry} ${styles.entrySecondary}`} href="/playground">
+                <span className={styles.entryMain}>{english ? 'Try apps online' : '在线体验'}</span>
+                {!english && <CelestialText className={styles.entrySub} text="TRY ONLINE" spacing={12} weight={7} decorative />}
                 <EntryArrow />
               </Link>
             </div>

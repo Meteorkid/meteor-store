@@ -240,6 +240,9 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
     if (isDailyHistoryDate(value, today)) router.push(`/daily?date=${value}${viewAll ? '&view=all' : ''}`);
   };
   const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-white disabled:opacity-40';
+  const readingLinkClass = 'inline-flex min-h-11 items-center text-sm font-medium text-violet-200 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2';
+  const backToOverview = date === today ? copy.backToTodayOverview : copy.backToEditionOverview;
+  const nextCalendar = selectedChannels.includes('masters') ? dailyChannels.find(channel => channel.id === 'masters') : undefined;
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -332,7 +335,8 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
           const coverage = channel.id === 'events' ? copy.eventsCoverage : channel.id === 'competitions' ? copy.competitionsCoverage
             : channel.id === 'internships' ? copy.internshipsCoverage : null;
           const editionReadKey = `${date}:${channel.id}`;
-          return <article key={channel.id} id={channel.id} className="scroll-mt-24 py-9 sm:py-12" aria-labelledby={`daily-${channel.id}-title`}>
+          const nextChannel = editionEntries.slice(index + 1).find(entry => entry.status === 'published')?.channel ?? nextCalendar;
+          return <article key={channel.id} id={channel.id} tabIndex={-1} className="scroll-mt-24 py-9 sm:py-12" aria-labelledby={`daily-${channel.id}-title`}>
             <div className="mb-5 flex flex-wrap items-center gap-3">
               <span className="font-mono text-xs text-violet-200">{String(index + 1).padStart(2, '0')}</span>
               <p className="t-eyebrow text-violet-300">{channel[locale]}</p>
@@ -355,10 +359,15 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
                 {copy.latestPublished} · {previousPublished}
               </Link> : <p className="mt-3 t-footnote text-white/60">{previousPublishedDatesFailed ? copy.previousPublishedFailed : copy.noPreviousPublished}</p>}
             </div>}
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-x-5 border-t border-white/10 pt-2">
+              <a href="#daily-overview" className={readingLinkClass}>{backToOverview}</a>
+              {nextChannel && <a href={`#${nextChannel.id}`} className={readingLinkClass}>{copy.nextChannel} · {nextChannel[locale]} →</a>}
+            </div>
           </article>;
         })}
       </div>}
       {selectedChannels.includes('masters') && <MastersSummaryCard summary={mastersSummary} year={defaultMastersYear(new Date(`${today}T00:00:00+08:00`))} issueDate={date} today={today} locale={locale} failed={mastersSummaryFailed} />}
+      {nextCalendar && !loadFailed && editionEntries.length > 0 && <a href="#daily-overview" className={readingLinkClass}>{backToOverview}</a>}
       <p className="border-t border-white/10 pt-6 t-footnote text-white/60">{copy.readHint} {copy.readScope}</p>
     </div>
   );

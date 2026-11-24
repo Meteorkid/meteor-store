@@ -1,4 +1,5 @@
-import { desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, lte } from 'drizzle-orm';
+import { PAYMENT_REVIEW_PREFIX, requestsPayment } from './ingestion/issue-review';
 import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderItemTags, pathfinderSources } from '@/lib/db/schema';
 import {
@@ -50,6 +51,28 @@ export async function listDatabaseCatalogItems(
     [...publishedRows, ...overlayRows].map((row) => [row.item.id, row]),
   ).values()];
 
+  return catalogItemsWithTags(rows);
+}
+
+/** 原先已按“开赛”自动置 expired 的官方赛程仍可查原始信息，其他非公开状态不放行。 */
+export async function getStartedCodeforcesContest(id: string, now = new Date()) {
+  if (!/^pf_[a-f0-9]{24}$/.test(id)) return null;
+  const rows = await db.select({ item: pathfinderItems, source: pathfinderSources })
+    .from(pathfinderItems)
+    .innerJoin(pathfinderSources, eq(pathfinderItems.sourceId, pathfinderSources.id))
+    .where(and(
+      eq(pathfinderItems.id, id), eq(pathfinderItems.sourceId, 'codeforces-contests'),
+      eq(pathfinderItems.itemType, 'competition'), inArray(pathfinderItems.status, ['published', 'expired']),
+      lte(pathfinderItems.deadlineAt, now.toISOString()),
+    )).limit(1);
+  const item = (await catalogItemsWithTags(rows))[0];
+  return item?.startsAt && Date.parse(item.startsAt) <= now.getTime() ? item : null;
+}
+
+async function catalogItemsWithTags(rows: {
+  item: typeof pathfinderItems.$inferSelect;
+  source: typeof pathfinderSources.$inferSelect;
+}[]) {
   if (rows.length === 0) return [];
 
   const tagsByItem = new Map<string, ReturnType<typeof emptyPathfinderTags>>();
@@ -78,6 +101,13 @@ export function mapDatabaseCatalogItem(
   source: typeof pathfinderSources.$inferSelect,
   tags: ReturnType<typeof emptyPathfinderTags> = emptyPathfinderTags(),
 ): PathfinderCatalogItem {
+  // 旧库的 Codeforces 时间列存的是 startTimeSeconds，用于同步过期和日刊。
+  const contestStart = item.sourceId === 'codeforces-contests';
+  const currentPaymentPolicy = item.contentHash.startsWith(PAYMENT_REVIEW_PREFIX);
+  const pendingPaymentReview = item.status === 'published' && source.adapter === 'github'
+    && item.itemType === 'open-source'
+    && (!currentPaymentPolicy || !item.reviewerId || !item.reviewedAt || !item.requiresManualEligibilityCheck)
+    && (currentPaymentPolicy || requestsPayment([item.titleEn, item.summaryEn, item.titleZh, item.summaryZh].join(' ')));
   const costAmount = item.costAmount ?? item.costCny;
   return {
     id: item.id,
@@ -109,12 +139,13 @@ export function mapDatabaseCatalogItem(
     eligibility: { zh: item.eligibilityZh, en: item.eligibilityEn },
     deadlineText: localizeNullable(item.deadlineTextZh, item.deadlineTextEn)
       ?? localizeDatabaseDeadline(item.deadlineText),
-    deadlineDate: item.deadlineDate ?? item.deadlineAt?.slice(0, 10) ?? null,
-    deadlineAt: item.deadlineAt,
+    deadlineDate: contestStart ? null : item.deadlineDate ?? item.deadlineAt?.slice(0, 10) ?? null,
+    deadlineAt: contestStart ? null : item.deadlineAt,
+    startsAt: contestStart && item.deadlineAt && Number.isFinite(Date.parse(item.deadlineAt)) ? item.deadlineAt : null,
     publishedAt: item.publishedAt,
     discoveredAt: item.discoveredAt,
     verifiedAt: item.verifiedAt,
-    status: item.status as PathfinderItemStatus,
+    status: pendingPaymentReview ? 'pending' : item.status as PathfinderItemStatus,
     learningEligible: item.learningEligible,
     requiresManualEligibilityCheck: item.requiresManualEligibilityCheck,
     tags,

@@ -630,13 +630,13 @@ export const helpArticles: HelpArticleMeta[] = [
     kind: 'tutorial',
     order: 10,
     readingMinutes: 3,
-    updatedAt: '2026-10-24',
+    updatedAt: '2026-11-24',
     commercial: false,
     relatedSlugs: [],
     title: { zh: '如何使用 Playground 在线体验产品', en: 'How to Use Playground to Try Products Online' },
     excerpt: {
-      zh: '在 Playground 中直接体验产品的核心功能，无需下载或登录。',
-      en: 'Try core product features directly in the Playground without downloading or logging in.',
+      zh: '从在线体验页打开浏览器应用，了解哪些体验需要账号，或观看预设的产品演示。',
+      en: 'Open a browser app, check its sign-in requirements, or watch a scripted product demo.',
     },
     keywords: {
       zh: ['Playground', '在线体验', '试用', '演示'],

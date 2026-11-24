@@ -58,7 +58,7 @@ export default async function PathfinderWeeklyPage({
           )}
         </header>
 
-        {weekly.added.length === 0 && weekly.closing.length === 0 ? (
+        {weekly.added.length === 0 && weekly.closing.length === 0 && weekly.starting.length === 0 ? (
           <div className="rounded-2xl border border-white/10 px-5 py-12 text-center">
             <h2 className="t-title-3 text-white">{t('emptyTitle')}</h2>
             {/* 空周报如实说「这周没有」，不用旧内容凑数 */}
@@ -84,6 +84,17 @@ export default async function PathfinderWeeklyPage({
                       locale={locale as Locale}
                       saveState={saveState(item.id)}
                     />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {weekly.starting.length > 0 && (
+              <section>
+                <h2 className="t-title-2 text-white">{t('startingTitle', { count: weekly.starting.length })}</h2>
+                <div className="mt-3">
+                  {weekly.starting.slice(0, 8).map(item => (
+                    <CatalogItemCard key={item.id} item={item} locale={pathfinderLocale} saveState={saveState(item.id)} />
                   ))}
                 </div>
               </section>
@@ -115,7 +126,7 @@ export default async function PathfinderWeeklyPage({
                * 其余多少条可展开」。历史教训：标题写着 91 条而页面只渲染 20 条，
                * 中间没有任何交代。
                */
-              const featured = sortCatalogItems(weekly.added, 'action').slice(0, WEEKLY_FEATURED_LIMIT);
+              const featured = sortCatalogItems(weekly.added.filter(item => !item.requiresManualEligibilityCheck), 'action').slice(0, WEEKLY_FEATURED_LIMIT);
               const rest = weekly.added.filter((item) => !featured.includes(item));
 
               return (

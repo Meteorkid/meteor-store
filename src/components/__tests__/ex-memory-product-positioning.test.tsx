@@ -19,6 +19,7 @@ vi.mock('next-intl/server', () => ({
 vi.mock('@/i18n/navigation', () => ({ Link: 'a' }));
 vi.mock('@/components/TransitionLink', () => ({ default: 'a' }));
 vi.mock('@/components/Header', () => ({ default: () => null }));
+vi.mock('@/lib/auth', () => ({ getSession: async () => null }));
 vi.mock('@/components/Footer', () => ({ default: () => null }));
 vi.mock('@/components/ProductVisual', () => ({ default: () => null }));
 vi.mock('@/components/ProductGallery', () => ({ default: () => null }));

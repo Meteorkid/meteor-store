@@ -114,6 +114,7 @@ export async function GET() {
               },
             },
             remoteStatus: { type: 'string', enum: [...PATHFINDER_REMOTE_STATUSES] },
+            startsAt: { type: ['string', 'null'], format: 'date-time', description: '来源公布的开赛时间，与报名截止独立' },
             deadline: {
               type: 'object',
               description: '官方只公布日期时 date 有值而 at 为 null，不会伪造时刻与时区',
@@ -136,7 +137,7 @@ export async function GET() {
             url: { type: 'string', format: 'uri', description: '站内详情页' },
             publishedAt: { type: ['string', 'null'], format: 'date-time' },
             discoveredAt: { type: 'string', format: 'date-time' },
-            verifiedAt: { type: 'string', format: 'date-time', description: '最近一次核验时间' },
+            verifiedAt: { type: 'string', format: 'date-time', description: '最近一次更新来源记录的时间' },
           },
         },
         LocalizedText: {

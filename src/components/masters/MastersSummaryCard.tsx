@@ -11,7 +11,7 @@ export default function MastersSummaryCard({ summary, year, issueDate, today, lo
 }) {
   const zh = locale === 'zh';
   const intakeYear = summary?.intakeYear ?? year;
-  return <section id="masters" className="scroll-mt-24 border-t border-white/10 py-9 sm:py-12" aria-labelledby="masters-summary-title">
+  return <section id="masters" tabIndex={-1} className="scroll-mt-24 border-t border-white/10 py-9 sm:py-12" aria-labelledby="masters-summary-title">
     <p className="t-eyebrow text-violet-300">{zh ? '硕士申请' : 'MASTER’S APPLICATIONS'}</p>
     <h2 id="masters-summary-title" className="mt-4 t-title-2 text-white">{zh ? `${intakeYear} 入学 · 全年申请日历` : `${intakeYear} intake · Application calendar`}</h2>
     <p className="mt-3 t-body text-white/70">{zh ? '按学校、专业和轮次查看公开申请期限。关注具体轮次，记录准备进度。' : 'Explore application deadlines by university, subject and round. Follow specific rounds to track your progress.'}</p>

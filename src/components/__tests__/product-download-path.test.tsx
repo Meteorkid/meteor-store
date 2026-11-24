@@ -36,7 +36,7 @@ vi.mock('@/components/ProductDemoEmbed', () => ({ default: () => null }));
 vi.mock('@/components/PassOwnedBadge', () => ({ default: () => null }));
 vi.mock('@/components/ProductPricingCards', () => ({ default: () => null }));
 vi.mock('@/components/AuthForm', () => ({
-  default: ({ next }: { next: string }) => <a href={next}>登录后的目的地</a>,
+  default: ({ next, appName }: { next: string; appName?: string }) => <a href={next}>{appName ?? '登录后的目的地'}</a>,
 }));
 
 function renderDownload(productId: string, gated: boolean) {
@@ -54,6 +54,16 @@ function renderDownload(productId: string, gated: boolean) {
 }
 
 describe('产品下载与登录路径', () => {
+  it.each([
+    ['/apps/tollow/trial', 'Tollow'],
+    ['/apps/ex-memory', 'Ex-Memory'],
+  ])('登录页只从受信任的体验目的地 %s 取得产品名', async (next, appName) => {
+    const render = async (value: string) => renderToStaticMarkup(await LoginPage({
+      params: Promise.resolve({ locale: 'zh' }), searchParams: Promise.resolve({ next: value }),
+    }));
+    expect(await render(next)).toContain(`href="${next}">${appName}</a>`);
+    expect(await render(`//other.test${next}`)).toContain('href="/">登录后的目的地</a>');
+  });
   it('产品页运行时读取当前下载版本，无需重新构建', async () => {
     expect(dynamic).toBe('force-dynamic');
     const directory = await mkdtemp(path.join(os.tmpdir(), 'product-page-catalog-'));

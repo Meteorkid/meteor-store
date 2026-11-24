@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { pathfinderItems, pathfinderItemTags, pathfinderSources } from '@/lib/db/schema';
 import { isCatalogItemPublicAt, normalizeCatalogUrl } from './catalog';
 import { PATHFINDER_SYNC_SOURCE_MAP } from './ingestion';
+import { PAYMENT_REVIEW_PREFIX, requestsPayment } from './ingestion/issue-review';
 import { addStaticPathfinderTombstone } from './static-tombstones';
 import type { PathfinderItemStatus, PathfinderTagDimension } from './catalog-types';
 
@@ -109,6 +110,8 @@ export async function listPathfinderAdminData(options: PathfinderAdminListOption
 
 export async function reviewPathfinderItem(input: {
   id: string;
+  contentHash?: string;
+  batch?: boolean;
   reviewerId: string;
   decision: 'published' | 'rejected';
   learningEligible: boolean;
@@ -116,13 +119,24 @@ export async function reviewPathfinderItem(input: {
   const now = new Date().toISOString();
   const [candidate] = await db.select({
     sourceId: pathfinderItems.sourceId,
+    adapter: pathfinderSources.adapter,
     itemType: pathfinderItems.itemType,
     requiresManualEligibilityCheck: pathfinderItems.requiresManualEligibilityCheck,
-  }).from(pathfinderItems).where(and(
+    contentHash: pathfinderItems.contentHash,
+    titleZh: pathfinderItems.titleZh, titleEn: pathfinderItems.titleEn,
+    summaryZh: pathfinderItems.summaryZh, summaryEn: pathfinderItems.summaryEn,
+  }).from(pathfinderItems)
+    .leftJoin(pathfinderSources, eq(pathfinderSources.id, pathfinderItems.sourceId)).where(and(
     eq(pathfinderItems.id, input.id),
     eq(pathfinderItems.status, 'pending'),
   )).limit(1);
-  if (!candidate) return null;
+  if (!candidate || (input.contentHash !== undefined && input.contentHash !== candidate.contentHash)) return null;
+  const marked = candidate.contentHash.startsWith(PAYMENT_REVIEW_PREFIX);
+  const legacyPayment = !marked && candidate.itemType === 'open-source'
+    && candidate.adapter === 'github'
+    && requestsPayment([candidate.titleEn, candidate.summaryEn, candidate.titleZh, candidate.summaryZh].join(' '));
+  // 旧管理客户端只能批普通条目。付款内容先由同步补齐费用标记，再逐条核对当前版本。
+  if ((marked || legacyPayment) && input.decision === 'published' && (input.batch || !input.contentHash || !marked)) return null;
   const learningEligible = input.decision === 'published'
     && input.learningEligible
     && !candidate.requiresManualEligibilityCheck
@@ -137,6 +151,7 @@ export async function reviewPathfinderItem(input: {
   }).where(and(
     eq(pathfinderItems.id, input.id),
     eq(pathfinderItems.status, 'pending'),
+    eq(pathfinderItems.contentHash, candidate.contentHash),
   )).returning();
   return item ?? null;
 }

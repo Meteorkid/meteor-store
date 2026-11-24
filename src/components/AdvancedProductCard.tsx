@@ -9,9 +9,10 @@ import TransitionLink from './TransitionLink';
 
 interface AdvancedProductCardProps {
   product: LocalizedProduct;
+  freeLifetimeClaim?: boolean;
 }
 
-export default function AdvancedProductCard({ product }: AdvancedProductCardProps) {
+export default function AdvancedProductCard({ product, freeLifetimeClaim = false }: AdvancedProductCardProps) {
   const t = useTranslations('ProductsPage');
   const cardRef = useRef<HTMLDivElement>(null);
   const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map((p) => p.price)) : 0;
@@ -90,7 +91,7 @@ export default function AdvancedProductCard({ product }: AdvancedProductCardProp
             {SHOW_PRICING && (
               <div className="flex items-baseline gap-1">
                 {minPrice === 0 ? (
-                  <span className="text-emerald-400 font-semibold text-sm">{t('free')}</span>
+                  <span className="text-emerald-400 font-semibold text-sm">{t(freeLifetimeClaim ? 'freeLifetimeClaim' : 'free')}</span>
                 ) : (
                   <>
                     <span className="text-xl font-bold text-white">¥{minPrice}</span>

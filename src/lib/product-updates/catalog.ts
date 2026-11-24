@@ -118,8 +118,8 @@ function withDownloads(product: Product, catalog: ReleaseCatalog): Product {
       ...(trialDownload ? {
         gated: false,
         note: {
-          zh: '免费下载，完整试用 14 天；限时免费期间可领取永久激活码。',
-          en: 'Free download, 14-day full trial; claim a lifetime license while the free period lasts.',
+          zh: '免费下载，完整试用 14 天。试用结束后可用激活码继续使用。',
+          en: 'Free download with a 14-day full trial. After the trial, enter an activation code to continue.',
         },
       } : {}),
     })),

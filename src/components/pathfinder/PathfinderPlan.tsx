@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { formatContestStart } from '@/lib/pathfinder/contest-time';
 import type { PathfinderApiResponse, PathfinderPlanPhase } from '@/lib/pathfinder/plan-view';
 
 const PHASE_TONES: Record<PathfinderPlanPhase, string> = {
@@ -187,8 +187,11 @@ export default function PathfinderPlanView({
                         </span>
                         <span className="mt-1 block t-footnote text-white/60">
                           {t('minutes', { minutes: task.estimatedMinutes })}
+                          {task.startsAt && <> · <time dateTime={task.startsAt}>{t('startsAt', {
+                            date: formatContestStart(task.startsAt, locale === 'en' ? 'en' : 'zh'),
+                          })}</time></>}
                           {deadlineValue && (
-                            <> · <time dateTime={task.deadlineAt ?? task.deadlineDate}>{t('deadline', {
+                            <> · <time dateTime={task.deadlineAt ?? task.deadlineDate}>{t(task.dateKind === 'deadline' ? 'deadline' : 'referenceDate', {
                               date: new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', {
                                 year: 'numeric', month: 'short', day: 'numeric',
                                 ...(task.deadlineDate && !task.deadlineAt ? { timeZone: 'UTC' } : {}),
