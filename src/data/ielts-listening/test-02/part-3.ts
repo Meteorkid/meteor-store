@@ -17,7 +17,7 @@ export const test02Part3: ListeningLesson = {
   },
   accent: { zh: 'Mei 为印度口音，Oliver 为英式口音。', en: 'Mei speaks with an Indian accent and Oliver with a British accent.' },
   cast: [
-    { id: 'mei', label: 'MEI', gender: 'female', voice: 'en-IN-NeerjaNeural' },
+    { id: 'mei', label: 'MEI', gender: 'female', voice: 'en-IN-NeerjaExpressiveNeural' },
     { id: 'oliver', label: 'OLIVER', gender: 'male', voice: 'en-GB-RyanNeural' },
   ],
   sections: [

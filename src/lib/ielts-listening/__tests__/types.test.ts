@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { listeningTranscriptHash } from '../transcript-hash';
 import {
-  ListeningLessonSchema, answerFitsWordLimit, answerInSentence, countListeningWords, gradeListening,
+  ListeningAudioSchema, ListeningLessonSchema, answerFitsWordLimit, answerInSentence, countListeningWords, gradeListening,
   letterKey, listeningQuestionKind, listeningQuestionLocations, looseKey, measureAnswerWords, normalizeListeningAnswer,
   sectionQuestionNumbers, wordInSentence,
   type ListeningChoiceMultipleSection, type ListeningCompletionSection, type ListeningLesson,
@@ -409,6 +409,24 @@ describe('答案规范化与判分', () => {
 
   it('一个题都没作答时是 0 分而不是满分', () => {
     expect(gradeListening(value, {})).toMatchObject({ score: 0, total: 10 });
+  });
+});
+
+
+describe('音频清单的对象 key', () => {
+  const audio = (key: string) => ({ key, durationSec: 12.5, transcriptHash: 'aec4cb5c4dbef6f6', cues: [[0, 5]], generatedAt: '2026-11-25T00:00:00Z' });
+
+  it('接受旧的无版本 key 与带音频指纹的新 key', () => {
+    expect(ListeningAudioSchema.safeParse(audio('ielts-listening/test-01-part-1/aec4cb5c4dbef6f6.mp3')).success).toBe(true);
+    expect(ListeningAudioSchema.safeParse(audio('ielts-listening/test-01-part-1/aec4cb5c4dbef6f6-1e5c1984.mp3')).success).toBe(true);
+  });
+
+  it('拒绝跨课时路径、非法指纹与多余后缀', () => {
+    for (const key of [
+      'ielts-listening/test-01-talk/aec4cb5c4dbef6f6.mp3',
+      'ielts-listening/test-01-part-1/zzzz.mp3',
+      'ielts-listening/test-01-part-1/aec4cb5c4dbef6f6-1e5c1984-extra.mp3',
+    ]) expect(ListeningAudioSchema.safeParse(audio(key)).success).toBe(false);
   });
 });
 

@@ -11,19 +11,24 @@ interface Props {
   sourceKey?: string;
   returnTo: string;
   locale: 'zh' | 'en';
+  /** 雅思听力查词浮层要求中文动作按钮带英文；其它入口保持原文。 */
+  bilingual?: boolean;
 }
 
 export default function VocabularySaveAction(props: Props) {
   const { user, loading } = useAuth();
   const copy = vocabularyText[props.locale];
   if (loading) return <p role="status" className="mt-4 text-sm text-white/70">{copy.checking}</p>;
-  if (!user?.id) return <Link href={buildLoginHref(props.returnTo)} className={`mt-4 ${vocabularyButtonClass}`}>{copy.loginSave}</Link>;
+  if (!user?.id) return <Link href={buildLoginHref(props.returnTo)} className={`mt-4 ${vocabularyButtonClass}`}>{props.bilingual ? `${copy.loginSave} / ${vocabularyText.en.loginSave}` : copy.loginSave}</Link>;
   if (!props.sourceKey) return <p className="mt-4 text-sm text-white/70">{copy.lookupAgain}</p>;
   return <SaveForOwner key={`${user.id}:${props.sourceKey}:${props.saveToken ?? ''}`} {...props} sourceKey={props.sourceKey} ownerId={user.id} />;
 }
 
-function SaveForOwner({ saveToken, sourceKey, returnTo, locale, ownerId }: Props & { sourceKey: string; ownerId: string }) {
+function SaveForOwner({ saveToken, sourceKey, returnTo, locale, ownerId, bilingual }: Props & { sourceKey: string; ownerId: string }) {
   const copy = vocabularyText[locale];
+  const english = vocabularyText.en;
+  const buttonLabel = (key: 'login' | 'refresh' | 'retry' | 'save' | 'saving' | 'saved' | 'open') =>
+    bilingual ? `${copy[key]} / ${english[key]}` : copy[key];
   const router = useRouter();
   const [status, setStatus] = useState<'checking' | 'ready' | 'saved' | 'saving'>('checking');
   const [failure, setFailure] = useState<VocabularyFailure | null>(null);
@@ -88,15 +93,15 @@ function SaveForOwner({ saveToken, sourceKey, returnTo, locale, ownerId }: Props
 
   return <div className="mt-4 border-t border-white/15 pt-4">
     {status === 'saved' ? <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-      <p role="status" className="text-sm text-emerald-200">{copy.saved}</p>
-      <Link href="/study/vocabulary" className="inline-flex min-h-11 items-center text-sm text-violet-200 underline underline-offset-4">{copy.open}</Link>
+      <p role="status" className="text-sm text-emerald-200">{buttonLabel('saved')}</p>
+      <Link href="/study/vocabulary" className="inline-flex min-h-11 items-center text-sm text-violet-200 underline underline-offset-4">{buttonLabel('open')}</Link>
     </div> : <>
-      {failure === 'login' ? <Link href={buildLoginHref(returnTo)} className={vocabularyButtonClass}>{copy.login}</Link>
-        : failure === 'changed' ? <p role="alert" className="text-sm text-amber-200">{copy.changed} <button type="button" className={vocabularyButtonClass} onClick={() => window.location.reload()}>{copy.refresh}</button></p>
+      {failure === 'login' ? <Link href={buildLoginHref(returnTo)} className={vocabularyButtonClass}>{buttonLabel('login')}</Link>
+        : failure === 'changed' ? <p role="alert" className="text-sm text-amber-200">{copy.changed} <button type="button" className={vocabularyButtonClass} onClick={() => window.location.reload()}>{buttonLabel('refresh')}</button></p>
           : failure === 'expired' || (!saveToken && status === 'ready') ? <p role="status" className="text-sm text-amber-200">{copy.lookupAgain}</p>
             : <>
               <button type="button" onClick={status === 'checking' && failure ? reload : () => void save()} disabled={status === 'saving' || (status === 'checking' && !failure)} className={vocabularyButtonClass}>
-                {status === 'saving' ? copy.saving : status === 'checking' ? failure ? copy.retry : copy.checking : copy.save}
+                {status === 'saving' ? buttonLabel('saving') : status === 'checking' ? failure ? buttonLabel('retry') : copy.checking : buttonLabel('save')}
               </button>
               {failure && <p role="alert" className="mt-2 text-sm text-amber-200">{copy.failed}</p>}
             </>}

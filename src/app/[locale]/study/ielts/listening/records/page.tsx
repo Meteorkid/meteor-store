@@ -35,10 +35,13 @@ function formatDuration(seconds: number): string {
   return minutes ? `${minutes}m ${String(rest).padStart(2, '0')}s` : `${rest}s`;
 }
 
-function lessonLabel(slug: string, locale: 'zh' | 'en', gone: string): { part: string; title: string; href: string | null } {
+function lessonLabel(slug: string, locale: 'zh' | 'en', gone: string): { part: string; title: string; titleAlt: string | null; href: string | null } {
   const lesson = getListeningLesson(slug);
-  if (!lesson) return { part: slug, title: gone, href: null };
-  return { part: listeningText[locale].part(lesson.part), title: lesson.title[locale], href: `/study/ielts/listening/${slug}` };
+  if (!lesson) return { part: slug, title: gone, titleAlt: null, href: null };
+  return {
+    part: listeningText[locale].part(lesson.part), title: lesson.title[locale],
+    titleAlt: locale === 'zh' ? lesson.title.en : null, href: `/study/ielts/listening/${slug}`,
+  };
 }
 
 export default async function ListeningRecordsPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -62,6 +65,7 @@ export default async function ListeningRecordsPage({ params }: { params: Promise
     <header className="border-b border-white/10 pb-8">
       <Link href="/study/ielts/listening" className="t-footnote text-white/55 transition-colors hover:text-white">{copy.backToLibrary}</Link>
       <h1 className="mt-3 t-title-1 text-white">{records.title}</h1>
+      {typedLocale === 'zh' && <p lang="en" className="mt-1.5 text-lg font-medium text-white/55">Listening practice records · Wrong-answer book</p>}
       <p className="mt-3 max-w-3xl t-body text-white/60">{records.description}</p>
       {overview && <div className="mt-4 flex flex-wrap gap-2">
         <span className="rounded-full border border-white/12 bg-white/5 px-3 py-1 text-xs text-white/70">{records.bestFullScore} {bestFull}/10</span>
@@ -88,7 +92,7 @@ export default async function ListeningRecordsPage({ params }: { params: Promise
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2">
                     <span className="rounded bg-white/10 px-1.5 py-0.5 text-[11px] font-semibold text-white/70">{label.part}</span>
-                    <span className="text-sm font-medium text-white/90">{label.title}</span>
+                    <span className="text-sm font-medium text-white/90">{label.title}{label.titleAlt && <span lang="en" className="mt-0.5 block text-xs font-normal text-white/45">{label.titleAlt}</span>}</span>
                   </p>
                   <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 t-footnote text-white/50">
                     <span>{records.attemptTimes(entry.attempts)}</span>
@@ -134,7 +138,7 @@ export default async function ListeningRecordsPage({ params }: { params: Promise
                   const label = lessonLabel(attempt.lessonSlug, typedLocale, records.goneLesson);
                   return <tr key={attempt.id} className="border-b border-white/[0.06] last:border-0">
                     <td className="py-2.5 pr-4 whitespace-nowrap text-white/60">{formatWhen(attempt.createdAt, typedLocale)}</td>
-                    <td className="py-2.5 pr-4 text-white/85">{label.part} · {label.title}</td>
+                    <td className="py-2.5 pr-4 text-white/85">{label.part} · {label.title}{label.titleAlt && <span lang="en" className="mt-0.5 block text-xs text-white/45">{label.titleAlt}</span>}</td>
                     <td className="py-2.5 pr-4 text-white/55">{attempt.mode === 'full' ? records.modeFull : records.modeCustom}</td>
                     <td className="py-2.5 pr-4 text-right font-semibold tabular-nums text-white">{attempt.score}/{attempt.total}</td>
                     <td className="py-2.5 pr-4 text-white/60">{attempt.wrongNumbers.length ? attempt.wrongNumbers.join(', ') : records.none}</td>

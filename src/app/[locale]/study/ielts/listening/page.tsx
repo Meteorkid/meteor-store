@@ -44,6 +44,7 @@ export default async function ListeningLibraryPage({ params }: { params: Promise
     <header className="border-b border-white/10 pb-9">
       <p className="t-eyebrow text-violet-300">{copy.eyebrow}</p>
       <h1 className="mt-3 t-title-1 text-white">{copy.title}</h1>
+      {typedLocale === 'zh' && <p lang="en" className="mt-1.5 text-lg font-medium text-white/55">IELTS Listening Library</p>}
       <p className="mt-4 max-w-3xl t-body text-white/60">{copy.description}</p>
       <p className="mt-3 t-footnote text-white/45">{copy.disclaimer}</p>
       <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -60,6 +61,7 @@ export default async function ListeningLibraryPage({ params }: { params: Promise
     {tests.map(test => <section key={test.slug} className="mt-10">
       <div className="mb-4">
         <h2 className="t-title-2 text-white">{test.title[typedLocale]}</h2>
+        {typedLocale === 'zh' && <p lang="en" className="mt-1 text-sm font-medium text-white/45">{test.title.en}</p>}
         <p className="mt-1.5 max-w-3xl text-sm leading-6 text-white/55">{test.description[typedLocale]}</p>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
@@ -74,6 +76,7 @@ export default async function ListeningLibraryPage({ params }: { params: Promise
               <span className="rounded border border-white/15 px-1.5 py-0.5 text-[10px] text-white/55">{lesson.audio ? copy.audioAi : copy.readingMode}</span>
             </div>
             <h3 className="mt-2 text-lg font-semibold leading-7 text-white">{lesson.title[typedLocale]}</h3>
+            {typedLocale === 'zh' && <p lang="en" className="mt-1 text-sm font-medium text-white/50">{lesson.title.en}</p>}
             <p className="mt-1.5 text-[13px] leading-6 text-white/60">{lesson.summary[typedLocale]}</p>
             <ul className="mt-2.5 flex flex-wrap gap-1.5">{lesson.kinds.map(kind =>
               <li key={kind} className="rounded-full border border-white/12 bg-white/5 px-2 py-0.5 text-[11px] text-white/65">{copy.kinds[kind]}</li>)}

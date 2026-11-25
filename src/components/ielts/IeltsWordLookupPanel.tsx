@@ -25,9 +25,9 @@ type SpeechStatus = 'speaking' | 'done' | 'unsupported' | 'no_voice' | 'error';
 const REQUEST_TIMEOUT_MS = 12_500;
 const copy = {
   zh: {
-    title: '词语释义', close: '关闭词语释义', loading: '正在查询当前句中的意思…', retry: '重试',
+    title: '词语释义', close: '关闭词语释义', loading: '正在查询当前句中的意思…', retry: '重试 / Retry',
     lemma: '原形', partOfSpeech: '词性', meaning: '中文释义', usage: '用法',
-    lesson: '本文词汇', ai: 'AI 语境释义', speak: '朗读',
+    lesson: '本文词汇', ai: 'AI 语境释义', speak: '朗读 / Listen',
     errors: {
       invalid: '这个词暂时无法查询，请重新点选正文中的英文词。',
       not_found: '当前内容暂不可查词，仍可阅读已有的学习笔记。',
@@ -278,7 +278,7 @@ export default function IeltsWordLookupPanel({ target, word, locale, anchor, onC
           <div><dt>{text.meaning}</dt><dd lang="zh">{result.entry.meaningZh}</dd></div>
           {result.entry.usageZh && <div><dt>{text.usage}</dt><dd lang="zh">{result.entry.usageZh}</dd></div>}
         </dl>
-        <VocabularySaveAction saveToken={result.saveToken} sourceKey={result.sourceKey} returnTo={returnTo} locale={locale} />
+        <VocabularySaveAction saveToken={result.saveToken} sourceKey={result.sourceKey} returnTo={returnTo} locale={locale} bilingual={locale === 'zh'} />
       </>}
     </div>
     <footer className={styles.footer}>

@@ -206,7 +206,7 @@ export type ListeningTip = z.infer<typeof ListeningTipSchema>;
 
 /** 音频清单里的一条：对象 key、时长与逐句时间，由离线合成脚本写入。 */
 export const ListeningAudioSchema = z.object({
-  key: z.string().regex(/^ielts-listening\/test-\d{2}-part-[1-4]\/[a-f0-9]{16}\.mp3$/),
+  key: z.string().regex(/^ielts-listening\/test-\d{2}-part-[1-4]\/[a-f0-9]{16}(-[a-f0-9]{8})?\.mp3$/),
   durationSec: z.number().positive().max(60 * 60),
   /** 原文指纹；与当前原文不一致的音频视为过期，页面改用朗读而不是播放旧录音。 */
   transcriptHash: z.string().regex(/^[a-f0-9]{16}$/),

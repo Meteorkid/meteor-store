@@ -28,7 +28,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const lesson = getListeningLesson(slug);
   if (!lesson) return { title: copy.metaTitle, robots: { index: false, follow: false } };
   return {
-    title: `${lesson.title[typedLocale]} · ${copy.title}`,
+    title: typedLocale === 'zh'
+      ? `${lesson.title.zh} · ${lesson.title.en} · 雅思听力`
+      : `${lesson.title.en} · ${copy.title}`,
     description: lesson.summary[typedLocale].slice(0, 160),
     robots: { index: true, follow: true },
   };
@@ -66,6 +68,7 @@ export default async function ListeningPracticePage({ params, searchParams }: {
         <span className="t-footnote text-white/40">{lesson.wordCount} words</span>
       </div>
       <h1 className="mt-3 t-title-1 text-white">{lesson.title[typedLocale]}</h1>
+      {typedLocale === 'zh' && <p lang="en" className="mt-1.5 text-lg font-medium text-white/55">{lesson.title.en}</p>}
       <p className="mt-3 max-w-3xl t-body text-white/60">{lesson.summary[typedLocale]}</p>
       {lesson.accent && <p className="mt-2 t-footnote text-white/40">{copy.accent} · {lesson.accent[typedLocale]}</p>}
     </header>

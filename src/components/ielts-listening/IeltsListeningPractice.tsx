@@ -54,6 +54,7 @@ export default function IeltsListeningPractice({ lesson, locale, requestedScope,
   const [elapsed, setElapsed] = useState(0);
   const [saveState, setSaveState] = useState<SaveState>(ownerId ? 'idle' : 'login');
   const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [transcriptView, setTranscriptView] = useState<'lines' | 'full'>('lines');
   const [tab, setTab] = useState<Tab>('transcript');
   const [lookup, setLookup] = useState<{ word: string; sentenceIndex: number; anchor: HTMLElement } | null>(null);
   const [activeSentence, setActiveSentence] = useState<number | null>(null);
@@ -247,6 +248,13 @@ export default function IeltsListeningPractice({ lesson, locale, requestedScope,
         <div role="tabpanel" id="listening-panel-transcript" aria-labelledby="listening-tab-transcript" hidden={tab !== 'transcript'}>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <p className="t-footnote text-white/50">{practice.transcriptHint}</p>
+            {transcriptOpen && <div role="group" aria-label={practice.transcript} className="inline-flex rounded-lg border border-white/15 p-0.5">
+              {(['lines', 'full'] as const).map(item => <button key={item} type="button" aria-pressed={transcriptView === item}
+                onClick={() => { setLookup(null); setTranscriptView(item); }}
+                className={`min-h-8 rounded-md px-2.5 text-xs transition-colors ${transcriptView === item ? 'bg-violet-400/25 font-semibold text-white' : 'text-white/60 hover:bg-white/10'}`}>
+                {item === 'lines' ? practice.viewLines : practice.viewFull}
+              </button>)}
+            </div>}
             <button type="button" onClick={() => { setLookup(null); setTranscriptOpen(value => !value); }}
               className="min-h-9 rounded-lg border border-white/18 px-2.5 text-xs text-white/70 hover:bg-white/10">
               {transcriptOpen ? practice.hideTranscript : practice.showTranscript}
@@ -255,7 +263,7 @@ export default function IeltsListeningPractice({ lesson, locale, requestedScope,
           {transcriptOpen
             ? <ListeningTranscript transcript={lesson.transcript} cast={lesson.cast} answers={lesson.answers}
               locale={locale} scope={scope} graded={Boolean(grade)} wrongNumbers={wrongNumbers}
-              activeIndex={activeSentence} onPlaySentence={index => playerRef.current?.playFrom(index)}
+              activeIndex={activeSentence} view={transcriptView} onPlaySentence={index => playerRef.current?.playFrom(index)}
               onLookup={chooseWord} onDismissLookup={() => setLookup(null)} />
             : <p className="t-footnote text-white/45">{practice.transcriptClosed}</p>}
         </div>

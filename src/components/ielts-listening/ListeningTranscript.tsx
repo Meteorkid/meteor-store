@@ -21,6 +21,7 @@ interface Props {
   graded: boolean;
   wrongNumbers: number[];
   activeIndex: number | null;
+  view?: 'lines' | 'full';
   onPlaySentence(index: number): void;
   onLookup(anchor: HTMLElement, word: string, sentenceIndex: number): void;
   onDismissLookup(): void;
@@ -29,7 +30,7 @@ interface Props {
 const SPEAKER_TONES = ['text-sky-200', 'text-amber-200', 'text-violet-200', 'text-emerald-200', 'text-rose-200'];
 
 export default function ListeningTranscript({
-  transcript, cast, answers, locale, scope, graded, wrongNumbers, activeIndex, onPlaySentence, onLookup, onDismissLookup,
+  transcript, cast, answers, locale, scope, graded, wrongNumbers, activeIndex, view = 'lines', onPlaySentence, onLookup, onDismissLookup,
 }: Props) {
   const copy = listeningText[locale];
   const pointerStart = useRef<{ x: number; y: number; element: HTMLElement } | null>(null);
@@ -74,6 +75,34 @@ export default function ListeningTranscript({
     if (words[next]) { event.preventDefault(); words[next].focus(); }
   }
 
+  function renderWords(text: string, sentenceIndex: number) {
+    return lookupWordTokens(text).map((token, tokenIndex) => {
+      if (!token.word) return <Fragment key={tokenIndex}>{token.text}</Fragment>;
+      return <span key={tokenIndex} role="button" tabIndex={0} data-lookup-word={normalizeLookupWord(token.text)}
+        aria-label={token.text} className={styles.word}
+        onPointerDown={event => { pointerStart.current = { x: event.clientX, y: event.clientY, element: event.currentTarget }; }}
+        onClick={event => wordClick(event, token.text, sentenceIndex)}
+        onDoubleClick={() => onDismissLookup()}
+        onKeyDown={event => wordKeyDown(event, token.text, sentenceIndex)}>{token.text}</span>;
+    });
+  }
+
+  if (view === 'full') return <p lang="en" className="text-[15px] leading-8 text-white/85">
+    {transcript.map((utterance, index) => {
+      const startsTurn = index === 0 || transcript[index - 1].speaker !== utterance.speaker;
+      const tone = SPEAKER_TONES[(speakerIndex.get(utterance.speaker) ?? 0) % SPEAKER_TONES.length];
+      return <Fragment key={index}>
+        {startsTurn && <span data-speaker-label className={`mr-2 inline-block align-baseline text-[10px] font-semibold uppercase tracking-[0.16em] ${tone}`}>
+          {speakerLabel.get(utterance.speaker) ?? utterance.speaker}
+        </span>}
+        <span id={`sentence-${index + 1}`} data-sentence={index + 1} data-word-sentence={index}
+          className={`scroll-mt-28 ${activeIndex === index ? 'rounded bg-violet-400/15' : ''}`}>
+          {renderWords(utterance.text, index)}
+        </span>{' '}
+      </Fragment>;
+    })}
+  </p>;
+
   return <ol className="space-y-1">
     {transcript.map((utterance, sentenceIndex) => {
       const badges = badgesAt.get(sentenceIndex) ?? [];
@@ -95,15 +124,7 @@ export default function ListeningTranscript({
               </span>)}
             </div>
             <p lang="en" data-word-sentence={sentenceIndex} className="text-[15px] leading-7 text-white/85">
-              {lookupWordTokens(utterance.text).map((token, tokenIndex) => {
-                if (!token.word) return <Fragment key={tokenIndex}>{token.text}</Fragment>;
-                return <span key={tokenIndex} role="button" tabIndex={0} data-lookup-word={normalizeLookupWord(token.text)}
-                  aria-label={token.text} className={styles.word}
-                  onPointerDown={event => { pointerStart.current = { x: event.clientX, y: event.clientY, element: event.currentTarget }; }}
-                  onClick={event => wordClick(event, token.text, sentenceIndex)}
-                  onDoubleClick={() => onDismissLookup()}
-                  onKeyDown={event => wordKeyDown(event, token.text, sentenceIndex)}>{token.text}</span>;
-              })}
+              {renderWords(utterance.text, sentenceIndex)}
             </p>
           </div>
         </div>

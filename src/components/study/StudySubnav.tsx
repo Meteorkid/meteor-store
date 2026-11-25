@@ -13,7 +13,7 @@ const NAV_ITEMS = [
 ] as const;
 
 const LABELS = {
-  zh: { dashboard: '学习工作台', courses: '课程与 GPA', algorithms: '算法训练', ielts: '雅思写作', listening: '雅思听力', vocabulary: '生词本', aria: '学习工作台导航' },
+  zh: { dashboard: '学习工作台', courses: '课程与 GPA', algorithms: '算法训练', ielts: '雅思写作 / Writing', listening: '雅思听力 / Listening', vocabulary: '生词本 / Vocabulary', aria: '学习工作台导航' },
   en: { dashboard: 'Workbench', courses: 'Courses & GPA', algorithms: 'Algorithm practice', ielts: 'IELTS writing', listening: 'IELTS listening', vocabulary: 'Vocabulary', aria: 'Study navigation' },
 } as const;
 

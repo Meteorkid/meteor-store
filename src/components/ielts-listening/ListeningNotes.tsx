@@ -25,7 +25,7 @@ function SentenceActions({ index, locale, active, onLocate, onPlay }: {
   return <div className="mt-2 flex flex-wrap items-center gap-2">
     <button type="button" onClick={() => onLocate(index)}
       className={`inline-flex min-h-9 items-center rounded-lg border px-2.5 text-xs transition-colors ${active ? 'border-violet-300/50 bg-violet-400/15 text-violet-100' : 'border-white/18 text-white/70 hover:bg-white/10'}`}>
-      {copy.sentenceNo(index + 1)}
+      {copy.sentenceNo(index + 1)}{locale === 'zh' && ` · S${index + 1}`}
     </button>
     <button type="button" onClick={() => onPlay(index)} aria-label={copy.replay}
       className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/18 px-2.5 text-xs text-white/70 hover:bg-white/10">

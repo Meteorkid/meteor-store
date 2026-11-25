@@ -17,7 +17,7 @@ export const test02Part1: ListeningLesson = {
   },
   accent: { zh: '房东与客人都是英式口音，语速自然。', en: 'Both speakers have British accents and speak at a natural pace.' },
   cast: [
-    { id: 'owner', label: 'OWNER', gender: 'female', voice: 'en-GB-MaisieNeural' },
+    { id: 'owner', label: 'OWNER', gender: 'female', voice: 'en-NZ-MollyNeural' },
     { id: 'caller', label: 'CALLER', gender: 'male', voice: 'en-GB-ThomasNeural' },
   ],
   sections: [

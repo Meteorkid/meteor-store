@@ -19,7 +19,22 @@ describe('ListeningTranscript', () => {
       onPlaySentence={() => {}} onLookup={() => {}} onDismissLookup={() => {}} />);
     expect(html).toContain('id="sentence-1"');
     expect(html).toContain(`id="sentence-${lesson.transcript.length}"`);
-    expect(html.match(/aria-label="重听本句 · 第 \d+ 句"/g)?.length).toBe(lesson.transcript.length);
+    expect(html.match(/aria-label="重听本句 \/ Replay · 第 \d+ 句"/g)?.length).toBe(lesson.transcript.length);
+  });
+
+  it('全文视图按说话人合并成段落，取消逐句按钮但保留句锚点', () => {
+    const html = renderToStaticMarkup(<ListeningTranscript
+      transcript={lesson.transcript} cast={lesson.cast} answers={lesson.answers}
+      locale="zh" scope={null} graded={false} wrongNumbers={[]} activeIndex={2} view="full"
+      onPlaySentence={() => {}} onLookup={() => {}} onDismissLookup={() => {}} />);
+    const turns = lesson.transcript.filter((item, index) => index === 0 || lesson.transcript[index - 1].speaker !== item.speaker).length;
+    expect(html.match(/data-speaker-label/g)?.length).toBe(turns);
+    expect(html).not.toContain('aria-label="重听本句 \/ Replay');
+    expect(html).toContain('id="sentence-1"');
+    expect(html).toContain(`id="sentence-${lesson.transcript.length}"`);
+    expect(html).toContain('id="sentence-3"');
+    expect(html).toContain('bg-violet-400/15');
+    expect(html).toContain('data-lookup-word="popular"');
   });
 
   it('每个英文词都是可查词的按钮，标点不带 data-lookup-word', () => {
