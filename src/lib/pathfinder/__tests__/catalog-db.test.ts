@@ -94,7 +94,7 @@ describe('Pathfinder database catalog contract', () => {
     });
   });
 
-  it('旧的付款 Issue 即刻进入待读状态，完成本轮人工审核后才能公开', () => {
+  it('旧的无标记付款 Issue 先隐藏，补齐标记后作为信息自动公开', () => {
     const offer = {
       ...item, itemType: 'open-source', canonicalUrl: 'https://github.com/run-llama/llama_index/issues/24363',
       titleEn: 'Docs idea: agent spend audit', summaryEn: 'Buy (live): POST https://example.org/buy → x402 $19 USDC.',
@@ -102,13 +102,19 @@ describe('Pathfinder database catalog contract', () => {
     };
     const github = { ...source, adapter: 'github' };
     const map = (row: typeof item) => mapDatabaseCatalogItem(row, github, emptyPathfinderTags());
+    // 历史无标记记录在公开层先隐藏，下一轮同步会补上 payment-v1 标记
     expect(map(offer).status).toBe('pending');
-    expect(map({ ...offer, reviewerId: 'moderator', reviewedAt: item.updatedAt }).status).toBe('pending');
-    expect(map({ ...offer, reviewerId: 'moderator', reviewedAt: item.updatedAt,
-      requiresManualEligibilityCheck: true,
-    }).status).toBe('pending');
-    expect(map({ ...offer, contentHash: 'payment-v1:current', reviewerId: 'moderator', reviewedAt: item.updatedAt,
-      requiresManualEligibilityCheck: true, learningEligible: false, costCny: null, costAmount: 19, costCurrency: 'USD',
+    // 补上标记后就是一条带费用提示的公开信息，即使没有人工 reviewer
+    expect(map({ ...offer, contentHash: 'payment-v1:current', requiresManualEligibilityCheck: true,
+      learningEligible: false, costCny: null,
+    })).toMatchObject({ status: 'published', requiresManualEligibilityCheck: true });
+    // 历史数据把 learningEligible 写成 true 也不能进入学习路径
+    expect(map({ ...offer, contentHash: 'payment-v1:current', requiresManualEligibilityCheck: true,
+      learningEligible: true, costCny: null,
+    }).learningEligible).toBe(false);
+    // 人工记录过原币费用时保留金额
+    expect(map({ ...offer, contentHash: 'payment-v1:current', requiresManualEligibilityCheck: true,
+      learningEligible: false, costCny: null, costAmount: 19, costCurrency: 'USD',
     })).toMatchObject({ status: 'published', cost: { amount: 19, currency: 'USD' } });
     expect(map({ ...offer, status: 'rejected' }).status).toBe('rejected');
   });

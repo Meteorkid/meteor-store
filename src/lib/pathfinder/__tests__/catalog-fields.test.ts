@@ -70,6 +70,26 @@ describe('卡片按类型选取元信息', () => {
     expect(fields).not.toContain('testing');
   });
 
+  it('开源卡片在带付款标记时提示费用待确认，正常条目仍不显示费用', () => {
+    const normal = catalogMetaFields(
+      catalogItemFixture({ itemType: 'open-source', cost: { amount: 0, currency: 'CNY', label: null } }),
+      'zh',
+      t,
+    );
+    const paid = catalogMetaFields(
+      catalogItemFixture({
+        itemType: 'open-source',
+        cost: { amount: null, currency: null, label: { zh: '原文包含付款指引，参与费用待核实。', en: 'Payment requested.' } },
+      }),
+      'zh',
+      t,
+    );
+
+    expect(normal).not.toContain('costUnknown');
+    expect(normal).not.toContain('free');
+    expect(paid).toContain('costUnknown');
+  });
+
   it('缺失字段不会留下空字符串', () => {
     const fields = catalogMetaFields(
       catalogItemFixture({ itemType: 'open-source', estimatedMinutes: null, region: null }),

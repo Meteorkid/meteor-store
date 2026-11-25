@@ -54,12 +54,19 @@ export function catalogMetaFields(
       return [organization, cost, region].filter(isText);
     case 'open-source':
     default: {
+      /*
+       * 付款招揽自动发布为信息后，卡片必须带一句费用提示。
+       * 开源卡片原本不展示费用（正常条目都是免费，写出来只是噪音），
+       * 但带 cost.label 的条目恰恰不是免费——不提示就会看起来像普通新手任务。
+       * 详细金额或“费用待核实”原文留给详情页，卡片只留一个短标签。
+       */
+      const costWarning = item.cost.label ? t('costUnknown') : null;
       // 具体 issue 的 organization 存的就是 owner/repo，技能标签往往为空，
       // 这时用 issue 自己的标签（bug、documentation…）说明这是什么类型的活
       const detail = isActionableTask(item) && item.tags.skill.length === 0
         ? item.tags.topic.filter((tag) => !tag.includes('/')).slice(0, 2)
         : item.tags.skill.slice(0, 2);
-      return [organization, hours, ...detail].filter(isText);
+      return [organization, costWarning, hours, ...detail].filter(isText);
     }
   }
 }

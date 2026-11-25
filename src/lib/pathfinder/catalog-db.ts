@@ -104,10 +104,13 @@ export function mapDatabaseCatalogItem(
   // 旧库的 Codeforces 时间列存的是 startTimeSeconds，用于同步过期和日刊。
   const contestStart = item.sourceId === 'codeforces-contests';
   const currentPaymentPolicy = item.contentHash.startsWith(PAYMENT_REVIEW_PREFIX);
+  // 旧的无标记付款 issue 先在公开层隐藏，等同步补上 payment-v1 标记后
+  // 作为「费用待核实」的信息展示；新采集的付款招揽也会带标记并自动公开，
+  // 但 learningEligible 为 false，不会进入学习路径。
   const pendingPaymentReview = item.status === 'published' && source.adapter === 'github'
     && item.itemType === 'open-source'
-    && (!currentPaymentPolicy || !item.reviewerId || !item.reviewedAt || !item.requiresManualEligibilityCheck)
-    && (currentPaymentPolicy || requestsPayment([item.titleEn, item.summaryEn, item.titleZh, item.summaryZh].join(' ')));
+    && !currentPaymentPolicy
+    && requestsPayment([item.titleEn, item.summaryEn, item.titleZh, item.summaryZh].join(' '));
   const costAmount = item.costAmount ?? item.costCny;
   return {
     id: item.id,
@@ -146,7 +149,9 @@ export function mapDatabaseCatalogItem(
     discoveredAt: item.discoveredAt,
     verifiedAt: item.verifiedAt,
     status: pendingPaymentReview ? 'pending' : item.status as PathfinderItemStatus,
-    learningEligible: item.learningEligible,
+    // 付款招揽永远不进入学习路径；即使历史行的 learningEligible 被写成 true，
+    // 读到公开层时也按 false 处理，不让数据错误绕过后端规则。
+    learningEligible: item.learningEligible && !currentPaymentPolicy,
     requiresManualEligibilityCheck: item.requiresManualEligibilityCheck,
     tags,
     origin: 'database',

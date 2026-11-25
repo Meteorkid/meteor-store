@@ -65,7 +65,7 @@ If a catalog item expires or is withdrawn, the saved path remains available and 
 
 ## How information is updated
 
-Pathfinder prioritises official APIs, RSS feeds, and first-party pages. Automatically collected entries normally enter a moderation queue and become public only after their source, eligibility, and freshness are checked. Only stable, explicitly configured official feeds may be auto-published.
+Pathfinder prioritises official APIs, RSS feeds, and first-party pages. Entries from official or verified sources are auto-published according to the per-source allowlist. GitHub issues that contain payment instructions are published only as information with a cost warning, and never enter learning paths.
 
 Every public item retains its original link and last verification time. Application requirements, costs, eligibility, and deadlines can change without notice, so the publisher’s page is always authoritative.
 

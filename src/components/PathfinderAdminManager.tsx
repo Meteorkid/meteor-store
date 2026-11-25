@@ -277,7 +277,7 @@ export default function PathfinderAdminManager() {
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
             <h2 className="t-title-3">{zh ? '内容审核与下架' : 'Review and takedown'}</h2>
-            <p className="mt-1 text-sm text-white/60">{zh ? '待审内容核对原文后发布；已发布内容发现失效或错误时可立即下架。' : 'Verify pending entries before publishing, and take down published entries immediately if they become invalid or incorrect.'}</p>
+            <p className="mt-1 text-sm text-white/60">{zh ? '待审内容核对原文后发布；已发布内容发现失效或错误时可立即下架。含付款指引的 GitHub 条目自动发布为信息，不进入学习路径。' : 'Verify pending entries before publishing, and take down published entries immediately if they become invalid or incorrect. GitHub entries with payment instructions publish automatically as information and never enter learning paths.'}</p>
           </div>
           <div className="flex items-center gap-3">
             {status === 'pending' && bulkCandidates.length > 0 && (
