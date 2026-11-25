@@ -32,6 +32,7 @@ export default function FilmGrain() {
   return (
     <div
       ref={ref}
+      data-ambient="grain"
       className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.028]"
       style={{ backgroundRepeat: 'repeat', backgroundSize: '150px 150px', mixBlendMode: 'overlay' }}
       aria-hidden="true"

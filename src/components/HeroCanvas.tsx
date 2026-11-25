@@ -347,6 +347,7 @@ export default function HeroCanvas({ className = '' }: { className?: string }) {
   return (
     <canvas
       ref={ref}
+      data-ambient="particles"
       className={`fixed inset-0 w-full h-full pointer-events-none ${className}`}
       aria-hidden="true"
     />

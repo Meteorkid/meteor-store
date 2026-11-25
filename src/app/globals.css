@@ -1479,3 +1479,132 @@ html {
   border-color: var(--site-accent);
   background-color: var(--site-choice);
 }
+
+/* ========== 学习区专注模式 ==========
+ *
+ * 只在 html[data-focus-mode="on"] 下生效；状态由 LearningFocusMode 写入，
+ * 首屏由 locale/layout 的内联脚本恢复。这里不做「学习页」路由判断——
+ * 属性本身只会在学习路由上出现，CSS 不需要再猜一遍路径。
+ *
+ * 关掉的是「氛围层」而不是业务画布：Header/Footer、HeroCanvas、MeteorShower、
+ * FilmGrain 和两个学习布局顶部的径向光晕都带明确的 data 标记，避免宽泛的
+ * canvas/position 选择器误伤雅思听力、路径规划里的业务图表。
+ */
+html[data-focus-mode="on"] [data-site-header],
+html[data-focus-mode="on"] [data-site-footer],
+html[data-focus-mode="on"] [data-ambient],
+html[data-focus-mode="on"] [data-focus-decor] {
+  display: none !important;
+}
+
+html[data-focus-mode="on"] body,
+html[data-focus-mode="on"] .min-h-screen.bg-black {
+  background-color: var(--site-home-bg) !important;
+  background-image: none !important;
+}
+
+/* 左下角浮层会挡住最后一屏的正文；给页面留出滚动余量，不靠猜某个页面的 padding。 */
+html[data-focus-mode="on"] body {
+  padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 3rem));
+}
+
+/* 专注态不用玻璃：半透明材质在长文上会降低可读性，直接给实底。 */
+html[data-focus-mode="on"] .glass,
+html[data-focus-mode="on"] .glass-card,
+html[data-focus-mode="on"] .glass-lg,
+html[data-focus-mode="on"] [data-transparency-surface] {
+  background: #0b0e14 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-focus-mode="on"] .glass-card {
+  transition: none;
+}
+
+html[data-focus-mode="on"] .glass-card::after,
+html[data-focus-mode="on"] [data-focus-decor]::after {
+  display: none !important;
+}
+
+html[data-focus-mode="on"] .glass-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* 正文更宽、更大、更亮；标题维持原字阶，避免把信息层级压平。 */
+html[data-focus-mode="on"] .t-body {
+  font-size: 1.125rem;
+  line-height: 1.9;
+  text-rendering: optimizeLegibility;
+}
+
+html[data-focus-mode="on"] .t-footnote {
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+html[data-focus-mode="on"] .t-title-4 {
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+/* 学习区大量说明文字用 Tailwind 的低透明度白色；专注态把中性文字抬到可读区间。
+ * 只覆盖中性色，violet/amber 等语义强调色不动。 */
+html[data-focus-mode="on"] .text-white\/25,
+html[data-focus-mode="on"] .text-white\/30 {
+  color: rgb(255 255 255 / 0.58) !important;
+}
+
+html[data-focus-mode="on"] .text-white\/35,
+html[data-focus-mode="on"] .text-white\/40 {
+  color: rgb(255 255 255 / 0.66) !important;
+}
+
+html[data-focus-mode="on"] .text-white\/45,
+html[data-focus-mode="on"] .text-white\/50 {
+  color: rgb(255 255 255 / 0.72) !important;
+}
+
+html[data-focus-mode="on"] .text-white\/55 {
+  color: rgb(255 255 255 / 0.8) !important;
+}
+
+html[data-focus-mode="on"] .text-white\/60,
+html[data-focus-mode="on"] .text-white\/65 {
+  color: rgb(255 255 255 / 0.86) !important;
+}
+
+html[data-focus-mode="on"] .text-white\/70,
+html[data-focus-mode="on"] .text-white\/75 {
+  color: rgb(255 255 255 / 0.9) !important;
+}
+
+/* 边框也随文字一起抬亮，否则深底上的卡片边界会先消失。 */
+html[data-focus-mode="on"] .border-white\/10 {
+  border-color: rgb(255 255 255 / 0.18) !important;
+}
+
+html[data-focus-mode="on"] .border-white\/15 {
+  border-color: rgb(255 255 255 / 0.24) !important;
+}
+
+/* 学习页的极淡卡片底色在去掉粒子后几乎等于纯黑，给它一层可辨的实底。 */
+html[data-focus-mode="on"] .bg-white\/\[0\.02\] {
+  background-color: rgb(255 255 255 / 0.045) !important;
+}
+
+/* 星点呼吸只属于氛围层；专注态里连剩下的静态星点动画也停掉。 */
+html[data-focus-mode="on"] .celestial-twinkle {
+  animation: none !important;
+  opacity: var(--twinkle-hi, 1);
+}
+
+/* 浮层按钮固定在左下角：右下角是 BackToTop，避免两个胶囊叠在一起。
+ * 开启后按钮跟着当前主题强调色切换，四个主题都能看出这是「当前站点的专注态」。 */
+html[data-focus-mode="on"] [data-focus-control] {
+  border-color: var(--site-accent) !important;
+  background-color: color-mix(in srgb, var(--site-accent) 16%, var(--site-home-bg)) !important;
+  color: #fff !important;
+}

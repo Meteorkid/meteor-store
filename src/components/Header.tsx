@@ -294,6 +294,7 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
     <>
       <header
         ref={headerRef}
+        data-site-header
         className={`${styles.header} ${celestial ? styles.celestial : ''} ${scrolled || desktopOpen || mobileOpen ? styles.headerSurface : ''} ${hidden && !desktopOpen && !mobileOpen && !focusWithin ? styles.headerHidden : ''}`}
         data-variant={celestialHome ? 'celestial' : undefined}
         onFocusCapture={() => setFocusWithin(true)}
@@ -438,7 +439,7 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
 
       {/* 与 header 平级，避免 transform/backdrop-filter 把 fixed 面板限制在导航栏高度内。 */}
       {mobileOpen && (
-        <div ref={mobileRef} id="header-mobile-panel" data-animate={animateMobile || undefined} className={`${styles.mobilePanel} ${celestial ? styles.celestialMobile : ''}`}>
+        <div ref={mobileRef} id="header-mobile-panel" data-site-header data-animate={animateMobile || undefined} className={`${styles.mobilePanel} ${celestial ? styles.celestialMobile : ''}`}>
           <nav className={`container mx-auto ${styles.mobileContent}`} aria-label={navLabel}>
             {user?.isAdmin && (
               <Link href="/admin" className={styles.mobileAdminEntry} onClick={closeNavigation}>

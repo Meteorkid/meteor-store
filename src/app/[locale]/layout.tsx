@@ -228,6 +228,13 @@ export default async function LocaleLayout({
             __html: `try{var a=localStorage.getItem('glass-alpha');if(a){document.documentElement.style.setProperty('--glass-alpha',a)}}catch(e){}`,
           }}
         />
+        {/* 专注模式在首屏绘制前恢复：学习页本地存储开启时，先关掉粒子再渲染，避免闪一下。 */}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `try{var p=(location.pathname||'').replace(/^\\/(?:zh|en)(?=\\/|$)/,'');if(/^\\/(?:study|pathfinder|competitions|masters|phd)(?:\\/|$)/.test(p)&&localStorage.getItem('meteor:focus-mode')==='on'){document.documentElement.dataset.focusMode='on'}}catch(e){}`,
+          }}
+        />
         {/* JSON-LD 结构化数据 - 数据为硬编码静态内容，安全 */}
         <script
           type="application/ld+json"

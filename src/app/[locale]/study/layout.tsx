@@ -9,6 +9,7 @@ export default function StudyLayout({ children }: { children: React.ReactNode })
       <div className="relative isolate overflow-hidden">
         <div
           aria-hidden="true"
+          data-focus-decor
           className="pointer-events-none absolute inset-x-0 -top-40 -z-10 h-[34rem] blur-3xl"
           style={{
             backgroundImage:

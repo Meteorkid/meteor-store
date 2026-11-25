@@ -358,6 +358,7 @@ export default function MeteorShower() {
     return (
       <div
         aria-hidden="true"
+        data-ambient="meteors"
         className="absolute inset-0 pointer-events-none opacity-60"
         style={{
           backgroundImage:
@@ -375,6 +376,7 @@ export default function MeteorShower() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
+      data-ambient="meteors"
       className="fixed inset-0 w-full h-full pointer-events-none z-10"
       style={{ opacity: 0.85 }}
     />
