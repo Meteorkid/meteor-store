@@ -6,10 +6,12 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { getHeaderNavigation, isHeaderLinkActive } from '@/data/header-navigation';
 import { SHOW_PRICING } from '@/lib/constants';
+import { useSearchShortcut } from '@/lib/use-search-shortcut';
 import { useAuth } from './AuthProvider';
 import UserMenu from './UserMenu';
 import LanguageSwitcher from './LanguageSwitcher';
 import BrandMark from './BrandMark';
+import LoginCta from './LoginCta';
 import NotificationBell from './NotificationBell';
 import CelestialText from './home/CelestialText';
 import ThemeToggle from './theme/ThemeToggle';
@@ -78,6 +80,8 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [focusWithin, setFocusWithin] = useState(false);
+  // 快捷键提示按真实平台显示，避免所有系统都写 ⌘K。
+  const searchShortcut = useSearchShortcut();
   const headerRef = useRef<HTMLElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
@@ -403,9 +407,21 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
               }
             }}
             onPointerDownCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }} onFocusCapture={event => { closeDesktop(); closeUtilityMenus(event.target); }}>
-            <button type="button" className={styles.iconButton} onClick={openSearch} data-spotlight-trigger aria-label={t('search')} title={t('searchShortcutTitle')}><SearchIcon /></button>
+            <button
+              type="button"
+              className={styles.searchButton}
+              onClick={openSearch}
+              data-spotlight-trigger
+              aria-label={t('search')}
+              aria-keyshortcuts="Meta+K Control+K"
+              title={`${t('search')} · ${searchShortcut}`}
+            >
+              <SearchIcon />
+              <span className={styles.searchLabel}>{t('search')}</span>
+              <kbd className={styles.searchKbd} aria-hidden="true">{searchShortcut}</kbd>
+            </button>
             <NotificationBell />
-            <LanguageSwitcher />
+            <div className={styles.desktopLanguage}><LanguageSwitcher /></div>
             <ThemeToggle className={`${styles.iconButton} ${styles.desktopThemeToggle}`} />
             <div className={styles.desktopAccount}><UserMenu /></div>
             {user?.isAdmin && (
@@ -441,6 +457,10 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
       {mobileOpen && (
         <div ref={mobileRef} id="header-mobile-panel" data-site-header data-animate={animateMobile || undefined} className={`${styles.mobilePanel} ${celestial ? styles.celestialMobile : ''}`}>
           <nav className={`container mx-auto ${styles.mobileContent}`} aria-label={navLabel}>
+            <button type="button" className={styles.mobileSearch} onClick={openSearch} aria-label={t('search')}>
+              <SearchIcon />
+              <span>{t('searchPlaceholder')}</span>
+            </button>
             {user?.isAdmin && (
               <Link href="/admin" className={styles.mobileAdminEntry} onClick={closeNavigation}>
                 <span>{t('adminDashboard')}</span><span aria-hidden="true">→</span>
@@ -485,6 +505,10 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
                 </div>
               );
             })}
+            <div className={styles.mobileLanguage}>
+              <span className={styles.mobileLanguageLabel}>{locale === 'en' ? 'Language' : '语言'}</span>
+              <LanguageSwitcher />
+            </div>
             <div className={styles.mobileTheme}><ThemeSwitcher compact headingId="header-mobile-theme" /></div>
             <div className={styles.mobileAccount}>
               {user ? (
@@ -495,7 +519,7 @@ export default function Header({ variant = 'default' }: HeaderProps = {}) {
                   </div>
                   <button type="button" className={styles.logout} onClick={() => { logout(); closeMobile(); }}>{t('logout')}</button>
                 </>
-              ) : <Link href="/login" className={styles.login} onClick={closeNavigation}>{t('login')}</Link>}
+              ) : <LoginCta label={t('login')} fullWidth onClick={closeNavigation} />}
             </div>
           </nav>
         </div>

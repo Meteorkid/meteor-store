@@ -156,7 +156,7 @@ export default function NotificationBell() {
         aria-label={t('ariaLabel')}
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
+        className="relative flex h-10 w-10 items-center justify-center rounded-[10px] text-white/76 hover:text-white hover:bg-white/[0.08] transition-all duration-200 max-lg:h-11 max-lg:w-11"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
           <path

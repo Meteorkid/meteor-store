@@ -24,6 +24,7 @@ vi.mock('react', async original => ({
     }];
   },
   useRef: (initial: unknown) => hooks.refs[hooks.refIndex++] ??= { current: initial },
+  useSyncExternalStore: (_subscribe: () => () => void, getSnapshot: () => unknown) => getSnapshot(),
   useMemo: (factory: () => unknown) => factory(),
   useCallback: (callback: unknown) => callback,
   useEffect: (effect: () => void | (() => void), deps?: unknown[]) => {

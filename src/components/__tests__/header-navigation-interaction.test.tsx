@@ -32,6 +32,7 @@ vi.mock('react', async importOriginal => ({
     }];
   },
   useRef: (initial: unknown) => hooks.refs[hooks.refIndex++] ??= { current: initial },
+  useSyncExternalStore: (_subscribe: () => () => void, getSnapshot: () => unknown) => getSnapshot(),
   useCallback: (callback: unknown, deps: readonly unknown[]) => {
     const index = hooks.callbackIndex++;
     const previous = hooks.callbacks[index];

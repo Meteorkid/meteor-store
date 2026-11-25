@@ -15,6 +15,7 @@ import {
 } from '@/lib/search-index';
 import type { Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
+import { useSearchShortcut } from '@/lib/use-search-shortcut';
 import { isFullscreenExperiencePath } from '@/lib/fullscreen-experience';
 import { useOptionalSiteTheme } from './theme/ThemeProvider';
 
@@ -126,6 +127,23 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
   const [visibleLimit, setVisibleLimit] = useState(INITIAL_LIMIT);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
+  const [coarsePointer, setCoarsePointer] = useState(false);
+  const shortcutLabel = useSearchShortcut();
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const media = window.matchMedia('(pointer: coarse), (hover: none)');
+    const update = () => setCoarsePointer(media.matches);
+    update();
+    if (typeof media.addEventListener === 'function') {
+      media.addEventListener('change', update);
+      return () => media.removeEventListener('change', update);
+    }
+    if (typeof media.addListener === 'function') {
+      media.addListener(update);
+      return () => media.removeListener(update);
+    }
+  }, []);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -449,7 +467,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
         </span>
         <span className="shrink-0 flex items-center gap-1.5">
           {copiedId === entry.id && <span className="text-[10px] text-green-300/80">{t('copied')}</span>}
-          {active && <span className="text-[10px] text-purple-300/80 font-mono" aria-hidden="true">↵</span>}
+          {active && !coarsePointer && <span className="text-[10px] text-purple-300/80 font-mono" aria-hidden="true">↵</span>}
         </span>
       </button>
     );
@@ -457,13 +475,14 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
 
   // ── 页脚 ────────────────────────────────────────────
   const footerHint = useMemo(() => {
-    if (isEmpty) return t('hint');
+    if (coarsePointer) return isSearching ? t('searching') : t('hintTouch');
+    if (isEmpty) return t('hint', { shortcut: shortcutLabel });
     if (isSearching) return t('searching');
     if (activeItem && 'href' in activeItem)
       return t('resultHint', { filterHint: hasActiveFilter ? '' : t('filterHint') });
     if (activeItem && '__math' in activeItem) return t('mathHint');
     return t('closeHint');
-  }, [isEmpty, isSearching, activeItem, hasActiveFilter, t]);
+  }, [isEmpty, isSearching, activeItem, hasActiveFilter, coarsePointer, shortcutLabel, t]);
 
   const groupLabel = (group: SearchGroup) => t(
     group === '产品' ? 'groupProduct' : group === '页面' ? 'groupPage' :
@@ -529,7 +548,7 @@ export default function SpotlightSearchPanel({ onClose }: { onClose: (restoreFoc
             autoComplete="off" spellCheck={false} maxLength={60}
             className="min-w-0 flex-1 bg-transparent outline-none text-white text-base placeholder:text-white/60 caret-purple-400"
           />
-          <kbd className="hidden sm:block text-[10px] text-white/60 border border-white/15 rounded px-1.5 py-0.5 font-mono">ESC</kbd>
+          {!coarsePointer && <kbd className="hidden sm:block text-[10px] text-white/60 border border-white/15 rounded px-1.5 py-0.5 font-mono">ESC</kbd>}
         </div>
 
         {/* 结果区 */}

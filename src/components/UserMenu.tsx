@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import AdminPendingBadge, { AdminPendingCount } from './AdminPendingBadge';
+import LoginCta from './LoginCta';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from './AuthProvider';
@@ -50,14 +51,7 @@ export default function UserMenu() {
   }
 
   if (!user) {
-    return (
-      <Link
-        href="/login"
-        className="rounded-lg px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
-      >
-        {t('login')}
-      </Link>
-    );
+    return <LoginCta label={t('login')} />;
   }
 
   const initial = (user.name?.[0] || user.email[0]).toUpperCase();

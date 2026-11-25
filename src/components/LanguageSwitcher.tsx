@@ -35,8 +35,9 @@ export default function LanguageSwitcher() {
   return (
     <button
       onClick={handleClick}
-      className="rounded-lg border border-white/10 px-2 py-1 text-xs font-medium text-white/60 transition-colors hover:border-white/20 hover:text-white"
-      aria-label="Switch language"
+      className="site-language-switch relative inline-flex h-10 min-w-10 cursor-pointer items-center justify-center px-1 text-xs font-semibold tracking-[0.14em] text-[var(--site-header-accent)] transition-colors duration-150 hover:text-white focus-visible:text-white max-lg:h-11 max-lg:min-w-11 max-lg:text-[13px] after:absolute after:bottom-1 after:inset-x-2.5 after:h-px after:bg-current after:opacity-40 after:transition-opacity after:content-[''] hover:after:opacity-100 focus-visible:after:opacity-100"
+      aria-label={locale === 'zh' ? '切换到英文' : 'Switch to Chinese'}
+      title={locale === 'zh' ? '切换到英文' : 'Switch to Chinese'}
     >
       {locale === 'zh' ? 'EN' : '中'}
     </button>
