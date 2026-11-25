@@ -28,7 +28,7 @@ export default function ExperienceAwareChrome({ children }: { children: ReactNod
           <SpotlightSearch />
           <FilmGrain />
           {!helpExperience && !orbitHomepage && <MeteorShower />}
-          {/* 首页由各主题首屏自带粒子/星空；通用粒子只服务内页，避免和首屏重复渲染。 */}
+          {/* 首页由各主题首屏自带视觉；通用粒子只服务内页，避免和首屏重复渲染。 */}
           {!helpExperience && !homepage && <HeroCanvas />}
         </>
       )}

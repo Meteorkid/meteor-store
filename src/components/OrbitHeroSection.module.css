@@ -49,11 +49,6 @@
   min-width: 0;
 }
 
-/* 首屏自己的粒子层：叠在 3D 场景之上，控制栏和详情仍保持在更高层。 */
-.particles {
-  z-index: 0;
-}
-
 .dock {
   position: relative;
   z-index: 2;
