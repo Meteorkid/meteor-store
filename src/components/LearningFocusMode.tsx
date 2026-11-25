@@ -12,13 +12,13 @@ const COPY = {
     enter: '专注模式',
     exit: '退出专注',
     hint: '隐藏粒子与装饰，放大正文',
-    pressed: '专注模式已开启',
+    exitHint: '恢复站点导航与氛围',
   },
   en: {
     enter: 'Focus mode',
     exit: 'Exit focus',
     hint: 'Hide ambient effects, enlarge text',
-    pressed: 'Focus mode on',
+    exitHint: 'Restore site chrome and ambience',
   },
 } as const;
 
@@ -30,17 +30,14 @@ function FocusButton({ active, toggle, locale }: { active: boolean; toggle: () =
       type="button"
       onClick={toggle}
       aria-pressed={active}
-      aria-label={active ? copy.pressed : copy.enter}
-      title={copy.hint}
+      aria-label={active ? copy.exit : copy.enter}
+      title={active ? copy.exitHint : copy.hint}
       data-focus-control
-      className={`fixed bottom-4 left-4 z-[70] inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold shadow-lg backdrop-blur-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 ${
-        active
-          ? 'border-amber-300/60 bg-amber-300/15 text-amber-50 hover:bg-amber-300/20'
-          : 'border-white/20 bg-black/70 text-white/85 hover:border-white/35 hover:bg-black/90'
-      }`}
+      data-active={active ? 'true' : 'false'}
+      className="learning-focus-control"
       style={{ bottom: 'max(1rem, env(safe-area-inset-bottom))', left: 'max(1rem, env(safe-area-inset-left))' }}
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+      <svg className="learning-focus-control__icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
         {active ? (
           <path d="m5 12 4 4 10-10" />
         ) : (
@@ -50,7 +47,7 @@ function FocusButton({ active, toggle, locale }: { active: boolean; toggle: () =
           </>
         )}
       </svg>
-      <span>{active ? copy.exit : copy.enter}</span>
+      <span className="learning-focus-control__label">{active ? copy.exit : copy.enter}</span>
     </button>
   );
 }

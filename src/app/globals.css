@@ -1601,10 +1601,111 @@ html[data-focus-mode="on"] .celestial-twinkle {
   opacity: var(--twinkle-hi, 1);
 }
 
-/* 浮层按钮固定在左下角：右下角是 BackToTop，避免两个胶囊叠在一起。
- * 开启后按钮跟着当前主题强调色切换，四个主题都能看出这是「当前站点的专注态」。 */
-html[data-focus-mode="on"] [data-focus-control] {
-  border-color: var(--site-accent) !important;
-  background-color: color-mix(in srgb, var(--site-accent) 16%, var(--site-home-bg)) !important;
-  color: #fff !important;
+/* 左下角专注入口：默认只露出一枚半透明图标，悬停/键盘聚焦才展开文字；
+ * 不抢正文视线，但也不至于藏到找不到。触摸设备没有 hover，直接显示标签。
+ * 右下角是 BackToTop，所以固定左侧，避免两个胶囊叠在一起。 */
+.learning-focus-control {
+  position: fixed;
+  z-index: 70;
+  display: inline-grid;
+  grid-template-columns: 1rem 0fr;
+  align-items: center;
+  column-gap: 0;
+  height: 2.25rem;
+  padding: 0 0.625rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 9999px;
+  background-color: color-mix(in srgb, var(--site-home-bg) 28%, transparent);
+  color: rgb(255 255 255 / 0.72);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.16);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  opacity: 0.78;
+  transition: opacity 180ms ease, color 180ms ease, background-color 180ms ease,
+    border-color 180ms ease, padding 180ms ease, column-gap 180ms ease;
+}
+
+.learning-focus-control:hover,
+.learning-focus-control:focus-visible {
+  grid-template-columns: 1rem 1fr;
+  column-gap: 0.375rem;
+  padding: 0 0.7rem 0 0.55rem;
+  border-color: rgb(255 255 255 / 0.2);
+  background-color: color-mix(in srgb, var(--site-home-bg) 62%, transparent);
+  color: rgb(255 255 255 / 0.88);
+  opacity: 1;
+}
+
+.learning-focus-control:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--site-accent) 62%, transparent);
+  outline-offset: 2px;
+}
+
+.learning-focus-control__icon {
+  flex: none;
+}
+
+.learning-focus-control__label {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-2px);
+  transition: opacity 160ms ease 30ms, transform 160ms ease 30ms;
+}
+
+.learning-focus-control:hover .learning-focus-control__label,
+.learning-focus-control:focus-visible .learning-focus-control__label {
+  opacity: 1;
+  transform: none;
+}
+
+.learning-focus-control[data-active="true"] {
+  border-color: color-mix(in srgb, var(--site-accent) 32%, transparent);
+  background-color: color-mix(in srgb, var(--site-accent) 7%, var(--site-home-bg));
+  color: color-mix(in srgb, var(--site-accent) 86%, white);
+  opacity: 0.95;
+}
+
+.learning-focus-control[data-active="true"]:hover,
+.learning-focus-control[data-active="true"]:focus-visible {
+  border-color: color-mix(in srgb, var(--site-accent) 48%, transparent);
+  background-color: color-mix(in srgb, var(--site-accent) 10%, var(--site-home-bg));
+  color: color-mix(in srgb, var(--site-accent) 88%, white);
+}
+
+.learning-focus-control[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: var(--site-accent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--site-accent) 55%, transparent);
+}
+
+/* 触摸设备没有 hover：直接给文字，不做「猜图标」的交互。 */
+@media (hover: none), (pointer: coarse) {
+  .learning-focus-control {
+    grid-template-columns: 1rem 1fr;
+    column-gap: 0.375rem;
+    height: 2.5rem;
+    padding: 0 0.7rem;
+    opacity: 0.88;
+  }
+
+  .learning-focus-control__label {
+    opacity: 1;
+    transform: none;
+  }
+
+  .learning-focus-control[data-active="true"] {
+    opacity: 1;
+  }
 }
