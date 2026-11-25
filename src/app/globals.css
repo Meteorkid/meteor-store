@@ -1665,6 +1665,9 @@ html[data-focus-mode="on"] .celestial-twinkle {
 }
 
 .learning-focus-control[data-active="true"] {
+  grid-template-columns: 1rem 1fr;
+  column-gap: 0.375rem;
+  padding: 0 0.7rem 0 0.55rem;
   border-color: color-mix(in srgb, var(--site-accent) 32%, transparent);
   background-color: color-mix(in srgb, var(--site-accent) 7%, var(--site-home-bg));
   color: color-mix(in srgb, var(--site-accent) 86%, white);
@@ -1676,6 +1679,11 @@ html[data-focus-mode="on"] .celestial-twinkle {
   border-color: color-mix(in srgb, var(--site-accent) 48%, transparent);
   background-color: color-mix(in srgb, var(--site-accent) 10%, var(--site-home-bg));
   color: color-mix(in srgb, var(--site-accent) 88%, white);
+}
+
+.learning-focus-control[data-active="true"] .learning-focus-control__label {
+  opacity: 1;
+  transform: none;
 }
 
 .learning-focus-control[data-active="true"]::after {

@@ -11,12 +11,14 @@ const COPY = {
   zh: {
     enter: '专注模式',
     exit: '退出专注',
+    exitShort: '退出',
     hint: '隐藏粒子与装饰，放大正文',
     exitHint: '恢复站点导航与氛围',
   },
   en: {
     enter: 'Focus mode',
     exit: 'Exit focus',
+    exitShort: 'Exit',
     hint: 'Hide ambient effects, enlarge text',
     exitHint: 'Restore site chrome and ambience',
   },
@@ -47,7 +49,7 @@ function FocusButton({ active, toggle, locale }: { active: boolean; toggle: () =
           </>
         )}
       </svg>
-      <span className="learning-focus-control__label">{active ? copy.exit : copy.enter}</span>
+      <span className="learning-focus-control__label">{active ? copy.exitShort : copy.enter}</span>
     </button>
   );
 }
