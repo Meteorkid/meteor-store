@@ -1539,7 +1539,8 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - 中文界面的雅思听力标题要带英文副标题，操作按钮用「中文 / English」；英文界面保持纯英文，不反向塞中文。
 - 课程目录 `src/lib/ielts-listening/catalog.ts` 在首次读取时校验内容；不合格条目被丢弃并打日志，不能带着对不上的解析上线。音频清单 `audio-manifest.json` 记录对象 key、时长与逐句 cues，并带原文指纹 `transcriptHash`；原文改动或 cues 数不符时拒绝播放旧录音，页面改用逐句朗读。
 - 音频对象 key 是 `ielts-listening/{slug}/{transcriptHash}-{audioHash8}.mp3`（公开 R2 bucket、`immutable` 缓存），带音频自身的 8 位 SHA-256 后缀；旧的无后缀 `{transcriptHash}.mp3` 继续识别以兼容存量。key 由内容决定——换录音就是换 key，不会覆盖旧文件，也不会让浏览器命中旧缓存。清单只写 key，URL 由 `listeningAudioUrl` 用 `R2_PUBLIC_BASE` 拼出；因此同一个 bucket 的 base 不能在环境之间混用。
-- 录音按 transcript 条目内的句子拆开逐句合成，句间 0.12s、对话轮次间 0.28s；每句必须通过 WordBoundary 数量与时长下限校验，任何一句重试后仍失败就整篇不产出，避免再次留下半截音频。
+- 录音按 transcript 条目内的句子拆开逐句合成，句间 0.12s、对话轮次间 0.28s；每句必须显式传 `boundary='WordBoundary'` 并逐词与原文比对，再加时长下限校验，任何一句重试后仍失败就整篇不产出。**edge-tts 7.x 的 `Communicate` 默认是 `SentenceBoundary`；不显式指定时 `WordBoundary` 事件为 0，`if boundaries and ...` 会把校验整段跳过，不能只凭时长判断完整。**
+- `text` 是合成录音的脚本，`displayText` 只影响页面展示，不参与朗读、不改 `transcriptHash`。电话号码、编号等录音必须保留 `oh` / `double` 口语读法的数字串用 `displayText` 显示成考生应写的 `07466 219 830`，避免把口语拼写当成原文错误；界面提示里要说明这一约定。
 - 有录音用 `<audio>`（播放器 `ListeningPlayer`），没有录音或未配置 R2 时用浏览器语音（按 cast 的 `voice` 就近匹配地区，先 en-GB 这类再退任意英语）。音色清单写在内容里，页面不猜。**必须给 CSP 加 `media-src` 放行 R2 域名**，否则 `default-src 'self'` 会拦掉音频。
 - 点原文任意词走 `/api/ielts/listening/word-lookup`（公开、Origin 校验、IP 限流 30/分钟）：先查同句生词卡，词落在同句词组里则返回整短语释义，否则走与写作共享的 `requestMeaningCached`（8 并发、全站每日 500 次预算）。收藏快照用 `listeningSlug + sentenceIndex`，`sentenceZh` 为 null；生词本里听力的来源是可点的，跳到 `#sentence-N` 时练习页会自动展开原文并定位。
 - 音频生成注意：当前用 `edge-tts` 合成，**走微软非官方接口，公开分发的授权口径不明确**。正式上线前应换有商用授权的 TTS（Azure Speech 官方 API 音色相同，脚本里的 cast 不用改），并在帮助中心说明录音为 AI 合成音。

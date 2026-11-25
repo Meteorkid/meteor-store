@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { listeningTranscriptHash } from '../transcript-hash';
 import {
-  ListeningAudioSchema, ListeningLessonSchema, answerFitsWordLimit, answerInSentence, countListeningWords, gradeListening,
+  ListeningAudioSchema, ListeningLessonSchema, ListeningUtteranceSchema, answerFitsWordLimit, answerInSentence, countListeningWords, gradeListening,
   letterKey, listeningQuestionKind, listeningQuestionLocations, looseKey, measureAnswerWords, normalizeListeningAnswer,
   sectionQuestionNumbers, wordInSentence,
   type ListeningChoiceMultipleSection, type ListeningCompletionSection, type ListeningLesson,
@@ -412,6 +412,21 @@ describe('答案规范化与判分', () => {
   });
 });
 
+
+describe('原文的展示写法', () => {
+  it('允许用 displayText 覆盖数字写法，且不改变音频指纹', () => {
+    const paragraph = utterance('caller', 'It’s oh seven four double six, two one nine, eight three oh.');
+    const spokenHash = listeningTranscriptHash([paragraph.text]);
+    const parsed = ListeningUtteranceSchema.safeParse({
+      ...paragraph,
+      displayText: 'It’s 07466 219 830.',
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) expect(parsed.data.displayText).toBe('It’s 07466 219 830.');
+    expect(listeningTranscriptHash([paragraph.text])).toBe(spokenHash);
+    expect(ListeningUtteranceSchema.safeParse({ ...paragraph, displayText: 'two\nlines' }).success).toBe(false);
+  });
+});
 
 describe('音频清单的对象 key', () => {
   const audio = (key: string) => ({ key, durationSec: 12.5, transcriptHash: 'aec4cb5c4dbef6f6', cues: [[0, 5]], generatedAt: '2026-11-25T00:00:00Z' });

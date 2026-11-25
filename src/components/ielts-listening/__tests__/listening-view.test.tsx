@@ -37,6 +37,16 @@ describe('ListeningTranscript', () => {
     expect(html).toContain('data-lookup-word="popular"');
   });
 
+  it('displayText 用数字展示电话号码，不让考生看到口语 oh', () => {
+    const html = renderToStaticMarkup(<ListeningTranscript
+      transcript={lesson.transcript} cast={lesson.cast} answers={lesson.answers}
+      locale="zh" scope={null} graded={false} wrongNumbers={[]} activeIndex={null}
+      onPlaySentence={() => {}} onLookup={() => {}} onDismissLookup={() => {}} />);
+    expect(html).toContain('07466 219 830');
+    expect(html).not.toContain('oh seven four');
+    expect(html).not.toContain('data-lookup-word="oh"');
+  });
+
   it('每个英文词都是可查词的按钮，标点不带 data-lookup-word', () => {
     const html = renderToStaticMarkup(<ListeningTranscript
       transcript={lesson.transcript} cast={lesson.cast} answers={lesson.answers}

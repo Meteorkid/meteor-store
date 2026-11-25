@@ -75,8 +75,8 @@ export default function ListeningTranscript({
     if (words[next]) { event.preventDefault(); words[next].focus(); }
   }
 
-  function renderWords(text: string, sentenceIndex: number) {
-    return lookupWordTokens(text).map((token, tokenIndex) => {
+  function renderWords(utterance: ListeningUtterance, sentenceIndex: number) {
+    return lookupWordTokens(utterance.displayText ?? utterance.text).map((token, tokenIndex) => {
       if (!token.word) return <Fragment key={tokenIndex}>{token.text}</Fragment>;
       return <span key={tokenIndex} role="button" tabIndex={0} data-lookup-word={normalizeLookupWord(token.text)}
         aria-label={token.text} className={styles.word}
@@ -97,7 +97,7 @@ export default function ListeningTranscript({
         </span>}
         <span id={`sentence-${index + 1}`} data-sentence={index + 1} data-word-sentence={index}
           className={`scroll-mt-28 ${activeIndex === index ? 'rounded bg-violet-400/15' : ''}`}>
-          {renderWords(utterance.text, index)}
+          {renderWords(utterance, index)}
         </span>{' '}
       </Fragment>;
     })}
@@ -124,7 +124,7 @@ export default function ListeningTranscript({
               </span>)}
             </div>
             <p lang="en" data-word-sentence={sentenceIndex} className="text-[15px] leading-7 text-white/85">
-              {renderWords(utterance.text, sentenceIndex)}
+              {renderWords(utterance, sentenceIndex)}
             </p>
           </div>
         </div>

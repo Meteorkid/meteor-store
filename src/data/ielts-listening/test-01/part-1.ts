@@ -156,7 +156,7 @@ export const test01Part1: ListeningLesson = {
     { speaker: 'receptionist', text: 'Great. It’s one of our most popular courses, so you’re just in time. Can I take your name?' },
     { speaker: 'caller', text: 'Yes, it’s Marcus Krause. That’s K, R, A, U, S, E.' },
     { speaker: 'receptionist', text: 'K, R, A, U, S, E. Got it. And a contact number?' },
-    { speaker: 'caller', text: 'It’s oh seven four double six, two one nine, eight three oh.' },
+    { speaker: 'caller', text: 'It’s oh seven four double six, two one nine, eight three oh.', displayText: 'It’s 07466 219 830.' },
     { speaker: 'receptionist', text: 'Thank you. The current course is fully booked, I’m afraid, but the next one starts on the twelfth of May.' },
     { speaker: 'caller', text: 'The twelfth of May. That’s a Tuesday, isn’t it?' },
     { speaker: 'receptionist', text: 'No, it’s a Thursday. The course runs for six weeks, and all the classes are on Sunday afternoons, from two until five.' },

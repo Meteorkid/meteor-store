@@ -55,7 +55,14 @@ export type ListeningCast = z.infer<typeof ListeningCastSchema>;
 /** 原文中的一句话。按句存储，句索引是全篇唯一的定位方式。 */
 export const ListeningUtteranceSchema = z.object({
   speaker: z.string().trim().min(1).max(40),
+  /** 合成录音所用文本，也是默认展示文本。 */
   text: z.string().trim().min(2).max(400).regex(LATIN, '原文必须是英文').regex(/^[^\n\r]+$/, '一句话内不能换行'),
+  /**
+   * 展示用写法，可选。用于录音必须保留口语读法、但考生应看到标准书写的数字串：
+   * 例如录音读 "oh seven four double six…"，原文展示为 "07466…"。
+   * 不影响 transcriptHash，也不参与朗读；音频仍以 text 合成。
+   */
+  displayText: z.string().trim().min(2).max(400).regex(/^[^\n\r]+$/, '展示句不能换行').optional(),
 }).strict();
 export type ListeningUtterance = z.infer<typeof ListeningUtteranceSchema>;
 
