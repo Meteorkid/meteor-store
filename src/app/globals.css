@@ -291,56 +291,56 @@
 }
 
 :root:root[data-theme="orbit"] {
-  --background: #05070d;
-  --foreground: #e8ecf4;
-  --card: #0b0f1a;
+  --background: #100d08;
+  --foreground: #f4eddf;
+  --card: #1a150e;
   --card-foreground: var(--foreground);
-  --popover: #101624;
+  --popover: #211a10;
   --popover-foreground: var(--foreground);
-  --primary: #ffb454;
-  --primary-foreground: #241507;
-  --secondary: #1d2739;
+  --primary: #e7bd72;
+  --primary-foreground: #251809;
+  --secondary: #302417;
   --secondary-foreground: var(--foreground);
-  --accent: #ffb454;
+  --accent: #e7bd72;
   --accent-foreground: var(--primary-foreground);
-  --border: #354156;
-  --input: #354156;
-  --site-accent: #ffb454;
-  --site-accent-soft: #bac5d8;
-  --site-border: rgb(200 210 230 / .16);
-  --site-panel: rgb(11 15 26 / .78);
-  --site-choice: rgb(255 180 84 / .12);
+  --border: #52402a;
+  --input: #52402a;
+  --site-accent: #e7bd72;
+  --site-accent-soft: #e6cf9d;
+  --site-border: rgb(237 208 154 / .19);
+  --site-panel: rgb(26 21 14 / .82);
+  --site-choice: rgb(231 189 114 / .13);
   --site-home-bg: #05070d;
-  --site-page-atmosphere: radial-gradient(ellipse at 77% 9%, rgb(55 78 116 / .17), transparent 47%);
-  --site-glass-a: 141 170 215;
-  --site-glass-b: 11 15 26;
-  --site-glass-c: 85 115 159;
-  --site-glass-shadow: 72 95 139;
-  --site-brand-gradient: linear-gradient(135deg, #fff0d9, #ffb454 60%, #e29a58);
-  --site-hero-gradient: linear-gradient(120deg, #fff4dc, #ffb454 58%, #ffd99e);
-  --site-back-to-top: rgb(73 98 138 / .55);
-  --site-modal-bg: rgb(11 15 26 / .95);
-  --site-solid-panel: #101624;
-  --site-brand-tail: rgb(255 180 84 / .52);
-  --site-brand-line-mid: rgb(255 180 84 / .58);
-  --site-brand-line-end: #ffd99e;
-  --site-grid-line: rgb(200 210 230 / .05);
-  --site-glow-deep: rgb(57 76 111 / .25);
-  --site-glow-accent: rgb(255 180 84 / .14);
-  --site-glow-soft: rgb(141 170 215 / .12);
+  --site-page-atmosphere: radial-gradient(ellipse at 72% 8%, rgb(136 95 45 / .19), transparent 50%);
+  --site-glass-a: 224 184 111;
+  --site-glass-b: 26 21 14;
+  --site-glass-c: 137 102 57;
+  --site-glass-shadow: 105 76 41;
+  --site-brand-gradient: linear-gradient(135deg, #fff0cc, #e7bd72 60%, #bb8949);
+  --site-hero-gradient: linear-gradient(120deg, #fff6df, #e7bd72 58%, #d5ac6f);
+  --site-back-to-top: rgb(116 85 47 / .65);
+  --site-modal-bg: rgb(26 21 14 / .96);
+  --site-solid-panel: #211a10;
+  --site-brand-tail: rgb(231 189 114 / .52);
+  --site-brand-line-mid: rgb(231 189 114 / .58);
+  --site-brand-line-end: #fff0cc;
+  --site-grid-line: rgb(237 208 154 / .06);
+  --site-glow-deep: rgb(100 67 34 / .27);
+  --site-glow-accent: rgb(231 189 114 / .15);
+  --site-glow-soft: rgb(224 184 111 / .12);
 
-  /* 旧页面的品牌紫色工具类在轨道主题中使用冷调的仪表色阶。 */
-  --color-purple-50: #f4f7fb;
-  --color-purple-100: #e6edf8;
-  --color-purple-200: #d0dced;
-  --color-purple-300: #b2c5de;
-  --color-purple-400: #94b1d6;
-  --color-purple-500: #55759f;
-  --color-purple-600: #43648d;
-  --color-purple-700: #334f74;
-  --color-purple-800: #263d59;
-  --color-purple-900: #1f3047;
-  --color-purple-950: #131e30;
+  /* 旧页面的品牌紫色工具类随行星主题使用金棕色阶。 */
+  --color-purple-50: #fff8e9;
+  --color-purple-100: #f9eed5;
+  --color-purple-200: #f0ddb0;
+  --color-purple-300: #e4c890;
+  --color-purple-400: #d4ad68;
+  --color-purple-500: #ab8246;
+  --color-purple-600: #846133;
+  --color-purple-700: #694b2b;
+  --color-purple-800: #503923;
+  --color-purple-900: #392819;
+  --color-purple-950: #251b11;
   --color-violet-50: var(--color-purple-50);
   --color-violet-100: var(--color-purple-100);
   --color-violet-200: var(--color-purple-200);
@@ -353,7 +353,7 @@
   --color-violet-900: var(--color-purple-900);
   --color-violet-950: var(--color-purple-950);
   --purple-6: var(--color-purple-600);
-  --pink-6: #537294;
+  --pink-6: #9b7544;
 }
 
 @theme inline {

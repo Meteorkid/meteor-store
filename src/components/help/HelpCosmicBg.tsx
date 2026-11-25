@@ -23,9 +23,9 @@ export default function HelpCosmicBg() {
     const nebula = siteTheme === 'nebula';
     const horizon = siteTheme === 'horizon';
     const orbit = siteTheme === 'orbit';
-    const hueStart = orbit ? 206 : horizon ? 14 : nebula ? 188 : 240;
-    const hueSpread = orbit ? 21 : horizon ? 32 : nebula ? 42 : 80;
-    const connectionColor = orbit ? '141,170,215' : horizon ? '238,145,104' : nebula ? '126,184,214' : '139,92,246';
+    const hueStart = orbit ? 43 : horizon ? 14 : nebula ? 188 : 240;
+    const hueSpread = orbit ? 12 : horizon ? 32 : nebula ? 42 : 80;
+    const connectionColor = orbit ? '224,184,111' : horizon ? '238,145,104' : nebula ? '126,184,214' : '139,92,246';
     let W = 0, H = 0;
 
     type Star = {

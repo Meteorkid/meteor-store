@@ -10,7 +10,7 @@ const PARTICLE_PALETTES = {
   classic: { accentRgb: '139,92,246', starRgb: '255,255,255', hueBase: 260, dotSpread: 60, sparkSpread: 45, streakSpread: 40 },
   nebula: { accentRgb: '126,184,214', starRgb: '255,255,255', hueBase: 194, dotSpread: 34, sparkSpread: 26, streakSpread: 24 },
   horizon: { accentRgb: '238,145,104', starRgb: '255,237,206', hueBase: 16, dotSpread: 30, sparkSpread: 24, streakSpread: 28 },
-  orbit: { accentRgb: '141,170,215', starRgb: '232,236,244', hueBase: 206, dotSpread: 21, sparkSpread: 16, streakSpread: 17 },
+  orbit: { accentRgb: '224,184,111', starRgb: '255,240,204', hueBase: 43, dotSpread: 12, sparkSpread: 10, streakSpread: 12 },
 } as const satisfies Record<SiteTheme, {
   accentRgb: string;
   starRgb: string;

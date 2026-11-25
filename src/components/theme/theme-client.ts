@@ -14,8 +14,8 @@ export function readGuestTheme(): SiteTheme | null {
   }
 }
 
-export function resolveGuestTheme(): SiteTheme {
-  return readGuestTheme() ?? DEFAULT_SITE_THEME;
+export function resolveGuestTheme(initialTheme = DEFAULT_SITE_THEME): SiteTheme {
+  return readGuestTheme() ?? initialTheme;
 }
 
 export function applyTheme(theme: SiteTheme, storeGuest = false): void {

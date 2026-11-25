@@ -34,7 +34,7 @@ export default function StarMap({ posts }: StarMapProps) {
   const t = useTranslations('StarMap');
   const locale = useLocale() as Locale;
   const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
-  const lineRgb = siteTheme === 'orbit' ? '171 194 229' : siteTheme === 'horizon' ? '255 193 141' : siteTheme === 'nebula' ? '182 216 232' : '167 139 250';
+  const lineRgb = siteTheme === 'orbit' ? '224 184 111' : siteTheme === 'horizon' ? '255 193 141' : siteTheme === 'nebula' ? '182 216 232' : '167 139 250';
   const lineColor = `rgb(${lineRgb} / ${siteTheme === 'nebula' ? .22 : .2})`;
 
   const nodes = useMemo(() => {
@@ -142,7 +142,7 @@ export default function StarMap({ posts }: StarMapProps) {
               cx={x}
               cy={y}
               r={size}
-              fill="#e8e8f4"
+              fill={siteTheme === 'orbit' ? '#fff0cc' : '#e8e8f4'}
               className="cursor-pointer transition-all duration-200 group-hover:fill-violet-300 group-hover:stroke-violet-300"
               style={{ filter: 'drop-shadow(0 0 2px var(--site-accent))' }}
             >

@@ -39,13 +39,13 @@ html[data-theme="horizon"] .header {
 }
 
 html[data-theme="orbit"] .header {
-  --site-header-surface: rgb(5 7 13 / 94%);
-  --site-header-panel-a: rgb(17 24 38 / 98%);
-  --site-header-panel-b: rgb(9 13 23 / 98%);
+  --site-header-surface: rgb(16 13 8 / 94%);
+  --site-header-panel-a: rgb(37 28 17 / 98%);
+  --site-header-panel-b: rgb(19 15 10 / 98%);
   --site-header-accent: var(--site-accent);
   --site-header-accent-soft: var(--site-accent-soft);
-  --site-header-solid: #0b0f1a;
-  --site-nav-highlight: rgb(255 180 84 / .13);
+  --site-header-solid: #1a150e;
+  --site-nav-highlight: var(--site-choice);
 }
 
 .headerSurface {
@@ -169,8 +169,8 @@ html[data-theme="horizon"] .mobilePanel {
 }
 
 html[data-theme="orbit"] .mobilePanel {
-  --site-header-mobile-a: #101624;
-  --site-header-mobile-b: #05070d;
+  --site-header-mobile-a: var(--site-solid-panel);
+  --site-header-mobile-b: var(--background);
   --site-header-accent: var(--site-accent);
   --site-header-accent-soft: var(--site-accent-soft);
 }

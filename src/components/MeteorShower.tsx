@@ -63,10 +63,12 @@ export default function MeteorShower() {
     const nebula = siteTheme === 'nebula';
     const horizon = siteTheme === 'horizon';
     const orbit = siteTheme === 'orbit';
-    const baseHue = night ? 30 : orbit ? 26 : horizon ? 16 : nebula ? 194 : 265;
-    const hueSpread = orbit ? 22 : night || horizon ? 30 : 50;
-    const constellationRgb = orbit ? '171,194,229' : horizon ? '255,193,141' : '205,205,255';
-    const constellationStarRgb = orbit ? '232,236,244' : horizon ? '255,237,206' : '232,232,244';
+    const baseHue = orbit ? (night ? 42 : 43) : night ? 30 : horizon ? 16 : nebula ? 194 : 265;
+    const hueSpread = orbit ? 12 : night || horizon ? 30 : 50;
+    const trailHue = baseHue + (orbit ? 7 : 20);
+    const constellationRgb = orbit ? '224,184,111' : horizon ? '255,193,141' : '205,205,255';
+    const constellationStarRgb = orbit ? '255,240,204' : horizon ? '255,237,206' : '232,232,244';
+    const starRgb = orbit ? constellationStarRgb : '255,255,255';
 
     const resize = () => {
       canvas.width = canvas.offsetWidth;
@@ -206,10 +208,11 @@ export default function MeteorShower() {
       ].join(';');
 
       if (horizon || orbit) {
-        const accentRgb = orbit ? '255 180 84' : '238 145 104';
-        tail.style.background = `linear-gradient(90deg, transparent, rgb(${orbit ? accentRgb : '255 180 123'} / .6) 65%, #fff2d6)`;
+        const accentRgb = orbit ? '224 184 111' : '238 145 104';
+        const core = orbit ? '#fff0cc' : '#fff2d6';
+        tail.style.background = `linear-gradient(90deg, transparent, rgb(${orbit ? accentRgb : '255 180 123'} / .6) 65%, ${core})`;
         tailGlow.style.background = `linear-gradient(90deg, transparent, rgb(${accentRgb} / .4))`;
-        head.style.background = 'radial-gradient(circle, #fff2d6 10%, var(--site-accent) 48%, transparent 100%)';
+        head.style.background = `radial-gradient(circle, ${core} 10%, var(--site-accent) 48%, transparent 100%)`;
         head.style.boxShadow = `0 0 12px 4px rgb(${accentRgb} / .5)`;
         label.style.color = 'var(--site-accent)';
         label.style.textShadow = `0 0 8px rgb(${accentRgb} / .5)`;
@@ -290,7 +293,7 @@ export default function MeteorShower() {
         s.twinkle += 0.03;
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${0.25 + Math.sin(s.twinkle) * 0.2})`;
+        ctx.fillStyle = `rgba(${starRgb},${0.25 + Math.sin(s.twinkle) * 0.2})`;
         ctx.fill();
       });
 
@@ -301,7 +304,7 @@ export default function MeteorShower() {
         if (d.life <= 0) { trail.splice(i, 1); continue; }
         ctx.beginPath();
         ctx.arc(d.x, d.y, d.life * 2.2, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${baseHue + 20},85%,75%,${d.life * 0.5})`;
+        ctx.fillStyle = `hsla(${trailHue},85%,75%,${d.life * 0.5})`;
         ctx.fill();
       }
       if (trail.length > 40) trail.splice(0, trail.length - 40);

@@ -27,17 +27,17 @@
 }
 .orbitPreview {
   isolation:isolate;
-  background:radial-gradient(circle at 50% 51%, #fff4ca 0 5%, #ffb454 6% 9%, rgb(250 159 65 / .32) 12%, transparent 27%), #05070d;
+  background:radial-gradient(circle at 50% 51%, #fff4d6 0 5%, #e7bd72 6% 9%, rgb(224 184 111 / .36) 12%, transparent 27%), #100d08;
 }
 .orbitPreview::before {
   content:''; position:absolute; inset:19% 12%; transform:rotate(-14deg); z-index:-1;
-  border:1px solid rgb(200 210 230 / .2); border-radius:50%;
-  background:radial-gradient(ellipse, transparent 41%, rgb(200 210 230 / .18) 43% 45%, transparent 47%);
+  border:1px solid rgb(237 208 154 / .28); border-radius:50%;
+  background:radial-gradient(ellipse, transparent 41%, rgb(237 208 154 / .2) 43% 45%, transparent 47%);
 }
 .orbitPreview::after {
   content:''; position:absolute; inset:0;
-  background:radial-gradient(circle at 20% 65%, #9cc6e4 0 2.5%, transparent 3%),
-    radial-gradient(circle at 78% 36%, #efc9a0 0 4%, transparent 4.5%);
+  background:radial-gradient(circle at 20% 65%, #fff0cc 0 2.5%, transparent 3%),
+    radial-gradient(circle at 78% 36%, #c2955e 0 4%, transparent 4.5%);
 }
 .optionCopy { display:grid; gap:3px; }
 .optionName { font-size:14px; font-weight:600; }

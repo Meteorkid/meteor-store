@@ -56,8 +56,10 @@ describe('site appearance persistence', () => {
     } });
     const { resolveGuestTheme } = await import('../../components/theme/theme-client');
     expect(resolveGuestTheme()).toBe('nebula');
+    expect(resolveGuestTheme('orbit')).toBe('orbit');
     values.set(GUEST_THEME_KEY, 'classic');
     expect(resolveGuestTheme()).toBe('classic');
+    expect(resolveGuestTheme('orbit')).toBe('classic');
     values.set(GUEST_THEME_KEY, 'horizon');
     expect(resolveGuestTheme()).toBe('horizon');
     values.set(GUEST_THEME_KEY, 'orbit');

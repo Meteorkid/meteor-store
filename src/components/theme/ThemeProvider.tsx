@@ -21,14 +21,17 @@ export function ThemeProvider({ initialTheme, children }: { initialTheme: SiteTh
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<ThemeContextValue['saveError']>(null);
   const requestVersion = useRef(0);
+  const initialGuestFallback = useRef<SiteTheme | undefined>(initialTheme);
   const userId = user?.id ?? null;
 
   useEffect(() => {
     if (loading) return;
     if (!userId) {
-      applyTheme(resolveGuestTheme());
+      applyTheme(resolveGuestTheme(initialGuestFallback.current));
       return;
     }
+    // 活动 cookie 随账号主题更新，退出后只读游客自己的偏好。
+    initialGuestFallback.current = undefined;
 
     const controller = new AbortController();
     const version = ++requestVersion.current;
