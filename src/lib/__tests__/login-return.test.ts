@@ -8,6 +8,11 @@ describe('normalizeLoginReturn', () => {
     expect(normalizeLoginReturn(value)).toBe(value);
     expect(new URL(buildLoginHref(value), 'https://store.test').searchParams.get('next')).toBe(value);
   });
+  it('听力练习记录页登录后回到记录本，而不是被退回首面', () => {
+    const value = '/study/ielts/listening/records';
+    expect(normalizeLoginReturn(value)).toBe(value);
+    expect(new URL(buildLoginHref(value), 'https://store.test').searchParams.get('next')).toBe(value);
+  });
   it.each(['/study/ielts/ab', `/study/ielts/${'a'.repeat(61)}`, '/study/ielts/ABC',
     '/study/ielts/abc/extra', '/study/ielts/../admin', '/study/ielts/abc%2fadmin',
     '/study/ielts/abc?next=https://evil.example', '/study/ielts/abc#admin', '/study/ielts/abc\n',

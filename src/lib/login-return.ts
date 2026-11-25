@@ -26,6 +26,7 @@ const ALLOWED_LOGIN_RETURNS = new Set([
   '/study/courses',
   '/study/algorithms',
   '/study/ielts',
+  '/study/ielts/listening/records',
   '/study/vocabulary',
 ]);
 
