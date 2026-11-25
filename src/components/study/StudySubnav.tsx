@@ -30,7 +30,7 @@ export default function StudySubnav() {
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
-    <nav aria-label={copy.aria} className="border-b border-white/10">
+    <nav aria-label={copy.aria} data-study-subnav className="border-b border-white/10">
       <div className="container mx-auto flex gap-1 overflow-x-auto px-4">
         {NAV_ITEMS.map(item => {
           const active = item.href === activeHref;

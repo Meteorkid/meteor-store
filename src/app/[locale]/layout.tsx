@@ -205,6 +205,7 @@ export default async function LocaleLayout({
 
   return (
     <html
+      suppressHydrationWarning
       lang={locale === "zh" ? "zh-CN" : "en"}
       data-scroll-behavior="smooth"
       data-theme={initialTheme}

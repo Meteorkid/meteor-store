@@ -1492,6 +1492,7 @@ html {
  */
 html[data-focus-mode="on"] [data-site-header],
 html[data-focus-mode="on"] [data-site-footer],
+html[data-focus-mode="on"] [data-study-subnav],
 html[data-focus-mode="on"] [data-ambient],
 html[data-focus-mode="on"] [data-focus-decor] {
   display: none !important;
@@ -1513,7 +1514,7 @@ html[data-focus-mode="on"] .glass,
 html[data-focus-mode="on"] .glass-card,
 html[data-focus-mode="on"] .glass-lg,
 html[data-focus-mode="on"] [data-transparency-surface] {
-  background: #0b0e14 !important;
+  background: color-mix(in srgb, var(--site-home-bg) 88%, white 6%) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
   box-shadow: none !important;
