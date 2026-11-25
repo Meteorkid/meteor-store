@@ -106,6 +106,16 @@ describe('雅思听力题库：内容体检', () => {
     }
   });
 
+  it.each(listeningLessons.map(lesson => [lesson.slug, lesson] as const))('%s：口语数字串必须给考生标准写法', (_slug, lesson) => {
+    // 只盯电话/编号式连续口语数字，避免把 "Oh, I see." 这类感叹词当成数字。
+    const spokenNumberRun = /\b(?:oh|zero)\b(?=(?:\s+(?:zero|one|two|three|four|five|six|seven|eight|nine|double|treble)){2,})/i;
+    for (const [index, utterance] of lesson.transcript.entries()) {
+      if (!spokenNumberRun.test(utterance.text)) continue;
+      expect(utterance.displayText, `第 ${index} 句「${utterance.text}」缺少考生写法`).toBeDefined();
+      expect(utterance.displayText, `第 ${index} 句的展示写法`).toMatch(/\d/);
+    }
+  });
+
   it.each(listeningLessons.map(lesson => [lesson.slug, lesson] as const))('%s：词汇与词组讲解足够，且都带语境', (_slug, lesson) => {
     expect(lesson.vocabulary.length).toBeGreaterThanOrEqual(6);
     expect(lesson.expressions.length).toBeGreaterThanOrEqual(5);

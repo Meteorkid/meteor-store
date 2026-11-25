@@ -3,8 +3,10 @@ import type { ListeningLesson } from '@/lib/ielts-listening/types';
 /**
  * Practice Test 1 · Part 1 — 周末陶艺课报名。原创仿真材料，非官方真题。
  *
- * 原文里的日期、金额、电话号码一律写成英文数词：录音和页面用的是同一份文本，
- * 写成 9.30 会被读成 nine point three zero。要改原文就重跑音频脚本，
+ * 原文里的日期、金额、电话号码一律写成英文数词，保证录音读法正确；
+ * 页面默认展示同一份文本。只有电话号码这类“口语读法本身会让考生误读”的串，
+ * 用 displayText 显示成标准书写，不参与朗读、不改变 transcriptHash；
+ * 其余数字保留录音里的英文读法。要改 text 就重跑音频脚本，
  * 指纹对不上的旧录音会被目录层自动丢弃。
  */
 export const test01Part1: ListeningLesson = {
