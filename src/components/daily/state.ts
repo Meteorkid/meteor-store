@@ -34,17 +34,40 @@ export function parseAccountPreferences(value: unknown, userId: string): DailyPr
   return DailyPreferencesStateSchema.parse({ preferences: value.preferences, revision: 'revision' in value ? value.revision : undefined });
 }
 
+/**
+ * 用户自定义顺序只作用于日刊栏目；全年申请日历始终最后，避免与日刊正文顺序脱节。
+ * 旧偏好里的顺序就是默认顺序，不需要迁移。
+ */
+export function orderDailyChannels(channels: readonly DailyChannelId[]): DailyChannelId[] {
+  const seen = new Set<DailyChannelId>();
+  const ordered: DailyChannelId[] = channels.filter(id => {
+    if (seen.has(id) || !DAILY_CHANNEL_IDS.includes(id)) return false;
+    seen.add(id);
+    return true;
+  }).filter(id => id !== 'masters');
+  return ordered.concat(channels.includes('masters') ? ['masters'] : []);
+}
+
 export function visibleChannels(view: 'all' | 'following', preferences: DailyPreferences | null) {
-  return DAILY_CHANNEL_IDS.filter(id => view === 'all' || preferences === null || preferences.channels.includes(id));
+  if (preferences === null) return [...DAILY_CHANNEL_IDS];
+  const followed = orderDailyChannels(preferences.channels);
+  if (view === 'following') return followed;
+  // 「全部栏目」先按用户顺序展示已关注栏目，未关注栏目按默认顺序补在后面。
+  const followedEditions = followed.filter(id => id !== 'masters');
+  const rest = DAILY_CHANNEL_IDS.filter(id => id !== 'masters' && !followed.includes(id));
+  const all: DailyChannelId[] = [...followedEditions, ...rest, 'masters'];
+  return all;
 }
 
 /** 概览和正文使用同一期、同一组栏目；全年日历不参与日刊阅读进度。 */
 export function getDailyEditionEntries(date: string, selected: readonly DailyChannelId[], editions: readonly DailyEdition[], readKeys: readonly string[]) {
-  return dailyEditionChannels.filter(channel => selected.includes(channel.id)).map(channel => {
+  return selected.flatMap(id => {
+    const channel = dailyEditionChannels.find(item => item.id === id);
+    if (!channel) return [];
     const edition = editions.find(item => item.date === date && item.channel === channel.id);
     const status: 'published' | 'empty' | 'failed' | 'unpublished' = edition?.status === 'published' && edition.content !== null ? 'published'
       : edition?.status === 'empty' ? 'empty' : edition?.status === 'failed' ? 'failed' : 'unpublished';
-    return { channel, edition, status, isRead: status === 'published' && readKeys.includes(`${date}:${channel.id}`) };
+    return [{ channel, edition, status, isRead: status === 'published' && readKeys.includes(`${date}:${channel.id}`) }];
   });
 }
 

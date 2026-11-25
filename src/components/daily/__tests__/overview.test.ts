@@ -18,9 +18,11 @@ describe('本期概览的内容边界', () => {
     expect(getDailyEditionEntries('2026-10-16', ['papers'], editions, ['2026-10-16:papers'])[0].isRead).toBe(true);
   });
 
-  it('保持栏目顺序，排除未选中的栏目和全年申请日历', () => {
+  it('按传入的栏目顺序生成条目，排除未选中的栏目和全年申请日历', () => {
     const entries = getDailyEditionEntries('2026-10-16', ['masters', 'papers', 'english'], [publishedPaper], []);
-    expect(entries.map(entry => entry.channel.id)).toEqual(['english', 'papers']);
+    expect(entries.map(entry => entry.channel.id)).toEqual(['papers', 'english']);
+    const reordered = getDailyEditionEntries('2026-10-16', ['english', 'papers'], [publishedPaper], []);
+    expect(reordered.map(entry => entry.channel.id)).toEqual(['english', 'papers']);
     expect(getDailyEditionEntries('2026-10-16', ['masters'], [], [])).toEqual([]);
     expect(getDailyEditionEntries('2026-10-16', [], [publishedPaper], [])).toEqual([]);
   });

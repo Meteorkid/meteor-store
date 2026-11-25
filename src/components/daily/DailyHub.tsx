@@ -14,7 +14,7 @@ import { dailyChannels, DAILY_CHANNEL_IDS, isDailyHistoryDate, shiftDailyDate, t
 import EditionContent from './EditionContent';
 import DailyOverview from './DailyOverview';
 import DailyChannelNav from './DailyChannelNav';
-import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, DailyPreferencesOwnerChangedError, dailyReadStorageKey, getDailyEditionEntries, latestDailyUpdate, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
+import { DAILY_PREFERENCES_EVENT, DAILY_STORAGE_EVENT, GUEST_PREFERENCES_KEY, DailyPreferencesOwnerChangedError, dailyReadStorageKey, getDailyEditionEntries, latestDailyUpdate, orderDailyChannels, parseAccountPreferences, parseGuestPreferences, parseReadKeys, pickPreferences, toggleReadKey, visibleChannels } from './state';
 import { fetchDailyEditions, subscribeDailyDate, subscribeDailyRefresh } from './refresh';
 import { dailyText } from './text';
 import { useDailyEntryNavigation } from './entry-navigation';
@@ -58,6 +58,16 @@ function saveStorage(key: string, value: unknown) {
 
 function defaultPreferences(): DailyPreferences {
   return { channels: [...DAILY_CHANNEL_IDS], reminders: false };
+}
+
+/** 只在已关注栏目的顺序里移动；全年申请日历固定在最后，不参与交换。 */
+function moveDraftChannel(channels: DailyPreferences['channels'], id: Exclude<DailyPreferences['channels'][number], 'masters'>, direction: -1 | 1) {
+  const editionChannels = channels.filter(channel => channel !== 'masters');
+  const index = editionChannels.indexOf(id);
+  const target = index + direction;
+  if (index < 0 || target < 0 || target >= editionChannels.length) return channels;
+  [editionChannels[index], editionChannels[target]] = [editionChannels[target], editionChannels[index]];
+  return orderDailyChannels(channels.includes('masters') ? [...editionChannels, 'masters'] : editionChannels);
 }
 
 async function fetchPreferences(userId: string): Promise<DailyPreferencesState> {
@@ -156,7 +166,8 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
       if (!active.current) return;
       setAccountPreferences(value.preferences);
       setAccountRevision(value.revision);
-      setDraft(value.preferences ?? defaultPreferences());
+      const loaded = value.preferences ?? defaultPreferences();
+      setDraft({ ...loaded, channels: orderDailyChannels(loaded.channels) });
       setDraftRevision(value.revision);
       setSaveError('');
       setSaveIssue(null);
@@ -173,7 +184,7 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
   const openSettings = () => {
     setReturnHash(window.location.hash);
     const value = preferences ?? defaultPreferences();
-    setDraft({ channels: [...value.channels], reminders: activeUserId ? value.reminders : false });
+    setDraft({ channels: orderDailyChannels(value.channels), reminders: activeUserId ? value.reminders : false });
     setDraftRevision(accountRevision);
     setSaveError(saveIssue === 'conflict' ? copy.preferencesConflict : saveIssue === 'changed' ? copy.preferencesAccountChanged : '');
     setNotice('');
@@ -244,6 +255,7 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
   const readingLinkClass = 'inline-flex min-h-11 items-center text-sm font-medium daily-accent-soft underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 daily-accent-focus';
   const backToOverview = date === today ? copy.backToTodayOverview : copy.backToEditionOverview;
   const nextCalendar = selectedChannels.includes('masters') ? dailyChannels.find(channel => channel.id === 'masters') : undefined;
+  const draftOrderChannels = draft.channels.filter(channel => channel !== 'masters');
   const sectionIds = [...editionEntries.map(entry => entry.channel.id), ...(selectedChannels.includes('masters') ? ['masters'] : [])];
   const sectionKey = sectionIds.join('|');
   const [activeSection, setActiveSection] = useState('daily-overview');
@@ -342,7 +354,12 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
           <div className="grid gap-3 sm:grid-cols-2">
             {dailyChannels.map(channel => <label key={channel.id} className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-4 daily-accent-choice">
               <input type="checkbox" checked={draft.channels.includes(channel.id)} className="mt-1 h-4 w-4 shrink-0 daily-accent-checkbox"
-                onChange={event => setDraft(previous => ({ ...previous, channels: DAILY_CHANNEL_IDS.filter(id => id === channel.id ? event.target.checked : previous.channels.includes(id)) }))} />
+                onChange={event => setDraft(previous => ({
+                  ...previous,
+                  channels: orderDailyChannels(event.target.checked
+                    ? [...previous.channels, channel.id]
+                    : previous.channels.filter(id => id !== channel.id)),
+                }))} />
               <span><span className="block text-sm font-semibold text-white">{channel[locale]}</span><span className="mt-1 block t-footnote text-white/60">{locale === 'zh' ? channel.descriptionZh : channel.descriptionEn}</span></span>
             </label>)}
           </div>
@@ -350,7 +367,34 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
             <button type="button" className="min-h-10 t-footnote daily-accent-soft underline underline-offset-4" onClick={() => setDraft(previous => ({ ...previous, channels: [...DAILY_CHANNEL_IDS] }))}>{copy.allSelected}</button>
             <button type="button" className="min-h-10 t-footnote text-white/70 underline underline-offset-4" onClick={() => setDraft(previous => ({ ...previous, channels: [] }))}>{copy.clear}</button>
           </div>
-          <label className="mt-3 flex items-start gap-3 border-t border-white/10 pt-5">
+          <div className="mt-5 border-t border-white/10 pt-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 className="text-sm font-semibold text-white">{copy.channelOrder}</h3>
+              <p className="t-footnote text-white/50">{copy.channelOrderHint}</p>
+            </div>
+            {draftOrderChannels.length === 0
+              ? <p className="mt-3 t-footnote text-white/55">{copy.channelOrderEmpty}</p>
+              : <ol className="mt-3 grid gap-2 sm:grid-cols-2">
+                {draftOrderChannels.map((id, index) => {
+                  const channel = dailyChannels.find(item => item.id === id);
+                  if (!channel) return null;
+                  return <li key={id} className="flex min-h-12 items-center gap-2 rounded-xl border border-white/10 px-3 py-1.5">
+                    <span aria-hidden="true" className="w-5 shrink-0 font-mono text-[11px] daily-accent-soft">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="min-w-0 flex-1 text-sm text-white/85">{channel[locale]}</span>
+                    <button type="button" disabled={index === 0}
+                      aria-label={`${copy.moveUp} ${channel[locale]}`}
+                      onClick={() => setDraft(previous => ({ ...previous, channels: moveDraftChannel(previous.channels, id, -1) }))}
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-white/10 text-base text-white/75 disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-offset-2 daily-accent-focus">↑</button>
+                    <button type="button" disabled={index === draftOrderChannels.length - 1}
+                      aria-label={`${copy.moveDown} ${channel[locale]}`}
+                      onClick={() => setDraft(previous => ({ ...previous, channels: moveDraftChannel(previous.channels, id, 1) }))}
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-white/10 text-base text-white/75 disabled:opacity-25 focus-visible:outline-2 focus-visible:outline-offset-2 daily-accent-focus">↓</button>
+                  </li>;
+                })}
+              </ol>}
+            {draft.channels.includes('masters') && <p className="mt-2 t-footnote text-white/50">{copy.mastersOrderHint}</p>}
+          </div>
+          <label className="mt-5 flex items-start gap-3">
             <input type="checkbox" disabled={!activeUserId} checked={draft.reminders} onChange={event => setDraft(previous => ({ ...previous, reminders: event.target.checked }))} className="mt-1 h-4 w-4 daily-accent-checkbox" />
             <span><span className="block text-sm font-semibold text-white">{copy.reminders}</span><span className="mt-1 block t-footnote text-white/60">{activeUserId ? copy.remindersHint : copy.reminderLogin}</span></span>
           </label>

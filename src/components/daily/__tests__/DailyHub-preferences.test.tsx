@@ -49,6 +49,7 @@ function render(value = props): Node {
   return result;
 }
 function button(tree: Node, label: string) { return findAll(tree, node => node.type === 'button' && node.props.children === label)[0]; }
+function ariaButton(tree: Node, label: string) { return findAll(tree, node => node.type === 'button' && node.props['aria-label'] === label)[0]; }
 function click(node: Node) { return (node.props.onClick as () => unknown)(); }
 function open() { click(button(render(), '管理栏目')); return render(); }
 function checkboxes(tree: Node) { return findAll(tree, node => node.type === 'input' && node.props.type === 'checkbox'); }
@@ -70,6 +71,23 @@ describe('日刊关注版本与编辑草稿', () => {
     expect(options.headers).toMatchObject({ 'X-Daily-User': 'user-a' });
     expect(JSON.parse(String(options.body))).toEqual({ channels: [], reminders: true, expectedRevision: revision });
     expect(button(render(), '保存选择')).toBeUndefined();
+  });
+
+  it('栏目顺序用上下箭头调整并随保存一起提交', async () => {
+    const fetchMock = vi.fn(async () => response({ channels: ['papers', 'english'], reminders: true }));
+    vi.stubGlobal('fetch', fetchMock);
+    const tree = open();
+    (checkboxes(tree)[1].props.onChange as (event: unknown) => void)({ target: { checked: true } });
+    let edited = render();
+    expect(ariaButton(edited, '下移 每日英语')).toBeDefined();
+    await click(ariaButton(edited, '下移 每日英语'));
+    edited = render();
+    expect(ariaButton(edited, '上移 每日论文')).toBeDefined();
+    await click(button(edited, '保存选择'));
+    const request = (fetchMock.mock.calls as unknown as [string, RequestInit][])[0][1];
+    expect(JSON.parse(String(request.body))).toEqual({
+      channels: ['papers', 'english'], reminders: true, expectedRevision: revision,
+    });
   });
 
   it('409保留草稿并阻止覆盖，显式重新读取后使用新版本保存', async () => {

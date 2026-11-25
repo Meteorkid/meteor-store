@@ -29,10 +29,19 @@ describe('每日阅读偏好与本地进度', () => {
     expect(pickPreferences('user-1', account, guestPreferences)).toEqual(account);
   });
 
-  it('全部视图不被关注列表隐藏，关注视图保持栏目顺序', () => {
+  it('全部视图不被关注列表隐藏，关注视图按保存顺序排列', () => {
     expect(visibleChannels('all', { channels: [], reminders: false })).toHaveLength(8);
     expect(visibleChannels('following', { channels: ['events', 'english'], reminders: false }))
-      .toEqual(['english', 'events']);
+      .toEqual(['events', 'english']);
+    expect(visibleChannels('all', { channels: ['events', 'english'], reminders: false }))
+      .toEqual(['events', 'english', 'papers', 'ai', 'open-source', 'competitions', 'internships', 'masters']);
+  });
+
+  it('自定义顺序不会改变未关注栏目的默认先后，全年日历始终最后', () => {
+    expect(visibleChannels('following', { channels: ['ai', 'masters', 'papers'], reminders: false }))
+      .toEqual(['ai', 'papers', 'masters']);
+    expect(visibleChannels('all', { channels: ['ai', 'masters'], reminders: false }))
+      .toEqual(['ai', 'english', 'papers', 'events', 'open-source', 'competitions', 'internships', 'masters']);
   });
 
   it('旧四栏偏好保持原选择，不自动关注新增申请栏目', () => {
