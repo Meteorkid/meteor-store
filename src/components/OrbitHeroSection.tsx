@@ -7,6 +7,7 @@ import { orbitProductGroups, type OrbitPlanetId } from '@/data/orbit-products';
 import { Link } from '@/i18n/navigation';
 import { useReducedMotion } from '@/lib/motion';
 import { DEFAULT_ORBIT_SPEED, orbitSpeedForSlider, orbitSpeedSliderPosition } from './orbit/orbit-motion';
+import HeroCanvas from './HeroCanvas';
 import styles from './OrbitHeroSection.module.css';
 
 const OrbitScene = dynamic(() => import('./orbit/OrbitScene'));
@@ -113,6 +114,8 @@ export default function OrbitHeroSection({ products }: { products: readonly Orbi
           onAvailabilityChange={setSceneAvailable}
         />
       </div>
+
+      <HeroCanvas className={styles.particles} />
 
       <div className={styles.dock} data-orbit-dock data-transparency-surface="panel">
         <div ref={planetsRef} className={styles.planets} role="group" aria-label={english ? 'Solar system planets' : '太阳系行星'}>

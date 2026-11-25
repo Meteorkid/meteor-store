@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useReducedMotion } from '@/lib/motion';
 import { BlackHoleViewport } from './BlackHole';
+import HeroCanvas from './HeroCanvas';
 import styles from './HorizonHeroSection.module.css';
 
 interface HorizonHeroSectionProps {
@@ -93,6 +94,7 @@ export default function HorizonHeroSection({ productCount, webAppCount, freeCoun
         >
           <BlackHoleViewport {...camera} doppler={doppler} glow={glow} spin={spin} autoOrbit={autoOrbit && !reducedMotion} />
         </div>
+        <HeroCanvas className={styles.particles} />
 
         <div className={styles.dock} data-horizon-dock data-transparency-surface="panel">
           <div className={styles.information}>
