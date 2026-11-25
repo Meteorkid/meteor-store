@@ -1,15 +1,15 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import IeltsWordLookupPanel from '../IeltsWordLookupPanel';
-import type { WordLookupRequest } from '@/lib/ielts/word-lookup';
+import type { IeltsLookupTarget } from '../IeltsWordLookupPanel';
 
 // 初始浮层尚无查词结果；收藏交互由生词本测试覆盖，避免加载 Next 客户端路由。
 vi.mock('@/components/study/VocabularySaveAction', () => ({ default: () => null }));
 
-const request: WordLookupRequest = { slug: 'test-essay', segmentIndex: 0, side: 'high', word: 'benefits' };
+const target: IeltsLookupTarget = { kind: 'writing', slug: 'test-essay', segmentIndex: 0, side: 'high' };
 
 function render(locale: 'zh' | 'en') {
-  return renderToStaticMarkup(<IeltsWordLookupPanel request={request} locale={locale} anchor={{} as HTMLElement} onClose={() => {}} />);
+  return renderToStaticMarkup(<IeltsWordLookupPanel target={target} word="benefits" locale={locale} anchor={{} as HTMLElement} onClose={() => {}} />);
 }
 
 afterEach(() => vi.unstubAllGlobals());

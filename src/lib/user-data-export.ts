@@ -11,6 +11,7 @@ import {
   phdNotices,
   phdWatches,
   feedbacks,
+  ieltsListeningAttempts,
   ieltsProgress,
   inviteRedemptions,
   licenseKeys,
@@ -64,6 +65,7 @@ export async function exportUserData(userId: string, email: string) {
     studyDeadlineRows,
     studyProblemRows,
     ieltsProgressRows,
+    listeningAttemptRows,
     vocabularyRows,
   ] = await Promise.all([
     db.select({
@@ -245,6 +247,11 @@ export async function exportUserData(userId: string, email: string) {
     db.select({ pairSlug: ieltsProgress.pairSlug, studiedAt: ieltsProgress.studiedAt,
       bookmarkedAt: ieltsProgress.bookmarkedAt, updatedAt: ieltsProgress.updatedAt })
       .from(ieltsProgress).where(eq(ieltsProgress.userId, userId)),
+    db.select({ lessonSlug: ieltsListeningAttempts.lessonSlug, mode: ieltsListeningAttempts.mode,
+      questionNumbers: ieltsListeningAttempts.questionNumbers, answers: ieltsListeningAttempts.answers,
+      wrongNumbers: ieltsListeningAttempts.wrongNumbers, score: ieltsListeningAttempts.score, total: ieltsListeningAttempts.total,
+      durationSec: ieltsListeningAttempts.durationSec, createdAt: ieltsListeningAttempts.createdAt })
+      .from(ieltsListeningAttempts).where(eq(ieltsListeningAttempts.userId, userId)),
     db.select({ snapshot: studyVocabulary.snapshot, reviewStage: studyVocabulary.reviewStage,
       reviewDueOn: studyVocabulary.reviewDueOn, reviewIntervalDays: studyVocabulary.reviewIntervalDays,
       lastReviewedOn: studyVocabulary.lastReviewedOn, createdAt: studyVocabulary.createdAt, updatedAt: studyVocabulary.updatedAt })
@@ -330,7 +337,7 @@ export async function exportUserData(userId: string, email: string) {
     masters: { applications: mastersWatchRows, notices: mastersNoticeRows },
     phd: { applications: phdWatchRows, notices: phdNoticeRows },
     study: { courses: studyCourseRows, deadlines: studyDeadlineRows, problems: studyProblemRows, vocabulary: vocabularyRows },
-    ielts: { progress: ieltsProgressRows },
+    ielts: { progress: ieltsProgressRows, listeningAttempts: listeningAttemptRows },
     tollow: {
       bookProgress: tollowProgressRows,
       practiceSessions: tollowSessionRows,

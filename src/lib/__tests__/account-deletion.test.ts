@@ -6,6 +6,7 @@ import {
   dailyPreferences,
   ieltsPairs,
   ieltsProgress,
+  ieltsListeningAttempts,
   mastersNotices,
   mastersRounds,
   mastersWatches,
@@ -110,7 +111,7 @@ describe('账户数据删除顺序', () => {
     expect(state.deletedTables).toContain(studyCourses);
     expect(state.deletedTables).toContain(studyDeadlines);
     expect(state.deletedTables).toContain(studyProblems);
-    for (const table of [studyCourses, studyDeadlines, studyProblems, ieltsProgress, studyVocabulary]) {
+    for (const table of [studyCourses, studyDeadlines, studyProblems, ieltsProgress, ieltsListeningAttempts, studyVocabulary]) {
       expect(state.deletedConditions.find(item => item.table === table)?.params).toEqual(['U1']);
       expect(state.deletedTables.indexOf(table)).toBeLessThan(state.deletedTables.indexOf(users));
     }

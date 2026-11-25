@@ -9,6 +9,7 @@ import {
   phdNotices,
   phdWatches,
   feedbacks,
+  ieltsListeningAttempts,
   ieltsProgress,
   inviteRedemptions,
   likes,
@@ -67,6 +68,7 @@ export async function deleteUserAccount(input: DeleteUserAccountInput): Promise<
     db.delete(studyProblems).where(eq(studyProblems.userId, input.userId)),
     db.delete(studyVocabulary).where(eq(studyVocabulary.userId, input.userId)),
     db.delete(ieltsProgress).where(eq(ieltsProgress.userId, input.userId)),
+    db.delete(ieltsListeningAttempts).where(eq(ieltsListeningAttempts.userId, input.userId)),
     db.delete(likes).where(
       postIds.length > 0
         ? or(eq(likes.userId, input.userId), inArray(likes.targetId, postIds))

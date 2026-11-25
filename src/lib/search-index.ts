@@ -85,7 +85,7 @@ const PAGE_ENGLISH: Record<string, { title: string; subtitle?: string }> = {
 const PUBLIC_NAV_PATHS = new Set([
   '/daily', '/masters', '/phd', '/pathfinder', '/pathfinder/directions/ai', '/pathfinder/plan',
   '/pathfinder/opportunities', '/competitions', '/pathfinder/topics', '/pathfinder/weekly',
-  '/blog/tags', '/blog/api-guide', '/support', '/study/ielts',
+  '/blog/tags', '/blog/api-guide', '/support', '/study/ielts', '/study/ielts/listening',
 ]);
 const NAV_SEARCH_ALIASES: Record<string, string> = {
   'daily-overview': '每日一新 日刊 日报 daily reading digest',
@@ -97,6 +97,7 @@ const NAV_SEARCH_ALIASES: Record<string, string> = {
   opportunities: '实习 应届 开源 比赛 竞赛 internship graduate open source competition opportunities',
   competitions: '国家 学科竞赛 比赛 国A 国B 报名 时间 日历 national competition contest planner register',
   'study-ielts': '雅思 IELTS 雅思写作 作文 范文 写作对照 ielts writing essays',
+  'study-listening': '雅思听力 听力 听力题库 原文 精听 点词查词 listening IELTS listening transcript dictation',
 };
 
 function navigationPageEntries(locale: Locale): SearchEntry[] {
@@ -110,6 +111,7 @@ function navigationPageEntries(locale: Locale): SearchEntry[] {
         group: '页面',
         href: link.href,
         ...(link.id === 'study-ielts' && { directQueries: ['雅思', 'ielts'] }),
+        ...(link.id === 'study-listening' && { directQueries: ['雅思听力', '听力', 'ielts listening'] }),
         keywords: [link.label.zh, link.label.en, link.description?.[locale], group.label.zh, group.label.en,
           link.href, NAV_SEARCH_ALIASES[link.id] ?? ''].join(' ').toLowerCase(),
       })),

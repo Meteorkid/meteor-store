@@ -61,6 +61,33 @@ async function readCompletion(response: Response): Promise<unknown> {
   }
 }
 
+/**
+ * 带缓存与并发合并的模型查词，写作库和听力库共用同一份日预算与并发上限。
+ * 缓存只存释义；来源凭据必须由调用方在核实公开来源后再签，不能跨来源串用。
+ */
+export async function requestMeaningCached(key: string, word: string, sentence: string): Promise<WordLookupResult> {
+  const saved = cache.get(key);
+  if (saved && saved.expiresAt > Date.now()) return saved.result;
+  if (saved) cache.delete(key);
+  const running = pending.get(key);
+  if (running) return running;
+  const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
+  if (!apiKey) throw new WordLookupError('unavailable');
+  if (pending.size >= 8) throw new WordLookupError('rate_limited', 2);
+
+  const work = requestMeaning(word, sentence, apiKey).then(result => {
+    // 只存成功结果；淘汰最早插入项，限制长期进程的内存占用。
+    if (cache.size >= 512) cache.delete(cache.keys().next().value!);
+    cache.set(key, { result, expiresAt: Date.now() + CACHE_TTL });
+    return result;
+  }).catch(error => {
+    if (error instanceof WordLookupError) throw error;
+    throw new WordLookupError('unavailable');
+  }).finally(() => pending.delete(key));
+  pending.set(key, work);
+  return work;
+}
+
 async function requestMeaning(word: string, sentence: string, apiKey: string): Promise<WordLookupResult> {
   // 预算只在缓存未命中且取得并发槽后计入，同词等待者不重复消耗。
   const budget = await rateLimit('ielts-word-model', 500, 24 * 60 * 60_000, { fallback: 'memory', failClosed: true });
@@ -124,25 +151,8 @@ export async function lookupIeltsWord(input: WordLookupRequest): Promise<WordLoo
     if (result.success) return addSaveReceipt(result.data);
   }
 
-  const key = JSON.stringify([request.word, request.side, sentence]);
-  const saved = cache.get(key);
-  if (saved && saved.expiresAt > Date.now()) return addSaveReceipt(saved.result);
-  if (saved) cache.delete(key);
-  const running = pending.get(key);
-  if (running) return running.then(addSaveReceipt);
-  const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
-  if (!apiKey) throw new WordLookupError('unavailable');
-  if (pending.size >= 8) throw new WordLookupError('rate_limited', 2);
-
-  const work = requestMeaning(request.word, sentence, apiKey).then(result => {
-    // 只存成功结果；淘汰最早插入项，限制长期进程的内存占用。
-    if (cache.size >= 512) cache.delete(cache.keys().next().value!);
-    cache.set(key, { result, expiresAt: Date.now() + CACHE_TTL });
-    return result;
-  }).catch(error => {
-    if (error instanceof WordLookupError) throw error;
-    throw new WordLookupError('unavailable');
-  }).finally(() => pending.delete(key));
-  pending.set(key, work);
-  return work.then(addSaveReceipt);
+  const meaning = await requestMeaningCached(
+    JSON.stringify(['writing', request.word, request.side, sentence]), request.word, sentence,
+  );
+  return addSaveReceipt(meaning);
 }

@@ -184,7 +184,13 @@ function ManagerForOwner({ initialData, ownerId, locale }: Props) {
             <p className="mt-4 break-words t-body text-white" lang="zh">{entry.snapshot.meaningZh}</p>
             {entry.snapshot.usageZh && <p className="mt-2 break-words text-base leading-7 text-white/80" lang="zh">{entry.snapshot.usageZh}</p>}
             <blockquote className="mt-4 border-l-2 border-violet-300/40 pl-4"><p className="break-words text-base leading-7 text-white/90" lang="en">{entry.snapshot.sentence}</p>{entry.snapshot.sentenceZh && <p className="mt-2 break-words text-sm leading-6 text-white/70" lang="zh">{entry.snapshot.sentenceZh}</p>}</blockquote>
-            <p className="mt-4 break-words text-sm leading-6 text-white/60">{copy.source}：{locale === 'en' ? entry.snapshot.titleEn : entry.snapshot.titleZh} · {entry.snapshot.side === 'high' ? copy.high : copy.basic} · {copy[entry.snapshot.source]}</p>
+            <p className="mt-4 break-words text-sm leading-6 text-white/60">{copy.source}：{'listeningSlug' in entry.snapshot
+              ? <Link href={`/study/ielts/listening/${entry.snapshot.listeningSlug}#sentence-${entry.snapshot.sentenceIndex + 1}`}
+                className="text-violet-300 underline decoration-violet-400/40 underline-offset-4 hover:text-violet-200">
+                {locale === 'en' ? entry.snapshot.titleEn : entry.snapshot.titleZh} · {copy.listening} · {copy.sentenceNo.replace('{n}', String(entry.snapshot.sentenceIndex + 1))}
+              </Link>
+              : <>{locale === 'en' ? entry.snapshot.titleEn : entry.snapshot.titleZh} · {entry.snapshot.side === 'high' ? copy.high : copy.basic}</>}
+              {' · '}{copy[entry.snapshot.source]}</p>
             <p className="mt-2 text-sm leading-6 text-white/70">{copy.nextReview}：<time dateTime={entry.reviewDueOn}>{entry.reviewDueOn}</time> · {copy.stage} {entry.reviewStage + 1}/6</p>
             {deleteId === entry.id && <div role="group" aria-label={copy.deleteConfirm} className="mt-4 rounded-xl border border-rose-300/25 p-4">
               <p className="text-sm leading-6 text-white/80">{copy.deleteConfirm}</p>

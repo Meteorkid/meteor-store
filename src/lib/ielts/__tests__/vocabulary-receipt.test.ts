@@ -72,3 +72,36 @@ describe('生词收藏签名凭据', () => {
     expect(issueVocabularyReceipt({ ...snapshot, sentence: 'x'.repeat(601) })).toBeNull();
   });
 });
+
+const listeningSnapshot: VocabularySnapshot = {
+  word: 'deposit', lemma: 'deposit', partOfSpeech: 'n.', meaningZh: '押金', usageZh: '报名时先交一部分钱把名额留住。',
+  source: 'lesson', sentence: 'You can pay on the day, but we do ask for a ten pound deposit to hold the place.', sentenceZh: null,
+  listeningSlug: 'test-01-part-1', titleZh: '周末陶艺课报名', titleEn: 'A weekend pottery course', sentenceIndex: 32,
+};
+
+describe('听力原文的生词快照', () => {
+  it('按听力来源签发与还原，来源键与写作口径一致', () => {
+    const issued = issueVocabularyReceipt(listeningSnapshot)!;
+    expect(issued.saveToken.split('.')).toHaveLength(2);
+    expect(verifyVocabularyReceipt(issued.saveToken)).toEqual({ snapshot: listeningSnapshot, sourceKey: issued.sourceKey });
+    expect(issued.sourceKey).toBe(vocabularySourceKey({ word: ' Deposit ', sentence: listeningSnapshot.sentence }));
+  });
+
+  it('两种来源的定位键不能混用，越界句索引不签发', () => {
+    // 同时带写作与听力两套定位键：两边都是 strict，谁都不认
+    expect(issueVocabularyReceipt({ ...snapshot, listeningSlug: 'test-01-part-1', sentenceIndex: 0 })).toBeNull();
+    expect(issueVocabularyReceipt({ ...listeningSnapshot, side: 'high', segmentIndex: 0 })).toBeNull();
+    expect(issueVocabularyReceipt({ ...listeningSnapshot, sentenceIndex: 500 })).toBeNull();
+    expect(issueVocabularyReceipt({ ...listeningSnapshot, listeningSlug: '../test-01-part-1' })).toBeNull();
+  });
+
+  it('原文里没有这个完整词就不签发，改了意思的旧凭据也验不过', () => {
+    expect(issueVocabularyReceipt({ ...listeningSnapshot, word: 'deposits' })).toBeNull();
+    const { saveToken } = issueVocabularyReceipt(listeningSnapshot)!;
+    const [payload, signature] = saveToken.split('.');
+    const content = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    content.snapshot.sentenceIndex = 5;
+    const changed = Buffer.from(JSON.stringify(content)).toString('base64url');
+    expect(verifyVocabularyReceipt(`${changed}.${signature}`)).toBeNull();
+  });
+});

@@ -6,12 +6,15 @@ export function normalizeLookupWord(word: string): string {
   return word.trim().replace(/[’]/g, "'").replace(/[‐‑]/g, '-').toLowerCase();
 }
 
+/** 可查询的词：一个拉丁字母单词，连字符与撇号保持整体。写作库和听力库共用。 */
+export const LookupWordSchema = z.string().trim().min(1).max(64).transform(normalizeLookupWord)
+  .refine(word => WORD_PATTERN.test(word), 'Invalid English word');
+
 export const WordLookupRequestSchema = z.object({
   slug: IeltsPairSlugSchema,
   segmentIndex: z.number().int().min(0).max(29),
   side: z.enum(['low', 'high']),
-  word: z.string().trim().min(1).max(64).transform(normalizeLookupWord)
-    .refine(word => WORD_PATTERN.test(word), 'Invalid English word'),
+  word: LookupWordSchema,
 }).strict();
 export type WordLookupRequest = z.infer<typeof WordLookupRequestSchema>;
 

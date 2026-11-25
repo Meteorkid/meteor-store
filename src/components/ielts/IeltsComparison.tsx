@@ -5,8 +5,8 @@ import { IELTS_FOCUS_LABELS, type IeltsFocus, type IeltsSegment } from '@/lib/ie
 import { ieltsCopy, type IeltsLocale } from './ielts-text';
 import { diffIeltsSentence, type IeltsDiffPart } from '@/lib/ielts/diff';
 import styles from './IeltsComparison.module.css';
-import { lookupWordTokens, normalizeLookupWord, type WordLookupRequest } from '@/lib/ielts/word-lookup';
-import IeltsWordLookupPanel from './IeltsWordLookupPanel';
+import { lookupWordTokens, normalizeLookupWord } from '@/lib/ielts/word-lookup';
+import IeltsWordLookupPanel, { type IeltsLookupTarget } from './IeltsWordLookupPanel';
 import { expressionEditsForParagraph } from '@/lib/ielts/expression-edits';
 import IeltsExpressionBlocks from './IeltsExpressionBlocks';
 
@@ -50,7 +50,7 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
   const palette = temporaryPalette ?? savedPalette;
   const noteButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const [wordLookupEnabled, setWordLookupEnabled] = useState(true);
-  const [lookup, setLookup] = useState<{ request: WordLookupRequest; anchor: HTMLElement } | null>(null);
+  const [lookup, setLookup] = useState<{ target: IeltsLookupTarget; word: string; anchor: HTMLElement } | null>(null);
   const pointerStart = useRef<{ x: number; y: number; element: HTMLElement } | null>(null);
   const [showTranslations, setShowTranslations] = useState(false);
   const [openRows, setOpenRows] = useState<number[]>([]);
@@ -88,7 +88,7 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
   }
 
   function chooseWord(anchor: HTMLElement, word: string, segmentIndex: number, side: 'low' | 'high') {
-    setLookup({ request: { slug, segmentIndex, side, word: normalizeLookupWord(word) }, anchor });
+    setLookup({ target: { kind: 'writing', slug, segmentIndex, side }, word: normalizeLookupWord(word), anchor });
   }
 
   function wordClick(event: MouseEvent<HTMLSpanElement>, word: string, segmentIndex: number, side: 'low' | 'high') {
@@ -254,8 +254,9 @@ export default function IeltsComparison({ slug, locale, segments }: Props) {
           </li>)}
         </ol>
       )}
-      {lookup && <IeltsWordLookupPanel key={`${lookup.request.slug}/${lookup.request.segmentIndex}/${lookup.request.side}/${lookup.request.word}`}
-        request={lookup.request} locale={locale} anchor={lookup.anchor} onClose={() => setLookup(null)} />}
+      {lookup && <IeltsWordLookupPanel
+        key={`${lookup.target.kind}/${lookup.target.slug}/${'segmentIndex' in lookup.target ? `${lookup.target.segmentIndex}/${lookup.target.side}` : lookup.target.sentenceIndex}/${lookup.word}`}
+        target={lookup.target} word={lookup.word} locale={locale} anchor={lookup.anchor} onClose={() => setLookup(null)} />}
     </div>
   );
 }

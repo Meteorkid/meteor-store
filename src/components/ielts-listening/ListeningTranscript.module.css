@@ -1,0 +1,14 @@
+.word {
+  cursor: help;
+  border-radius: 2px;
+}
+.word:focus-visible {
+  outline: 2px solid #c4b5fd;
+  outline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .word:hover {
+    outline: 1px solid rgb(255 255 255 / 45%);
+    outline-offset: 2px;
+  }
+}

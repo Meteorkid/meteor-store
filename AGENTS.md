@@ -1528,6 +1528,20 @@ pg_dump 的版本**必须不低于服务端**，否则直接拒绝连接。装 P
 - 逐句译文存 `segments[].translationZh.low/high`，分别对应两版原句，不能把低分版的事实错误悄悄纠正为高版意思。旧 JSON 可缺省，新生成和精选要求两侧完整；开关默认关，只影响阅读呈现，跨逐句/全文模式保留当次选择。桌面译文顶边对齐，手机各版英文与译文相邻；无译文时明确提示，不自动调用模型。
 - 正文点词经 `/api/ielts/word-lookup`，只传公开作文定位与词，服务端重新读取当前正文、验证完整词再查缓存。先同句高版词卡，再AI语境释义；不把短语义当作单词义，不跨版本/句子串缓存。缓存1小时/512项、最多8个不同并发，IP30次/分钟、全站模型500次/滚动24小时，12秒/16KB封顶。非模态浮层在scroll/resize时重定位，不能因浏览器延迟自动滚动而立刻关闭；拖选不请求，Escape恢复焦点，spotlight关闭时不抢焦点。
 
+## 雅思听力题库（2026-11-24）
+
+- 页面 `/study/ielts/listening`（题库）、`/study/ielts/listening/[slug]`（一个 Part 的练习）、`/study/ielts/listening/records`（练习记录与错题本）。题库与练习页公开、可收录，sitemap 收录总览与每个 Part，搜索导航里挂在「雅思听力」；记录页登录私有、`noindex`。
+- 一个练习单元 = 套题里的一个 Part（10 题），slug 固定 `test-NN-part-N`。内容在 `src/data/ielts-listening/`，协议在 `src/lib/ielts-listening/types.ts`：**原文句索引是全文唯一锚点**，答案定位句、生词/词组出处、录音逐句时间都指向它。改一句原文会让解析、词卡或音频对不上，协议在 `typecheck`/测试层就拒绝。
+- 题块顺序必须与录音顺序一致，答案题号从本 Part 起始题号连续 10 题；多选按整组计分，`normalizeListeningScope` 负责把错题重练的范围补齐整组（客户端与服务端共用这一个函数，别各写一套）。
+- 判分只有一套规则：`gradeListening`。客户端本地判分用于即时解析，服务端 `saveListeningAttempt` 用同一函数重算后才入库——**分数、错题号都不收客户端的**。`mode` 由范围长度推导（10 题 = full，否则 custom）。
+- 记录表 `0059` 的 `ielts_listening_attempts`，每人保留最近 300 条（`LISTENING_ATTEMPT_RETENTION`）。错题本按「每道题最近一次做到它的结果」聚合，整篇重练做对就移出；只重练三道不影响另外七道。`/api/ielts/listening/attempts` 需要登录、校验 Origin 与 `x-study-user`、POST 限流 20 次/分钟，响应 `no-store`。
+- 课程目录 `src/lib/ielts-listening/catalog.ts` 在首次读取时校验内容；不合格条目被丢弃并打日志，不能带着对不上的解析上线。音频清单 `audio-manifest.json` 记录对象 key、时长与逐句 cues，并带原文指纹 `transcriptHash`；原文改动或 cues 数不符时拒绝播放旧录音，页面改用逐句朗读。
+- 音频对象 key 是 `ielts-listening/{slug}/{transcriptHash}.mp3`（公开 R2 bucket、`immutable` 缓存），key 由内容指纹决定——换录音就是换 key，不会覆盖旧文件，也不会让浏览器命中旧缓存。清单只写 key，URL 由 `listeningAudioUrl` 用 `R2_PUBLIC_BASE` 拼出；因此同一个 bucket 的 base 不能在环境之间混用。
+- 有录音用 `<audio>`（播放器 `ListeningPlayer`），没有录音或未配置 R2 时用浏览器语音（按 cast 的 `voice` 就近匹配地区，先 en-GB 这类再退任意英语）。音色清单写在内容里，页面不猜。**必须给 CSP 加 `media-src` 放行 R2 域名**，否则 `default-src 'self'` 会拦掉音频。
+- 点原文任意词走 `/api/ielts/listening/word-lookup`（公开、Origin 校验、IP 限流 30/分钟）：先查同句生词卡，词落在同句词组里则返回整短语释义，否则走与写作共享的 `requestMeaningCached`（8 并发、全站每日 500 次预算）。收藏快照用 `listeningSlug + sentenceIndex`，`sentenceZh` 为 null；生词本里听力的来源是可点的，跳到 `#sentence-N` 时练习页会自动展开原文并定位。
+- 音频生成注意：当前用 `edge-tts` 合成，**走微软非官方接口，公开分发的授权口径不明确**。正式上线前应换有商用授权的 TTS（Azure Speech 官方 API 音色相同，脚本里的 cast 不用改），并在帮助中心说明录音为 AI 合成音。
+- 学习区子导航用最长前缀匹配：听力页在 `/study/ielts/listening` 下，若改回 `startsWith`，会同时点亮「雅思写作」。
+
 ## 生词本与复习（2026-11-14）
 
 - `/study/vocabulary`是登录私有页、noindex、不进sitemap；数据在0058的`study_vocabulary`。快照保存单词、原句、释义、译文和来源；同用户同词同原句去重，重复收藏不覆盖快照或重置排期。导出/注销必须覆盖。

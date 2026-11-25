@@ -91,6 +91,9 @@ function buildCsp(nonce: string, isTrial = false): string {
     "font-src 'self' https://fonts.gstatic.com",
     // MediaPipe 运行时与模型已改为同源加载，不需要放行第三方 CDN。
     `connect-src 'self' https://*.neon.tech https://api.resend.com https://openapi.alipay.com ${sentryIngest}`,
+    // 雅思听力录音放在私有 R2 bucket，下载接口 302 到预签名地址；media-src 需放行 R2 域名，
+    // 否则 default-src 'self' 会把 <audio> 拦掉。未配置 R2 时不注入该来源。
+    `media-src 'self'${r2Origin ? ` ${r2Origin}` : ''}`,
     // 在线体验与现有 trial 均为同源 iframe；显式声明，避免未来扩大 default-src 时连带放宽。
     "frame-src 'self'",
     // trial 路由允许同源 iframe 内嵌；其余页面禁止被嵌入（防点击劫持）

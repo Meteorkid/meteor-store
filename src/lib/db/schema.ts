@@ -1078,3 +1078,51 @@ export const ieltsProgress = pgTable('ielts_progress', {
   primaryKey({ columns: [t.userId, t.pairSlug] }),
   index('ielts_progress_user_bookmark_idx').on(t.userId, t.bookmarkedAt),
 ]);
+
+export type ListeningAttemptMode = 'full' | 'custom';
+
+/**
+ * 雅思听力的一次练习记录：整篇 10 题（full），或错题重练的一部分（custom）。
+ *
+ * 分数与错题号由服务端按同一套判分规则算出后落库，客户端只交作答——分数不收客户端的。
+ * 不做外键：课时内容随代码下线后记录保留，页面按 slug 查不到课时时整条不展示。
+ */
+export const ieltsListeningAttempts = pgTable('ielts_listening_attempts', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  lessonSlug: text('lesson_slug').notNull(),
+  mode: text('mode').$type<ListeningAttemptMode>().notNull(),
+  /** 本次实际作答的题号，升序。 */
+  questionNumbers: jsonb('question_numbers').$type<number[]>().notNull(),
+  /** 题号 → 作答原文（多选题每题的值是一个字母）。 */
+  answers: jsonb('answers').$type<Record<string, string>>().notNull(),
+  /** 本次判错的题号，升序。 */
+  wrongNumbers: jsonb('wrong_numbers').$type<number[]>().notNull(),
+  score: integer('score').notNull(),
+  total: integer('total').notNull(),
+  durationSec: integer('duration_sec').notNull(),
+  createdAt: text('created_at').notNull(),
+}, t => [
+  index('ielts_listening_attempts_user_created_idx').on(t.userId, t.createdAt),
+  index('ielts_listening_attempts_user_lesson_idx').on(t.userId, t.lessonSlug, t.createdAt),
+  check('ielts_listening_attempts_mode_check', sql`${t.mode} IN ('full', 'custom')`),
+  check('ielts_listening_attempts_lesson_check', sql`${t.lessonSlug} ~ '^test-[0-9]{2}-part-[1-4]$'`),
+  check(
+    'ielts_listening_attempts_questions_check',
+    sql`jsonb_typeof(${t.questionNumbers}) = 'array' AND jsonb_array_length(${t.questionNumbers}) BETWEEN 1 AND 10`,
+  ),
+  check(
+    'ielts_listening_attempts_answers_check',
+    sql`jsonb_typeof(${t.answers}) = 'object' AND octet_length(${t.answers}::text) <= 4096`,
+  ),
+  check(
+    'ielts_listening_attempts_wrong_check',
+    sql`jsonb_typeof(${t.wrongNumbers}) = 'array' AND jsonb_array_length(${t.wrongNumbers}) <= 10`,
+  ),
+  check(
+    'ielts_listening_attempts_score_check',
+    sql`${t.score} >= 0 AND ${t.score} <= ${t.total} AND ${t.total} BETWEEN 1 AND 10`,
+  ),
+  check('ielts_listening_attempts_duration_check', sql`${t.durationSec} >= 0 AND ${t.durationSec} <= 86400`),
+  check('ielts_listening_attempts_created_check', sql`${t.createdAt} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T'`),
+]);

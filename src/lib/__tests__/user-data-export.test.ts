@@ -5,6 +5,7 @@ import type { SQL } from 'drizzle-orm';
 import {
   blogImages,
   dailyPreferences,
+  ieltsListeningAttempts,
   ieltsProgress,
   mastersWatches,
   phdNotices,
@@ -27,6 +28,11 @@ import {
 const vocabularyRows = [
   { userId: 'U1', snapshot: { word: 'tuition', sentence: 'Tuition should be free.', meaningZh: '学费' }, reviewStage: 1, reviewDueOn: '2026-11-17', reviewIntervalDays: 3, lastReviewedOn: '2026-11-14', createdAt: '2026-11-14T00:00:00Z', updatedAt: '2026-11-14T01:00:00Z', privateDebug: 'not-exported' },
   { userId: 'U2', snapshot: { word: 'other-owner' }, privateDebug: 'not-exported' },
+];
+
+const listeningAttemptRows = [
+  { userId: 'U1', lessonSlug: 'test-01-part-1', mode: 'full', questionNumbers: [1, 2], answers: { '1': 'Krause', '2': '12 May' }, wrongNumbers: [2], score: 1, total: 2, durationSec: 320, createdAt: '2026-11-20T00:00:00Z', privateDebug: 'not-exported' },
+  { userId: 'U2', lessonSlug: 'test-01-part-1', mode: 'full', answers: { '1': 'other-owner' }, privateDebug: 'not-exported' },
 ];
 let ownedOrderRows: Array<{ id: string }> = [];
 const refundQueries: Array<{ sql: string; params: unknown[] }> = [];
@@ -199,6 +205,11 @@ vi.mock('../db', () => ({
             return ieltsProgressRows.filter(row => query.params.includes(row.userId))
               .map(row => Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection)));
           }
+          if (table === ieltsListeningAttempts) {
+            const query = new PgDialect().sqlToQuery(condition!);
+            return listeningAttemptRows.filter(row => query.params.includes(row.userId))
+              .map(row => Object.fromEntries(Object.entries(row).filter(([key]) => !selection || key in selection)));
+          }
           if (table === studyCourses || table === studyDeadlines || table === studyProblems) {
             const query = new PgDialect().sqlToQuery(condition!);
             const rows = table === studyCourses ? studyCourseRows : table === studyDeadlines ? studyDeadlineRows : studyProblemRows;
@@ -227,6 +238,17 @@ describe('用户数据导出', () => {
     expect(exported.study.vocabulary[0]).toMatchObject({ snapshot: { word: 'tuition', meaningZh: '学费' }, reviewStage: 1, reviewDueOn: '2026-11-17' });
     expect(Object.keys(exported.study.vocabulary[0]).sort()).toEqual(['snapshot', 'reviewStage', 'reviewDueOn', 'reviewIntervalDays', 'lastReviewedOn', 'createdAt', 'updatedAt'].sort());
     expect(JSON.stringify(exported.study.vocabulary)).not.toContain('other-owner');
+  });
+
+  it('导出雅思听力练习记录，不含其他账号及内部字段', async () => {
+    const { exportUserData } = await import('../user-data-export');
+    const exported = await exportUserData('U1', 'u1@example.com');
+    expect(exported.ielts.listeningAttempts).toHaveLength(1);
+    expect(exported.ielts.listeningAttempts[0]).toMatchObject({ lessonSlug: 'test-01-part-1', score: 1, total: 2, wrongNumbers: [2] });
+    expect(Object.keys(exported.ielts.listeningAttempts[0]).sort()).toEqual(
+      ['lessonSlug', 'mode', 'questionNumbers', 'answers', 'wrongNumbers', 'score', 'total', 'durationSec', 'createdAt'].sort(),
+    );
+    expect(JSON.stringify(exported.ielts.listeningAttempts)).not.toContain('other-owner');
   });
 
   beforeEach(() => {
@@ -366,12 +388,15 @@ describe('用户数据导出', () => {
     expect(refundQueries).toHaveLength(0);
   });
 
-  it('雅思已学与收藏只导出本人记录及字段白名单', async () => {
+  it('雅思已学、收藏与听力练习记录只导出本人记录及字段白名单', async () => {
     const { exportUserData } = await import('../user-data-export');
     const exported = await exportUserData('U1', 'user@example.com');
     expect(exported.ielts).toEqual({ progress: [
       { pairSlug: 'task2-education-01', studiedAt: '2026-11-14T00:00:00Z', bookmarkedAt: null, updatedAt: '2026-11-14T00:00:00Z' },
       { pairSlug: 'task2-environment-01', studiedAt: null, bookmarkedAt: '2026-11-14T01:00:00Z', updatedAt: '2026-11-14T01:00:00Z' },
+    ], listeningAttempts: [
+      { lessonSlug: 'test-01-part-1', mode: 'full', questionNumbers: [1, 2], answers: { '1': 'Krause', '2': '12 May' },
+        wrongNumbers: [2], score: 1, total: 2, durationSec: 320, createdAt: '2026-11-20T00:00:00Z' },
     ] });
     expect(ieltsQueries).toMatchObject([{ sql: '"ielts_progress"."user_id" = $1', params: ['U1'] }]);
     expect(JSON.stringify(exported.ielts)).not.toMatch(/userId|must-not-export|other-ielts-pair/);

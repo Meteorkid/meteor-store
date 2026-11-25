@@ -2,12 +2,18 @@
 
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { WordLookupResultSchema, type WordLookupRequest, type WordLookupResult } from '@/lib/ielts/word-lookup';
+import { WordLookupResultSchema, type WordLookupResult } from '@/lib/ielts/word-lookup';
 import VocabularySaveAction from '@/components/study/VocabularySaveAction';
 import styles from './IeltsWordLookupPanel.module.css';
 
+/** 被点词来自哪里：写作对照句，还是听力原文的某一句。两者共用这一块浮层。 */
+export type IeltsLookupTarget =
+  | { kind: 'writing'; slug: string; segmentIndex: number; side: 'low' | 'high' }
+  | { kind: 'listening'; slug: string; sentenceIndex: number };
+
 interface Props {
-  request: WordLookupRequest;
+  target: IeltsLookupTarget;
+  word: string;
   locale: 'zh' | 'en';
   anchor: HTMLElement;
   onClose: () => void;
@@ -65,7 +71,7 @@ function responseError(body: unknown, status: number): LookupError {
 }
 
 /** 非模态浮层：正文仍能点选其它词，不锁滚动、不截留 Tab。 */
-export default function IeltsWordLookupPanel({ request, locale, anchor, onClose }: Props) {
+export default function IeltsWordLookupPanel({ target, word, locale, anchor, onClose }: Props) {
   const text = copy[locale];
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -76,8 +82,16 @@ export default function IeltsWordLookupPanel({ request, locale, anchor, onClose 
   const [attempt, setAttempt] = useState(0);
   const [lookup, setLookup] = useState<LookupState | null>(null);
   const [speech, setSpeech] = useState<{ key: string; status: SpeechStatus } | null>(null);
-  const { slug, segmentIndex, side, word } = request;
-  const requestKey = `${slug}/${segmentIndex}/${side}/${word}`;
+  const endpoint = target.kind === 'writing' ? '/api/ielts/word-lookup' : '/api/ielts/listening/word-lookup';
+  const body = JSON.stringify(target.kind === 'writing'
+    ? { slug: target.slug, segmentIndex: target.segmentIndex, side: target.side, word }
+    : { slug: target.slug, sentenceIndex: target.sentenceIndex, word });
+  const returnTo = target.kind === 'writing'
+    ? `/study/ielts/${target.slug}`
+    : `/study/ielts/listening/${target.slug}#sentence-${target.sentenceIndex + 1}`;
+  const requestKey = target.kind === 'writing'
+    ? `writing/${target.slug}/${target.segmentIndex}/${target.side}/${word}`
+    : `listening/${target.slug}/${target.sentenceIndex}/${word}`;
   const state = lookup?.key === requestKey ? lookup : null;
   const result = state?.status === 'success' ? state.result : null;
 
@@ -111,20 +125,24 @@ export default function IeltsWordLookupPanel({ request, locale, anchor, onClose 
       if (active && !closedRef.current) setLookup({ key: requestKey, status: 'error', error: 'timeout' });
     }, REQUEST_TIMEOUT_MS);
 
-    void fetch('/api/ielts/word-lookup', {
+    void fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Ielts-Lookup-Version': '2' },
-      body: JSON.stringify({ slug, segmentIndex, side, word }),
+      headers: {
+        'Content-Type': 'application/json',
+        // 写作接口用版本头区分新旧客户端；听力接口没有旧客户端，直接返回凭据。
+        ...(target.kind === 'writing' ? { 'X-Ielts-Lookup-Version': '2' } : {}),
+      },
+      body,
       signal: controller.signal,
       cache: 'no-store',
     }).then(async response => {
-      const body: unknown = await response.json();
+      const answer: unknown = await response.json();
       if (!active || closedRef.current || controller.signal.aborted) return;
       if (!response.ok) {
-        setLookup({ key: requestKey, status: 'error', error: responseError(body, response.status) });
+        setLookup({ key: requestKey, status: 'error', error: responseError(answer, response.status) });
         return;
       }
-      const parsed = WordLookupResultSchema.safeParse(body);
+      const parsed = WordLookupResultSchema.safeParse(answer);
       setLookup(parsed.success
         ? { key: requestKey, status: 'success', result: parsed.data }
         : { key: requestKey, status: 'error', error: 'unavailable' });
@@ -138,7 +156,7 @@ export default function IeltsWordLookupPanel({ request, locale, anchor, onClose 
       window.clearTimeout(timer);
       if (controllerRef.current === controller) controllerRef.current = null;
     };
-  }, [slug, segmentIndex, side, word, requestKey, attempt]);
+  }, [endpoint, body, requestKey, attempt, target.kind]);
 
   const positionPanel = useCallback(() => {
     const panel = panelRef.current;
@@ -260,7 +278,7 @@ export default function IeltsWordLookupPanel({ request, locale, anchor, onClose 
           <div><dt>{text.meaning}</dt><dd lang="zh">{result.entry.meaningZh}</dd></div>
           {result.entry.usageZh && <div><dt>{text.usage}</dt><dd lang="zh">{result.entry.usageZh}</dd></div>}
         </dl>
-        <VocabularySaveAction saveToken={result.saveToken} sourceKey={result.sourceKey} returnTo={`/study/ielts/${request.slug}`} locale={locale} />
+        <VocabularySaveAction saveToken={result.saveToken} sourceKey={result.sourceKey} returnTo={returnTo} locale={locale} />
       </>}
     </div>
     <footer className={styles.footer}>

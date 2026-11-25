@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import { IeltsPairSlugSchema } from '@/lib/ielts/types';
+import { ListeningLessonSlugSchema, ListeningSentenceIndexSchema } from '@/lib/ielts-listening/types';
 import { StudyReviewResultSchema } from './types';
 
-/** 收藏时的释义与原句快照；公开范文后续改写或下架不影响私人记录。 */
-export const VocabularySnapshotSchema = z.object({
+/** 收藏时的释义与原句快照；公开内容后续改写或下架不影响私人记录。释义部分各来源相同。 */
+const VocabularySnapshotBaseSchema = z.object({
   word: z.string().trim().min(1).max(64),
   lemma: z.string().trim().min(1).max(80),
   partOfSpeech: z.string().trim().min(1).max(80),
@@ -12,13 +13,35 @@ export const VocabularySnapshotSchema = z.object({
   source: z.enum(['lesson', 'ai']),
   sentence: z.string().min(1).max(600),
   sentenceZh: z.string().max(1200).nullable(),
-  pairSlug: IeltsPairSlugSchema,
   titleZh: z.string().trim().min(1).max(400),
   titleEn: z.string().trim().min(1).max(400),
+});
+
+/** 来自雅思写作对照句的收藏。 */
+export const WritingVocabularySnapshotSchema = VocabularySnapshotBaseSchema.extend({
+  pairSlug: IeltsPairSlugSchema,
   side: z.enum(['low', 'high']),
   segmentIndex: z.number().int().min(0).max(29),
 }).strict();
+
+/**
+ * 来自雅思听力原文的收藏。听力原文没有中文对照，sentenceZh 为 null；
+ * 来源定位是课内原文句索引，回跳时让播放器从这一句开始。
+ */
+export const ListeningVocabularySnapshotSchema = VocabularySnapshotBaseSchema.extend({
+  listeningSlug: ListeningLessonSlugSchema,
+  sentenceIndex: ListeningSentenceIndexSchema,
+}).strict();
+
+/**
+ * 两种来源靠各自的键区分（pairSlug / listeningSlug），两边都是 strict，
+ * 所以多出来的键不会被静默吞掉。库里已有的写作快照不需要迁移。
+ * 读来源相关字段前先用 `in` 收窄，别直接读 pairSlug。
+ */
+export const VocabularySnapshotSchema = z.union([WritingVocabularySnapshotSchema, ListeningVocabularySnapshotSchema]);
 export type VocabularySnapshot = z.infer<typeof VocabularySnapshotSchema>;
+export type WritingVocabularySnapshot = z.infer<typeof WritingVocabularySnapshotSchema>;
+export type ListeningVocabularySnapshot = z.infer<typeof ListeningVocabularySnapshotSchema>;
 
 export interface VocabularyEntry {
   id: string;

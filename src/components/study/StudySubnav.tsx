@@ -8,12 +8,13 @@ const NAV_ITEMS = [
   { key: 'courses', href: '/study/courses' },
   { key: 'algorithms', href: '/study/algorithms' },
   { key: 'ielts', href: '/study/ielts' },
+  { key: 'listening', href: '/study/ielts/listening' },
   { key: 'vocabulary', href: '/study/vocabulary' },
 ] as const;
 
 const LABELS = {
-  zh: { dashboard: '学习工作台', courses: '课程与 GPA', algorithms: '算法训练', ielts: '雅思写作', vocabulary: '生词本', aria: '学习工作台导航' },
-  en: { dashboard: 'Workbench', courses: 'Courses & GPA', algorithms: 'Algorithm practice', ielts: 'IELTS writing', vocabulary: 'Vocabulary', aria: 'Study navigation' },
+  zh: { dashboard: '学习工作台', courses: '课程与 GPA', algorithms: '算法训练', ielts: '雅思写作', listening: '雅思听力', vocabulary: '生词本', aria: '学习工作台导航' },
+  en: { dashboard: 'Workbench', courses: 'Courses & GPA', algorithms: 'Algorithm practice', ielts: 'IELTS writing', listening: 'IELTS listening', vocabulary: 'Vocabulary', aria: 'Study navigation' },
 } as const;
 
 /** 学习页之间的切换；只负责高亮与跳转，不参与数据加载。 */
@@ -22,11 +23,17 @@ export default function StudySubnav() {
   const locale = useLocale() === 'en' ? 'en' : 'zh';
   const copy = LABELS[locale];
 
+  // 听力页在 /study/ielts/listening 下，前缀判定会让「雅思写作」也亮起来；
+  // 取命中的最长前缀，一次只高亮一项。
+  const activeHref = NAV_ITEMS
+    .filter(item => item.href === '/study' ? pathname === '/study' : pathname.startsWith(item.href))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+
   return (
     <nav aria-label={copy.aria} className="border-b border-white/10">
       <div className="container mx-auto flex gap-1 overflow-x-auto px-4">
         {NAV_ITEMS.map(item => {
-          const active = item.href === '/study' ? pathname === '/study' : pathname.startsWith(item.href);
+          const active = item.href === activeHref;
           return (
             <Link
               key={item.key}

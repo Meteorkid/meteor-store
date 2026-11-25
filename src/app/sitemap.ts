@@ -6,6 +6,7 @@ import { helpArticles, isHelpArticleVisible } from '@/data/help-articles';
 import { SHOW_PRICING, SITE_URL } from '@/lib/constants';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
 import { listIeltsPairs } from '@/lib/ielts/catalog';
+import { listListeningLessons } from '@/lib/ielts-listening/catalog';
 import { CHANGELOG_PRODUCT_IDS } from '@/data/product-changelog';
 import { alternativeDetails } from '@/data/xisland-alternative-details';
 
@@ -62,6 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/phd`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.7 },
     { url: `${BASE_URL}/competitions`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.7 },
     { url: `${BASE_URL}/study/ielts`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.7 },
+    { url: `${BASE_URL}/study/ielts/listening`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.7 },
     { url: `${BASE_URL}/pathfinder/opportunities`, lastModified: now, changeFrequency: 'daily' as const, priority: 0.7 },
     { url: `${BASE_URL}/pathfinder/plan`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.6 },
     { url: `${BASE_URL}/pathfinder/topics`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.5 },
@@ -197,6 +199,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
+  // 雅思听力：每个 Part 是独立的原创练习单元（原文、答案与讲解都在这一页），
+  // 可以单独被搜到；题库总览在 staticPages 里。录音与分数因人而异，不进 sitemap。
+  const listeningPages = listListeningLessons().flatMap((lesson) =>
+    LOCALES.map((locale) => ({
+      url: `${BASE_URL}/${locale}/study/ielts/listening/${lesson.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+      alternates: {
+        languages: {
+          zh: `${BASE_URL}/zh/study/ielts/listening/${lesson.slug}`,
+          en: `${BASE_URL}/en/study/ielts/listening/${lesson.slug}`,
+        },
+      },
+    }))
+  );
+
   // 只收录「可上手」的条目（`learningEligible`）。
   //
   // 2026-11-05：这里原本无条件输出全部目录条目，sitemap 因此有 1352 条，其中 1098 条
@@ -298,6 +317,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...alternativeDetailPages,
     ...changelogPages,
     ...helpPages,
+    ...listeningPages,
     ...ieltsPairPages,
     ...pathfinderItemPages,
     ...blogSectionPages,
