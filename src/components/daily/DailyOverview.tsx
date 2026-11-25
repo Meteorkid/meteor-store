@@ -29,9 +29,9 @@ export default function DailyOverview({ entries, isToday, showMasters, locale, c
         const count = content?.kind === 'english' ? copy.overviewLesson
           : content ? `${content.items.length} ${content.items.length === 1 ? copy.overviewItem : copy.overviewItems}` : null;
         return <li key={channel.id} className="min-w-0">
-          <a href={`#${channel.id}`} className={`${styles.link} flex h-full min-h-24 flex-col rounded-xl border border-white/10 bg-white/[0.02] p-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300`}>
+          <a href={`#${channel.id}`} className={`${styles.link} flex h-full min-h-24 flex-col rounded-xl border border-white/10 bg-white/[0.02] p-3 focus-visible:outline-2 focus-visible:outline-offset-2 daily-accent-focus`}>
             <span className="flex items-start justify-between gap-2 text-sm font-semibold text-white">
-              <span>{channel[locale]}</span><span aria-hidden="true" className="text-violet-200">↓</span>
+              <span>{channel[locale]}</span><span aria-hidden="true" className="daily-accent-soft">↓</span>
             </span>
             <span className={`mt-2 line-clamp-2 t-footnote ${status === 'failed' ? 'text-amber-200' : 'text-white/70'}`}>
               {content ? previewTitle : copy[status]}
@@ -43,7 +43,7 @@ export default function DailyOverview({ entries, isToday, showMasters, locale, c
         </li>;
       })}
     </ul>
-    {showMasters && <a href="#masters" className="mt-3 flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-lg px-1 text-sm text-violet-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300">
+    {showMasters && <a href="#masters" className="mt-3 flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-lg px-1 text-sm daily-accent-soft focus-visible:outline-2 focus-visible:outline-offset-2 daily-accent-focus">
       <span>{copy.overviewMasters} <span aria-hidden="true">↓</span></span>
       <span className="t-footnote text-white/60">{copy.overviewYearRound}</span>
     </a>}

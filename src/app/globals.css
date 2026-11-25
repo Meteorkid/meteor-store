@@ -1460,3 +1460,22 @@ html {
     opacity: var(--twinkle-hi);
   }
 }
+
+/* 每日一新：品牌强调色一律跟随当前站点主题，语义色（成功绿、失败琥珀）不参与。
+   这里不用 violet 工具类，避免行星轨道把旧紫色映射成冷蓝仪表色、与暖色主题脱节。 */
+.daily-accent-text { color: var(--site-accent); }
+.daily-accent-soft { color: var(--site-accent-soft); }
+.daily-accent-muted { color: color-mix(in srgb, var(--site-accent) 60%, transparent); }
+.daily-accent-border { border-color: color-mix(in srgb, var(--site-accent) 30%, transparent); }
+.daily-accent-border-strong { border-color: var(--site-accent); }
+.daily-accent-surface { background-color: var(--site-choice); }
+.daily-accent-surface-faint { background-color: color-mix(in srgb, var(--site-accent) 4%, transparent); }
+.daily-accent-focus { outline-color: var(--site-accent); }
+.daily-accent-underline { text-decoration-color: color-mix(in srgb, var(--site-accent) 45%, transparent); }
+.daily-accent-button { background-color: var(--accent); color: var(--accent-foreground); }
+.daily-accent-checkbox { accent-color: var(--site-accent); }
+.daily-accent-calendar-dot { background-color: color-mix(in srgb, var(--site-accent) 60%, transparent); }
+.daily-accent-choice:has(input:checked) {
+  border-color: var(--site-accent);
+  background-color: var(--site-choice);
+}

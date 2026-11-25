@@ -241,7 +241,7 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
     if (isDailyHistoryDate(value, today)) router.push(`/daily?date=${value}${viewAll ? '&view=all' : ''}`);
   };
   const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-white disabled:opacity-40';
-  const readingLinkClass = 'inline-flex min-h-11 items-center text-sm font-medium text-violet-200 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2';
+  const readingLinkClass = 'inline-flex min-h-11 items-center text-sm font-medium daily-accent-soft underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 daily-accent-focus';
   const backToOverview = date === today ? copy.backToTodayOverview : copy.backToEditionOverview;
   const nextCalendar = selectedChannels.includes('masters') ? dailyChannels.find(channel => channel.id === 'masters') : undefined;
   const sectionIds = [...editionEntries.map(entry => entry.channel.id), ...(selectedChannels.includes('masters') ? ['masters'] : [])];
@@ -297,18 +297,18 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
   return (
     <div className="mx-auto max-w-6xl">
       <header className="border-b border-white/10 pb-6">
-        <p className="t-eyebrow text-violet-300">DAILY FRESH</p>
+        <p className="t-eyebrow daily-accent-text">DAILY FRESH</p>
         <h1 className="mt-3 t-title-1 text-white">{copy.title}</h1>
         <p className="mt-2 max-w-2xl t-footnote text-white/70">{copy.description}</p>
         <SourceLanguageNote locale={locale} />
-        {today !== initialToday && date < today && <p className="mt-3 t-footnote text-violet-200" role="status">
+        {today !== initialToday && date < today && <p className="mt-3 t-footnote daily-accent-soft" role="status">
           {copy.newDay} <Link href={view === 'all' ? '/daily?view=all' : '/daily'} className="underline underline-offset-4">{copy.openToday} {today} →</Link>
         </p>}
-        {date === today && !loadFailed && recentDate && !editionEntries.some(entry => entry.status === 'published') && <p className="mt-3 t-footnote text-violet-200">
+        {date === today && !loadFailed && recentDate && !editionEntries.some(entry => entry.status === 'published') && <p className="mt-3 t-footnote daily-accent-soft">
           {copy.recentEditionNotice} <Link href={`/daily?date=${recentDate}&view=all`} className="underline underline-offset-4">{copy.latestPublished} · {recentDate} →</Link>
         </p>}
         <p className="mt-3 t-footnote text-white/60">{latestUpdate ? <>{copy.updated} <time dateTime={latestUpdate}>{new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-GB', { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(latestUpdate))}</time> · {copy.beijingTime}</> : copy.firstEdition}</p>
-        {date === today && <p className="mt-2 t-footnote text-white/60">{latestUpdate && <>{copy.firstEdition} · </>}<Link href={`/daily?date=${previousDate}${viewAll ? '&view=all' : ''}`} className="text-violet-200 underline underline-offset-4">{copy.previousEdition}</Link></p>}
+        {date === today && <p className="mt-2 t-footnote text-white/60">{latestUpdate && <>{copy.firstEdition} · </>}<Link href={`/daily?date=${previousDate}${viewAll ? '&view=all' : ''}`} className="daily-accent-soft underline underline-offset-4">{copy.previousEdition}</Link></p>}
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <button type="button" disabled={!isDailyHistoryDate(previousDate, today)} onClick={() => changeDate(previousDate)} aria-label={copy.previous} className={buttonClass}>←</button>
           <label className="sr-only" htmlFor="daily-date">{copy.dateLabel}</label>
@@ -333,35 +333,35 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
         {preferenceStatus === 'failed' && <button type="button" onClick={reloadPreferences} className="mt-2 min-h-10 text-sm font-semibold text-white underline underline-offset-4">{copy.retry}</button>}
       </div>}
 
-      {editing && <section id="daily-settings" className="mb-7 rounded-2xl border border-violet-400/30 bg-violet-400/[0.04] p-5 sm:p-7" aria-labelledby="daily-settings-title">
+      {editing && <section id="daily-settings" className="mb-7 rounded-2xl border daily-accent-border daily-accent-surface-faint p-5 sm:p-7" aria-labelledby="daily-settings-title">
         <h2 id="daily-settings-title" className="t-title-3 text-white">{copy.settingsTitle}</h2>
         <p className="mt-2 t-footnote text-white/60">{copy.settingsDescription}</p>
         <p className="mt-2 t-footnote text-white/60">{copy.mastersSelectionHint}</p>
         <fieldset disabled={saving} className="mt-5">
           <legend className="sr-only">{copy.manage}</legend>
           <div className="grid gap-3 sm:grid-cols-2">
-            {dailyChannels.map(channel => <label key={channel.id} className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-4 has-checked:border-violet-400/50">
-              <input type="checkbox" checked={draft.channels.includes(channel.id)} className="mt-1 h-4 w-4 shrink-0 accent-violet-400"
+            {dailyChannels.map(channel => <label key={channel.id} className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-4 daily-accent-choice">
+              <input type="checkbox" checked={draft.channels.includes(channel.id)} className="mt-1 h-4 w-4 shrink-0 daily-accent-checkbox"
                 onChange={event => setDraft(previous => ({ ...previous, channels: DAILY_CHANNEL_IDS.filter(id => id === channel.id ? event.target.checked : previous.channels.includes(id)) }))} />
               <span><span className="block text-sm font-semibold text-white">{channel[locale]}</span><span className="mt-1 block t-footnote text-white/60">{locale === 'zh' ? channel.descriptionZh : channel.descriptionEn}</span></span>
             </label>)}
           </div>
           <div className="mt-3 flex gap-5">
-            <button type="button" className="min-h-10 t-footnote text-violet-200 underline underline-offset-4" onClick={() => setDraft(previous => ({ ...previous, channels: [...DAILY_CHANNEL_IDS] }))}>{copy.allSelected}</button>
+            <button type="button" className="min-h-10 t-footnote daily-accent-soft underline underline-offset-4" onClick={() => setDraft(previous => ({ ...previous, channels: [...DAILY_CHANNEL_IDS] }))}>{copy.allSelected}</button>
             <button type="button" className="min-h-10 t-footnote text-white/70 underline underline-offset-4" onClick={() => setDraft(previous => ({ ...previous, channels: [] }))}>{copy.clear}</button>
           </div>
           <label className="mt-3 flex items-start gap-3 border-t border-white/10 pt-5">
-            <input type="checkbox" disabled={!activeUserId} checked={draft.reminders} onChange={event => setDraft(previous => ({ ...previous, reminders: event.target.checked }))} className="mt-1 h-4 w-4 accent-violet-400" />
+            <input type="checkbox" disabled={!activeUserId} checked={draft.reminders} onChange={event => setDraft(previous => ({ ...previous, reminders: event.target.checked }))} className="mt-1 h-4 w-4 daily-accent-checkbox" />
             <span><span className="block text-sm font-semibold text-white">{copy.reminders}</span><span className="mt-1 block t-footnote text-white/60">{activeUserId ? copy.remindersHint : copy.reminderLogin}</span></span>
           </label>
         </fieldset>
         <p className="mt-5 t-footnote text-white/60">{activeUserId ? copy.accountHint : copy.guestHint}</p>
         {saveError && <p className="mt-3 text-sm text-amber-200" role="alert">{saveError}</p>}
-        {activeUserId && saveError && <button type="button" disabled={saving || preferenceStatus === 'loading'} onClick={reloadPreferences} className="mt-2 min-h-10 t-footnote text-violet-200 underline underline-offset-4">{copy.reloadPreferences}</button>}
+        {activeUserId && saveError && <button type="button" disabled={saving || preferenceStatus === 'loading'} onClick={reloadPreferences} className="mt-2 min-h-10 t-footnote daily-accent-soft underline underline-offset-4">{copy.reloadPreferences}</button>}
         <div className="mt-5 flex flex-wrap gap-3">
-          <button type="button" disabled={saving || Boolean(saveIssue) || preferenceStatus !== 'ready'} onClick={savePreferences} className="min-h-11 rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? copy.saving : copy.save}</button>
+          <button type="button" disabled={saving || Boolean(saveIssue) || preferenceStatus !== 'ready'} onClick={savePreferences} className="min-h-11 rounded-xl daily-accent-button px-5 py-2 text-sm font-semibold disabled:opacity-50">{saving ? copy.saving : copy.save}</button>
           <button type="button" disabled={saving} onClick={() => setEditing(false)} className={buttonClass}>{copy.cancel}</button>
-          {!activeUserId && <Link href={buildLoginHref(dailyReadingReturn(date, view === 'all', returnHash))} className="inline-flex min-h-11 items-center px-2 text-sm text-violet-200 underline underline-offset-4">{copy.login}</Link>}
+          {!activeUserId && <Link href={buildLoginHref(dailyReadingReturn(date, view === 'all', returnHash))} className="inline-flex min-h-11 items-center px-2 text-sm daily-accent-soft underline underline-offset-4">{copy.login}</Link>}
         </div>
       </section>}
       {notice && <p className="mb-5 t-footnote text-emerald-200" role="status">{notice}</p>}
@@ -399,9 +399,9 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
               const statusTone = status === 'failed' ? 'border-amber-300/25 text-amber-200' : status === 'published' ? 'border-emerald-300/25 text-emerald-200' : 'border-white/15 text-white/55';
               return <article key={channel.id} id={channel.id} tabIndex={-1} className="scroll-mt-28 overflow-hidden rounded-2xl border border-white/12 bg-white/[0.025]" aria-labelledby={`daily-${channel.id}-title`}>
                 <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-white/12 bg-white/[0.035] px-5 py-4 sm:px-8">
-                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-violet-400/30 bg-violet-400/10 font-mono text-[11px] font-semibold text-violet-200">{String(index + 1).padStart(2, '0')}</span>
+                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border daily-accent-border daily-accent-surface font-mono text-[11px] font-semibold daily-accent-soft">{String(index + 1).padStart(2, '0')}</span>
                   <div className="min-w-0">
-                    <p className="t-eyebrow text-violet-300">{channel[locale]}</p>
+                    <p className="t-eyebrow daily-accent-text">{channel[locale]}</p>
                     <p className="mt-1 t-footnote text-white/50">{copy.issue} {date}</p>
                   </div>
                   <div className="ml-auto flex shrink-0 items-center gap-2">
@@ -423,7 +423,7 @@ function DailyHubForIdentity({ date, today: initialToday, editions: initialEditi
                     <p className="mt-2 t-footnote text-white/60">{status === 'empty' ? copy.emptyHint : status === 'failed' ? copy.failedHint : copy.unpublishedHint}</p>
                     {previousPublished && previousPublished < date && isDailyHistoryDate(previousPublished, today) ? <Link
                       href={`/daily?date=${previousPublished}&view=all#${channel.id}`}
-                      className="mt-3 inline-flex min-h-11 items-center t-footnote text-violet-200 underline underline-offset-4">
+                      className="mt-3 inline-flex min-h-11 items-center t-footnote daily-accent-soft underline underline-offset-4">
                       {copy.latestPublished} · {previousPublished}
                     </Link> : <p className="mt-3 t-footnote text-white/60">{previousPublishedDatesFailed ? copy.previousPublishedFailed : copy.noPreviousPublished}</p>}
                   </div>}
