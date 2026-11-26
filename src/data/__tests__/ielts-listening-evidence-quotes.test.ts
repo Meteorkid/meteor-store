@@ -39,7 +39,10 @@ describe('IELTS listening explanation quotations', () => {
 
         for (const field of ['zh', 'en'] as const) {
           const text = answer.explanation[field];
-          for (const match of text.matchAll(/"([^"]+)"/g)) {
+          // Accept both ASCII and curly quotation marks. The content mixes them
+          // (especially in the Chinese explanations), and a curly quote must not
+          // become an unaudited escape hatch.
+          for (const match of text.matchAll(/[“"]([^”"]+)[”"]/g)) {
             const quote = match[1];
             const fragments = quote
               .split(/…|\.\.\./)

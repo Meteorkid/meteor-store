@@ -243,6 +243,11 @@ export function auditListeningLesson(lesson: ListeningLesson): string[] {
   }
   for (const section of l.sections) {
     if (section.kind !== 'completion') continue;
+    // 试卷说明与结构化的词数限制必须是同一件事。页面显示的是 instruction，
+    // 判分与答案校验用的是 wordLimit；两者不一致时，考生会按说明答题而被判错。
+    if (!section.instruction.toLowerCase().includes(section.wordLimit.toLowerCase())) {
+      push('completion', `${slug}：填空说明没有写出词数限制 ${section.wordLimit}`);
+    }
     const blanks = sectionQuestionNumbers(section, (l.part - 1) * LISTENING_QUESTION_COUNT + 1).length;
     if (blanks < 2) push('answer-bias', `${slug}：填空题块只有 ${blanks} 个空（≥2）`);
   }

@@ -93,6 +93,18 @@ describe('雅思听力题库：内容体检', () => {
     }
   });
 
+  it('Part 4 的收尾句跨套不重复', () => {
+    const endings = new Map<string, string[]>();
+    for (const lesson of listeningLessons.filter(item => item.part === 4)) {
+      const ending = lesson.transcript.at(-1)!.text.toLowerCase().replace(/\s+/g, ' ').trim();
+      const slugs = endings.get(ending) ?? [];
+      slugs.push(lesson.slug);
+      endings.set(ending, slugs);
+    }
+    const duplicates = [...endings.entries()].filter(([, slugs]) => slugs.length > 1);
+    expect(duplicates, duplicates.map(([ending, slugs]) => `${ending} :: ${slugs.join(', ')}`).join('\n')).toEqual([]);
+  });
+
   it('每套题四个 Part 齐全，数量随批次上调', () => {
     expect(listeningTests, '套题数量').toHaveLength(EXPECTED_TEST_COUNT);
     expect(listeningLessons, '课时数量').toHaveLength(EXPECTED_LESSON_COUNT);
