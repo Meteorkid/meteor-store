@@ -30,8 +30,8 @@ export const test13Part1: ListeningLesson = {
         { lead: 'Flat size', cells: [[{ blank: 1 }, { text: ' square metres' }]] },
         { lead: 'Bedrooms', cells: [[{ blank: 2 }]] },
         { lead: 'Add-on deep clean', cells: [[{ blank: 3 }]] },
-        { lead: 'Booking deposit', cells: [[{ blank: 4 }, { text: ' pounds' }]] },
-        { lead: 'Routine products supplied by', cells: [[{ blank: 5 }]] },
+        { lead: 'Routine products supplied by', cells: [[{ blank: 4 }]] },
+        { lead: 'Booking deposit', cells: [[{ blank: 5 }, { text: ' pounds' }]] },
         { lead: 'Booking change notice', cells: [[{ blank: 6 }, { text: ' hours' }]] },
       ],
     },
@@ -101,17 +101,17 @@ export const test13Part1: ListeningLesson = {
       },
     },
     {
-      number: 4, accepted: ['ten', '10'], spoken: 'ten pounds', evidence: 11,
-      explanation: {
-        zh: '定位句 11：For a flat this size it is forty-five pounds each visit, and there is a deposit of ten pounds to hold the first slot。押金为十英镑；句中的 forty-five 是每次服务费，不是押金。',
-        en: 'Sentence 11: "there is a deposit of ten pounds to hold the first slot". The deposit is ten pounds; the forty-five mentioned there is the per-visit fee, not the deposit.',
-      },
-    },
-    {
-      number: 5, accepted: ['staff'], evidence: 9,
+      number: 4, accepted: ['staff'], evidence: 9,
       explanation: {
         zh: '定位句 9：For ordinary surfaces our staff bring spray and cloths。常规用品由保洁员工自带；特殊台面才由客户留下指定产品。',
         en: 'Sentence 9: "For ordinary surfaces our staff bring spray and cloths". Routine products come from the cleaning staff; only special-surface products are left by the customer.',
+      },
+    },
+    {
+      number: 5, accepted: ['ten', '10'], spoken: 'ten pounds', evidence: 11,
+      explanation: {
+        zh: '定位句 11：For a flat this size it is forty-five pounds each visit, and there is a deposit of ten pounds to hold the first slot。押金为十英镑；句中的 forty-five 是每次服务费，不是押金。',
+        en: 'Sentence 11: "there is a deposit of ten pounds to hold the first slot". The deposit is ten pounds; the forty-five mentioned there is the per-visit fee, not the deposit.',
       },
     },
     {
@@ -296,8 +296,8 @@ export const test13Part1: ListeningLesson = {
     {
       title: { zh: '表单字段先定词性', en: 'Predict the gap type from the row label' },
       body: {
-        zh: '第 1 题后已印 square metres，填数字；第 2 题问间数；第 5 题问用品提供方，预判填人。听前在题号旁标出数字、名词或角色，听到对应类别再落笔。',
-        en: 'Item 1 already prints square metres, so it needs a number; item 2 asks for a count; item 5 asks who supplies products, so expect a role. Mark number, noun or role beside each gap before listening.',
+        zh: '第 1 题后已印 square metres，填数字；第 2 题问间数；第 4 题问用品提供方，预判填人。听前在题号旁标出数字、名词或角色，听到对应类别再落笔。',
+        en: 'Item 1 already prints square metres, so it needs a number; item 2 asks for a count; item 4 asks who supplies products, so expect a role. Mark number, noun or role beside each gap before listening.',
       },
     },
     {

@@ -29,8 +29,8 @@ export const test09Part4: ListeningLesson = {
       rows: [
         { lead: 'Wave movement', cells: [[{ blank: 31 }, { text: 'lifts sand off the seabed and carries it out to sea' }]] },
         { lead: 'Sediment budget', cells: [[{ blank: 32 }, { text: 'new sand over lost sand means a widening beach' }]] },
-        { lead: 'Sea wall', cells: [[{ blank: 33 }, { text: 'absorbs or reflects this coastal force' }]] },
-        { lead: 'Longshore drift', cells: [[{ blank: 34 }, { text: 'carries material from one end of the beach to the other' }]] },
+        { lead: 'Longshore drift', cells: [[{ blank: 33 }, { text: 'carries material from one end of the beach to the other' }]] },
+        { lead: 'Sea wall', cells: [[{ blank: 34 }, { text: 'absorbs or reflects this coastal force' }]] },
       ],
     },
     {
@@ -39,20 +39,20 @@ export const test09Part4: ListeningLesson = {
       questions: [
         {
           number: 35,
-          stem: 'Why do beaches erode faster after storms?',
-          options: [
-            { key: 'A', text: 'Storm waves reach higher up the beach and strip near-dune sand.' },
-            { key: 'B', text: 'Storms raise the temperature of the coastal water.' },
-            { key: 'C', text: 'Storms bring extra sand down the rivers.' },
-          ],
-        },
-        {
-          number: 36,
           stem: 'What is a groyne?',
           options: [
             { key: 'A', text: 'A stone barrier built along the cliff line' },
             { key: 'B', text: 'A low barrier built out from the beach into the water' },
             { key: 'C', text: 'A channel dug to drain the salt marsh' },
+          ],
+        },
+        {
+          number: 36,
+          stem: 'Why do beaches erode faster after storms?',
+          options: [
+            { key: 'A', text: 'Storm waves reach higher up the beach and strip near-dune sand.' },
+            { key: 'B', text: 'Storms raise the temperature of the coastal water.' },
+            { key: 'C', text: 'Storms bring extra sand down the rivers.' },
           ],
         },
         {
@@ -97,31 +97,31 @@ export const test09Part4: ListeningLesson = {
       },
     },
     {
-      number: 33, accepted: ['energy'], evidence: 10,
-      explanation: {
-        zh: '定位句 10：A sea wall absorbs or reflects wave energy。海堤应对的是波浪能量；句 11 的 reflection 是能量反射方式，不是空格所问对象。',
-        en: 'Sentence 10: "A sea wall absorbs or reflects wave energy". The wall deals with wave energy; reflection in sentence 11 is how that energy bounces, not the object asked for.',
-      },
-    },
-    {
-      number: 34, accepted: ['drift'], evidence: 8,
+      number: 33, accepted: ['drift'], evidence: 8,
       explanation: {
         zh: '定位句 8：This longshore drift carries material from one end of the beach to the other。沿岸漂沙把泥沙从海滩一端带到另一端；longshore 已在题干中，填 drift。',
         en: 'Sentence 8: "This longshore drift carries material from one end of the beach to the other". Longshore drift moves material along the shore; longshore is printed in the stem, so the blank takes drift.',
       },
     },
     {
-      number: 35, accepted: ['A'], evidence: 16,
+      number: 34, accepted: ['energy'], evidence: 10,
       explanation: {
-        zh: '定位句 16：the surge reaches higher up the beach, and it strips away sand that would normally stay near the dunes。风暴潮水位更高，刮走靠近沙丘的沙；水温变化与河流补沙在讲座中没有提到。',
-        en: 'Sentence 16: "the surge reaches higher up the beach, and it strips away sand that would normally stay near the dunes". The higher storm surge strips near-dune sand. Water temperature and river sand input are never mentioned.',
+        zh: '定位句 10：A sea wall absorbs or reflects wave energy。海堤应对的是波浪能量；句 11 的 reflection 是能量反射方式，不是空格所问对象。',
+        en: 'Sentence 10: "A sea wall absorbs or reflects wave energy". The wall deals with wave energy; reflection in sentence 11 is how that energy bounces, not the object asked for.',
       },
     },
     {
-      number: 36, accepted: ['B'], evidence: 13,
+      number: 35, accepted: ['B'], evidence: 13,
       explanation: {
         zh: '定位句 13：A groyne is another hard structure, a low barrier built out from the beach into the water。丁坝是从海滩伸入水中的低屏障；沿崖线的石堤是海堤，排干盐沼的沟渠与丁坝无关。',
         en: 'Sentence 13: "A groyne is another hard structure: a low barrier built out from the beach into the water". A groyne projects from the beach into the water. The cliff-line barrier is a sea wall, and a marsh drainage ditch is unrelated.',
+      },
+    },
+    {
+      number: 36, accepted: ['A'], evidence: 16,
+      explanation: {
+        zh: '定位句 16：the surge reaches higher up the beach, and it strips away sand that would normally stay near the dunes。风暴潮水位更高，刮走靠近沙丘的沙；水温变化与河流补沙在讲座中没有提到。',
+        en: 'Sentence 16: "the surge reaches higher up the beach, and it strips away sand that would normally stay near the dunes". The higher storm surge strips near-dune sand. Water temperature and river sand input are never mentioned.',
       },
     },
     {
@@ -320,8 +320,8 @@ export const test09Part4: ListeningLesson = {
     {
       title: { zh: '区分两类防护的代价', en: 'Separate the costs of the two defence families' },
       body: {
-        zh: '第 36 题问丁坝定义，第 37 题问硬质防护的整体评价：丁坝截沙但会让下游海滩缺沙，海堤把能量反射回海、冲刷堤前滩面。听结构介绍时在 hard 与 soft 两栏分别记“作用”和“代价”，选择题干扰项常把两类特点互换。',
-        en: 'Item 36 defines the groyne, and item 37 judges hard defences overall: groynes trap sand but starve downstream beaches, and walls reflect energy that scours the beach in front. Note benefit and cost under hard and soft columns as structures are introduced; distractors often swap features between the two families.',
+        zh: '第 35 题问丁坝定义，第 37 题问硬质防护的整体评价：丁坝截沙但会让下游海滩缺沙，海堤把能量反射回海、冲刷堤前滩面。听结构介绍时在 hard 与 soft 两栏分别记“作用”和“代价”，选择题干扰项常把两类特点互换。',
+        en: 'Item 35 defines the groyne, and item 37 judges hard defences overall: groynes trap sand but starve downstream beaches, and walls reflect energy that scours the beach in front. Note benefit and cost under hard and soft columns as structures are introduced; distractors often swap features between the two families.',
       },
     },
     {

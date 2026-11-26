@@ -47,15 +47,6 @@ export const test46Part3: ListeningLesson = {
       questions: [
         {
           number: 25,
-          stem: 'Why did the group choose newspapers as their source?',
-          options: [
-            { key: 'A', text: 'To record local opinion of the period rather than a later account.' },
-            { key: 'B', text: 'To compare printing techniques across two decades.' },
-            { key: 'C', text: 'To train reporters in the style of old articles.' },
-          ],
-        },
-        {
-          number: 26,
           stem: 'What source bias do they discuss?',
           options: [
             { key: 'A', text: 'Librarians chose which volumes were kept on the shelves.' },
@@ -64,12 +55,21 @@ export const test46Part3: ListeningLesson = {
           ],
         },
         {
-          number: 27,
+          number: 26,
           stem: 'What does the sample consist of?',
           options: [
             { key: 'A', text: 'Twenty issues from one selected decade, per title.' },
             { key: 'B', text: 'Fifty issues spread across fifty different years.' },
             { key: 'C', text: 'Five titles all from the nineteen twenties.' },
+          ],
+        },
+        {
+          number: 27,
+          stem: 'Why did the group choose newspapers as their source?',
+          options: [
+            { key: 'A', text: 'To record local opinion of the period rather than a later account.' },
+            { key: 'B', text: 'To compare printing techniques across two decades.' },
+            { key: 'C', text: 'To train reporters in the style of old articles.' },
           ],
         },
       ],
@@ -119,24 +119,24 @@ export const test46Part3: ListeningLesson = {
       },
     },
     {
-      number: 25, accepted: ['A'], evidence: 26,
-      explanation: {
-        zh: '定位句 26：They record local opinion of the period, the talk at the time, rather than a later account written from hindsight。选题是记录当时的本地舆论，而非后人追溯，对应 A。B 的印刷技术比较与 C 的培养记者在全段没有出现。',
-        en: 'Sentence 26: newspapers "record local opinion of the period, the talk at the time, rather than a later account written from hindsight", matching A. Comparing print techniques in B and training reporters in C are never raised.',
-      },
-    },
-    {
-      number: 26, accepted: ['B'], evidence: 18,
+      number: 25, accepted: ['B'], evidence: 18,
       explanation: {
         zh: '定位句 18：Advertisers placed large notices in the back pages, and those could nudge the editorial line。讨论的偏见是广告商影响编辑取向，对应 B。馆藏挑选与漫画替代新闻都不是本段偏见。',
         en: 'Sentence 18: "Advertisers placed large notices in the back pages, and those could nudge the editorial line", matching B. Shelf selection and cartoons replacing news are not the bias discussed.',
       },
     },
     {
-      number: 27, accepted: ['A'], evidence: 21,
+      number: 26, accepted: ['A'], evidence: 21,
       explanation: {
         zh: '定位句 21：The tutor expects twenty issues per title, spread across the selected decade。样本为选定十年内每份标题二十期，对应 A。B 的五十年五十期与 C 的五个二十年代标题都与录音不符。',
         en: 'Sentence 21: "The tutor expects twenty issues per title, spread across the selected decade", matching A. Fifty issues over fifty years in B and five nineteen-twenties titles in C do not match the plan.',
+      },
+    },
+    {
+      number: 27, accepted: ['A'], evidence: 26,
+      explanation: {
+        zh: '定位句 26：They record local opinion of the period, the talk at the time, rather than a later account written from hindsight。选题是记录当时的本地舆论，而非后人追溯，对应 A。B 的印刷技术比较与 C 的培养记者在全段没有出现。',
+        en: 'Sentence 26: newspapers "record local opinion of the period, the talk at the time, rather than a later account written from hindsight", matching A. Comparing print techniques in B and training reporters in C are never raised.',
       },
     },
     {

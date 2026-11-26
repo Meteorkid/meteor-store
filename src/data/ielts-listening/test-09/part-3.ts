@@ -46,20 +46,20 @@ export const test09Part3: ListeningLesson = {
       questions: [
         {
           number: 25,
-          stem: 'Where did the case study obtain its figures?',
-          options: [
-            { key: 'A', text: 'The local bank’s own records' },
-            { key: 'B', text: 'Interviews carried out with borrowers' },
-            { key: 'C', text: 'A national government survey' },
-          ],
-        },
-        {
-          number: 26,
           stem: 'How does the proposer defend the sample?',
           options: [
             { key: 'A', text: 'The sample covers three villages, enough to show a trend.' },
             { key: 'B', text: 'The figures were checked twice by independent reviewers.' },
             { key: 'C', text: 'The borrowers were drawn from one central street.' },
+          ],
+        },
+        {
+          number: 26,
+          stem: 'Where did the case study obtain its figures?',
+          options: [
+            { key: 'A', text: 'The local bank’s own records' },
+            { key: 'B', text: 'Interviews carried out with borrowers' },
+            { key: 'C', text: 'A national government survey' },
           ],
         },
         {
@@ -119,17 +119,17 @@ export const test09Part3: ListeningLesson = {
       },
     },
     {
-      number: 25, accepted: ['A'], evidence: 15,
-      explanation: {
-        zh: '定位句 15：The case study pulled its numbers from the local bank’s own records over two years。数据出自银行台账，不是借款人访谈或全国调查。',
-        en: 'Sentence 15: "The case study pulled its numbers from the local bank’s own records over two years". The figures come from the bank ledger, neither borrower interviews nor a national survey.',
-      },
-    },
-    {
-      number: 26, accepted: ['A'], evidence: 12,
+      number: 25, accepted: ['A'], evidence: 12,
       explanation: {
         zh: '定位句 12：the sample covered three villages, which should be enough to show a trend。正方辩护样本覆盖三个村庄、足以看出趋势；句 13 反方仍嫌样本太小。',
         en: 'Sentence 12: "the sample covered three villages, which should be enough to show a trend". The proposer defends three villages as enough for a trend; sentence 13 still calls the sample small.',
+      },
+    },
+    {
+      number: 26, accepted: ['A'], evidence: 15,
+      explanation: {
+        zh: '定位句 15：The case study pulled its numbers from the local bank’s own records over two years。数据出自银行台账，不是借款人访谈或全国调查。',
+        en: 'Sentence 15: "The case study pulled its numbers from the local bank’s own records over two years". The figures come from the bank ledger, neither borrower interviews nor a national survey.',
       },
     },
     {
@@ -322,8 +322,8 @@ export const test09Part3: ListeningLesson = {
     {
       title: { zh: '区分数据来源与数据内容', en: 'Separate the source from the content of the data' },
       body: {
-        zh: '第 25 题问数据从哪里来，句 15 给出银行台账；还款率、样本村庄数是数据内容，不是来源。听学术讨论时把 source、figure、sample 三个标签分开记，题干问哪个就填哪一栏。',
-        en: 'Item 25 asks where the data came from, and sentence 15 names the bank ledger. The repayment rate and village count are the content of the data, not its source. Keep source, figure and sample in separate columns during academic discussions.',
+        zh: '第 26 题问数据从哪里来，句 15 给出银行台账；还款率、样本村庄数是数据内容，不是来源。听学术讨论时把 source、figure、sample 三个标签分开记，题干问哪个就填哪一栏。',
+        en: 'Item 26 asks where the data came from, and sentence 15 names the bank ledger. The repayment rate and village count are the content of the data, not its source. Keep source, figure and sample in separate columns during academic discussions.',
       },
     },
     {

@@ -27,12 +27,12 @@ export const test36Part4: ListeningLesson = {
       instruction: 'Complete the notes below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.',
       wordLimit: 'NO MORE THAN TWO WORDS AND/OR A NUMBER',
       rows: [
-        { lead: 'Batteries arrive sorted by', cells: [[{ blank: 31 }]] },
-        { lead: 'First stage removes the outer', cells: [[{ blank: 32 }, { text: ' and separates cells.' }]] },
-        { lead: 'Cells are broken in a closed', cells: [[{ blank: 33 }]] },
-        { lead: 'Wet chemistry dissolves metals in', cells: [[{ blank: 34 }, { text: ' solutions.' }]] },
-        { lead: 'Recovered metals include lithium, cobalt and', cells: [[{ blank: 35 }]] },
-        { lead: 'Recovered metals go back into new', cells: [[{ blank: 36 }]] },
+        { lead: 'Recovered metals go back into new', cells: [[{ blank: 31 }]] },
+        { lead: 'Batteries arrive sorted by', cells: [[{ blank: 32 }]] },
+        { lead: 'First stage removes the outer', cells: [[{ blank: 33 }, { text: ' and separates cells.' }]] },
+        { lead: 'Cells are broken in a closed', cells: [[{ blank: 34 }]] },
+        { lead: 'Wet chemistry dissolves metals in', cells: [[{ blank: 35 }, { text: ' solutions.' }]] },
+        { lead: 'Recovered metals include lithium, cobalt and', cells: [[{ blank: 36 }]] },
       ],
     },
     {
@@ -80,45 +80,45 @@ export const test36Part4: ListeningLesson = {
   ],
   answers: [
     {
-      number: 31, accepted: ['type'], evidence: 7,
+      number: 31, accepted: ['batteries'], evidence: 5,
+      explanation: {
+        zh: '定位句 5：Proper recycling protects workers and keeps valuable metals out of landfill and back toward new batteries。回收金属送回新电池，填复数 batteries。',
+        en: 'Sentence 5: "Proper recycling protects workers and keeps valuable metals out of landfill and back toward new batteries". Metals go back to new batteries, so write the plural batteries.',
+      },
+    },
+    {
+      number: 32, accepted: ['type'], evidence: 7,
       explanation: {
         zh: '定位句 7：They are first sorted by type, because each chemistry needs a different treatment line。到厂先按类型分拣，填 type。句 8 的外壳检查是分拣后的下一步，不是分拣依据。',
         en: 'Sentence 7: "They are first sorted by type, because each chemistry needs a different treatment line". Batteries are sorted by type, so write type. The casing check in sentence 8 follows sorting and is not the sorting basis.',
       },
     },
     {
-      number: 32, accepted: ['pack'], evidence: 10,
+      number: 33, accepted: ['pack'], evidence: 10,
       explanation: {
         zh: '定位句 10：The first processing stage removes the outer pack and separates the individual cells inside。第一道工序拆除外包装、分离电芯，填 pack。句 11 的 wires 是随包装剥离的附件，不是被移除的主体。',
         en: 'Sentence 10: "The first processing stage removes the outer pack and separates the individual cells inside". The outer pack is removed, so write pack. The wires in sentence 11 are stripped with it, not the main removed item.',
       },
     },
     {
-      number: 33, accepted: ['shredder'], evidence: 13,
+      number: 34, accepted: ['shredder'], evidence: 13,
       explanation: {
         zh: '定位句 13：Once discharged, the cells go into a closed shredder, which breaks them into small pieces。电芯进入封闭破碎机，填 shredder。句 14 的 sealed 是机器特征，不是设备名称。',
         en: 'Sentence 13: "Once discharged, the cells go into a closed shredder, which breaks them into small pieces". Cells enter a closed shredder, so write shredder. Sealed in sentence 14 describes the machine, not its name.',
       },
     },
     {
-      number: 34, accepted: ['acid'], evidence: 19,
+      number: 35, accepted: ['acid'], evidence: 19,
       explanation: {
         zh: '定位句 19：Hydrometallurgy dissolves the powder in acid solutions, so the metals separate from the waste material。湿法冶金在酸液中溶解粉末，填 acid；solutions 已印在卷面上。',
         en: 'Sentence 19: "Hydrometallurgy dissolves the powder in acid solutions, so the metals separate from the waste material". Powder dissolves in acid solutions; solutions is printed, so write acid.',
       },
     },
     {
-      number: 35, accepted: ['nickel'], evidence: 22,
+      number: 36, accepted: ['nickel'], evidence: 22,
       explanation: {
         zh: '定位句 22：The key metals recovered this way include lithium, cobalt and nickel, along with copper from the foil。回收金属含锂、钴、镍，填 nickel；copper 来自箔材，是附带回收项。',
         en: 'Sentence 22: "The key metals recovered this way include lithium, cobalt and nickel, along with copper from the foil". The metals include nickel, so write nickel. Copper from the foil is an extra recovered item.',
-      },
-    },
-    {
-      number: 36, accepted: ['batteries'], evidence: 5,
-      explanation: {
-        zh: '定位句 5：Proper recycling protects workers and keeps valuable metals out of landfill and back toward new batteries。回收金属送回新电池，填复数 batteries。',
-        en: 'Sentence 5: "Proper recycling protects workers and keeps valuable metals out of landfill and back toward new batteries". Metals go back to new batteries, so write the plural batteries.',
       },
     },
     {
@@ -295,8 +295,8 @@ export const test36Part4: ListeningLesson = {
     {
       title: { zh: '笔记按工序段落抓名词', en: 'Catch nouns by processing stage' },
       body: {
-        zh: '第 31–36 题随分拣、拆包、破碎、湿法、金属名单、回流六段出现。听到 type、pack、shredder、acid、nickel、batteries 时回到对应行；casing、foil、copper 是相邻部件或附带金属，不要填入工序行。',
-        en: 'Items 31 to 36 follow sorting, pack removal, shredding, wet chemistry, the metal list and return. On type, pack, shredder, acid, nickel and batteries, return to the row. Casing, foil and copper are adjacent parts or extra metals, not the stage answers.',
+        zh: '第 31–36 题按回流、分拣、拆包、破碎、湿法、金属名单六段排列。听到 type、pack、shredder、acid、nickel、batteries 时回到对应行；casing、foil、copper 是相邻部件或附带金属，不要填入工序行。',
+        en: 'Items 31 to 36 follow return, sorting, pack removal, shredding, wet chemistry and the metal list. On type, pack, shredder, acid, nickel and batteries, return to the row. Casing, foil and copper are adjacent parts or extra metals, not the stage answers.',
       },
     },
     {

@@ -41,6 +41,15 @@ export const test27Part1: ListeningLesson = {
       questions: [
         {
           number: 6,
+          stem: 'What happens to the deposit if the booking is cancelled late?',
+          options: [
+            { key: 'A', text: 'It is returned within two weeks.' },
+            { key: 'B', text: 'It is kept by the venue.' },
+            { key: 'C', text: 'It is reduced by half.' },
+          ],
+        },
+        {
+          number: 7,
           stem: 'What does the venue provide for the tables?',
           options: [
             { key: 'A', text: 'tablecloths and centrepieces' },
@@ -49,7 +58,7 @@ export const test27Part1: ListeningLesson = {
           ],
         },
         {
-          number: 7,
+          number: 8,
           stem: 'How is the catering charged?',
           options: [
             { key: 'A', text: 'as a fixed menu per guest' },
@@ -58,21 +67,12 @@ export const test27Part1: ListeningLesson = {
           ],
         },
         {
-          number: 8,
+          number: 9,
           stem: 'Which decoration are couples allowed to use?',
           options: [
             { key: 'A', text: 'tape on the plaster walls' },
             { key: 'B', text: 'nails in the painted walls' },
             { key: 'C', text: 'balloons on the floor' },
-          ],
-        },
-        {
-          number: 9,
-          stem: 'What happens to the deposit if the booking is cancelled late?',
-          options: [
-            { key: 'A', text: 'It is returned within two weeks.' },
-            { key: 'B', text: 'It is kept by the venue.' },
-            { key: 'C', text: 'It is reduced by half.' },
           ],
         },
         {
@@ -124,31 +124,31 @@ export const test27Part1: ListeningLesson = {
       },
     },
     {
-      number: 6, accepted: ['B'], evidence: 24,
+      number: 6, accepted: ['B'], evidence: 20,
+      explanation: {
+        zh: '定位句 20：Then the venue keeps the deposit, because we would have turned away other bookings by that stage。迟于期限取消，订金由场地保留，对应 B。A 的两周内退还与 C 的减半在录音中都没有依据。',
+        en: 'Sentence 20: "Then the venue keeps the deposit, because we would have turned away other bookings by that stage". A late cancellation means the venue keeps the deposit, matching B. A two-week refund and a half reduction have no basis in the recording.',
+      },
+    },
+    {
+      number: 7, accepted: ['B'], evidence: 24,
       explanation: {
         zh: '定位句 24：We provide linen and napkins for every table, along with the glassware and cutlery。场地提供亚麻桌布与餐巾，对应 B。A 的 centrepieces 在句 26 归新人自备，C 的鲜花是允许布置而非场地提供。',
         en: 'Sentence 24: "We provide linen and napkins for every table, along with the glassware and cutlery". The venue supplies linen and napkins, matching B. Centrepieces in sentence 26 are the couple’s choice, and flowers are allowed decor rather than supplied.',
       },
     },
     {
-      number: 7, accepted: ['A'], evidence: 28,
+      number: 8, accepted: ['A'], evidence: 28,
       explanation: {
         zh: '定位句 28：The food is charged as a fixed menu per guest, rather than a buffet people serve themselves。餐饮按固定菜单每人计费，对应 A。B 的自助餐正是 rather than 否定的形式，C 按重量在录音中未出现。',
         en: 'Sentence 28: "The food is charged as a fixed menu per guest, rather than a buffet people serve themselves". Catering is a fixed menu per guest, matching A. The buffet is the form rejected after rather than, and charging by weight is never mentioned.',
       },
     },
     {
-      number: 8, accepted: ['C'], evidence: 32,
+      number: 9, accepted: ['C'], evidence: 32,
       explanation: {
         zh: '定位句 32：Balloons on the floor are fine, and streamers above the door are allowed。地面气球可以使用，对应 C。A 的胶带与 B 的钉子在句 12 已被禁止。',
         en: 'Sentence 32: "Balloons on the floor are fine, and streamers above the door are allowed". Floor balloons are permitted, matching C. Tape and nails were both banned in sentence 12.',
-      },
-    },
-    {
-      number: 9, accepted: ['B'], evidence: 20,
-      explanation: {
-        zh: '定位句 20：Then the venue keeps the deposit, because we would have turned away other bookings by that stage。迟于期限取消，订金由场地保留，对应 B。A 的两周内退还与 C 的减半在录音中都没有依据。',
-        en: 'Sentence 20: "Then the venue keeps the deposit, because we would have turned away other bookings by that stage". A late cancellation means the venue keeps the deposit, matching B. A two-week refund and a half reduction have no basis in the recording.',
       },
     },
     {
@@ -312,15 +312,15 @@ export const test27Part1: ListeningLesson = {
     {
       title: { zh: '自备项与提供项分栏记', en: 'Split supplied items from couple items' },
       body: {
-        zh: '第 6 题问场地提供什么，句 24 的 linen and napkins 与句 26 自备的 centrepieces 紧邻出现。听到 provide、supply 就记为场地项，听到 your choice、arrange themselves 就记为新人项。',
-        en: 'Item 6 asks what the venue supplies. The linen and napkins in sentence 24 sit next to the self-sourced centrepieces in sentence 26. Mark provide or supply words as venue items, and your choice or arrange themselves as couple items.',
+        zh: '第 7 题问场地提供什么，句 24 的 linen and napkins 与句 26 自备的 centrepieces 紧邻出现。听到 provide、supply 就记为场地项，听到 your choice、arrange themselves 就记为新人项。',
+        en: 'Item 7 asks what the venue supplies. The linen and napkins in sentence 24 sit next to the self-sourced centrepieces in sentence 26. Mark provide or supply words as venue items, and your choice or arrange themselves as couple items.',
       },
     },
     {
       title: { zh: '退还条件按期限对折', en: 'Split the deposit by the deadline' },
       body: {
-        zh: '订金题有两条相反条件：四周以上全额退，四周以内场地保留。第 5 题填空是提前周数，第 9 题单选是迟退结果；听到 more than 与 later than 时分别在题旁标注方向。',
-        en: 'The deposit has two opposite conditions: a full refund beyond four weeks, retained by the venue inside that window. Item 5 asks the lead time, item 9 the late outcome; mark each direction beside more than and later than.',
+        zh: '订金题有两条相反条件：四周以上全额退，四周以内场地保留。第 5 题填空是提前周数，第 6 题单选是迟退结果；听到 more than 与 later than 时分别在题旁标注方向。',
+        en: 'The deposit has two opposite conditions: a full refund beyond four weeks, retained by the venue inside that window. Item 5 asks the lead time, item 6 the late outcome; mark each direction beside more than and later than.',
       },
     },
   ],

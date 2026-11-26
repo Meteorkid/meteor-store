@@ -39,20 +39,20 @@ export const test31Part1: ListeningLesson = {
       questions: [
         {
           number: 5,
-          stem: 'How does the company price the move?',
-          options: [
-            { key: 'A', text: 'A flat fee for each van load' },
-            { key: 'B', text: 'By the hour for crew and van' },
-            { key: 'C', text: 'By the number of individual items' },
-          ],
-        },
-        {
-          number: 6,
           stem: 'What does the standard insurance cover?',
           options: [
             { key: 'A', text: 'Damage caused before the move' },
             { key: 'B', text: 'Breakage that happens in transit' },
             { key: 'C', text: 'Loss of fragile antiques' },
+          ],
+        },
+        {
+          number: 6,
+          stem: 'How does the company price the move?',
+          options: [
+            { key: 'A', text: 'A flat fee for each van load' },
+            { key: 'B', text: 'By the hour for crew and van' },
+            { key: 'C', text: 'By the number of individual items' },
           ],
         },
         {
@@ -113,17 +113,17 @@ export const test31Part1: ListeningLesson = {
       },
     },
     {
-      number: 5, accepted: ['B'], evidence: 21,
-      explanation: {
-        zh: '定位句 21：We charge by the hour for the crew and the van, plus the stair surcharge and any packing you add。按小时计船员与车辆费用，对应 B。A 的每车一口价被句 20 的 flat fee per van 否定，C 的按件计价在对话中未出现。',
-        en: 'Sentence 21: "We charge by the hour for the crew and the van, plus the stair surcharge and any packing you add". Hourly pricing matches B. A flat van fee is rejected in sentence 20, and pricing by item in C is never mentioned.',
-      },
-    },
-    {
-      number: 6, accepted: ['B'], evidence: 17,
+      number: 5, accepted: ['B'], evidence: 17,
       explanation: {
         zh: '定位句 17：It covers breakage that happens in transit, not damage you caused beforehand。基础保险保运输途中破损，对应 B。A 的事前损坏在同句被否定，C 的易碎古董需要额外保险，句 19 有说明。',
         en: 'Sentence 17: "It covers breakage that happens in transit, not damage you caused beforehand". In-transit breakage matches B. Pre-existing damage in A is rejected in the same sentence, and fragile antiques in C need extra cover in sentence 19.',
+      },
+    },
+    {
+      number: 6, accepted: ['B'], evidence: 21,
+      explanation: {
+        zh: '定位句 21：We charge by the hour for the crew and the van, plus the stair surcharge and any packing you add。按小时计船员与车辆费用，对应 B。A 的每车一口价被句 20 的 flat fee per van 否定，C 的按件计价在对话中未出现。',
+        en: 'Sentence 21: "We charge by the hour for the crew and the van, plus the stair surcharge and any packing you add". Hourly pricing matches B. A flat van fee is rejected in sentence 20, and pricing by item in C is never mentioned.',
       },
     },
     {
@@ -308,8 +308,8 @@ export const test31Part1: ListeningLesson = {
     {
       title: { zh: '区分保险范围与额外条款', en: 'Separate standard cover from extras' },
       body: {
-        zh: '第 6 题只问标准保险。句 17 的 in transit 是标准覆盖，句 19 的古董额外保险、句 37 的盆栽不保都是附加条款；听到 extra cover、isn’t covered 时不要选进标准范围。',
-        en: 'Item 6 asks only about standard cover. In transit in sentence 17 is standard; antique extra cover in sentence 19 and uncovered plants in sentence 37 are extras. On extra cover or isn’t covered, keep them out of the standard answer.',
+        zh: '第 5 题只问标准保险。句 17 的 in transit 是标准覆盖，句 19 的古董额外保险、句 37 的盆栽不保都是附加条款；听到 extra cover、isn’t covered 时不要选进标准范围。',
+        en: 'Item 5 asks only about standard cover. In transit in sentence 17 is standard; antique extra cover in sentence 19 and uncovered plants in sentence 37 are extras. On extra cover or isn’t covered, keep them out of the standard answer.',
       },
     },
     {

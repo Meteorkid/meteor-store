@@ -26,12 +26,12 @@ export const test32Part2: ListeningLesson = {
       instruction: 'Complete the notes below. Write ONE WORD AND/OR A NUMBER for each answer.',
       wordLimit: 'ONE WORD AND/OR A NUMBER',
       rows: [
-        { lead: 'Garden style in the lower section:', cells: [[{ blank: 11 }]] },
-        { lead: 'Rare old tree near the stream:', cells: [[{ blank: 12 }]] },
-        { lead: 'Restored last year: southern boundary', cells: [[{ blank: 13 }]] },
-        { lead: 'Main flower display reaches its best in', cells: [[{ blank: 14 }]] },
-        { lead: 'Photo rule: no', cells: [[{ blank: 15 }, { text: ' on the narrow paths' }]] },
-        { lead: 'Tour gathers by the front', cells: [[{ blank: 16 }]] },
+        { lead: 'Tour gathers by the front', cells: [[{ blank: 11 }]] },
+        { lead: 'Garden style in the lower section:', cells: [[{ blank: 12 }]] },
+        { lead: 'Rare old tree near the stream:', cells: [[{ blank: 13 }]] },
+        { lead: 'Restored last year: southern boundary', cells: [[{ blank: 14 }]] },
+        { lead: 'Main flower display reaches its best in', cells: [[{ blank: 15 }]] },
+        { lead: 'Photo rule: no', cells: [[{ blank: 16 }, { text: ' on the narrow paths' }]] },
       ],
     },
     {
@@ -40,6 +40,15 @@ export const test32Part2: ListeningLesson = {
       questions: [
         {
           number: 17,
+          stem: 'What photography rule applies to large groups?',
+          options: [
+            { key: 'A', text: 'large groups must book a separate slot before touring' },
+            { key: 'B', text: 'group photographs are allowed on the open lawn, without entering the beds' },
+            { key: 'C', text: 'cameras are banned anywhere inside the walled garden' },
+          ],
+        },
+        {
+          number: 18,
           stem: 'What restoration work was finished last year?',
           options: [
             { key: 'A', text: 'rebuilding the leaning boundary wall' },
@@ -48,21 +57,12 @@ export const test32Part2: ListeningLesson = {
           ],
         },
         {
-          number: 18,
+          number: 19,
           stem: 'Which plants flower in autumn?',
           options: [
             { key: 'A', text: 'dahlias and Michaelmas daisies' },
             { key: 'B', text: 'peonies and tall delphiniums' },
             { key: 'C', text: 'spring bulbs in the wild garden' },
-          ],
-        },
-        {
-          number: 19,
-          stem: 'What photography rule applies to large groups?',
-          options: [
-            { key: 'A', text: 'large groups must book a separate slot before touring' },
-            { key: 'B', text: 'group photographs are allowed on the open lawn, without entering the beds' },
-            { key: 'C', text: 'cameras are banned anywhere inside the walled garden' },
           ],
         },
         {
@@ -79,66 +79,66 @@ export const test32Part2: ListeningLesson = {
   ],
   answers: [
     {
-      number: 11, accepted: ['Italian'], evidence: 3,
-      explanation: {
-        zh: '定位句 3：This section is an Italian garden, with formal flower beds cut into straight shapes。下段园林是意大利式，填 Italian；句 4 的 rose terraces 是后来加的露台，不是整体风格。',
-        en: 'Sentence 3: "This section is an Italian garden, with formal flower beds cut into straight shapes". The lower garden is Italian, so write Italian. The rose terraces in sentence 4 are a later addition, not the overall style.',
-      },
-    },
-    {
-      number: 12, accepted: ['cedar'], evidence: 6,
-      explanation: {
-        zh: '定位句 6：That is a cedar of Lebanon, one of the oldest specimens in the county。溪畔珍稀老树是雪松 cedar；句 8 的 conifers 是泛指其他针叶树，不是这棵树的名称。',
-        en: 'Sentence 6: "That is a cedar of Lebanon, one of the oldest specimens in the county". The rare old tree is the cedar. Conifers in sentence 8 are other evergreens, not this tree’s name.',
-      },
-    },
-    {
-      number: 13, accepted: ['wall'], evidence: 9,
-      explanation: {
-        zh: '定位句 9：Last year the estate completed a restoration of the old stone wall that runs along the southern boundary。南界修复的是石墙，填 wall；句 10 的 coping stones 是墙顶石块，不是修复对象整体。',
-        en: 'Sentence 9: "Last year the estate completed a restoration of the old stone wall that runs along the southern boundary". The restored boundary is the stone wall, so write wall. Coping stones in sentence 10 are wall-top pieces, not the whole object.',
-      },
-    },
-    {
-      number: 14, accepted: ['June'], evidence: 12,
-      explanation: {
-        zh: '定位句 12：The main flower display reaches its best in June, when the peonies and the tall delphiniums are at their height。主花期在六月，填 June；句 13 的 April 是野花园春季球根的最佳时段。',
-        en: 'Sentence 12: "The main flower display reaches its best in June, when the peonies and the tall delphiniums are at their height". The peak display is June. April in sentence 13 is the wild garden’s spring bulb season.',
-      },
-    },
-    {
-      number: 15, accepted: ['tripod'], evidence: 15,
-      explanation: {
-        zh: '定位句 15：Please do not set up a tripod on the paths, because they are narrow and other guests need to pass through。窄径禁用三脚架，填 tripod；句 14 的 handheld cameras 是允许的拍摄方式。',
-        en: 'Sentence 15: "Please do not set up a tripod on the paths, because they are narrow and other guests need to pass through". Tripods are banned on paths, so write tripod. Handheld cameras in sentence 14 are the allowed method.',
-      },
-    },
-    {
-      number: 16, accepted: ['fountain'], evidence: 0,
+      number: 11, accepted: ['fountain'], evidence: 0,
       explanation: {
         zh: '定位句 0：gather on the path by the front fountain, I’ll start the garden tour in a moment。集合点在前喷泉旁，填 fountain。',
         en: 'Sentence 0: "gather on the path by the front fountain, I’ll start the garden tour in a moment". The tour gathers by the front fountain, so write fountain.',
       },
     },
     {
-      number: 17, accepted: ['B'], evidence: 19,
+      number: 12, accepted: ['Italian'], evidence: 3,
+      explanation: {
+        zh: '定位句 3：This section is an Italian garden, with formal flower beds cut into straight shapes。下段园林是意大利式，填 Italian；句 4 的 rose terraces 是后来加的露台，不是整体风格。',
+        en: 'Sentence 3: "This section is an Italian garden, with formal flower beds cut into straight shapes". The lower garden is Italian, so write Italian. The rose terraces in sentence 4 are a later addition, not the overall style.',
+      },
+    },
+    {
+      number: 13, accepted: ['cedar'], evidence: 6,
+      explanation: {
+        zh: '定位句 6：That is a cedar of Lebanon, one of the oldest specimens in the county。溪畔珍稀老树是雪松 cedar；句 8 的 conifers 是泛指其他针叶树，不是这棵树的名称。',
+        en: 'Sentence 6: "That is a cedar of Lebanon, one of the oldest specimens in the county". The rare old tree is the cedar. Conifers in sentence 8 are other evergreens, not this tree’s name.',
+      },
+    },
+    {
+      number: 14, accepted: ['wall'], evidence: 9,
+      explanation: {
+        zh: '定位句 9：Last year the estate completed a restoration of the old stone wall that runs along the southern boundary。南界修复的是石墙，填 wall；句 10 的 coping stones 是墙顶石块，不是修复对象整体。',
+        en: 'Sentence 9: "Last year the estate completed a restoration of the old stone wall that runs along the southern boundary". The restored boundary is the stone wall, so write wall. Coping stones in sentence 10 are wall-top pieces, not the whole object.',
+      },
+    },
+    {
+      number: 15, accepted: ['June'], evidence: 12,
+      explanation: {
+        zh: '定位句 12：The main flower display reaches its best in June, when the peonies and the tall delphiniums are at their height。主花期在六月，填 June；句 13 的 April 是野花园春季球根的最佳时段。',
+        en: 'Sentence 12: "The main flower display reaches its best in June, when the peonies and the tall delphiniums are at their height". The peak display is June. April in sentence 13 is the wild garden’s spring bulb season.',
+      },
+    },
+    {
+      number: 16, accepted: ['tripod'], evidence: 15,
+      explanation: {
+        zh: '定位句 15：Please do not set up a tripod on the paths, because they are narrow and other guests need to pass through。窄径禁用三脚架，填 tripod；句 14 的 handheld cameras 是允许的拍摄方式。',
+        en: 'Sentence 15: "Please do not set up a tripod on the paths, because they are narrow and other guests need to pass through". Tripods are banned on paths, so write tripod. Handheld cameras in sentence 14 are the allowed method.',
+      },
+    },
+    {
+      number: 17, accepted: ['B'], evidence: 16,
+      explanation: {
+        zh: '定位句 16：Group photographs are fine in the open lawn, but no one should climb on the flower beds or touch the planting for a posed shot。开放草坪可合影、不得踏入花床对应 B；A 的另约时段与 C 的花园区禁拍在讲解中未出现。',
+        en: 'Sentence 16: "Group photographs are fine in the open lawn, but no one should climb on the flower beds or touch the planting for a posed shot". Lawn photos without entering beds match B. A separate booking slot and a walled-garden camera ban are not mentioned.',
+      },
+    },
+    {
+      number: 18, accepted: ['B'], evidence: 19,
       explanation: {
         zh: '定位句 19：the wooden steps up to the viewpoint, which were repaired and repainted before the season opened。去年翻修的是观景木台阶，对应 B。A 的石墙修复在句 9 是更早一项，C 的石桥清洗属于维护工程（句 33）。',
         en: 'Sentence 19: "the wooden steps up to the viewpoint, which were repaired and repainted before the season opened". The viewpoint steps match B. The wall in A is the earlier restoration in sentence 9, and the bridge cleaning in C is maintenance in sentence 33.',
       },
     },
     {
-      number: 18, accepted: ['A'], evidence: 21,
+      number: 19, accepted: ['A'], evidence: 21,
       explanation: {
         zh: '定位句 21：with dahlias and Michaelmas daisies carrying the colour through September and October。大丽花与紫菀开在秋季，对应 A。B 的牡丹飞燕草是初夏花，C 的春球根在野花园。',
         en: 'Sentence 21: "with dahlias and Michaelmas daisies carrying the colour through September and October". Dahlias and daisies match A. Peonies and delphiniums are early summer, and spring bulbs are in the wild garden.',
-      },
-    },
-    {
-      number: 19, accepted: ['B'], evidence: 16,
-      explanation: {
-        zh: '定位句 16：Group photographs are fine in the open lawn, but no one should climb on the flower beds or touch the planting for a posed shot。开放草坪可合影、不得踏入花床对应 B；A 的另约时段与 C 的花园区禁拍在讲解中未出现。',
-        en: 'Sentence 16: "Group photographs are fine in the open lawn, but no one should climb on the flower beds or touch the planting for a posed shot". Lawn photos without entering beds match B. A separate booking slot and a walled-garden camera ban are not mentioned.',
       },
     },
     {
@@ -297,8 +297,8 @@ export const test32Part2: ListeningLesson = {
     {
       title: { zh: '花期按季节分组对号', en: 'Match flowers to their season' },
       body: {
-        zh: '同一篇出现初夏 June、春 April、秋 September and October 三段花期。第 14题主花期在六月，第 18 题秋花是大丽花与紫菀；听到 peonies、delphiniums 归初夏，dahlias、Michaelmas daisies 归秋季，不要混填。',
-        en: 'One tour covers early summer June, spring April and autumn September and October. Item 14 peaks in June; item 18’s autumn flowers are dahlias and daisies. Group peonies and delphiniums as early summer and dahlias and daisies as autumn.',
+        zh: '同一篇出现初夏 June、春 April、秋 September and October 三段花期。第 15 题主花期在六月，第 19 题秋花是大丽花与紫菀；听到 peonies、delphiniums 归初夏，dahlias、Michaelmas daisies 归秋季，不要混填。',
+        en: 'One tour covers early summer June, spring April and autumn September and October. Item 15 peaks in June; item 19’s autumn flowers are dahlias and daisies. Group peonies and delphiniums as early summer and dahlias and daisies as autumn.',
       },
     },
     {

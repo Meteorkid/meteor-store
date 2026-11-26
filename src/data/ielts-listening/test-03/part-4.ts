@@ -37,15 +37,6 @@ export const test03Part4: ListeningLesson = {
       questions: [
         {
           number: 35,
-          stem: 'Why can predictions still be uncertain?',
-          options: [
-            { key: 'A', text: 'The instruments record only gas levels.' },
-            { key: 'B', text: 'Volcanoes differ and some signals stay hidden or masked.' },
-            { key: 'C', text: 'Most eruptions begin without any prior signs.' },
-          ],
-        },
-        {
-          number: 36,
           stem: 'Why is evacuation a difficult decision for the authority?',
           options: [
             { key: 'A', text: 'There are no agreed shelters in most affected towns.' },
@@ -54,12 +45,21 @@ export const test03Part4: ListeningLesson = {
           ],
         },
         {
-          number: 37,
+          number: 36,
           stem: 'Apart from rising magma, what else may produce tremors?',
           options: [
             { key: 'A', text: 'A collapse inside the crater or rainwater seeping in.' },
             { key: 'B', text: 'Vibration from tourist traffic on the access road.' },
             { key: 'C', text: 'Cooling of the lava dome.' },
+          ],
+        },
+        {
+          number: 37,
+          stem: 'Why can predictions still be uncertain?',
+          options: [
+            { key: 'A', text: 'The instruments record only gas levels.' },
+            { key: 'B', text: 'Volcanoes differ and some signals stay hidden or masked.' },
+            { key: 'C', text: 'Most eruptions begin without any prior signs.' },
           ],
         },
       ],
@@ -114,24 +114,24 @@ export const test03Part4: ListeningLesson = {
       },
     },
     {
-      number: 35, accepted: ['B'], evidence: 33,
-      explanation: {
-        zh: '定位句 33：Some signals remain hidden because the instruments are too few, and others are masked by the shape of the rock。hidden 与 masked 对应 B；A 错在仪器不只测气体，C 与句 2 的 preparation traces 相反。',
-        en: 'Sentence 33: "Some signals remain hidden because the instruments are too few, and others are masked by the shape of the rock". Hidden and masked match B. A is wrong because instruments record more than gas, and C contradicts the preparation traces in sentence 2.',
-      },
-    },
-    {
-      number: 36, accepted: ['B'], evidence: 25,
+      number: 35, accepted: ['B'], evidence: 25,
       explanation: {
         zh: '定位句 25：it affects livelihoods, businesses and schools, and it cannot be reversed once people have left their homes。livelihoods 对应 B，irreversible 对应 cannot easily be reversed。',
         en: 'Sentence 25: "it affects livelihoods, businesses and schools, and it cannot be reversed once people have left their homes". Livelihoods match B, and irreversible matches cannot easily be reversed.',
       },
     },
     {
-      number: 37, accepted: ['A'], evidence: 30,
+      number: 36, accepted: ['A'], evidence: 30,
       explanation: {
         zh: '定位句 30：A slow collapse inside the crater can weaken the rock and shake the slopes, and heavy rainfall can seep into the stone and add pressure to the chamber。collapse 与 rainwater seeping in 对应 A。交通振动 G 和穹丘冷却 F 在讲座中没有出现。',
         en: 'Sentence 30: "A slow collapse inside the crater can weaken the rock and shake the slopes, and heavy rainfall can seep into the stone and add pressure to the chamber.". Collapse and rainwater seeping in match A. Traffic vibration in G and dome cooling in F are never mentioned.',
+      },
+    },
+    {
+      number: 37, accepted: ['B'], evidence: 33,
+      explanation: {
+        zh: '定位句 33：Some signals remain hidden because the instruments are too few, and others are masked by the shape of the rock。hidden 与 masked 对应 B；A 错在仪器不只测气体，C 与句 2 的 preparation traces 相反。',
+        en: 'Sentence 33: "Some signals remain hidden because the instruments are too few, and others are masked by the shape of the rock". Hidden and masked match B. A is wrong because instruments record more than gas, and C contradicts the preparation traces in sentence 2.',
       },
     },
     {

@@ -42,20 +42,20 @@ export const test10Part1: ListeningLesson = {
       questions: [
         {
           number: 7,
-          stem: 'What document must the candidate bring to prove the car is covered?',
-          options: [
-            { key: 'A', text: 'a signed letter from the driving instructor' },
-            { key: 'B', text: 'proof of valid insurance for the vehicle' },
-            { key: 'C', text: 'a copy of the theory test certificate' },
-          ],
-        },
-        {
-          number: 8,
           stem: 'What happens if the test is changed with less than three working days’ notice?',
           options: [
             { key: 'A', text: 'The booking fee is refunded in full.' },
             { key: 'B', text: 'The fee is kept and a new slot must be booked.' },
             { key: 'C', text: 'Only half the change fee is charged.' },
+          ],
+        },
+        {
+          number: 8,
+          stem: 'What document must the candidate bring to prove the car is covered?',
+          options: [
+            { key: 'A', text: 'a signed letter from the driving instructor' },
+            { key: 'B', text: 'proof of valid insurance for the vehicle' },
+            { key: 'C', text: 'a copy of the theory test certificate' },
           ],
         },
         {
@@ -123,17 +123,17 @@ export const test10Part1: ListeningLesson = {
       },
     },
     {
-      number: 7, accepted: ['B'], evidence: 19,
-      explanation: {
-        zh: '定位句 19：The car you bring must be insured for the test, and you’ll need proof of that insurance。proof of valid insurance 与 B 对应。A 的教练信函和 C 的理论考试证书在句 31 被明确说不需要。',
-        en: 'Sentence 19: "The car you bring must be insured for the test, and you’ll need proof of that insurance". Proof of valid insurance matches B. The instructor’s letter and the theory certificate are both said to be unnecessary in sentence 31.',
-      },
-    },
-    {
-      number: 8, accepted: ['B'], evidence: 17,
+      number: 7, accepted: ['B'], evidence: 17,
       explanation: {
         zh: '定位句 17：不够三天通知就收三十五美元改期费，并且之后要另约新时段。fees kept and new slot booked 即此意。A 说全额退款，C 说只收半价，都与原文不符。',
         en: 'Sentence 17: with less than three days’ notice the thirty-five-dollar fee is kept and a new slot must be booked, matching B. A claims a full refund and C claims half the fee; neither appears in the recording.',
+      },
+    },
+    {
+      number: 8, accepted: ['B'], evidence: 19,
+      explanation: {
+        zh: '定位句 19：The car you bring must be insured for the test, and you’ll need proof of that insurance。proof of valid insurance 与 B 对应。A 的教练信函和 C 的理论考试证书在句 31 被明确说不需要。',
+        en: 'Sentence 19: "The car you bring must be insured for the test, and you’ll need proof of that insurance". Proof of valid insurance matches B. The instructor’s letter and the theory certificate are both said to be unnecessary in sentence 31.',
       },
     },
     {

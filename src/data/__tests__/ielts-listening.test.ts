@@ -3,7 +3,7 @@ import { listeningLessons, listeningTests } from '@/data/ielts-listening';
 import {
   auditListeningLesson, type ListeningAuditTag,
 } from '@/lib/ielts-listening/quality';
-import type { ListeningLesson } from '@/lib/ielts-listening/types';
+import { sectionQuestionNumbers, type ListeningLesson } from '@/lib/ielts-listening/types';
 
 /**
  * 听力题库的内容体检。协议只管“结构合法”，这里管“拿得出手”：
@@ -93,6 +93,10 @@ describe('雅思听力题库：内容体检', () => {
     }
   });
 
+  it.each(listeningLessons.map(lesson => [lesson.slug, lesson] as const))('%s：填空与单选题按录音顺序排列', (_slug, lesson) => {
+    expect(violationsFor(lesson, 'question-order'), lesson.slug).toEqual([]);
+  });
+
   it('Part 4 的收尾句跨套不重复', () => {
     const endings = new Map<string, string[]>();
     for (const lesson of listeningLessons.filter(item => item.part === 4)) {
@@ -141,6 +145,30 @@ describe('雅思听力题库：内容体检', () => {
     const broken = structuredClone(listeningLessons[0]);
     broken.answers[0].explanation.en = 'Sentence 0: "This sentence is not in the recording at all."';
     expect(auditListeningLesson(broken).some(issue => issue.startsWith('explanation-quote:'))).toBe(true);
+  });
+
+  it('audit 能抓住题块内定位句倒退', () => {
+    let broken: ListeningLesson | undefined;
+    for (const lesson of listeningLessons) {
+      const copy = structuredClone(lesson);
+      const completion = copy.sections.find(section => section.kind === 'completion'
+        && sectionQuestionNumbers(section, (copy.part - 1) * 10 + 1).length >= 2);
+      if (!completion) continue;
+      const numbers = sectionQuestionNumbers(completion, (copy.part - 1) * 10 + 1);
+      const first = copy.answers.find(answer => answer.number === numbers[0]);
+      const second = copy.answers.find(answer => answer.number === numbers[1]);
+      if (!first || !second || first.evidence < 1) continue;
+      const firstWord = copy.transcript[0]?.text.match(/[A-Za-z]+/)?.[0];
+      if (!firstWord) continue;
+      // 把第二题改成第 0 句里也出现的词，schema 仍然合法，但定位句早于第一题。
+      second.evidence = 0;
+      second.accepted = [firstWord.toLowerCase()];
+      broken = copy;
+      break;
+    }
+    expect(broken).toBeDefined();
+    const report = auditListeningLesson(broken!);
+    expect(report.some(issue => issue.startsWith('question-order:')), report.join('\n')).toBe(true);
   });
 
 });

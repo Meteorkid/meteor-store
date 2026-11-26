@@ -45,6 +45,7 @@ export type ListeningAuditTag =
   | 'explanation-quote'
   | 'answer-bias'
   | 'numbering'
+  | 'question-order'
   | 'completion';
 
 /**
@@ -260,6 +261,22 @@ export function auditListeningLesson(lesson: ListeningLesson): string[] {
   }
   if (l.answers.map(answer => answer.number).join(',') !== expectedNumbers.join(',')) {
     push('numbering', `${slug}：答案题号不是 ${first}–${first + LISTENING_QUESTION_COUNT - 1} 顺序排列`);
+  }
+
+  // ---- 填空题与单选题必须按录音顺序出题；配对题和多选题允许乱序 ----
+  // 同一个说话人可能在相邻题共用一句；允许相等，但不能倒退。
+  for (const [sectionIndex, section] of l.sections.entries()) {
+    if (section.kind === 'matching' || section.kind === 'choice-multiple') continue;
+    const numbers = locations.filter(location => location.sectionIndex === sectionIndex).map(location => location.number);
+    let previousEvidence = -1;
+    for (const number of numbers) {
+      const answer = l.answers.find(item => item.number === number);
+      if (!answer) continue;
+      if (answer.evidence < previousEvidence) {
+        push('question-order', `${slug} 第 ${number} 题的定位句 ${answer.evidence} 早于上一题的 ${previousEvidence}`);
+      }
+      previousEvidence = Math.max(previousEvidence, answer.evidence);
+    }
   }
 
   // ---- 填空的备选写法都符合试卷上的词数限制（答案记录存在且有写法） ----

@@ -31,8 +31,8 @@ export const test45Part1: ListeningLesson = {
         { lead: 'Walk from the north park', cells: [[{ blank: 2 }, { text: ' minutes' }]] },
         { lead: 'Shuttle bus runs every', cells: [[{ blank: 3 }, { text: ' minutes' }]] },
         { lead: 'Keys held by the', cells: [[{ blank: 4 }]] },
-        { lead: 'Overtime charged per', cells: [[{ blank: 5 }]] },
-        { lead: 'Booking covers', cells: [[{ blank: 6 }, { text: ' days' }]] },
+        { lead: 'Booking covers', cells: [[{ blank: 5 }, { text: ' days' }]] },
+        { lead: 'Overtime charged per', cells: [[{ blank: 6 }]] },
       ],
     },
     {
@@ -41,6 +41,15 @@ export const test45Part1: ListeningLesson = {
       questions: [
         {
           number: 7,
+          stem: 'What overtime charge applies if the car comes back late?',
+          options: [
+            { key: 'A', text: 'A fixed daily rate is charged regardless of the extra hours.' },
+            { key: 'B', text: 'Overtime beyond the booked hours is charged per hour.' },
+            { key: 'C', text: 'No charge is made after a late return.' },
+          ],
+        },
+        {
+          number: 8,
           stem: 'Why does the customer choose the north car park?',
           options: [
             { key: 'A', text: 'It is the cheapest close option and has covered bays.' },
@@ -49,21 +58,12 @@ export const test45Part1: ListeningLesson = {
           ],
         },
         {
-          number: 8,
+          number: 9,
           stem: 'What happens to the car keys after parking?',
           options: [
             { key: 'A', text: 'The customer keeps them in a sealed envelope.' },
             { key: 'B', text: 'The attendant at the booth collects and holds them.' },
             { key: 'C', text: 'They are locked inside the car for the stay.' },
-          ],
-        },
-        {
-          number: 9,
-          stem: 'What overtime charge applies if the car comes back late?',
-          options: [
-            { key: 'A', text: 'A fixed daily rate is charged regardless of the extra hours.' },
-            { key: 'B', text: 'Overtime beyond the booked hours is charged per hour.' },
-            { key: 'C', text: 'No charge is made after a late return.' },
           ],
         },
         {
@@ -108,38 +108,38 @@ export const test45Part1: ListeningLesson = {
       },
     },
     {
-      number: 5, accepted: ['hour'], evidence: 17,
-      explanation: {
-        zh: '定位句 17：Any overtime beyond the booked hours is charged per hour。超时按小时计费；句 17 后半句的 fixed daily rate 是费率折算方式，不是计费单位。',
-        en: 'Sentence 17: "Any overtime beyond the booked hours is charged per hour". Overtime is charged per hour. The fixed daily rate later in the sentence describes how the rate is worked out, not the billing unit.',
-      },
-    },
-    {
-      number: 6, accepted: ['4', 'four'], spoken: 'four', evidence: 15,
+      number: 5, accepted: ['4', 'four'], spoken: 'four', evidence: 15,
       explanation: {
         zh: '定位句 15：Your reservation covers four days。预订共四天；句 29 再次提到 four day reservation，句 39 的 two days 是改期提前量，不是预订天数。',
         en: 'Sentence 15: "Your reservation covers four days". The booking lasts four days, repeated in sentence 29. The two days in sentence 39 is the deadline for amending dates, not the booking length.',
       },
     },
     {
-      number: 7, accepted: ['A'], evidence: 21,
+      number: 6, accepted: ['hour'], evidence: 17,
+      explanation: {
+        zh: '定位句 17：Any overtime beyond the booked hours is charged per hour。超时按小时计费；句 17 后半句的 fixed daily rate 是费率折算方式，不是计费单位。',
+        en: 'Sentence 17: "Any overtime beyond the booked hours is charged per hour". Overtime is charged per hour. The fixed daily rate later in the sentence describes how the rate is worked out, not the billing unit.',
+      },
+    },
+    {
+      number: 7, accepted: ['B'], evidence: 17,
+      explanation: {
+        zh: '定位句 17：Any overtime beyond the booked hours is charged per hour。超出预订时长的部分按小时计费，对应 B。A 说不论超时多久都按整天收费，C 说晚归不收钱，均与原文不符。',
+        en: 'Sentence 17: "Any overtime beyond the booked hours is charged per hour". Extra hours are billed per hour, matching B. A claims a flat daily charge regardless of the extra time, and C claims no late fee; neither appears in the recording.',
+      },
+    },
+    {
+      number: 8, accepted: ['A'], evidence: 21,
       explanation: {
         zh: '定位句 21：It is the cheapest close option, and it has covered bays for most of the day。north 车场胜在近且便宜、车位有顶棚，对应 A。B 错在接驳车属于 south 车场，C 错在它并非只留给过夜到达旅客。',
         en: 'Sentence 21: "It is the cheapest close option, and it has covered bays for most of the day". The north park is cheap, close and covered, matching A. B wrongly attributes the shuttle to it, and C wrongly limits it to overnight arrivals.',
       },
     },
     {
-      number: 8, accepted: ['B'], evidence: 25,
+      number: 9, accepted: ['B'], evidence: 25,
       explanation: {
         zh: '定位句 25：The attendant at the booth collects and holds them until your return flight。钥匙由 booth 工作人员收走保管，对应 B。A 的密封信封、C 的锁在车内都与原文规则相反。',
         en: 'Sentence 25: "The attendant at the booth collects and holds them until your return flight". The attendant collects and keeps the keys, matching B. The sealed envelope in A and locking them in the car in C both contradict the rule.',
-      },
-    },
-    {
-      number: 9, accepted: ['B'], evidence: 17,
-      explanation: {
-        zh: '定位句 17：Any overtime beyond the booked hours is charged per hour。超出预订时长的部分按小时计费，对应 B。A 说不论超时多久都按整天收费，C 说晚归不收钱，均与原文不符。',
-        en: 'Sentence 17: "Any overtime beyond the booked hours is charged per hour". Extra hours are billed per hour, matching B. A claims a flat daily charge regardless of the extra time, and C claims no late fee; neither appears in the recording.',
       },
     },
     {

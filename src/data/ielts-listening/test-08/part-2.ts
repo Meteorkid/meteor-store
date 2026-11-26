@@ -38,15 +38,6 @@ export const test08Part2: ListeningLesson = {
       questions: [
         {
           number: 15,
-          stem: 'Where did the rare orchid originally come from?',
-          options: [
-            { key: 'A', text: 'South-east Asia' },
-            { key: 'B', text: 'South America' },
-            { key: 'C', text: 'southern Africa' },
-          ],
-        },
-        {
-          number: 16,
           stem: 'What is forbidden inside the glasshouses?',
           options: [
             { key: 'A', text: 'Touching the plants' },
@@ -55,12 +46,21 @@ export const test08Part2: ListeningLesson = {
           ],
         },
         {
-          number: 17,
+          number: 16,
           stem: 'When does the garden close on weekdays?',
           options: [
             { key: 'A', text: 'five thirty' },
             { key: 'B', text: 'six thirty' },
             { key: 'C', text: 'seven' },
+          ],
+        },
+        {
+          number: 17,
+          stem: 'Where did the rare orchid originally come from?',
+          options: [
+            { key: 'A', text: 'South-east Asia' },
+            { key: 'B', text: 'South America' },
+            { key: 'C', text: 'southern Africa' },
           ],
         },
       ],
@@ -113,24 +113,24 @@ export const test08Part2: ListeningLesson = {
       },
     },
     {
-      number: 15, accepted: ['B'], evidence: 23,
-      explanation: {
-        zh: '定位句 23：a small orchid brought back from South America。珍稀兰花来自南美；东南亚和非洲在全段没有提到。',
-        en: 'Sentence 23: "a small orchid brought back from South America". The rare orchid comes from South America; South-east Asia and southern Africa are never mentioned.',
-      },
-    },
-    {
-      number: 16, accepted: ['A'], evidence: 17,
+      number: 15, accepted: ['A'], evidence: 17,
       explanation: {
         zh: '定位句 17：First, do not touch the plants. The leaves bruise easily。禁止触摸植物；拍照在句 18 被允许，饮食只限室外长椅。',
         en: 'Sentence 17: "First, do not touch the plants. The leaves bruise easily". Touching plants is forbidden; photography is allowed in sentence 18, and eating and drinking are limited to outside benches.',
       },
     },
     {
-      number: 17, accepted: ['B'], evidence: 20,
+      number: 16, accepted: ['B'], evidence: 20,
       explanation: {
         zh: '定位句 20：The garden stays open until six thirty on weekdays, and an hour later at the weekend。工作日六点半闭园；七点是周末时间，五点半没有依据。',
         en: 'Sentence 20: "The garden stays open until six thirty on weekdays, and an hour later at the weekend". Weekday closing is six thirty; seven is the weekend hour, and five thirty has no basis.',
+      },
+    },
+    {
+      number: 17, accepted: ['B'], evidence: 23,
+      explanation: {
+        zh: '定位句 23：a small orchid brought back from South America。珍稀兰花来自南美；东南亚和非洲在全段没有提到。',
+        en: 'Sentence 23: "a small orchid brought back from South America". The rare orchid comes from South America; South-east Asia and southern Africa are never mentioned.',
       },
     },
     {
@@ -319,8 +319,8 @@ export const test08Part2: ListeningLesson = {
     {
       title: { zh: '禁止事项听否定词', en: 'For rules, listen for negatives' },
       body: {
-        zh: '第 16 题问禁止行为，答案在 do not touch 之后；允许事项（photography is allowed）和受限事项（outside benches only）都是干扰。规则类题目留意 not、only、forbidden 这些限定词。',
-        en: 'Item 16 asks what is forbidden, and the answer follows do not touch. Allowed actions such as photography and limited ones such as outside benches only are distractors. Watch negatives and limits such as not, only and forbidden in rule items.',
+        zh: '第 15 题问禁止行为，答案在 do not touch 之后；允许事项（photography is allowed）和受限事项（outside benches only）都是干扰。规则类题目留意 not、only、forbidden 这些限定词。',
+        en: 'Item 15 asks what is forbidden, and the answer follows do not touch. Allowed actions such as photography and limited ones such as outside benches only are distractors. Watch negatives and limits such as not, only and forbidden in rule items.',
       },
     },
   ],

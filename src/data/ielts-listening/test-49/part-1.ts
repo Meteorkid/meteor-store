@@ -38,20 +38,20 @@ export const test49Part1: ListeningLesson = {
       questions: [
         {
           number: 4,
-          stem: 'Why does the caller need accessible seating?',
-          options: [
-            { key: 'A', text: 'One group member uses a wheelchair.' },
-            { key: 'B', text: 'Several members have limited sight.' },
-            { key: 'C', text: 'The group wants seats near the exit.' },
-          ],
-        },
-        {
-          number: 5,
           stem: 'Which performance carries subtitles?',
           options: [
             { key: 'A', text: 'The Saturday matinee.' },
             { key: 'B', text: 'The Friday evening show.' },
             { key: 'C', text: 'The Sunday morning tour.' },
+          ],
+        },
+        {
+          number: 5,
+          stem: 'Why does the caller need accessible seating?',
+          options: [
+            { key: 'A', text: 'One group member uses a wheelchair.' },
+            { key: 'B', text: 'Several members have limited sight.' },
+            { key: 'C', text: 'The group wants seats near the exit.' },
           ],
         },
         {
@@ -100,17 +100,17 @@ export const test49Part1: ListeningLesson = {
       },
     },
     {
-      number: 4, accepted: ['A'], evidence: 11,
-      explanation: {
-        zh: '定位句 11：the wheelchair positions are held for every performance。保留轮椅位说明团体中有成员需要轮椅，对应 A。视力受限和靠近出口在全段都没有提到。',
-        en: 'Sentence 11: "the wheelchair positions are held for every performance". Keeping wheelchair positions shows a member needs the chair, matching A. Limited sight and seats near the exit are never mentioned.',
-      },
-    },
-    {
-      number: 5, accepted: ['A'], evidence: 9,
+      number: 4, accepted: ['A'], evidence: 9,
       explanation: {
         zh: '定位句 9：The subtitled performance is the Saturday matinee。字幕场是周六日场；句 40 补充该日场对所有人固定票价，周五夜场和周日上午没有出现。',
         en: 'Sentence 9: "The subtitled performance is the Saturday matinee". The subtitled show is the Saturday matinee; sentence 40 notes this matinee has a fixed price. The Friday evening and Sunday morning options do not appear.',
+      },
+    },
+    {
+      number: 5, accepted: ['A'], evidence: 11,
+      explanation: {
+        zh: '定位句 11：the wheelchair positions are held for every performance。保留轮椅位说明团体中有成员需要轮椅，对应 A。视力受限和靠近出口在全段都没有提到。',
+        en: 'Sentence 11: "the wheelchair positions are held for every performance". Keeping wheelchair positions shows a member needs the chair, matching A. Limited sight and seats near the exit are never mentioned.',
       },
     },
     {

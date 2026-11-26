@@ -40,24 +40,6 @@ export const test32Part1: ListeningLesson = {
       questions: [
         {
           number: 6,
-          stem: 'What meal arrangement applies to volunteers?',
-          options: [
-            { key: 'A', text: 'lunch is included, while the evening meal is shared between volunteers' },
-            { key: 'B', text: 'volunteers buy all their meals from the farm shop' },
-            { key: 'C', text: 'breakfast and dinner are provided free by the scheme' },
-          ],
-        },
-        {
-          number: 7,
-          stem: 'What must volunteers wear?',
-          options: [
-            { key: 'A', text: 'open sandals for the orchard paths' },
-            { key: 'B', text: 'closed boots with a good sole' },
-            { key: 'C', text: 'rubber boots provided on site' },
-          ],
-        },
-        {
-          number: 8,
           stem: 'How do volunteers work with equipment?',
           options: [
             { key: 'A', text: 'they take turns driving small tractors' },
@@ -66,7 +48,7 @@ export const test32Part1: ListeningLesson = {
           ],
         },
         {
-          number: 9,
+          number: 7,
           stem: 'If it rains heavily, volunteers work in',
           options: [
             { key: 'A', text: 'the packing shed sorting and boxing fruit' },
@@ -75,12 +57,30 @@ export const test32Part1: ListeningLesson = {
           ],
         },
         {
-          number: 10,
+          number: 8,
           stem: 'What applies to registered students?',
           options: [
             { key: 'A', text: 'they pay half the season donation' },
             { key: 'B', text: 'they take part for free, with lunch and stay included' },
             { key: 'C', text: 'they cover their own lunch and bunkhouse stay' },
+          ],
+        },
+        {
+          number: 9,
+          stem: 'What meal arrangement applies to volunteers?',
+          options: [
+            { key: 'A', text: 'lunch is included, while the evening meal is shared between volunteers' },
+            { key: 'B', text: 'volunteers buy all their meals from the farm shop' },
+            { key: 'C', text: 'breakfast and dinner are provided free by the scheme' },
+          ],
+        },
+        {
+          number: 10,
+          stem: 'What must volunteers wear?',
+          options: [
+            { key: 'A', text: 'open sandals for the orchard paths' },
+            { key: 'B', text: 'closed boots with a good sole' },
+            { key: 'C', text: 'rubber boots provided on site' },
           ],
         },
       ],
@@ -123,38 +123,38 @@ export const test32Part1: ListeningLesson = {
       },
     },
     {
-      number: 6, accepted: ['A'], evidence: 23,
-      explanation: {
-        zh: '定位句 23：Volunteers get lunch included, and breakfast for those staying over, but the evening meal is arranged between yourselves。午餐包含、晚餐志愿者自行分摊对应 A；B 的全自费与 C 的早晚免费均与录音相反。',
-        en: 'Sentence 23: "Volunteers get lunch included, and breakfast for those staying over, but the evening meal is arranged between yourselves". Included lunch and a shared evening meal match A. Buying all meals and free dinner both contradict the recording.',
-      },
-    },
-    {
-      number: 7, accepted: ['B'], evidence: 24,
-      explanation: {
-        zh: '定位句 24：do remember the closed boots with a good sole, since sandals are not safe on the muddy paths。封脚防滑靴对应 B；A 的凉鞋被句中否定，C 的现场提供胶靴在讲解中未出现。',
-        en: 'Sentence 24: "do remember the closed boots with a good sole, since sandals are not safe on the muddy paths". Closed boots match B. Sandals are ruled out, and supplied rubber boots are not mentioned.',
-      },
-    },
-    {
-      number: 8, accepted: ['B'], evidence: 17,
+      number: 6, accepted: ['B'], evidence: 17,
       explanation: {
         zh: '定位句 17：No machinery is operated by volunteers. You use hand tools and ladders, and a member of staff checks the ladders before each use。志愿者只用手工工具和经检查的梯子对应 B；A 的拖拉机与 C 的装车都被句 17 排除。',
         en: 'Sentence 17: "No machinery is operated by volunteers. You use hand tools and ladders, and a member of staff checks the ladders before each use". Hand tools and checked ladders match B. Tractors and loading lorries are ruled out.',
       },
     },
     {
-      number: 9, accepted: ['A'], evidence: 19,
+      number: 7, accepted: ['A'], evidence: 19,
       explanation: {
         zh: '定位句 19：A wet day moves the group to the packing shed, where fruit is sorted and boxed instead of picked outside。雨天进包装棚分拣装箱对应 A；B 的雨中除草与 C 的在宿舍备箱均未出现。',
         en: 'Sentence 19: "A wet day moves the group to the packing shed, where fruit is sorted and boxed instead of picked outside". The packing shed matches A. Weeding in showers and preparing boxes in the bunkhouse are not mentioned.',
       },
     },
     {
-      number: 10, accepted: ['B'], evidence: 21,
+      number: 8, accepted: ['B'], evidence: 21,
       explanation: {
         zh: '定位句 21：registered students take part for free, and the lunch and bunkhouse stay are included in that。注册学生免费、含午餐与住宿对应 B；A 的半价捐赠与 C 的自付食宿与录音相反。',
         en: 'Sentence 21: "registered students take part for free, and the lunch and bunkhouse stay are included in that". Free entry with included meals and stay matches B. Half-price donation and self-paid lodging contradict the recording.',
+      },
+    },
+    {
+      number: 9, accepted: ['A'], evidence: 23,
+      explanation: {
+        zh: '定位句 23：Volunteers get lunch included, and breakfast for those staying over, but the evening meal is arranged between yourselves。午餐包含、晚餐志愿者自行分摊对应 A；B 的全自费与 C 的早晚免费均与录音相反。',
+        en: 'Sentence 23: "Volunteers get lunch included, and breakfast for those staying over, but the evening meal is arranged between yourselves". Included lunch and a shared evening meal match A. Buying all meals and free dinner both contradict the recording.',
+      },
+    },
+    {
+      number: 10, accepted: ['B'], evidence: 24,
+      explanation: {
+        zh: '定位句 24：do remember the closed boots with a good sole, since sandals are not safe on the muddy paths。封脚防滑靴对应 B；A 的凉鞋被句中否定，C 的现场提供胶靴在讲解中未出现。',
+        en: 'Sentence 24: "do remember the closed boots with a good sole, since sandals are not safe on the muddy paths". Closed boots match B. Sandals are ruled out, and supplied rubber boots are not mentioned.',
       },
     },
   ],
@@ -315,8 +315,8 @@ export const test32Part1: ListeningLesson = {
     {
       title: { zh: '雨天与设备题抓否定句', en: 'Catch negatives for equipment and weather' },
       body: {
-        zh: '第 8 题问设备，句 17 开头 No machinery is operated 直接排除机械；第 9 题问雨天去向，句 19 的 packing shed 是唯一室内安排。听到 no、not、instead of 时在选项旁标注被否定的内容。',
-        en: 'Item 8 asks about equipment, and sentence 17 opens No machinery is operated, ruling out machines. Item 9 asks the wet-day room, and the packing shed in sentence 19 is the only indoor option. Mark ruled-out content beside no, not or instead of.',
+        zh: '第 6 题问设备，句 17 开头 No machinery is operated 直接排除机械；第 7 题问雨天去向，句 19 的 packing shed 是唯一室内安排。听到 no、not、instead of 时在选项旁标注被否定的内容。',
+        en: 'Item 6 asks about equipment, and sentence 17 opens No machinery is operated, ruling out machines. Item 7 asks the wet-day room, and the packing shed in sentence 19 is the only indoor option. Mark ruled-out content beside no, not or instead of.',
       },
     },
   ],

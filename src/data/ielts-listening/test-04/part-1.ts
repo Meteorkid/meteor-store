@@ -39,20 +39,20 @@ export const test04Part1: ListeningLesson = {
       questions: [
         {
           number: 4,
-          stem: 'Why does the caller ask for the larger bus?',
-          options: [
-            { key: 'A', text: 'The group carries a lot of camping equipment.' },
-            { key: 'B', text: 'Several members need extra leg room.' },
-            { key: 'C', text: 'The club has invited guests along.' },
-          ],
-        },
-        {
-          number: 5,
           stem: 'What does the clerk say about the basic cover?',
           options: [
             { key: 'A', text: 'It is already included in the hire price.' },
             { key: 'B', text: 'It covers damage to windscreens and tyres.' },
             { key: 'C', text: 'It costs thirty pounds less than the premium option.' },
+          ],
+        },
+        {
+          number: 5,
+          stem: 'Why does the caller ask for the larger bus?',
+          options: [
+            { key: 'A', text: 'The group carries a lot of camping equipment.' },
+            { key: 'B', text: 'Several members need extra leg room.' },
+            { key: 'C', text: 'The club has invited guests along.' },
           ],
         },
         {
@@ -101,17 +101,17 @@ export const test04Part1: ListeningLesson = {
       },
     },
     {
-      number: 4, accepted: ['A'], evidence: 24,
-      explanation: {
-        zh: '定位句 24：We’re carrying camping stoves, tents and cool boxes for the overnight stop。多出来的空间是为露营装备准备的；腿空间和受邀客人在全段都没有提到。',
-        en: 'Sentence 24: "We’re carrying camping stoves, tents and cool boxes for the overnight stop". The extra space is for camping gear. Leg room and invited guests are never mentioned.',
-      },
-    },
-    {
-      number: 5, accepted: ['A'], evidence: 17,
+      number: 4, accepted: ['A'], evidence: 17,
       explanation: {
         zh: '定位句 17：Basic cover is included in the hire price。B 错在挡风玻璃和轮胎属于高档保险；C 把三十英镑说成差价，原文只说高档要另加三十英镑。',
         en: 'Sentence 17: "Basic cover is included in the hire price". B is wrong because windscreens and tyres belong to the premium option, and C misreads the thirty pounds as a difference between the two prices.',
+      },
+    },
+    {
+      number: 5, accepted: ['A'], evidence: 24,
+      explanation: {
+        zh: '定位句 24：We’re carrying camping stoves, tents and cool boxes for the overnight stop。多出来的空间是为露营装备准备的；腿空间和受邀客人在全段都没有提到。',
+        en: 'Sentence 24: "We’re carrying camping stoves, tents and cool boxes for the overnight stop". The extra space is for camping gear. Leg room and invited guests are never mentioned.',
       },
     },
     {

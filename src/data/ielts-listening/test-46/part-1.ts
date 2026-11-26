@@ -39,6 +39,15 @@ export const test46Part1: ListeningLesson = {
       questions: [
         {
           number: 5,
+          stem: 'What happens if cancellation is made after Wednesday?',
+          options: [
+            { key: 'A', text: 'The ticket moves to the next evening free.' },
+            { key: 'B', text: 'A credit voucher is issued for half the fee.' },
+            { key: 'C', text: 'The fee is not refundable.' },
+          ],
+        },
+        {
+          number: 6,
           stem: 'What food is provided with the ticket?',
           options: [
             { key: 'A', text: 'A hot three-course dinner' },
@@ -47,21 +56,12 @@ export const test46Part1: ListeningLesson = {
           ],
         },
         {
-          number: 6,
+          number: 7,
           stem: 'What is the minimum age for tasting wine?',
           options: [
             { key: 'A', text: 'Sixteen' },
             { key: 'B', text: 'Eighteen' },
             { key: 'C', text: 'Twenty-one' },
-          ],
-        },
-        {
-          number: 7,
-          stem: 'What happens if cancellation is made after Wednesday?',
-          options: [
-            { key: 'A', text: 'The ticket moves to the next evening free.' },
-            { key: 'B', text: 'A credit voucher is issued for half the fee.' },
-            { key: 'C', text: 'The fee is not refundable.' },
           ],
         },
       ],
@@ -113,24 +113,24 @@ export const test46Part1: ListeningLesson = {
       },
     },
     {
-      number: 5, accepted: ['B'], evidence: 13,
+      number: 5, accepted: ['C'], evidence: 11,
+      explanation: {
+        zh: '定位句 11：Then the fee stays non-refundable, though you may pass the ticket to someone else。周三之后费用不退，对应 C。A 的免费改期与 B 的半额代金券在本段没有出现。',
+        en: 'Sentence 11: "Then the fee stays non-refundable, though you may pass the ticket to someone else". After Wednesday the fee is non-refundable, matching C. The free reschedule in A and half voucher in B are not mentioned.',
+      },
+    },
+    {
+      number: 6, accepted: ['B'], evidence: 13,
       explanation: {
         zh: '定位句 13：the cheese, bread and olives are the only food。提供奶酪、面包与橄榄，对应 B。句 5 否定热正餐，C 的水果沙拉与甜饼全段未出现。',
         en: 'Sentence 13: "the cheese, bread and olives are the only food", matching B. The hot dinner is rejected in sentence 5, and fruit salad or sweet cakes in C are never mentioned.',
       },
     },
     {
-      number: 6, accepted: ['B'], evidence: 13,
+      number: 7, accepted: ['B'], evidence: 13,
       explanation: {
         zh: '定位句 13：the age limit for tasters stays eighteen, with identification checked at the door。最低年龄为十八，对应 B。十六与二十一个在录音中没有依据。',
         en: 'Sentence 13: "the age limit for tasters stays eighteen, with identification checked at the door". The minimum age is eighteen, matching B. Sixteen and twenty-one have no basis in the recording.',
-      },
-    },
-    {
-      number: 7, accepted: ['C'], evidence: 11,
-      explanation: {
-        zh: '定位句 11：Then the fee stays non-refundable, though you may pass the ticket to someone else。周三之后费用不退，对应 C。A 的免费改期与 B 的半额代金券在本段没有出现。',
-        en: 'Sentence 11: "Then the fee stays non-refundable, though you may pass the ticket to someone else". After Wednesday the fee is non-refundable, matching C. The free reschedule in A and half voucher in B are not mentioned.',
       },
     },
     {
@@ -306,8 +306,8 @@ export const test46Part1: ListeningLesson = {
     {
       title: { zh: '被否定的形式直接划掉', en: 'Cross out rejected formats' },
       body: {
-        zh: '第 5 题先否定热正餐，第 7 题说明费用不退。听到 no、non-refundable、though 这类词时，把对应干扰选项划掉，避免在多选题式配对里反复犹豫。',
-        en: 'Item 5 first rejects the hot dinner, and item 7 states the fee is non-refundable. Cross distractors out after no, non-refundable or though, so you do not revisit them in matching.',
+        zh: '第 6 题先否定热正餐，第 5 题说明费用不退。听到 no、non-refundable、though 这类词时，把对应干扰选项划掉，避免在多选题式配对里反复犹豫。',
+        en: 'Item 6 first rejects the hot dinner, and item 5 states the fee is non-refundable. Cross distractors out after no, non-refundable or though, so you do not revisit them in matching.',
       },
     },
   ],

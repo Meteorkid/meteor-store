@@ -30,8 +30,8 @@ export const test16Part4: ListeningLesson = {
         { lead: 'Self-service: customers chose items', cells: [[{ blank: 32 }]] },
         { lead: 'Cold chain kept perishable food', cells: [[{ blank: 33 }]] },
         { lead: 'Supermarkets spread out to the', cells: [[{ blank: 34 }]] },
-        { lead: 'Shoppers bought one', cells: [[{ blank: 35 }, { text: ' list in a single trip' }]] },
-        { lead: 'The stores changed daily eating', cells: [[{ blank: 36 }]] },
+        { lead: 'The stores changed daily eating', cells: [[{ blank: 35 }]] },
+        { lead: 'Shoppers bought one', cells: [[{ blank: 36 }, { text: ' list in a single trip' }]] },
       ],
     },
     {
@@ -107,17 +107,17 @@ export const test16Part4: ListeningLesson = {
       },
     },
     {
-      number: 35, accepted: ['weekly'], evidence: 21,
-      explanation: {
-        zh: '定位句 21：customers wrote one weekly list and bought most of it in a single trip。购物清单是每周一张，填 weekly；句 20 的 habits 是总体变化。',
-        en: 'Sentence 21: customers wrote "one weekly list" for a single trip, so fill weekly. Habits in sentence 20 is the broader change.',
-      },
-    },
-    {
-      number: 36, accepted: ['habits'], evidence: 20,
+      number: 35, accepted: ['habits'], evidence: 20,
       explanation: {
         zh: '定位句 20：The supermarket then reshaped daily eating habits。超市改变日常饮食习惯，填 habits；句 21 的 weekly list 是习惯的具体表现。',
         en: 'Sentence 20: the supermarket "reshaped daily eating habits", so fill habits. The weekly list in sentence 21 is one concrete habit.',
+      },
+    },
+    {
+      number: 36, accepted: ['weekly'], evidence: 21,
+      explanation: {
+        zh: '定位句 21：customers wrote one weekly list and bought most of it in a single trip。购物清单是每周一张，填 weekly；句 20 的 habits 是总体变化。',
+        en: 'Sentence 21: customers wrote "one weekly list" for a single trip, so fill weekly. Habits in sentence 20 is the broader change.',
       },
     },
     {

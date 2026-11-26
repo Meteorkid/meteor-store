@@ -46,20 +46,20 @@ export const test22Part4: ListeningLesson = {
         },
         {
           number: 33,
-          stem: 'How did the rules change as the game spread?',
-          options: [
-            { key: 'A', text: 'The pieces moved more slowly than before.' },
-            { key: 'B', text: 'The pieces were allowed to move more freely.' },
-            { key: 'C', text: 'Some pieces were removed from the board.' },
-          ],
-        },
-        {
-          number: 34,
           stem: 'Why did the game spread along the trade routes?',
           options: [
             { key: 'A', text: 'Soldiers carried it between military camps.' },
             { key: 'B', text: 'Merchants brought it from one port city to another.' },
             { key: 'C', text: 'Churches ordered board games for their halls.' },
+          ],
+        },
+        {
+          number: 34,
+          stem: 'How did the rules change as the game spread?',
+          options: [
+            { key: 'A', text: 'The pieces moved more slowly than before.' },
+            { key: 'B', text: 'The pieces were allowed to move more freely.' },
+            { key: 'C', text: 'Some pieces were removed from the board.' },
           ],
         },
       ],
@@ -94,17 +94,17 @@ export const test22Part4: ListeningLesson = {
       },
     },
     {
-      number: 33, accepted: ['B'], evidence: 18,
-      explanation: {
-        zh: '定位句 18：These freer movements made the games shorter and sharper。西传后棋子走法更自由，对应 B。A 与 freer 相反，C 的删子在讲座中没有出现。',
-        en: 'Sentence 18: "These freer movements made the games shorter and sharper". The pieces moved more freely, matching B. A contradicts freer, and removing pieces is never mentioned.',
-      },
-    },
-    {
-      number: 34, accepted: ['B'], evidence: 15,
+      number: 33, accepted: ['B'], evidence: 15,
       explanation: {
         zh: '定位句 15：merchants set up tables in ports, and a game played on board could be passed from city to city。商人在港口推广并把游戏带到各城，对应 B。A 的军营士兵与 C 的教堂订购在录音中均无依据。',
         en: 'Sentence 15: "merchants set up tables in ports, and a game played on board could be passed from city to city". Merchants carried the game between port cities, matching B. Soldiers in camps and church orders for games have no basis in the recording.',
+      },
+    },
+    {
+      number: 34, accepted: ['B'], evidence: 18,
+      explanation: {
+        zh: '定位句 18：These freer movements made the games shorter and sharper。西传后棋子走法更自由，对应 B。A 与 freer 相反，C 的删子在讲座中没有出现。',
+        en: 'Sentence 18: "These freer movements made the games shorter and sharper". The pieces moved more freely, matching B. A contradicts freer, and removing pieces is never mentioned.',
       },
     },
     {

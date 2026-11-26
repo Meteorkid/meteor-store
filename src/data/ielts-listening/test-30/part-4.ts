@@ -28,8 +28,8 @@ export const test30Part4: ListeningLesson = {
       rows: [
         { lead: 'Early post was carried along official', cells: [[{ blank: 31 }]] },
         { lead: 'Charges were paid by the', cells: [[{ blank: 32 }]] },
-        { lead: 'The reform lowered the cost of each', cells: [[{ blank: 33 }]] },
-        { lead: 'The first adhesive stamp showed the monarch’s', cells: [[{ blank: 34 }]] },
+        { lead: 'The first adhesive stamp showed the monarch’s', cells: [[{ blank: 33 }]] },
+        { lead: 'The reform lowered the cost of each', cells: [[{ blank: 34 }]] },
         { lead: 'Post transformed the spread of commercial', cells: [[{ blank: 35 }]] },
       ],
     },
@@ -97,17 +97,17 @@ export const test30Part4: ListeningLesson = {
       },
     },
     {
-      number: 33, accepted: ['letter'], evidence: 21,
-      explanation: {
-        zh: '定位句 21：The reform lowered the cost of each letter。改革降低每封信的费用，填 letter；句 29 的 printed circulars 是随同一网络寄送的印刷品。',
-        en: 'Sentence 21: "The reform lowered the cost of each letter". The reform cut the cost per letter, so fill letter. Printed circulars in sentence 29 travelled the same network but are not the answer.',
-      },
-    },
-    {
-      number: 34, accepted: ['head'], evidence: 19,
+      number: 33, accepted: ['head'], evidence: 19,
       explanation: {
         zh: '定位句 19：The first adhesive stamp showed the head of the monarch, the familiar profile。邮票图案是君主头像，填 head；句 20 的 adhesive 指粘贴方式，不是图案内容。',
         en: 'Sentence 19: "The first adhesive stamp showed the head of the monarch, the familiar profile". The stamp showed the monarch’s head, so fill head. Adhesive in sentence 20 describes how it stuck, not the image.',
+      },
+    },
+    {
+      number: 34, accepted: ['letter'], evidence: 21,
+      explanation: {
+        zh: '定位句 21：The reform lowered the cost of each letter。改革降低每封信的费用，填 letter；句 29 的 printed circulars 是随同一网络寄送的印刷品。',
+        en: 'Sentence 21: "The reform lowered the cost of each letter". The reform cut the cost per letter, so fill letter. Printed circulars in sentence 29 travelled the same network but are not the answer.',
       },
     },
     {
@@ -316,8 +316,8 @@ export const test30Part4: ListeningLesson = {
     {
       title: { zh: '先判断空格词性与搭配', en: 'Predict word class and collocation' },
       body: {
-        zh: '第 31 空前是 official，填名词 routes；第 32 空在 the 后，填付款主体 recipient；第 34 空在 monarch’s 后填 head；第 35 空 commercial 后填 information。听前把词性写在空格旁，听时只等那一类词。',
-        en: 'Item 31 follows official and needs routes; item 32 after the needs the payer, recipient; item 34 after monarch’s needs head; item 35 after commercial needs information. Mark the predicted word class beside each gap before listening.',
+        zh: '第 31 空前是 official，填名词 routes；第 32 空在 the 后，填付款主体 recipient；第 33 空在 monarch’s 后填 head；第 35 空 commercial 后填 information。听前把词性写在空格旁，听时只等那一类词。',
+        en: 'Item 31 follows official and needs routes; item 32 after the needs the payer, recipient; item 33 after monarch’s needs head; item 35 after commercial needs information. Mark the predicted word class beside each gap before listening.',
       },
     },
     {

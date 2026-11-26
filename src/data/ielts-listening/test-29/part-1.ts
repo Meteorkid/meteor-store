@@ -70,9 +70,9 @@ export const test29Part1: ListeningLesson = {
       instruction: 'Complete the notes below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.',
       wordLimit: 'NO MORE THAN TWO WORDS AND/OR A NUMBER',
       rows: [
-        { lead: 'Own group meets on', cells: [[{ blank: 7 }, { text: ' and Thursday' }]] },
-        { lead: 'Shallow end depth:', cells: [[{ blank: 8 }, { text: ' metres' }]] },
-        { lead: 'Missed class: join another', cells: [[{ blank: 9 }, { text: ' at the same level' }]] },
+        { lead: 'Missed class: join another', cells: [[{ blank: 7 }, { text: ' at the same level' }]] },
+        { lead: 'Own group meets on', cells: [[{ blank: 8 }, { text: ' and Thursday' }]] },
+        { lead: 'Shallow end depth:', cells: [[{ blank: 9 }, { text: ' metres' }]] },
         { lead: 'Pool entry fee is', cells: [[{ blank: 10 }]] },
       ],
     },
@@ -121,24 +121,24 @@ export const test29Part1: ListeningLesson = {
       },
     },
     {
-      number: 7, accepted: ['Tuesday'], evidence: 22,
+      number: 7, accepted: ['group'], evidence: 18,
+      explanation: {
+        zh: '定位句 18：join another group at the same level。补课加入另一个同级别组，填 group。',
+        en: 'Sentence 18: join "another group at the same level", so fill group.',
+      },
+    },
+    {
+      number: 8, accepted: ['Tuesday'], evidence: 22,
       explanation: {
         zh: '定位句 22：Tuesday and Thursday, from seven until a quarter past seven。本组周二和周四上课，题干已印 Thursday，填 Tuesday。',
         en: 'Sentence 22: "Tuesday and Thursday", so fill Tuesday; Thursday is already printed in the row.',
       },
     },
     {
-      number: 8, accepted: ['two', '2'], evidence: 24,
+      number: 9, accepted: ['two', '2'], evidence: 24,
       explanation: {
         zh: '定位句 24：The shallow end is just two metres deep, which suits nervous beginners。浅水区两米深，填 two。',
         en: 'Sentence 24: the shallow end is "just two metres deep", so fill two.',
-      },
-    },
-    {
-      number: 9, accepted: ['group'], evidence: 18,
-      explanation: {
-        zh: '定位句 18：join another group at the same level。补课加入另一个同级别组，填 group。',
-        en: 'Sentence 18: join "another group at the same level", so fill group.',
       },
     },
     {

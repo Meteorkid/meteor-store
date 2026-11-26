@@ -49,20 +49,20 @@ export const test13Part4: ListeningLesson = {
         },
         {
           number: 38,
-          stem: 'How is black tea processed?',
-          options: [
-            { key: 'A', text: 'It is dried without oxidation' },
-            { key: 'B', text: 'It is fully oxidised before drying' },
-            { key: 'C', text: 'It is steamed and rolled fresh' },
-          ],
-        },
-        {
-          number: 39,
           stem: 'What shapes the taste of a regional tea?',
           options: [
             { key: 'A', text: 'The price paid at auction' },
             { key: 'B', text: 'The colour of the tea cup' },
             { key: 'C', text: 'Soil, rainfall and leaf processing' },
+          ],
+        },
+        {
+          number: 39,
+          stem: 'How is black tea processed?',
+          options: [
+            { key: 'A', text: 'It is dried without oxidation' },
+            { key: 'B', text: 'It is fully oxidised before drying' },
+            { key: 'C', text: 'It is steamed and rolled fresh' },
           ],
         },
         {
@@ -128,17 +128,17 @@ export const test13Part4: ListeningLesson = {
       },
     },
     {
-      number: 38, accepted: ['B'], evidence: 26,
-      explanation: {
-        zh: '定位句 26：black tea is fully oxidised before drying。红茶干燥前完全氧化；不氧化是绿茶特征，蒸青是另一种工艺。',
-        en: 'Sentence 26: "black tea is fully oxidised before drying". Black tea is fully oxidised before drying; no oxidation describes green tea, and steaming and rolling refer to another process.',
-      },
-    },
-    {
-      number: 39, accepted: ['C'], evidence: 25,
+      number: 38, accepted: ['C'], evidence: 25,
       explanation: {
         zh: '定位句 25：Each region develops its own taste, shaped by soil, rainfall and the way the leaves are processed。地域口味由土壤、降水和加工方式决定；拍卖价与杯色无关。',
         en: 'Sentence 25: "Each region develops its own taste, shaped by soil, rainfall and the way the leaves are processed". Regional taste depends on soil, rainfall and processing; auction price and cup colour are irrelevant.',
+      },
+    },
+    {
+      number: 39, accepted: ['B'], evidence: 26,
+      explanation: {
+        zh: '定位句 26：black tea is fully oxidised before drying。红茶干燥前完全氧化；不氧化是绿茶特征，蒸青是另一种工艺。',
+        en: 'Sentence 26: "black tea is fully oxidised before drying". Black tea is fully oxidised before drying; no oxidation describes green tea, and steaming and rolling refer to another process.',
       },
     },
     {
@@ -316,8 +316,8 @@ export const test13Part4: ListeningLesson = {
     {
       title: { zh: '加工区别按品类记对照', en: 'Record processing differences by tea type' },
       body: {
-        zh: '第 38 题考红茶工艺，句 26 对比绿茶与红茶：绿茶保留叶色，红茶干燥前全氧化；句 27 的乌龙介于两者之间。选择题选项常把别的品类工艺搬进题干，听时把 green、black、oolong 各自的工艺分开记。',
-        en: 'Item 38 tests black-tea processing, and sentence 26 contrasts green with black: green keeps the leaf colour, black is fully oxidised before drying, and sentence 27 places oolong between them. Options often borrow another type’s process; keep green, black and oolong separate in your notes.',
+        zh: '第 39 题考红茶工艺，句 26 对比绿茶与红茶：绿茶保留叶色，红茶干燥前全氧化；句 27 的乌龙介于两者之间。选择题选项常把别的品类工艺搬进题干，听时把 green、black、oolong 各自的工艺分开记。',
+        en: 'Item 39 tests black-tea processing, and sentence 26 contrasts green with black: green keeps the leaf colour, black is fully oxidised before drying, and sentence 27 places oolong between them. Options often borrow another type’s process; keep green, black and oolong separate in your notes.',
       },
     },
     {

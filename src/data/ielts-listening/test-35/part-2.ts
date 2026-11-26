@@ -77,11 +77,11 @@ export const test35Part2: ListeningLesson = {
       instruction: 'Complete the notes below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.',
       wordLimit: 'NO MORE THAN TWO WORDS AND/OR A NUMBER',
       rows: [
-        { lead: 'Venue', cells: [[{ blank: 16 }, { text: 'building' }]] },
-        { lead: 'Pottery class meets', cells: [[{ blank: 17 }, { text: 'evenings' }]] },
-        { lead: 'Sessions per course', cells: [[{ blank: 18 }]] },
-        { lead: 'Fee includes course materials and', cells: [[{ blank: 19 }]] },
-        { lead: 'Late enrolment needs the tutor’s', cells: [[{ blank: 20 }]] },
+        { lead: 'Late enrolment needs the tutor’s', cells: [[{ blank: 16 }]] },
+        { lead: 'Venue', cells: [[{ blank: 17 }, { text: 'building' }]] },
+        { lead: 'Pottery class meets', cells: [[{ blank: 18 }, { text: 'evenings' }]] },
+        { lead: 'Sessions per course', cells: [[{ blank: 19 }]] },
+        { lead: 'Fee includes course materials and', cells: [[{ blank: 20 }]] },
       ],
     },
   ],
@@ -122,38 +122,38 @@ export const test35Part2: ListeningLesson = {
       },
     },
     {
-      number: 16, accepted: ['central'], evidence: 18,
+      number: 16, accepted: ['approval'], evidence: 14,
+      explanation: {
+        zh: '定位句 14：After that date, late enrolment needs the tutor’s approval before a place can be reserved。晚报名需导师批准，填 approval；前台不能直接保留名额。',
+        en: 'Sentence 14: "After that date, late enrolment needs the tutor’s approval before a place can be reserved", fill approval. The desk cannot reserve a place directly.',
+      },
+    },
+    {
+      number: 17, accepted: ['central'], evidence: 18,
       explanation: {
         zh: '定位句 18：The courses are held in the central building, near the library and the community hall。场地是中心楼，填 central；房间号与位置在后续通知邮件中给出。',
         en: 'Sentence 18: "The courses are held in the central building, near the library and the community hall", fill central. The exact room number arrives in the later welcome email.',
       },
     },
     {
-      number: 17, accepted: ['Tuesday'], evidence: 19,
+      number: 18, accepted: ['Tuesday'], evidence: 19,
       explanation: {
         zh: '定位句 19：The pottery class is held on Tuesday evenings, while writing meets on Thursdays。陶艺班在周二晚，填 Tuesday；周四是写作班。',
         en: 'Sentence 19: "The pottery class is held on Tuesday evenings, while writing meets on Thursdays", fill Tuesday. Thursday is the writing class.',
       },
     },
     {
-      number: 18, accepted: ['12', 'twelve'], spoken: 'twelve', evidence: 21,
+      number: 19, accepted: ['12', 'twelve'], spoken: 'twelve', evidence: 21,
       explanation: {
         zh: '定位句 21：Each course has twelve sessions over the term, and a missed class can be made up online。每门课十二次，填 twelve；补课渠道是线上记录，不是额外加课。',
         en: 'Sentence 21: "Each course has twelve sessions over the term, and a missed class can be made up online", fill twelve. Catch-up uses online notes, not extra sessions.',
       },
     },
     {
-      number: 19, accepted: ['refreshments'], evidence: 22,
+      number: 20, accepted: ['refreshments'], evidence: 22,
       explanation: {
         zh: '定位句 22：The fee covers course materials and refreshments, but you buy your own pottery clay if needed。费用含材料和茶点，填 refreshments；陶土需自购。',
         en: 'Sentence 22: "The fee covers course materials and refreshments, but you buy your own pottery clay if needed", fill refreshments. Pottery clay is bought separately.',
-      },
-    },
-    {
-      number: 20, accepted: ['approval'], evidence: 14,
-      explanation: {
-        zh: '定位句 14：After that date, late enrolment needs the tutor’s approval before a place can be reserved。晚报名需导师批准，填 approval；前台不能直接保留名额。',
-        en: 'Sentence 14: "After that date, late enrolment needs the tutor’s approval before a place can be reserved", fill approval. The desk cannot reserve a place directly.',
       },
     },
   ],

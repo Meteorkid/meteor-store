@@ -28,9 +28,9 @@ export const test20Part1: ListeningLesson = {
       wordLimit: 'ONE WORD AND/OR A NUMBER',
       rows: [
         { lead: 'Surname', cells: [[{ blank: 1 }]] },
-        { lead: 'Apartment: the', cells: [[{ blank: 2 }, { text: ' floor' }]] },
-        { lead: 'Building access: a', cells: [[{ blank: 3 }, { text: ' lift' }]] },
-        { lead: 'Item needing assembly: the', cells: [[{ blank: 4 }]] },
+        { lead: 'Item needing assembly: the', cells: [[{ blank: 2 }]] },
+        { lead: 'Apartment: the', cells: [[{ blank: 3 }, { text: ' floor' }]] },
+        { lead: 'Building access: a', cells: [[{ blank: 4 }, { text: ' lift' }]] },
         { lead: 'Delivery window: Saturday', cells: [[{ blank: 5 }]] },
         { lead: 'Old item for collection: the', cells: [[{ blank: 6 }]] },
       ],
@@ -87,24 +87,24 @@ export const test20Part1: ListeningLesson = {
       },
     },
     {
-      number: 2, accepted: ['third'], evidence: 5,
+      number: 2, accepted: ['wardrobe'], evidence: 2,
+      explanation: {
+        zh: '定位句 2：The order shows a wardrobe and a dining table。需要组装的是衣柜，填 wardrobe；餐桌已拼装好，不是题目所问。',
+        en: 'Sentence 2: the order shows "a wardrobe and a dining table". The wardrobe needs assembly, so fill wardrobe; the table is already joined.',
+      },
+    },
+    {
+      number: 3, accepted: ['third'], evidence: 5,
       explanation: {
         zh: '定位句 5：The third floor. 公寓在三楼，填 third；句 5 的 narrow corridor 是通道情况，不是楼层。',
         en: 'Sentence 5: "The third floor", so fill third. The narrow corridor in the same sentence is the access condition, not the floor.',
       },
     },
     {
-      number: 3, accepted: ['goods'], evidence: 7,
+      number: 4, accepted: ['goods'], evidence: 7,
       explanation: {
         zh: '定位句 7：a goods lift at the back, big enough for the wardrobe box。电梯是货梯，填 goods；句 8 的 back entrance 是入口位置。',
         en: 'Sentence 7: "a goods lift at the back", so fill goods. The back entrance in sentence 8 is the access point.',
-      },
-    },
-    {
-      number: 4, accepted: ['wardrobe'], evidence: 2,
-      explanation: {
-        zh: '定位句 2：The order shows a wardrobe and a dining table。需要组装的是衣柜，填 wardrobe；餐桌已拼装好，不是题目所问。',
-        en: 'Sentence 2: the order shows "a wardrobe and a dining table". The wardrobe needs assembly, so fill wardrobe; the table is already joined.',
       },
     },
     {

@@ -71,8 +71,8 @@ export const test08Part1: ListeningLesson = {
       wordLimit: 'NO MORE THAN TWO WORDS AND/OR A NUMBER',
       columns: ['Cover', 'Limit or condition'],
       rows: [
-        { lead: 'Accidental damage', cells: [[{ blank: 8 }, { text: ' pounds excess' }]] },
-        { lead: 'Accessories', cells: [[{ text: 'covered up to £' }, { blank: 9 }]] },
+        { lead: 'Accessories', cells: [[{ text: 'covered up to £' }, { blank: 8 }]] },
+        { lead: 'Accidental damage', cells: [[{ blank: 9 }, { text: ' pounds excess' }]] },
         { lead: 'Claim submitted within', cells: [[{ blank: 10 }, { text: ' hours of the incident' }]] },
       ],
     },
@@ -128,17 +128,17 @@ export const test08Part1: ListeningLesson = {
       },
     },
     {
-      number: 8, accepted: ['thirty', '30'], evidence: 33,
-      explanation: {
-        zh: '定位句 33：The excess for accidental damage is thirty pounds。事故免赔额三十英镑；注意与失窃免赔额二十五英镑区分。',
-        en: 'Sentence 33: "The excess for accidental damage is thirty pounds". The accidental damage excess is thirty pounds; keep it separate from the twenty-five pound theft excess.',
-      },
-    },
-    {
-      number: 9, accepted: ['two hundred', '200'], spoken: 'two hundred pounds', evidence: 29,
+      number: 8, accepted: ['two hundred', '200'], spoken: 'two hundred pounds', evidence: 29,
       explanation: {
         zh: '定位句 29：Accessories such as lights, panniers and the pump are covered up to two hundred pounds。配件赔付上限两百英镑；前提是失窃当时固定在车上。',
         en: 'Sentence 29: "Accessories such as lights, panniers and the pump are covered up to two hundred pounds". The accessory limit is two hundred pounds, provided they were fixed to the bike when it was taken.',
+      },
+    },
+    {
+      number: 9, accepted: ['thirty', '30'], evidence: 33,
+      explanation: {
+        zh: '定位句 33：The excess for accidental damage is thirty pounds。事故免赔额三十英镑；注意与失窃免赔额二十五英镑区分。',
+        en: 'Sentence 33: "The excess for accidental damage is thirty pounds". The accidental damage excess is thirty pounds; keep it separate from the twenty-five pound theft excess.',
       },
     },
     {

@@ -38,15 +38,6 @@ export const test43Part1: ListeningLesson = {
       questions: [
         {
           number: 5,
-          stem: 'Who can apply for the bursary?',
-          options: [
-            { key: 'A', text: 'Any working family below the income threshold.' },
-            { key: 'B', text: 'Only single parents receiving benefits.' },
-            { key: 'C', text: 'Families with children already of school age.' },
-          ],
-        },
-        {
-          number: 6,
           stem: 'How is the bursary paid?',
           options: [
             { key: 'A', text: 'In cash collected at the centre desk.' },
@@ -55,12 +46,21 @@ export const test43Part1: ListeningLesson = {
           ],
         },
         {
-          number: 7,
+          number: 6,
           stem: 'When is eligibility reviewed?',
           options: [
             { key: 'A', text: 'Once every calendar year.' },
             { key: 'B', text: 'At the end of each nursery month.' },
             { key: 'C', text: 'Every term.' },
+          ],
+        },
+        {
+          number: 7,
+          stem: 'Who can apply for the bursary?',
+          options: [
+            { key: 'A', text: 'Any working family below the income threshold.' },
+            { key: 'B', text: 'Only single parents receiving benefits.' },
+            { key: 'C', text: 'Families with children already of school age.' },
           ],
         },
       ],
@@ -107,24 +107,24 @@ export const test43Part1: ListeningLesson = {
       },
     },
     {
-      number: 5, accepted: ['A'], evidence: 22,
-      explanation: {
-        zh: '定位句 22：This one is open to any working family, as long as the combined income falls below the threshold。any working family 对应 A；B 与句 24 的 two-parent household 相反，C 未被提及。',
-        en: 'Sentence 22: "This one is open to any working family, as long as the combined income falls below the threshold". Any working family matches A. B contradicts the two-parent household in sentence 24, and C is never mentioned.',
-      },
-    },
-    {
-      number: 6, accepted: ['B'], evidence: 15,
+      number: 5, accepted: ['B'], evidence: 15,
       explanation: {
         zh: '定位句 15：It is paid straight into the parent’s bank account each week。straight into the bank account 对应 B；A 错在句中明确说不是现金，C 的购物券在对话里没有出现。',
         en: 'Sentence 15: "It is paid straight into the parent’s bank account each week". The bank account matches B. A is wrong because cash at the desk is explicitly rejected, and shop vouchers in C are never mentioned.',
       },
     },
     {
-      number: 7, accepted: ['C'], evidence: 19,
+      number: 6, accepted: ['C'], evidence: 19,
       explanation: {
         zh: '定位句 19：We check the household circumstances every term。every term 对应 C；家长句 18 猜的 once a year 被否定，月度复审 B 没有出现。',
         en: 'Sentence 19: "We check the household circumstances every term". Every term matches C. The once a year guess in sentence 18 is rejected, and monthly review in B is never mentioned.',
+      },
+    },
+    {
+      number: 7, accepted: ['A'], evidence: 22,
+      explanation: {
+        zh: '定位句 22：This one is open to any working family, as long as the combined income falls below the threshold。any working family 对应 A；B 与句 24 的 two-parent household 相反，C 未被提及。',
+        en: 'Sentence 22: "This one is open to any working family, as long as the combined income falls below the threshold". Any working family matches A. B contradicts the two-parent household in sentence 24, and C is never mentioned.',
       },
     },
     {

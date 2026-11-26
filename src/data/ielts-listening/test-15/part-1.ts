@@ -73,8 +73,8 @@ export const test15Part1: ListeningLesson = {
       rows: [
         { lead: 'Course fee', cells: [[{ blank: 7 }, { text: ' dollars' }]] },
         { lead: 'Materials fee', cells: [[{ blank: 8 }, { text: ' dollars' }]] },
-        { lead: 'Enrolment closes', cells: [[{ blank: 9 }]] },
-        { lead: 'Most people pay at the', cells: [[{ blank: 10 }]] },
+        { lead: 'Most people pay at the', cells: [[{ blank: 9 }]] },
+        { lead: 'Enrolment closes', cells: [[{ blank: 10 }]] },
       ],
     },
   ],
@@ -136,17 +136,17 @@ export const test15Part1: ListeningLesson = {
       },
     },
     {
-      number: 9, accepted: ['20 September'], spoken: 'the twentieth of September', evidence: 27,
-      explanation: {
-        zh: '定位句 27：enrolment closes on the twentieth of September。报名截止 9 月 20 日；句 3 的 fourteenth of September 是开课日，不是截止日。',
-        en: 'Sentence 27: "enrolment closes on the twentieth of September". The deadline is 20 September. The fourteenth of September in sentence 3 is the course start date, not the closing date.',
-      },
-    },
-    {
-      number: 10, accepted: ['reception'], evidence: 25,
+      number: 9, accepted: ['reception'], evidence: 25,
       explanation: {
         zh: '定位句 25：most people pay at the reception desk once they arrive。多数人在接待处缴费；句 25 也提到可以在线报名缴费，但笔记要填的是线下地点 reception。',
         en: 'Sentence 25: "most people pay at the reception desk once they arrive". The note asks for the offline location, reception. Online payment is also mentioned in sentence 25, but it is not the place named here.',
+      },
+    },
+    {
+      number: 10, accepted: ['20 September'], spoken: 'the twentieth of September', evidence: 27,
+      explanation: {
+        zh: '定位句 27：enrolment closes on the twentieth of September。报名截止 9 月 20 日；句 3 的 fourteenth of September 是开课日，不是截止日。',
+        en: 'Sentence 27: "enrolment closes on the twentieth of September". The deadline is 20 September. The fourteenth of September in sentence 3 is the course start date, not the closing date.',
       },
     },
   ],

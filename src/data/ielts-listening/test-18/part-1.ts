@@ -27,8 +27,8 @@ export const test18Part1: ListeningLesson = {
       wordLimit: 'ONE WORD AND/OR A NUMBER',
       rows: [
         { lead: 'Passport number', cells: [[{ blank: 1 }]] },
-        { lead: 'Photo background', cells: [[{ blank: 2 }]] },
-        { lead: 'Old passport expires', cells: [[{ text: 'end of next ' }, { blank: 3 }]] },
+        { lead: 'Old passport expires', cells: [[{ text: 'end of next ' }, { blank: 2 }]] },
+        { lead: 'Photo background', cells: [[{ blank: 3 }]] },
         { lead: 'Photo taken within the last', cells: [[{ blank: 4 }]] },
       ],
     },
@@ -86,17 +86,17 @@ export const test18Part1: ListeningLesson = {
       },
     },
     {
-      number: 2, accepted: ['white'], evidence: 9,
-      explanation: {
-        zh: '定位句 9：The background has to be plain white, with no pattern behind your shoulders。照片背景要求纯白；句 10 提到的头发只是拍摄细节，不是背景色。',
-        en: 'Sentence 9: "The background has to be plain white, with no pattern behind your shoulders". The background must be plain white; the hair mention in sentence 10 is a detail, not the background colour.',
-      },
-    },
-    {
-      number: 3, accepted: ['March'], evidence: 6,
+      number: 2, accepted: ['March'], evidence: 6,
       explanation: {
         zh: '定位句 6：It expires at the end of next March。旧护照下三月底到期；句 2 的 pages 只是页数快用完，不是到期时间。',
         en: 'Sentence 6: "It expires at the end of next March". The old book expires at the end of next March; the pages mention in sentence 2 is about running out of pages, not the expiry date.',
+      },
+    },
+    {
+      number: 3, accepted: ['white'], evidence: 9,
+      explanation: {
+        zh: '定位句 9：The background has to be plain white, with no pattern behind your shoulders。照片背景要求纯白；句 10 提到的头发只是拍摄细节，不是背景色。',
+        en: 'Sentence 9: "The background has to be plain white, with no pattern behind your shoulders". The background must be plain white; the hair mention in sentence 10 is a detail, not the background colour.',
       },
     },
     {

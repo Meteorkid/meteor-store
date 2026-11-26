@@ -39,20 +39,20 @@ export const test34Part1: ListeningLesson = {
       questions: [
         {
           number: 4,
-          stem: 'How does the discount card combine with the season ticket?',
-          options: [
-            { key: 'A', text: 'It cannot be used with a season ticket' },
-            { key: 'B', text: 'It stacks on top, giving a fifteen percent reduction' },
-            { key: 'C', text: 'It replaces the season ticket after renewal' },
-          ],
-        },
-        {
-          number: 5,
           stem: 'How is a refund calculated?',
           options: [
             { key: 'A', text: 'From the unused weeks, minus an admin fee' },
             { key: 'B', text: 'As half the price paid, regardless of travel' },
             { key: 'C', text: 'By refunding every day not travelled at full price' },
+          ],
+        },
+        {
+          number: 5,
+          stem: 'How does the discount card combine with the season ticket?',
+          options: [
+            { key: 'A', text: 'It cannot be used with a season ticket' },
+            { key: 'B', text: 'It stacks on top, giving a fifteen percent reduction' },
+            { key: 'C', text: 'It replaces the season ticket after renewal' },
           ],
         },
         {
@@ -73,8 +73,8 @@ export const test34Part1: ListeningLesson = {
       rows: [
         { lead: 'E-ticket stored in the rail', cells: [[{ blank: 7 }]] },
         { lead: 'Valid from next', cells: [[{ blank: 8 }]] },
-        { lead: 'Refund keeps an', cells: [[{ blank: 9 }, { text: ' fee' }]] },
-        { lead: 'Peak trains after', cells: [[{ blank: 10 }, { text: ' are excluded' }]] },
+        { lead: 'Peak trains after', cells: [[{ blank: 9 }, { text: ' are excluded' }]] },
+        { lead: 'Refund keeps an', cells: [[{ blank: 10 }, { text: ' fee' }]] },
       ],
     },
   ],
@@ -101,17 +101,17 @@ export const test34Part1: ListeningLesson = {
       },
     },
     {
-      number: 4, accepted: ['B'], evidence: 14,
-      explanation: {
-        zh: '定位句 14：The discount still stacks on the season price。折扣卡可叠加在季票价格上，对应 B。它不能与季票并用、续费后替代季票都不符合原文。',
-        en: 'Sentence 14: "the discount still stacks on the season price", matching B. Being unusable with a ticket or replacing it after renewal are not stated.',
-      },
-    },
-    {
-      number: 5, accepted: ['A'], evidence: 10,
+      number: 4, accepted: ['A'], evidence: 10,
       explanation: {
         zh: '定位句 10：Refunds are worked out from the unused weeks, not the days you already travelled。退款按未使用周数算，再扣手续费，对应 A。半价、未出行日全额退均未提及。',
         en: 'Sentence 10: refunds are "worked out from the unused weeks", matching A, with an admin fee held back. Half-price and full daily refunds are not mentioned.',
+      },
+    },
+    {
+      number: 5, accepted: ['B'], evidence: 14,
+      explanation: {
+        zh: '定位句 14：The discount still stacks on the season price。折扣卡可叠加在季票价格上，对应 B。它不能与季票并用、续费后替代季票都不符合原文。',
+        en: 'Sentence 14: "the discount still stacks on the season price", matching B. Being unusable with a ticket or replacing it after renewal are not stated.',
       },
     },
     {
@@ -136,17 +136,17 @@ export const test34Part1: ListeningLesson = {
       },
     },
     {
-      number: 9, accepted: ['admin'], evidence: 24,
-      explanation: {
-        zh: '定位句 24：an admin fee is held back from every refund。退款扣除手续费，填 admin。无论取消原因，手续费标准相同。',
-        en: 'Sentence 24: "an admin fee is held back from every refund", so fill admin. The fee stays the same whatever the cancellation reason.',
-      },
-    },
-    {
-      number: 10, accepted: ['nine', '9'], evidence: 22,
+      number: 9, accepted: ['nine', '9'], evidence: 22,
       explanation: {
         zh: '定位句 22：Peak trains after nine in the morning are excluded on the inbound route。工作日九点后的高峰车次不含，填 nine。周末非高峰车次可用。',
         en: 'Sentence 22: "peak trains after nine in the morning are excluded", so fill nine. Off-peak weekend trains are included.',
+      },
+    },
+    {
+      number: 10, accepted: ['admin'], evidence: 24,
+      explanation: {
+        zh: '定位句 24：an admin fee is held back from every refund。退款扣除手续费，填 admin。无论取消原因，手续费标准相同。',
+        en: 'Sentence 24: "an admin fee is held back from every refund", so fill admin. The fee stays the same whatever the cancellation reason.',
       },
     },
   ],

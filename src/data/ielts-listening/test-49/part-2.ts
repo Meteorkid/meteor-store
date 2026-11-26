@@ -38,11 +38,11 @@ export const test49Part2: ListeningLesson = {
       questions: [
         {
           number: 15,
-          stem: 'What is the first thing the team needs from the caller?',
+          stem: 'What do trainees do on the first two weekends?',
           options: [
-            { key: 'A', text: 'the missing person’s last known location' },
-            { key: 'B', text: 'the injured walker’s next of kin' },
-            { key: 'C', text: 'the number of other walkers nearby' },
+            { key: 'A', text: 'They follow an experienced rescuer without medical duties.' },
+            { key: 'B', text: 'They lead a small search team on their own.' },
+            { key: 'C', text: 'They teach first aid to new members.' },
           ],
         },
         {
@@ -56,11 +56,11 @@ export const test49Part2: ListeningLesson = {
         },
         {
           number: 17,
-          stem: 'What do trainees do on the first two weekends?',
+          stem: 'What is the first thing the team needs from the caller?',
           options: [
-            { key: 'A', text: 'They follow an experienced rescuer without medical duties.' },
-            { key: 'B', text: 'They lead a small search team on their own.' },
-            { key: 'C', text: 'They teach first aid to new members.' },
+            { key: 'A', text: 'the missing person’s last known location' },
+            { key: 'B', text: 'the injured walker’s next of kin' },
+            { key: 'C', text: 'the number of other walkers nearby' },
           ],
         },
         {
@@ -120,10 +120,10 @@ export const test49Part2: ListeningLesson = {
       },
     },
     {
-      number: 15, accepted: ['A'], evidence: 24,
+      number: 15, accepted: ['A'], evidence: 18,
       explanation: {
-        zh: '定位句 24：our first job was to pin down the last known location。先要确定失联者最后出现的位置；家属联系方式和附近人数在全段没有作为首要信息出现。',
-        en: 'Sentence 24: "our first job was to pin down the last known location". The priority is fixing the last known location. Next of kin and the number of other walkers are never raised as the first requirement.',
+        zh: '定位句 18：trainees shadow an experienced rescuer and carry no medical role themselves。头两个周末学员跟随有经验的队员，不承担医疗职责；独立带队和教学员急救都是后来的事。',
+        en: 'Sentence 18: "trainees shadow an experienced rescuer and carry no medical role themselves". On the first two weekends trainees shadow an experienced member with no medical role. Leading a team and teaching first aid come later.',
       },
     },
     {
@@ -134,10 +134,10 @@ export const test49Part2: ListeningLesson = {
       },
     },
     {
-      number: 17, accepted: ['A'], evidence: 18,
+      number: 17, accepted: ['A'], evidence: 24,
       explanation: {
-        zh: '定位句 18：trainees shadow an experienced rescuer and carry no medical role themselves。头两个周末学员跟随有经验的队员，不承担医疗职责；独立带队和教学员急救都是后来的事。',
-        en: 'Sentence 18: "trainees shadow an experienced rescuer and carry no medical role themselves". On the first two weekends trainees shadow an experienced member with no medical role. Leading a team and teaching first aid come later.',
+        zh: '定位句 24：our first job was to pin down the last known location。先要确定失联者最后出现的位置；家属联系方式和附近人数在全段没有作为首要信息出现。',
+        en: 'Sentence 24: "our first job was to pin down the last known location". The priority is fixing the last known location. Next of kin and the number of other walkers are never raised as the first requirement.',
       },
     },
     {
