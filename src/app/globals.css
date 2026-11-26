@@ -1480,15 +1480,16 @@ html {
   background-color: var(--site-choice);
 }
 
-/* ========== 学习区专注模式 ==========
+/* ========== 内容页专注模式 ==========
  *
  * 只在 html[data-focus-mode="on"] 下生效；状态由 LearningFocusMode 写入，
- * 首屏由 locale/layout 的内联脚本恢复。这里不做「学习页」路由判断——
- * 属性本身只会在学习路由上出现，CSS 不需要再猜一遍路径。
+ * 首屏由 locale/layout 的内联脚本恢复。data-focus-scope 区分三档：
+ * learning / reading 放大正文，writing 只收外壳与氛围层，不动编辑器。
  *
- * 关掉的是「氛围层」而不是业务画布：Header/Footer、HeroCanvas、MeteorShower、
- * FilmGrain 和两个学习布局顶部的径向光晕都带明确的 data 标记，避免宽泛的
- * canvas/position 选择器误伤雅思听力、路径规划里的业务图表。
+ * 关掉的是「站点氛围层」而不是业务画布：Header/Footer、HeroCanvas、MeteorShower、
+ * FilmGrain 和页面顶部的径向光晕都带明确的 data 标记，避免宽泛的
+ * canvas/position 选择器误伤雅思听力、路径规划里的业务图表、日刊频道切换、
+ * 帮助文章目录、文章评论和投稿编辑器。
  */
 html[data-focus-mode="on"] [data-site-header],
 html[data-focus-mode="on"] [data-site-footer],
@@ -1510,89 +1511,98 @@ html[data-focus-mode="on"] body {
 }
 
 /* 专注态不用玻璃：半透明材质在长文上会降低可读性，直接给实底。 */
-html[data-focus-mode="on"] .glass,
-html[data-focus-mode="on"] .glass-card,
-html[data-focus-mode="on"] .glass-lg,
-html[data-focus-mode="on"] [data-transparency-surface] {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .glass,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .glass-card,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .glass-lg,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) [data-transparency-surface] {
   background: color-mix(in srgb, var(--site-home-bg) 88%, white 6%) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
   box-shadow: none !important;
 }
 
-html[data-focus-mode="on"] .glass-card {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .glass-card {
   transition: none;
 }
 
-html[data-focus-mode="on"] .glass-card::after,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .glass-card::after,
 html[data-focus-mode="on"] [data-focus-decor]::after {
   display: none !important;
 }
 
-html[data-focus-mode="on"] .glass-card:hover {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .glass-card:hover {
   transform: none !important;
   box-shadow: none !important;
 }
 
 /* 正文更宽、更大、更亮；标题维持原字阶，避免把信息层级压平。 */
-html[data-focus-mode="on"] .t-body {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .t-body {
   font-size: 1.125rem;
   line-height: 1.9;
   text-rendering: optimizeLegibility;
 }
 
-html[data-focus-mode="on"] .t-footnote {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .t-footnote {
   font-size: 0.875rem;
   line-height: 1.65;
 }
 
-html[data-focus-mode="on"] .t-title-4 {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .t-title-4 {
   font-size: 1.0625rem;
   line-height: 1.5;
 }
 
+/* 博客/帮助中心/API 指南的正文用 prose 排版；专注态把段落、列表和引用抬到同一阅读字号。
+ * 标题、代码块和表格不动：代码和表格本来就不该为了沉浸放大。 */
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) :is(.blog-prose, .help-content, .prose) p,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) :is(.blog-prose, .help-content, .prose) li,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) :is(.blog-prose, .help-content, .prose) blockquote {
+  font-size: 1.125rem !important;
+  line-height: 1.9 !important;
+}
+
 /* 学习区大量说明文字用 Tailwind 的低透明度白色；专注态把中性文字抬到可读区间。
  * 只覆盖中性色，violet/amber 等语义强调色不动。 */
-html[data-focus-mode="on"] .text-white\/25,
-html[data-focus-mode="on"] .text-white\/30 {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/25,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/30 {
   color: rgb(255 255 255 / 0.58) !important;
 }
 
-html[data-focus-mode="on"] .text-white\/35,
-html[data-focus-mode="on"] .text-white\/40 {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/35,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/40 {
   color: rgb(255 255 255 / 0.66) !important;
 }
 
-html[data-focus-mode="on"] .text-white\/45,
-html[data-focus-mode="on"] .text-white\/50 {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/45,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/50 {
   color: rgb(255 255 255 / 0.72) !important;
 }
 
-html[data-focus-mode="on"] .text-white\/55 {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/55 {
   color: rgb(255 255 255 / 0.8) !important;
 }
 
-html[data-focus-mode="on"] .text-white\/60,
-html[data-focus-mode="on"] .text-white\/65 {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/60,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/65 {
   color: rgb(255 255 255 / 0.86) !important;
 }
 
-html[data-focus-mode="on"] .text-white\/70,
-html[data-focus-mode="on"] .text-white\/75 {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/70,
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .text-white\/75 {
   color: rgb(255 255 255 / 0.9) !important;
 }
 
 /* 边框也随文字一起抬亮，否则深底上的卡片边界会先消失。 */
-html[data-focus-mode="on"] .border-white\/10 {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .border-white\/10 {
   border-color: rgb(255 255 255 / 0.18) !important;
 }
 
-html[data-focus-mode="on"] .border-white\/15 {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .border-white\/15 {
   border-color: rgb(255 255 255 / 0.24) !important;
 }
 
 /* 学习页的极淡卡片底色在去掉粒子后几乎等于纯黑，给它一层可辨的实底。 */
-html[data-focus-mode="on"] .bg-white\/\[0\.02\] {
+html[data-focus-mode="on"]:not([data-focus-scope="writing"]) .bg-white\/\[0\.02\] {
   background-color: rgb(255 255 255 / 0.045) !important;
 }
 

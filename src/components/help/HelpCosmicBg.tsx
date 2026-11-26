@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from '@/lib/motion';
 import { useOptionalSiteTheme } from '@/components/theme/ThemeProvider';
 
@@ -13,9 +13,17 @@ export default function HelpCosmicBg() {
   const ref = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
   const siteTheme = useOptionalSiteTheme()?.theme ?? 'nebula';
+  const [focusMode, setFocusMode] = useState(false);
 
   useEffect(() => {
-    if (reduced) return;
+    const sync = () => setFocusMode(document.documentElement.dataset.focusMode === 'on');
+    sync();
+    window.addEventListener('meteor:focus-mode-change', sync);
+    return () => window.removeEventListener('meteor:focus-mode-change', sync);
+  }, []);
+
+  useEffect(() => {
+    if (reduced || focusMode) return;
     const canvas = ref.current;
     if (!canvas) return;
 
@@ -102,13 +110,14 @@ export default function HelpCosmicBg() {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
-  }, [reduced, siteTheme]);
+  }, [reduced, siteTheme, focusMode]);
 
-  if (reduced) return null;
+  if (reduced || focusMode) return null;
 
   return (
     <canvas
       ref={ref}
+      data-ambient
       className="pointer-events-none fixed inset-0 h-full w-full"
       style={{ zIndex: 0 }}
       aria-hidden="true"
