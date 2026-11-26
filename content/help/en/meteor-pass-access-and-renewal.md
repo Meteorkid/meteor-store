@@ -1,8 +1,8 @@
 ## What Meteor Pass covers
 
-Meteor Pass is a site-wide membership for Meteor Store. It covers every product currently available in the store and every product added in the future — you won't pay extra when new products launch.
+Meteor Pass covers the five personal tools on the XIsland line. Tools added to that line while your Pass is active are included automatically. Lab projects and other standalone products are outside this scope.
 
-Products that run in the browser open directly on the site. For the rest, the system issues license keys that you can find on your Account page. The Pass gives you a license to use them all; it does not change how each individual product is delivered.
+Some tools on this line run in the browser; others are downloaded and installed, or activated with a license key in third-party software. Pass only answers whether you have access; it does not change how each tool is delivered.
 
 ## Plans and pricing
 
@@ -16,13 +16,13 @@ Three plans are available on the homepage pricing section. Pricing is the same f
 
 Monthly covers you for a single billing cycle and works well if you are trying things out or only need access for a short window. Annual is the recommended plan — it averages about ¥1.6 per month and saves you 82% compared to paying monthly. Lifetime is a one-time purchase with no expiration or renewal ever.
 
-All plans include the same products. The differences are duration, price, and support priority (Annual and Lifetime users get priority email support; Lifetime users also get a direct line to the store owner).
+All plans cover the same XIsland-line tools. The differences are duration, price, and support priority (Annual and Lifetime users get priority email support; Lifetime users also get a direct line to the store owner).
 
 ### What each plan includes
 
-- Every product in the store, licensed for the duration of your plan
-- Web apps that open directly in the browser; downloadable and license-key products delivered through the normal channels
-- New products added to the store after your purchase — automatically covered
+- Every tool on the XIsland line, licensed for the duration of your plan
+- Web apps that open directly in the browser; downloadable and license-key tools delivered through the normal channels
+- New tools added to the line after your purchase — automatically covered
 - Email support (priority for Annual and Lifetime; direct-to-maker for Lifetime)
 
 ## How Pass validity works
@@ -59,7 +59,7 @@ Lifetime Passes do not expire and do not require renewal.
 
 Single-product purchases take priority over Pass coverage. If you bought a product directly — whether through the store, a free claim, or an invitation code — that product remains yours permanently. The Pass badge next to it on the My Products page only indicates that Pass would have covered it too; it does not mean Pass is the only source of access.
 
-Pass fills in the gaps. Any product you have not purchased individually but is covered by your Pass becomes available through the Pass. On the My Products and Apps pages, Pass-covered products are marked with a "Pass" badge so you can tell them apart from direct purchases.
+Pass fills in the gaps on the XIsland line. Any tool on that line you have not purchased individually but that is covered by your Pass becomes available through the Pass. On the My Products and Apps pages, Pass-covered products are marked with a "Pass" badge so you can tell them apart from direct purchases.
 
 ### Refunds and Pass coverage
 

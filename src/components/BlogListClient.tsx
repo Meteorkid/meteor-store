@@ -6,7 +6,6 @@ import { Link } from '@/i18n/navigation';
 import type { FeedPostSummary } from '@/data/blog-feed';
 import {
   getSectionById,
-  getSectionsByChannel,
   type BlogSectionId,
 } from '@/data/blog-sections';
 import { normalizeTag, type TagSummary } from '@/data/blog-tags';
@@ -28,11 +27,10 @@ const sortDimensions: {
   { value: 'eventDate', labelKey: 'sortByEvent' },
 ];
 
-const channelGroups = getSectionsByChannel();
 
 /** 编辑部风格的日期：2026.07.01 */
 function formatDate(date: string): string {
-  return date.replace(/-/g, '.');
+  return date.slice(0, 10).replace(/-/g, '.');
 }
 
 /** 每篇文章带上自己分区的主题色 */
@@ -44,8 +42,6 @@ function accentStyle(sectionId: string): React.CSSProperties {
 interface BlogListClientProps {
   /** 只接收摘要字段，正文留在服务端，不进客户端 bundle */
   posts: FeedPostSummary[];
-  /** 各分区文章数，由服务端算好传入，避免把正文带进来 */
-  counts: Record<string, number>;
   /** 当前分区，未传表示「全部」。分区是骨架，标签在其上多选叠加 */
   activeSectionId?: BlogSectionId;
   /** 初始选中的标签（来自 URL 等外部入口），交客户端原位增删 */
@@ -60,7 +56,6 @@ interface BlogListClientProps {
 
 export default function BlogListClient({
   posts,
-  counts,
   activeSectionId,
   initialTags = [],
   hotTags,
@@ -71,6 +66,8 @@ export default function BlogListClient({
   const [direction, setDirection] = useState<SortDirection>('desc');
   // 选中的标签集：点击热门标签切换，❌ 移除单个，清除全部一键清空
   const [selectedTags, setSelectedTags] = useState<TagSummary[]>(initialTags);
+  // 纪年切片：按文章发布年份回看旧光；默认显示全部
+  const [activeYear, setActiveYear] = useState<string>('all');
   const { user } = useAuth();
   const locale = useLocale() as Locale;
   const t = useTranslations('BlogList');
@@ -96,10 +93,21 @@ export default function BlogListClient({
 
   const clearTags = useCallback(() => setSelectedTags([]), []);
 
+  // 年份倒序；不把空年份做进导航
+  const years = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const post of posts) {
+      const year = post.date.slice(0, 4);
+      if (year) counts.set(year, (counts.get(year) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort(([left], [right]) => right.localeCompare(left));
+  }, [posts]);
+
   // 多标签「任一命中」：命中任一已选标签的文章都保留；不选标签时为全部
   const filtered = useMemo(() => {
     const getTime = (p: FeedPostSummary) => (dimension === 'date' ? p.date : p.eventDate);
     const result = [...posts].filter((p) => {
+      if (activeYear !== 'all' && p.date.slice(0, 4) !== activeYear) return false;
       if (selectedTags.length === 0) return true;
       return selectedTags.some((tag) => p.tags.some((t) => normalizeTag(t) === tag.key));
     });
@@ -108,75 +116,106 @@ export default function BlogListClient({
       return direction === 'desc' ? -cmp : cmp;
     });
     return result;
-  }, [posts, selectedTags, dimension, direction]);
+  }, [posts, selectedTags, activeYear, dimension, direction]);
 
   const [lede, ...rest] = filtered;
   const ledeSection = lede ? getSectionById(lede.section) : undefined;
 
   return (
     <div className="relative">
-      {/* 光晕垫在工具条背后，玻璃才有东西可折射 */}
-      <div aria-hidden className="blog-glow" />
-
       {/* 右侧垂直时间轴：文章数 >= 2 时展示 */}
       {filtered.length >= 2 && <BlogTimeline posts={filtered} anchorsRef={anchorsRef} />}
 
-      {/* 一个玻璃工具条收纳全部导航与筛选，而不是散落的小字 */}
-      <div className="blog-toolbar glass relative mb-12 p-2">
-        <nav
-          aria-label={t('sectionsAria')}
-          className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <Link
-            href="/blog/stars"
-            title={t('starMap')}
-            className="shrink-0 rounded-full px-3 py-2 text-sm font-medium text-white/50 transition-colors duration-200 hover:text-white"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="inline-block">
-              <path d="M12 2l2.9 6.26 6.6.64-5 4.4 1.5 6.5L12 16.9 5.99 19.8 7.5 13.3l-5-4.4 6.6-.64z" />
-            </svg>
-            <span className="sr-only">{t('starMap')}</span>
-          </Link>
-          <Link
-            href="/blog"
-            aria-current={activeSectionId ? undefined : 'page'}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-              activeSectionId
-                ? 'text-white/50 hover:text-white'
-                : 'bg-white/[0.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]'
-            }`}
-          >
-            {t('all')}
-          </Link>
-
-          {channelGroups.map(({ channel, sections }) => (
-            <div key={channel.id} className="flex shrink-0 items-center gap-1">
-              <span aria-hidden className="mx-2 h-5 w-px bg-white/10" />
-              <span className="t-eyebrow mr-1 shrink-0 text-white/60">{channel.label[locale]}</span>
-              {sections.map((s) => {
-                const active = s.id === activeSectionId;
-                const count = counts[s.id] ?? 0;
-                return (
-                  <Link
-                    key={s.id}
-                    href={`/blog/section/${s.slug}`}
-                    title={s.description[locale]}
-                    aria-current={active ? 'page' : undefined}
-                    style={{ '--tab-accent': s.rgb } as React.CSSProperties}
-                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                      active ? 'blog-tab--active' : 'text-white/50 hover:text-white'
+      {/* 筛选：纪年和排序压到一条，栏目已经移到页头 */}
+      <div className="mb-5 flex flex-col gap-3 border-b border-white/[0.08] pb-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          {years.length > 0 && (
+            <>
+              <span className="t-eyebrow text-white/40">{t('chronicle')}</span>
+              <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t('yearAria')}>
+                {years.length > 1 && (
+                  <button
+                    type="button"
+                    aria-pressed={activeYear === 'all'}
+                    onClick={() => setActiveYear('all')}
+                    className={`min-h-8 rounded-lg px-2.5 text-xs transition-colors duration-200 ${
+                      activeYear === 'all' ? 'bg-white/[0.1] text-white' : 'text-white/45 hover:bg-white/[0.05] hover:text-white/75'
                     }`}
                   >
-                    {s.label[locale]}
-                    {count > 0 && (
-                      <span className="ml-1.5 text-[11px] font-normal tabular-nums opacity-70">{count}</span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
+                    {t('allYears')}
+                  </button>
+                )}
+                {years.map(([year, count]) => {
+                  const isActive = activeYear === year || (activeYear === 'all' && years.length === 1);
+                  return (
+                    <button
+                      key={year}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() => setActiveYear(year)}
+                      className={`min-h-8 rounded-lg px-2.5 text-xs tabular-nums transition-colors duration-200 ${
+                        isActive ? 'bg-white/[0.1] text-white' : 'text-white/45 hover:bg-white/[0.05] hover:text-white/75'
+                      }`}
+                    >
+                      {year}
+                      <span className="ml-1 text-[10px] text-white/35">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="hidden t-footnote text-white/30 sm:inline">
+                {years.length === 1 ? t('yearFirstHint') : t('yearHint')}
+              </span>
+            </>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 lg:justify-end">
+          <div role="group" aria-labelledby="blog-sort-label" className="flex flex-wrap items-center gap-x-1 gap-y-1">
+            <span id="blog-sort-label" className="t-eyebrow mr-1 text-white/45">{t('sort')}</span>
+            {sortDimensions.map((dim) => {
+              const active = dimension === dim.value;
+              return (
+                <button
+                  key={dim.value}
+                  type="button"
+                  onClick={() => {
+                    if (active) {
+                      // 再点一次当前维度 = 切换升序/降序
+                      setDirection(direction === 'desc' ? 'asc' : 'desc');
+                    } else {
+                      // 切到另一个维度，默认降序（新/晚在前）
+                      setDimension(dim.value);
+                      setDirection('desc');
+                    }
+                  }}
+                  aria-pressed={active}
+                  title={active ? t(direction === 'desc' ? 'sortDesc' : 'sortAsc') : undefined}
+                  className={`t-footnote inline-flex items-center gap-1 rounded-lg px-2.5 py-1 transition-colors duration-200 ${
+                    active ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
+                  }`}
+                >
+                  {t(dim.labelKey)}
+                  <span aria-hidden className="text-[0.8em] leading-none">
+                    {active ? (direction === 'desc' ? '↓' : '↑') : '↕'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="t-footnote flex items-center gap-3">
+            <span className="tabular-nums text-white/60">{t('count', { count: filtered.length })}</span>
+            <span aria-hidden className="text-white/15">·</span>
+            {/* 读完想写一篇的时候，入口该在这里 */}
+            <Link
+              href={user ? '/blog/submit' : buildLoginHref('/blog/submit')}
+              className="text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
+            >
+              {t('write')}
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* 已选标签：原位管理，每个带 ✕ 移除，一键清除全部 */}
@@ -253,53 +292,6 @@ export default function BlogListClient({
           )}
         </nav>
       )}
-
-      {/* 排序 */}
-      <div className="mb-10 flex items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
-        <div role="group" aria-labelledby="blog-sort-label" className="flex flex-wrap items-center gap-x-1 gap-y-1">
-          <span id="blog-sort-label" className="t-eyebrow mr-1 text-white/45">{t('sort')}</span>
-          {sortDimensions.map((dim) => {
-            const active = dimension === dim.value;
-            return (
-              <button
-                key={dim.value}
-                type="button"
-                onClick={() => {
-                  if (active) {
-                    // 再点一次当前维度 = 切换升序/降序
-                    setDirection(direction === 'desc' ? 'asc' : 'desc');
-                  } else {
-                    // 切到另一个维度，默认降序（新/晚在前）
-                    setDimension(dim.value);
-                    setDirection('desc');
-                  }
-                }}
-                aria-pressed={active}
-                title={active ? t(direction === 'desc' ? 'sortDesc' : 'sortAsc') : undefined}
-                className={`t-footnote inline-flex items-center gap-1 rounded-lg px-2.5 py-1 transition-colors duration-200 ${
-                  active ? 'bg-white/10 text-white' : 'text-white/60 hover:text-white'
-                }`}
-              >
-                {t(dim.labelKey)}
-                <span aria-hidden className="text-[0.8em] leading-none">
-                  {active ? (direction === 'desc' ? '↓' : '↑') : '↕'}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        <div className="t-footnote flex items-center gap-3">
-          <span className="tabular-nums text-white/60">{t('count', { count: filtered.length })}</span>
-          <span aria-hidden className="text-white/15">·</span>
-          {/* 读完想写一篇的时候，入口该在这里 */}
-          <Link
-            href={user ? '/blog/submit' : buildLoginHref('/blog/submit')}
-            className="text-white/60 underline decoration-white/20 underline-offset-4 transition-colors duration-200 hover:text-white hover:decoration-white"
-          >
-            {t('write')}
-          </Link>
-        </div>
-      </div>
 
       {filtered.length === 0 ? (
         <div className="py-14 text-center">

@@ -4,21 +4,25 @@ type CelestialLabel = Record<Locale, string>;
 
 export type FourSymbolId = 'azureDragon' | 'vermilionBird' | 'whiteTiger' | 'blackTortoise';
 
-export const FOUR_SYMBOLS: Record<FourSymbolId, { label: CelestialLabel; rgb: string }> = {
+export const FOUR_SYMBOLS: Record<FourSymbolId, { label: CelestialLabel; shortLabel: CelestialLabel; rgb: string }> = {
   azureDragon: {
     label: { zh: '东方青龙', en: 'Azure Dragon of the East' },
+    shortLabel: { zh: '青龙', en: 'Azure Dragon' },
     rgb: '94 234 212',
   },
   vermilionBird: {
     label: { zh: '南方朱雀', en: 'Vermilion Bird of the South' },
+    shortLabel: { zh: '朱雀', en: 'Vermilion Bird' },
     rgb: '248 113 113',
   },
   whiteTiger: {
     label: { zh: '西方白虎', en: 'White Tiger of the West' },
+    shortLabel: { zh: '白虎', en: 'White Tiger' },
     rgb: '226 232 240',
   },
   blackTortoise: {
     label: { zh: '北方玄武', en: 'Black Tortoise of the North' },
+    shortLabel: { zh: '玄武', en: 'Black Tortoise' },
     rgb: '94 129 172',
   },
 };

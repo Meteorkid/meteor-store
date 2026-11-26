@@ -9,16 +9,33 @@ interface ProductCardProps {
   product: LocalizedProduct;
   priority?: boolean;
   /**
-   * 二十八宿标记（见 src/data/celestial.ts）。纯装饰，故 aria-hidden。
-   * 放在标题行**内部**而不是探出卡片上沿——`.glass-card` 有 overflow: hidden，
-   * 负偏移的徽标会被裁掉一半（要探出得加 .glass-card-badge-safe）。
+   * 二十八宿标记（见 src/data/celestial.ts）。
+   * 宿名现在是有语义的内容：产品页会在地图上解释它属于哪一象、第几宿。
+   * 仍放在封面右上角，而不是标题行，避免挤占较长的产品名。
    */
   mansion?: string;
+  /** 完整宿名标签；客星之类不在二十八宿正位时使用 */
+  mansionLabel?: string;
+  /** 该宿所属四象的短名，例如「青龙」「玄武」 */
+  mansionSymbol?: string;
+  /** 该宿在本象中的序号（从 1 开始） */
+  mansionPosition?: number;
+  /** 本象共几宿，通常为 7 */
+  mansionTotal?: number;
   /** 该宿所属四象的配色，形如 "94 234 212" */
   mansionRgb?: string;
 }
 
-export default async function ProductCard({ product, priority = false, mansion, mansionRgb }: ProductCardProps) {
+export default async function ProductCard({
+  product,
+  priority = false,
+  mansion,
+  mansionLabel,
+  mansionSymbol,
+  mansionPosition,
+  mansionTotal = 7,
+  mansionRgb,
+}: ProductCardProps) {
   const t = await getTranslations('ProductsPage');
   const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map(p => p.price)) : 0;
 
@@ -32,26 +49,29 @@ export default async function ProductCard({ product, priority = false, mansion, 
 
       <ProductVisual product={product} showDemo priority={priority} transitionName={`product-visual-${product.id}`} />
 
+      {(mansion || mansionLabel) && mansionRgb && (
+        <span
+          className="absolute right-5 top-5 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/65 px-2.5 py-1.5 text-white shadow-lg shadow-black/20 backdrop-blur-md"
+          style={{ borderColor: `rgb(${mansionRgb} / 0.32)` }}
+          title={mansionLabel
+            ? `${mansionSymbol ? `${mansionSymbol} · ` : ''}${mansionLabel}；星区标记，不是等级`
+            : `${mansionSymbol ? `${mansionSymbol} · ` : ''}${mansion}宿${mansionPosition ? `（第 ${mansionPosition} 宿 / 共 ${mansionTotal} 宿）` : ''}；星区标记，不是等级`}
+        >
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: `rgb(${mansionRgb})`, boxShadow: `0 0 8px rgb(${mansionRgb} / 0.6)` }}
+          />
+          {mansionSymbol && <span className="text-[10px] text-white/55">{mansionSymbol}</span>}
+          <span className="text-[12px] font-semibold" style={{ color: `rgb(${mansionRgb})` }}>{mansionLabel ?? `${mansion}宿`}</span>
+        </span>
+      )}
+
       <div className="relative px-3 pb-3 pt-5">
         {/* Title */}
-        <div className="mb-2 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="text-xl font-bold text-white" style={{ viewTransitionName: `product-title-${product.id}` }}>{product.name}</h3>
-            <p className="mt-1 text-sm text-gray-400">{product.tagline}</p>
-          </div>
-          {mansion && mansionRgb && (
-            <span
-              aria-hidden="true"
-              className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[13px] font-medium tracking-normal"
-              style={{
-                borderColor: `rgb(${mansionRgb} / 0.3)`,
-                color: `rgb(${mansionRgb} / 0.9)`,
-                background: `rgb(${mansionRgb} / 0.07)`,
-              }}
-            >
-              {mansion}
-            </span>
-          )}
+        <div className="mb-2 min-w-0">
+          <h3 className="text-xl font-bold text-white" style={{ viewTransitionName: `product-title-${product.id}` }}>{product.name}</h3>
+          <p className="mt-1 text-sm text-gray-400">{product.tagline}</p>
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2">

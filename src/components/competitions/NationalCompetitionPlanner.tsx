@@ -85,7 +85,7 @@ export default function NationalCompetitionPlanner({ locale, year, years, nowIso
                 <p className="t-footnote text-white/60">{copy.exactPending}</p>
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <Metric value={withWindow} label={locale === 'zh' ? '有公开月份窗口' : 'with public month windows'} />
+                <Metric value={withWindow} label={locale === 'zh' ? '有报名月份' : 'with registration months'} />
                 <Metric value={pending} label={locale === 'zh' ? '日期待公布' : 'dates pending'} />
                 <Metric value={fields.length} label={locale === 'zh' ? '学科方向' : 'subject groups'} />
               </div>
@@ -145,7 +145,7 @@ export default function NationalCompetitionPlanner({ locale, year, years, nowIso
                     const schedule = scheduleForYear(competition, year);
                     const status = competitionStatus(schedule, now);
                     return <li key={competition.id} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-                      <div className="flex items-start justify-between gap-3"><span className="font-mono text-xs text-white/35">{String(competition.order).padStart(2, '0')}</span><span className="rounded-full border border-violet-300/20 px-2.5 py-1 text-[11px] text-violet-100">{copy.levelA}</span></div>
+                      <div className="flex items-start justify-between gap-3"><span className="font-mono text-xs text-white/35">{copy.number} {String(competition.order).padStart(2, '0')}</span><span className="rounded-full border border-violet-300/20 px-2.5 py-1 text-[11px] text-violet-100">{copy.levelA}</span></div>
                       <h3 className="mt-3 t-title-4 leading-6 text-white">{competition.name}</h3>
                       <p className="mt-1 t-footnote text-white/60">{competition.field}</p>
                       <div className="mt-3"><DateWindow schedule={schedule} copy={copy} /><StatusBadge status={status} label={statusLabel[status]} /></div>
@@ -169,11 +169,16 @@ const inputClass = 'mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-zi
 
 function Metric({ value, label }: { value: number; label: string }) { return <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-3"><strong className="block t-title-3 tabular-nums text-white">{value}</strong><span className="mt-1 block t-footnote leading-5 text-white/60">{label}</span></div>; }
 function StatusBadge({ status, label }: { status: CompetitionStatus; label: string }) { return <span className={`mt-2 flex w-fit rounded-full border px-2.5 py-1 text-[11px] ${statusClass[status]}`}>{label}</span>; }
+function formatMonth(value: string) {
+  // 数据里既有 2025-10 这样的月份，也有 2026-03-15 这样的精确日期；统一成 2025.10 / 2026.03.15。
+  return value.replace(/-/g, '.');
+}
+
 function DateWindow({ schedule, copy }: { schedule: ReturnType<typeof scheduleForYear>; copy: CompetitionCalendarCopy }) {
   if (!schedule) return <><p className="t-footnote text-white/50">{copy.pendingDate}</p><p className="mt-1 text-xs text-amber-100">{copy.exactPending}</p></>;
-  const start = schedule.start ?? copy.startUnknown;
-  const end = schedule.end ?? (schedule.endLabel === '-' ? copy.endUnknown : schedule.endLabel);
-  return <><p className="font-mono text-xs text-white/80">{start} — {end}</p><p className="mt-1 t-footnote text-white/50">{schedule.startLabel} — {schedule.endLabel} · {copy.monthPrecision}</p><a href={schedule.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex text-[11px] text-white/45 underline underline-offset-2 hover:text-white/70">{copy.dateSource} ↗</a></>;
+  const start = schedule.start ? formatMonth(schedule.start) : copy.startUnknown;
+  const end = schedule.end ? formatMonth(schedule.end) : (schedule.endLabel === '-' ? copy.endUnknown : formatMonth(schedule.endLabel));
+  return <><p className="font-mono text-xs text-white/80">{start} — {end}</p><a href={schedule.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex text-[11px] text-white/45 underline underline-offset-2 hover:text-white/70">{copy.dateSource} ↗</a></>;
 }
 function OfficialLink({ competition, label, missing }: { competition: NationalCompetition; label: string; missing: string }) {
   return competition.officialUrl

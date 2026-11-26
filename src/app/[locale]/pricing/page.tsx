@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PricingSection from '@/components/PricingSection';
+import { SectionMasthead } from '@/components/section/SectionPage';
 import { productLineIds } from '@/data/product-tracks';
 import { SHOW_PRICING } from '@/lib/constants';
 import { currentFreeLicenseOffers } from '@/lib/software-licenses/offers';
@@ -42,16 +43,13 @@ export default async function PricingPage({
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      <main className="container mx-auto px-4 py-16 md:py-20">
-        {/* Hero：眉标「定价」唯一出现一次，标题用星宿流光渐变，副标题带产品数量 */}
-        <div className="mx-auto mb-8 max-w-5xl md:mb-12">
-          <p className="t-eyebrow text-primary mb-4 text-center">{t('eyebrow')}</p>
-          <h1 className="t-title-1 hero-gradient mb-4 text-center">{t('title')}</h1>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-center text-lg">
-            {t('description', { count: productLineIds.length })}
-          </p>
-        </div>
+      <SectionMasthead
+        eyebrow={t('eyebrow')}
+        title={t('title')}
+        description={t('description', { count: productLineIds.length })}
+      />
 
+      <main className="mx-auto w-full max-w-7xl px-4 py-12 md:py-16">
         <PricingSection
           productCount={productLineIds.length}
           freeLicenseOffers={currentFreeLicenseOffers(locale === 'en' ? 'en' : 'zh')}

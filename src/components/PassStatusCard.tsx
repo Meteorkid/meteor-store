@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "./AuthProvider";
 import { Link } from "@/i18n/navigation";
-import { useTranslations, useLocale } from "next-intl";
+import { formatDotDate } from "@/lib/date-format";
+import { useTranslations } from "next-intl";
 
 type PassStatus = {
   hasPass: boolean;
@@ -14,7 +15,6 @@ type PassStatus = {
 export default function PassStatusCard() {
   const { user } = useAuth();
   const t = useTranslations("PassStatusCard");
-  const locale = useLocale();
   const [status, setStatus] = useState<PassStatus | null>(null);
 
   useEffect(() => {
@@ -33,9 +33,7 @@ export default function PassStatusCard() {
     : "";
 
   const isLifetime = status.currentPlan === "lifetime";
-  const expiryDate = status.expiresAt
-    ? new Date(status.expiresAt).toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US", { year: "numeric", month: "long", day: "numeric" })
-    : null;
+  const expiryDate = status.expiresAt ? formatDotDate(status.expiresAt) : null;
 
   return (
     <div className="glass-card mb-8 rounded-3xl p-7 md:p-9 bg-gradient-to-r from-purple-500/5 via-emerald-500/5 to-purple-500/5 border-emerald-500/20">

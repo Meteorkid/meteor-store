@@ -9,6 +9,7 @@ import {
   type PathfinderItemType,
   type PathfinderRemoteStatus,
 } from './catalog-types';
+import { formatDotDate } from '@/lib/date-format';
 import { PATHFINDER_SYNC_SOURCE_MAP } from './ingestion/sources';
 
 export type PathfinderLocale = 'zh' | 'en';
@@ -251,12 +252,7 @@ export function formatCatalogDeadlineDate(
   if (!item.deadlineDate) return null;
   const date = new Date(`${item.deadlineDate}T00:00:00Z`);
   if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  }).format(date);
+  return formatDotDate(date);
 }
 
 const DIFFICULTY_ENTRY_ORDER: Record<PathfinderDifficulty, number> = {
@@ -549,12 +545,14 @@ export function formatDate(value: string | null, locale: PathfinderLocale) {
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', {
+  const parts = new Intl.DateTimeFormat('en-CA', {
     year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
     timeZone: 'Asia/Shanghai',
-  }).format(date);
+  }).formatToParts(date);
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? '';
+  return `${part('year')}.${part('month')}.${part('day')}`;
 }
 
 /**

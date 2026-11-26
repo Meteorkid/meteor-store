@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { runCancellableTask } from '@/lib/cancellable-task';
+import { formatDotDate } from '@/lib/date-format';
 import { useAuth } from './AuthProvider';
 import ReportDialog from './ReportDialog';
 
@@ -31,7 +32,7 @@ function timeAgo(
   if (h < 24) return t('hoursAgo', { h });
   const d = Math.floor(h / 24);
   if (d < 30) return t('daysAgo', { d });
-  return new Date(iso).toLocaleDateString(locale === 'en' ? 'en-US' : 'zh-CN');
+  return formatDotDate(iso);
 }
 
 function Avatar({ name, url }: { name: string; url: string | null }) {

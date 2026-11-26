@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations, useLocale } from 'next-intl';
+import { formatDotDate } from '@/lib/date-format';
 import { pickAnnouncementText } from '@/lib/announcement-text';
 import { EMPTY_ANNOUNCEMENT_STATE, announcementTimestamp, ensureAnnouncements, getAnnouncementState, hasUnreadAnnouncements, markAnnouncementsRead, subscribeAnnouncements, watchAnnouncements } from '@/lib/announcement-client';
 import { useAuth } from '@/components/AuthProvider';
@@ -22,15 +23,7 @@ const DailyNotificationPanel = dynamic(() => import('@/components/daily/DailyNot
   loading: () => <div className="px-4 py-6" aria-busy="true"><span className="block h-3 w-32 rounded bg-white/10" /></div>,
 });
 
-function formatDate(value: string, locale: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(date);
-}
+const formatDate = (value: string, _locale: string): string => formatDotDate(value);
 
 export default function NotificationBell() {
   const t = useTranslations('NotificationBell');

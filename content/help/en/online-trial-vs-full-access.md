@@ -31,7 +31,7 @@ The trial route is `/apps/{product id}/trial`, and it does **no authorization ch
 If you like what you see in the trial, two ways to get full access:
 
 1. **Buy the individual product** — Pick a paid tier or claim the ¥0 free tier on the product detail page. After purchase or claiming, open the full version from the My Products page.
-2. **Get Meteor Pass** — If several products interest you, a Pass (monthly / annual / lifetime) is usually cheaper than buying them one by one. Pass covers every product in the store. Once you have it, go to My Products and open the full version.
+2. **Get Meteor Pass** — If several products interest you, a Pass (monthly / annual / lifetime) is usually cheaper than buying them one by one. Pass covers the personal tools on the XIsland line. Once you have it, go to My Products and open the full version. Lab projects are outside Pass coverage.
 
 ## Which products have a trial
 

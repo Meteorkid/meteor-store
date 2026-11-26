@@ -10,7 +10,7 @@ If this is your first time on the site, this article will walk you through what 
 
 The homepage is the front window of the shop. From top to bottom:
 
-- **Brand and navigation bar** — The "Meteor Store" logo takes you home. Five groups organize the links: Products, Daily, Learn & explore, Writing, and Help. Open a group to choose a destination. Use the search button, `/` when you are not typing, or `⌘K` (`Ctrl+K` on Windows) to search the site.
+- **Brand and navigation bar** — The "Meteor Store" logo takes you home. Five groups organize the links: Products, Daily, Learn & explore, Blog, and Help. Open a group to choose a destination. Use the search button, `/` when you are not typing, or `⌘K` (`Ctrl+K` on Windows) to search the site.
 - **Hero section** — The first screen you see, with a one-line summary of what the maker does.
 - **Partners and product showcase** — Scroll down and you will find product cards, each showing the product name, a short description, and the lowest available price.
 - **Pricing section** — When sales are enabled, Meteor Pass offers monthly, annual, and lifetime plans for the main product line. Check the pricing page for the current coverage.
@@ -25,7 +25,7 @@ Pick a path based on what you want to do:
 - **Try something for free** — Some products have a ¥0 tier that you can claim after signing in. The anatomy, gesture, and fluid demos are public; Tollow requires sign-in to sync your progress. Follow the requirements shown at each entry.
 - **Explore Meteor Pass** — Open "Meteor Pass & pricing" under Products. Pass covers the main product line. Lab projects are already free, so you do not need Pass for them. Check the product-line and entitlement details for coverage of future products.
 - **Read a little every day** — Open Daily for English, papers, AI, events, open source, contests, or internships. Learn & explore also includes the national competition planner and year-round master’s application calendar.
-- **Read or submit articles** — Open Writing to browse all articles or a section, with RSS available. Your account menu provides the submission entry after sign-in. Posts become public after review.
+- **Read or submit articles** — Open Blog to browse all articles or a section, with RSS available. Your account menu provides the submission entry after sign-in. Posts become public after review.
 - **Get help or contact the maker** — Open Help for the help center, contact details, or feedback.
 
 ## A few concepts to know first

@@ -320,7 +320,7 @@ export async function sendPassExpiryReminder(data: PassExpiryReminderEmailData) 
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #333;">⏳ Meteor Pass 即将到期</h1>
-        <p>您的 Meteor Pass 全站会员将于 <strong>${escapeHtml(data.expiresAt.slice(0, 10))}</strong> 到期，还剩 <strong>${daysLeft}</strong> 天。</p>
+        <p>您的 Meteor Pass 会员将于 <strong>${escapeHtml(data.expiresAt.slice(0, 10))}</strong> 到期，还剩 <strong>${daysLeft}</strong> 天。</p>
         <p>到期后，站内产品将不再解锁。续费后有效期自动顺延，不会浪费已购时长。</p>
         <p style="margin: 28px 0;">
           <a href="${renewUrl}" style="display: inline-block; padding: 12px 20px; border-radius: 8px; background: #7c3aed; color: #fff; text-decoration: none; font-weight: 600;">立即续费</a>

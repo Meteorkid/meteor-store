@@ -58,7 +58,7 @@ const BEIDOU_LINES =
 
 /** 格式化成编辑部风格：2026.07.01 */
 function formatDate(date: string): string {
-  return date.replace(/-/g, '.');
+  return date.slice(0, 10).replace(/-/g, '.');
 }
 
 export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {

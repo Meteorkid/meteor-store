@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { formatDotDate } from '@/lib/date-format';
 import { useTranslations } from 'next-intl';
 import { runCancellableTask } from '@/lib/cancellable-task';
 
@@ -245,7 +246,7 @@ export default function CommentModeration() {
                 <span className="text-sm font-medium text-white/80">{comment.authorName}</span>
                 <span aria-hidden className="text-white/20">·</span>
                 <time className="t-footnote tabular-nums text-white/60" dateTime={comment.createdAt}>
-                  {new Date(comment.createdAt).toLocaleDateString()}
+                  {formatDotDate(comment.createdAt)}
                 </time>
                 <span
                   className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass[comment.status] ?? 'bg-white/10 text-white/60'}`}

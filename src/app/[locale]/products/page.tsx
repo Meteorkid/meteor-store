@@ -5,6 +5,9 @@ import ProductCard from '@/components/ProductCard';
 import PassOwnedBadge from '@/components/PassOwnedBadge';
 import CelestialField from '@/components/CelestialField';
 import ProductStarStory from '@/components/ProductStarStory';
+import MansionChart from '@/components/section/MansionChart';
+import { mansionChartCopy } from '@/components/section/mansion-chart-copy';
+import { SectionMasthead, SectionTabs } from '@/components/section/SectionPage';
 import { products, localizeProduct } from '@/data/products';
 import { flagshipProductIds, selectLabProducts, selectProductLine } from '@/data/product-tracks';
 import { FOUR_SYMBOLS, mansionsOf } from '@/data/celestial';
@@ -15,15 +18,11 @@ interface Props {
 }
 
 /**
- * 产品页 —— 一页承载主线与实验室两个星区。
+ * 产品页 —— 一张完整的星图，而不是两段互不相干的货架。
  *
- * **实验室不再单独一页**：分成两页时它等于藏起来了，访客要多点一次才知道
- * 这些东西存在，而它们恰恰是「这个人能做什么」最有说服力的证据。放在主线下方，
- * 滚下去就看得到，同时用不同的星象配色把两者的性质分开——
- * 主线是东方青龙（主生发，正在做的），实验室是北方玄武（主收藏，做过的）。
- *
- * 星象素材全部来自 src/data/celestial.ts，与博客的星图、Pass 档位的
- * 「月相一轮 / 斗转一周 / 长明不息」同一套语汇，不另起炉灶。
+ * 页首仍然是星图叙事，但从整屏 Hero 收到信息条，让第一张产品卡在首屏内出现。
+ * 二十八宿不是装饰：主线落青龙、实验室落玄武，页面用一张完整的四象七宿索引
+ * 解释每个宿名的位置，并把朱雀、白虎留白给未来作品。
  */
 export default async function ProductsPage({ params }: Props) {
   const { locale } = await params;
@@ -47,47 +46,82 @@ export default async function ProductsPage({ params }: Props) {
       <main>
         <div className="relative overflow-hidden">
           <CelestialField seed="products-atlas" rgb={dragon.rgb} count={128} className="products-atlas-field" />
-          {/* 顶部光晕贯穿首屏与第一条产品线，避免两段独立背景在滚动时重新起图。 */}
+          {/* 顶部光晕贯穿信息条与栏目条，避免两段独立背景在滚动时重新起图。 */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[860px] -translate-x-1/2 -translate-y-1/3 rounded-full blur-3xl"
+            className="pointer-events-none absolute left-1/2 top-0 h-[480px] w-[820px] -translate-x-1/2 -translate-y-1/3 rounded-full blur-3xl"
             style={{ background: `radial-gradient(circle, rgb(${dragon.rgb} / 0.10) 0%, transparent 70%)` }}
           />
-        {/* ── 页首 ── */}
-        <section className="relative flex min-h-[calc(100svh-76px)] items-center px-4 py-16 lg:min-h-[calc(100svh-88px)] lg:py-20">
           <ProductStarStory rgb={dragon.rgb} />
-          <div className="container relative mx-auto max-w-3xl text-center">
-            <p className="t-eyebrow mb-5 uppercase text-white/45">Meteor Products</p>
-            {/* text-balance：中文长标题在窄一点的容器里会把最后一两个字甩成孤行，
-                balance 让浏览器把每行拉到差不多长 */}
-            <h1 className="t-display mb-5 text-balance bg-gradient-to-b from-white via-white to-white/50 bg-clip-text text-transparent">
-              {t('title')}
-            </h1>
-            <p className="t-body mx-auto max-w-xl text-pretty text-white/60">{t('description')}</p>
-          </div>
-          <div className="absolute inset-x-4 bottom-20 mx-auto max-w-5xl"><PassOwnedBadge /></div>
-          <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-1/2 flex -translate-x-1/2 flex-col items-center">
-            <span
-              className="h-14 w-px"
-              style={{ background: `linear-gradient(to bottom, transparent, rgb(${dragon.rgb} / 0.42))` }}
-            />
-            <span
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ background: `rgb(${dragon.rgb} / 0.9)`, boxShadow: `0 0 12px rgb(${dragon.rgb} / 0.55)` }}
-            />
-          </div>
-        </section>
+
+          <SectionMasthead
+            className="relative z-10"
+            accent={dragon.rgb}
+            eyebrow={t('eyebrow')}
+            title={t('title')}
+            description={t('description')}
+            actions={(
+              <>
+                <a href="#core" className="inline-flex min-h-11 items-center rounded-xl bg-white px-5 text-sm font-semibold text-black transition-colors hover:bg-white/85">
+                  {t('browseLine')}
+                </a>
+                <a href="#lab" className="inline-flex min-h-11 items-center rounded-xl border border-white/15 bg-white/[0.04] px-5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.08]">
+                  {t('browseLab')}
+                </a>
+              </>
+            )}
+            aside={(
+              <div className="glass-card rounded-2xl p-5">
+                <p className="t-eyebrow text-white/45">{t('chartEyebrow')}</p>
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                  <div>
+                    <strong className="block t-title-3 tabular-nums text-white">{all.length}</strong>
+                    <span className="t-footnote text-white/50">{t('statWorks')}</span>
+                  </div>
+                  <div>
+                    <strong className="block t-title-3 tabular-nums text-white">2</strong>
+                    <span className="t-footnote text-white/50">{t('statRegions')}</span>
+                  </div>
+                  <div>
+                    <strong className="block t-title-3 tabular-nums text-white">28</strong>
+                    <span className="t-footnote text-white/50">{t('statMansions')}</span>
+                  </div>
+                </div>
+                <p className="mt-4 border-t border-white/10 pt-3 t-footnote text-pretty text-white/55">
+                  {t('chartAside', { line: line.length, lab: lab.length })}
+                </p>
+              </div>
+            )}
+          />
+
+          <SectionTabs
+            className="relative z-10 bg-black/20 backdrop-blur-sm"
+            ariaLabel={t('sectionNav')}
+            accent={dragon.rgb}
+            items={[
+              { href: '#core', label: t('navAll'), active: true, count: all.length },
+              { href: '#core', label: t('navLine'), count: line.length },
+              { href: '#free', label: t('groupFree'), count: funnel.length },
+              { href: '#lab', label: t('navLab'), count: lab.length },
+              { href: '#mansion-chart', label: t('navChart') },
+            ]}
+          />
+        </div>
+
+        <div className="mx-auto max-w-7xl px-4 pt-6">
+          <PassOwnedBadge />
+        </div>
 
         {/* ── 主线星区 · 东方青龙 ── */}
-        <section className="relative pb-12 pt-10 md:pb-16 md:pt-14">
+        <section id="core" className="relative scroll-mt-24 pb-12 pt-10 md:pb-16 md:pt-14">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-0 h-px"
             style={{ background: `linear-gradient(90deg, transparent, rgb(${dragon.rgb} / 0.28), transparent)` }}
           />
-          <div className="container relative mx-auto px-4">
+          <div className="mx-auto w-full max-w-7xl px-4">
             <SectionHeading
-              symbol={dragon.label[locale as Locale]}
+              symbol={`${dragon.label[locale as Locale]} · ${line.length} 件`}
               rgb={dragon.rgb}
               title={t('lineTitle')}
               note={t('lineNote')}
@@ -101,25 +135,42 @@ export default async function ProductsPage({ params }: Props) {
                   product={product}
                   priority
                   mansion={dragonMansions[i]}
+                  mansionSymbol={dragon.shortLabel[locale as Locale]}
+                  mansionPosition={i + 1}
+                  mansionTotal={dragonMansions.length}
                   mansionRgb={dragon.rgb}
                 />
               ))}
             </div>
 
-            <GroupLabel text={t('groupFree')} rgb={dragon.rgb} note={t('groupFreeNote')} />
-            <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
-              {funnel.map((product, i) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  mansion={dragonMansions[flagship.length + i]}
-                  mansionRgb={dragon.rgb}
-                />
-              ))}
-            </div>
+            <section id="free" className="scroll-mt-24">
+              <GroupLabel text={t('groupFree')} rgb={dragon.rgb} note={t('groupFreeNote')} />
+              <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
+                {funnel.map((product, i) => {
+                  const position = flagship.length + i;
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      mansion={dragonMansions[position]}
+                      mansionSymbol={dragon.shortLabel[locale as Locale]}
+                      mansionPosition={position + 1}
+                      mansionTotal={dragonMansions.length}
+                      mansionRgb={dragon.rgb}
+                    />
+                  );
+                })}
+              </div>
+            </section>
           </div>
         </section>
-        </div>
+
+        <MansionChart
+          locale={locale as Locale}
+          lineCount={line.length}
+          labCount={lab.length}
+          copy={mansionChartCopy[locale as Locale]}
+        />
 
         {/* ── 星轨分隔：两个星区之间的过渡 ── */}
         <div aria-hidden="true" className="relative mx-auto my-2 h-px w-full max-w-4xl">
@@ -138,22 +189,29 @@ export default async function ProductsPage({ params }: Props) {
         {/* ── 实验室星区 · 北方玄武 ── */}
         <section id="lab" className="relative scroll-mt-24 overflow-hidden py-14 md:py-20">
           <CelestialField seed="lab-black-tortoise" rgb={tortoise.rgb} className="products-atlas-field" />
-          <div className="container relative mx-auto px-4">
+          <div className="mx-auto w-full max-w-7xl px-4">
             <SectionHeading
-              symbol={tortoise.label[locale as Locale]}
+              symbol={`${tortoise.label[locale as Locale]} · ${lab.length} 件`}
               rgb={tortoise.rgb}
               title={t('labTitle')}
               note={t('labNote')}
             />
             <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
-              {lab.map((product, i) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  mansion={tortoiseMansions[i]}
-                  mansionRgb={tortoise.rgb}
-                />
-              ))}
+              {lab.map((product, i) => {
+                const mansion = tortoiseMansions[i];
+                return (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    mansion={mansion}
+                    mansionLabel={mansion ? undefined : (locale === 'en' ? 'Guest star' : '客星')}
+                    mansionSymbol={tortoise.shortLabel[locale as Locale]}
+                    mansionPosition={mansion ? i + 1 : undefined}
+                    mansionTotal={mansion ? tortoiseMansions.length : undefined}
+                    mansionRgb={tortoise.rgb}
+                  />
+                );
+              })}
             </div>
           </div>
         </section>
@@ -174,7 +232,7 @@ function SectionHeading({ symbol, rgb, title, note }: { symbol: string; rgb: str
       </p>
       <h2 className="t-title-1 mb-3 text-balance text-white">{title}</h2>
       <div aria-hidden="true" className="mb-4 h-px w-16" style={{ background: `rgb(${rgb} / 0.45)` }} />
-      <p className="t-body text-pretty text-white/60">{note}</p>
+      <p className="t-body max-w-2xl text-pretty text-white/60">{note}</p>
     </div>
   );
 }

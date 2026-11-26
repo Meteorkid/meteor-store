@@ -1,11 +1,11 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { getDatabasePoolSize } from './pool-size';
-import { orders, licenseKeys, paymentRefundAttempts, softwareLicenseCodes, softwareLicenseDevices, softwareLicenseTrials, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags, studyCourses, studyDeadlines, studyProblems } from './schema';
+import { orders, licenseKeys, paymentRefundAttempts, softwareLicenseCodes, softwareLicenseDevices, softwareLicenseTrials, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags, studyCourses, studyDeadlines, studyProblems, xiaohongshuNotes } from './schema';
 
 type DrizzleDB = ReturnType<typeof drizzle>;
 
-const schema = { orders, licenseKeys, paymentRefundAttempts, softwareLicenseCodes, softwareLicenseDevices, softwareLicenseTrials, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags, studyCourses, studyDeadlines, studyProblems };
+const schema = { orders, licenseKeys, paymentRefundAttempts, softwareLicenseCodes, softwareLicenseDevices, softwareLicenseTrials, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags, studyCourses, studyDeadlines, studyProblems, xiaohongshuNotes };
 
 // 延迟初始化，避免 build 时因缺少 DATABASE_URL 而崩溃
 let _db: DrizzleDB | null = null;

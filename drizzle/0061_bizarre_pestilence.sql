@@ -1,0 +1,1 @@
+ALTER TABLE "xiaohongshu_notes" ADD COLUMN "published_url" text;

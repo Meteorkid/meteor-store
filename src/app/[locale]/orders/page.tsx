@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { desc, eq } from 'drizzle-orm';
+import { formatDotDate } from '@/lib/date-format';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -19,11 +20,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: t('metaTitle'), robots: { index: false, follow: false } };
 }
 
-function formatDate(iso: string, locale: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime())
-    ? iso
-    : date.toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US');
+function formatDate(iso: string, _locale: string): string {
+  return formatDotDate(iso) || iso;
 }
 
 export default async function OrdersPage({ params }: { params: Promise<{ locale: string }> }) {

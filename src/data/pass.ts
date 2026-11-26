@@ -53,7 +53,7 @@ export const passPlans: PassPlan[] = [
     period: '月',
     durationMonths: 1,
     features: [
-      { zh: 'XIsland 产品线全部工具的使用授权', en: 'Every tool on the XIsland line, licensed to you' },
+      { zh: 'XIsland 工具线全部个人工具的使用授权', en: 'Every personal tool on the XIsland line, licensed to you' },
       { zh: '下载桌面工具，按各产品说明使用授权', en: 'Download the desktop tools and activate them as described for each product' },
       { zh: '这条线以后新增的工具自动包含', en: 'Future tools on this line included automatically' },
       { zh: '邮件支持', en: 'Email support' },
@@ -86,7 +86,7 @@ export const passPlans: PassPlan[] = [
     features: [
       { zh: '年付的全部权益', en: 'Everything in Annual' },
       { zh: '永久有效，不再续费', en: 'Yours forever, no renewals' },
-      { zh: '这条线以后做的每一个工具都算在内', en: 'Every tool this line ever ships is yours' },
+      { zh: '这条工具线以后做的每一个工具都算在内', en: 'Every tool this line ever ships is yours' },
       { zh: '直接联系店主', en: 'A direct line to the maker' },
     ],
   },

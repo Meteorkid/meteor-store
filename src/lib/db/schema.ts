@@ -689,6 +689,39 @@ export const reports = pgTable('reports', {
 ]);
 
 /**
+ * 小红书内容工作台的笔记草稿。
+ *
+ * 只保存「发布前」的内容，不调用小红书发布接口：普通个人没有官方笔记发布
+ * API，自动登录/自动发布会给账号带来风控风险。第一张图就是封面。
+ * 标题/正文/标签/图片上限由 API 与数据库双重约束，避免绕过前端写入超限内容。
+ */
+export const xiaohongshuNotes = pgTable('xiaohongshu_notes', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull().default(''),
+  body: text('body').notNull().default(''),
+  tags: jsonb('tags').$type<string[]>().notNull().default([]),
+  images: jsonb('images').$type<string[]>().notNull().default([]),
+  sourceKind: text('source_kind').$type<'daily' | 'post' | 'manual'>().notNull().default('manual'),
+  sourceRef: text('source_ref'),
+  sourceUrl: text('source_url'),
+  status: text('status').$type<'draft' | 'ready' | 'published'>().notNull().default('draft'),
+  publishedAt: text('published_at'),
+  /** 手动发布后记录的笔记链接；只用于回溯，不抓取平台数据 */
+  publishedUrl: text('published_url'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (t) => [
+  index('xiaohongshu_notes_status_updated_idx').on(t.status, t.updatedAt),
+  index('xiaohongshu_notes_source_idx').on(t.sourceKind, t.sourceRef),
+  check('xiaohongshu_notes_title_check', sql`char_length(${t.title}) <= 20`),
+  check('xiaohongshu_notes_body_check', sql`char_length(${t.body}) <= 1000`),
+  check('xiaohongshu_notes_tags_check', sql`jsonb_typeof(${t.tags}) = 'array' AND jsonb_array_length(${t.tags}) <= 10`),
+  check('xiaohongshu_notes_images_check', sql`jsonb_typeof(${t.images}) = 'array' AND jsonb_array_length(${t.images}) <= 18`),
+  check('xiaohongshu_notes_status_check', sql`${t.status} IN ('draft', 'ready', 'published')`),
+  check('xiaohongshu_notes_source_check', sql`${t.sourceKind} IN ('daily', 'post', 'manual')`),
+]);
+
+/**
  * Pathfinder 可信目录的来源配置。
  *
  * 来源只允许由仓库配置或管理员创建；公开请求不能传入任意 URL。

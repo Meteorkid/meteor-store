@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
 import ProductShowcase from '@/components/ProductShowcase';
+import FourRegions from '@/components/home/FourRegions';
 import ProductDemo from '@/components/ProductDemo';
 import FeaturesSection from '@/components/FeaturesSection';
 import PartnersSection from '@/components/PartnersSection';
@@ -65,6 +66,9 @@ export default async function Home({
         helpCount={localizeHelpArticles(language).length}
         orbitProducts={orbitProducts}
       />
+
+      {/* 四象分野：把站内四个方向做成一张可读的星图，而不是四张营销卡 */}
+      <FourRegions locale={language} />
 
       {/* Partners Section */}
       <PartnersSection />

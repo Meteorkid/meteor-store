@@ -43,6 +43,8 @@ export default function AdminNav({ counts }: { counts?: AdminBadgeCounts }) {
         { href: '/admin/review', label: t('review'), badge: counts?.pendingPosts },
         { href: '/admin/posts', label: t('posts') },
         { href: '/admin/daily', label: locale === 'en' ? 'Daily Fresh' : '每日一新' },
+        { href: '/admin/wechat-draft', label: locale === 'en' ? 'WeChat drafts' : '公众号草稿' },
+        { href: '/admin/xiaohongshu', label: locale === 'en' ? 'RedNote studio' : '小红书工作台' },
         { href: '/admin/masters', label: locale === 'en' ? 'Masters applications' : '硕士申请日历' },
         { href: '/admin/phd', label: locale === 'en' ? 'PhD applications' : '博士申请日历' },
         { href: '/admin/ielts', label: locale === 'en' ? 'IELTS writing pairs' : '雅思写作对照' },

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { formatContestStart } from '@/lib/pathfinder/contest-time';
+import { formatDotDate } from '@/lib/date-format';
 import type { PathfinderApiResponse, PathfinderPlanPhase } from '@/lib/pathfinder/plan-view';
 
 const PHASE_TONES: Record<PathfinderPlanPhase, string> = {
@@ -192,10 +193,7 @@ export default function PathfinderPlanView({
                           })}</time></>}
                           {deadlineValue && (
                             <> · <time dateTime={task.deadlineAt ?? task.deadlineDate}>{t(task.dateKind === 'deadline' ? 'deadline' : 'referenceDate', {
-                              date: new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'zh-CN', {
-                                year: 'numeric', month: 'short', day: 'numeric',
-                                ...(task.deadlineDate && !task.deadlineAt ? { timeZone: 'UTC' } : {}),
-                              }).format(deadlineValue),
+                              date: formatDotDate(deadlineValue),
                             })}</time></>
                           )}
                         </span>

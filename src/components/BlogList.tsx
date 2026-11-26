@@ -1,7 +1,6 @@
 import {
   getFeedPostsBySection,
   getFeedTags,
-  getSectionCounts,
   toFeedSummary,
 } from '@/data/blog-feed';
 import { getFavoriteCounts } from '@/lib/favorites';
@@ -31,9 +30,8 @@ interface BlogListProps {
  * 在 blog-feed 里 FeedPost.slug 字段对投稿已经写入 post.id，可直接作为 targetId。
  */
 export default async function BlogList({ sectionId, initialTags, locale }: BlogListProps) {
-  const [source, counts, tags] = await Promise.all([
+  const [source, tags] = await Promise.all([
     getFeedPostsBySection(locale, sectionId),
-    getSectionCounts(locale),
     getFeedTags(locale),
   ]);
 
@@ -49,7 +47,6 @@ export default async function BlogList({ sectionId, initialTags, locale }: BlogL
   return (
     <BlogListClient
       posts={source.map(toFeedSummary)}
-      counts={counts}
       activeSectionId={sectionId}
       initialTags={initialTags ?? []}
       // 热门标签在所有博客列表页都展示，作为第一屏的多选入口

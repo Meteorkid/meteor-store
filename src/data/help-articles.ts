@@ -112,8 +112,8 @@ export const helpArticles: HelpArticleMeta[] = [
     relatedSlugs: ['start-here'],
     title: { zh: '如何使用导航、语言切换与全站搜索', en: 'How to Navigate, Switch Languages & Search' },
     excerpt: {
-      zh: '掌握顶部导航栏、中英文切换、Spotlight 全站搜索 (⌘K) 和页脚链接。',
-      en: 'Master the top navigation bar, language switcher, Spotlight search (⌘K), and footer links.',
+      zh: '掌握顶部导航栏、中英文切换、Spotlight 搜索（⌘K / Ctrl+K）和页脚链接。',
+      en: 'Master the top navigation bar, language switcher, Spotlight search (⌘K / Ctrl+K), and footer links.',
     },
     keywords: {
       zh: ['导航', '语言切换', '搜索', 'Spotlight', '页脚'],

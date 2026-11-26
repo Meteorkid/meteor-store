@@ -35,7 +35,7 @@ describe('国家级学科竞赛规划表', () => {
     expect(html).toContain('国家级 B 类认定');
     expect(html).toContain('57 项赛事');
     expect(html).toContain('全国大学生电子设计竞赛');
-    expect(html).toContain('2026-06 — 2026-08');
+    expect(html).toContain('2026.06 — 2026.08');
     expect(html).toContain('已结束');
     expect(html).toContain('nuedcchina.com');
     expect(html).toContain('国家级 B 类通常没有固定名单');
@@ -54,9 +54,9 @@ describe('国家级学科竞赛规划表', () => {
   it('英文界面本地化操作文案，保留官方中文赛事名', () => {
     const html = render('en');
     expect(html).toContain('National Academic Competition Planner');
-    expect(html).toContain('Registration window');
+    expect(html).toContain('Registration month');
     expect(html).toContain('National Class B criteria');
-    expect(html).toContain('Official competition names are shown in Chinese.');
+    expect(html).toContain('Names follow the official Chinese name in the list.');
   });
 });
 

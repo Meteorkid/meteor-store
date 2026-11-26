@@ -63,10 +63,10 @@ describe('产品媒体与获取入口', () => {
 
   it.each(['zh', 'en'] as const)('%s 游客投稿保留登录回跳，已登录直接进入编辑器', locale => {
     state.locale = locale;
-    const guest = renderToStaticMarkup(<BlogListClient posts={[]} counts={{}} />);
+    const guest = renderToStaticMarkup(<BlogListClient posts={[]} />);
     expect(guest).toContain('href="/login?next=%2Fblog%2Fsubmit"');
     state.signedIn = true;
-    const signedIn = renderToStaticMarkup(<BlogListClient posts={[]} counts={{}} />);
+    const signedIn = renderToStaticMarkup(<BlogListClient posts={[]} />);
     expect(signedIn).toContain('href="/blog/submit"');
     expect(signedIn).not.toContain('/login?next=');
   });

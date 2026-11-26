@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import BlogPageShell from '@/components/blog/BlogPageShell';
 import StarMap from '@/components/StarMap';
 import { getFeedPosts } from '@/data/blog-feed';
 import type { Locale } from '@/i18n/routing';
@@ -26,21 +25,21 @@ export default async function BlogStarsPage({
   const posts = await getFeedPosts(locale as Locale);
 
   return (
-    <div className="blog-scope min-h-screen bg-black text-white">
-      <Header />
-      <main className="relative container mx-auto px-4 py-10 md:py-14">
-        <div className="mx-auto max-w-4xl">
-          <header className="relative mb-8">
-            <h1 className="t-title-2">{t('title')}</h1>
-            <p className="t-footnote mt-2 text-white/60">{t('description')}</p>
-          </header>
+    <BlogPageShell
+      locale={locale as Locale}
+      activeStarMap
+      header={
+        <header className="relative mb-8">
+          <h1 className="t-title-2">{t('title')}</h1>
+          <p className="t-footnote mt-2 text-white/60">{t('description')}</p>
+        </header>
+      }
+    >
+      <div className="w-full">
+        <StarMap posts={posts} />
 
-          <StarMap posts={posts} />
-
-          <p className="t-footnote mt-4 text-white/40">{t('hint')}</p>
-        </div>
-      </main>
-      <Footer />
-    </div>
+        <p className="t-footnote mt-4 text-white/40">{t('hint')}</p>
+      </div>
+    </BlogPageShell>
   );
 }

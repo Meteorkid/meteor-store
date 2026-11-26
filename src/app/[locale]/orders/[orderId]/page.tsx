@@ -1,3 +1,4 @@
+import { formatDotDateTime } from '@/lib/date-format';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
@@ -105,7 +106,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
               {order.paidAt && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">{t('paidAt')}</span>
-                  <span className="text-white">{new Date(order.paidAt).toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US')}</span>
+                  <span className="text-white">{formatDotDateTime(order.paidAt)}</span>
                 </div>
               )}
             </div>

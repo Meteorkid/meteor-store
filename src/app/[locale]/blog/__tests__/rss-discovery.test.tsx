@@ -13,6 +13,8 @@ vi.mock('@/lib/admin', () => ({ isAdminSession: () => false }));
 vi.mock('@/components/Header', () => ({ default: () => null }));
 vi.mock('@/components/Footer', () => ({ default: () => null }));
 vi.mock('@/components/BlogList', () => ({ default: () => null }));
+vi.mock('@/components/blog/BlogSectionToolbar', () => ({ default: () => null }));
+vi.mock('@/components/blog/BlogSectionRail', () => ({ default: () => null }));
 vi.mock('@/components/TopicProposalForm', () => ({ default: () => null }));
 vi.mock('@/components/AdminGithubEditLink', () => ({ default: () => null }));
 

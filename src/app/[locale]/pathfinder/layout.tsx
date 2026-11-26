@@ -6,6 +6,7 @@ export default function PathfinderLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
+      <PathfinderSubnav />
       <div className="relative isolate overflow-hidden">
         <div
           aria-hidden="true"
@@ -16,10 +17,7 @@ export default function PathfinderLayout({ children }: { children: React.ReactNo
               'radial-gradient(circle at 18% 24%, var(--site-glow-deep), transparent 38%), radial-gradient(circle at 82% 12%, var(--site-glow-accent), transparent 34%)',
           }}
         />
-        <div className="container mx-auto grid min-w-0 grid-cols-1 xl:grid-cols-[10rem_minmax(0,1fr)] xl:gap-6 xl:px-4 2xl:grid-cols-[11rem_minmax(0,1fr)] 2xl:gap-8">
-          <PathfinderSubnav />
-          <div className="min-w-0">{children}</div>
-        </div>
+        <div className="min-w-0">{children}</div>
       </div>
       <Footer />
     </div>

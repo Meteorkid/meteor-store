@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import BlogPageShell from '@/components/blog/BlogPageShell';
 import BlogList from '@/components/BlogList';
 import { findFeedTag, getFeedTags } from '@/data/blog-feed';
 import { getSectionBySlug } from '@/data/blog-sections';
@@ -54,32 +53,30 @@ export default async function BlogTagPage({ params, searchParams }: TagPageProps
   const section = sp.section ? getSectionBySlug(sp.section) : undefined;
 
   return (
-    <div className="blog-scope min-h-screen bg-black text-white">
-      <Header />
-      <main className="relative container mx-auto px-4 py-10 md:py-14">
-        <div className="mx-auto max-w-4xl">
-          <header className="relative mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h1 className="t-title-2">#{tag.label}</h1>
-              <span aria-hidden className="t-footnote text-white/20">/</span>
-              <p className="t-footnote tabular-nums text-white/60">{t('count', { count: tag.count })}</p>
-            </div>
-            <Link
-              href="/blog/tags"
-              className="t-footnote shrink-0 text-white/60 transition-colors duration-200 hover:text-white"
-            >
-              {t('allTags')} →
-            </Link>
-          </header>
-
-          <BlogList
-            initialTags={[tag]}
-            sectionId={section?.id}
-            locale={locale as Locale}
-          />
-        </div>
-      </main>
-      <Footer />
-    </div>
+    <BlogPageShell
+      locale={locale as Locale}
+      activeSectionId={section?.id}
+      header={
+        <header className="relative mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h1 className="t-title-2">#{tag.label}</h1>
+            <span aria-hidden className="t-footnote text-white/20">/</span>
+            <p className="t-footnote tabular-nums text-white/60">{t('count', { count: tag.count })}</p>
+          </div>
+          <Link
+            href="/blog/tags"
+            className="t-footnote shrink-0 text-white/60 transition-colors duration-200 hover:text-white"
+          >
+            {t('allTags')} →
+          </Link>
+        </header>
+      }
+    >
+      <BlogList
+        initialTags={[tag]}
+        sectionId={section?.id}
+        locale={locale as Locale}
+      />
+    </BlogPageShell>
   );
 }

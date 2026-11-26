@@ -140,11 +140,18 @@ export default async function PathfinderPage({ params }: { params: Promise<{ loc
               <section>
                 <SectionHeader
                   eyebrow={t('deadlinedEyebrow')}
-                  title={t('deadlinedTitle', { count: stats.dated })}
+                  title={t('deadlinedTitle', { count: homeFeed.deadlined.length })}
                   href="/pathfinder/opportunities"
                   linkLabel={t('viewAll')}
                 />
                 <p className="mb-3 t-footnote text-white/60">{t('deadlinedNote')}</p>
+                {homeFeed.deadlined.length > 0 && (
+                  <p className="mb-4 t-footnote text-white/45">
+                    {locale === 'en'
+                      ? 'This section shows the nearest entries selected for the homepage; the catalogue holds more.'
+                      : '这里展示首页精选的最近条目，完整机会仍在机会库中。'}
+                  </p>
+                )}
                 <div>
                   {homeFeed.deadlined.map((item, index) => (
                     <CatalogItemCard key={item.id} item={item} locale={typedLocale} featured={index === 0} />

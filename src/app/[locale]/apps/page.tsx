@@ -6,6 +6,7 @@ import { getProductAccess } from '@/lib/product-access';
 import { buildLoginHref } from '@/lib/login-return';
 import type { PassPlanId } from '@/data/pass';
 import Header from '@/components/Header';
+import { formatDotDate } from '@/lib/date-format';
 import Footer from '@/components/Footer';
 import { Link } from '@/i18n/navigation';
 
@@ -40,13 +41,7 @@ export default async function MyAppsPage({ params }: MyAppsPageProps) {
    * 不指定时区的话到期时间落在日界附近时中国用户会看到早一天的日期。
    * 计费是人民币、主体在广州，用东八区比用服务器时区可预期。
    */
-  const formatExpiry = (iso: string) =>
-    new Date(iso).toLocaleDateString(locale, {
-      timeZone: 'Asia/Shanghai',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+  const formatExpiry = (iso: string) => formatDotDate(iso);
 
   return (
     <div className="min-h-screen bg-black text-white">
