@@ -259,20 +259,7 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
               {hasToc && (
                 <aside className="hidden lg:block">
                   <div className="sticky top-24">
-                    <div className="mb-4 flex items-center gap-2">
-                      <ConstellationDot active />
-                      <p className="t-eyebrow text-white/35">
-                        {currentLocale === 'zh' ? '目录' : 'On this page'}
-                      </p>
-                    </div>
-                    <nav className="relative">
-                      {/* 连线 */}
-                      <div
-                        aria-hidden
-                        className="absolute left-[3px] top-2 h-[calc(100%-16px)] w-px bg-gradient-to-b from-violet-400/15 via-violet-400/10 to-transparent"
-                      />
-                      <HelpToc headings={headings} variant="sidebar" />
-                    </nav>
+                    <HelpToc headings={headings} variant="sidebar" />
                   </div>
                 </aside>
               )}

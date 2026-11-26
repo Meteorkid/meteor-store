@@ -1724,7 +1724,28 @@ html[data-focus-mode="on"] .celestial-twinkle {
     transform: none;
   }
 
+  /* 手机上专注态不再展开文字：40px 的圆形按钮只露一个退出图标，
+   * 避免浮层压在正文、表单控件或卡片标题上。未进入专注时仍保留文字入口。 */
   .learning-focus-control[data-active="true"] {
-    opacity: 1;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    grid-template-columns: 1fr;
+    column-gap: 0;
+    justify-items: center;
+    left: max(0.5rem, env(safe-area-inset-left)) !important;
+    opacity: 0.9;
+  }
+
+  .learning-focus-control[data-active="true"] .learning-focus-control__label {
+    display: none;
+  }
+
+  /* 视觉保持 40px，但把可点击区域向外扩到 48px。 */
+  .learning-focus-control[data-active="true"]::before {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
   }
 }

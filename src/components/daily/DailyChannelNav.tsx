@@ -37,8 +37,8 @@ export default function DailyChannelNav({ entries, showMasters, activeId, onNavi
 
   if (variant === 'mobile') {
     const overviewActive = activeId === 'daily-overview';
-    return <nav aria-label={copy.channelNav} className="-mx-4 mb-5 overflow-x-auto border-y border-white/10 bg-white/[0.02] px-4 py-3 lg:hidden">
-      <div className="flex w-max items-center gap-2">
+    return <nav aria-label={copy.channelNav} className="-mx-4 mb-5 border-y border-white/10 bg-white/[0.02] px-4 py-3 lg:hidden">
+      <div className="flex flex-wrap items-center gap-2">
         <a href="#daily-overview" onClick={() => onNavigate('daily-overview')} aria-current={overviewActive ? 'true' : undefined}
           className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-3 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 daily-accent-focus ${overviewActive ? 'daily-accent-border-strong daily-accent-surface text-white' : 'border-white/10 text-white/60'}`}>
           <span aria-hidden="true">↑</span>{overviewLabel}
