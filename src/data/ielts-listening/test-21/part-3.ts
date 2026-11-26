@@ -1,0 +1,365 @@
+import type { ListeningLesson } from '@/lib/ielts-listening/types';
+
+/**
+ * Practice Test 21 · Part 3 — 经济史著作评读（两人讨论，新西兰 + 爱尔兰口音）。原创仿真材料，非官方真题。
+ *
+ * 讨论顺序：与课程书单对照 → 史料可信度 → 论证结构偏差 → 书评提纲要求 →
+ * 书评必备内容（多选 28–30）。配对 21–24 先于单选 25–27，多选最后。
+ */
+export const test21Part3: ListeningLesson = {
+  slug: 'test-21-part-3',
+  part: 3,
+  status: 'published',
+  title: { zh: '经济史著作评读', en: 'Reviewing a book on economic history' },
+  summary: {
+    zh: '两名学生讨论一本山区贸易史著作：把它与课程书单对照，肯定其地方档案史料，指出其夸大商道作用、样本偏窄的弱点，确定书评提纲需要研究问题、引用史料与段落计划，并梳理书评必须包含的内容。',
+    en: 'Two students review a book on hill-province trade: comparing it with the course list, praising its local archive records, noting overstated route claims and a narrow trader sample, settling what the outline needs, and sorting the required review elements.',
+  },
+  accent: { zh: 'Liam 为新西兰口音，Emily 为爱尔兰口音，两人语速中等。', en: 'Liam speaks with a New Zealand accent and Emily with an Irish accent, both at a moderate pace.' },
+  speechRate: '+2%',
+  cast: [
+    { id: 'liam', label: 'LIAM', gender: 'male', voice: 'en-NZ-MitchellNeural' },
+    { id: 'emily', label: 'EMILY', gender: 'female', voice: 'en-IE-EmilyNeural' },
+  ],
+  sections: [
+    {
+      kind: 'matching',
+      instruction: 'What does each person argue or suggest? Choose the correct letter, A–F.',
+      options: [
+        { key: 'A', text: 'argues the book overstates the role of trade routes' },
+        { key: 'B', text: 'praises the use of local archive records' },
+        { key: 'C', text: 'compares the book with the course reading list' },
+        { key: 'D', text: 'suggests shortening the review’s historical overview' },
+        { key: 'E', text: 'questions the sample of merchants interviewed' },
+        { key: 'F', text: 'recommends adding a map of the main routes' },
+      ],
+      items: [
+        { number: 21, text: 'Liam' },
+        { number: 22, text: 'Emily' },
+        { number: 23, text: 'Liam' },
+        { number: 24, text: 'Emily' },
+      ],
+    },
+    {
+      kind: 'choice-single',
+      instruction: 'Choose the correct letter, A, B or C.',
+      questions: [
+        {
+          number: 25,
+          stem: 'Why did Liam choose this book for the review?',
+          options: [
+            { key: 'A', text: 'It matches the mountain holiday he planned last summer' },
+            { key: 'B', text: 'Its merchant records are rare and give material to analyse' },
+            { key: 'C', text: 'The tutor assigned it as a set text' },
+          ],
+        },
+        {
+          number: 26,
+          stem: 'What weakness do they agree the book has?',
+          options: [
+            { key: 'A', text: 'The evidence covers only a narrow group of traders' },
+            { key: 'B', text: 'The author writes in an unclear style' },
+            { key: 'C', text: 'The book contains no map at all' },
+          ],
+        },
+        {
+          number: 27,
+          stem: 'What does the tutor expect in the review outline?',
+          options: [
+            { key: 'A', text: 'A completed first draft of the review' },
+            { key: 'B', text: 'The research question, cited sources and a rough plan' },
+            { key: 'C', text: 'A full annotated bibliography' },
+          ],
+        },
+      ],
+    },
+    {
+      kind: 'choice-multiple',
+      instruction: 'Which THREE elements must the review include? Choose three letters, A–F.',
+      select: 3,
+      stem: 'Which THREE elements must the review include?',
+      options: [
+        { key: 'A', text: 'a short summary of the book’s main argument' },
+        { key: 'B', text: 'a full translation of every archive letter' },
+        { key: 'C', text: 'an evaluation of the evidence used' },
+        { key: 'D', text: 'a comparison with one course text' },
+        { key: 'E', text: 'a list of all merchants named in the book' },
+        { key: 'F', text: 'a note on how the book connects to the course theme' },
+      ],
+    },
+  ],
+  answers: [
+    {
+      number: 21, accepted: ['C'], evidence: 3,
+      explanation: {
+        zh: '定位句 3：I compared it against the course reading list, and it sits beside the study of coastal ports。Liam 把著作与课程书单对照，对应 C。',
+        en: 'Sentence 3: Liam says "I compared it against the course reading list", matching C.',
+      },
+    },
+    {
+      number: 22, accepted: ['B'], evidence: 5,
+      explanation: {
+        zh: '定位句 5：I was impressed by the local archive records, since most histories rely on official reports alone。Emily 赞赏地方档案史料，对应 B。',
+        en: 'Sentence 5: Emily says she "was impressed by the local archive records", matching B.',
+      },
+    },
+    {
+      number: 23, accepted: ['A'], evidence: 8,
+      explanation: {
+        zh: '定位句 8：It overstates the role of the mountain passes, as if every valley economy depended on them。Liam 认为著作夸大商道作用，对应 A。',
+        en: 'Sentence 8: Liam says it "overstates the role of the mountain passes", matching A.',
+      },
+    },
+    {
+      number: 24, accepted: ['D'], evidence: 11,
+      explanation: {
+        zh: '定位句 11：I would cut the long historical overview down to one paragraph。Emily 建议压缩书评的历史背景概述，对应 D。',
+        en: 'Sentence 11: Emily suggests to "cut the long historical overview down to one paragraph", matching D.',
+      },
+    },
+    {
+      number: 25, accepted: ['B'], evidence: 16,
+      explanation: {
+        zh: '定位句 16：The merchant records it uses are rare in this level course, so they give us something to analyse rather than repeat。选这本书是因为商人史料难得、可供分析，对应 B。A 的假期与 C 的指定教材均未提及。',
+        en: 'Sentence 16: the "merchant records it uses are rare in this level course, so they give us something to analyse", matching B. The holiday in A and the set text in C are not mentioned.',
+      },
+    },
+    {
+      number: 26, accepted: ['A'], evidence: 21,
+      explanation: {
+        zh: '定位句 21：the main weakness is that the evidence covers only a narrow group of traders。两人一致认为证据只覆盖狭窄的商人群体，对应 A。B 的文风、C 的无地图均未被列为弱点。',
+        en: 'Sentence 21: the "main weakness is that the evidence covers only a narrow group of traders", matching A. Style and the absence of a map are not raised as weaknesses.',
+      },
+    },
+    {
+      number: 27, accepted: ['B'], evidence: 25,
+      explanation: {
+        zh: '定位句 25：She wants the research question, the sources we will cite, and a rough paragraph plan。提纲要研究问题、引用史料和粗略段落计划，对应 B。完整初稿是提纲通过之后的事，完整书目不在提纲要求内。',
+        en: 'Sentence 25: the tutor wants "the research question, the sources we will cite, and a rough paragraph plan", matching B. The full draft comes later, and the bibliography is not an outline requirement.',
+      },
+    },
+    {
+      number: 28, accepted: ['A'], evidence: 29,
+      explanation: {
+        zh: '定位句 29：a short summary of the book’s main argument, so the reader knows what we are discussing。书评须先概括全书主要论点，对应 A。句 30 补充不要复述每一章。',
+        en: 'Sentence 29: "a short summary of the book’s main argument" is required, matching A. Sentence 30 adds that every chapter need not be retold.',
+      },
+    },
+    {
+      number: 29, accepted: ['C'], evidence: 31,
+      explanation: {
+        zh: '定位句 31：an evaluation of the evidence the author chose, which is where our comments matter most。书评必须评估作者选用的证据，对应 C。句 32 说明可把档案信札与官方报告并置比较。',
+        en: 'Sentence 31: "an evaluation of the evidence the author chose" is required, matching C. Sentence 32 pairs archive letters against official reports.',
+      },
+    },
+    {
+      number: 30, accepted: ['F'], evidence: 33,
+      explanation: {
+        zh: '定位句 33：a note on how the book connects to the course theme about regional links。书评须说明著作与课程主题的联系，对应 F。B 的逐封信札翻译在句 36 被否定，E 的商人名单在句 37 被否定，D 的单本教材比较在句 38 属可选。',
+        en: 'Sentence 33: "a note on how the book connects to the course theme" is required, matching F. Full letter translation, B, is rejected in sentence 36, the merchant list, E, in sentence 37, and the course-text comparison, D, is optional in sentence 38.',
+      },
+    },
+  ],
+  transcript: [
+    { speaker: 'liam', text: 'Have you finished the book we chose for the review, the one on trade in the hill provinces?' },
+    { speaker: 'emily', text: 'Most of it. I read the opening chapters last night, and I still have the last two sections to go.' },
+    { speaker: 'liam', text: 'Good. I want to check how it lines up with the readings we did this term.' },
+    { speaker: 'liam', text: 'I compared it against the course reading list, and it sits beside the study of coastal ports we read in week four.' },
+    { speaker: 'emily', text: 'That helps. What did you make of the sources?' },
+    { speaker: 'emily', text: 'I was impressed by the local archive records, since most histories rely on official reports alone.' },
+    { speaker: 'liam', text: 'The archive letters do add detail about small traders the official figures leave out.' },
+    { speaker: 'emily', text: 'Yes, but I think the book pushes the trade route story a little too hard in the middle chapters.' },
+    { speaker: 'liam', text: 'I agree. It overstates the role of the mountain passes, as if every valley economy depended on them.' },
+    { speaker: 'emily', text: 'The road network matters, but the local markets explain just as much of the change.' },
+    { speaker: 'liam', text: 'So where should our review start?' },
+    { speaker: 'emily', text: 'I would cut the long historical overview down to one paragraph, since the reader does not need the full chronology before the argument.' },
+    { speaker: 'liam', text: 'That matches my instinct. The review should focus on what the evidence supports.' },
+    { speaker: 'emily', text: 'Did you pick this book because of the mountain setting?' },
+    { speaker: 'liam', text: 'Not exactly. Our course theme is how regions connect, and trade history gives a concrete case.' },
+    { speaker: 'emily', text: 'Right. Tell me why it stood out among the options the tutor listed.' },
+    { speaker: 'liam', text: 'The merchant records it uses are rare in this level course, so they give us something to analyse rather than repeat.' },
+    { speaker: 'emily', text: 'What about its weaknesses?' },
+    { speaker: 'liam', text: 'It does not say much about women traders, even though they ran many village markets.' },
+    { speaker: 'emily', text: 'I noticed that too. The sample of merchants leans heavily on the larger town firms.' },
+    { speaker: 'liam', text: 'And the numbers are not broken down by valley, so local differences stay hidden.' },
+    { speaker: 'emily', text: 'We agree the main weakness is that the evidence covers only a narrow group of traders.' },
+    { speaker: 'liam', text: 'Should we write that as a direct criticism in the review?' },
+    { speaker: 'emily', text: 'Keep it fair. Say what the sample misses, rather than calling the book unreliable.' },
+    { speaker: 'liam', text: 'Fair enough. What does the tutor expect when we hand in the outline?' },
+    { speaker: 'emily', text: 'Let me check the brief again. She wants the research question, the sources we will cite, and a rough paragraph plan.' },
+    { speaker: 'liam', text: 'So the outline is question plus sources plus plan, not a full draft yet.' },
+    { speaker: 'emily', text: 'Correct. The full review comes after the outline is approved.' },
+    { speaker: 'liam', text: 'Now, what must our own review include?' },
+    { speaker: 'emily', text: 'First, a short summary of the book’s main argument, so the reader knows what we are discussing.' },
+    { speaker: 'liam', text: 'We should not retell every chapter, just the central claim.' },
+    { speaker: 'emily', text: 'Second, an evaluation of the evidence the author chose, which is where our comments matter most.' },
+    { speaker: 'liam', text: 'We can weigh the archive letters against the official reports side by side.' },
+    { speaker: 'emily', text: 'Third, a note on how the book connects to the course theme about regional links.' },
+    { speaker: 'liam', text: 'That keeps the review tied to the seminar, not just a book report.' },
+    { speaker: 'emily', text: 'What should we leave out?' },
+    { speaker: 'liam', text: 'We do not need a full translation of every archive letter; that would belong in a separate project.' },
+    { speaker: 'emily', text: 'And we should not list all the merchants named, since the index already does that.' },
+    { speaker: 'liam', text: 'A comparison with one course text is optional, unless the tutor asks for it.' },
+    { speaker: 'emily', text: 'I think the three required parts are summary, evidence evaluation, and the course connection.' },
+    { speaker: 'liam', text: 'Let me write those down before I forget.' },
+    { speaker: 'emily', text: 'How long do we have for the reading note?' },
+    { speaker: 'liam', text: 'The draft review is due in two weeks, and the outline is due next Friday.' },
+    { speaker: 'emily', text: 'Then we should split the work after the outline is accepted.' },
+    { speaker: 'liam', text: 'I can draft the evidence section, and you can check the archive details.' },
+    { speaker: 'emily', text: 'Good. I will note the chapters that rely on the weakest figures.' },
+    { speaker: 'liam', text: 'Did you find any maps in the book?' },
+    { speaker: 'emily', text: 'There is one map of the main passes, but it leaves out several village routes.' },
+    { speaker: 'liam', text: 'We could mention that in the evidence discussion.' },
+    { speaker: 'emily', text: 'The timetable says the tutor wants a spoken follow-up after the written review.' },
+    { speaker: 'liam', text: 'I will prepare two questions she might ask about the sample.' },
+    { speaker: 'emily', text: 'Remember to cite the archive records by their shelf reference, not by page alone.' },
+    { speaker: 'liam', text: 'The reading list marks which sources are open access for our course.' },
+    { speaker: 'emily', text: 'Check whether the book uses any statistics that are not quoted from a record.' },
+    { speaker: 'liam', text: 'Yes, those are the claims we should treat with caution.' },
+    { speaker: 'emily', text: 'Did the author explain how the merchants were chosen for the study?' },
+    { speaker: 'liam', text: 'Only briefly, which is why the sample bias is worth raising.' },
+    { speaker: 'emily', text: 'We should separate facts the records prove from the author’s own interpretation.' },
+    { speaker: 'liam', text: 'That helps the review stay analytical rather than descriptive.' },
+    { speaker: 'emily', text: 'Let me reread the last section before we compare notes again.' },
+    { speaker: 'liam', text: 'I will read the chapter on the valley markets tonight.' },
+    { speaker: 'emily', text: 'Meet me by the library entrance after your tutorial.' },
+    { speaker: 'liam', text: 'One more thing. Should we quote the price differences between valleys?' },
+    { speaker: 'emily', text: 'Only if a record backs the figure; otherwise leave it out.' },
+    { speaker: 'liam', text: 'Understood. I will keep the review close to the evidence.' },
+    { speaker: 'emily', text: 'Good. We can refine the outline once both chapters are done.' },
+    { speaker: 'liam', text: 'Thanks for talking it through.' },
+  ],
+  vocabulary: [
+    {
+      term: 'archive', phonetic: '/ˈɑːkaɪv/', partOfSpeech: 'n.', sentenceIndex: 5,
+      meaning: { zh: '档案（馆）', en: 'records kept in an official collection for research' },
+      usage: { zh: '可数或不可数；archive records、local archive。', en: 'Countable or uncountable: archive records, local archive.' },
+      collocations: ['local archive records', 'the archive letters', 'archive sources'],
+      example: { en: 'The archive letters mention small traders by name.', zh: '档案信札点名提到小商贩。' },
+      listening: { zh: '两个音节，重音在第一音节 /ˈɑː/。', en: 'Two syllables with stress on the first.' },
+    },
+    {
+      term: 'overstates', phonetic: '/ˌəʊvəˈsteɪts/', partOfSpeech: 'v.', sentenceIndex: 8,
+      meaning: { zh: '夸大，言过其实', en: 'to describe something as larger or more important than it is' },
+      usage: { zh: '及物动词；overstate the role、overstate the case。', en: 'Transitive: overstate the role, overstate the case.' },
+      collocations: ['overstate the role', 'overstate the evidence', 'overstate the claim'],
+      example: { en: 'The book overstates what the passes carried.', zh: '书中夸大了山口运输的作用。' },
+      listening: { zh: '重音在第二音节 /ˈsteɪ/，开头 /əʊ/ 轻读。', en: 'Stress the second syllable; the opening /əʊ/ is soft.' },
+    },
+    {
+      term: 'passes', phonetic: '/ˈpɑːsɪz/', partOfSpeech: 'n.', sentenceIndex: 8,
+      meaning: { zh: '山口，隘口', en: 'a route through a range of mountains' },
+      usage: { zh: '可数复数；mountain pass、main pass。', en: 'Countable plural: mountain pass, main pass.' },
+      collocations: ['mountain passes', 'the main pass', 'a high pass'],
+      example: { en: 'The traders crossed the high passes in summer.', zh: '商人夏天翻越高山口。' },
+      listening: { zh: '词尾 /ɪz/ 清晰，与 past 区分。', en: 'The final /ɪz/ is clear; do not confuse with past.' },
+    },
+    {
+      term: 'chronology', phonetic: '/krəˈnɒlədʒi/', partOfSpeech: 'n.', sentenceIndex: 11,
+      meaning: { zh: '年代顺序，编年', en: 'the order in which events happened in time' },
+      usage: { zh: '不可数；full chronology、a clear chronology。形容词 chronological。', en: 'Uncountable: full chronology; the adjective is chronological.' },
+      collocations: ['the full chronology', 'a clear chronology', 'establish a chronology'],
+      example: { en: 'The overview need not cover the whole chronology.', zh: '概述不必覆盖整段编年。' },
+      listening: { zh: '重音在第二音节 /ˈnɒl/。', en: 'Stress the second syllable /ˈnɒl/.' },
+    },
+    {
+      term: 'sample', phonetic: '/ˈsɑːmpl/', partOfSpeech: 'n.', sentenceIndex: 19,
+      meaning: { zh: '样本（研究选取的对象）', en: 'the group chosen to represent a wider population' },
+      usage: { zh: '可数；the sample of merchants、sample bias。', en: 'Countable: the sample of merchants, sample bias.' },
+      collocations: ['the trader sample', 'a narrow sample', 'sample bias'],
+      example: { en: 'The sample leans on larger town firms.', zh: '样本偏重较大的城镇商号。' },
+      listening: { zh: '两个音节，重音在第一音节 /ˈsɑː/。', en: 'Two syllables with stress on the first.' },
+    },
+    {
+      term: 'evidence', phonetic: '/ˈevɪdəns/', partOfSpeech: 'n.', sentenceIndex: 31,
+      meaning: { zh: '证据，史料依据', en: 'facts or sources that support a claim' },
+      usage: { zh: '不可数；evaluate the evidence、the evidence supports。', en: 'Uncountable: evaluate the evidence, the evidence supports.' },
+      collocations: ['the evidence used', 'evaluate the evidence', 'support the evidence'],
+      example: { en: 'The review must evaluate the author’s evidence.', zh: '书评必须评估作者的证据。' },
+      listening: { zh: '三个音节，重音在第一音节 /ˈev/。', en: 'Three syllables with stress on the first.' },
+    },
+    {
+      term: 'outline', phonetic: '/ˈaʊtlaɪn/', partOfSpeech: 'n.', sentenceIndex: 24,
+      meaning: { zh: '提纲，大纲', en: 'a short plan showing the main parts of a piece of writing' },
+      usage: { zh: '可数；hand in the outline、rough outline。', en: 'Countable: hand in the outline, rough outline.' },
+      collocations: ['the review outline', 'a rough outline', 'draft the outline'],
+      example: { en: 'The outline lists the question and sources first.', zh: '提纲先列研究问题与史料。' },
+      listening: { zh: '复合词，重音在第一部分 /ˈaʊt/。', en: 'A compound with stress on the first part.' },
+    },
+    {
+      term: 'interpretation', phonetic: '/ɪnˌtɜːprɪˈteɪʃn/', partOfSpeech: 'n.', sentenceIndex: 57,
+      meaning: { zh: '解读，阐释', en: 'the meaning an author gives to the facts' },
+      usage: { zh: '可数或不可数；the author’s interpretation。动词 interpret。', en: 'Countable or uncountable: the author’s interpretation; the verb is interpret.' },
+      collocations: ['the author’s interpretation', 'a cautious interpretation', 'separate facts from interpretation'],
+      example: { en: 'Separate record facts from the author’s interpretation.', zh: '把档案事实与作者解读分开。' },
+      listening: { zh: '重音在第四音节 /ˈteɪ/。', en: 'Stress the fourth syllable /ˈteɪ/.' },
+    },
+  ],
+  expressions: [
+    {
+      phrase: 'lines up', sentenceIndex: 2,
+      meaning: { zh: '与……一致，对得上', en: 'to fit in with something else' },
+      usage: { zh: '表示与某份材料对得上；常见搭配 line up with the readings、line up with the course。', en: 'To fit in with material: line up with the readings, with the course.' },
+      example: { en: 'Check how the book lines up with this term’s readings.', zh: '看看这本书和本学期读物是否对得上。' },
+    },
+    {
+      phrase: 'rely on', sentenceIndex: 5,
+      meaning: { zh: '依赖，仅凭', en: 'to use something as the only main source' },
+      usage: { zh: '表示依赖、仅凭某一来源；常见搭配 rely on reports、rely on one source。', en: 'To depend on a source: rely on reports, rely on one source.' },
+      example: { en: 'Most histories rely on official reports alone.', zh: '多数历史著作只靠官方报告。' },
+    },
+    {
+      phrase: 'stood out', sentenceIndex: 15,
+      meaning: { zh: '突出，显眼', en: 'to be clearly better or different from the rest' },
+      usage: { zh: 'stand out among the options；过去式 stood out。', en: 'stand out among the options; the past form is stood out.' },
+      example: { en: 'The book stood out among the tutor’s list.', zh: '这本书在导师书单里很突出。' },
+    },
+    {
+      phrase: 'broken down', sentenceIndex: 20,
+      meaning: { zh: '拆分，按类别统计', en: 'to separate figures into smaller categories' },
+      usage: { zh: '指把数字按类别拆分统计；常见搭配 be broken down by valley、break down the numbers。', en: 'To split figures into categories: be broken down by valley, break down the numbers.' },
+      example: { en: 'The figures are not broken down by valley.', zh: '数字没有按山谷拆分。' },
+    },
+    {
+      phrase: 'side by side', sentenceIndex: 32,
+      meaning: { zh: '并置，对照着', en: 'next to each other for comparison' },
+      usage: { zh: '比较状语；compare side by side、put side by side。', en: 'Comparative adverbial: compare side by side, put side by side.' },
+      example: { en: 'We weigh the two sources side by side.', zh: '我们把两种史料并置比较。' },
+    },
+    {
+      phrase: 'tied to', sentenceIndex: 34,
+      meaning: { zh: '与……联系在一起', en: 'connected closely to a topic or context' },
+      usage: { zh: '表示与某主题紧密联系；常见搭配 be tied to the seminar、tied to the course theme。', en: 'To be closely connected: be tied to the seminar, tied to the course theme.' },
+      example: { en: 'Keep the review tied to the course theme.', zh: '让书评紧扣课程主题。' },
+    },
+    {
+      phrase: 'treat with caution', sentenceIndex: 54,
+      meaning: { zh: '谨慎对待', en: 'to regard a claim as uncertain until checked' },
+      usage: { zh: '指对说法或数字保持谨慎；常见搭配 treat a claim with caution、treat a figure with caution。', en: 'To regard a claim or figure cautiously: treat a claim with caution, treat a figure with caution.' },
+      example: { en: 'Treat unsupported statistics with caution.', zh: '没有出处的统计要谨慎对待。' },
+    },
+  ],
+  tips: [
+    {
+      title: { zh: '配对先记提议者', en: 'Match the point to its speaker' },
+      body: {
+        zh: 'Part 3 配对常考“谁提出了哪点”。边听边在人名旁记下动词与关键词：compared against list, impressed by records, overstates passes, cut overview，不要把对方附和的话当成他提出的。',
+        en: 'Part 3 matching often asks who said what. Note the verb and keyword beside each name: compared against list, impressed by records, overstates passes, cut overview. Do not count agreement as a proposal.',
+      },
+    },
+    {
+      title: { zh: '多选盯被否定项', en: 'Track rejected options in multiple choice' },
+      body: {
+        zh: '多选三项正确，其余三项通常被明确排除：逐封信札翻译、商人全名单、单本教材比较。听到否定或 optional 语气就在选项旁打叉，再从剩下的里选三个。',
+        en: 'Three are correct and the rest are usually excluded: full letter translation, the full merchant list, one course-text comparison. Mark rejected or optional ones, then choose three from the rest.',
+      },
+    },
+    {
+      title: { zh: '区分事实与解读', en: 'Separate facts from interpretation' },
+      body: {
+        zh: '学术讨论反复区分档案能证明的事实和作者自己的解读。听到 records prove、author’s interpretation、sample bias 这类词，预判后面是证据评价或方法批评，单选答案常紧跟解释句。',
+        en: 'The discussion repeatedly separates record-proven facts from the author’s interpretation. When you hear records prove, author’s interpretation or sample bias, predict an evidence critique; the single-choice answer usually follows.',
+      },
+    },
+  ],
+};
