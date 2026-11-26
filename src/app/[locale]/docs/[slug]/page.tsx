@@ -95,6 +95,7 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
         {/* 顶部星云 */}
         <div
           aria-hidden
+          data-focus-decor
           className="pointer-events-none absolute inset-x-0 top-0 h-72"
           style={{ backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% 0%, var(--site-glow-deep), transparent 55%)' }}
         />

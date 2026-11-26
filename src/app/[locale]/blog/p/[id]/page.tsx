@@ -189,7 +189,7 @@ export default async function UserPostPage({ params }: UserPostPageProps) {
           </Link>
 
           <header className="relative mb-10">
-            <div aria-hidden className="blog-glow" />
+            <div aria-hidden data-focus-decor className="blog-glow" />
             <div className="t-footnote relative mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
               {section && (
                 <span className="font-semibold" style={{ color: `rgb(${section.rgb})` }}>

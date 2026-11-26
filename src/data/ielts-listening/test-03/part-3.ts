@@ -1,0 +1,365 @@
+import type { ListeningLesson } from '@/lib/ielts-listening/types';
+
+/**
+ * Practice Test 3 · Part 3 — 街头食品卫生小组课题（三人讨论，英式为主，一名学生美式口音）。原创仿真材料，非官方真题。
+ *
+ * 讨论顺序：研究问题 → 抽样方法 → 伦理审批 → 四人分工（配对 24–27）→ 伦理保障措施（多选 28–30）。
+ * 题块顺序与录音一致；配对题考“谁负责哪一项任务”。
+ */
+export const test03Part3: ListeningLesson = {
+  slug: 'test-03-part-3',
+  part: 3,
+  status: 'published',
+  title: { zh: '小组课题：街头食品卫生', en: 'Planning a group project on street-food hygiene' },
+  summary: {
+    zh: '导师与两名学生确定街头食品卫生课题的研究问题、抽样范围和伦理审批要求，分好申请、观察、报告和联络市场经理四项任务，并列出委员会要求的三项保障措施。',
+    en: 'A tutor and two students settle the research question, the sampling plan and the ethics approval for a street-food hygiene project, divide the four tasks between them, and list the three safeguards the committee will expect.',
+  },
+  accent: { zh: '导师与 Sonia 为英式口音，Ava 为美式口音。', en: 'The tutor and Sonia have British accents; Ava has an American accent.' },
+  cast: [
+    { id: 'tutor', label: 'TUTOR', gender: 'male', voice: 'en-GB-ThomasNeural' },
+    { id: 'sonia', label: 'SONIA', gender: 'female', voice: 'en-GB-SoniaNeural' },
+    { id: 'ava', label: 'AVA', gender: 'female', voice: 'en-US-AvaNeural' },
+  ],
+  sections: [
+    {
+      kind: 'choice-single',
+      instruction: 'Choose the correct letter, A, B or C.',
+      questions: [
+        {
+          number: 21,
+          stem: 'What is the group’s main research question?',
+          options: [
+            { key: 'A', text: 'Whether the hygiene scores shown to customers match the practice behind the counter.' },
+            { key: 'B', text: 'How much customers spend at the stalls during the lunch rush.' },
+            { key: 'C', text: 'Why some stalls sell better-tasting food than their neighbours.' },
+          ],
+        },
+        {
+          number: 22,
+          stem: 'How will they choose the stalls to study?',
+          options: [
+            { key: 'A', text: 'They will focus on the busiest lunchtime stalls only.' },
+            { key: 'B', text: 'They will take a random sample of ready-to-eat stalls.' },
+            { key: 'C', text: 'They will ask the market managers to recommend stalls.' },
+          ],
+        },
+        {
+          number: 23,
+          stem: 'What does the tutor say about ethics approval?',
+          options: [
+            { key: 'A', text: 'It is optional for a small class project.' },
+            { key: 'B', text: 'It must be obtained before any stall visits or interviews.' },
+            { key: 'C', text: 'It is required only for interviews with customers.' },
+          ],
+        },
+      ],
+    },
+    {
+      kind: 'matching',
+      instruction: 'Which person is responsible for each task? Choose the correct letter, A–C.',
+      options: [
+        { key: 'A', text: 'Sonia' },
+        { key: 'B', text: 'Ava' },
+        { key: 'C', text: 'the tutor' },
+      ],
+      items: [
+        { number: 24, text: 'draft the ethics application' },
+        { number: 25, text: 'carry out the stall observations' },
+        { number: 26, text: 'compile the final report' },
+        { number: 27, text: 'contact the market managers' },
+      ],
+    },
+    {
+      kind: 'choice-multiple',
+      instruction: 'Which THREE ethical safeguards must the group include? Choose THREE letters, A–F.',
+      select: 3,
+      stem: 'Which THREE ethical safeguards must the group include?',
+      options: [
+        { key: 'A', text: 'Keep stall names and staff anonymous in the notes and report.' },
+        { key: 'B', text: 'Obtain consent before observing or recording anyone.' },
+        { key: 'C', text: 'Take photographs to record the food preparation conditions.' },
+        { key: 'D', text: 'Publish the raw notes online after the project is marked.' },
+        { key: 'E', text: 'Store the raw notes securely and delete them later.' },
+        { key: 'F', text: 'Pay stall owners for the time they give up.' },
+      ],
+    },
+  ],
+  answers: [
+    {
+      number: 21, accepted: ['A'], evidence: 7,
+      explanation: {
+        zh: '定位句 7：your question is about the gap between visible standards and real practice。句 6 补充：顾客看到的评分是否反映柜台后面的卫生，对应 A。B 讲消费金额、C 讲口味，讨论中从未涉及。',
+        en: 'Sentence 7: "your question is about the gap between visible standards and real practice". Sentence 6 adds that the scores customers read may not reflect hygiene behind the counter, which matches A. Spending in B and taste in C are never discussed.',
+      },
+    },
+    {
+      number: 22, accepted: ['B'], evidence: 14,
+      explanation: {
+        zh: '定位句 14：I’d prefer a random sample across the whole market。Sonia 句 12 先提议只选最忙的摊位（A），被导师句 13 否定；经理推荐（C）没有出现。句 16 把范围限定为即食摊位。',
+        en: 'Sentence 14: "I’d prefer a random sample across the whole market". Sonia’s busiest-stalls idea in sentence 12 is rejected in sentence 13, and manager recommendations in C are never mentioned. Sentence 16 limits the sample to ready-to-eat stalls.',
+      },
+    },
+    {
+      number: 23, accepted: ['B'], evidence: 26,
+      explanation: {
+        zh: '定位句 26：You can’t begin any interviews or stall visits until the approval comes through。approval 先行，对应 B。A 与句 25 的 It is 直接相反；C 错在观察摊位员工也在审批范围内，不只顾客访谈。',
+        en: 'Sentence 26: "You can’t begin any interviews or stall visits until the approval comes through". Approval must come first, which matches B. A contradicts the It is in sentence 25, and C is wrong because observing stall staff is covered too, not only customer interviews.',
+      },
+    },
+    {
+      number: 24, accepted: ['A'], evidence: 29,
+      explanation: {
+        zh: '定位句 29：Sonia 主动提出 I can draft the application。她已经读过委员会指南，所以起草申请归 Sonia，对应 A。导师句 28 只是让两人分工，自己不包办。',
+        en: 'Sentence 29: Sonia says "I can draft the application", having already read the committee guidelines, so the task goes to her, matching A. The tutor only asks them to divide the work in sentence 28.',
+      },
+    },
+    {
+      number: 25, accepted: ['B'], evidence: 30,
+      explanation: {
+        zh: '定位句 30：Ava 接下 Then I’ll do the fieldwork observations，她下星期大部分工作日都有空。现场观察归 Ava，对应 B。',
+        en: 'Sentence 30: Ava says "Then I’ll do the fieldwork observations", since she is free most weekdays the next month. The observations go to Ava, matching B.',
+      },
+    },
+    {
+      number: 26, accepted: ['A'], evidence: 33,
+      explanation: {
+        zh: '定位句 33：Sonia 主动提出 could I do the report, 她更擅长整理表格和图表。导师句 34 确认 Sonia writes the report，对应 A。Ava 句 32 的提议被这句修正取代。',
+        en: 'Sentence 33: Sonia asks "could I do the report", because she is better at tables and graphs. The tutor confirms in sentence 34 that Sonia writes the report, matching A. Ava’s earlier offer in sentence 32 is replaced by this correction.',
+      },
+    },
+    {
+      number: 27, accepted: ['B'], evidence: 38,
+      explanation: {
+        zh: '定位句 38：联络经理这一项由 Ava 负责，她说 I can contact the market managers，她上一个课程项目做过类似的事。',
+        en: 'Sentence 38: Ava says "I can contact the market managers", having done something similar for her last course project. Contacting the managers goes to Ava, matching B.',
+      },
+    },
+    {
+      number: 28, accepted: ['A'], evidence: 43,
+      explanation: {
+        zh: '定位句 43：Anonymity is essential, because a critical note could affect a small business。不写摊位和员工姓名，用编号代替，对应 A。',
+        en: 'Sentence 43: "Anonymity is essential, because a critical note could affect a small business". Stall and staff names are kept out, replaced by numbers, which matches A.',
+      },
+    },
+    {
+      number: 29, accepted: ['B'], evidence: 44,
+      explanation: {
+        zh: '定位句 44：anyone you observe or interview should give consent before you record anything。事先取得同意对应 B；句 46 补充拒绝参加的摊位直接排除，不能施压。',
+        en: 'Sentence 44: "anyone you observe or interview should give consent before you record anything". Getting consent first matches B. Sentence 46 adds that a refusing stall is left out, with no pressure applied.',
+      },
+    },
+    {
+      number: 30, accepted: ['E'], evidence: 48,
+      explanation: {
+        zh: '定位句 48：Store them on the college drive, not on a personal phone, and delete them after the report is marked。安全存放并按期删除对应 E。C（拍照）在句 50 被否定，D（公开原始数据）在句 52 被否定，F（付费）在句 53 被否定。',
+        en: 'Sentence 48: "Store them on the college drive, not on a personal phone, and delete them after the report is marked.". Secure storage followed by deletion matches E. Photographs in C are rejected in sentence 50, publishing notes in D in sentence 52, and paying owners in F in sentence 53.',
+      },
+    },
+  ],
+  transcript: [
+    { speaker: 'tutor', text: 'Come in, you two. Thanks for making time this afternoon.' },
+    { speaker: 'sonia', text: 'Hi, we’ve brought our rough notes on the street-food project.' },
+    { speaker: 'ava', text: 'There are a few things we still can’t decide on.' },
+    { speaker: 'tutor', text: 'That’s normal at this stage. Let’s start with the research question.' },
+    { speaker: 'tutor', text: 'What exactly do you want to find out?' },
+    { speaker: 'sonia', text: 'We were looking at how clean the preparation areas are, compared with what customers see.' },
+    { speaker: 'ava', text: 'I wondered whether the scores customers read on stalls actually reflect the hygiene behind the counter.' },
+    { speaker: 'tutor', text: 'So your question is about the gap between visible standards and real practice.' },
+    { speaker: 'sonia', text: 'Yes. Most customers judge a stall by the front counter, so the back area is rarely checked.' },
+    { speaker: 'tutor', text: 'That’s a workable question. It’s specific enough to study over a few weeks.' },
+    { speaker: 'tutor', text: 'How many stalls are you thinking of approaching?' },
+    { speaker: 'ava', text: 'The market has about forty stalls in total, but we can’t observe all of them in the time available.' },
+    { speaker: 'sonia', text: 'We thought we’d pick the ones that are busiest at lunchtime, since that’s when food is handled most often.' },
+    { speaker: 'tutor', text: 'Be careful with that. If you only study the busiest stalls, your results can’t speak for the whole market.' },
+    { speaker: 'tutor', text: 'I’d prefer a random sample across the whole market, so that smaller stalls are included too.' },
+    { speaker: 'ava', text: 'Random sounds fair, but can we still focus on stalls that sell ready-to-eat food?' },
+    { speaker: 'tutor', text: 'Yes, that’s a sensible limit. Exclude the fruit and vegetable sellers, and the bakeries.' },
+    { speaker: 'sonia', text: 'So roughly thirty stalls, chosen at random, and we record what we see on a simple checklist.' },
+    { speaker: 'tutor', text: 'Good. Now, what will you actually record at each stall?' },
+    { speaker: 'ava', text: 'Things like whether hands are washed between handling money and food, whether surfaces are wiped down, and whether food is covered.' },
+    { speaker: 'sonia', text: 'We also want to note the opening hours and how many staff are working.' },
+    { speaker: 'tutor', text: 'Keep the checklist short. If it’s too long, you’ll spend more time writing than watching.' },
+    { speaker: 'tutor', text: 'Before you do any observing, though, there’s a step you can’t skip.' },
+    { speaker: 'tutor', text: 'That’s ethics approval.' },
+    { speaker: 'ava', text: 'Is that really necessary for a small class project?' },
+    { speaker: 'tutor', text: 'It is. You’re observing businesses and their staff, so the college committee has to review your plan first.' },
+    { speaker: 'tutor', text: 'You can’t begin any interviews or stall visits until the approval comes through.' },
+    { speaker: 'sonia', text: 'Right. So who applies to the committee?' },
+    { speaker: 'tutor', text: 'I’ll leave that to you two to divide.' },
+    { speaker: 'sonia', text: 'I can draft the application. I’ve read the committee’s guidelines already.' },
+    { speaker: 'ava', text: 'Then I’ll do the fieldwork observations. I’m free most weekdays over the next month.' },
+    { speaker: 'tutor', text: 'Good. And the write-up?' },
+    { speaker: 'ava', text: 'I could compile the report once the observations are finished.' },
+    { speaker: 'sonia', text: 'Actually, could I do the report? I’m better at organising tables and graphs, and Ava has the observation records.' },
+    { speaker: 'tutor', text: 'That’s fine. Sonia writes the report, Ava keeps the observation records.' },
+    { speaker: 'ava', text: 'Fair enough.' },
+    { speaker: 'sonia', text: 'One more thing. We’ll need permission to approach the stalls.' },
+    { speaker: 'tutor', text: 'Yes. Someone has to explain the project to the market managers and get their agreement in writing.' },
+    { speaker: 'ava', text: 'I can contact the market managers. I did something similar for my last course project.' },
+    { speaker: 'tutor', text: 'Perfect. So the four jobs are settled.' },
+    { speaker: 'tutor', text: 'Now let’s talk about the safeguards the ethics committee will expect.' },
+    { speaker: 'tutor', text: 'First, the stalls and the staff must not be named in your notes or in the final report.' },
+    { speaker: 'sonia', text: 'We can give each stall a number instead, can’t we?' },
+    { speaker: 'tutor', text: 'Exactly. Anonymity is essential, because a critical note could affect a small business.' },
+    { speaker: 'tutor', text: 'Second, anyone you observe or interview should give consent before you record anything.' },
+    { speaker: 'ava', text: 'What if a stall owner refuses to take part?' },
+    { speaker: 'tutor', text: 'Then you leave that stall out, and you do not pressure anyone to agree.' },
+    { speaker: 'tutor', text: 'Third, keep the raw notes locked away once the project ends.' },
+    { speaker: 'tutor', text: 'Store them on the college drive, not on a personal phone, and delete them after the report is marked.' },
+    { speaker: 'sonia', text: 'What about taking photos of the food?' },
+    { speaker: 'tutor', text: 'I’d avoid that. Photos can identify a stall even without a name, so rely on your checklist instead.' },
+    { speaker: 'ava', text: 'And should we share the raw data online to show our method?' },
+    { speaker: 'tutor', text: 'No, not for this project. The committee wants the notes private until the work is assessed.' },
+    { speaker: 'tutor', text: 'You don’t need to pay the stall owners for their time, either. This isn’t a paid research trial.' },
+    { speaker: 'sonia', text: 'So the three safeguards are anonymity, consent and secure storage.' },
+    { speaker: 'tutor', text: 'That’s right.' },
+    { speaker: 'tutor', text: 'A few practical points before you go.' },
+    { speaker: 'sonia', text: 'When should the observation start?' },
+    { speaker: 'tutor', text: 'Wait until the approval letter arrives, which usually takes about two weeks.' },
+    { speaker: 'ava', text: 'We’ll aim to finish observations by the end of November, if that’s enough time.' },
+    { speaker: 'tutor', text: 'November is realistic, as long as you divide the stalls between you.' },
+    { speaker: 'sonia', text: 'What about the sample size?' },
+    { speaker: 'tutor', text: 'Ten stalls would be a minimum, and twenty would give you a much stronger write-up.' },
+    { speaker: 'ava', text: 'We’ll try for fifteen to twenty.' },
+    { speaker: 'tutor', text: 'Good. Bring a draft checklist to our next meeting, and we can pilot it on two stalls near the college.' },
+    { speaker: 'sonia', text: 'Thanks for the advice.' },
+    { speaker: 'ava', text: 'We’ll sort out the ethics application this week.' },
+    { speaker: 'tutor', text: 'One last reminder. Keep your language neutral in the report. You’re describing what you saw, not judging the owners.' },
+    { speaker: 'sonia', text: 'Understood.' },
+    { speaker: 'tutor', text: 'I’ll see you both next Thursday.' },
+  ],
+  vocabulary: [
+    {
+      term: 'sample', phonetic: '/ˈsɑːmpl/', partOfSpeech: 'n.', sentenceIndex: 14,
+      meaning: { zh: '样本（被选中用于研究的一组对象）', en: 'the group of stalls or people chosen for a study' },
+      usage: { zh: '研究方法高频词；a random sample、sample size。动词 sample 表示“抽样调查”。', en: 'A research-methods key word: a random sample, sample size. The verb means to survey a subset.' },
+      collocations: ['a random sample', 'sample size', 'a representative sample'],
+      example: { en: 'The survey used a random sample of two hundred residents.', zh: '调查随机抽取了两百名居民作为样本。' },
+      listening: { zh: '单音节，/mp/ 之后的 le 轻读，不要多加一个音节。', en: 'One syllable; the final le is reduced, so do not add an extra beat.' },
+    },
+    {
+      term: 'checklist', phonetic: '/ˈtʃeklɪst/', partOfSpeech: 'n.', sentenceIndex: 17,
+      meaning: { zh: '检查表，核对清单', en: 'a list of items to observe or check off during fieldwork' },
+      usage: { zh: '可数名词；复合词 check 加 list。田野调查、安全检查场景常见。', en: 'Countable compound: check plus list. Common in fieldwork and safety checks.' },
+      collocations: ['a simple checklist', 'on the checklist', 'fill in a checklist'],
+      example: { en: 'The observers record each item on the checklist.', zh: '观察员把每项情况记在检查表上。' },
+      listening: { zh: '两个部分都重读，中间不停顿。', en: 'Both parts are stressed with no pause between them.' },
+    },
+    {
+      term: 'anonymity', phonetic: '/ˌænəˈnɪməti/', partOfSpeech: 'n.', sentenceIndex: 43,
+      meaning: { zh: '匿名，不透露身份', en: 'keeping names and identities hidden from the report and outsiders' },
+      usage: { zh: '伦理研究核心概念；形容词 anonymous。anonymity is essential。', en: 'A core research ethics term; the adjective is anonymous. Anonymity is essential.' },
+      collocations: ['protect anonymity', 'maintain anonymity', 'anonymity in the report'],
+      example: { en: 'The survey guarantees anonymity for every respondent.', zh: '调查保证每位受访者匿名。' },
+      listening: { zh: '五个音节，重音在第三音节 /ˈnɪm/。', en: 'Five syllables with stress on the third.' },
+    },
+    {
+      term: 'consent', phonetic: '/kənˈsent/', partOfSpeech: 'n.', sentenceIndex: 44,
+      meaning: { zh: '同意，知情同意', en: 'permission given after understanding what the study involves' },
+      usage: { zh: '伦理高频词；give consent、informed consent。名词重音在第二音节。', en: 'Common in ethics: give consent, informed consent. Stress the second syllable.' },
+      collocations: ['give consent', 'informed consent', 'refuse consent'],
+      example: { en: 'Participants must give consent before the interview begins.', zh: '访谈开始前参与者必须表示同意。' },
+      listening: { zh: '与 content（内容）拼写接近，consent 重音在后。', en: 'Spelled like content, but the stress falls on the second syllable.' },
+    },
+    {
+      term: 'compile', phonetic: '/kəmˈpaɪl/', partOfSpeech: 'v.', sentenceIndex: 32,
+      meaning: { zh: '汇编，整理（材料写成报告）', en: 'to collect and organise notes and data into one report' },
+      usage: { zh: '及物动词；compile a report、compile a list。名词 compilation。', en: 'Transitive: compile a report, compile a list. The noun is compilation.' },
+      collocations: ['compile the report', 'compile the data', 'compile a summary'],
+      example: { en: 'She compiled the survey results into one table.', zh: '她把调查结果整理成一张表。' },
+      listening: { zh: '重音在第二音节 /ˈpaɪl/，元音是双元音 /aɪ/。', en: 'Stress the second syllable with the diphthong /aɪ/.' },
+    },
+    {
+      term: 'raw', phonetic: '/rɔː/', partOfSpeech: 'adj.', sentenceIndex: 47,
+      meaning: { zh: '原始的（未整理、未分析的数据或记录）', en: 'not yet organised, analysed or written up' },
+      usage: { zh: '研究场景；raw notes、raw data。另有“生的、未加工的”之义。', en: 'Research sense: raw notes, raw data. It also means uncooked or unprocessed.' },
+      collocations: ['raw notes', 'raw data', 'raw material'],
+      example: { en: 'Keep the raw notes separate from the final report.', zh: '把原始记录和最终报告分开保存。' },
+      listening: { zh: '与 roar 押韵，长元音 /ɔː/，不要读成 ray。', en: 'Rhymes with roar and has the long vowel /ɔː/, not ray.' },
+    },
+    {
+      term: 'pilot', phonetic: '/ˈpaɪlət/', partOfSpeech: 'v.', sentenceIndex: 64,
+      meaning: { zh: '（动词）小规模试做，试点', en: 'to test a method on a small scale before the main study' },
+      usage: { zh: '研究语境作动词：pilot the checklist。同形名词是“飞行员”。', en: 'In research it is a verb: pilot the checklist. The same spelling means flyer.' },
+      collocations: ['pilot the checklist', 'a pilot study', 'pilot two stalls'],
+      example: { en: 'We piloted the questions on ten students first.', zh: '我们先用十名学生试测了问题。' },
+      listening: { zh: '三个音节，重音在第一个，尾音 /ət/ 轻读。', en: 'Three syllables, stressed on the first, with a light final /ət/.' },
+    },
+    {
+      term: 'safeguards', phonetic: '/ˈseɪfɡɑːdz/', partOfSpeech: 'n.', sentenceIndex: 40,
+      meaning: { zh: '保障措施，防护手段', en: 'a rule or step that protects participants or data' },
+      usage: { zh: '可数名词；ethical safeguards、security safeguards。也可作动词。', en: 'Countable: ethical safeguards, security safeguards. It can also be a verb.' },
+      collocations: ['ethical safeguards', 'put safeguards in place', 'a safeguard against'],
+      example: { en: 'Anonymity is one safeguard against unfair criticism.', zh: '匿名是避免不公正批评的一项保障。' },
+      listening: { zh: '复合词，safe 加 guard，重音在第一部分。', en: 'Compound of safe and guard, stressed on the first part.' },
+    },
+  ],
+  expressions: [
+    {
+      phrase: 'speak for', sentenceIndex: 13,
+      meaning: { zh: '代表……说话；（结论）适用于……', en: 'to represent what a whole group is like' },
+      usage: { zh: 'can’t speak for the whole market 指结论不能推广到全体。', en: 'Can’t speak for the whole market means the results do not generalise.' },
+      example: { en: 'A small sample cannot speak for the whole city.', zh: '小样本不能代表整座城市。' },
+    },
+    {
+      phrase: 'at random', sentenceIndex: 17,
+      meaning: { zh: '随机地', en: 'chosen without a fixed pattern or preference' },
+      usage: { zh: '状语短语；chosen at random、picked at random。形容词 random 在前。', en: 'Adverbial: chosen at random, picked at random. The adjective random comes before a noun.' },
+      example: { en: 'The stalls were selected at random from the market list.', zh: '摊位从市场名单中随机选出。' },
+    },
+    {
+      phrase: 'comes through', sentenceIndex: 26,
+      meaning: { zh: '（申请）获批下来，送达', en: 'to be approved and arrive after a waiting period' },
+      usage: { zh: 'approval comes through、offer comes through；不及物短语动词。', en: 'Approval comes through, offer comes through; intransitive.' },
+      example: { en: 'We can start once the letter comes through.', zh: '批文下来我们就能开始。' },
+    },
+    {
+      phrase: 'leave that stall out', sentenceIndex: 46,
+      meaning: { zh: '排除，不纳入', en: 'to decide not to include somebody or something' },
+      usage: { zh: '及物，可分开：leave that stall out、leave out the details。', en: 'Separable transitive: leave that stall out, leave out the details.' },
+      example: { en: 'We left out any stall that declined to take part.', zh: '我们排除了所有拒绝参与的摊位。' },
+    },
+    {
+      phrase: 'rely on', sentenceIndex: 50,
+      meaning: { zh: '依靠，凭借', en: 'to depend on something rather than another method' },
+      usage: { zh: 'rely on your checklist；同义的 depend on 更口语。', en: 'rely on your checklist; depend on is close but more colloquial.' },
+      example: { en: 'Rely on written notes rather than memory.', zh: '依靠书面记录，而不是凭记忆。' },
+    },
+    {
+      phrase: 'sort out', sentenceIndex: 66,
+      meaning: { zh: '办妥，整理安排好', en: 'to deal with and organise a task' },
+      usage: { zh: '及物；sort out the application、sort out the schedule。', en: 'Transitive: sort out the application, sort out the schedule.' },
+      example: { en: 'We’ll sort out the paperwork by Friday.', zh: '我们周五前把文书办妥。' },
+    },
+    {
+      phrase: 'pressure anyone to agree', sentenceIndex: 46,
+      meaning: { zh: '逼迫某人同意', en: 'to force or push somebody into saying yes' },
+      usage: { zh: 'pressure 作动词；pressure somebody to do something。名词 pressure 更常见。', en: 'Pressure as a verb: pressure somebody to do something. The noun is more common.' },
+      example: { en: 'Do not pressure participants into signing the form.', zh: '不要逼迫参与者签同意书。' },
+    },
+  ],
+  tips: [
+    {
+      title: { zh: '配对题先认声音和名字', en: 'Match voices to names early' },
+      body: {
+        zh: 'Part 3 配对题考分工。开场把导师、Sonia、Ava 三人的声音和名字对上；听到 I can…、I’ll do… 这类认领任务的句子，先记说话人，再记任务内容。',
+        en: 'Part 3 matching asks who does what. Match the tutor, Sonia and Ava to their voices at the start. When you hear I can… or I’ll do…, note the speaker first and the task second.',
+      },
+    },
+    {
+      title: { zh: '注意中途改主意', en: 'Watch for the last-minute change' },
+      body: {
+        zh: 'Ava 先提议自己写报告（句 32），Sonia 句 33 用 Actually 提出换人，导师句 34 确认。Actually、could I、instead 之后往往是最终分工，早先的认领可能被替换。',
+        en: 'Ava offers to write the report first in sentence 32, then Sonia changes it with Actually in sentence 33, and the tutor confirms in sentence 34. After Actually, could I or instead, the final allocation often replaces the earlier one.',
+      },
+    },
+    {
+      title: { zh: '多选题用否定句排干扰', en: 'Reject options with the negative' },
+      body: {
+        zh: '多选题三个正确项对应三条保障；其余三项都被导师明确否定：I’d avoid that、No, not for this project、You don’t need to pay。听到否定句，在对应选项旁划掉。',
+        en: 'Three options are safeguards; the rest are explicitly rejected: I’d avoid that, No, not for this project and You don’t need to pay. Cross out an option when you hear the negative sentence.',
+      },
+    },
+  ],
+};

@@ -120,8 +120,8 @@ export const test02Part1: ListeningLesson = {
     {
       number: 7, accepted: ['A'], evidence: 28,
       explanation: {
-        zh: '定位句 28：the beds are made up with clean linen, and there are towels in the bathroom。B 是干扰项，句 29 说 beach towels 请自带；C 全篇没有提到。',
-        en: 'Sentence 28: "the beds are made up with clean linen, and there are towels in the bathroom". B is a trap, since sentence 29 asks guests to bring their own beach towels; C is never mentioned.',
+        zh: '定位句 28：Yes, the beds are made up with clean linen before every booking, and there are towels in the bathroom。B 是干扰项，句 29 说 beach towels 请自带；C 全篇没有提到。',
+        en: 'Sentence 28: "the beds are made up with clean linen before every booking, and there are towels in the bathroom". B is a trap, since sentence 29 asks guests to bring their own beach towels; C is never mentioned.',
       },
     },
     {

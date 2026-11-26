@@ -1,0 +1,347 @@
+import type { ListeningLesson } from '@/lib/ielts-listening/types';
+
+/**
+ * Practice Test 20 · Part 3 — 机器人竞赛讨论（两人讨论，加拿大 + 美国口音）。原创仿真材料，非官方真题。
+ *
+ * 讨论顺序：分工建议（配对 21–24）→ 比赛规则（单选 25–27）→ 可报销预算项（多选 28–30）。
+ */
+export const test20Part3: ListeningLesson = {
+  slug: 'test-20-part-3',
+  part: 3,
+  status: 'published',
+  title: { zh: '机器人竞赛讨论', en: 'Discussing a robotics competition' },
+  summary: {
+    zh: '两名队员讨论四周后的机器人竞赛：为驱动、传感、预算和装配四个角色分别确定建议，解读车轮规格、比赛时长和入场安检三条规则，并圈定可报销的电机、电池与套件传感器。',
+    en: 'Two team members plan the robotics match in four weeks: matching advice to the drive, sensor, budget and build roles, reading the wheel size, match length and arena safety rules, and identifying reimbursable motors, battery packs and kit sensors.',
+  },
+  accent: { zh: 'Clara 为加拿大口音，Andrew 为美国口音，两人语速中等。', en: 'Clara speaks with a Canadian accent and Andrew with an American accent, both at a moderate pace.' },
+  speechRate: '+5%',
+  cast: [
+    { id: 'clara', label: 'CLARA', gender: 'female', voice: 'en-CA-ClaraNeural' },
+    { id: 'andrew', label: 'ANDREW', gender: 'male', voice: 'en-US-AndrewNeural' },
+  ],
+  sections: [
+    {
+      kind: 'matching',
+      instruction: 'What does each role need to do first? Choose the correct letter, A–E.',
+      options: [
+        { key: 'A', text: 'reduce the number of sensor code routines' },
+        { key: 'B', text: 'run tests before the practice day' },
+        { key: 'C', text: 'compare prices across two suppliers' },
+        { key: 'D', text: 'keep a spare battery on hand' },
+        { key: 'E', text: 'read the safety checklist twice' },
+      ],
+      items: [
+        { number: 21, text: 'The drive team' },
+        { number: 22, text: 'The sensor team' },
+        { number: 23, text: 'The budget role' },
+        { number: 24, text: 'The build lead' },
+      ],
+    },
+    {
+      kind: 'choice-single',
+      instruction: 'Choose the correct letter, A, B or C.',
+      questions: [
+        {
+          number: 25,
+          stem: 'What does the competition rule say about the wheels?',
+          options: [
+            { key: 'A', text: 'Rubber tread may not be wider than four centimetres' },
+            { key: 'B', text: 'Only wooden wheels are allowed' },
+            { key: 'C', text: 'Wheels must be painted the team colour' },
+          ],
+        },
+        {
+          number: 26,
+          stem: 'How long does each match last?',
+          options: [
+            { key: 'A', text: 'Thirty seconds' },
+            { key: 'B', text: 'Three minutes' },
+            { key: 'C', text: 'Ten minutes' },
+          ],
+        },
+        {
+          number: 27,
+          stem: 'What must the team do before entering the arena?',
+          options: [
+            { key: 'A', text: 'Bring their own measuring gear' },
+            { key: 'B', text: 'Pass the safety check at the gate' },
+            { key: 'C', text: 'Print a copy of the handbook' },
+          ],
+        },
+      ],
+    },
+    {
+      kind: 'choice-multiple',
+      instruction: 'Which THREE budget items can the team claim reimbursement for? Choose THREE letters, A–F.',
+      select: 3,
+      stem: 'Which THREE budget items can the team claim reimbursement for?',
+      options: [
+        { key: 'A', text: 'replacement motors' },
+        { key: 'B', text: 'team hoodies' },
+        { key: 'C', text: 'battery packs' },
+        { key: 'D', text: 'custom T-shirts' },
+        { key: 'E', text: 'sensors from the official kit' },
+        { key: 'F', text: 'travel tickets' },
+      ],
+    },
+  ],
+  answers: [
+    {
+      number: 21, accepted: ['B'], evidence: 5,
+      explanation: {
+        zh: '定位句 5：For the drive system, run tests before the practice day。驱动队要在练习日之前先跑测试，对应 B。',
+        en: 'Sentence 5: for the drive system, "run tests before the practice day", matching B.',
+      },
+    },
+    {
+      number: 22, accepted: ['A'], evidence: 10,
+      explanation: {
+        zh: '定位句 10：For the sensor code, keep the number of routines down。传感队要精简代码例程数量，对应 A。句 11 解释例程过多会让机器人犹豫。',
+        en: 'Sentence 10: for the sensor code, "keep the number of routines down", matching A. Sentence 11 explains that too many routines make the robot hesitate.',
+      },
+    },
+    {
+      number: 23, accepted: ['C'], evidence: 15,
+      explanation: {
+        zh: '定位句 15：She should compare prices across two suppliers before she orders anything。预算角色要先在两家供应商间比价，对应 C。',
+        en: 'Sentence 15: she should "compare prices across two suppliers before she orders anything", matching C.',
+      },
+    },
+    {
+      number: 24, accepted: ['D'], evidence: 19,
+      explanation: {
+        zh: '定位句 19：Advise him to keep a spare battery on hand, in case the old one drains fast。装配负责人本周的主决策是备一块备用电池，对应 D。句 21 的安全清单是全队习惯，不是他的专属建议。',
+        en: 'Sentence 19: advise him to "keep a spare battery on hand", matching D. The checklist in sentence 21 is a team habit, not his assigned advice.',
+      },
+    },
+    {
+      number: 25, accepted: ['A'], evidence: 25,
+      explanation: {
+        zh: '定位句 25：no part may grip the surface with rubber tread wider than four centimetres。轮胎橡胶纹路不得超过四厘米宽，对应 A。',
+        en: 'Sentence 25: no part may grip the surface with "rubber tread wider than four centimetres", matching A.',
+      },
+    },
+    {
+      number: 26, accepted: ['B'], evidence: 27,
+      explanation: {
+        zh: '定位句 27：Each match lasts three minutes, with a thirty-second setup before the buzzer。每局三分钟，对应 B。三十秒是赛前布置时间，不是比赛时长。',
+        en: 'Sentence 27: each match "lasts three minutes", matching B. The thirty seconds are the setup before the buzzer, not the match length.',
+      },
+    },
+    {
+      number: 27, accepted: ['B'], evidence: 29,
+      explanation: {
+        zh: '定位句 29：Before entering the arena, every team must pass the safety check at the gate。进场前须通过门口安检，对应 B。量具由裁判自带，不必自己带。',
+        en: 'Sentence 29: before entering the arena, every team "must pass the safety check at the gate", matching B. The judges bring the measuring gear themselves.',
+      },
+    },
+    {
+      number: 28, accepted: ['A'], evidence: 34,
+      explanation: {
+        zh: '定位句 34：Replacement motors are on the list, since ours burn out in practice。备用电机可报销，对应 A。',
+        en: 'Sentence 34: "replacement motors are on the list", matching A.',
+      },
+    },
+    {
+      number: 29, accepted: ['C'], evidence: 35,
+      explanation: {
+        zh: '定位句 35：Battery packs are claimable too, up to two per robot。电池组可报销，每台机器人限两组，对应 C。',
+        en: 'Sentence 35: "battery packs are claimable too, up to two per robot", matching C.',
+      },
+    },
+    {
+      number: 30, accepted: ['E'], evidence: 36,
+      explanation: {
+        zh: '定位句 36：Sensors from the official kit count, because they come straight from the competition catalog。官方套件内的传感器可报销，对应 E。卫衣、定制 T 恤、交通票均不在零件报销范围内。',
+        en: 'Sentence 36: "sensors from the official kit count", matching E. Hoodies, custom T-shirts and travel tickets are outside the parts reimbursement form.',
+      },
+    },
+  ],
+  transcript: [
+    { speaker: 'andrew', text: 'Last year our team spent nearly half its budget on parts that broke on the practice day.' },
+    { speaker: 'clara', text: 'So this time we should plan the robotics competition more carefully.' },
+    { speaker: 'andrew', text: 'We have four weeks until the match, and each of us owns one part of the build.' },
+    { speaker: 'clara', text: 'Let me go through the roles one by one, and then the rules and budget.' },
+    { speaker: 'andrew', text: 'I’m taking the drive team. The wheels and motors are my job.' },
+    { speaker: 'clara', text: 'For the drive system, run tests before the practice day.' },
+    { speaker: 'andrew', text: 'Earlier than I planned. I thought we could leave that to the last week.' },
+    { speaker: 'clara', text: 'The motors stall if the gearing is off, so check it as soon as the chassis is ready.' },
+    { speaker: 'andrew', text: 'Fair enough. The sensor team is yours, right?' },
+    { speaker: 'clara', text: 'Yes. I handle the light and distance sensors.' },
+    { speaker: 'andrew', text: 'For the sensor code, keep the number of routines down.' },
+    { speaker: 'clara', text: 'Too many routines slow the response, and the robot hesitates at the barriers.' },
+    { speaker: 'andrew', text: 'So simpler code wins over clever code here.' },
+    { speaker: 'clara', text: 'Exactly. The budget role goes to Mia, but we both sign off on her numbers.' },
+    { speaker: 'andrew', text: 'What should she watch for first?' },
+    { speaker: 'clara', text: 'She should compare prices across two suppliers before she orders anything.' },
+    { speaker: 'andrew', text: 'Some parts are cheaper in bulk, but we do not need a whole box yet.' },
+    { speaker: 'clara', text: 'Right. Buy what the match needs, and keep the rest for the next season.' },
+    { speaker: 'andrew', text: 'The build lead is our newest member, and he worries about spare parts.' },
+    { speaker: 'clara', text: 'Advise him to keep a spare battery on hand, in case the old one drains fast.' },
+    { speaker: 'andrew', text: 'Anything else for the build lead?' },
+    { speaker: 'clara', text: 'He should read the safety checklist twice, once before assembly and once before the arena.' },
+    { speaker: 'andrew', text: 'Wait, that sounds like his task, not the spare battery.' },
+    { speaker: 'clara', text: 'The battery is his main decision this week; the checklist is a habit we all follow.' },
+    { speaker: 'andrew', text: 'Okay, roles are clear. What are the hard rules for the match itself?' },
+    { speaker: 'clara', text: 'The rule on wheels is that no part may grip the surface with rubber tread wider than four centimetres.' },
+    { speaker: 'andrew', text: 'So the smooth plastic wheels we use are fine, but the soft tread ones are out.' },
+    { speaker: 'clara', text: 'Each match lasts three minutes, with a thirty-second setup before the buzzer.' },
+    { speaker: 'andrew', text: 'Plenty of time, but the clock stops for any blocked path.' },
+    { speaker: 'clara', text: 'Before entering the arena, every team must pass the safety check at the gate.' },
+    { speaker: 'andrew', text: 'Do we need to bring our own tools to that check?' },
+    { speaker: 'clara', text: 'Just the robot and its controller. The judges bring the measuring gear.' },
+    { speaker: 'andrew', text: 'Now the money. What can we claim back after the competition?' },
+    { speaker: 'clara', text: 'The college reimburses the parts list, but only items the build actually uses.' },
+    { speaker: 'andrew', text: 'Replacement motors are on the list, since ours burn out in practice.' },
+    { speaker: 'clara', text: 'Battery packs are claimable too, up to two per robot.' },
+    { speaker: 'andrew', text: 'Sensors from the official kit count, because they come straight from the competition catalog.' },
+    { speaker: 'andrew', text: 'What about team hoodies for the workshop?' },
+    { speaker: 'clara', text: 'No, clothing is personal, even if it has the team name on the front.' },
+    { speaker: 'andrew', text: 'Custom T-shirts for the match day then?' },
+    { speaker: 'clara', text: 'Not claimable either. The budget does not cover printed outfits.' },
+    { speaker: 'andrew', text: 'Travel tickets to the venue?' },
+    { speaker: 'clara', text: 'Those go through the club treasurer, not the parts reimbursement form.' },
+    { speaker: 'andrew', text: 'So the three eligible items are motors, batteries and kit sensors.' },
+    { speaker: 'clara', text: 'That matches what the handbook says on page nine.' },
+    { speaker: 'andrew', text: 'Let me note the order of tasks for the next week.' },
+    { speaker: 'clara', text: 'Monday the drive tests, Tuesday the sensor code review, Wednesday the supplier quotes.' },
+    { speaker: 'andrew', text: 'Thursday the build lead orders the spare battery, and Friday the full safety review.' },
+    { speaker: 'clara', text: 'We should book the practice slot early, since the room fills fast.' },
+    { speaker: 'andrew', text: 'I can email the lab coordinator tonight.' },
+    { speaker: 'clara', text: 'Also check that the controller battery charges overnight.' },
+    { speaker: 'andrew', text: 'I will bring the charger to the build session, just in case the socket fails.' },
+    { speaker: 'clara', text: 'The team badge must be visible on the robot during judging.' },
+    { speaker: 'andrew', text: 'Where do we stick the badge so it does not block the sensors?' },
+    { speaker: 'clara', text: 'On the side panel, away from the light beam that faces the barrier.' },
+    { speaker: 'andrew', text: 'The judges mark teamwork as well as the robot’s performance.' },
+    { speaker: 'clara', text: 'So keep talking through the build, and note decisions in the shared folder.' },
+    { speaker: 'andrew', text: 'If a sensor drifts, we log the reading before we adjust it.' },
+    { speaker: 'clara', text: 'Good documentation helps if the judges ask why a part was swapped.' },
+    { speaker: 'andrew', text: 'Are we allowed to touch the robot during the match?' },
+    { speaker: 'clara', text: 'Only to place it at the start line. After that, the controller is the only contact.' },
+    { speaker: 'andrew', text: 'The arena floor can be dusty after the morning groups.' },
+    { speaker: 'clara', text: 'Wipe the wheels before setup, so loose grit does not slow the drive.' },
+    { speaker: 'andrew', text: 'I will keep a small cloth in the toolbox for that.' },
+    { speaker: 'clara', text: 'The practice day runs the same routes as the real match.' },
+    { speaker: 'andrew', text: 'Then we should time each route twice, not just once.' },
+    { speaker: 'clara', text: 'Record the slower run, since that tells us where the robot hesitates.' },
+    { speaker: 'andrew', text: 'We can compare those notes with last year’s failed parts.' },
+    { speaker: 'clara', text: 'That should keep us off the same mistakes twice.' },
+    { speaker: 'andrew', text: 'Alright, I will update the shared plan before the evening meeting.' },
+    { speaker: 'clara', text: 'Great. I will reply to the coordinator once your email lands.' },
+  ],
+  vocabulary: [
+    {
+      term: 'chassis', phonetic: '/ˈʃæsi/', partOfSpeech: 'n.', sentenceIndex: 7,
+      meaning: { zh: '底盘，机架', en: 'the base frame onto which wheels and motors mount' },
+      usage: { zh: '可数；the robot chassis、ready the chassis。', en: 'Countable: the robot chassis, ready the chassis.' },
+      collocations: ['the chassis frame', 'mount to the chassis', 'ready the chassis'],
+      example: { en: 'Check the gearing once the chassis is ready.', zh: '机架装好后检查传动。' },
+      listening: { zh: '两个音节，尾字母 s 不发音。', en: 'Two syllables; the final s is silent.' },
+    },
+    {
+      term: 'routines', phonetic: '/ruːˈtiːnz/', partOfSpeech: 'n.', sentenceIndex: 11,
+      meaning: { zh: '（代码）例程', en: 'a fixed block of code the sensor program runs' },
+      usage: { zh: '可数；code routine、a number of routines。', en: 'Countable: code routine, a number of routines.' },
+      collocations: ['a code routine', 'reduce the routines', 'run a routine'],
+      example: { en: 'Keep the number of routines down.', zh: '压缩例程数量。' },
+      listening: { zh: '两个音节，重音在第二音节 /ˈtiːn/。', en: 'Two syllables with stress on the second.' },
+    },
+    {
+      term: 'suppliers', phonetic: '/səˈplaɪərz/', partOfSpeech: 'n.', sentenceIndex: 15,
+      meaning: { zh: '供应商', en: 'a shop or company that sells parts' },
+      usage: { zh: '可数；two suppliers、compare the suppliers。', en: 'Countable: two suppliers, compare the suppliers.' },
+      collocations: ['a parts supplier', 'two suppliers', 'contact a supplier'],
+      example: { en: 'Compare prices across two suppliers.', zh: '在两家供应商之间比价。' },
+      listening: { zh: '三个音节，重音在第二音节 /ˈplaɪ/。', en: 'Three syllables with stress on the second.' },
+    },
+    {
+      term: 'reimburses', phonetic: '/ˌriːɪmˈbɜːsɪz/', partOfSpeech: 'v.', sentenceIndex: 33,
+      meaning: { zh: '报销，补偿支出', en: 'to pay back money spent on approved items' },
+      usage: { zh: 'reimburse the parts list、claim reimbursement。名词 reimbursement。', en: 'Reimburse the parts list; the noun is reimbursement.' },
+      collocations: ['reimburse the costs', 'claim reimbursement', 'eligible to reimburse'],
+      example: { en: 'The college reimburses approved parts.', zh: '学院报销获批零件。' },
+      listening: { zh: '三个音节，重音在第三音节 /ˈbɜːs/。', en: 'Three syllables with stress on the third.' },
+    },
+    {
+      term: 'replacement', phonetic: '/rɪˈpleɪsmənt/', partOfSpeech: 'n.', sentenceIndex: 34,
+      meaning: { zh: '替换件，备用件', en: 'a spare part put in to replace a broken one' },
+      usage: { zh: '可数/不可数；replacement motors、a replacement part。', en: 'Countable or uncountable: replacement motors, a replacement part.' },
+      collocations: ['a replacement motor', 'spare replacements', 'order a replacement'],
+      example: { en: 'Replacement motors are claimable.', zh: '备用电机可报销。' },
+      listening: { zh: '三个音节，重音在第二音节 /ˈpleɪs/。', en: 'Three syllables with stress on the second.' },
+    },
+    {
+      term: 'tread', phonetic: '/tred/', partOfSpeech: 'n.', sentenceIndex: 25,
+      meaning: { zh: '（轮胎）纹路，防滑面', en: 'the grooved surface that grips the arena floor' },
+      usage: { zh: '不可数；rubber tread、tread width。', en: 'Uncountable: rubber tread, tread width.' },
+      collocations: ['rubber tread', 'the tread width', 'soft tread'],
+      example: { en: 'Tread wider than four centimetres is banned.', zh: '纹路超过四厘米禁用。' },
+      listening: { zh: '单音节，与 bed 押韵。', en: 'One syllable, rhyming with bed.' },
+    },
+    {
+      term: 'documentation', phonetic: '/ˌdɒkjumənˈteɪʃn/', partOfSpeech: 'n.', sentenceIndex: 58,
+      meaning: { zh: '记录，文档留痕', en: 'written notes kept to explain decisions and changes' },
+      usage: { zh: '不可数；good documentation、keep the documentation。', en: 'Uncountable: good documentation, keep the documentation.' },
+      collocations: ['good documentation', 'the build documentation', 'record the documentation'],
+      example: { en: 'Documentation helps when judges ask questions.', zh: '被裁判追问时记录能说明情况。' },
+      listening: { zh: '五个音节，重音在第四音节 /ˈteɪ/。', en: 'Five syllables with stress on the fourth.' },
+    },
+  ],
+  expressions: [
+    {
+      phrase: 'sign off on', sentenceIndex: 13,
+      meaning: { zh: '签字确认，把关', en: 'to approve a plan or numbers after review' },
+      usage: { zh: '短语动词；sign off on the budget、sign off on the order，指复核后批准。', en: 'Sign off on the budget or the order.' },
+      example: { en: 'We both sign off on her numbers.', zh: '我俩都要确认她的数字。' },
+    },
+    {
+      phrase: 'drains fast', sentenceIndex: 19,
+      meaning: { zh: '电量快速耗尽', en: 'to lose battery power quickly' },
+      usage: { zh: '动词短语；the battery drains fast，形容词形式 a drained cell。', en: 'The battery drains fast; a drained cell needs recharging.' },
+      example: { en: 'Keep a spare battery if the old one drains fast.', zh: '旧电池掉电快就备一块。' },
+    },
+    {
+      phrase: 'burn out', sentenceIndex: 34,
+      meaning: { zh: '（电机）烧坏，烧毁', en: 'to stop working because of overheating or strain' },
+      usage: { zh: '可分短语动词；motors burn out in practice，指练习中过载损坏。', en: 'Separable: motors burn out in practice.' },
+      example: { en: 'Our motors burn out during practice runs.', zh: '练习中电机会烧坏。' },
+    },
+    {
+      phrase: 'log the reading', sentenceIndex: 57,
+      meaning: { zh: '把读数记录下来', en: 'to write a sensor value into the shared notes' },
+      usage: { zh: '动宾短语；log a reading，指调整传感器之前先登记数值。', en: 'Log a reading; record the decision before adjusting.' },
+      example: { en: 'Log the reading before you adjust the sensor.', zh: '调传感器前先记读数。' },
+    },
+    {
+      phrase: 'keep us off', sentenceIndex: 68,
+      meaning: { zh: '避开，不重犯', en: 'to avoid repeating an earlier mistake' },
+      usage: { zh: '短语动词；keep us off the same mistakes，指不再犯同类错误。', en: 'Keep off the same mistakes; keep off the grass.' },
+      example: { en: 'That keeps us off last year’s errors.', zh: '这样就不会重犯去年的错。' },
+    },
+  ],
+  tips: [
+    {
+      title: { zh: '配对先定角色再听建议', en: 'Match role before advice' },
+      body: {
+        zh: '配对题先把四个角色写在题旁：驱动队、传感队、预算、装配负责人。听到 run tests、routines down、compare prices、spare battery 分别归位；安全清单是全队习惯，属于干扰项。',
+        en: 'Write the four roles beside the items first: drive, sensor, budget, build lead. Match run tests, routines down, compare prices and spare battery to them; the safety checklist is a team habit and a distractor.',
+      },
+    },
+    {
+      title: { zh: '规则题区分时长与布置', en: 'Separate match time from setup' },
+      body: {
+        zh: '比赛时长是三分钟，三十秒是赛前布置；车轮限制是纹路宽度四厘米；入场前过门口安检，量具由裁判自带。听到 setup、judges、gear 时别把伴随细节当成主规则。',
+        en: 'The match lasts three minutes; thirty seconds is setup. The wheel rule limits tread width to four centimetres; entry passes the gate safety check, and judges bring the gear. Do not take setup or gear details as the main rule.',
+      },
+    },
+    {
+      title: { zh: '多选逐项排除干扰类', en: 'Rule out distractor categories' },
+      body: {
+        zh: '可报销三项：备用电机、电池组、套件传感器。卫衣和定制 T 恤属服装，交通票走财务另一条线。多选常把服装、差旅放进选项当干扰，听 clothing、treasurer、form 就划掉。',
+        en: 'The three reimbursable items are motors, battery packs and kit sensors. Hoodies and T-shirts are clothing; tickets go through the treasurer. Clothing and travel are common distractors, so cross them out at clothing, treasurer and form.',
+      },
+    },
+  ],
+};

@@ -1,0 +1,372 @@
+import type { ListeningLesson } from '@/lib/ielts-listening/types';
+
+/**
+ * Practice Test 5 · Part 3 — 湿地考察行前讨论（两名学生）。原创仿真材料，非官方真题。
+ *
+ * 分工讨论在前半段（配对 21–24），出发时间、采样工具与安全提醒在中段（单选 25–27），
+ * 各组必带物品在后半段（多选 28–30）。题块顺序与录音顺序一致。
+ */
+export const test05Part3: ListeningLesson = {
+  slug: 'test-05-part-3',
+  part: 3,
+  status: 'published',
+  title: { zh: '湿地考察行前讨论', en: 'Discussing a field trip to a wetland' },
+  summary: {
+    zh: '两名学生讨论周五的湿地考察：各自已经承担的准备工作、必须早到的潮汐原因、采样工具与安全要求，以及每个小组当天必须携带的物品。',
+    en: 'Two students plan a wetland trip for Friday: what each has already arranged, why the group must arrive early, the sampling tools and safety rules, and what each group must bring on the day.',
+  },
+  accent: { zh: 'Clara 为加拿大口音，Andrew 为美式口音。', en: 'Clara speaks with a Canadian accent and Andrew with an American accent.' },
+  speechRate: '+5%',
+  cast: [
+    { id: 'clara', label: 'CLARA', gender: 'female', voice: 'en-CA-ClaraNeural' },
+    { id: 'andrew', label: 'ANDREW', gender: 'male', voice: 'en-US-AndrewNeural' },
+  ],
+  sections: [
+    {
+      kind: 'matching',
+      instruction: 'Which preparation has each person done or taken on? Choose the correct letter, A–F.',
+      options: [
+        { key: 'A', text: 'bring the master tide chart' },
+        { key: 'B', text: 'prepare the sampling nets' },
+        { key: 'C', text: 'book the minibus' },
+        { key: 'D', text: 'check the weather forecast' },
+        { key: 'E', text: 'split the class into groups' },
+        { key: 'F', text: 'keep the written species record' },
+      ],
+      items: [
+        { number: 21, text: 'Clara' },
+        { number: 22, text: 'Andrew' },
+        { number: 23, text: 'Clara' },
+        { number: 24, text: 'Andrew' },
+      ],
+    },
+    {
+      kind: 'choice-single',
+      instruction: 'Choose the correct letter, A, B or C.',
+      questions: [
+        {
+          number: 25,
+          stem: 'Why must the group arrive at the reserve early?',
+          options: [
+            { key: 'A', text: 'The reserve opens late in the morning.' },
+            { key: 'B', text: 'The mudflats are exposed only around low tide.' },
+            { key: 'C', text: 'The minibus has to return before dark.' },
+          ],
+        },
+        {
+          number: 26,
+          stem: 'What will they use to hold water samples?',
+          options: [
+            { key: 'A', text: 'a clear jar' },
+            { key: 'B', text: 'a sampling net' },
+            { key: 'C', text: 'a plastic bag' },
+          ],
+        },
+        {
+          number: 27,
+          stem: 'What did the tutor warn the class about?',
+          options: [
+            { key: 'A', text: 'Not to take any creatures home.' },
+            { key: 'B', text: 'To stay on the boardwalk unless told otherwise.' },
+            { key: 'C', text: 'To wear the department’s waterproof boots.' },
+          ],
+        },
+      ],
+    },
+    {
+      kind: 'choice-multiple',
+      instruction: 'Which THREE items must each group bring on the day? Choose THREE letters, A–F.',
+      select: 3,
+      stem: 'Which THREE items must each group bring on the day?',
+      options: [
+        { key: 'A', text: 'waders' },
+        { key: 'B', text: 'a notebook' },
+        { key: 'C', text: 'a magnifying glass' },
+        { key: 'D', text: 'a camera' },
+        { key: 'E', text: 'a sampling net' },
+        { key: 'F', text: 'a tide table' },
+      ],
+    },
+  ],
+  answers: [
+    {
+      number: 21, accepted: ['B'], evidence: 4,
+      explanation: {
+        zh: '定位句 4：Good. I’ll prepare the sampling nets, because the old ones at the store have torn holes。Clara 承担修补、准备采样网，对应 B。',
+        en: 'Sentence 4: "I’ll prepare the sampling nets, because the old ones at the store have torn holes". Clara takes on the nets, matching B.',
+      },
+    },
+    {
+      number: 22, accepted: ['C'], evidence: 3,
+      explanation: {
+        zh: '定位句 3：I booked the minibus last week。Andrew 已经订好小巴，对应 C。',
+        en: 'Sentence 3: "I booked the minibus last week". Andrew has booked the minibus, matching C.',
+      },
+    },
+    {
+      number: 23, accepted: ['F'], evidence: 6,
+      explanation: {
+        zh: '定位句 6：Nice. I’ll keep the written record of species, since I took notes on the last ecology trip。Clara 负责记录物种，对应 F。',
+        en: 'Sentence 6: "I’ll keep the written record of species, since I took notes on the last ecology trip". Clara keeps the species record, matching F.',
+      },
+    },
+    {
+      number: 24, accepted: ['D'], evidence: 5,
+      explanation: {
+        zh: '定位句 5：I checked the weather forecast this morning。Andrew 查过天气预报，对应 D。A 是导师带潮汐表，E 是导师分组，都不由两位学生承担。',
+        en: 'Sentence 5: "I checked the weather forecast this morning". Andrew checked the forecast, matching D. A is the tutor’s tide chart and E is the tutor grouping the class.',
+      },
+    },
+    {
+      number: 25, accepted: ['B'], evidence: 14,
+      explanation: {
+        zh: '定位句 14：The low tide is around ten in the morning, so we need to be at the reserve by half past eight。句 16 补充错过低潮滩就被水淹，对应 B。A 说公园晚开门，C 说小巴要赶天黑前返回，都与原文无关。',
+        en: 'Sentence 14: "The low tide is around ten in the morning, so we need to be at the reserve by half past eight". Sentence 16 adds that missing low tide leaves the flats underwater, matching B. A and C are not mentioned.',
+      },
+    },
+    {
+      number: 26, accepted: ['A'], evidence: 19,
+      explanation: {
+        zh: '定位句 19：We’ll scoop small creatures from the shallow water, and need a clear jar to hold them。装水样的是透明罐子；采样网在句 20 是捞边缘淤泥用的，不是盛水工具。',
+        en: 'Sentence 19: "a clear jar to hold them". The jar holds water samples; the net in sentence 20 scoops mud at the edge, so B is the wrong tool.',
+      },
+    },
+    {
+      number: 27, accepted: ['B'], evidence: 23,
+      explanation: {
+        zh: '定位句 23：She told us to stay on the boardwalk unless our group leader says otherwise。导师的安全警告对应 B。A 是句 21 的取走规则，C 是句 25 的装备安排，都不是警告内容。',
+        en: 'Sentence 23: "She told us to stay on the boardwalk unless our group leader says otherwise". The tutor’s warning matches B. A is the take-home rule in sentence 21, and C is the boot arrangement in sentence 25.',
+      },
+    },
+    {
+      number: 28, accepted: ['E'], evidence: 28,
+      explanation: {
+        zh: '定位句 28：Each group gets a sampling net from the department。采样网是每组必带物品之一，对应 E。',
+        en: 'Sentence 28: "Each group gets a sampling net from the department". The net is one required item per group, matching E.',
+      },
+    },
+    {
+      number: 29, accepted: ['B'], evidence: 29,
+      explanation: {
+        zh: '定位句 29：Every group should take a notebook, to write down what they find and where。笔记本用来记录发现和地点，对应 B。',
+        en: 'Sentence 29: "Every group should take a notebook, to write down what they find and where". The notebook records finds and locations, matching B.',
+      },
+    },
+    {
+      number: 30, accepted: ['C'], evidence: 30,
+      explanation: {
+        zh: '定位句 30：And a magnifying glass, to look at the small insects and shells up close。放大镜用于近距离观察小虫和贝壳，对应 C。相机是可选项（句 32），waders 和潮汐表由部门或导师提供（句 34、36）。',
+        en: 'Sentence 30: "And a magnifying glass, to look at the small insects and shells up close". The magnifying glass matches C. A camera is optional (sentence 32), and waders and the tide table are provided by the department or tutor (sentences 34 and 36).',
+      },
+    },
+  ],
+  transcript: [
+    { speaker: 'clara', text: 'Hi Andrew. Shall we get started on the wetland trip plan? The tutor wants it sorted by tomorrow.' },
+    { speaker: 'andrew', text: 'Sure. I’ve looked at the map, and the reserve is about an hour’s drive from campus.' },
+    { speaker: 'clara', text: 'Right. Before we talk about the route, let’s check who has done what so far.' },
+    { speaker: 'andrew', text: 'I booked the minibus last week, so that side is covered.' },
+    { speaker: 'clara', text: 'Good. I’ll prepare the sampling nets, because the old ones at the store have torn holes.' },
+    { speaker: 'andrew', text: 'I checked the weather forecast this morning, and Friday looks dry with a light wind.' },
+    { speaker: 'clara', text: 'Nice. I’ll keep the written record of species, since I took notes on the last ecology trip.' },
+    { speaker: 'andrew', text: 'What about the tide chart? Do we need our own copy?' },
+    { speaker: 'clara', text: 'The tutor said she’ll bring the master tide chart, so we don’t have to print one.' },
+    { speaker: 'andrew', text: 'And how will the class be split into groups?' },
+    { speaker: 'clara', text: 'The tutor decides that. She said she’ll divide us into four teams before we leave campus.' },
+    { speaker: 'andrew', text: 'OK, so the four jobs are the bus, the nets, the forecast and the species record.' },
+    { speaker: 'clara', text: 'Exactly. Now the timing. The tutor warned that the mudflats are only accessible at low tide.' },
+    { speaker: 'andrew', text: 'So we shouldn’t arrive too late. When does the tide go out on Friday?' },
+    { speaker: 'clara', text: 'The low tide is around ten in the morning, so we need to be at the reserve by half past eight.' },
+    { speaker: 'andrew', text: 'Half past eight? That means leaving campus at seven. I was hoping for a later start.' },
+    { speaker: 'clara', text: 'I know, but if we miss the low tide, the flats are underwater and there’s nothing to sample.' },
+    { speaker: 'andrew', text: 'Fair enough. I’ll put seven o’clock on the group notice.' },
+    { speaker: 'clara', text: 'Good. What will we actually collect once we’re there?' },
+    { speaker: 'andrew', text: 'We’ll scoop small creatures from the shallow water, and need a clear jar to hold them.' },
+    { speaker: 'clara', text: 'Right, so the jar is for water samples, and the net is for the mud near the edge.' },
+    { speaker: 'andrew', text: 'That’s it. We don’t take anything home; everything goes back after we’ve looked at it.' },
+    { speaker: 'clara', text: 'Did she say anything about the path itself?' },
+    { speaker: 'andrew', text: 'She told us to stay on the boardwalk unless our group leader says otherwise. The mud can be deep in places.' },
+    { speaker: 'clara', text: 'And the boots? I’ve heard the paths get muddy after rain.' },
+    { speaker: 'andrew', text: 'The department lends waterproof boots, but we have to sign for them at the store before we leave.' },
+    { speaker: 'clara', text: 'I’ll add that to the arrangements. Now, what does each group need to bring on the day?' },
+    { speaker: 'andrew', text: 'Let’s go through the kit list the tutor sent round yesterday.' },
+    { speaker: 'andrew', text: 'Each group gets a sampling net from the department, so that part is already sorted.' },
+    { speaker: 'clara', text: 'Every group should take a notebook, to write down what they find and where they found it.' },
+    { speaker: 'andrew', text: 'And a magnifying glass, to look at the small insects and shells up close.' },
+    { speaker: 'clara', text: 'Do we need cameras?' },
+    { speaker: 'andrew', text: 'They’re optional. Anyone can bring their own phone, but it isn’t on the required list.' },
+    { speaker: 'clara', text: 'What about waders?' },
+    { speaker: 'andrew', text: 'The department provides waders for the teams that go near the water, so we don’t bring our own.' },
+    { speaker: 'clara', text: 'And the tide table?' },
+    { speaker: 'andrew', text: 'The tutor keeps one master copy, and each group follows the leader’s, so no need to print another.' },
+    { speaker: 'clara', text: 'So the three things every group carries are the notebook, the magnifying glass and the net.' },
+    { speaker: 'andrew', text: 'That’s right. Anything else we should sort out now?' },
+    { speaker: 'clara', text: 'We should agree on how to write the record. Species name first, then the location, then the time we saw it.' },
+    { speaker: 'andrew', text: 'Good idea. I’ll draft the record sheet tonight and send it to the tutor for a quick check.' },
+    { speaker: 'clara', text: 'I’ll remind everyone about the boots and the meeting time by email this evening.' },
+    { speaker: 'andrew', text: 'I should check whether the reserve has drinking water.' },
+    { speaker: 'clara', text: 'The warden said there are taps by the visitor centre, so we can fill our bottles.' },
+    { speaker: 'andrew', text: 'What about identification? Last time I mixed up two similar shells.' },
+    { speaker: 'clara', text: 'The tutor will bring the field guide, and she’ll go through the common ones with us at the start.' },
+    { speaker: 'andrew', text: 'Then I won’t rely on memory for the tricky names.' },
+    { speaker: 'clara', text: 'No, if it isn’t in the guide, we draw it and note the colour, rather than guessing.' },
+    { speaker: 'andrew', text: 'That makes sense. How many people are in each group, by the way?' },
+    { speaker: 'clara', text: 'Four, the tutor said. One person records, one holds the net, one notes the location, and one watches the time.' },
+    { speaker: 'andrew', text: 'So roles rotate between sites, so nobody writes the whole sheet alone.' },
+    { speaker: 'clara', text: 'Exactly. The train goes to the town near the reserve, but then it’s a long walk.' },
+    { speaker: 'andrew', text: 'That’s why I booked the minibus. It drops us right at the visitor centre, and it splits the cost between us.' },
+    { speaker: 'clara', text: 'I was worried about the driver, but the booking includes one, so that’s settled.' },
+    { speaker: 'andrew', text: 'Me too. Did you check whether we need permission to enter the reserve?' },
+    { speaker: 'clara', text: 'The tutor already arranged that. Our class has a group pass for Friday morning.' },
+    { speaker: 'andrew', text: 'Good. I’ll confirm the bus driver’s number and text it to everyone tonight.' },
+    { speaker: 'clara', text: 'And I’ll copy the field guide chapter into our shared folder, so people can read it beforehand.' },
+    { speaker: 'andrew', text: 'Perfect. Let’s meet again tomorrow after the lecture to confirm everything with the tutor.' },
+    { speaker: 'andrew', text: 'One last thing. What happens if it rains on Friday?' },
+    { speaker: 'clara', text: 'The forecast says dry, but if it does rain, we move to the indoor display at the visitor centre.' },
+    { speaker: 'andrew', text: 'Right. The net and the boots are still useful there, but the water sampling is the part that gets cancelled.' },
+    { speaker: 'clara', text: 'That’s what the tutor said. We shouldn’t change the meeting time for a light shower.' },
+    { speaker: 'andrew', text: 'OK, I think we’ve covered the route, the tools, the tide and the record-keeping.' },
+    { speaker: 'clara', text: 'Yes. I’ll send the notes to the tutor once we’ve met tomorrow.' },
+    { speaker: 'andrew', text: 'See you then.' },
+  ],
+  vocabulary: [
+    {
+      term: 'reserve', phonetic: '/rɪˈzɜːv/', partOfSpeech: 'n.', sentenceIndex: 1,
+      meaning: { zh: '自然保护区', en: 'an area of land kept protected for wildlife' },
+      usage: { zh: '可数名词；nature reserve、wildlife reserve。动词 reserve 是预订。', en: 'Countable: a nature reserve, a wildlife reserve. The verb reserve means to book.' },
+      collocations: ['the wetland reserve', 'a nature reserve', 'the reserve opens'],
+      example: { en: 'The reserve protects birds that nest near the shore.', zh: '这个保护区在保护岸边筑巢的鸟类。' },
+      listening: { zh: '名词重音在第二音节，与动词同形，靠位置判断。', en: 'The noun stresses the second syllable; the form matches the verb, so use the grammar.' },
+    },
+    {
+      term: 'mudflats', phonetic: '/ˈmʌdflæts/', partOfSpeech: 'n.', sentenceIndex: 12,
+      meaning: { zh: '泥滩，潮滩', en: 'the muddy area exposed when the tide goes out' },
+      usage: { zh: '常用复数；mudflat 由 mud 加 flat 构成，湿地考察高频词。', en: 'Usually plural; mud plus flat, a common term in wetland fieldwork.' },
+      collocations: ['the mudflats', 'on the mudflats', 'exposed mudflats'],
+      example: { en: 'Birds feed on the mudflats at low tide.', zh: '退潮时鸟类在泥滩上觅食。' },
+      listening: { zh: '两个音节都重读，flat 读 /flæt/。', en: 'Both halves are stressed; flat is /flæt/.' },
+    },
+    {
+      term: 'tide', phonetic: '/taɪd/', partOfSpeech: 'n.', sentenceIndex: 13,
+      meaning: { zh: '潮汐，潮水', en: 'the regular rise and fall of the sea level' },
+      usage: { zh: '可数名词；low tide、high tide、tide chart。', en: 'Countable: low tide, high tide, a tide chart.' },
+      collocations: ['low tide', 'the tide goes out', 'the tide chart'],
+      example: { en: 'The tide goes out around midday.', zh: '中午前后潮水退去。' },
+      listening: { zh: '与 tied（系住）同音，靠语境区分。', en: 'A homophone of tied; let the context decide.' },
+    },
+    {
+      term: 'sampling', phonetic: '/ˈsɑːmplɪŋ/', partOfSpeech: 'n.', sentenceIndex: 4,
+      meaning: { zh: '采样，取样', en: 'collecting small examples of something for study' },
+      usage: { zh: '动词 sample 的动名词；sampling net、water sampling。', en: 'Gerund of sample: a sampling net, water sampling.' },
+      collocations: ['a sampling net', 'water sampling', 'sampling tools'],
+      example: { en: 'The team carries out water sampling each week.', zh: '小组每周进行水样采集。' },
+      listening: { zh: 'sample 读 /ˈsɑːmpl/，结尾 /ɪŋ/ 轻读。', en: 'Sample is /ˈsɑːmpl/; the ending /ɪŋ/ is weak.' },
+    },
+    {
+      term: 'forecast', phonetic: '/ˈfɔːkɑːst/', partOfSpeech: 'n.', sentenceIndex: 5,
+      meaning: { zh: '预报（天气预报）', en: 'a statement saying what the weather will be' },
+      usage: { zh: '可数名词；weather forecast。动词同形，重音都在第一音节。', en: 'Countable: a weather forecast. The verb has the same first-syllable stress.' },
+      collocations: ['the weather forecast', 'check the forecast', 'a dry forecast'],
+      example: { en: 'The forecast says rain by evening.', zh: '预报说傍晚有雨。' },
+      listening: { zh: 'fore 与 cast 合读，cast 读 /kɑːst/。', en: 'Fore and cast are spoken together; cast is /kɑːst/.' },
+    },
+    {
+      term: 'species', phonetic: '/ˈspiːʃiːz/', partOfSpeech: 'n.', sentenceIndex: 6,
+      meaning: { zh: '物种', en: 'a group of living things that can breed together' },
+      usage: { zh: '单复数同形；a species、two species。ecology 讲座高频词。', en: 'Unchanged in the plural: a species, two species. Common in ecology talks.' },
+      collocations: ['record species', 'common species', 'protect a species'],
+      example: { en: 'The guide lists every species seen on the trail.', zh: '指南列出了步道上见过的每一个物种。' },
+      listening: { zh: '结尾是 /ʃiːz/，不要读成 /siːz/。', en: 'The ending is /ʃiːz/, not /siːz/.' },
+    },
+    {
+      term: 'boardwalk', phonetic: '/ˈbɔːdwɔːk/', partOfSpeech: 'n.', sentenceIndex: 23,
+      meaning: { zh: '木板步道', en: 'a wooden path built over wet or muddy ground' },
+      usage: { zh: '可数名词；湿地、海滩场景常见，board 加 walk。', en: 'Countable, common in wetland and beach settings: board plus walk.' },
+      collocations: ['stay on the boardwalk', 'a wooden boardwalk', 'the boardwalk crosses the marsh'],
+      example: { en: 'The boardwalk keeps visitors above the mud.', zh: '木板步道让游客不会踩到泥里。' },
+      listening: { zh: '复合词，两个音节都重读。', en: 'A compound with stress on both halves.' },
+    },
+    {
+      term: 'waders', phonetic: '/ˈweɪdəz/', partOfSpeech: 'n.', sentenceIndex: 34,
+      meaning: { zh: '涉水裤，高筒防水靴', en: 'long waterproof boots worn when walking through shallow water' },
+      usage: { zh: '只用复数；pair of waders。', en: 'Plural only; a pair of waders.' },
+      collocations: ['a pair of waders', 'put on waders', 'provide waders'],
+      example: { en: 'The researchers put on waders before entering the stream.', zh: '研究人员下水前穿上涉水裤。' },
+      listening: { zh: 'wade 加 rs，结尾 /dəz/，不要听成 waiters。', en: 'Wade plus rs, ending /dəz/; do not mistake it for waiters.' },
+    },
+    {
+      term: 'magnifying glass', phonetic: '/ˈmæɡnɪfaɪɪŋ ɡlɑːs/', partOfSpeech: 'n.', sentenceIndex: 30,
+      meaning: { zh: '放大镜', en: 'a lens that makes small things look bigger' },
+      usage: { zh: '可数名词；固定说法，不说 magnifier glass。', en: 'Countable and fixed; do not say magnifier glass.' },
+      collocations: ['a magnifying glass', 'look through a magnifying glass'],
+      example: { en: 'She inspected the insect with a magnifying glass.', zh: '她用放大镜观察那只昆虫。' },
+      listening: { zh: 'magnifying 三个音节，重音在第一音节。', en: 'Magnifying has three syllables with first-syllable stress.' },
+    },
+  ],
+  expressions: [
+    {
+      phrase: 'get started on', sentenceIndex: 0,
+      meaning: { zh: '开始做（某事）', en: 'to begin working on something' },
+      usage: { zh: '后接任务；get started on the plan、get started on the essay。', en: 'Follow with a task: get started on the plan or the essay.' },
+      example: { en: 'Let’s get started on the report before lunch.', zh: '我们趁午饭前开始写报告吧。' },
+    },
+    {
+      phrase: 'looked at', sentenceIndex: 1,
+      meaning: { zh: '查看过，看过', en: 'to have examined something, such as a map' },
+      usage: { zh: '及物短语动词；look at the map、look at the list。', en: 'Transitive: look at the map, look at the list.' },
+      example: { en: 'I’ve looked at the timetable and it works for us.', zh: '我看过时刻表，时间对我们合适。' },
+    },
+    {
+      phrase: 'covered', sentenceIndex: 3,
+      meaning: { zh: '已处理好，已落实', en: 'already dealt with or arranged' },
+      usage: { zh: '口语中 That side is covered 表示这部分不用再操心。', en: 'In speech, that side is covered means it needs no further work.' },
+      example: { en: 'The venue is covered, so we just need speakers.', zh: '场地已经落实，我们只缺音箱。' },
+    },
+    {
+      phrase: 'split into', sentenceIndex: 9,
+      meaning: { zh: '分成（小组）', en: 'to divide people into smaller groups' },
+      usage: { zh: '被动 be split into；split 过去式同形。', en: 'Passive: be split into; the past tense of split is unchanged.' },
+      example: { en: 'The class was split into six teams.', zh: '全班分成了六个小组。' },
+    },
+    {
+      phrase: 'up close', sentenceIndex: 30,
+      meaning: { zh: '近距离地', en: 'from very near, so details are visible' },
+      usage: { zh: '放在动词后；look at something up close、examine something up close。', en: 'After the verb: look at something up close.' },
+      example: { en: 'Up close, the leaves have tiny spots.', zh: '凑近看，叶子上有细小的斑点。' },
+    },
+    {
+      phrase: 'go through', sentenceIndex: 27,
+      meaning: { zh: '逐条过一遍', en: 'to examine items one by one' },
+      usage: { zh: '及物短语动词；go through the list、go through the notes。', en: 'Transitive: go through the list, go through the notes.' },
+      example: { en: 'Let’s go through the questions before the trip.', zh: '出发前我们把问题逐条过一遍。' },
+    },
+    {
+      phrase: 'rely on', sentenceIndex: 46,
+      meaning: { zh: '依靠，凭（记忆）', en: 'to depend on something, such as memory' },
+      usage: { zh: '及物；rely on memory、rely on notes。', en: 'Transitive: rely on memory, rely on notes.' },
+      example: { en: 'Don’t rely on memory; write the names down.', zh: '别凭记忆，把名字写下来。' },
+    },
+  ],
+  tips: [
+    {
+      title: { zh: '配对题先记声音与分工', en: 'Match voice to task first' },
+      body: {
+        zh: '21–24 考“谁承担了哪项准备”。开头三十秒先把 Clara 和 Andrew 的声音对上名字，之后每条分工先记说话人，再记事项；导师做的事（带潮汐表、分组）是两个干扰项。',
+        en: 'Items 21–24 ask who took on which preparation. Match the two voices to names in the first thirty seconds, then note the speaker before the task. What the tutor does (the tide chart, the grouping) are distractors.',
+      },
+    },
+    {
+      title: { zh: '潮汐时间是因果线索', en: 'The tide time is a cause' },
+      body: {
+        zh: '早到不是因为公园开门晚，而是低潮滩只在退潮前后露出。听到 if we miss… 这类条件句时，结论往往藏在主句；把原因和结果分开记。',
+        en: 'The early start is not a late opening time: the flats are exposed only around low tide. In an if we miss… clause, the conclusion usually sits in the main clause. Keep cause and result separate.',
+      },
+    },
+    {
+      title: { zh: '多选题区分“必带”和“提供/可选”', en: 'Required versus provided or optional' },
+      body: {
+        zh: '多选题三个正确项是每组自带的物品；部门提供的 waders、导师保管的潮汐表、可选的相机都被说成另一种归属。听时把每个选项标注为自带、提供或可选，再落笔。',
+        en: 'The three correct items are carried by each group; department waders, the tutor’s tide table and the optional camera are each described as something else. Mark every option as brought, provided or optional before choosing.',
+      },
+    },
+  ],
+};

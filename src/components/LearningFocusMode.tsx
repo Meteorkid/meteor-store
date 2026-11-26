@@ -3,37 +3,51 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import {
-  isLearningFocusPath,
+  getFocusModeScope,
   LEARNING_FOCUS_STORAGE_KEY,
+  type FocusModeScope,
 } from '@/lib/learning-focus';
 
 const COPY = {
   zh: {
-    enter: '专注模式',
+    learning: { enter: '专注模式', hint: '隐藏粒子与装饰，放大正文' },
+    reading: { enter: '专注阅读', hint: '收起站点导航与装饰，放大正文' },
+    writing: { enter: '写作专注', hint: '收起站点外壳与氛围层，保留编辑器' },
     exit: '退出专注',
     exitShort: '退出',
-    hint: '隐藏粒子与装饰，放大正文',
     exitHint: '恢复站点导航与氛围',
   },
   en: {
-    enter: 'Focus mode',
+    learning: { enter: 'Focus mode', hint: 'Hide ambient effects, enlarge text' },
+    reading: { enter: 'Focus reading', hint: 'Hide site chrome and ambient effects, enlarge text' },
+    writing: { enter: 'Writing focus', hint: 'Hide site chrome and ambience, keep the editor' },
     exit: 'Exit focus',
     exitShort: 'Exit',
-    hint: 'Hide ambient effects, enlarge text',
-    exitHint: 'Restore site chrome and ambience',
+    exitHint: 'Restore site navigation and ambience',
   },
 } as const;
 
-function FocusButton({ active, toggle, locale }: { active: boolean; toggle: () => void; locale: 'zh' | 'en' }) {
+function FocusButton({
+  active,
+  toggle,
+  locale,
+  scope,
+}: {
+  active: boolean;
+  toggle: () => void;
+  locale: 'zh' | 'en';
+  scope: FocusModeScope;
+}) {
   const copy = COPY[locale];
+  const mode = copy[scope];
 
   return (
     <button
       type="button"
       onClick={toggle}
       aria-pressed={active}
-      aria-label={active ? copy.exit : copy.enter}
-      title={active ? copy.exitHint : copy.hint}
+      aria-label={active ? copy.exit : mode.enter}
+      title={active ? copy.exitHint : mode.hint}
       data-focus-control
       data-active={active ? 'true' : 'false'}
       className="learning-focus-control"
@@ -41,7 +55,7 @@ function FocusButton({ active, toggle, locale }: { active: boolean; toggle: () =
     >
       <svg className="learning-focus-control__icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
         {active ? (
-          <path d="m5 12 4 4 10-10" />
+          <path d="M6 6l12 12M18 6 6 18" />
         ) : (
           <>
             <path d="M9 4H5a1 1 0 0 0-1 1v4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4" />
@@ -49,15 +63,20 @@ function FocusButton({ active, toggle, locale }: { active: boolean; toggle: () =
           </>
         )}
       </svg>
-      <span className="learning-focus-control__label">{active ? copy.exitShort : copy.enter}</span>
+      <span className="learning-focus-control__label">{active ? copy.exitShort : mode.enter}</span>
     </button>
   );
 }
 
-function applyFocusMode(on: boolean) {
+function applyFocusMode(on: boolean, scope?: FocusModeScope | null) {
   try {
-    if (on) document.documentElement.dataset.focusMode = 'on';
-    else delete document.documentElement.dataset.focusMode;
+    if (on) {
+      document.documentElement.dataset.focusMode = 'on';
+      if (scope) document.documentElement.dataset.focusScope = scope;
+    } else {
+      delete document.documentElement.dataset.focusMode;
+      delete document.documentElement.dataset.focusScope;
+    }
   } catch {
     // 浏览器禁用脚本存储或 DOM 时，按钮本身仍能工作；不要让它把页面带崩。
   }
@@ -79,30 +98,34 @@ function readFocusMode(): boolean {
 }
 
 /**
- * 学习区专用专注模式。
+ * 内容页专用的专注入口。
  *
- * 挂在 ExperienceAwareChrome 上而不是各个 layout 里：竞赛、硕士、博士没有独立
- * layout，逐个页面插按钮会漏；固定在左下角也只占一个浮层，不挤压正文。
+ * 学习区之外还覆盖博客正文、每日一新、帮助文章、API 指南和投稿编辑器。
+ * 挂在 ExperienceAwareChrome 上而不是各页 layout：这些页面没有统一的布局，
+ * 逐个页面插按钮会漏；固定在左下角也只占一个浮层，不挤压正文。
+ *
  * 首屏恢复由根布局的内联脚本完成，避免先闪一下粒子再进入专注。
+ * 三种作用域的差异交给 CSS 的 data-focus-scope 处理：
+ * 学习/阅读放大正文，写作只收外壳与氛围层，不碰编辑器和字数/保存状态。
  */
 export default function LearningFocusMode() {
   const pathname = usePathname();
-  const learning = isLearningFocusPath(pathname);
+  const scope = getFocusModeScope(pathname);
   const locale = pathname.startsWith('/en') ? 'en' : 'zh';
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    if (!learning) {
+    if (!scope) {
       applyFocusMode(false);
       setActive(false);
       return;
     }
     const stored = readFocusMode();
     setActive(stored);
-    applyFocusMode(stored);
-  }, [learning]);
+    applyFocusMode(stored, scope);
+  }, [scope]);
 
-  if (!learning) return null;
+  if (!scope) return null;
 
   function toggle() {
     setActive(current => {
@@ -113,10 +136,10 @@ export default function LearningFocusMode() {
       } catch {
         // 隐私模式可能拒绝 localStorage；本次会话仍然生效，只是不持久化。
       }
-      applyFocusMode(next);
+      applyFocusMode(next, scope);
       return next;
     });
   }
 
-  return <FocusButton active={active} toggle={toggle} locale={locale} />;
+  return <FocusButton active={active} toggle={toggle} locale={locale} scope={scope} />;
 }

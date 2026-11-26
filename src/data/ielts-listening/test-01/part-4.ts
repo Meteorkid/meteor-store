@@ -126,7 +126,7 @@ export const test01Part4: ListeningLesson = {
       number: 38, accepted: ['C'], evidence: 42,
       explanation: {
         zh: '定位句 42：grown in a mould；句 30–32 也说 designers grow mycelium into solid shapes，spores 和农业废料被装进模具长成所需形状。对应“能长成多种形状”。',
-        en: 'Sentence 42: "grown in a mould". Sentences 30 to 32 add that designers "grow mycelium into solid shapes", packing the mixture into a mould, so it takes a wide range of shapes.',
+        en: 'Sentence 42: "grown in a mould". Sentences 30 to 32 add that designers grow mycelium into solid shapes, packing the mixture into a mould, so it takes a wide range of shapes.',
       },
     },
     {
@@ -197,7 +197,7 @@ export const test01Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'The connections exist, and substances do travel along them.' },
     { speaker: 'lecturer', text: 'What is less certain is the purpose, and that is exactly what makes this field worth studying.' },
     { speaker: 'lecturer', text: 'Next week we will look at how these fungal partnerships might help forests cope with drought.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'That brings us to the end of the lecture. I hope the main points stay with you.' },
   ],
   vocabulary: [
     {

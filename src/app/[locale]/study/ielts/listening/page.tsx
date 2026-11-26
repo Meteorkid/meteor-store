@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { getSession } from '@/lib/auth';
 import { listListeningTests, listListeningLessons } from '@/lib/ielts-listening/catalog';
 import { getListeningPracticeOverview } from '@/lib/ielts-listening/attempts';
+import { paginateListeningTests, parseListeningPageParam } from '@/lib/ielts-listening/pagination';
 import { listeningText } from '@/components/ielts-listening/listening-text';
 
 export const dynamic = 'force-dynamic';
@@ -11,6 +12,7 @@ export const dynamic = 'force-dynamic';
 /**
  * 听力题库：按套题分组，每套四个 Part。卡片上给出题型、原文词数、是否有合成录音，
  * 登录后再补每篇的练习次数、整篇最好分与仍答错的题（直接进错题重练）。
+ * 套题按页铺开，?page=N（1 起）；越界归一：小于 1 取第 1 页，超出取末页。
  */
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -23,7 +25,14 @@ function estimateMinutes(wordCount: number): number {
   return Math.max(2, Math.round(wordCount / 140));
 }
 
-export default async function ListeningLibraryPage({ params }: { params: Promise<{ locale: string }> }) {
+function pageHref(page: number): string {
+  return page <= 1 ? '/study/ielts/listening' : `/study/ielts/listening?page=${page}`;
+}
+
+export default async function ListeningLibraryPage({ params, searchParams }: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
   const typedLocale = locale === 'en' ? 'en' : 'zh';
@@ -33,12 +42,20 @@ export default async function ListeningLibraryPage({ params }: { params: Promise
   const lessons = listListeningLessons();
   const totalQuestions = lessons.length * 10;
 
+  const query = await searchParams;
+  const { items: visibleTests, page, totalPages } = paginateListeningTests(tests, parseListeningPageParam(query.page));
+
   const session = await getSession();
   const overview = session
     ? await getListeningPracticeOverview(session.userId, 50).catch(() => null)
     : null;
   const wrongByLesson = new Map((overview?.wrongBook ?? []).map(entry => [entry.lessonSlug, entry] as const));
   const bestFull = Math.max(0, ...(overview?.wrongBook ?? []).map(entry => entry.bestFullScore ?? 0));
+
+  const boundaryClass = 'inline-flex min-h-10 items-center rounded-xl border border-white/10 px-4 text-sm font-semibold text-white/35';
+  const buttonClass = 'inline-flex min-h-10 items-center rounded-xl border border-white/10 px-4 text-sm font-semibold text-white/85 transition-colors hover:bg-white/10';
+  const numberClass = 'inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 px-3 text-sm font-semibold text-white/70 transition-colors hover:bg-white/10';
+  const currentClass = 'inline-flex min-h-10 items-center justify-center rounded-xl border border-violet-300/40 bg-violet-400/15 px-3 text-sm font-semibold text-white';
 
   return <div className="mx-auto max-w-6xl">
     <header className="border-b border-white/10 pb-9">
@@ -58,7 +75,7 @@ export default async function ListeningLibraryPage({ params }: { params: Promise
       </div>
     </header>
 
-    {tests.map(test => <section key={test.slug} className="mt-10">
+    {visibleTests.map(test => <section key={test.slug} className="mt-10">
       <div className="mb-4">
         <h2 className="t-title-2 text-white">{test.title[typedLocale]}</h2>
         {typedLocale === 'zh' && <p lang="en" className="mt-1 text-sm font-medium text-white/45">{test.title.en}</p>}
@@ -100,6 +117,21 @@ export default async function ListeningLibraryPage({ params }: { params: Promise
         })}
       </div>
     </section>)}
+
+    {totalPages > 1 && <nav aria-label={copy.paginationLabel} className="mt-10 flex flex-wrap items-center justify-center gap-2 border-t border-white/10 pt-6">
+      {page > 1
+        ? <Link href={pageHref(page - 1)} rel="prev" className={buttonClass}>{copy.previousPage}</Link>
+        : <span aria-disabled="true" className={boundaryClass}>{copy.previousPage}</span>}
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {Array.from({ length: totalPages }, (_, offset) => offset + 1).map(number => number === page
+          ? <span key={number} aria-current="page" className={currentClass}>{number}</span>
+          : <Link key={number} href={pageHref(number)} className={numberClass}>{number}</Link>)}
+      </div>
+      {page < totalPages
+        ? <Link href={pageHref(page + 1)} rel="next" className={buttonClass}>{copy.nextPage}</Link>
+        : <span aria-disabled="true" className={boundaryClass}>{copy.nextPage}</span>}
+      <p className="w-full text-center t-footnote text-white/45">{copy.pageStatus(page, totalPages)}</p>
+    </nav>}
 
     {!session && <p className="mt-10 t-footnote text-white/45">{copy.practice.loginToSave}</p>}
   </div>;

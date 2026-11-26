@@ -115,7 +115,7 @@ export const test01Part2: ListeningLesson = {
       number: 16, accepted: ['C'], evidence: 19,
       explanation: {
         zh: '定位句 19：the only building on the route where you can buy a coffee，下一句以 So 开头给出结论：a good place for a short break。因果关系的结论在 so 之后；修帆是它的历史用途，造船匠在后面的船厂。',
-        en: 'Sentence 19 calls it "the only building on the route where you can buy a coffee"; the next sentence starts with So and gives the conclusion, "a good place for a short break". Sail repair is the past use; the shipwrights are at the boatyard.',
+        en: 'Sentence 19 calls it "the only building on the route where you can buy a coffee"; the next sentence starts with So and gives the conclusion, a good place for a short break. Sail repair is the past use; the shipwrights are at the boatyard.',
       },
     },
     {
@@ -128,7 +128,7 @@ export const test01Part2: ListeningLesson = {
     {
       number: 18, accepted: ['F'], evidence: 23,
       explanation: {
-        zh: '定位句 23：The lighthouse keeper’s cottage next door is now a holiday rental … people do live there。holiday rental 加 people do live there 说明现在有人住，对应 private home。',
+        zh: '定位句 23：The lighthouse keeper’s cottage next door is now a holiday rental, so please don’t go up to the door — people do live there。holiday rental 加 people do live there 说明现在有人住，对应 private home。',
         en: 'Sentence 23: the cottage "is now a holiday rental" and "people do live there", which matches a private home.',
       },
     },

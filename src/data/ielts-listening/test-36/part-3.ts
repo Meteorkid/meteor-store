@@ -1,0 +1,355 @@
+import type { ListeningLesson } from '@/lib/ielts-listening/types';
+
+/**
+ * Practice Test 36 · Part 3 — 社区地图项目规划（两人学术讨论，新西兰口音为主，一名爱尔兰口音）。原创仿真材料，非官方真题。
+ *
+ * 讨论顺序：分工认领（边界、候选点、访谈、录音保管）→ 地图范围 → 访谈对象分组 → 隐私原则 → 开放数据规则 → 图例、踏勘与上线安排。
+ * 配对题考“谁承担哪项任务”，多选题从六项里挑出三项可公开的数据规则。开场用自我介绍。
+ */
+export const test36Part3: ListeningLesson = {
+  slug: 'test-36-part-3',
+  part: 3,
+  status: 'published',
+  title: { zh: '社区地图项目规划', en: 'Planning a community mapping project' },
+  summary: {
+    zh: '两名学生规划社区地图项目：先认领画边界、列候选地标、安排访谈与保管录音等分工，再圈定老市场片区范围，按长期居民、新住户、商铺主三组安排访谈，讨论隐去个人细节的隐私原则，并划定公开地图可显示与必须隐去的信息。最后商定图例、踏勘时间与上线审核流程。',
+    en: 'Two students plan a community mapping project. They first split the boundary draft, landmark shortlist, interview bookings and recording custody, then set the old market district scope, arrange interviews in three resident groups, discuss the privacy reason for hiding personal details, and decide what may appear on the public map. Legend, site walk and review workflow follow.',
+  },
+  accent: { zh: 'Dan 为新西兰口音，Emily 为爱尔兰口音。', en: 'Dan has a New Zealand accent; Emily has an Irish accent.' },
+  speechRate: '+2%',
+  cast: [
+    { id: 'dan', label: 'DAN', gender: 'male', voice: 'en-NZ-MitchellNeural' },
+    { id: 'emily', label: 'EMILY', gender: 'female', voice: 'en-IE-EmilyNeural' },
+  ],
+  sections: [
+    {
+      kind: 'matching',
+      instruction: 'Which task matches each person? Choose the correct letter, A–F.',
+      options: [
+        { key: 'A', text: 'draws the project boundary on the base map' },
+        { key: 'B', text: 'arranges the resident interviews and books rooms' },
+        { key: 'C', text: 'lists the candidate community landmarks' },
+        { key: 'D', text: 'keeps the raw interview recordings locked' },
+        { key: 'E', text: 'redraws the public website layout' },
+        { key: 'F', text: 'writes the final survey report' },
+      ],
+      items: [
+        { number: 21, text: 'Dan' },
+        { number: 22, text: 'Dan' },
+        { number: 23, text: 'Emily' },
+        { number: 24, text: 'Emily' },
+      ],
+    },
+    {
+      kind: 'choice-single',
+      instruction: 'Choose the correct letter, A, B or C.',
+      questions: [
+        {
+          number: 25,
+          stem: 'Which area will the first public map cover?',
+          options: [
+            { key: 'A', text: 'The old market district' },
+            { key: 'B', text: 'The riverside housing blocks' },
+            { key: 'C', text: 'The park edge at the south side' },
+          ],
+        },
+        {
+          number: 26,
+          stem: 'Which interviewee group will be contacted first?',
+          options: [
+            { key: 'A', text: 'Long-term residents' },
+            { key: 'B', text: 'Recent arrivals' },
+            { key: 'C', text: 'Shop owners on the market street' },
+          ],
+        },
+        {
+          number: 27,
+          stem: 'Why are personal details kept off the public map?',
+          options: [
+            { key: 'A', text: 'To speed up the editing work' },
+            { key: 'B', text: 'To respect residents’ privacy' },
+            { key: 'C', text: 'To avoid losing the raw recordings' },
+          ],
+        },
+      ],
+    },
+    {
+      kind: 'choice-multiple',
+      instruction: 'Which THREE rules apply to the open data release? Choose THREE letters, A–F.',
+      select: 3,
+      stem: 'Which THREE rules apply to the data released on the public map?',
+      options: [
+        { key: 'A', text: 'street names may be shown' },
+        { key: 'B', text: 'house numbers stay visible' },
+        { key: 'C', text: 'resident names are removed' },
+        { key: 'D', text: 'survey dates are hidden from view' },
+        { key: 'E', text: 'private notes stay unpublished' },
+        { key: 'F', text: 'raw recordings are shared online' },
+      ],
+    },
+  ],
+  answers: [
+    {
+      number: 21, accepted: ['A'], evidence: 4,
+      explanation: {
+        zh: '定位句 4：I’ll draw the project boundary on the base map, once the scope is settled。Dan 在底图上画出项目边界，对应 A。句 55 的复述再次确认这一分工。',
+        en: 'Sentence 4: Dan says he will "draw the project boundary on the base map", matching A. The recap in sentence 55 confirms the split.',
+      },
+    },
+    {
+      number: 22, accepted: ['C'], evidence: 6,
+      explanation: {
+        zh: '定位句 6：I’ll list the candidate spots first, then we both mark the ones worth keeping。Dan 先列出候选地标，对应 C。',
+        en: 'Sentence 6: Dan says he will "list the candidate spots first, then we both mark the ones worth keeping", matching C.',
+      },
+    },
+    {
+      number: 23, accepted: ['B'], evidence: 7,
+      explanation: {
+        zh: '定位句 7：I’ll arrange the resident interviews, book the rooms and prepare the question list。Emily 安排居民访谈并预订房间，对应 B。',
+        en: 'Sentence 7: Emily says she will "arrange the resident interviews, book the rooms and prepare the question list", matching B.',
+      },
+    },
+    {
+      number: 24, accepted: ['D'], evidence: 9,
+      explanation: {
+        zh: '定位句 9：I’ll keep the raw interview recordings locked in the shared folder, and only share summaries outside。Emily 保管原始录音，对应 D。E 的网站版面重画与 F 的终稿报告在句 10 被推迟，未分配。',
+        en: 'Sentence 9: Emily says she will "keep the raw interview recordings locked in the shared folder", matching D. Redrawing the website in E and the final report in F are deferred in sentence 10.',
+      },
+    },
+    {
+      number: 25, accepted: ['A'], evidence: 12,
+      explanation: {
+        zh: '定位句 12：The map will cover the old market district, from the bridge down to the town hall。首版地图覆盖老市场片区，对应 A。句 14 的河畔住宅与公园边缘本轮排除，留待后期。',
+        en: 'Sentence 12: "The map will cover the old market district, from the bridge down to the town hall". The old market district matches A. Riverside blocks and the park edge in sentence 14 are excluded this round.',
+      },
+    },
+    {
+      number: 26, accepted: ['A'], evidence: 19,
+      explanation: {
+        zh: '定位句 19：I’d start with long-term residents, the people who have lived here for decades。首批访谈长期居民，对应 A。新住户在句 21 属第二轮，商铺主在句 23 排第三。',
+        en: 'Sentence 19: Emily says she would "start with long-term residents, the people who have lived here for decades", matching A. Recent arrivals are round two in sentence 21, shop owners third in sentence 23.',
+      },
+    },
+    {
+      number: 27, accepted: ['B'], evidence: 25,
+      explanation: {
+        zh: '定位句 25：Out of respect for residents’ privacy, so a home cannot be tied to one interviewee。隐去个人细节是出于尊重隐私，对应 B。A 的省时说法在对话中未出现，C 的录音保管是另一项分工。',
+        en: 'Sentence 25: "Out of respect for residents’ privacy, so a home cannot be tied to one interviewee". Respecting privacy matches B. Saving time in A is never mentioned, and keeping recordings in C is a separate task.',
+      },
+    },
+    {
+      number: 28, accepted: ['A'], evidence: 28,
+      explanation: {
+        zh: '定位句 28：Street names are fine to show, since they appear on every public map already。街道名可以公开显示，对应 A。',
+        en: 'Sentence 28: "Street names are fine to show, since they appear on every public map already". Street names may be shown, matching A.',
+      },
+    },
+    {
+      number: 29, accepted: ['C'], evidence: 29,
+      explanation: {
+        zh: '定位句 29：Resident names go the same way. We remove them from the public version entirely。居民姓名从公开版删除，对应 C。B 的门牌保持可见与句 27 的模糊处理相反。',
+        en: 'Sentence 29: "Resident names go the same way. We remove them from the public version entirely". Names are removed, matching C. Keeping house numbers visible in B contradicts the blurring in sentence 27.',
+      },
+    },
+    {
+      number: 30, accepted: ['E'], evidence: 32,
+      explanation: {
+        zh: '定位句 32：Those stay unpublished. They are working material, not part of the public record。私人笔记不公开，对应 E。D 的日期隐藏与句 30 相反，F 的录音上网与句 9 的锁定保管相反。',
+        en: 'Sentence 32: "Those stay unpublished. They are working material, not part of the public record". Private notes stay unpublished, matching E. Hiding dates in D contradicts sentence 30, and sharing recordings online in F contradicts sentence 9.',
+      },
+    },
+  ],
+  transcript: [
+    { speaker: 'dan', text: 'Thanks for making time this afternoon. I’m Dan, and I’m leading this community mapping project with Emily.' },
+    { speaker: 'emily', text: 'Hi Dan. We have the first draft of the plan on screen, so let’s walk through what each of us owns.' },
+    { speaker: 'dan', text: 'Before we discuss the map itself, let’s agree who takes each task, so nothing slips between us.' },
+    { speaker: 'emily', text: 'Good idea. Go ahead and name the first job on the list.' },
+    { speaker: 'dan', text: 'I’ll draw the project boundary on the base map, once the scope is settled.' },
+    { speaker: 'emily', text: 'And who decides which spots count as community landmarks once the boundary is set?' },
+    { speaker: 'dan', text: 'I’ll list the candidate spots first, then we both mark the ones worth keeping.' },
+    { speaker: 'emily', text: 'On the interviews, I’ll arrange the resident interviews, book the rooms and prepare the question list.' },
+    { speaker: 'dan', text: 'What about the recordings from those interviews?' },
+    { speaker: 'emily', text: 'I’ll keep the raw interview recordings locked in the shared folder, and only share summaries outside.' },
+    { speaker: 'dan', text: 'The website layout stays untouched this round, and the final report can wait.' },
+    { speaker: 'emily', text: 'Agreed. Now let’s settle the scope of the first public map.' },
+    { speaker: 'dan', text: 'The map will cover the old market district, from the bridge down to the town hall.' },
+    { speaker: 'emily', text: 'Not the riverside housing then, even though that area has its own history?' },
+    { speaker: 'dan', text: 'Correct. The riverside blocks stay out this round, and the park edge will wait for a later phase.' },
+    { speaker: 'emily', text: 'So the boundary is the bridge on the north side and the town hall on the south side.' },
+    { speaker: 'dan', text: 'Right. Next, who do we invite to talk to us about the district?' },
+    { speaker: 'emily', text: 'We need to reach people who know the district well, across a few different groups.' },
+    { speaker: 'dan', text: 'Which group should we approach first?' },
+    { speaker: 'emily', text: 'I’d start with long-term residents, the people who have lived here for decades.' },
+    { speaker: 'dan', text: 'What about recent arrivals? Their view of how the place has changed matters too.' },
+    { speaker: 'emily', text: 'We’ll contact them in the second round, after the older residents have spoken.' },
+    { speaker: 'dan', text: 'And the shop owners along the market street?' },
+    { speaker: 'emily', text: 'They come third, once we know which questions still need a local business answer.' },
+    { speaker: 'dan', text: 'Before the data rules, why do we keep personal details off the public map?' },
+    { speaker: 'emily', text: 'Out of respect for residents’ privacy, so a home cannot be tied to one interviewee.' },
+    { speaker: 'dan', text: 'House numbers are different too. Should we keep them visible?' },
+    { speaker: 'emily', text: 'No, we blur them on the final version.' },
+    { speaker: 'dan', text: 'Street names are fine to show, since they appear on every public map already.' },
+    { speaker: 'emily', text: 'Resident names go the same way. We remove them from the public version entirely.' },
+    { speaker: 'dan', text: 'The survey dates can stay, because they show when each observation was made.' },
+    { speaker: 'emily', text: 'What about my private notes, the rough thoughts written after each interview?' },
+    { speaker: 'dan', text: 'Those stay unpublished. They are working material, not part of the public record.' },
+    { speaker: 'emily', text: 'So the public map shows streets and landmarks, but not numbers, names or private notes.' },
+    { speaker: 'dan', text: 'Exactly. I’ll check the privacy of the published maps before they go live, with you reading over my shoulder.' },
+    { speaker: 'emily', text: 'Before we split up, let’s settle a few details about the map itself.' },
+    { speaker: 'dan', text: 'Sure. What should the legend show for each kind of point?' },
+    { speaker: 'emily', text: 'One symbol for shops, one for community spaces, and another for spots residents worry about.' },
+    { speaker: 'dan', text: 'Should we mark trees and gardens as separate points?' },
+    { speaker: 'emily', text: 'Yes, but only the ones mentioned by more than one interviewee.' },
+    { speaker: 'dan', text: 'How many interviews are we aiming for before the first public draft?' },
+    { speaker: 'emily', text: 'Around twenty, spread across the three groups, so no single voice dominates.' },
+    { speaker: 'dan', text: 'That gives us enough material to compare what people say about the same street.' },
+    { speaker: 'emily', text: 'When do we walk the district ourselves to check the points?' },
+    { speaker: 'dan', text: 'Next Saturday morning, weather allowing. We carry the tablet and a printed copy of the draft.' },
+    { speaker: 'emily', text: 'I can bring the clipboard and the spare batteries for the tablet.' },
+    { speaker: 'dan', text: 'Thanks. One more thing, the public launch. Where will the finished map live?' },
+    { speaker: 'emily', text: 'On the community website, with a short note explaining who contributed and how to ask for changes.' },
+    { speaker: 'dan', text: 'We should also invite residents to correct anything that looks wrong on the first version.' },
+    { speaker: 'emily', text: 'Yes, the map stays open to edits after launch, but each change is reviewed first.' },
+    { speaker: 'dan', text: 'Who reviews those later edits?' },
+    { speaker: 'emily', text: 'I will, unless you want that job.' },
+    { speaker: 'dan', text: 'Keep it with you. I’d rather focus on the boundary and the base map each round.' },
+    { speaker: 'emily', text: 'Deal. Let me summarise who does what before we leave this room.' },
+    { speaker: 'dan', text: 'Go ahead.' },
+    { speaker: 'emily', text: 'You draw the boundary and list the landmark candidates.' },
+    { speaker: 'dan', text: 'And you arrange the resident interviews and keep the raw recordings locked.' },
+    { speaker: 'emily', text: 'We choose the mapping tools together, and we both check the privacy of the final map.' },
+    { speaker: 'dan', text: 'That matches what we said. Anything missing from the plan?' },
+    { speaker: 'emily', text: 'Just the consent forms. Each interviewee signs one before we record their answers.' },
+    { speaker: 'dan', text: 'I’ll draft the consent form this week, and you check that it covers the privacy rules we discussed.' },
+    { speaker: 'emily', text: 'Will do. I’ll also make a backup copy of the raw notes in case the tablet fails.' },
+    { speaker: 'dan', text: 'Good. The last thing is timing. We have three weeks before the public draft.' },
+    { speaker: 'emily', text: 'Week one for interviews, week two for mapping and checking, week three for the privacy review.' },
+    { speaker: 'dan', text: 'That schedule is tight but workable, as long as the interviews book in early.' },
+    { speaker: 'emily', text: 'I’ll send the first invitation list by the end of tomorrow.' },
+    { speaker: 'dan', text: 'Perfect. Let’s save this plan and get started.' },
+    { speaker: 'emily', text: 'One last check. The open street data layer must be cited, so users know the base source.' },
+    { speaker: 'dan', text: 'I’ll add that credit line under the legend, and link to the data licence in the note below.' },
+    { speaker: 'emily', text: 'And if a resident asks to remove their point after launch, we handle that through the same review channel.' },
+    { speaker: 'dan', text: 'Agreed. No point goes public without the consent form matching what we promised today.' },
+  ],
+  vocabulary: [
+    {
+      term: 'boundary', phonetic: '/ˈbaʊndəri/', partOfSpeech: 'n.', sentenceIndex: 4,
+      meaning: { zh: '边界，范围界线', en: 'the line that marks where the project area starts and ends' },
+      usage: { zh: '可数；draw the boundary、project boundary。', en: 'Countable: draw the boundary, project boundary.' },
+      collocations: ['the project boundary', 'draw the boundary', 'the boundary line'],
+      example: { en: 'The boundary runs from the bridge to the town hall.', zh: '边界从桥延伸到市政厅。' },
+      listening: { zh: '三个音节，重音在第一音节 /ˈbaʊ/；中间 /ndə/ 弱读。', en: 'Three syllables, first stress; the middle /ndə/ is weak.' },
+    },
+    {
+      term: 'landmarks', phonetic: '/ˈlændmɑːrks/', partOfSpeech: 'n.', sentenceIndex: 5,
+      meaning: { zh: '地标，标志性地点', en: 'the notable spots residents recognise on the map' },
+      usage: { zh: '可数；community landmarks、candidate landmarks。', en: 'Countable: community landmarks, candidate landmarks.' },
+      collocations: ['a community landmark', 'list the landmarks', 'landmark candidates'],
+      example: { en: 'Old shops and gardens can be mapped as landmarks.', zh: '老店与花园可作为地标上图。' },
+      listening: { zh: '两个音节，重音在第一音节 /ˈlænd/。', en: 'Two syllables with first-syllable stress.' },
+    },
+    {
+      term: 'candidate', phonetic: '/ˈkændɪdət/', partOfSpeech: 'n.', sentenceIndex: 6,
+      meaning: { zh: '候选（条目）', en: 'a spot being considered before it is kept on the map' },
+      usage: { zh: '可数；candidate spots、candidate landmarks。', en: 'Countable: candidate spots, candidate landmarks.' },
+      collocations: ['candidate spots', 'candidate landmarks', 'a candidate for the map'],
+      example: { en: 'The candidate spots are marked lightly before the joint review.', zh: '候选点位在共同复核前先轻标。' },
+      listening: { zh: '三个音节，重音在第一音节 /ˈkæn/。', en: 'Three syllables with first-syllable stress.' },
+    },
+    {
+      term: 'interviewee', phonetic: '/ˌɪntəvjuːˈiː/', partOfSpeech: 'n.', sentenceIndex: 25,
+      meaning: { zh: '被访谈者，受访者', en: 'the person who answers questions in the interviews' },
+      usage: { zh: '可数；对比 interviewer（访谈者）。后缀 -ee 表承受方。', en: 'Countable; contrast interviewer. The -ee suffix marks the recipient.' },
+      collocations: ['the interviewee group', 'each interviewee', 'long-term residents as interviewees'],
+      example: { en: 'Each interviewee signs the consent form first.', zh: '每位受访者先签同意书。' },
+      listening: { zh: '四个音节，重音在最后音节 /ˈiː/；-ee 拉长。', en: 'Four syllables, stress on the final /ˈiː/.' },
+    },
+    {
+      term: 'privacy', phonetic: '/ˈprɪvəsi/', partOfSpeech: 'n.', sentenceIndex: 25,
+      meaning: { zh: '隐私', en: 'the right to keep personal details out of public view' },
+      usage: { zh: '不可数；residents’ privacy、privacy review。形容词 private。', en: 'Uncountable: residents’ privacy, privacy review. Adjective private.' },
+      collocations: ['residents’ privacy', 'the privacy review', 'protect privacy'],
+      example: { en: 'Personal details are blurred to protect privacy.', zh: '隐去个人细节以保护隐私。' },
+      listening: { zh: '两个音节，重音在第一音节 /ˈprɪ/。', en: 'Two syllables with first-syllable stress.' },
+    },
+    {
+      term: 'legend', phonetic: '/ˈledʒənd/', partOfSpeech: 'n.', sentenceIndex: 36,
+      meaning: { zh: '图例', en: 'the key on the map explaining each symbol' },
+      usage: { zh: '可数；map legend、the legend symbols。', en: 'Countable: map legend, legend symbols.' },
+      collocations: ['the map legend', 'the legend symbols', 'show the legend'],
+      example: { en: 'The legend matches one symbol to each point type.', zh: '图例把每种符号对应到一类点位。' },
+      listening: { zh: '两个音节，重音在第一音节 /ˈledʒ/；勿与 legend（传说）义混。', en: 'Two syllables, first stress; distinguish from the folk-tale sense.' },
+    },
+    {
+      term: 'consent', phonetic: '/kənˈsent/', partOfSpeech: 'n.', sentenceIndex: 59,
+      meaning: { zh: '同意，许可', en: 'written agreement to take part and share the recorded answers' },
+      usage: { zh: '不可数；consent form、sign consent。动词 consent to。', en: 'Uncountable: consent form, sign consent. Verb consent to.' },
+      collocations: ['the consent form', 'sign consent', 'written consent'],
+      example: { en: 'No point goes public without a signed consent form.', zh: '没有签同意书，点位不公开。' },
+      listening: { zh: '两个音节，重音在第二音节 /ˈsent/。', en: 'Two syllables with stress on the second.' },
+    },
+  ],
+  expressions: [
+    {
+      phrase: 'walk through', sentenceIndex: 1,
+      meaning: { zh: '逐项过一遍（计划）', en: 'to go through the plan point by point together' },
+      usage: { zh: '可分短语；walk through the plan。', en: 'Separable: walk through the plan.' },
+      example: { en: 'Let’s walk through the draft plan before dividing tasks.', zh: '分工前先把草稿计划逐项过一遍。' },
+    },
+    {
+      phrase: 'each of us owns', sentenceIndex: 1,
+      meaning: { zh: '每人负责的工作', en: 'the task for which each person takes responsibility' },
+      usage: { zh: 'own 此处为“负责”；what each of us owns。', en: 'Here own means take responsibility: what each of us owns.' },
+      example: { en: 'We agree on what each of us owns on this mapping project.', zh: '我们确认每人负责项目里的哪项工作。' },
+    },
+    {
+      phrase: 'slips between us', sentenceIndex: 2,
+      meaning: { zh: '漏掉，落空（无人认领）', en: 'to be left unattended because nobody claims it' },
+      usage: { zh: 'slip between us；主语是任务，否定句 nothing slips。', en: 'Slip between us; the subject is a task, and nothing slips in the negative.' },
+      example: { en: 'We split the jobs so nothing slips between us.', zh: '我们分好任务，避免事情落空无人认领。' },
+    },
+    {
+      phrase: 'go live', sentenceIndex: 34,
+      meaning: { zh: '上线，公开发布', en: 'when the finished map becomes public on the website' },
+      usage: { zh: '上线短语；before it goes live 指公开发布之前。', en: 'Go live: before it goes live.' },
+      example: { en: 'Privacy is checked before the map goes live.', zh: '地图上线前先做隐私核查。' },
+    },
+    {
+      phrase: 'working material', sentenceIndex: 32,
+      meaning: { zh: '工作底稿', en: 'notes kept for internal use, not the public record' },
+      usage: { zh: '不可数；rough thoughts as working material。', en: 'Uncountable: rough thoughts as working material.' },
+      example: { en: 'Private notes stay working material and are not published.', zh: '私人笔记只作底稿，不予公开。' },
+    },
+    {
+      phrase: 'weather allowing', sentenceIndex: 44,
+      meaning: { zh: '天气允许的话', en: 'if the weather permits the walk on Saturday' },
+      usage: { zh: '独立主格；置于句尾，等于 if the weather allows。', en: 'Absolute phrase at the end, equivalent to if the weather allows.' },
+      example: { en: 'We walk the district next Saturday, weather allowing.', zh: '天气允许的话，我们下周六踏勘片区。' },
+    },
+  ],
+  tips: [
+    {
+      title: { zh: '配对先抓分工承诺句', en: 'Match on ownership promises' },
+      body: {
+        zh: '第 21–24 题按 Dan、Dan、Emily、Emily 顺序出现，承诺动词分别是 draw、list、arrange、keep locked。听前把四个任务缩略成边界、候选点、访谈、录音保管；网站版面和终稿报告是未分配的干扰项。',
+        en: 'Items 21 to 24 follow Dan, Dan, Emily, Emily with the verbs draw, list, arrange and keep locked. Reduce tasks to boundary, candidates, interviews and recordings. Website layout and the final report are unassigned distractors.',
+      },
+    },
+    {
+      title: { zh: '单选盯住被排除的区域与人群', en: 'Note excluded areas and groups in singles' },
+      body: {
+        zh: '第 25 题河畔住宅、公园边缘本轮排除；第 26 题新住户第二轮、商铺主第三轮。对话常先复述干扰项再否定，听到 out this round、second round、come third 时在对应选项旁标记。',
+        en: 'Item 25 excludes riverside blocks and the park edge this round; item 26 puts recent arrivals in round two and shop owners third. The dialogue often repeats a distractor before rejecting it; mark an option on out this round, second round and come third.',
+      },
+    },
+    {
+      title: { zh: '多选区分公开项与受限项', en: 'Separate public rules from restricted ones' },
+      body: {
+        zh: '第 28–30 题三项公开规则：街道名可显示、姓名删除、私人笔记不公开。门牌须模糊、日期保留、录音锁定；多选干扰项多把规则说反（stay visible、hidden、shared online），听到反义先排除。',
+        en: 'Items 28 to 30 adopt street names shown, names removed and notes unpublished. House numbers are blurred, dates are kept, recordings are locked. Distractors flip the rule (stay visible, hidden, shared online); rule out an option at its opposite wording.',
+      },
+    },
+  ],
+};

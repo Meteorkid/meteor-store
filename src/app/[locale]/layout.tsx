@@ -13,6 +13,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { HelpPanelProvider } from "@/components/help/HelpPanelContext";
 import { SITE_URL } from "@/lib/constants";
 import { buildAlternateUrls } from "@/lib/seo";
+import { FOCUS_MODE_PATH_PATTERN } from "@/lib/learning-focus";
 import RouteAlternateLinks from "@/components/RouteAlternateLinks";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { getInitialSiteTheme } from "@/lib/site-theme-server";
@@ -229,11 +230,11 @@ export default async function LocaleLayout({
             __html: `try{var a=localStorage.getItem('glass-alpha');if(a){document.documentElement.style.setProperty('--glass-alpha',a)}}catch(e){}`,
           }}
         />
-        {/* 专注模式在首屏绘制前恢复：学习页本地存储开启时，先关掉粒子再渲染，避免闪一下。 */}
+        {/* 专注模式在首屏绘制前恢复：学习/阅读/写作页本地存储开启时，先关掉粒子再渲染，避免闪一下。 */}
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
-            __html: `try{var p=(location.pathname||'').replace(/^\\/(?:zh|en)(?=\\/|$)/,'');if(/^\\/(?:study|pathfinder|competitions|masters|phd)(?:\\/|$)/.test(p)&&localStorage.getItem('meteor:focus-mode')==='on'){document.documentElement.dataset.focusMode='on'}}catch(e){}`,
+            __html: `try{var p=(location.pathname||'').replace(/^\\/(?:zh|en)(?=\\/|$),'');var r=new RegExp('^(?:${FOCUS_MODE_PATH_PATTERN})');if(r.test(p)&&localStorage.getItem('meteor:focus-mode')==='on'){var s=/^\\/blog\\/submit(?:\\/|$)/.test(p)?'writing':/^\\/(?:study|pathfinder|competitions|masters|phd)(?:\\/|$)/.test(p)?'learning':'reading';document.documentElement.dataset.focusMode='on';document.documentElement.dataset.focusScope=s}}catch(e){}`,
           }}
         />
         {/* JSON-LD 结构化数据 - 数据为硬编码静态内容，安全 */}
