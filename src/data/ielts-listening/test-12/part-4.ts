@@ -198,7 +198,7 @@ export const test12Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Camouflage is therefore a combination of colour, pattern, surface and habit, tuned over generations to one local setting.' },
     { speaker: 'lecturer', text: 'In the next lecture we will look at how city life changes these patterns, and whether urban animals shift their colours over time.' },
     { speaker: 'lecturer', text: 'For today, remember that hiding is never one trick; it is several matching decisions working together.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'That concludes our look at the topic. I will see you in the next class.' },
   ],
   vocabulary: [
     {

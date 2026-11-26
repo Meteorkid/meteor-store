@@ -194,8 +194,8 @@ export const test47Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Not every effect was immediate. Many households kept a shared phone in the hall for years.' },
     { speaker: 'lecturer', text: 'Access was unequal at first, with richer districts wired before smaller homes in outer streets.' },
     { speaker: 'lecturer', text: 'Still, the direction of change was clear, toward a system any household could join.' },
-    { speaker: 'lecturer', text: 'Now the notes section follows, so keep the restated points in mind.' },
-    { speaker: 'lecturer', text: 'These restated sentences are the ones you should match to the note headings.' },
+    { speaker: 'lecturer', text: 'The notes section comes next, so keep those restated points in view.' },
+    { speaker: 'lecturer', text: 'Each restated sentence belongs under one note heading.' },
     { speaker: 'lecturer', text: 'Early calls were connected by a human operator sitting at a board of sockets.' },
     { speaker: 'lecturer', text: 'Operators plugged cords into a switchboard panel, joining caller and called line.' },
     { speaker: 'lecturer', text: 'Automatic systems routed each call by the dialed number through stepping switches.' },
@@ -207,7 +207,7 @@ export const test47Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Trunk lines joined the exchanges, and wider access changed the social life around the phone.' },
     { speaker: 'lecturer', text: 'Without these steps, trade, family contact and daily coordination would have run far more slowly.' },
     { speaker: 'lecturer', text: 'In the next session we will look at how digital exchanges changed routing once again.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'We will stop at that point. The next session takes the idea further.' },
   ],
   vocabulary: [
     {

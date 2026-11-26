@@ -142,14 +142,14 @@ export const test44Part4: ListeningLesson = {
       number: 39, accepted: ['B'], evidence: 36,
       explanation: {
         zh: '定位句 36：Second, use warmer and dimmer light wherever the task allows that level of brightness。可行处用更暖更暗的光是要点二，对应 B。',
-        en: 'Sentence 36: use "warmer and dimmer light where the task allows", matching B.',
+        en: 'Sentence 36: use "use warmer and dimmer light wherever the task allows that level of brightness", matching B.',
       },
     },
     {
       number: 40, accepted: ['C'], evidence: 37,
       explanation: {
         zh: '定位句 37：Third, protect the remaining dark reserves from any new roadside development nearby。保护暗夜储备地是要点三，对应 C；D 的整夜亮灯与 E 的朝天照射在句 38、39 被否定。',
-        en: 'Sentence 37: protect "dark reserves from new roadside development", matching C. All-night lamps in D and skyward shine in E are rejected in sentences 38 and 39.',
+        en: 'Sentence 37: protect "protect the remaining dark reserves from any new roadside development nearby", matching C. All-night lamps in D and skyward shine in E are rejected in sentences 38 and 39.',
       },
     },
   ],

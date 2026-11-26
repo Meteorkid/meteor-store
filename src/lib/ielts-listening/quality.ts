@@ -42,6 +42,7 @@ export type ListeningAuditTag =
   | 'spoken-number'
   | 'notes'
   | 'explanation'
+  | 'explanation-quote'
   | 'answer-bias'
   | 'numbering'
   | 'completion';
@@ -188,6 +189,23 @@ export function auditListeningLesson(lesson: ListeningLesson): string[] {
       push('explanation', `${slug} 第 ${answer.number} 题英文解析没有写“Sentence N”`);
     } else if (Number(quotedEn[1]) !== answer.evidence) {
       push('explanation', `${slug} 第 ${answer.number} 题英文解析的定位句 ${quotedEn[1]} 与 evidence ${answer.evidence} 不一致`);
+    }
+
+    // 英文解析里直接引用的句子必须真的出现在 evidence 句里。只校验“Sentence N”的数字不够：
+    // 编号和引文一起错时，考生点“原文定位”仍会跳到错误句子。
+    const directQuote = answer.explanation.en.match(/Sentences?\s+(\d+)[^:]*:\s*"([^"]{8,})"/i);
+    if (directQuote) {
+      const citedIndex = Number(directQuote[1]);
+      const citedText = l.transcript[citedIndex]?.text;
+      const quoteKey = (value: string) => value.normalize('NFKC').toLowerCase()
+        .replace(/[’‘`´]/g, "'").replace(/[^a-z0-9]+/g, ' ').trim();
+      if (!citedText) {
+        push('explanation-quote', `${slug} 第 ${answer.number} 题引用了不存在的句 ${citedIndex}`);
+      } else if (citedIndex !== answer.evidence) {
+        push('explanation-quote', `${slug} 第 ${answer.number} 题引用句 ${citedIndex} 与 evidence ${answer.evidence} 不一致`);
+      } else if (!quoteKey(citedText).includes(quoteKey(directQuote[2]))) {
+        push('explanation-quote', `${slug} 第 ${answer.number} 题引文没有出现在 evidence 第 ${citedIndex} 句：${directQuote[2]}`);
+      }
     }
   }
   for (const item of l.vocabulary) {

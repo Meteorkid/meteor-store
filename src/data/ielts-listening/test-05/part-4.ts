@@ -205,7 +205,7 @@ export const test05Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Early researchers believed bees found their way by sight alone, but that idea was an oversimplification.' },
     { speaker: 'lecturer', text: 'The full picture requires every system I have described today working together.' },
     { speaker: 'lecturer', text: 'Next week we will compare these systems with the navigation used by migrating birds.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'We have reached the end of the session. Thanks for joining me.' },
   ],
   vocabulary: [
     {

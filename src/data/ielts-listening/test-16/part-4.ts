@@ -130,7 +130,7 @@ export const test16Part4: ListeningLesson = {
     {
       number: 38, accepted: ['B'], evidence: 35,
       explanation: {
-        zh: '定位句 35：The cold chain solved the problem of distance. Food no longer had to be grown near the town where it was sold。冷链解决长途变质，对应 B。A 的农业劳力成本、C 的本地蔬菜短缺未被提及。',
+        zh: '定位句 35：The cold chain solved the problem of distance. Food no longer had to be grown or raised near the town where it was sold。冷链解决长途变质，对应 B。A 的农业劳力成本、C 的本地蔬菜短缺未被提及。',
         en: 'Sentence 35: the cold chain solved "the problem of distance", matching B. Farm labour costs and local vegetable shortage are not mentioned.',
       },
     },

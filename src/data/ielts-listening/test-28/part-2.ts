@@ -94,8 +94,8 @@ export const test28Part2: ListeningLesson = {
     {
       number: 12, accepted: ['second floor'], evidence: 7,
       explanation: {
-        zh: '定位句 7：Room C4, where the data panel will run, is on the second floor, opposite the staircase。空格前已印 on the，填楼层 second floor；句 6 的 colours 是房间标识方式，不是楼层。',
-        en: 'Sentence 7: "Room C4, where the data panel will run, is on the second floor, opposite the staircase". On the is printed, so the floor is second floor. Colours in sentence 6 label rooms; they are not a floor.',
+        zh: '定位句 7：The data panel room, on the second floor, sits opposite the staircase。空格前已印 on the，填楼层 second floor；句 6 的 colours 是房间标识方式，不是楼层。',
+        en: 'Sentence 7: "The data panel room, on the second floor, sits opposite the staircase". On the is printed, so the floor is second floor. Colours in sentence 6 label rooms; they are not a floor.',
       },
     },
     {

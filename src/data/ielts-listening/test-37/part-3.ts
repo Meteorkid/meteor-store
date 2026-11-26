@@ -128,8 +128,8 @@ export const test37Part3: ListeningLesson = {
     {
       number: 26, accepted: ['B'], evidence: 24,
       explanation: {
-        zh: '定位句 24：The report never counts what those hidden costs would add to a fair shop price。外部化论证受批评是因为没算清隐藏成本会让公平价格提高多少，对应 B。A 的租赁清洗成本是后面替代方案的内容，C 的工厂文书质量是供应链问题。',
-        en: 'Sentence 24: "The report never counts what those hidden costs would add to a fair shop price". The criticism is the missing fair-price figure, matching B. Rental cleaning costs come later, and factory paperwork is a supply-chain point.',
+        zh: '定位句 24：The report never counts what those hidden costs would add to a fair price。外部化论证受批评是因为没算清隐藏成本会让公平价格提高多少，对应 B。A 的租赁清洗成本是后面替代方案的内容，C 的工厂文书质量是供应链问题。',
+        en: 'Sentence 24: "The report never counts what those hidden costs would add to a fair price". The criticism is the missing fair-price figure, matching B. Rental cleaning costs come later, and factory paperwork is a supply-chain point.',
       },
     },
     {
@@ -225,7 +225,7 @@ export const test37Part3: ListeningLesson = {
     { speaker: 'aria', text: 'I will summarise the rental and repair options with their main trade-offs.' },
     { speaker: 'neerja', text: 'Does anyone want to add a note on the local second-hand listings?' },
     { speaker: 'aria', text: 'I can add that, since I already looked through those sources last week.' },
-    { speaker: 'ryan', text: 'Good, that leaves everyone with a clear part to bring to the draft.' },
+    { speaker: 'ryan', text: 'Good, now every section has an owner and a source to check.' },
     { speaker: 'neerja', text: 'Let us meet again next week before the draft goes to the seminar tutor.' },
     { speaker: 'aria', text: 'I think that is everything we need to cover today.' },
   ],

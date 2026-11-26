@@ -108,8 +108,8 @@ export const test03Part2: ListeningLesson = {
     {
       number: 14, accepted: ['food waste'], evidence: 19,
       explanation: {
-        zh: '定位句 19：Finally, food waste. Anything that was once alive … goes into the brown bin。首列是物料名，brown 桶已给出；cooking oil 在句 20 被排除，不能填。',
-        en: 'Sentence 19: "Finally, food waste. Anything that was once alive … goes into the brown bin". The first column is the material and brown is printed. Cooking oil is rejected in sentence 20, so it cannot be the answer.',
+        zh: '定位句 19：Finally, food waste. Anything that was once alive, including vegetable peelings, tea bags and leftover bread, goes into the brown bin。首列是物料名，brown 桶已给出；cooking oil 在句 20 被排除，不能填。',
+        en: 'Sentence 19: "Finally, food waste. Anything that was once alive, including vegetable peelings, tea bags and leftover bread, goes into the brown bin.". The first column is the material and brown is printed. Cooking oil is rejected in sentence 20, so it cannot be the answer.',
       },
     },
     {
@@ -129,22 +129,22 @@ export const test03Part2: ListeningLesson = {
     {
       number: 17, accepted: ['A'], evidence: 31,
       explanation: {
-        zh: '定位句 31：landfill is expensive and produces methane, a powerful greenhouse gas。expensive 对应 costly，methane 是强效温室气体；C 提到的气味在句 38 说的是堆肥区，不是填埋场。',
-        en: 'Sentence 31: "landfill is expensive and produces methane, a powerful greenhouse gas". Expensive matches costly, and methane is the gas. The smell in option C belongs to the compost bay in sentence 38, not the landfill.',
+        zh: '定位句 31：We keep this pile small, because landfill costs a lot and produces methane, a powerful greenhouse gas。expensive 对应 costly，methane 是强效温室气体；C 提到的气味在句 38 说的是堆肥区，不是填埋场。',
+        en: 'Sentence 31: "landfill costs a lot and produces methane, a powerful greenhouse gas". Expensive matches costly, and methane is the gas. The smell in option C belongs to the compost bay in sentence 38, not the landfill.',
       },
     },
     {
       number: 18, accepted: ['B'], evidence: 35,
       explanation: {
-        zh: '定位句 35：At the mill the paper is pulped and made into new cardboard and office paper。pulped 对应选项 B；E（焚烧发电）和 D（出口加工）在讲解中从未出现。',
-        en: 'Sentence 35: "At the mill the paper is pulped and made into new cardboard and office paper". Pulped matches option B. Burning for electricity in E and export in D are never mentioned.',
+        zh: '定位句 35：At the mill the paper is pulped into new cardboard and office paper, and clean dry paper returns to use within months。pulped 对应选项 B；E（焚烧发电）和 D（出口加工）在讲解中从未出现。',
+        en: 'Sentence 35: "At the mill the paper is pulped into new cardboard and office paper". Pulped matches option B. Burning for electricity in E and export in D are never mentioned.',
       },
     },
     {
       number: 19, accepted: ['A'], evidence: 36,
       explanation: {
-        zh: '定位句 36：The glass … is crushed into small pieces and melted down to make new bottles and jars。crushed and melted 与 A 完全对应，new bottles and jars 即 new containers。',
-        en: 'Sentence 36: "The glass … is crushed into small pieces and melted down to make new bottles and jars". Crushed and melted match A word for word, and bottles and jars are containers.',
+        zh: '定位句 36：The glass is sent to its own line, where it is crushed into small pieces and melted down to make new bottles and jars。crushed and melted 与 A 完全对应，new bottles and jars 即 new containers。',
+        en: 'Sentence 36: "The glass is sent to its own line, where it is crushed into small pieces and melted down to make new bottles and jars.". Crushed and melted match A word for word, and bottles and jars are containers.',
       },
     },
     {

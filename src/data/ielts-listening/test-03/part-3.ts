@@ -152,8 +152,8 @@ export const test03Part3: ListeningLesson = {
     {
       number: 30, accepted: ['E'], evidence: 48,
       explanation: {
-        zh: '定位句 48：Store them on the college drive … and delete them after the report is marked。安全存放并按期删除对应 E。C（拍照）在句 50 被否定，D（公开原始数据）在句 52 被否定，F（付费）在句 53 被否定。',
-        en: 'Sentence 48: "Store them on the college drive … and delete them after the report is marked". Secure storage followed by deletion matches E. Photographs in C are rejected in sentence 50, publishing notes in D in sentence 52, and paying owners in F in sentence 53.',
+        zh: '定位句 48：Store them on the college drive, not on a personal phone, and delete them after the report is marked。安全存放并按期删除对应 E。C（拍照）在句 50 被否定，D（公开原始数据）在句 52 被否定，F（付费）在句 53 被否定。',
+        en: 'Sentence 48: "Store them on the college drive, not on a personal phone, and delete them after the report is marked.". Secure storage followed by deletion matches E. Photographs in C are rejected in sentence 50, publishing notes in D in sentence 52, and paying owners in F in sentence 53.',
       },
     },
   ],

@@ -82,15 +82,15 @@ export const test13Part1: ListeningLesson = {
     {
       number: 1, accepted: ['seventy', '70'], spoken: 'seventy square metres', evidence: 2,
       explanation: {
-        zh: '定位句 2：It’s a two-bedroom flat on the fourth floor, about seventy square metres。面积以平方计为七十；楼层是背景信息，不要填进面积空。',
-        en: 'Sentence 2: "It’s a two-bedroom flat on the fourth floor, about seventy square metres". The size is seventy square metres; the floor level is background and does not belong in the size gap.',
+        zh: '定位句 2：It has two bedrooms, on the fourth floor, about seventy square metres。面积以平方计为七十；楼层是背景信息，不要填进面积空。',
+        en: 'Sentence 2: "It has two bedrooms, on the fourth floor, about seventy square metres". The size is seventy square metres; the floor level is background and does not belong in the size gap.',
       },
     },
     {
       number: 2, accepted: ['two', '2'], evidence: 2,
       explanation: {
-        zh: '定位句 2：a two-bedroom flat。卧室数量为两间；同一节里的七十平方米是面积，不要与卧室数混淆。',
-        en: 'Sentence 2: "a two-bedroom flat". There are two bedrooms. The seventy square metres in the same sentence is the area, not the bedroom count.',
+        zh: '定位句 2：two bedrooms。卧室数量为两间；同一节里的七十平方米是面积，不要与卧室数混淆。',
+        en: 'Sentence 2: "It has two bedrooms". There are two bedrooms. The seventy square metres in the same sentence is the area, not the bedroom count.',
       },
     },
     {
@@ -103,8 +103,8 @@ export const test13Part1: ListeningLesson = {
     {
       number: 4, accepted: ['ten', '10'], spoken: 'ten pounds', evidence: 11,
       explanation: {
-        zh: '定位句 11：there is a ten-pound deposit to hold the first slot。押金为十英镑；句中的 forty-five 是每次服务费，不是押金。',
-        en: 'Sentence 11: "there is a ten-pound deposit to hold the first slot". The deposit is ten pounds; the forty-five mentioned there is the per-visit fee, not the deposit.',
+        zh: '定位句 11：For a flat this size it is forty-five pounds each visit, and there is a deposit of ten pounds to hold the first slot。押金为十英镑；句中的 forty-five 是每次服务费，不是押金。',
+        en: 'Sentence 11: "there is a deposit of ten pounds to hold the first slot". The deposit is ten pounds; the forty-five mentioned there is the per-visit fee, not the deposit.',
       },
     },
     {

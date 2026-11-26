@@ -98,7 +98,7 @@ export const test48Part3: ListeningLesson = {
       number: 22, accepted: ['B'], evidence: 4,
       explanation: {
         zh: '定位句 4：The hospital data was mine to analyse, matching prescriptions against the recorded outcomes。分析医院数据由 Sonia 负责，对应 B。',
-        en: 'Sentence 4: "The hospital data was mine to analyse, matching prescriptions against outcomes". Sonia analysed the data, matching B.',
+        en: 'Sentence 4: "The hospital data was mine to analyse, matching prescriptions against the recorded outcomes". Sonia analysed the data, matching B.',
       },
     },
     {

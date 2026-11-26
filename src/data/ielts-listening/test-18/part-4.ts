@@ -213,7 +213,7 @@ export const test18Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Students could compare notes against the same printed edition.' },
     { speaker: 'lecturer', text: 'The next lecture will trace how print shaped scientific debate after the fifteen hundreds.' },
     { speaker: 'lecturer', text: 'For now, remember that the press was a combination of older parts, not a sudden invention.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'That is the end of today’s talk. I hope the cases are clearer now.' },
   ],
   vocabulary: [
     {

@@ -115,8 +115,8 @@ export const test11Part1: ListeningLesson = {
     {
       number: 5, accepted: ['A'], evidence: 20,
       explanation: {
-        zh: '定位句 20：Our policy is full to full … collect the car with a full tank, and you return it the same way。满取满还对应 A。B 的预付油箱在句 22 被明确说没有；C 的空箱归还没有出现。',
-        en: 'Sentence 20: "Our policy is full to full … collect the car with a full tank, and you return it the same way", matching A. The prepaid tank in B is ruled out in sentence 22, and returning empty in C is never mentioned.',
+        zh: '定位句 20：Our policy is full to full. You collect the car with a full tank, and you return it the same way。满取满还对应 A。B 的预付油箱在句 22 被明确说没有；C 的空箱归还没有出现。',
+        en: 'Sentence 20: "Our policy is full to full. You collect the car with a full tank, and you return it the same way.", matching A. The prepaid tank in B is ruled out in sentence 22, and returning empty in C is never mentioned.',
       },
     },
     {

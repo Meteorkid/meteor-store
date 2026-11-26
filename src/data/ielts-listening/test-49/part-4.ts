@@ -85,8 +85,8 @@ export const test49Part4: ListeningLesson = {
     {
       number: 31, accepted: ['bark'], evidence: 6,
       explanation: {
-        zh: '定位句 6：Many trees grow a tough outer bark, which shields the living tissue beneath。物理屏障的例子是树皮；句 8 的 thorns 是另一类物理结构，不是本空答案。',
-        en: 'Sentence 6: "Many trees grow a tough outer bark, which shields the living tissue beneath". The physical example is bark; the thorns in sentence 8 are a separate physical structure, not this answer.',
+        zh: '定位句 6：Many trees grow tough outer bark, shielding living tissue beneath from frost and fire。物理屏障的例子是树皮；句 8 的 thorns 是另一类物理结构，不是本空答案。',
+        en: 'Sentence 6: "Many trees grow tough outer bark, shielding living tissue beneath from frost and fire". The physical example is bark; the thorns in sentence 8 are a separate physical structure, not this answer.',
       },
     },
     {
@@ -218,7 +218,7 @@ export const test49Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Still, when you next walk past a hedge, notice the thorns, the hairs and the bitter smell.' },
     { speaker: 'lecturer', text: 'Each one is a record of the struggles plants have survived over millions of years.' },
     { speaker: 'lecturer', text: 'Next week we will look at how farmers use these natural defences in modern crop protection.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'That concludes the talk. I hope the examples were useful.' },
   ],
   vocabulary: [
     {

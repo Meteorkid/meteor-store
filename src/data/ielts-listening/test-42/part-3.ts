@@ -207,7 +207,7 @@ export const test42Part3: ListeningLesson = {
     { speaker: 'ryan', text: 'I will check the matching rules against the tutor application forms.' },
     { speaker: 'neerja', text: 'Does anyone want to add a note on the supervision meetings?' },
     { speaker: 'aria', text: 'I can add that, since I already read the coordinator handout last week.' },
-    { speaker: 'ryan', text: 'Good, that leaves everyone with a clear part to bring to the draft.' },
+    { speaker: 'ryan', text: 'Good, the split is fair and everyone knows what to check first.' },
     { speaker: 'neerja', text: 'One thing to confirm, do we charge tutees anything for the sessions?' },
     { speaker: 'ryan', text: 'No, the scheme is free for enrolled students within the faculty.' },
     { speaker: 'aria', text: 'Materials and room bookings are covered by the student support budget.' },

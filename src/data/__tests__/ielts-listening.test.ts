@@ -73,6 +73,10 @@ describe('雅思听力题库：内容体检', () => {
     expect(violationsFor(lesson, 'explanation'), lesson.slug).toEqual([]);
   });
 
+  it.each(listeningLessons.map(lesson => [lesson.slug, lesson] as const))('%s：解析引文必须出现在 evidence 句', (_slug, lesson) => {
+    expect(violationsFor(lesson, 'explanation-quote'), lesson.slug).toEqual([]);
+  });
+
   it.each(listeningLessons.map(lesson => [lesson.slug, lesson] as const))('%s：答案与选项没有明显偏向', (_slug, lesson) => {
     expect(violationsFor(lesson, 'answer-bias'), lesson.slug).toEqual([]);
   });
@@ -121,4 +125,10 @@ describe('雅思听力题库：内容体检', () => {
     expect(report.length, report.join('\n')).toBeGreaterThan(0);
     expect(categories.size, report.join('\n')).toBeGreaterThanOrEqual(5);
   });
+  it('audit 能抓住“引文不在 evidence 句”的解析', () => {
+    const broken = structuredClone(listeningLessons[0]);
+    broken.answers[0].explanation.en = 'Sentence 0: "This sentence is not in the recording at all."';
+    expect(auditListeningLesson(broken).some(issue => issue.startsWith('explanation-quote:'))).toBe(true);
+  });
+
 });

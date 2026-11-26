@@ -106,15 +106,15 @@ export const test50Part4: ListeningLesson = {
     {
       number: 34, accepted: ['accuracy'], evidence: 17,
       explanation: {
-        zh: '定位句 17：This improvement greatly raised the clock’s accuracy, and errors dropped sharply。摆钟大幅提高走时精度，填 accuracy。',
-        en: 'Sentence 17: "This improvement greatly raised the clock’s accuracy, and errors dropped sharply". The pendulum raised accuracy, so write accuracy.',
+        zh: '定位句 17：This improvement greatly raised the clock accuracy, and errors dropped sharply。摆钟大幅提高走时精度，填 accuracy。',
+        en: 'Sentence 17: "This improvement greatly raised the clock accuracy, and errors dropped sharply". The pendulum raised accuracy, so write accuracy.',
       },
     },
     {
       number: 35, accepted: ['zone'], evidence: 22,
       explanation: {
-        zh: '定位句 22：Standard time was then set to a single national zone, rather than each town’s sun time。标准时间统一到全国同一时区，填 zone。',
-        en: 'Sentence 22: "Standard time was then set to a single national zone, rather than each town’s sun time". Standard time was set to one national zone, so write zone.',
+        zh: '定位句 22：Standard time was then set to a single national zone, rather than each town sun time。标准时间统一到全国同一时区，填 zone。',
+        en: 'Sentence 22: "Standard time was then set to a single national zone, rather than each town sun time". Standard time was set to one national zone, so write zone.',
       },
     },
     {
@@ -127,8 +127,8 @@ export const test50Part4: ListeningLesson = {
     {
       number: 37, accepted: ['B'], evidence: 32,
       explanation: {
-        zh: '定位句 32：The sundial read the sun’s shadow; the water clock read the flow of water。水钟是另一类早期钟型，对应 B。C 的摆钟、D 的原子钟在句 33 属于后世，E 的秒表、F 的闹钟在句 34 被排除。',
-        en: 'Sentence 32: "The sundial read the sun’s shadow; the water clock read the flow of water". The water clock is the other early type, matching B. The pendulum and atomic clock in C and D come later in sentence 33; the stopwatch and alarm in E and F are excluded in sentence 34.',
+        zh: '定位句 32：The sundial read the sun shadow; the water clock read the flow of water。水钟是另一类早期钟型，对应 B。C 的摆钟、D 的原子钟在句 33 属于后世，E 的秒表、F 的闹钟在句 34 被排除。',
+        en: 'Sentence 32: "The sundial read the sun shadow; the water clock read the flow of water". The water clock is the other early type, matching B. The pendulum and atomic clock in C and D come later in sentence 33; the stopwatch and alarm in E and F are excluded in sentence 34.',
       },
     },
     {

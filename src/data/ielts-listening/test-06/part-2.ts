@@ -120,7 +120,7 @@ export const test06Part2: ListeningLesson = {
     {
       number: 20, accepted: ['E'], evidence: 24,
       explanation: {
-        zh: '定位句 24：Theo looks after the old wooden furniture … he repairs anything that has broken。repairing old wooden furniture 对应 E。F 的策划月度展览在介绍中没有归给任何人，是干扰项。',
+        zh: '定位句 24：Finally, Theo looks after the old wooden furniture in the studios, and he repairs anything that has broken during the year。repairing old wooden furniture 对应 E。F 的策划月度展览在介绍中没有归给任何人，是干扰项。',
         en: 'Sentence 24: Theo "looks after the old wooden furniture" and "repairs anything that has broken", matching E. F, organising the monthly exhibition, is assigned to no one and is a distractor.',
       },
     },

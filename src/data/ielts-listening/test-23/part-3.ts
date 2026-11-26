@@ -146,7 +146,7 @@ export const test23Part3: ListeningLesson = {
       number: 29, accepted: ['B'], evidence: 29,
       explanation: {
         zh: '定位句 29：whether the actors make the condensed scenes feel believable on stage。演员让压缩后的场次可信对应 B。',
-        en: 'Sentence 29: "whether the actors make the shortened scenes feel believable on stage". Believable shortened scenes match B.',
+        en: 'Sentence 29: "the actors make the condensed scenes feel believable on stage". Believable shortened scenes match B.',
       },
     },
     {

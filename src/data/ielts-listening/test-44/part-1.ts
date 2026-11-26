@@ -139,7 +139,7 @@ export const test44Part1: ListeningLesson = {
       number: 9, accepted: ['chain'], evidence: 30,
       explanation: {
         zh: '定位句 30：Could you give the chain a clean and check it for wear while it is here? 附带清洗检查的是链条，填 chain。',
-        en: 'Sentence 30: the chain gets "a clean and check for wear", so fill chain.',
+        en: 'Sentence 30: the chain gets "Could you give the chain a clean and check it for wear while it is here?", so fill chain.',
       },
     },
     {

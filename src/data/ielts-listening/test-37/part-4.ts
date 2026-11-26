@@ -195,13 +195,13 @@ export const test37Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Members who feel heard are more likely to commit to the final choice afterwards.' },
     { speaker: 'lecturer', text: 'Trust grows when the group shows that disagreement will not be punished.' },
     { speaker: 'lecturer', text: 'Debate should not turn into a contest where the loudest voice wins the room.' },
-    { speaker: 'lecturer', text: 'Let me bring these ideas together before we finish.' },
+    { speaker: 'lecturer', text: 'These threads meet in a practical question about how a group can disagree without splitting.' },
     { speaker: 'lecturer', text: 'Conformity pulls members toward the common answer, and groups need safeguards against that pull.' },
     { speaker: 'lecturer', text: 'Groupthink follows when harmony is valued more than honest disagreement.' },
     { speaker: 'lecturer', text: 'Roles split the workload, and shared goals keep the members aligned.' },
     { speaker: 'lecturer', text: 'Balance debate and trust, and a group can decide more wisely than its loudest member.' },
     { speaker: 'lecturer', text: 'In the next session we will look at how leaders design teams with these patterns in mind.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'That is all for this session. Try the practice task before we meet again.' },
   ],
   vocabulary: [
     {

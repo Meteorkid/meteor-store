@@ -90,8 +90,8 @@ export const test32Part1: ListeningLesson = {
     {
       number: 1, accepted: ['Saturday'], evidence: 3,
       explanation: {
-        zh: '定位句 3：Most volunteers attend on Saturdays, from eight in the morning until four。每周固定志愿日是 Saturday；句 3 的 Sunday morning 只是少数人额外留下的时段。',
-        en: 'Sentence 3: "Most volunteers attend on Saturdays, from eight in the morning until four". The regular volunteer day is Saturday. The Sunday morning in the same sentence is an optional extra for a few.',
+        zh: '定位句 3：Most volunteers come on a Saturday, from eight in the morning until four, and some stay for a Sunday morning session as well。每周固定志愿日是 Saturday；句 3 的 Sunday morning 只是少数人额外留下的时段。',
+        en: 'Sentence 3: "Most volunteers come on a Saturday, from eight in the morning until four". The regular volunteer day is Saturday. The Sunday morning in the same sentence is an optional extra for a few.',
       },
     },
     {

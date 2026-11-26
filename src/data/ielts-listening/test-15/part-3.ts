@@ -148,15 +148,15 @@ export const test15Part3: ListeningLesson = {
     {
       number: 28, accepted: ['A'], evidence: 29,
       explanation: {
-        zh: '定位句 29：the site sits near a tidal creek, so we check the tide times before leaving。出发前查潮汐时间，对应 A；它是为避免回程被水困住，不是休闲活动。',
-        en: 'Sentence 29: "the site sits near a tidal creek, so we check the tide times before leaving", matching A. It prevents a wet walk back, rather than being a leisure activity.',
+        zh: '定位句 29：The site sits near a tidal creek, so we check tide times before leaving, to avoid a wet walk back。出发前查潮汐时间，对应 A；它是为避免回程被水困住，不是休闲活动。',
+        en: 'Sentence 29: "The site sits near a tidal creek, so we check tide times before leaving", matching A. It prevents a wet walk back, rather than being a leisure activity.',
       },
     },
     {
       number: 29, accepted: ['B'], evidence: 30,
       explanation: {
-        zh: '定位句 30：The GPS and the phone drain fast, so we carry spare packs for both。带备用电池组对应 B；省电方法不是本次列出的准备事项。',
-        en: 'Sentence 30: "The GPS and the phone drain fast, so we carry spare packs for both", matching B. Saving power is not listed as one of the preparations here.',
+        zh: '定位句 30：Spare batteries are a must. The GPS and phone drain fast, so we carry spare packs for both。带备用电池组对应 B；省电方法不是本次列出的准备事项。',
+        en: 'Sentence 30: "The GPS and phone drain fast, so we carry spare packs for both", matching B. Saving power is not listed as one of the preparations here.',
       },
     },
     {

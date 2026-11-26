@@ -214,7 +214,7 @@ export const test39Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Engineers combine absorbers for echo and heavy walls for transmission, rather than choosing one alone.' },
     { speaker: 'lecturer', text: 'In the next session we will measure the rating of an actual wall in the college building.' },
     { speaker: 'lecturer', text: 'For today, remember that sound travels by two paths, and each path needs its own treatment.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'We will end the lecture here. Review the three stages before next week.' },
   ],
   vocabulary: [
     {

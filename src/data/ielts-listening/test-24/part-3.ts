@@ -106,7 +106,7 @@ export const test24Part3: ListeningLesson = {
       number: 23, accepted: ['C'], evidence: 9,
       explanation: {
         zh: '定位句 9：We write down the height each morning in a notebook, one row per plant。测量记录每天早上写进笔记本，对应 C。',
-        en: 'Sentence 9: the height is "written down each morning in a notebook", matching C.',
+        en: 'Sentence 9: the height is "We write down the height each morning in a notebook", matching C.',
       },
     },
     {

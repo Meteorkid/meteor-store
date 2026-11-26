@@ -96,8 +96,8 @@ export const test07Part4: ListeningLesson = {
     {
       number: 33, accepted: ['B'], evidence: 5,
       explanation: {
-        zh: '定位句 5：The dreaming stage … works through emotional memories and links them to earlier experience。REM 加工情绪记忆并与旧经验联结，对应 B。A 与句 26 的身体基本不动相反，C 的遗忘任务在录音中没有依据。',
-        en: 'Sentence 5: "The dreaming stage … works through emotional memories and links them to earlier experience". REM processes emotional memories and connects them, matching B. A contradicts the still body in sentence 26, and forgetting learned tasks is not claimed.',
+        zh: '定位句 5：The dreaming stage, meanwhile, works through emotional memories and links them to earlier experience。REM 加工情绪记忆并与旧经验联结，对应 B。A 与句 26 的身体基本不动相反，C 的遗忘任务在录音中没有依据。',
+        en: 'Sentence 5: "The dreaming stage, meanwhile, works through emotional memories and links them to earlier experience.". REM processes emotional memories and connects them, matching B. A contradicts the still body in sentence 26, and forgetting learned tasks is not claimed.',
       },
     },
     {
@@ -145,8 +145,8 @@ export const test07Part4: ListeningLesson = {
     {
       number: 40, accepted: ['focus'], evidence: 39,
       explanation: {
-        zh: '定位句 39：A short nap … can improve focus and creativity。午睡改善的是专注与创造力；空后已印 and creativity，填 focus。',
-        en: 'Sentence 39: "A short nap … can improve focus and creativity". The nap improves focus and creativity; and creativity is already printed, so write focus.',
+        zh: '定位句 39：A short nap, of twenty minutes or so, can improve focus and creativity without pushing the main night sleep out of balance。午睡改善的是专注与创造力；空后已印 and creativity，填 focus。',
+        en: 'Sentence 39: "A short nap, of twenty minutes or so, can improve focus and creativity without pushing the main night sleep out of balance.". The nap improves focus and creativity; and creativity is already printed, so write focus.',
       },
     },
   ],
@@ -201,7 +201,7 @@ export const test07Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'None of these rules matters on its own; the problem comes when study, screens and late meals stack up together night after night.' },
     { speaker: 'lecturer', text: 'In the next lecture we will look at how caffeine changes this timetable, and why a late coffee hits the first cycles more than the last ones.' },
     { speaker: 'lecturer', text: 'For now, the main message is simple. Sleep is study time for the brain, not a gap between study sessions.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'I will leave it there. The reading list has the follow-up details.' },
   ],
   vocabulary: [
     {

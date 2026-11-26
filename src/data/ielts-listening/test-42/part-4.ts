@@ -196,13 +196,13 @@ export const test42Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Even light activity helps blood flow back toward the heart during the rest period.' },
     { speaker: 'lecturer', text: 'Nutrition after a session supplies the materials the repair process needs.' },
     { speaker: 'lecturer', text: 'Hydration supports the blood volume that carries oxygen to active tissue.' },
-    { speaker: 'lecturer', text: 'Let me bring these ideas together before we finish.' },
+    { speaker: 'lecturer', text: 'Before we finish, it helps to see how these systems fit into one training week.' },
     { speaker: 'lecturer', text: 'Energy systems match the length and intensity of the effort on hand.' },
     { speaker: 'lecturer', text: 'Cardio adaptation strengthens the heart and improves oxygen delivery to muscles.' },
     { speaker: 'lecturer', text: 'Recovery rebuilds what exercise breaks down, and gradual progression keeps training safe.' },
     { speaker: 'lecturer', text: 'Ignore rest, and even a strong athlete reaches a plateau or picks up an injury.' },
     { speaker: 'lecturer', text: 'In the next session we will look at how periodisation arranges these blocks across a season.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'We have come to the end of the session. The notes are on the course page.' },
   ],
   vocabulary: [
     {

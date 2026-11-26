@@ -106,8 +106,8 @@ export const test16Part1: ListeningLesson = {
     {
       number: 4, accepted: ['twelve', '12'], evidence: 13,
       explanation: {
-        zh: '定位句 13：These machines carry a twelve-month warranty。空格后已印 months，填数字；句 12 的 four weeks 是购买时长，不是保修期。',
-        en: 'Sentence 13: "a twelve-month warranty". Months is printed, so write the number. Four weeks in sentence 12 is the purchase age, not the warranty.',
+        zh: '定位句 13：Correct. These machines carry a warranty of twelve months from the delivery date。空格后已印 months，填数字；句 12 的 four weeks 是购买时长，不是保修期。',
+        en: 'Sentence 13: "a warranty of twelve months". Months is printed, so write the number. Four weeks in sentence 12 is the purchase age, not the warranty.',
       },
     },
     {
@@ -134,8 +134,8 @@ export const test16Part1: ListeningLesson = {
     {
       number: 8, accepted: ['C'], evidence: 29,
       explanation: {
-        zh: '定位句 29：Casing damage from delivery is treated separately, repaired under the transit cover。运输磕碰外壳走单独运输险，对应 C。',
-        en: 'Sentence 29: casing damage from delivery is "repaired under the transit cover", matching C.',
+        zh: '定位句 29：Casing damage from delivery is treated separately. We photograph it and send it for repair under the transit cover。运输磕碰外壳走单独运输险，对应 C。',
+        en: 'Sentence 29: casing damage from delivery is "send it for repair under the transit cover", matching C.',
       },
     },
     {
@@ -192,7 +192,7 @@ export const test16Part1: ListeningLesson = {
     { speaker: 'agent', text: 'Yes, it keeps the original warranty period, so you won’t lose those four weeks.' },
     { speaker: 'customer', text: 'One more thing, the milk frother attachment was missing from the box.' },
     { speaker: 'agent', text: 'I’ll list that as a separate note. Missing parts are posted out within three days.' },
-    { speaker: 'customer', text: 'Thanks for sorting this out.' },
+    { speaker: 'customer', text: 'Thanks for sorting this out today.' },
     { speaker: 'agent', text: 'You’re welcome. The collection email will arrive this evening.' },
   ],
   vocabulary: [

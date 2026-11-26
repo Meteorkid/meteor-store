@@ -94,8 +94,8 @@ export const test09Part2: ListeningLesson = {
     {
       number: 11, accepted: ['three', '3'], spoken: 'three hours', evidence: 3,
       explanation: {
-        zh: '定位句 3：Each volunteer works a three-hour shift, split between the morning and the afternoon group。半天和全天是分组安排，不是班次长度；空格后已印 hours。',
-        en: 'Sentence 3: "Each volunteer works a three-hour shift, split between the morning and the afternoon group". Morning and afternoon groups are splits, not the shift length; hours is already printed.',
+        zh: '定位句 3：Each volunteer works a shift of three hours, split between the morning and the afternoon group。半天和全天是分组安排，不是班次长度；空格后已印 hours。',
+        en: 'Sentence 3: "Each volunteer works a shift of three hours, split between the morning and the afternoon group". Morning and afternoon groups are splits, not the shift length; hours is already printed.',
       },
     },
     {

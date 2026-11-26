@@ -92,7 +92,7 @@ export const test20Part4: ListeningLesson = {
       number: 32, accepted: ['service'], evidence: 5,
       explanation: {
         zh: '定位句 5：A queue forms whenever the number of arrivals outpaces the service rate。队伍在到达超过服务率时形成，填 service；题干已印 rate。',
-        en: 'Sentence 5: a queue forms when arrivals "outpace the service rate", so fill service; rate is already printed.',
+        en: 'Sentence 5: a queue forms when arrivals outpace the service rate, so fill service; rate is already printed.',
       },
     },
     {

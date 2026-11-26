@@ -83,8 +83,8 @@ export const test41Part4: ListeningLesson = {
     {
       number: 31, accepted: ['B'], evidence: 6,
       explanation: {
-        zh: '定位句 6：Early timepieces all had a weakness: they depended on the weather or a steady supply of water。早期装置共同弱点是受天气或水源制约，对应 B。A 的体积过大与 C 的只能报整点在录音中均未出现。',
-        en: 'Sentence 6: "Early timepieces all had a weakness: they depended on the weather or a steady supply of water". Weather or water dependence matches B. Being too large and showing only hours are not mentioned.',
+        zh: '定位句 6：Early timepieces all had a weakness, for they depended on the weather or a steady supply of water。早期装置共同弱点是受天气或水源制约，对应 B。A 的体积过大与 C 的只能报整点在录音中均未出现。',
+        en: 'Sentence 6: "Early timepieces all had a weakness, for they depended on the weather or a steady supply of water". Weather or water dependence matches B. Being too large and showing only hours are not mentioned.',
       },
     },
     {
@@ -196,8 +196,8 @@ export const test41Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Railways pushed towns to adopt one shared time, so trains could meet and connect without confusion.' },
     { speaker: 'lecturer', text: 'Over decades, local solar time gave way to a national standard time, and later to time zones across the world.' },
     { speaker: 'lecturer', text: 'Today we take the shared hour for granted, but it is a relatively recent arrangement.' },
-    { speaker: 'lecturer', text: 'Now the notes section follows, so keep the restated points in mind.' },
-    { speaker: 'lecturer', text: 'These restated sentences are the ones you should match to the note headings.' },
+    { speaker: 'lecturer', text: 'We are moving on to the notes section now, so hold on to the restated points.' },
+    { speaker: 'lecturer', text: 'Match each restated sentence to one of the note headings.' },
     { speaker: 'lecturer', text: 'Sundials read the position of the sun, which moves its shadow across the marked face.' },
     { speaker: 'lecturer', text: 'Water clocks mark time through a steady flow of water from a marked container.' },
     { speaker: 'lecturer', text: 'The escapement releases the gears in regular small ticks, holding the clock to a steady beat.' },
@@ -209,7 +209,7 @@ export const test41Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Marine clocks added stability at sea, and standard time tied many towns to one shared hour.' },
     { speaker: 'lecturer', text: 'Without these steps, navigation, trade and rail travel would have run on far less certain schedules.' },
     { speaker: 'lecturer', text: 'In the next session we will look at how clock accuracy changed the shape of cities and workdays.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'That completes today’s overview. I hope the timeline makes sense now.' },
   ],
   vocabulary: [
     {

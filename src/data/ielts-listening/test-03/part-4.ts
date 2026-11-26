@@ -95,8 +95,8 @@ export const test03Part4: ListeningLesson = {
     {
       number: 32, accepted: ['tiltmeters'], evidence: 9,
       explanation: {
-        zh: '定位句 9：it is measured by tiltmeters, which record the angle of the slope。GPS stations 是并列的另一套设备，不是答案；注意 tiltmeters 的拼写。',
-        en: 'Sentence 9: "it is measured by tiltmeters, which record the angle of the slope". GPS stations are a separate parallel system, not the answer. Watch the spelling of tiltmeters.',
+        zh: '定位句 9：This movement is too slow to see, so it is measured by tiltmeters, which record the slope angle, and by GPS stations tracking small position shifts。GPS stations 是并列的另一套设备，不是答案；注意 tiltmeters 的拼写。',
+        en: 'Sentence 9: "it is measured by tiltmeters, which record the slope angle". GPS stations are a separate parallel system, not the answer. Watch the spelling of tiltmeters.',
       },
     },
     {
@@ -130,8 +130,8 @@ export const test03Part4: ListeningLesson = {
     {
       number: 37, accepted: ['A'], evidence: 30,
       explanation: {
-        zh: '定位句 30：A slow collapse inside the crater … and heavy rainfall can seep into the stone。collapse 与 rainwater seeping in 对应 A。交通振动 G 和穹丘冷却 F 在讲座中没有出现。',
-        en: 'Sentence 30: "A slow collapse inside the crater … and heavy rainfall can seep into the stone". Collapse and rainwater seeping in match A. Traffic vibration in G and dome cooling in F are never mentioned.',
+        zh: '定位句 30：A slow collapse inside the crater can weaken the rock and shake the slopes, and heavy rainfall can seep into the stone and add pressure to the chamber。collapse 与 rainwater seeping in 对应 A。交通振动 G 和穹丘冷却 F 在讲座中没有出现。',
+        en: 'Sentence 30: "A slow collapse inside the crater can weaken the rock and shake the slopes, and heavy rainfall can seep into the stone and add pressure to the chamber.". Collapse and rainwater seeping in match A. Traffic vibration in G and dome cooling in F are never mentioned.',
       },
     },
     {
@@ -206,7 +206,7 @@ export const test03Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Communication therefore has to be clear, repeated and consistent, so that residents understand the difference between advice and a mandatory order.' },
     { speaker: 'lecturer', text: 'The best we can do is to watch carefully, to share what we find honestly, and to plan communities that can move quickly when the signs turn serious.' },
     { speaker: 'lecturer', text: 'Next week we will look at two case studies, one where the warning worked well and one where it did not.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'We will stop there. The examples should make the process easier to picture.' },
   ],
   vocabulary: [
     {

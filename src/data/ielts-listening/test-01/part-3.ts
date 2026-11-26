@@ -94,8 +94,8 @@ export const test01Part3: ListeningLesson = {
     {
       number: 21, accepted: ['C'], evidence: 7,
       explanation: {
-        zh: '定位句 7：The music group scored slightly higher, but it was only a couple of points，后面 Priya 又说 could easily be chance。分数略高但差距在误差范围内，对应 no clear difference；A 和 B 都把“略高”说成了明显效果。',
-        en: 'Sentence 7: the music group "scored slightly higher … but it was only a couple of points", and Priya adds that it "could easily be chance". A slight edge within the margin of error means no clear difference.',
+        zh: '定位句 7：The music group scored slightly higher on the memory test, but it was only a couple of points.后面 Priya 又说 could easily be chance。分数略高但差距在误差范围内，对应 no clear difference；A 和 B 都把“略高”说成了明显效果。',
+        en: 'Sentence 7: the music group "scored slightly higher … but it was only a couple of points", and Priya adds that it could easily be chance. A slight edge within the margin of error means no clear difference.',
       },
     },
     {
@@ -136,7 +136,7 @@ export const test01Part3: ListeningLesson = {
     {
       number: 27, accepted: ['E'], evidence: 49,
       explanation: {
-        zh: '定位句 49：By the second task, they’d already had practice … so any improvement could simply be practice。前一句说明所有人都先做阅读、再做记忆测试，顺序从未变化；下一句给出的办法就是平衡顺序，对应 E。',
+        zh: '定位句 49：By the second task, they’d already had practice at sitting a test in an unfamiliar room, so any improvement could simply be practice。前一句说明所有人都先做阅读、再做记忆测试，顺序从未变化；下一句给出的办法就是平衡顺序，对应 E。',
         en: 'Sentence 49: by the second task "they’d already had practice … so any improvement could simply be practice". The sentence before confirms the order never changed, and the next sentence proposes having half do each order. That matches E.',
       },
     },
@@ -158,7 +158,7 @@ export const test01Part3: ListeningLesson = {
       number: 30, accepted: ['D'], evidence: 65,
       explanation: {
         zh: '定位句 65：the order has to be balanced。前一句点明 The second is order。B（线上进行）在句 68 被否定，E（同一首曲子）在句 71 被否定，都不是必改项。',
-        en: 'Sentence 65: "the order has to be balanced". The sentence before says "The second is order". B (running it online) is rejected in sentence 68 and E (the same piece of music) in sentence 71.',
+        en: 'Sentence 65: "the order has to be balanced". The sentence before says The second is order. B (running it online) is rejected in sentence 68 and E (the same piece of music) in sentence 71.',
       },
     },
   ],

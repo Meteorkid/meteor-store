@@ -206,7 +206,7 @@ export const test30Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Later systems, from telegraph to parcel delivery, inherited this idea of a trusted public channel.' },
     { speaker: 'lecturer', text: 'The social effects lasted long after the coaches themselves gave way to trains and lorries.' },
     { speaker: 'lecturer', text: 'Next week we will look at how the telegraph shortened the time that messages took to cross a continent.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'Our time is up. The key terms are on the final slide.' },
   ],
   vocabulary: [
     {

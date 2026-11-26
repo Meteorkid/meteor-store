@@ -194,7 +194,7 @@ export const test40Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Modern maps guide navigation through satellite signals, which fix the position of the receiver above the ground.' },
     { speaker: 'lecturer', text: 'Digital maps update traffic, closed roads and new buildings far faster than printed sheets can.' },
     { speaker: 'lecturer', text: 'Yet the idea of a map remains the same, a frame of reference between a person and a place.' },
-    { speaker: 'lecturer', text: 'What is the main point of this short history?' },
+    { speaker: 'lecturer', text: 'Taken together, these examples show what a map has always done.' },
     { speaker: 'lecturer', text: 'Maps record knowledge, power and navigation across history, rather than one single technical story.' },
     { speaker: 'lecturer', text: 'The land measured, the rulers who claimed it, and the travellers who followed routes all left their mark.' },
     { speaker: 'lecturer', text: 'Modern navigation still rests on those centuries of observation and drawing.' },

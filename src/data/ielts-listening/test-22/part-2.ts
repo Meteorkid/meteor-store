@@ -131,8 +131,8 @@ export const test22Part2: ListeningLesson = {
     {
       number: 18, accepted: ['B'], evidence: 26,
       explanation: {
-        zh: '定位句 26：The interviewer writes feedback on a review sheet … You then read the sheet together。反馈写在评价表上并一起过一遍，对应 B。A 的录音在句 28 被明确否定，C 的同日二面录音中没有依据。',
-        en: 'Sentence 26: "The interviewer writes feedback on a review sheet … You then read the sheet together". Feedback goes on a review sheet and is read together, matching B. Recording the session is explicitly ruled out in sentence 28, and booking a second interview the same day is not claimed.',
+        zh: '定位句 26：The interviewer writes feedback on a review sheet, covering your opening answer, your examples and your body language。紧接着的句 27 补充 You then read the sheet together，即反馈表由双方一起过一遍，对应 B。A 的录音在句 28 被明确否定，C 的同日二面录音中没有依据。',
+        en: 'Sentence 26: "The interviewer writes feedback on a review sheet". The next sentence, 27, adds that you then read the sheet together. Feedback goes on a review sheet and is read together, matching B. Recording the session is explicitly ruled out in sentence 28, and booking a second interview the same day is not claimed.',
       },
     },
     {

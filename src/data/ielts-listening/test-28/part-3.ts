@@ -97,7 +97,7 @@ export const test28Part3: ListeningLesson = {
       number: 22, accepted: ['B'], evidence: 7,
       explanation: {
         zh: '定位句 7：Ava 说 I’d raise the sample-size concern。提出样本量顾虑归 Ava，对应 B；她还指出每组只有四十名学生。',
-        en: 'Sentence 7: Ava says "I’d raise the sample-size concern". The sample-size concern goes to Ava, matching B. She notes only forty students per group.',
+        en: 'Sentence 7: Ava says "the concern about sample size". The sample-size concern goes to Ava, matching B. She notes only forty students per group.',
       },
     },
     {

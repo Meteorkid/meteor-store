@@ -203,7 +203,7 @@ export const test22Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Looking back, the long history shows a game that carried ideas about warfare, honour and reason across continents.' },
     { speaker: 'lecturer', text: 'The next lecture will compare chess with the board games that emerged in East Asia at a similar time.' },
     { speaker: 'lecturer', text: 'For now, remember that the rules you move today were refined over more than a thousand years.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'That brings today’s session to a close. I appreciate your attention.' },
   ],
   vocabulary: [
     {

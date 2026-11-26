@@ -97,15 +97,15 @@ export const test38Part3: ListeningLesson = {
     {
       number: 22, accepted: ['B'], evidence: 6,
       explanation: {
-        zh: '定位句 6：The control group analysis was mine to lead, checking their daily opens and session length。对照组分析由 Sonia 主持，对应 B；助理只清洗表格，不是主持者。',
-        en: 'Sentence 6: "The control group analysis was mine to lead, checking their daily opens and session length". Sonia led the control analysis, matching B. The assistant only cleaned spreadsheets.',
+        zh: '定位句 6：The control group analysis was mine to lead, checking daily opens and session length against the trial group。对照组分析由 Sonia 主持，对应 B；助理只清洗表格，不是主持者。',
+        en: 'Sentence 6: "The control group analysis was mine to lead, checking daily opens and session length". Sonia led the control analysis, matching B. The assistant only cleaned spreadsheets.',
       },
     },
     {
       number: 23, accepted: ['C'], evidence: 9,
       explanation: {
-        zh: '定位句 9：Then the ethics statement was mine to draft. I wrote the consent form wording and the data privacy paragraph。伦理说明由 Ava 起草，对应 C；伦理官员只审阅草稿，不是起草人。',
-        en: 'Sentence 9: "Then the ethics statement was mine to draft. I wrote the consent form wording and the data privacy paragraph". Ava drafted the ethics statement, matching C. The officer only reviewed the draft.',
+        zh: '定位句 9：Then the ethics statement was mine to draft. I wrote the consent wording and privacy paragraph。伦理说明由 Ava 起草，对应 C；伦理官员只审阅草稿，不是起草人。',
+        en: 'Sentence 9: "Then the ethics statement was mine to draft. I wrote the consent wording and privacy paragraph". Ava drafted the ethics statement, matching C. The officer only reviewed the draft.',
       },
     },
     {
@@ -118,29 +118,29 @@ export const test38Part3: ListeningLesson = {
     {
       number: 25, accepted: ['A'], evidence: 16,
       explanation: {
-        zh: '定位句 16：It was four weeks. A shorter run would not have shown whether people came back after the opening week。试用周期四周，对应 A；句 17 也说明四周仍是短窗口。',
-        en: 'Sentence 16: "It was four weeks. A shorter run would not have shown whether people came back after the opening week". The trial lasted four weeks, matching A. Sentence 17 notes four weeks is still a short window.',
+        zh: '定位句 16：It was four weeks. A shorter run would not show whether people came back after week one。试用周期四周，对应 A；句 17 也说明四周仍是短窗口。',
+        en: 'Sentence 16: "It was four weeks. A shorter run would not show whether people came back after week one". The trial lasted four weeks, matching A. Sentence 17 notes four weeks is still a short window.',
       },
     },
     {
       number: 26, accepted: ['B'], evidence: 19,
       explanation: {
-        zh: '定位句 19：Retention here means users who return to the app after seven days, not those who completed the first session only。留存主指标是七天后回访，对应 B；完成首课在句 19 被否定，购买完整版未提及。',
-        en: 'Sentence 19: "Retention here means users who return to the app after seven days, not those who completed the first session only". The measure is the seven-day return, matching B. Finishing the first session is ruled out, and purchases are not mentioned.',
+        zh: '定位句 19：Retention means users who return after seven days, not those who finish the first session only。留存主指标是七天后回访，对应 B；完成首课在句 19 被否定，购买完整版未提及。',
+        en: 'Sentence 19: "Retention means users who return after seven days, not those who finish the first session only". The measure is the seven-day return, matching B. Finishing the first session is ruled out, and purchases are not mentioned.',
       },
     },
     {
       number: 27, accepted: ['B'], evidence: 22,
       explanation: {
-        zh: '定位句 22：They kept the old version so the two groups could be compared fairly on engagement over the same period。对照组保留旧版是为公平比较参与度，对应 B；翻译未完成与助理偏好旧版在录音中未出现。',
-        en: 'Sentence 22: "They kept the old version so the two groups could be compared fairly on engagement over the same period". The old version allows a fair engagement comparison, matching B. Translation status and assistant preference are not mentioned.',
+        zh: '定位句 22：They kept the old version so the groups could be compared fairly on engagement over one period。对照组保留旧版是为公平比较参与度，对应 B；翻译未完成与助理偏好旧版在录音中未出现。',
+        en: 'Sentence 22: "They kept the old version so the groups could be compared fairly on engagement over one period". The old version allows a fair engagement comparison, matching B. Translation status and assistant preference are not mentioned.',
       },
     },
     {
       number: 28, accepted: ['A'], evidence: 26,
       explanation: {
-        zh: '定位句 26：We made sure it drew a mixed age range, from college students to working adults in their fifties。招募混合年龄段是同意项，对应 A。',
-        en: 'Sentence 26: "We made sure it drew a mixed age range, from college students to working adults in their fifties". A mixed age range was recruited, matching A.',
+        zh: '定位句 26：We drew a mixed age range, from college students to working adults in their fifties。招募混合年龄段是同意项，对应 A。',
+        en: 'Sentence 26: "We drew a mixed age range, from college students to working adults in their fifties". A mixed age range was recruited, matching A.',
       },
     },
     {
@@ -153,8 +153,8 @@ export const test38Part3: ListeningLesson = {
     {
       number: 30, accepted: ['C'], evidence: 29,
       explanation: {
-        zh: '定位句 29：We must interpret the results cautiously, and not claim the new app teaches a language on its own。谨慎解释结果是同意项，对应 C；D 的付费好评与 E 的只挑最佳片段在句 32、33 被明确否定。',
-        en: 'Sentence 29: "We must interpret the results cautiously, and not claim the new app teaches a language on its own". Cautious interpretation matches C. Paid reviews in D and selected clips in E are rejected in sentences 32 and 33.',
+        zh: '定位句 29：We must interpret results cautiously, and not claim the app teaches a language alone。谨慎解释结果是同意项，对应 C；D 的付费好评与 E 的只挑最佳片段在句 32、33 被明确否定。',
+        en: 'Sentence 29: "We must interpret results cautiously, and not claim the app teaches a language". Cautious interpretation matches C. Paid reviews in D and selected clips in E are rejected in sentences 32 and 33.',
       },
     },
   ],

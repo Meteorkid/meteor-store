@@ -218,7 +218,7 @@ export const test14Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'A school or hospital follows a stricter standard than an ordinary shop.' },
     { speaker: 'lecturer', text: 'That is where public policy meets the technical choices we have discussed today.' },
     { speaker: 'lecturer', text: 'Next week we will look at how coastal cities plan for flooding alongside ground shaking.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'We are at the end of the lecture. Keep the diagram beside your notes.' },
   ],
   vocabulary: [
     {

@@ -130,8 +130,8 @@ export const test22Part3: ListeningLesson = {
     {
       number: 26, accepted: ['B'], evidence: 25,
       explanation: {
-        zh: '定位句 25：daily talk with ward nurse yes, but supervisor requirement each week is a written reflection。导师每周要求的是书面复盘，对应 B。A 的每日交谈是日常安排，不是导师周要求；C 的签到表由病区护士负责。',
-        en: 'Sentence 25: "daily talk with ward nurse yes, but supervisor requirement each week is a written reflection". The supervisor’s weekly requirement is a written reflection, matching B. The daily talk is routine, not the weekly requirement, and the register is signed by ward nurses.',
+        zh: '定位句 25：A daily talk with the ward nurse yes, but the supervisor requirement each week is a written reflection。导师每周要求的是书面复盘，对应 B。A 的每日交谈是日常安排，不是导师周要求；C 的签到表由病区护士负责。',
+        en: 'Sentence 25: "A daily talk with the ward nurse yes, but the supervisor requirement each week is a written reflection". The supervisor’s weekly requirement is a written reflection, matching B. The daily talk is routine, not the weekly requirement, and the register is signed by ward nurses.',
       },
     },
     {
@@ -158,8 +158,8 @@ export const test22Part3: ListeningLesson = {
     {
       number: 30, accepted: ['F'], evidence: 46,
       explanation: {
-        zh: '定位句 46：shadow a senior nurse on the first day, follow their tasks rather than starting alone。首日跟随资深护士是第三项商定安排，对应 F。',
-        en: 'Sentence 46: "shadow a senior nurse on the first day, follow their tasks rather than starting alone". Shadowing a senior nurse on day one is the third agreed arrangement, matching F.',
+        zh: '定位句 46：Shadow a senior nurse on the first day, follow their tasks rather than starting a procedure alone。首日跟随资深护士是第三项商定安排，对应 F。',
+        en: 'Sentence 46: "Shadow a senior nurse on the first day, follow their tasks rather than starting a procedure alone". Shadowing a senior nurse on day one is the third agreed arrangement, matching F.',
       },
     },
   ],

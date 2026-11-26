@@ -104,8 +104,8 @@ export const test02Part3: ListeningLesson = {
     {
       number: 23, accepted: ['C'], evidence: 23,
       explanation: {
-        zh: '定位句 23：they will say they clear their plate when they don’t。Oliver 担心的是学生高估自己吃完了多少，而不是回收率低。',
-        en: 'Sentence 23: "they will say they clear their plate when they don’t". The worry is that people overstate how much they eat, not that too few reply.',
+        zh: '定位句 23：Nobody likes to admit leaving food, so they’ll say they clear their plate when they don’t。Oliver 担心的是学生高估自己吃完了多少，而不是回收率低。',
+        en: 'Sentence 23: "say they clear their plate when they don’t". The worry is that people overstate how much they eat, not that too few reply.',
       },
     },
     {

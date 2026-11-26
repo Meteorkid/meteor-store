@@ -92,8 +92,8 @@ export const test05Part3: ListeningLesson = {
     {
       number: 21, accepted: ['B'], evidence: 4,
       explanation: {
-        zh: '定位句 4：I’ll prepare the sampling nets, because the old ones have torn holes。Clara 承担修补、准备采样网，对应 B。',
-        en: 'Sentence 4: "I’ll prepare the sampling nets, because the old ones have torn holes". Clara takes on the nets, matching B.',
+        zh: '定位句 4：Good. I’ll prepare the sampling nets, because the old ones at the store have torn holes。Clara 承担修补、准备采样网，对应 B。',
+        en: 'Sentence 4: "I’ll prepare the sampling nets, because the old ones at the store have torn holes". Clara takes on the nets, matching B.',
       },
     },
     {
@@ -106,8 +106,8 @@ export const test05Part3: ListeningLesson = {
     {
       number: 23, accepted: ['F'], evidence: 6,
       explanation: {
-        zh: '定位句 6：I’ll keep the written record of species once we’re there。Clara 负责记录物种，对应 F。',
-        en: 'Sentence 6: "I’ll keep the written record of species once we’re there". Clara keeps the species record, matching F.',
+        zh: '定位句 6：Nice. I’ll keep the written record of species, since I took notes on the last ecology trip。Clara 负责记录物种，对应 F。',
+        en: 'Sentence 6: "I’ll keep the written record of species, since I took notes on the last ecology trip". Clara keeps the species record, matching F.',
       },
     },
     {
@@ -127,8 +127,8 @@ export const test05Part3: ListeningLesson = {
     {
       number: 26, accepted: ['A'], evidence: 19,
       explanation: {
-        zh: '定位句 19：we need a clear jar to hold the samples for a few minutes。装水样的是透明罐子；采样网在句 20 是捞边缘淤泥用的，不是盛水工具。',
-        en: 'Sentence 19: "we need a clear jar to hold the samples for a few minutes". The jar holds water samples; the net in sentence 20 scoops mud at the edge, so B is the wrong tool.',
+        zh: '定位句 19：We’ll scoop small creatures from the shallow water, and need a clear jar to hold them。装水样的是透明罐子；采样网在句 20 是捞边缘淤泥用的，不是盛水工具。',
+        en: 'Sentence 19: "a clear jar to hold them". The jar holds water samples; the net in sentence 20 scoops mud at the edge, so B is the wrong tool.',
       },
     },
     {

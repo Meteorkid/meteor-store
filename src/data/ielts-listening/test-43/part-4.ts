@@ -213,7 +213,7 @@ export const test43Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'New tools may allow visitors to compare objects from different cities side by side, without leaving their home.' },
     { speaker: 'lecturer', text: 'Whatever form takes shape, the core question remains what a society keeps and who may see it.' },
     { speaker: 'lecturer', text: 'Next week we will examine one collection in detail, and ask how its display choices were received by the public.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'That is the end of the lecture. Think about the examples as you revise.' },
   ],
   vocabulary: [
     {

@@ -102,8 +102,8 @@ export const test32Part4: ListeningLesson = {
     {
       number: 34, accepted: ['B'], evidence: 19,
       explanation: {
-        zh: '定位句 19：An alarm call does not protect only the sender; it puts the whole group on guard。群体信号协调并保护整个群体，对应 B。A 的单只控制全巢与 C 的模仿他种歌声未出现。',
-        en: 'Sentence 19: "An alarm call does not protect only the sender; it puts the whole group on guard". Group signals protect the whole colony, matching B. Single-insect control and copying other species’ songs are not mentioned.',
+        zh: '定位句 19：An alarm call does not protect only the sender, and it puts the whole group on guard。群体信号协调并保护整个群体，对应 B。A 的单只控制全巢与 C 的模仿他种歌声未出现。',
+        en: 'Sentence 19: "An alarm call does not protect only the sender, and it puts the whole group on guard". Group signals protect the whole colony, matching B. Single-insect control and copying other species’ songs are not mentioned.',
       },
     },
     {

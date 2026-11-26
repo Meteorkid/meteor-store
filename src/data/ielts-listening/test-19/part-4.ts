@@ -211,7 +211,7 @@ export const test19Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Soil health ties together structure, matter, life and the way the land is worked.' },
     { speaker: 'lecturer', text: 'When one element declines, the others usually follow, and the field loses its reserve.' },
     { speaker: 'lecturer', text: 'Next week we will look at how city gardens can apply the same principles on a small scale.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'We will finish there. The handout will help you review the stages.' },
   ],
   vocabulary: [
     {

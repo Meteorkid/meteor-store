@@ -97,8 +97,8 @@ export const test35Part3: ListeningLesson = {
     {
       number: 22, accepted: ['B'], evidence: 6,
       explanation: {
-        zh: '定位句 6：Dr Chen, that is me, will advise on the overall structure, checking that each section earns its place。把关整体结构的是 Dr Chen，对应 B。',
-        en: 'Sentence 6: "Dr Chen, that is me, will advise on the overall structure, checking that each section earns its place", matching B.',
+        zh: '定位句 6：I will advise on the overall structure, checking that each section earns its place。把关整体结构的是 Dr Chen，对应 B。',
+        en: 'Sentence 6: "I will advise on the overall structure, checking that each section earns its place", matching B.',
       },
     },
     {

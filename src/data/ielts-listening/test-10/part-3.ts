@@ -92,15 +92,15 @@ export const test10Part3: ListeningLesson = {
     {
       number: 21, accepted: ['B'], evidence: 2,
       explanation: {
-        zh: '定位句 2：I recruited the participants, because I already knew who could take part。Clara 负责招募参与者，对应 B。',
-        en: 'Sentence 2: "I recruited the participants, because I already knew who could take part". Clara recruited participants, matching B.',
+        zh: '定位句 2：I recruited the participants, as I knew who could take part。Clara 负责招募参与者，对应 B。',
+        en: 'Sentence 2: "I recruited the participants, as I knew who could take part". Clara recruited participants, matching B.',
       },
     },
     {
       number: 22, accepted: ['D'], evidence: 3,
       explanation: {
-        zh: '定位句 3：I prepared the caffeine drinks in the lab, measuring the powder into each cup。Andrew 配制含咖啡因饮品，对应 D。',
-        en: 'Sentence 3: "I prepared the caffeine drinks in the lab, measuring the powder into each cup". Andrew prepared the drinks, matching D.',
+        zh: '定位句 3：I prepared the caffeine drinks in the lab, measuring each cup。Andrew 配制含咖啡因饮品，对应 D。',
+        en: 'Sentence 3: "I prepared the caffeine drinks in the lab, measuring each cup". Andrew prepared the drinks, matching D.',
       },
     },
     {
@@ -141,8 +141,8 @@ export const test10Part3: ListeningLesson = {
     {
       number: 28, accepted: ['A'], evidence: 27,
       explanation: {
-        zh: '定位句 27：the person recording the results did not know which condition each participant was in, so the scoring stayed blind。记录者不知分组，评分保持盲态，对应 A。',
-        en: 'Sentence 27: "the person recording the results did not know which condition each participant was in, so the scoring stayed blind". Blind recording matches A.',
+        zh: '定位句 27：The recorder did not know each participant’s condition, so scoring stayed blind。记录者不知分组，评分保持盲态，对应 A。',
+        en: 'Sentence 27: "The recorder did not know each participant’s condition, so scoring stayed blind". Blind recording matches A.',
       },
     },
     {

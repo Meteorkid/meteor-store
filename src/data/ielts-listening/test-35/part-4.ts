@@ -192,7 +192,7 @@ export const test35Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Coffee houses offered a neutral room where people could meet without going to a private home.' },
     { speaker: 'lecturer', text: 'Some early business agreements were reached over a cup, and writers drafted articles in the same rooms.' },
     { speaker: 'lecturer', text: 'The drink moved along the same routes that carried goods, letters and ideas between continents.' },
-    { speaker: 'lecturer', text: 'What is the main point of this short history?' },
+    { speaker: 'lecturer', text: 'The thread running through this history is exchange, not a single place of origin.' },
     { speaker: 'lecturer', text: 'Coffee history reflects global exchange and urban culture, rather than the story of one single place.' },
     { speaker: 'lecturer', text: 'The plant, the traders, the ports and the city rooms all shaped the drink we know today.' },
     { speaker: 'lecturer', text: 'Modern coffee still carries traces of this long route, from the bean origin to the roasting table.' },

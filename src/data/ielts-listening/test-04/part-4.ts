@@ -211,7 +211,7 @@ export const test04Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Its real importance was practical. It made the written record light, portable and affordable.' },
     { speaker: 'lecturer', text: 'Without paper, the later spread of printing, schooling and public debate would have been far slower.' },
     { speaker: 'lecturer', text: 'Next week we will look at how the printing press changed the cost of books.' },
-    { speaker: 'lecturer', text: 'Thank you for listening.' },
+    { speaker: 'lecturer', text: 'That is all for today. We will continue the topic next week.' },
   ],
   vocabulary: [
     {

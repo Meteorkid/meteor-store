@@ -145,8 +145,8 @@ export const test41Part2: ListeningLesson = {
     {
       number: 20, accepted: ['B'], evidence: 35,
       explanation: {
-        zh: '定位句 35：Helpers take home a small share of the herbs and fruit they help to grow。志愿者能分到一小份产出，对应 B。A 的有偿工资与句 36 的 no paid wage 相反，C 的工具带走与 borrow tools on site 相反。',
-        en: 'Sentence 35: "Helpers take home a small share of the herbs and fruit they help to grow". Volunteers take a small share of produce, matching B. A paid wage contradicts no paid wage, and keeping tools contradicts borrowing them on site.',
+        zh: '定位句 35：Helpers take home a small share of the produce, the herbs and fruit they help to grow。志愿者能分到一小份产出，对应 B。A 的有偿工资与句 36 的 no paid wage 相反，C 的工具带走与 borrow tools on site 相反。',
+        en: 'Sentence 35: "Helpers take home a small share of the produce, the herbs and fruit they help to grow". Volunteers take a small share of produce, matching B. A paid wage contradicts no paid wage, and keeping tools contradicts borrowing them on site.',
       },
     },
   ],

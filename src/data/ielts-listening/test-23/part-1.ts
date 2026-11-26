@@ -137,8 +137,8 @@ export const test23Part1: ListeningLesson = {
     {
       number: 9, accepted: ['eleven thirty'], evidence: 32,
       explanation: {
-        zh: '定位句 32：Then on Friday you meet her key worker … at eleven thirty in the small office。首列 Meeting with key worker、星期 Friday 已给出，缺的是时间；二十分钟是会面时长，不是时间点。',
-        en: 'Sentence 32: "Then on Friday you meet her key worker … at eleven thirty in the small office". Meeting with key worker and Friday are printed, so the missing item is the time. Twenty minutes is the meeting length, not the time itself.',
+        zh: '定位句 32：Then on Friday you meet her key worker for about twenty minutes, at eleven thirty in the small office off the main hall。首列 Meeting with key worker、星期 Friday 已给出，缺的是时间；二十分钟是会面时长，不是时间点。',
+        en: 'Sentence 32: "Then on Friday you meet her key worker for about twenty minutes, at eleven thirty in the small office off the main hall.". Meeting with key worker and Friday are printed, so the missing item is the time. Twenty minutes is the meeting length, not the time itself.',
       },
     },
     {
@@ -197,7 +197,7 @@ export const test23Part1: ListeningLesson = {
     { speaker: 'adviser', text: 'Perfect. Your details are Barnes, starting the fourth of September, thirty-five pound registration fee.' },
     { speaker: 'parent', text: 'That all matches what we discussed.' },
     { speaker: 'adviser', text: 'I’ll send the confirmation this afternoon. Is there anything else?' },
-    { speaker: 'parent', text: 'No, that’s everything. Thanks very much for your help.' },
+    { speaker: 'parent', text: 'No, that covers it. Thanks for being so patient with the paperwork.' },
     { speaker: 'adviser', text: 'You’re welcome. I look forward to meeting Elena.' },
   ],
   vocabulary: [

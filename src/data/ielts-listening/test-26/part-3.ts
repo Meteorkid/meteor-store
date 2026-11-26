@@ -1,7 +1,7 @@
 import type { ListeningLesson } from '@/lib/ielts-listening/types';
 
 /**
- * Practice Test 26 · Part 3 — 旅游统计评析（两人讨论，新西兰 + 爱尔兰口音）。原创仿真材料，非官方真题。
+ * Practice Test 26 · Part 3 — 旅游统计评析（两人讨论，新西兰 + 英国口音）。原创仿真材料，非官方真题。
  *
  * 讨论顺序：口径差异 → 季节性偏差 → 可比性存疑 → 图表误读提醒 → 选题理由与共同弱点 →
  * 提纲要求 → 安全结论边界（多选 28–30）。配对 21–24 先于单选 25–27，多选最后。
@@ -15,11 +15,11 @@ export const test26Part3: ListeningLesson = {
     zh: '两名学生评析两个滨海城镇的旅游数据：指出两镇计数口径不同，季节性高峰扭曲年度对比，质疑两份调查是否可比，并提醒不要仅凭单一图表趋势下结论；确定提纲要素，梳理可以安全陈述的结论边界。',
     en: 'Two students review tourism data for two coastal towns: flagging different counting rules, seasonal peaks that distort annual comparison, doubts about comparability, and warnings against overreading one chart trend; they settle the outline elements and the safe conclusions.',
   },
-  accent: { zh: 'Liam 为新西兰口音，Emily 为爱尔兰口音，两人语速中等。', en: 'Liam speaks with a New Zealand accent and Emily with an Irish accent, both at a moderate pace.' },
+  accent: { zh: 'Liam 为新西兰口音，Emily 为英国口音，两人语速中等。', en: 'Liam speaks with a New Zealand accent and Emily with a British accent, both at a moderate pace.' },
   speechRate: '+2%',
   cast: [
     { id: 'liam', label: 'LIAM', gender: 'male', voice: 'en-NZ-MitchellNeural' },
-    { id: 'emily', label: 'EMILY', gender: 'female', voice: 'en-IE-EmilyNeural' },
+    { id: 'emily', label: 'EMILY', gender: 'female', voice: 'en-GB-SoniaNeural' },
   ],
   sections: [
     {
@@ -113,7 +113,7 @@ export const test26Part3: ListeningLesson = {
     {
       number: 24, accepted: ['D'], evidence: 12,
       explanation: {
-        zh: '定位句 12：A single upward trend on one chart should not be read as proof of a steady market recovery。Emily 提醒不要过度解读单条图表趋势，对应 D。',
+        zh: '定位句 12：A single upward trend on one chart should not be read as proof of a lasting market recovery。Emily 提醒不要过度解读单条图表趋势，对应 D。',
         en: 'Sentence 12: "A single upward trend on one chart should not be read as proof", matching D.',
       },
     },
@@ -127,8 +127,8 @@ export const test26Part3: ListeningLesson = {
     {
       number: 26, accepted: ['A'], evidence: 22,
       explanation: {
-        zh: '定位句 22：the sample and the counting rules differ between the two years。共同弱点是抽样框与计数口径跨年不同，对应 A。B 的线条颜色、C 的漏掉海外游客均未被列为弱点。',
-        en: 'Sentence 22: "the sample and the counting rules differ between the two years", matching A. Line colours and missing overseas visitors are not raised as weaknesses.',
+        zh: '定位句 22：the sample and the counting rules are not the same across the two years。共同弱点是抽样框与计数口径跨年不同，对应 A。B 的线条颜色、C 的漏掉海外游客均未被列为弱点。',
+        en: 'Sentence 22: "the sample and the counting rules are not the same across the two years", matching A. Line colours and missing overseas visitors are not raised as weaknesses.',
       },
     },
     {
@@ -173,17 +173,17 @@ export const test26Part3: ListeningLesson = {
     { speaker: 'liam', text: 'Given those differences, I doubt the two surveys are comparable in a strict sense.' },
     { speaker: 'emily', text: 'We can still describe each town on its own terms, but we should not rank them directly.' },
     { speaker: 'liam', text: 'The chart we were given plots monthly visitors on one line.' },
-    { speaker: 'emily', text: 'A single upward trend on one chart should not be read as proof of a steady market recovery.' },
+    { speaker: 'emily', text: 'A single upward trend on one chart should not be read as proof of a lasting market recovery.' },
     { speaker: 'liam', text: 'Exactly. One good season may reflect cheaper ferry tickets rather than a lasting rise.' },
-    { speaker: 'emily', text: 'So where should our review start?' },
+    { speaker: 'emily', text: 'Which part of the review should we tackle first?' },
     { speaker: 'liam', text: 'I want to separate facts the table records from claims the travel brochure makes.' },
     { speaker: 'emily', text: 'Tell me why you picked these two towns for the review.' },
     { speaker: 'liam', text: 'Their visitor base differs most clearly, which lets us practise comparing definitions rather than totals.' },
     { speaker: 'emily', text: 'What about the weaknesses anyone should spot first?' },
     { speaker: 'liam', text: 'The sample frames overlap only slightly, and neither survey records spending per visit.' },
-    { speaker: 'emily', text: 'I noticed that too. The figures mix arrivals with people who returned more than once.' },
+    { speaker: 'emily', text: 'I noticed that as well. The figures mix arrivals with people who returned more than once.' },
     { speaker: 'liam', text: 'The month split is uneven, with four summer weeks carrying most of the annual count.' },
-    { speaker: 'emily', text: 'We agree the main weakness is that the sample and the counting rules differ between the two years.' },
+    { speaker: 'emily', text: 'We agree the main weakness is that the sample and the counting rules are not the same across the two years.' },
     { speaker: 'liam', text: 'Should we write that as a direct criticism?' },
     { speaker: 'emily', text: 'Keep it fair. Say what limits the comparison, rather than calling the data useless.' },
     { speaker: 'liam', text: 'Fair enough. What does the tutor expect in the review outline?' },
@@ -202,8 +202,8 @@ export const test26Part3: ListeningLesson = {
     { speaker: 'emily', text: 'Nor can we say all tourists came from overseas markets; most respondents were local or domestic.' },
     { speaker: 'liam', text: 'And the sample size difference between years is a limitation, not a finding we highlight as a result.' },
     { speaker: 'emily', text: 'Good. The three safe parts are the summer rise, the steady spend, and the need for a full year.' },
-    { speaker: 'liam', text: 'Let me write those down before I forget.' },
-    { speaker: 'emily', text: 'How long do we have for the reading note?' },
+    { speaker: 'liam', text: 'I want to note those points before they slip.' },
+    { speaker: 'emily', text: 'What is the reading note’s word limit?' },
     { speaker: 'liam', text: 'The draft review is due in two weeks, and the outline next Friday.' },
     { speaker: 'emily', text: 'Then we split the work after the outline is accepted.' },
     { speaker: 'liam', text: 'I can draft the definition section, and you check the spending figures.' },
@@ -211,8 +211,8 @@ export const test26Part3: ListeningLesson = {
     { speaker: 'liam', text: 'Did you find any notes on how the surveys were collected?' },
     { speaker: 'emily', text: 'One was run at the car park, the other at the reception desk, which explains the sample bias.' },
     { speaker: 'liam', text: 'We could mention that in the data discussion.' },
-    { speaker: 'emily', text: 'The timetable says the tutor wants a spoken follow-up after the written review.' },
-    { speaker: 'liam', text: 'I will prepare two questions she might ask about the sample.' },
+    { speaker: 'emily', text: 'The tutor asks for a short spoken follow-up once the written review is in.' },
+    { speaker: 'liam', text: 'I will prepare two questions about the visitor sample.' },
     { speaker: 'emily', text: 'Cite each survey by its report reference, not by the brochure page.' },
     { speaker: 'liam', text: 'The reading list marks which sources are open access for the course.' },
     { speaker: 'emily', text: 'Check whether any figures are repeated without a record behind them.' },
@@ -221,12 +221,12 @@ export const test26Part3: ListeningLesson = {
     { speaker: 'liam', text: 'Only briefly, which is why the counting difference is worth raising.' },
     { speaker: 'emily', text: 'Separate the figures the tables prove from the authors’ own interpretation.' },
     { speaker: 'liam', text: 'That keeps the review analytical rather than descriptive.' },
-    { speaker: 'emily', text: 'Let me reread the last section before we compare notes again.' },
+    { speaker: 'emily', text: 'Let me go over the final section once more before we compare.' },
     { speaker: 'liam', text: 'I will read the chapter on tourism trends tonight.' },
-    { speaker: 'emily', text: 'Meet me by the library entrance after your tutorial.' },
+    { speaker: 'emily', text: 'I will wait by the library steps after your tutorial.' },
     { speaker: 'liam', text: 'One more thing. Should we quote the ferry ticket prices?' },
     { speaker: 'emily', text: 'Only if a report backs the figure; otherwise leave it out.' },
-    { speaker: 'liam', text: 'Understood. I will keep the review close to the evidence.' },
+    { speaker: 'liam', text: 'Agreed. I will keep the review close to the evidence.' },
     { speaker: 'emily', text: 'Good. We can refine the outline once both sections are done.' },
   ],
   vocabulary: [
