@@ -13,6 +13,8 @@
  */
 export type FocusModeScope = 'learning' | 'reading' | 'writing';
 
+const LOCALE_PREFIX_ROUTE = /^\/(?:zh|en)(?=\/|$)/;
+
 export const LEARNING_FOCUS_ROUTE = /^\/(?:study|pathfinder|competitions|masters|phd)(?:\/|$)/;
 
 const WRITING_FOCUS_ROUTE = /^\/blog\/submit\/?$/;
@@ -40,7 +42,23 @@ export const FOCUS_MODE_PATH_REGEX = new RegExp(`^(?:${FOCUS_MODE_PATH_PATTERN})
 export const LEARNING_FOCUS_STORAGE_KEY = 'meteor:focus-mode';
 
 export function normalizeFocusPath(pathname: string): string {
-  return pathname.replace(/^\/(?:zh|en)(?=\/|$)/, '') || '/';
+  return pathname.replace(LOCALE_PREFIX_ROUTE, '') || '/';
+}
+
+/**
+ * 根布局首屏内联脚本。
+ *
+ * 这里复用上面的正则 source，而不是在布局里手写一份字面量：内联脚本里少一个
+ * 斜杠就会让整段脚本 SyntaxError，控制台报错但页面照常渲染，很容易漏掉。
+ */
+export function buildFocusModeBootstrapScript(): string {
+  return `try{var p=(location.pathname||'').replace(new RegExp(${JSON.stringify(
+    LOCALE_PREFIX_ROUTE.source,
+  )}),'');var r=new RegExp('^(?:${FOCUS_MODE_PATH_PATTERN})');if(r.test(p)&&localStorage.getItem('meteor:focus-mode')==='on'){var s=new RegExp(${JSON.stringify(
+    WRITING_FOCUS_ROUTE.source,
+  )}).test(p)?'writing':new RegExp(${JSON.stringify(
+    LEARNING_FOCUS_ROUTE.source,
+  )}).test(p)?'learning':'reading';document.documentElement.dataset.focusMode='on';document.documentElement.dataset.focusScope=s}}catch(e){}`;
 }
 
 export function getFocusModeScope(pathname: string): FocusModeScope | null {
