@@ -88,10 +88,10 @@ export const test02Part3: ListeningLesson = {
   ],
   answers: [
     {
-      number: 21, accepted: ['B'], evidence: 4,
+      number: 21, accepted: ['B'], evidence: 5,
       explanation: {
-        zh: '定位句 4：Yes, I’ve been meaning to raise it for weeks。Oliver 自己早就想提这个题目，下一句说他每天看到学生倒掉大半盘食物；C 在句 10 被否定（从没向学生会申请，也不需要经费）。',
-        en: 'Sentence 4: "Yes, I’ve been meaning to raise it for weeks". Oliver had noticed it himself; C is ruled out when Mei says she never asked the union and they do not need a grant.',
+        zh: '定位句 5：Every day I watch students tip half a tray of chips and rice into the bin。Oliver 每天亲眼看到浪费，第 6 句 Me too 说明 Mei 也注意到了，所以是两人都注意到；C 在句 10 被否定（从没向学生会申请，也不需要经费）。',
+        en: 'Sentence 5: "Every day I watch students tip half a tray of chips and rice into the bin". Oliver had seen the waste himself, and Mei’s "Me too" in sentence 6 shows she had noticed it as well; C is ruled out when Mei says she never asked the union and they do not need a grant.',
       },
     },
     {
@@ -151,10 +151,10 @@ export const test02Part3: ListeningLesson = {
       },
     },
     {
-      number: 30, accepted: ['C'], evidence: 65,
+      number: 30, accepted: ['C'], evidence: 63,
       explanation: {
-        zh: '定位句 65：Showing the daily weight of waste on a screen, so that everyone can see it。最后一句总结三条：portions、trays and the display。D、E、F 都在中间被逐一否定。',
-        en: 'Sentence 65: "Showing the daily weight of waste on a screen, so that everyone can see it". Mei then sums up three recommendations: portions, trays and the display. D, E and F are each rejected on the way.',
+        zh: '定位句 63：Showing the daily weight of waste on a screen, so that everyone can see it。这是三条建议中的 display；第 65 句总结为 portions、trays and the display。D、E、F 都在中间被逐一否定。',
+        en: 'Sentence 63: "Showing the daily weight of waste on a screen, so that everyone can see it". This is the display recommendation; sentence 65 sums up portions, trays and the display. D, E and F are each rejected on the way.',
       },
     },
   ],

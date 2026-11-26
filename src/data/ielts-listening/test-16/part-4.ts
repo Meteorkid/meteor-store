@@ -121,10 +121,10 @@ export const test16Part4: ListeningLesson = {
       },
     },
     {
-      number: 37, accepted: ['A'], evidence: 33,
+      number: 37, accepted: ['A'], evidence: 34,
       explanation: {
-        zh: '定位句 33：self-service removed much of the manual handling，句 34 补充店员可专注收银与过道，不必逐件取货，对应 A。B 的减少包装、C 的刷卡支付均未提及。',
-        en: 'Sentence 33: self-service removed much manual handling, and sentence 34 lets the assistant focus on till and aisles, matching A. Less wrapping and card payment are not mentioned.',
+        zh: '定位句 34：The assistant could focus on the till and the aisles instead of fetching goods from shelves。句 33 先说自助模式减少了人工搬运，句 34 具体说明一名店员可守收银与过道、不必逐件取货，对应 A。B 的减少包装、C 的刷卡支付均未提及。',
+        en: 'Sentence 34: "The assistant could focus on the till and the aisles instead of fetching goods from shelves". Sentence 33 says self-service removed much manual handling; sentence 34 spells out that one assistant no longer had to fetch each item, matching A. Less wrapping and card payment are not mentioned.',
       },
     },
     {
@@ -142,10 +142,10 @@ export const test16Part4: ListeningLesson = {
       },
     },
     {
-      number: 40, accepted: ['B'], evidence: 39,
+      number: 40, accepted: ['B'], evidence: 40,
       explanation: {
-        zh: '定位句 39：These changes did more than change where people bought food. 句 40 总结改变了饮食、购物频率与城镇商铺道路布局，对应 B。A 的终结城乡贸易与 C 的减少用车均与原文相反。',
-        en: 'Sentence 39: the changes went beyond where food was bought, and sentence 40 sums up diets, shopping frequency and town layout, matching B. Ending rural trade and cutting car journeys contradict the lecture.',
+        zh: '定位句 40：They altered what families ate, how often they shopped, and how towns arranged their shops and roads。这句直接总结饮食、购物频率与城镇布局三方面变化，对应 B。第 39 句只是引出“不止改变了购买地点”。A 的终结城乡贸易与 C 的减少用车均与原文相反。',
+        en: 'Sentence 40: "They altered what families ate, how often they shopped, and how towns arranged their shops and roads". This directly sums up diets, shopping frequency and town layout, matching B. Sentence 39 only introduces that the changes went beyond where food was bought. Ending rural trade and cutting car journeys contradict the lecture.',
       },
     },
   ],

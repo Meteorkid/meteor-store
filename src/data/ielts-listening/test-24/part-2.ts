@@ -119,45 +119,45 @@ export const test24Part2: ListeningLesson = {
       },
     },
     {
-      number: 15, accepted: ['A'], evidence: 16,
+      number: 15, accepted: ['A'], evidence: 15,
       explanation: {
-        zh: '定位句 16：You will be given a broad chef’s knife; the small blade is only for herbs。硬菜用宽主厨刀，对应 A。小刀片只切香草，锯齿面包刀未提及。',
-        en: 'Sentence 16: a "broad chef’s knife" is provided, matching A. The small blade is for herbs only; the bread knife is not mentioned.',
+        zh: '定位句 15：You will be given a broad chef’s knife; the small blade is only for herbs。硬菜用宽主厨刀，对应 A。小刀片只切香草，锯齿面包刀未提及。',
+        en: 'Sentence 15: a "broad chef’s knife" is provided, matching A. The small blade is for herbs only; the bread knife is not mentioned.',
       },
     },
     {
-      number: 16, accepted: ['B'], evidence: 18,
+      number: 16, accepted: ['B'], evidence: 17,
       explanation: {
-        zh: '定位句 18：They grow in the school’s own window boxes, not the outside farm。香草来自学校窗台花箱，对应 B。城外农场供蔬菜，路边商店未提及。',
-        en: 'Sentence 18: herbs grow in "the school’s own window boxes, not the outside farm", matching B. The outside farm supplies vegetables; the corner shop is not mentioned.',
+        zh: '定位句 17：They grow in the school’s own window boxes, not the outside farm。香草来自学校窗台花箱，对应 B。城外农场供蔬菜，路边商店未提及。',
+        en: 'Sentence 17: herbs grow in "the school’s own window boxes, not the outside farm", matching B. The outside farm supplies vegetables; the corner shop is not mentioned.',
       },
     },
     {
-      number: 17, accepted: ['B'], evidence: 20,
+      number: 17, accepted: ['B'], evidence: 19,
       explanation: {
-        zh: '定位句 20：Three people to a group, rotating roles so everyone chops and stirs once。每组三人，对应 B。四是组数，不是每组人数。',
-        en: 'Sentence 20: "three people to a group", matching B. Four is the number of groups, not the size of each group.',
+        zh: '定位句 19：Three people to a group, rotating roles so everyone chops and stirs once。每组三人，对应 B。四是组数，不是每组人数。',
+        en: 'Sentence 19: "three people to a group", matching B. Four is the number of groups, not the size of each group.',
       },
     },
     {
-      number: 18, accepted: ['B'], evidence: 22,
+      number: 18, accepted: ['B'], evidence: 21,
       explanation: {
-        zh: '定位句 22：Leftover sauce can be poured into your jar; we do not throw cooked food away。剩酱装进自己的罐子，对应 B。A 的丢弃与原文相反，留给下一班未提及。',
-        en: 'Sentence 22: leftover sauce "can be poured into your jar", matching B. Throwing food away contradicts the transcript, and keeping it for the next class is not mentioned.',
+        zh: '定位句 21：Leftover sauce can be poured into your jar; we do not throw cooked food away。剩酱装进自己的罐子，对应 B。A 的丢弃与原文相反，留给下一班未提及。',
+        en: 'Sentence 21: leftover sauce "can be poured into your jar", matching B. Throwing food away contradicts the transcript, and keeping it for the next class is not mentioned.',
       },
     },
     {
-      number: 19, accepted: ['A'], evidence: 25,
+      number: 19, accepted: ['A'], evidence: 24,
       explanation: {
-        zh: '定位句 25：The prep role washes and chops the vegetables before anything goes near the heat。备料岗洗菜切菜，对应 A。',
-        en: 'Sentence 25: the prep role "washes and chops the vegetables", matching A.',
+        zh: '定位句 24：The prep role washes and chops the vegetables before anything goes near the heat。备料岗洗菜切菜，对应 A。',
+        en: 'Sentence 24: the prep role "washes and chops the vegetables", matching A.',
       },
     },
     {
-      number: 20, accepted: ['B'], evidence: 26,
+      number: 20, accepted: ['B'], evidence: 25,
       explanation: {
-        zh: '定位句 26：The stove role manages the heat on the burner and stirs the sauce steadily。炉灶岗控火搅拌，对应 B。装盘、写菜谱卡是干扰项。',
-        en: 'Sentence 26: the stove role "manages the heat on the burner", matching B. Plating and recipe cards are distractors.',
+        zh: '定位句 25：The stove role manages the heat on the burner and stirs the sauce steadily。炉灶岗控火搅拌，对应 B。装盘、写菜谱卡是干扰项。',
+        en: 'Sentence 25: the stove role "manages the heat on the burner", matching B. Plating and recipe cards are distractors.',
       },
     },
   ],

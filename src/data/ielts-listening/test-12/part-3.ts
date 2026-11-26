@@ -107,10 +107,10 @@ export const test12Part3: ListeningLesson = {
       },
     },
     {
-      number: 23, accepted: ['C'], evidence: 14,
+      number: 23, accepted: ['C'], evidence: 17,
       explanation: {
-        zh: '定位句 14：Each intern is paired with a named mentor from the research group。Aria 关心有人带教，主管说明每位实习生都有指定导师，对应 C。',
-        en: 'Sentence 14: "Each intern is paired with a named mentor from the research group". Aria worries about being left alone, and the supervisor explains the named mentor, matching C.',
+        zh: '定位句 17：Each intern is paired with a named mentor from the research group。Aria 关心有人带教，主管说明每位实习生都有指定导师，对应 C。',
+        en: 'Sentence 17: "Each intern is paired with a named mentor from the research group". Aria worries about being left alone, and the supervisor explains the named mentor, matching C.',
       },
     },
     {

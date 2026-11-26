@@ -122,10 +122,10 @@ export const test43Part3: ListeningLesson = {
       },
     },
     {
-      number: 26, accepted: ['B'], evidence: 28,
+      number: 26, accepted: ['B'], evidence: 29,
       explanation: {
-        zh: '定位句 28：Sonia 用 Actually 提出 could I do the summary，导师句 29 确认 Sonia writes the report。数据摘要归 Sonia，对应 B；Ava 句 27 的提议被这次修正取代。',
-        en: 'Sentence 28: Sonia asks "could I do the summary" with Actually, and the tutor confirms in sentence 29 that Sonia writes the summary. The task goes to Sonia, matching B. Ava’s earlier offer in sentence 27 is replaced by this correction.',
+        zh: '定位句 29：That’s settled. Sonia writes the summary, Ava keeps the charging records。导师明确把摘要交给 Sonia，对应 B；Sonia 在第 28 句用 Actually 提出接手，Ava 句 27 的提议被这次修正取代。',
+        en: 'Sentence 29: "That’s settled. Sonia writes the summary, Ava keeps the charging records". The tutor gives the summary to Sonia, matching B. Sonia raised the change with Actually in sentence 28, replacing Ava’s offer in sentence 27.',
       },
     },
     {

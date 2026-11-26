@@ -133,24 +133,24 @@ export const test39Part4: ListeningLesson = {
       },
     },
     {
-      number: 38, accepted: ['A'], evidence: 49,
+      number: 38, accepted: ['A'], evidence: 50,
       explanation: {
-        zh: '定位句 49：First, seal gaps around doors, where speech often leaks between rooms。第一项措施是封闭门缝，对应 A。',
-        en: 'Sentence 49: "First, seal gaps around doors, where speech often leaks between rooms". The first measure is sealing door gaps, matching A.',
+        zh: '定位句 50：First, seal gaps around doors, where speech often leaks between rooms。第一项措施是封闭门缝，对应 A。',
+        en: 'Sentence 50: "First, seal gaps around doors, where speech often leaks between rooms". The first measure is sealing door gaps, matching A.',
       },
     },
     {
-      number: 39, accepted: ['B'], evidence: 50,
+      number: 39, accepted: ['B'], evidence: 51,
       explanation: {
-        zh: '定位句 50：Second, add mass to party walls, using dense layers on each side of the division。第二项是给分户墙增加质量，对应 B。',
-        en: 'Sentence 50: "Second, add mass to party walls, using dense layers on each side of the division". The second measure adds mass to party walls, matching B.',
+        zh: '定位句 51：Second, add mass to party walls, using dense layers on each side of the division。第二项是给分户墙增加质量，对应 B。',
+        en: 'Sentence 51: "Second, add mass to party walls, using dense layers on each side of the division". The second measure adds mass to party walls, matching B.',
       },
     },
     {
-      number: 40, accepted: ['C'], evidence: 51,
+      number: 40, accepted: ['C'], evidence: 52,
       explanation: {
-        zh: '定位句 51：Third, install sound-absorbing ceiling tiles to soften echo inside the shared space。第三项是吸声吊顶板，对应 C。',
-        en: 'Sentence 51: "Third, install sound-absorbing ceiling tiles to soften echo inside the shared space". The third measure is absorbing ceiling tiles, matching C.',
+        zh: '定位句 52：Third, install sound-absorbing ceiling tiles to soften echo inside the shared space。第三项是吸声吊顶板，对应 C。',
+        en: 'Sentence 52: "Third, install sound-absorbing ceiling tiles to soften echo inside the shared space". The third measure is absorbing ceiling tiles, matching C.',
       },
     },
   ],

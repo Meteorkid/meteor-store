@@ -122,17 +122,17 @@ export const test45Part1: ListeningLesson = {
       },
     },
     {
-      number: 7, accepted: ['A'], evidence: 17,
+      number: 7, accepted: ['A'], evidence: 21,
       explanation: {
-        zh: '定位句 17：It is the cheapest close option, and it has covered bays for most of the day。north 车场胜在近且便宜、车位有顶棚，对应 A。B 错在接驳车属于 south 车场，C 错在它并非只留给过夜到达旅客。',
-        en: 'Sentence 17: "It is the cheapest close option, and it has covered bays for most of the day". The north park is cheap, close and covered, matching A. B wrongly attributes the shuttle to it, and C wrongly limits it to overnight arrivals.',
+        zh: '定位句 21：It is the cheapest close option, and it has covered bays for most of the day。north 车场胜在近且便宜、车位有顶棚，对应 A。B 错在接驳车属于 south 车场，C 错在它并非只留给过夜到达旅客。',
+        en: 'Sentence 21: "It is the cheapest close option, and it has covered bays for most of the day". The north park is cheap, close and covered, matching A. B wrongly attributes the shuttle to it, and C wrongly limits it to overnight arrivals.',
       },
     },
     {
-      number: 8, accepted: ['B'], evidence: 21,
+      number: 8, accepted: ['B'], evidence: 25,
       explanation: {
-        zh: '定位句 21：The attendant at the booth collects and holds them until your return flight。钥匙由 booth 工作人员收走保管，对应 B。A 的密封信封、C 的锁在车内都与原文规则相反。',
-        en: 'Sentence 21: "The attendant at the booth collects and holds them until your return flight". The attendant collects and keeps the keys, matching B. The sealed envelope in A and locking them in the car in C both contradict the rule.',
+        zh: '定位句 25：The attendant at the booth collects and holds them until your return flight。钥匙由 booth 工作人员收走保管，对应 B。A 的密封信封、C 的锁在车内都与原文规则相反。',
+        en: 'Sentence 25: "The attendant at the booth collects and holds them until your return flight". The attendant collects and keeps the keys, matching B. The sealed envelope in A and locking them in the car in C both contradict the rule.',
       },
     },
     {

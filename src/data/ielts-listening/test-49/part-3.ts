@@ -155,10 +155,10 @@ export const test49Part3: ListeningLesson = {
       },
     },
     {
-      number: 30, accepted: ['E'], evidence: 60,
+      number: 30, accepted: ['E'], evidence: 59,
       explanation: {
-        zh: '定位句 60：Compare our counts with neighbouring volunteers at nearby sites。第三项保留的是与邻近志愿者的计数互相比较；句 62 说未识别的飞鸟不能直接忽略。',
-        en: 'Sentence 60: "Compare our counts with neighbouring volunteers at nearby sites". The third kept control compares counts with neighbouring volunteers. Sentence 62 states that unidentified flyovers must not be ignored.',
+        zh: '定位句 59：Compare our counts with neighbouring volunteers at nearby sites。第三项保留的是与邻近志愿者的计数互相比较；句 62 说未识别的飞鸟不能直接忽略。',
+        en: 'Sentence 59: "Compare our counts with neighbouring volunteers at nearby sites". The third kept control compares counts with neighbouring volunteers. Sentence 62 states that unidentified flyovers must not be ignored.',
       },
     },
   ],

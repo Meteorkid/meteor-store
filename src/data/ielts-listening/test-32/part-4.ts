@@ -93,10 +93,10 @@ export const test32Part4: ListeningLesson = {
       },
     },
     {
-      number: 33, accepted: ['B'], evidence: 16,
+      number: 33, accepted: ['B'], evidence: 17,
       explanation: {
-        zh: '定位句 16：Parasitoid wasps find a host such as a caterpillar and lay their eggs inside its body；句 17 补充 it protects the young until they are ready to feed and emerge。产卵于宿主体内是为保护幼虫到取食羽化阶段，对应 B。A 的领地标记与 C 的招引配偶未提及。',
-        en: 'Sentence 16: "Parasitoid wasps find a host such as a caterpillar and lay their eggs inside its body"; sentence 17 adds "it protects the young until they are ready to feed and emerge". Eggs protect the young until feeding and emergence, matching B. Territory marking and mate attraction are not mentioned.',
+        zh: '定位句 17：This seems cruel, but it protects the young until they are ready to feed and emerge。第 16 句先说黄蜂把卵产在毛毛虫体内，第 17 句说明这样做的目的是保护幼虫直到能取食并羽化，对应 B。A 的领地标记与 C 的招引配偶未提及。',
+        en: 'Sentence 17: "This seems cruel, but it protects the young until they are ready to feed and emerge". Sentence 16 first says the wasp lays eggs inside a caterpillar; sentence 17 explains that this protects the young until they can feed and emerge, matching B. Territory marking and mate attraction are not mentioned.',
       },
     },
     {

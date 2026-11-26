@@ -118,45 +118,45 @@ export const test16Part3: ListeningLesson = {
       },
     },
     {
-      number: 25, accepted: ['B'], evidence: 20,
+      number: 25, accepted: ['B'], evidence: 21,
       explanation: {
-        zh: '定位句 20：Revision advice already exists, and few podcasts look at fatigue on campus。校园疲惫少有人做，对应 B。A 的课程要求、C 的医学院委托均未提及。',
-        en: 'Sentence 20: revision advice exists, and "few podcasts look at fatigue on campus", matching B. A course requirement and a medical school request are not mentioned.',
+        zh: '定位句 21：Revision advice already exists, and few podcasts look at fatigue on campus。校园疲惫少有人做，对应 B。A 的课程要求、C 的医学院委托均未提及。',
+        en: 'Sentence 21: revision advice exists, and "few podcasts look at fatigue on campus", matching B. A course requirement and a medical school request are not mentioned.',
       },
     },
     {
-      number: 26, accepted: ['A'], evidence: 22,
+      number: 26, accepted: ['A'], evidence: 23,
       explanation: {
-        zh: '定位句 22：A public survey on sleep hours is the obvious source，对应 A。图书馆档案在句 5 只是待查项，日记研究还没开始做。',
-        en: 'Sentence 22: "A public survey on sleep hours is the obvious source", matching A. The library archive is still a check item in sentence 5, and the diary study has not begun.',
+        zh: '定位句 23：A public survey on sleep hours is the obvious source，对应 A。图书馆档案在句 5 只是待查项，日记研究还没开始做。',
+        en: 'Sentence 23: "A public survey on sleep hours is the obvious source", matching A. The library archive is still a check item in sentence 5, and the diary study has not begun.',
       },
     },
     {
-      number: 27, accepted: ['B'], evidence: 28,
+      number: 27, accepted: ['B'], evidence: 29,
       explanation: {
-        zh: '定位句 28：大纲要 main question、a short note on the research 和 a rough running order，对应 B。完整书目以后再补，专家访谈尚未完成。',
-        en: 'Sentence 28: the outline needs the main question, a research note and a rough running order, matching B. The full bibliography comes later, and the expert interview is unfinished.',
+        zh: '定位句 29：大纲要 main question、a short note on the research 和 a rough running order，对应 B。完整书目以后再补，专家访谈尚未完成。',
+        en: 'Sentence 29: the outline needs the main question, a research note and a rough running order, matching B. The full bibliography comes later, and the expert interview is unfinished.',
       },
     },
     {
-      number: 28, accepted: ['B'], evidence: 36,
+      number: 28, accepted: ['B'], evidence: 37,
       explanation: {
-        zh: '定位句 36：Ask both good and poor sleepers the same questions，对应 B。只问睡不好的人（A）正是句 35 指出的样本陷阱。',
-        en: 'Sentence 36: ask "both good and poor sleepers the same questions", matching B. Reaching only bad sleepers, A, is the trap in sentence 35.',
+        zh: '定位句 37：Ask both good and poor sleepers the same questions，对应 B。只问睡不好的人（A）正是句 35 指出的样本陷阱。',
+        en: 'Sentence 37: ask "both good and poor sleepers the same questions", matching B. Reaching only bad sleepers, A, is the trap in sentence 35.',
       },
     },
     {
-      number: 29, accepted: ['C'], evidence: 38,
+      number: 29, accepted: ['C'], evidence: 39,
       explanation: {
-        zh: '定位句 38：Record where each listener response comes from，对应 C。按院系或年级记录来源，才能检查分布。',
-        en: 'Sentence 38: "Record where each listener response comes from", matching C. Tracking by faculty or year lets them check the spread.',
+        zh: '定位句 39：Record where each listener response comes from，对应 C。按院系或年级记录来源，才能检查分布。',
+        en: 'Sentence 39: "Record where each listener response comes from", matching C. Tracking by faculty or year lets them check the spread.',
       },
     },
     {
-      number: 30, accepted: ['E'], evidence: 41,
+      number: 30, accepted: ['E'], evidence: 42,
       explanation: {
-        zh: '定位句 41：I’ll run a short pilot before the main series，对应 E。删除异常回复（D）在句 40 被否定，只采最忙自习室（F）在句 43 被否定。',
-        en: 'Sentence 41: a "short pilot before the main series", matching E. Cutting odd replies, D, is rejected in sentence 40, and the busiest study hall only, F, in sentence 43.',
+        zh: '定位句 42：I’ll run a short pilot before the main series，对应 E。删除异常回复（D）在句 40 被否定，只采最忙自习室（F）在句 43 被否定。',
+        en: 'Sentence 42: a "short pilot before the main series", matching E. Cutting odd replies, D, is rejected in sentence 40, and the busiest study hall only, F, in sentence 43.',
       },
     },
   ],
@@ -270,6 +270,14 @@ export const test16Part3: ListeningLesson = {
       listening: { zh: '复合词，重音在第一音节 /ˈaʊt/。', en: 'Compound with stress on the first part.' },
     },
     {
+      term: 'research', phonetic: '/rɪˈsɜːtʃ/', partOfSpeech: 'n.', sentenceIndex: 29,
+      meaning: { zh: '研究，调研', en: 'organized study of a subject to discover facts' },
+      usage: { zh: '不可数；do research、a note on the research。', en: 'Uncountable: do research, a note on the research.' },
+      collocations: ['background research', 'research question', 'do research'],
+      example: { en: 'The outline needs a short note on the research.', zh: '提纲要附一段研究说明。' },
+      listening: { zh: '重音在第二音节 /ˈsɜːtʃ/，结尾 /tʃ/ 清晰。', en: 'Stress the second syllable; the final /tʃ/ is clear.' },
+    },
+    {
       term: 'bias', phonetic: '/ˈbaɪəs/', partOfSpeech: 'n.', sentenceIndex: 35,
       meaning: { zh: '偏差，样本偏向', en: 'a tendency that makes feedback one-sided' },
       usage: { zh: '不可数；control bias、response bias。形容词 biased。', en: 'Uncountable: control bias, response bias; the adjective is biased.' },
@@ -278,7 +286,7 @@ export const test16Part3: ListeningLesson = {
       listening: { zh: '两个音节，与 by 同韵。', en: 'Two syllables, rhyming with by.' },
     },
     {
-      term: 'pilot', phonetic: '/ˈpaɪlət/', partOfSpeech: 'n.', sentenceIndex: 41,
+      term: 'pilot', phonetic: '/ˈpaɪlət/', partOfSpeech: 'n.', sentenceIndex: 42,
       meaning: { zh: '试播集，小规模预演', en: 'a short test episode before the main series' },
       usage: { zh: '可数；run a pilot、a pilot episode。', en: 'Countable: run a pilot, a pilot episode.' },
       collocations: ['a short pilot', 'the pilot episode', 'run a pilot'],

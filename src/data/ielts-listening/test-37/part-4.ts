@@ -94,10 +94,10 @@ export const test37Part4: ListeningLesson = {
       },
     },
     {
-      number: 33, accepted: ['B'], evidence: 20,
+      number: 33, accepted: ['B'], evidence: 18,
       explanation: {
-        zh: '定位句 20：This flaw is often called groupthink, and it appears in teams that value harmony too highly。看似一致的选择可能藏着未说出的疑虑与风险，对应 B。A 的书面异议拖慢投票与 C 的安静成员影响过大在录音中没有依据。',
-        en: 'Sentence 20: "This flaw is often called groupthink, and it appears in teams that value harmony too highly". A unanimous-looking choice hides doubts and risk, matching B. Written objections slowing votes and quiet members having too much influence are not claimed.',
+        zh: '定位句 18：A decision that feels unanimous may still rest on a few unspoken doubts。第 19 句补充，当所有人都不表态时，团队可能采取有风险的行动；看似一致的选择可能藏着未说出的疑虑与风险，对应 B。A 的书面异议拖慢投票与 C 的安静成员影响过大在录音中没有依据。',
+        en: 'Sentence 18: "A decision that feels unanimous may still rest on a few unspoken doubts". Sentence 19 adds that when everyone holds back disagreement, the group can commit to a risky course. A unanimous-looking choice hides doubts and risk, matching B. Written objections slowing votes and quiet members having too much influence are not claimed.',
       },
     },
     {

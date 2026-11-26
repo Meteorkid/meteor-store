@@ -99,10 +99,10 @@ export const test01Part3: ListeningLesson = {
       },
     },
     {
-      number: 22, accepted: ['C'], evidence: 16,
+      number: 22, accepted: ['C'], evidence: 14,
       explanation: {
-        zh: '定位句 16：Dan 承认 that seemed the simplest way at the time。前两句交代了做法：we took the first forty names，再把前二十人和后二十人分成两组。按报名顺序分组不是随机分组。',
-        en: 'Sentence 16: Dan admits "that seemed the simplest way at the time". The two sentences before explain it: they "took the first forty names" and split them in order. Taking names in order is not random assignment.',
+        zh: '定位句 14：They signed up on a sheet outside the library, and we took the first forty names。第 15 句再说明把前二十人分一组、后二十人分另一组；按报名顺序分组，不是随机分组。',
+        en: 'Sentence 14: "They signed up on a sheet outside the library, and we took the first forty names". Sentence 15 explains that the first twenty went into one group and the next twenty into the other. Taking names in order is not random assignment.',
       },
     },
     {
@@ -120,10 +120,10 @@ export const test01Part3: ListeningLesson = {
       },
     },
     {
-      number: 25, accepted: ['F'], evidence: 36,
+      number: 25, accepted: ['F'], evidence: 35,
       explanation: {
-        zh: '定位句 36：Then everyone knew what we were looking for。原因是前一句：报名表上写着 studying whether music helps people concentrate。参与者知道实验目的，对应 F。',
-        en: 'Sentence 36: "Then everyone knew what we were looking for". The sentence before explains why: the sign-up sheet said they were "studying whether music helps people concentrate". That matches F.',
+        zh: '定位句 35：It said we were studying whether music helps people concentrate。报名表写明研究目的，随后第 36 句说 everyone knew what we were looking for；参与者知道实验目的，对应 F。',
+        en: 'Sentence 35: "It said we were studying whether music helps people concentrate". The sign-up sheet stated the purpose, and sentence 36 adds that everyone knew what they were looking for. That matches F.',
       },
     },
     {

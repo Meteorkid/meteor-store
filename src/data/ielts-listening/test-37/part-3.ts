@@ -119,10 +119,10 @@ export const test37Part3: ListeningLesson = {
       },
     },
     {
-      number: 25, accepted: ['B'], evidence: 21,
+      number: 25, accepted: ['B'], evidence: 22,
       explanation: {
-        zh: '定位句 21：It claims cheap clothing pushes workers and communities to carry hidden costs。案例主张低价没有反映完整的环境与人力代价，对应 B。A 的缩短工时和 C 的本地回收面料在录音中均未出现。',
-        en: 'Sentence 21: "It claims cheap clothing pushes workers and communities to carry hidden costs". Low prices do not reflect the full human and environmental toll, matching B. Shorter hours and locally recycled fabric are not mentioned.',
+        zh: '定位句 22：Its main claim is that low prices do not reflect the full environmental toll。第 21 句补充低价让工人和社区承担 hidden costs，即人力代价；两句合起来对应 B。A 的缩短工时和 C 的本地回收面料在录音中均未出现。',
+        en: 'Sentence 22: "Its main claim is that low prices do not reflect the full environmental toll". Sentence 21 adds that cheap clothing pushes workers and communities to carry hidden costs, the human side; together they match B. Shorter hours and locally recycled fabric are not mentioned.',
       },
     },
     {

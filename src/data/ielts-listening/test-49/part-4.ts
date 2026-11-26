@@ -113,8 +113,8 @@ export const test49Part4: ListeningLesson = {
     {
       number: 35, accepted: ['A'], evidence: 36,
       explanation: {
-        zh: '定位句 36：It meets attackers before any chemical or partnership can react。第一道防线在化学物质和合作关系反应之前就挡住啃食者，对应 A。根部毒物和邻近昆虫合作都属于后面的层级。',
-        en: 'Sentence 36: "It meets attackers before any chemical or partnership can react". The first line meets attackers before chemistry or partnership can respond, matching A. Root poisons and insect partnerships belong to later layers.',
+        zh: '定位句 36：It meets attackers before any chemical or partnership can react。第一道防线是物理屏障，在化学物质和合作关系反应之前就挡住啃食者；前文第 6、8 句举了树皮 bark 与刺 thorns，对应 A。根部毒物和邻近昆虫合作都属于后面的层级。',
+        en: 'Sentence 36: "It meets attackers before any chemical or partnership can react". The first line is physical, meeting attackers before chemistry or partnership can respond; earlier sentences 6 and 8 give bark and thorns as examples, matching A. Root poisons and insect partnerships belong to later layers.',
       },
     },
     {

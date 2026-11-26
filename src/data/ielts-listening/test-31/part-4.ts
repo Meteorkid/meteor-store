@@ -122,31 +122,31 @@ export const test31Part4: ListeningLesson = {
       },
     },
     {
-      number: 37, accepted: ['A'], evidence: 38,
+      number: 37, accepted: ['A'], evidence: 37,
       explanation: {
-        zh: '定位句 38：Wind and solar output varies through the day and with the weather, so the grid cannot rely on them alone。可再生发电波动是储能存在的原因，对应 A。B 的燃煤夜间停产在句 39 被说成可稳定运行，C 的需求恒定与句 5 相反。',
-        en: 'Sentence 38: "Wind and solar output varies through the day and with the weather, so the grid cannot rely on them alone". Variable renewables match A. Coal in B can run steadily at night per sentence 39, and constant demand in C contradicts sentence 5.',
+        zh: '定位句 37：Wind and solar output varies through the day and with the weather, so the grid cannot rely on them alone。可再生发电波动是储能存在的原因，对应 A。B 的燃煤夜间停产在句 39 被说成可稳定运行，C 的需求恒定与句 5 相反。',
+        en: 'Sentence 37: "Wind and solar output varies through the day and with the weather, so the grid cannot rely on them alone". Variable renewables match A. Coal in B can run steadily at night per sentence 39, and constant demand in C contradicts sentence 5.',
       },
     },
     {
-      number: 38, accepted: ['B'], evidence: 43,
+      number: 38, accepted: ['B'], evidence: 42,
       explanation: {
-        zh: '定位句 43：Each unit holds a limited capacity, and adding more cells raises the cost quickly。电池时长限制来自单机容量，对应 B。A 的回收成本在句 44 被说成附加问题，C 的金属重量未被点名为主要限制。',
-        en: 'Sentence 43: "Each unit holds a limited capacity, and adding more cells raises the cost quickly". The limit is per-unit capacity, matching B. Recycling in A is an added issue in sentence 44, and metal weight in C is not named as the main limit.',
+        zh: '定位句 42：Each unit holds a limited capacity, and adding more cells raises the cost quickly。电池时长限制来自单机容量，对应 B。A 的回收成本在句 44 被说成附加问题，C 的金属重量未被点名为主要限制。',
+        en: 'Sentence 42: "Each unit holds a limited capacity, and adding more cells raises the cost quickly". The limit is per-unit capacity, matching B. Recycling in A is an added issue in sentence 44, and metal weight in C is not named as the main limit.',
       },
     },
     {
-      number: 39, accepted: ['B'], evidence: 45,
+      number: 39, accepted: ['B'], evidence: 44,
       explanation: {
-        zh: '定位句 45：Hydrogen, by contrast, is built for seasonal or long gaps rather than a short evening peak。氢储面向季节或长缺口，对应 B。A 的短峰值由电池承担，句 46 有说明；C 的小型手持设备在讲座中未涉及。',
-        en: 'Sentence 45: "Hydrogen, by contrast, is built for seasonal or long gaps rather than a short evening peak". Seasonal or long gaps match B. Short peaks in A go to batteries in sentence 46, and handheld devices in C are not discussed.',
+        zh: '定位句 44：Hydrogen, by contrast, is built for seasonal or long gaps rather than a short evening peak。氢储面向季节或长缺口，对应 B。A 的短峰值由电池承担，句 46 有说明；C 的小型手持设备在讲座中未涉及。',
+        en: 'Sentence 44: "Hydrogen, by contrast, is built for seasonal or long gaps rather than a short evening peak". Seasonal or long gaps match B. Short peaks in A go to batteries in sentence 46, and handheld devices in C are not discussed.',
       },
     },
     {
-      number: 40, accepted: ['A'], evidence: 47,
+      number: 40, accepted: ['A'], evidence: 46,
       explanation: {
-        zh: '定位句 47：Its need for suitable geography rules out many flat sites。抽水蓄能依赖合适地形，对应 A。B 的水全部流失与句 48 相反，C 的不能切换在句 48 被否定。',
-        en: 'Sentence 47: "Its need for suitable geography rules out many flat sites". Geography is the drawback, matching A. Losing all water in B contradicts sentence 48, and being unable to switch in C is rejected there too.',
+        zh: '定位句 46：Its need for suitable geography rules out many flat sites。抽水蓄能依赖合适地形，对应 A。B 的水全部流失与句 48 相反，C 的不能切换在句 48 被否定。',
+        en: 'Sentence 46: "Its need for suitable geography rules out many flat sites". Geography is the drawback, matching A. Losing all water in B contradicts sentence 48, and being unable to switch in C is rejected there too.',
       },
     },
   ],
