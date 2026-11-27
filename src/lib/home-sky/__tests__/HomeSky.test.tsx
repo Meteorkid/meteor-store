@@ -1,6 +1,12 @@
 import type { CSSProperties, ReactElement } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+async function settleEngine() {
+  await vi.advanceTimersByTimeAsync(SKY_INIT_DELAY_MS + 1);
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 type Effect = () => void | (() => void);
 const hooks = vi.hoisted(() => ({
   refs: [] as Array<{ current: unknown }>,
@@ -28,7 +34,7 @@ vi.mock('react', async importOriginal => ({
 }));
 vi.mock('@/lib/home-sky/engine', () => ({ createHomeSkyEngine: engine.create }));
 
-import HomeSky, { type HomeSkyProps } from '@/components/home/HomeSky';
+import HomeSky, { SKY_INIT_DELAY_MS, type HomeSkyProps } from '@/components/home/HomeSky';
 
 let stage: HTMLDivElement;
 let controllers: Array<{ setState: ReturnType<typeof vi.fn>; dispose: ReturnType<typeof vi.fn> }>;
@@ -47,6 +53,8 @@ function render(props: HomeSkyProps) {
 }
 
 beforeEach(() => {
+  vi.useFakeTimers();
+  vi.stubGlobal('requestIdleCallback', undefined);
   hooks.refs = [];
   hooks.effects = [];
   hooks.pending = [];
@@ -59,11 +67,17 @@ beforeEach(() => {
   });
 });
 
-afterEach(() => { hooks.effects.forEach(effect => effect.cleanup?.()); });
+afterEach(() => {
+  hooks.effects.forEach(effect => effect.cleanup?.());
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 
 describe('HomeSky组件生命周期', () => {
-  it('一个实例只创建一个engine，prop变化更新控制器而不重建背景', () => {
+  it('一个实例只创建一个engine，prop变化更新控制器而不重建背景', async () => {
     const node = render({ peopleVisible: false, paused: false, className: 'hero-sky' });
+    expect(engine.create).not.toHaveBeenCalled();
+    await settleEngine();
     expect(engine.create).toHaveBeenCalledExactlyOnceWith(stage, { paused: true }, null);
     expect(controllers[0].setState).toHaveBeenLastCalledWith({ peopleVisible: false, paused: false, interactionMode: 'follow', autoRotate: false, resetView: 0 });
     render({ peopleVisible: true, paused: true, className: 'hero-sky', interactionMode: 'drag', autoRotate: true, resetView: 2 });
@@ -75,21 +89,24 @@ describe('HomeSky组件生命周期', () => {
     expect(node.props.className).toBe('hero-sky');
   });
 
-  it('模拟StrictMode的setup→cleanup→setup，旧controller清理且新实例收到当前props', () => {
+  it('模拟StrictMode的setup→cleanup→setup，旧controller清理且新实例收到当前props', async () => {
     render({ peopleVisible: true, paused: true });
+    await settleEngine();
     const effects = [...hooks.effects];
     effects.forEach(effect => effect.cleanup?.());
     effects.forEach(effect => { effect.cleanup = effect.effect() || undefined; });
+    await settleEngine();
     expect(controllers).toHaveLength(2);
     expect(controllers[0].dispose).toHaveBeenCalledTimes(1);
     expect(controllers[1].dispose).not.toHaveBeenCalled();
     expect(controllers[1].setState).toHaveBeenLastCalledWith({ peopleVisible: true, paused: true, interactionMode: 'follow', autoRotate: false, resetView: 0 });
   });
 
-  it('把Hero交互面传入engine，模式变化不重新创建实例', () => {
+  it('把Hero交互面传入engine，模式变化不重新创建实例', async () => {
     const surface = {} as HTMLElement;
     const interactionRef = { current: surface };
     render({ peopleVisible: false, paused: true, interactionRef, interactionMode: 'off' });
+    await settleEngine();
     expect(engine.create).toHaveBeenCalledExactlyOnceWith(stage, { paused: true }, surface);
     render({ peopleVisible: false, paused: true, interactionRef, interactionMode: 'follow' });
     expect(engine.create).toHaveBeenCalledTimes(1);

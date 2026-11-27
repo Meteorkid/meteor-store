@@ -15,7 +15,7 @@ export interface HomeSkyProps {
 }
 
 /** 首屏文字与按钮先画出来，装饰性的星场引擎等主线程空闲后再建场。 */
-const SKY_INIT_DELAY_MS = 2200;
+export const SKY_INIT_DELAY_MS = 2200;
 
 /** 仅填满首页传入的定位容器，不创建全站 fixed 背景。 */
 export default function HomeSky({ peopleVisible, paused, className, interactionMode = 'follow', autoRotate = false, resetView = 0, interactionRef }: HomeSkyProps) {
@@ -38,9 +38,9 @@ export default function HomeSky({ peopleVisible, paused, className, interactionM
     };
 
     // 星场是纯装饰：Lighthouse 里它的渲染器初始化会占住主线程，拖后 LCP。
-    const delay = window.setTimeout(() => {
-      if (typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(start, { timeout: 2000 });
+    const delay = globalThis.setTimeout(() => {
+      if (typeof globalThis.requestIdleCallback === 'function') {
+        globalThis.requestIdleCallback(start, { timeout: 2000 });
       } else {
         start();
       }
@@ -48,7 +48,7 @@ export default function HomeSky({ peopleVisible, paused, className, interactionM
 
     return () => {
       cancelled = true;
-      window.clearTimeout(delay);
+      globalThis.clearTimeout(delay);
       controllerRef.current?.dispose();
       controllerRef.current = null;
     };
@@ -65,7 +65,7 @@ export default function HomeSky({ peopleVisible, paused, className, interactionM
       className={className}
       data-home-sky="true"
       aria-hidden="true"
-      style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', background: '#030509' }}
+      style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', background: 'transparent' }}
     />
   );
 }
