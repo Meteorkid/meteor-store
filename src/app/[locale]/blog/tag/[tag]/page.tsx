@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   if (!tag) return { title: t('notFound'), robots: { index: false, follow: false } };
   const canonical = `${SITE_URL}/${locale}${tag.href}`;
   const languages = Object.fromEntries(localizedTags.flatMap(item =>
-    item.tag ? [[item.locale, `${SITE_URL}/${item.locale}${item.tag.href}`]] : []));
+    item.tag ? [[item.locale === 'zh' ? 'zh-CN' : item.locale, `${SITE_URL}/${item.locale}${item.tag.href}`]] : []));
   const description = t('description', { tag: tag.label, count: tag.count });
   return {
     title: `#${tag.label} - ${t('blogSuffix')}`,
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
       path: `/${locale}${tag.href}`,
       locale,
     }),
-    alternates: { canonical, languages: { ...languages, 'x-default': languages.zh ?? languages.en ?? canonical } },
+    alternates: { canonical, languages: { ...languages, 'x-default': languages['zh-CN'] ?? languages.en ?? canonical } },
   };
 }
 

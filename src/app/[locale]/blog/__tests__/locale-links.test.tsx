@@ -42,7 +42,7 @@ describe('博客内容语言与界面语言的链接边界', () => {
     expect(link?.props.locale).toBe('zh');
     const metadata = await postMetadata({ params: Promise.resolve({ locale: 'en', id: 'original' }) });
     expect(metadata.alternates?.canonical).toBe(`${SITE_URL}/zh/blog/p/original`);
-    expect(metadata.alternates?.languages).toEqual({ zh: `${SITE_URL}/zh/blog/p/original`, 'x-default': `${SITE_URL}/zh/blog/p/original` });
+    expect(metadata.alternates?.languages).toEqual({ 'zh-CN': `${SITE_URL}/zh/blog/p/original`, 'x-default': `${SITE_URL}/zh/blog/p/original` });
     expect(nodes(tree).some(node => node.props.locale === 'en' && node.props.sourceLanguage === 'zh')).toBe(true);
   });
 
@@ -67,7 +67,7 @@ describe('博客内容语言与界面语言的链接边界', () => {
     const metadata = await postMetadata({ params });
     expect(metadata.alternates?.canonical).toBe(`${SITE_URL}/zh/blog/p/original`);
     expect(metadata.alternates?.languages).toEqual({
-      zh: `${SITE_URL}/zh/blog/p/original`,
+      'zh-CN': `${SITE_URL}/zh/blog/p/original`,
       en: `${SITE_URL}/en/blog/p/translated`,
       'x-default': `${SITE_URL}/zh/blog/p/original`,
     });
@@ -82,7 +82,7 @@ describe('博客内容语言与界面语言的链接边界', () => {
     expect(metadata.alternates?.canonical).toBe(`${SITE_URL}/en/blog/p/translated`);
     expect(metadata.alternates?.languages).toEqual({
       en: `${SITE_URL}/en/blog/p/translated`,
-      zh: `${SITE_URL}/zh/blog/p/original`,
+      'zh-CN': `${SITE_URL}/zh/blog/p/original`,
       'x-default': `${SITE_URL}/zh/blog/p/original`,
     });
   });
@@ -116,7 +116,7 @@ describe('博客内容语言与界面语言的链接边界', () => {
   it('标签metadata只声明真实存在的候选，跨语言大小写按各自规范路径', async () => {
     const metadata = await tagMetadata({ params: Promise.resolve({ locale: 'zh', tag: 'SHARED' }), searchParams: Promise.resolve({}) });
     expect(metadata.alternates?.languages).toEqual({
-      zh: `${SITE_URL}/zh/blog/tag/SHARED`, en: `${SITE_URL}/en/blog/tag/Shared`, 'x-default': `${SITE_URL}/zh/blog/tag/SHARED`,
+      'zh-CN': `${SITE_URL}/zh/blog/tag/SHARED`, en: `${SITE_URL}/en/blog/tag/Shared`, 'x-default': `${SITE_URL}/zh/blog/tag/SHARED`,
     });
     const onlyZh = await tagMetadata({ params: Promise.resolve({ locale: 'zh', tag: '中文标签' }), searchParams: Promise.resolve({}) });
     expect(onlyZh.alternates?.languages).not.toHaveProperty('en');

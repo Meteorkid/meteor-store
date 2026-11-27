@@ -27,11 +27,10 @@ function loadSentry(): Promise<SentryModule> {
   return sentryPromise;
 }
 
-// Sentry 浏览器 SDK 约 190KB，且初始化会占用主线程。它对首屏没有价值，
-// 却在每个页面都跟着 root runtime 下载；默认空闲加载仍会和首屏抢 CPU
-// （Lighthouse 里它的脚本执行接近 1.2 秒）。健康页面等到 load 后 8 秒再加载；
-// 真正的早期错误由下面的监听器捕获，再按需提前加载 SDK。
-const SENTRY_IDLE_DELAY_MS = 8000;
+// Sentry 浏览器 SDK 约 190KB，且初始化会占用主线程。它对首屏和正常浏览没有价值。
+// 不要在 load 后定时预加载，也不要在客户端路由跳转时为了一条面包屑把 SDK 拉下来：
+// 只有真正发生 error / unhandledrejection 时才按需加载，健康页面一次都不会下载它。
+// 早期错误先缓存在内存里，SDK 就绪后补发；监听器本身已经在 SDK 加载前生效。
 const EARLY_ERROR_LIMIT = 5;
 let earlyErrors: unknown[] = [];
 
@@ -55,32 +54,18 @@ function onUnhandledRejection(event: PromiseRejectionEvent) {
   void loadSentry().then(sendEarlyErrors);
 }
 
-function scheduleSentry() {
-  const start = () => {
-    const idle = window.requestIdleCallback;
-    if (typeof idle === 'function') {
-      idle(() => void loadSentry(), { timeout: 3000 });
-    } else {
-      window.setTimeout(() => void loadSentry(), 1500);
-    }
-  };
-  window.setTimeout(start, SENTRY_IDLE_DELAY_MS);
-}
-
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
   window.addEventListener('error', onEarlyError);
   window.addEventListener('unhandledrejection', onUnhandledRejection);
-  if (document.readyState === 'complete') {
-    scheduleSentry();
-  } else {
-    window.addEventListener('load', scheduleSentry, { once: true });
-  }
 }
 
-/** 让 Sentry 能标注客户端路由跳转；首次跳转时会顺带触发 SDK 加载。 */
+/**
+ * 客户端路由跳转面包屑：只在 SDK 因为真实错误已经加载后才记录。
+ * 这里绝不能为了标注跳转而加载 SDK——一次普通点击就是 190KB 的代价。
+ */
 export function onRouterTransitionStart(
   ...args: Parameters<SentryModule['captureRouterTransitionStart']>
 ) {
-  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return;
-  void loadSentry().then(Sentry => Sentry.captureRouterTransitionStart(...args));
+  if (!sentryInitialized || !sentryPromise) return;
+  void sentryPromise.then(Sentry => Sentry.captureRouterTransitionStart(...args));
 }

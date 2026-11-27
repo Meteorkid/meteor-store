@@ -47,9 +47,12 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
   // 有译文时把各语言版本写进 hreflang，让搜索引擎把两篇当成同一页的两种语言，
   // 而不是两份互相竞争的重复内容。没有译文就只有原文自己。
   const translations = post.status === 'published' ? await getPostTranslations(post) : [];
-  const languages: Record<string, string> = { [sourceLocale]: canonical };
+  // 全站 hreflang 统一用 zh-CN（根布局的 RouteAlternateLinks 也是这么写的）；
+  // 这里若写裸 zh，同一个中文页面会在不同路由上声明成两种语言标签。
+  const hreflang = (value: string) => value === 'zh' ? 'zh-CN' : value;
+  const languages: Record<string, string> = { [hreflang(sourceLocale)]: canonical };
   for (const translation of translations) {
-    languages[translation.locale] = `${SITE_URL}/${translation.locale}/blog/p/${translation.id}`;
+    languages[hreflang(translation.locale)] = `${SITE_URL}/${translation.locale}/blog/p/${translation.id}`;
   }
   // x-default 必须钉在原文：原文页与译文页要声明同一个默认地址。
   // 让两页各自指向自己，等于声明了两个互相矛盾的默认页，整组 hreflang 会被判无效。
