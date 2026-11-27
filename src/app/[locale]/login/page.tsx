@@ -18,6 +18,8 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
+    // 登录页没有可索引的内容，出现在搜索结果里只会让用户点进来再被要求登录。
+    robots: { index: false, follow: false },
   };
 }
 

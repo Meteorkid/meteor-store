@@ -4,6 +4,7 @@ import BlogPageShell from '@/components/blog/BlogPageShell';
 import StarMap from '@/components/StarMap';
 import { getFeedPosts } from '@/data/blog-feed';
 import type { Locale } from '@/i18n/routing';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 
 export async function generateMetadata({
   params,
@@ -12,7 +13,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'StarMap' });
-  return { title: t('title'), description: t('description') };
+  return {
+    title: t('title'),
+    description: t('description'),
+    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/${locale}/blog/stars`, locale }),
+  };
 }
 
 export default async function BlogStarsPage({

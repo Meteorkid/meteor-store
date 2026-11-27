@@ -5,6 +5,7 @@ import BlogPageShell from '@/components/blog/BlogPageShell';
 import TagDirectory from '@/components/TagDirectory';
 import { getFeedTags } from '@/data/blog-feed';
 import type { Locale } from '@/i18n/routing';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 
 export async function generateMetadata({
   params,
@@ -16,6 +17,7 @@ export async function generateMetadata({
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
+    ...buildOpenGraphMetadata({ title: t('metaTitle'), description: t('metaDescription'), path: `/${locale}/blog/tags`, locale }),
   };
 }
 

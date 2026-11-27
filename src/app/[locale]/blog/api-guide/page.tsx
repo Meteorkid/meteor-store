@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogApiGuideCopyButton from '@/components/BlogApiGuideCopyButton';
 import { markdownToHtml } from '@/lib/markdown';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 
 
 
@@ -16,11 +17,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const title = locale === 'zh' ? '博客发布 API 调用指南' : 'Blog Publishing API Guide';
+  const description = locale === 'zh'
+    ? '通过个人访问令牌在 Codex、Claude Code 等工具中管理博客投稿的完整指南。'
+    : 'Complete guide for managing blog posts via personal access tokens in Codex, Claude Code, and other tools.';
   return {
     title,
-    description: locale === 'zh'
-      ? '通过个人访问令牌在 Codex、Claude Code 等工具中管理博客投稿的完整指南。'
-      : 'Complete guide for managing blog posts via personal access tokens in Codex, Claude Code, and other tools.',
+    description,
+    ...buildOpenGraphMetadata({ title, description, path: `/${locale}/blog/api-guide`, locale }),
   };
 }
 

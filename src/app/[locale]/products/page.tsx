@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -12,9 +13,20 @@ import { products, localizeProduct } from '@/data/products';
 import { flagshipProductIds, selectLabProducts, selectProductLine } from '@/data/product-tracks';
 import { FOUR_SYMBOLS, mansionsOf } from '@/data/celestial';
 import type { Locale } from '@/i18n/routing';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'ProductsPage' });
+  return {
+    title: t('title'),
+    description: t('description'),
+    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/${locale}/products`, locale }),
+  };
 }
 
 /**
