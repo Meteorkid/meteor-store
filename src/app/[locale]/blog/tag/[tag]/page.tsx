@@ -7,6 +7,7 @@ import BlogList from '@/components/BlogList';
 import { findFeedTag, getFeedTags } from '@/data/blog-feed';
 import { getSectionBySlug } from '@/data/blog-sections';
 import { routing, type Locale } from '@/i18n/routing';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { SITE_URL } from '@/lib/constants';
 
 interface TagPageProps {
@@ -34,9 +35,16 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   const canonical = `${SITE_URL}/${locale}${tag.href}`;
   const languages = Object.fromEntries(localizedTags.flatMap(item =>
     item.tag ? [[item.locale, `${SITE_URL}/${item.locale}${item.tag.href}`]] : []));
+  const description = t('description', { tag: tag.label, count: tag.count });
   return {
     title: `#${tag.label} - ${t('blogSuffix')}`,
-    description: t('description', { tag: tag.label, count: tag.count }),
+    description,
+    ...buildOpenGraphMetadata({
+      title: `#${tag.label} - ${t('blogSuffix')}`,
+      description,
+      path: `/${locale}${tag.href}`,
+      locale,
+    }),
     alternates: { canonical, languages: { ...languages, 'x-default': languages.zh ?? languages.en ?? canonical } },
   };
 }

@@ -21,7 +21,7 @@ import CommentSection from '@/components/CommentSection';
 import PostStats from '@/components/PostStats';
 import PostReportButton from '@/components/PostReportButton';
 import { isAdminSession } from '@/lib/admin';
-import { safeJsonLd } from '@/lib/seo';
+import { buildOpenGraphMetadata, safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import { SITE_URL } from '@/lib/constants';
 
@@ -59,9 +59,17 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
   languages['x-default'] = original
     ? `${SITE_URL}/${original.locale}/blog/p/${original.id}`
     : canonical;
+  const metaTitle = `${post.title} | ${t('blogSuffix')}`;
   return {
-    title: `${post.title} | ${t('blogSuffix')}`,
+    title: metaTitle,
     description: post.excerpt,
+    ...buildOpenGraphMetadata({
+      title: post.title,
+      description: post.excerpt,
+      path: `/${sourceLocale}/blog/p/${post.id}`,
+      locale: sourceLocale,
+      type: 'article',
+    }),
     // 作者预览非 published 文章时不索引
     robots: post.status === 'published' ? undefined : { index: false, follow: false },
     alternates: post.status === 'published' ? {

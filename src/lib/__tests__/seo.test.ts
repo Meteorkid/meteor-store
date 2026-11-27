@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { buildAlternateUrls } from '../seo';
+import { buildAlternateUrls, buildOpenGraphMetadata } from '../seo';
 import { SITE_URL } from '../constants';
 
 describe('buildAlternateUrls', () => {
@@ -71,5 +71,34 @@ describe('canonical 的下发位置', () => {
     expect(links).toContain('rel="canonical"');
     expect(links).toContain('hrefLang="x-default"');
     expect(links).toContain('if (!alternates?.languages) return null');
+  });
+});
+
+describe('buildOpenGraphMetadata', () => {
+  it('产品页带自己的标题、描述、canonical 与相对封面', () => {
+    const result = buildOpenGraphMetadata({
+      title: 'XIsland - 面向 AI 的 macOS 灵动岛',
+      description: '为所有 AI 编码代理打造的 macOS 灵动岛风格控制塔。',
+      path: '/zh/products/xisland',
+      locale: 'zh',
+      image: '/products/xisland/cover-v2.webp',
+    });
+    expect(result.openGraph?.title).toBe('XIsland - 面向 AI 的 macOS 灵动岛');
+    expect(result.openGraph?.url).toBe(`${SITE_URL}/zh/products/xisland`);
+    expect(result.openGraph?.images).toEqual([expect.objectContaining({ url: `${SITE_URL}/products/xisland/cover-v2.webp` })]);
+    expect(result.twitter?.title).toBe('XIsland - 面向 AI 的 macOS 灵动岛');
+    expect(result.twitter?.images).toEqual([`${SITE_URL}/products/xisland/cover-v2.webp`]);
+  });
+
+  it('文章页使用 article 类型与英文 locale，缺省回落到站点分享图', () => {
+    const result = buildOpenGraphMetadata({
+      title: 'Post title',
+      description: 'Post excerpt',
+      path: '/en/blog/p/abc',
+      locale: 'en',
+      type: 'article',
+    });
+    expect(result.openGraph).toEqual(expect.objectContaining({ type: 'article', locale: 'en_US', url: `${SITE_URL}/en/blog/p/abc` }));
+    expect(result.openGraph?.images).toEqual([expect.objectContaining({ url: `${SITE_URL}/og-image.png` })]);
   });
 });

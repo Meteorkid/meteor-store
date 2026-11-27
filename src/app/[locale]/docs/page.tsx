@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -24,6 +25,7 @@ export async function generateMetadata({ params }: DocsPageProps): Promise<Metad
   return {
     title: t('title'),
     description: t('description'),
+    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/{locale}/docs`, locale }),
   };
 }
 

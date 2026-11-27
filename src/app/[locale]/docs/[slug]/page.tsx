@@ -12,6 +12,7 @@ import {
 import { getHelpArticle, getRelatedHelpArticles } from '@/data/help';
 import { renderHelpMarkdown } from '@/lib/help-markdown';
 import HelpCosmicBg from '@/components/help/HelpCosmicBg';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { StarDust, ConstellationDot, MeteorTrail } from '@/components/help/HelpDecorations';
 import HelpToc from '@/components/help/HelpToc';
 import { OpenInPanelButton } from '@/components/help/OpenInPanelButton';
@@ -49,6 +50,12 @@ export async function generateMetadata({
   return {
     title: article.title,
     description: article.excerpt,
+    ...buildOpenGraphMetadata({
+      title: article.title,
+      description: article.excerpt,
+      path: `/${locale}/docs/${article.slug}`,
+      locale,
+    }),
     keywords: article.keywords,
     robots: article.slug === LEGACY_INVITATION_HELP_SLUG ? { index: false, follow: false } : undefined,
   };

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import CatalogItemCard from '@/components/pathfinder/CatalogItemCard';
 import { Link } from '@/i18n/navigation';
@@ -19,7 +20,14 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'PathfinderHub.discover' });
-  return { title: t('metaTitle'), description: t('metaDescription'), robots: { index: true, follow: true } };
+  const title = t('metaTitle');
+  const description = t('metaDescription');
+  return {
+    title,
+    description,
+    ...buildOpenGraphMetadata({ title, description, path: `/${locale}/pathfinder`, locale }),
+    robots: { index: true, follow: true },
+  };
 }
 
 export default async function PathfinderPage({ params }: { params: Promise<{ locale: string }> }) {

@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
-import { notFoundTitle, safeJsonLd } from '@/lib/seo';
+import { buildOpenGraphMetadata, notFoundTitle, safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import {
   ALTERNATIVES_VERIFIED_ON,
@@ -26,9 +26,12 @@ export async function generateMetadata({ params }: AlternativesPageProps) {
   // 软 404 处理，理由见 changelog 页同名分支
   if (id !== 'xisland') return { title: notFoundTitle(locale), robots: { index: false, follow: false } };
   const loc = locale as Locale;
+  const title = alternativesPageCopy.title[loc];
+  const description = alternativesPageCopy.metaDescription[loc];
   return {
-    title: alternativesPageCopy.title[loc],
-    description: alternativesPageCopy.metaDescription[loc],
+    title,
+    description,
+    ...buildOpenGraphMetadata({ title, description, path: `/${locale}/products/${id}/alternatives`, locale }),
   };
 }
 

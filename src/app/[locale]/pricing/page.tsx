@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import Header from '@/components/Header';
@@ -19,6 +20,7 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
+    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/{locale}/pricing`, locale }),
   };
 }
 

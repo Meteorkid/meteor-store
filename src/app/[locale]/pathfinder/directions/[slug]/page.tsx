@@ -7,6 +7,7 @@ import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { listCatalogItems } from '@/lib/pathfinder/catalog';
 import { localizedText, sortByRecency } from '@/lib/pathfinder/catalog-view';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!guide) return {};
   const t = await getTranslations({ locale, namespace: 'PathfinderHub.directionPage' });
   const title = localizedText(guide.title, locale);
-  return { title: t('metaTitle', { direction: title }), description: localizedText(guide.description, locale) };
+  const description = localizedText(guide.description, locale);
+  const metaTitle = t('metaTitle', { direction: title });
+  return {
+    title: metaTitle,
+    description,
+    ...buildOpenGraphMetadata({ title: metaTitle, description, path: `/${locale}/pathfinder/directions/${guide.slug}`, locale }),
+  };
 }
 
 export default async function PathfinderDirectionPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {

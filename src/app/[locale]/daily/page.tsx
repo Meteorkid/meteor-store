@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DailyHub from '@/components/daily/DailyHub';
 import { dailyText } from '@/components/daily/text';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { getSession } from '@/lib/auth';
 import { dailyDate, isDailyHistoryDate } from '@/lib/daily/types';
 import { getDailyEditions, getDailyPreferencesState, getLatestPublishedDailyDates } from '@/lib/daily/service';
@@ -15,7 +16,11 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const copy = dailyText[locale === 'en' ? 'en' : 'zh'];
-  return { title: copy.title, description: copy.description };
+  return {
+    title: copy.title,
+    description: copy.description,
+    ...buildOpenGraphMetadata({ title: copy.title, description: copy.description, path: `/${locale}/daily`, locale }),
+  };
 }
 
 export default async function DailyPage({ params, searchParams }: {

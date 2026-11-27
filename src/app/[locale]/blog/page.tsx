@@ -4,6 +4,7 @@ import BlogList from '@/components/BlogList';
 import BlogPageShell from '@/components/blog/BlogPageShell';
 import { Link } from '@/i18n/navigation';
 import { findFeedTags } from '@/data/blog-feed';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { getSectionBySlug } from '@/data/blog-sections';
 import type { Locale } from '@/i18n/routing';
 
@@ -18,6 +19,7 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
+    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/${locale}/blog`, locale }),
     alternates: {
       types: { 'application/rss+xml': `/${locale}/blog/feed.xml` },
     },

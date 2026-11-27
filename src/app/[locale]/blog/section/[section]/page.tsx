@@ -8,6 +8,7 @@ import { findFeedTags } from '@/data/blog-feed';
 import { blogScopeStyle, blogSections, getSectionBySlug } from '@/data/blog-sections';
 import { FOUR_SYMBOLS } from '@/data/celestial';
 import { routing, type Locale } from '@/i18n/routing';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 
 interface SectionPageProps {
   params: Promise<{ locale: string; section: string }>;
@@ -28,6 +29,12 @@ export async function generateMetadata({ params }: SectionPageProps): Promise<Me
     ? {
         title: `${section.label[locale as Locale]} - ${t('blogSuffix')}`,
         description: section.description[locale as Locale],
+        ...buildOpenGraphMetadata({
+          title: `${section.label[locale as Locale]} - ${t('blogSuffix')}`,
+          description: section.description[locale as Locale],
+          path: `/${locale}/blog/section/${section.slug}`,
+          locale,
+        }),
         alternates: {
           types: { 'application/rss+xml': `/${locale}/blog/section/${section.slug}/feed.xml` },
         },

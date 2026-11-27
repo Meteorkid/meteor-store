@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
-import { notFoundTitle, safeJsonLd } from '@/lib/seo';
+import { buildOpenGraphMetadata, notFoundTitle, safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import { alternativeProducts, alternativesPageCopy } from '@/data/xisland-alternatives';
 import {
@@ -37,9 +37,12 @@ export async function generateMetadata({ params }: CompetitorPageProps) {
   const found = resolve(locale, id, competitor);
   // 同 changelog：不给标题会继承站点默认标题，形成软 404 重复页
   if (!found) return { title: notFoundTitle(locale), robots: { index: false, follow: false } };
+  const title = found.detail.title[found.loc];
+  const description = found.detail.metaDescription[found.loc];
   return {
-    title: found.detail.title[found.loc],
-    description: found.detail.metaDescription[found.loc],
+    title,
+    description,
+    ...buildOpenGraphMetadata({ title, description, path: `/${locale}/products/${id}/alternatives/${competitor}`, locale }),
   };
 }
 

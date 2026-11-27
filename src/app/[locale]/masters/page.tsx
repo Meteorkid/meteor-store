@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
@@ -14,7 +15,11 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const copy = mastersText[locale === 'en' ? 'en' : 'zh'];
-  return { title: copy.title, description: copy.description };
+  return {
+    title: copy.title,
+    description: copy.description,
+    ...buildOpenGraphMetadata({ title: copy.title, description: copy.description, path: `/${locale}/masters`, locale }),
+  };
 }
 
 export default async function MastersPage({ params, searchParams }: {

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
@@ -23,7 +24,11 @@ function first(value: string | string[] | undefined): string {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const copy = competitionCalendarText[locale === 'en' ? 'en' : 'zh'];
-  return { title: copy.title, description: copy.description };
+  return {
+    title: copy.title,
+    description: copy.description,
+    ...buildOpenGraphMetadata({ title: copy.title, description: copy.description, path: `/${locale}/competitions`, locale }),
+  };
 }
 
 export default async function CompetitionsPage({ params, searchParams }: {

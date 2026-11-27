@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { SITE_URL } from '@/lib/constants';
-import { notFoundTitle, safeJsonLd } from '@/lib/seo';
+import { buildOpenGraphMetadata, notFoundTitle, safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema } from '@/lib/structured-data';
 import { markdownToHtml } from '@/lib/markdown';
 import { localizeProduct, products } from '@/data/products';
@@ -38,9 +38,21 @@ export async function generateMetadata({ params }: ChangelogPageProps) {
   const product = localizeProduct(raw, loc);
   const { entries } = await getProductReleases(id);
   const copy = changelogCopy[loc];
+  const title = copy.title(product.name);
+  const description = copy.metaDescription(product.name, entries.length);
   return {
-    title: copy.title(product.name),
-    description: copy.metaDescription(product.name, entries.length),
+    title,
+    description,
+    ...buildOpenGraphMetadata({
+      title,
+      description,
+      path: `/${locale}/products/${id}/changelog`,
+      locale,
+      image: product.media?.cover,
+      imageAlt: product.name,
+      imageWidth: 1280,
+      imageHeight: 720,
+    }),
   };
 }
 

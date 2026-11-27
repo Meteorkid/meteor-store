@@ -7,6 +7,7 @@ import CatalogItemCard from '@/components/pathfinder/CatalogItemCard';
 import SaveButton from '@/components/pathfinder/SaveButton';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
+import { buildOpenGraphMetadata } from '@/lib/seo';
 import { getSession } from '@/lib/auth';
 import { getCatalogItem, listCatalogItems } from '@/lib/pathfinder/catalog';
 import { getApprovedEditorialNote } from '@/lib/pathfinder/editorial-store';
@@ -58,9 +59,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     ? { index: false, follow: false }
     : item.learningEligible ? undefined : { index: false, follow: true };
 
+  const title = localizedText(item.title, locale);
+  const description = localizedText(item.summary, locale);
   return {
-    title: localizedText(item.title, locale),
-    description: localizedText(item.summary, locale),
+    title,
+    description,
+    ...buildOpenGraphMetadata({ title, description, path: `/${locale}/pathfinder/items/${item.id}`, locale }),
     ...(robots ? { robots } : {}),
   };
 }

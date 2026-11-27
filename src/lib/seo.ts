@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { routing, type Locale } from '@/i18n/routing';
 import { SITE_URL } from './constants';
 
@@ -75,4 +76,45 @@ export function buildAlternateUrls(pathname: string | null | undefined): Alterna
  */
 export function notFoundTitle(locale: string): string {
   return locale === 'en' ? 'Page not found' : '页面未找到';
+}
+
+/**
+ * 页面级分享卡片。根布局的 openGraph/twitter 描述的是整站，Next 又按字段浅合并，
+ * 页面不显式声明就会让每篇文章、每个产品都分享成同一个「Meteor Store」。
+ * 这里统一带上页面自己的标题、摘要、canonical URL 与封面，避免社交抓取端只看到首页文案。
+ */
+export function buildOpenGraphMetadata(input: {
+  title: string;
+  description: string;
+  /** 带 locale 的站内路径，例如 /zh/products/xisland */
+  path: string;
+  locale: string;
+  type?: 'website' | 'article';
+  /** 站内相对路径或绝对地址；缺省用站点统一分享图 */
+  image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+}): Pick<Metadata, 'openGraph' | 'twitter'> {
+  const imageUrl = input.image ? new URL(input.image, SITE_URL).toString() : `${SITE_URL}/og-image.png`;
+  const locale = input.locale === 'en' ? 'en_US' : 'zh_CN';
+  const common = {
+    title: input.title,
+    description: input.description,
+    url: `${SITE_URL}${input.path}`,
+    images: [{ url: imageUrl, width: input.imageWidth ?? 1200, height: input.imageHeight ?? 630, alt: input.imageAlt ?? input.title }],
+  };
+  const openGraph = input.type === 'article'
+    ? { ...common, type: 'article' as const, locale, siteName: 'Meteor Store' }
+    : { ...common, type: 'website' as const, locale, siteName: 'Meteor Store' };
+  return {
+    openGraph,
+    twitter: {
+      card: 'summary_large_image',
+      title: input.title,
+      description: input.description,
+      images: [imageUrl],
+      site: '@Meteorkid',
+    },
+  };
 }

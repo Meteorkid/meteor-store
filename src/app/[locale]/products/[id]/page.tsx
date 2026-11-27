@@ -26,7 +26,7 @@ import {
 import { getProductWithCurrentDownloads } from '@/lib/product-updates/catalog';
 import { isChangelogProduct } from '@/data/product-changelog';
 import { ANNUAL_DISCOUNT, SHOW_PRICING, SITE_URL } from '@/lib/constants';
-import { safeJsonLd } from '@/lib/seo';
+import { buildOpenGraphMetadata, safeJsonLd } from '@/lib/seo';
 import { buildBreadcrumbSchema, buildProductSchema } from '@/lib/structured-data';
 import { routing, type Locale } from '@/i18n/routing';
 import { isSoftwareLicensingEnabled } from '@/lib/software-licenses/config';
@@ -55,13 +55,24 @@ export async function generateMetadata({ params }: ProductPageProps) {
   if (!raw) return { title: t('notFound') };
   const product = localizeProduct(raw, locale as Locale);
   // 根布局会用 `%s | Meteor Store` 统一补品牌名，这里重复写会产生两个后缀。
+  const title = `${product.name} - ${product.tagline}`;
   return {
-    title: `${product.name} - ${product.tagline}`,
+    title,
     description: product.description,
     // 产品级关键词在这里下发，而不是塞进根布局那组通用词——通用词描述的是整站，
     // 具体到某一款工具时它们全部不命中。空数组必须整个省略：Next 会把空数组
     // 渲染成 `<meta name="keywords" content="">`，那是一份明示的「本页无关键词」。
     ...(product.keywords.length > 0 ? { keywords: product.keywords } : {}),
+    ...buildOpenGraphMetadata({
+      title,
+      description: product.description,
+      path: `/${locale}/products/${product.id}`,
+      locale,
+      image: product.media?.cover,
+      imageAlt: product.name,
+      imageWidth: 1280,
+      imageHeight: 720,
+    }),
   };
 }
 
