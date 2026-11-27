@@ -14,7 +14,6 @@ import { HelpPanelProvider } from "@/components/help/HelpPanelContext";
 import { SITE_URL } from "@/lib/constants";
 import { buildAlternateUrls } from "@/lib/seo";
 import { buildFocusModeBootstrapScript } from "@/lib/learning-focus";
-import { selectClientMessages } from "@/lib/i18n-messages";
 import RouteAlternateLinks from "@/components/RouteAlternateLinks";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { getInitialSiteTheme } from "@/lib/site-theme-server";
@@ -163,12 +162,12 @@ export default async function LocaleLayout({
   // 启用静态渲染
   setRequestLocale(locale);
 
-  // 从 proxy 注入的请求头取 nonce（让内联脚本通过 CSP）与 pathname（算 canonical、裁首页文案）
+  // 从 proxy 注入的请求头取 nonce（让内联脚本通过 CSP）
   const requestHeaders = await headers();
-  const pathname = requestHeaders.get("x-pathname");
 
-  // 获取翻译消息；首页只把真正会挂载的客户端组件文案送进浏览器
-  const messages = selectClientMessages(await getMessages(), pathname);
+  // 客户端导航会复用根布局的 provider，不能按当前路径裁剪文案：
+  // 从首页点到登录页时，登录页会拿到被裁掉的消息。
+  const messages = await getMessages();
   const initialTheme = await getInitialSiteTheme();
 
   // JSON-LD 结构化数据
