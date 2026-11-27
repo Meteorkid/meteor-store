@@ -26,8 +26,8 @@ const issues: string[] = [];
 
 for (const file of files) {
   const absolute = path.resolve(file);
-  const module = await import(pathToFileURL(absolute).href);
-  const lesson = Object.values(module).find(
+  const loaded = await import(pathToFileURL(absolute).href);
+  const lesson = Object.values(loaded).find(
     value => value && typeof value === 'object' && 'slug' in value && 'transcript' in value,
   ) as ListeningLesson | undefined;
   if (!lesson) {

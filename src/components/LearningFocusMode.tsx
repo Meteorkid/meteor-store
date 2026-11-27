@@ -117,12 +117,16 @@ export default function LearningFocusMode() {
   useEffect(() => {
     if (!scope) {
       applyFocusMode(false);
-      setActive(false);
       return;
     }
-    const stored = readFocusMode();
-    setActive(stored);
-    applyFocusMode(stored, scope);
+    // 首屏由根布局内联脚本先恢复视觉；这里只同步按钮状态。
+    // 放到下一帧再 setState，避免在 effect 内同步触发级联渲染。
+    const frame = window.requestAnimationFrame(() => {
+      const stored = readFocusMode();
+      setActive(stored);
+      applyFocusMode(stored, scope);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [scope]);
 
   if (!scope) return null;

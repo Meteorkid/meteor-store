@@ -49,8 +49,8 @@ async function loadLessons() {
     for (const partFile of readdirSync(testPath, { withFileTypes: true })) {
       if (!partFile.isFile() || !/^part-[1-4]\.ts$/.test(partFile.name)) continue;
       const absolute = path.join(testPath, partFile.name);
-      const module = await import(pathToFileURL(absolute).href);
-      const lesson = Object.values(module).find(
+      const loaded = await import(pathToFileURL(absolute).href);
+      const lesson = Object.values(loaded).find(
         value => value && typeof value === 'object' && 'slug' in value && 'transcript' in value,
       ) as ListeningLesson | undefined;
       if (!lesson) throw new Error(`${absolute}: 没有导出 ListeningLesson 对象`);

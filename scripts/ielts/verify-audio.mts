@@ -30,8 +30,8 @@ async function loadLesson(slug: string): Promise<ListeningLesson> {
   if (!matched) throw new Error(`slug 不合法：${slug}`);
   const [, test, part] = matched;
   const file = path.join(repoRoot, `src/data/ielts-listening/test-${test}/part-${part}.ts`);
-  const module = await import(pathToFileURL(file).href);
-  const lesson = Object.values(module).find(
+  const loaded = await import(pathToFileURL(file).href);
+  const lesson = Object.values(loaded).find(
     (value) => (value as ListeningLesson)?.slug === slug,
   ) as ListeningLesson | undefined;
   if (!lesson) throw new Error(`找不到 ${slug}`);
