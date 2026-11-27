@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: DocsPageProps): Promise<Metad
   return {
     title: t('title'),
     description: t('description'),
-    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/{locale}/docs`, locale }),
+    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/${locale}/docs`, locale }),
   };
 }
 

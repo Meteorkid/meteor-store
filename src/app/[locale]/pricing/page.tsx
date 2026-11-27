@@ -17,10 +17,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'PricingPage' });
+  const title = t('title');
+  const description = t('description', { count: productLineIds.length });
   return {
-    title: t('title'),
-    description: t('description'),
-    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/{locale}/pricing`, locale }),
+    title,
+    description,
+    ...buildOpenGraphMetadata({ title, description, path: `/${locale}/pricing`, locale }),
   };
 }
 

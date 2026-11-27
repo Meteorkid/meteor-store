@@ -16,7 +16,7 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
-    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/{locale}/story`, locale }),
+    ...buildOpenGraphMetadata({ title: t('title'), description: t('description'), path: `/${locale}/story`, locale }),
   };
 }
 
