@@ -9,8 +9,9 @@ const HeartbeatSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
+  // 在线心跳只用于展示人数，不值得为它消耗 Upstash 命令；单实例进程内限流即可。
   const { limited } = await rateLimit(`online-heartbeat:${ip}`, 30, 60_000, {
-    fallback: 'memory',
+    store: 'memory',
   });
   if (limited) {
     return NextResponse.json({ error: '操作太频繁了，稍后再试' }, { status: 429 });

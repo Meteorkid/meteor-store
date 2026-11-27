@@ -5,7 +5,9 @@ import { useTranslations } from 'next-intl';
 import { ONLINE_VISIBLE_THRESHOLD } from '@/lib/online-presence';
 
 const VISITOR_ID_KEY = 'meteor.onlineVisitorId';
-const POLL_INTERVAL_MS = 60_000;
+// 在线人数只是页脚的弱提示，5 分钟一次足够；原来 60 秒一次会把
+// 每个常开标签页的 Redis 命令量放大到每月数万条。
+const POLL_INTERVAL_MS = 5 * 60_000;
 
 /** Footer 底栏「当前 X 人在线」：> 阈值才显示，接口异常静默隐藏 */
 export default function OnlineVisitors() {

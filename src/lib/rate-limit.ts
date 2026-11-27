@@ -39,14 +39,18 @@ function getLimiter(limit: number, windowMs: number): Ratelimit | null {
  *   用于支付、发货重试等资金/成本敏感接口；默认 false（fail-open）。
  * @param options.fallback Redis 不可用时的降级策略。`memory` 在单个运行实例内保留固定窗口限流，
  *   适合成本或资源敏感的公开接口；默认 `none` 保持既有 fail-open 行为。
+ * @param options.store 强制使用 `memory` 时完全不访问 Redis，适合在线心跳这类低价值高频写入。
+ *   当前生产是单个 PM2 fork，进程内限流足够；扩容成多进程前必须改回 `auto`。
  * @returns { limited: boolean, remaining: number, resetAt: number }
  */
 export async function rateLimit(
   key: string,
   limit: number,
   windowMs: number,
-  options: { failClosed?: boolean; fallback?: 'none' | 'memory' } = {},
+  options: { failClosed?: boolean; fallback?: 'none' | 'memory'; store?: 'auto' | 'memory' } = {},
 ): Promise<{ limited: boolean; remaining: number; resetAt: number }> {
+  if (options.store === 'memory') return memoryRateLimit(key, limit, windowMs);
+
   const limiterInstance = getLimiter(limit, windowMs);
 
   // Redis 未配置时按调用方要求使用进程内降级限流，或保持既有不限制行为。
@@ -75,7 +79,7 @@ export async function rateLimit(
   }
 }
 
-/** 无 Redis 时的实例内固定窗口限流；实例重启会自然清空。 */
+/** 实例内固定窗口限流；实例重启会自然清空。 */
 function memoryRateLimit(
   key: string,
   limit: number,
