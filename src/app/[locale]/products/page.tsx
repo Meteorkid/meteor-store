@@ -72,7 +72,7 @@ export default async function ProductsPage({ params }: Props) {
             )}
             aside={(
               <div className="glass-card rounded-2xl p-5">
-                <p className="t-eyebrow text-white/45">{t('chartEyebrow')}</p>
+                <p className="t-eyebrow text-white/60">{t('chartEyebrow')}</p>
                 <div className="mt-4 grid grid-cols-3 gap-3">
                   <div>
                     <strong className="block t-title-3 tabular-nums text-white">{all.length}</strong>
@@ -249,7 +249,7 @@ function GroupLabel({ text, rgb, note }: { text: string; rgb: string; note?: str
         />
         {text}
       </h3>
-      {note && <p className="t-footnote mt-1.5 pl-4 text-white/45">{note}</p>}
+      {note && <p className="t-footnote mt-1.5 pl-4 text-white/60">{note}</p>}
     </div>
   );
 }

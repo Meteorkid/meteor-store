@@ -49,8 +49,9 @@ export default function PricingSection({
   const pass = usePassStatus();
 
   return (
-    <section id="pricing" className={showHeader ? 'py-20' : 'pb-20'}>
+    <section id="pricing" className={showHeader ? 'py-20' : 'pb-20'} aria-labelledby={showHeader ? undefined : 'pricing-heading'}>
       <div className={showHeader ? 'container mx-auto px-4' : undefined}>
+        {!showHeader && <h2 id="pricing-heading" className="sr-only">{t('title')}</h2>}
         {/* Section header —— 独立定价页自带 hero 标题时隐藏，避免「定价」重复 */}
         {showHeader && (
           <div className="text-center mb-16 scroll-animate">
