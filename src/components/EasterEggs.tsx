@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createKonamiMatcher, createWordMatcher, isLateNight, useReducedMotion } from '@/lib/motion';
 
@@ -93,6 +93,8 @@ const KONAMI_TOAST_KEYS = {
 
 export default function EasterEggs() {
   const router = useRouter();
+  const pathname = usePathname();
+  const homepage = /^\/(?:zh|en)?\/?$/.test(pathname);
   const reducedMotion = useReducedMotion();
   const t = useTranslations('EasterEggs');
   const routerRef = useRef(router);
@@ -224,7 +226,10 @@ export default function EasterEggs() {
 
   // 深夜问候（每会话一次，随机不重复靠会话内记录已用索引）
   useEffect(() => {
-    if (!isLateNight()) return;
+    // 首页首屏的 LCP 由 hero 正文承担；这个 2.5 秒后才出现的 toast
+    // 会被 Chrome 记成新的 LCP（实测把 0.3 秒拖到 6 秒）。
+    // 深夜彩蛋仍保留在内容页，首页不弹，避免装饰性提示污染首屏指标。
+    if (homepage || !isLateNight()) return;
     let pick = 0;
     try {
       if (sessionStorage.getItem('meteor:night-greeted')) return;
@@ -241,7 +246,7 @@ export default function EasterEggs() {
     }
     const timer = setTimeout(() => showToast(`${tRef.current(NIGHT_GREETING_KEYS[pick])} 🌙`, 6000), 2500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [homepage]);
 
   // 滚动到底奖励（首次）
   useEffect(() => {
