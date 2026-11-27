@@ -31,6 +31,9 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
   display: "swap",
+  // 等宽字体只用于代码块与少量说明，首屏没有它的位置；不预加载可少一个
+  // 53KB 级别的首屏字体请求，滚到代码区时再按 @font-face 按需拉取。
+  preload: false,
 });
 
 export function generateStaticParams() {

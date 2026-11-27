@@ -9,7 +9,7 @@ const cursive = localFont({
   src: '../fonts/DancingScript-Latin.woff2',
   weight: '700',
   display: 'swap',
-  preload: true,
+  preload: false,
 });
 
 const LETTER: Array<string | { type: 'em'; text: string; href?: string }> = [
