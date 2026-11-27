@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildLoginHref, normalizeLoginReturn } from '../login-return';
+import { buildLocalizedLoginHref, buildLoginHref, normalizeLoginReturn } from '../login-return';
 import { products } from '@/data/products';
 import { appIds } from '@/data/app-manifest';
 
@@ -7,6 +7,13 @@ describe('normalizeLoginReturn', () => {
   it.each(['/study/ielts', '/study/ielts/task2-education-01', `/study/ielts/${'a'.repeat(60)}`])('雅思登录后返回原列表或对照：%s', value => {
     expect(normalizeLoginReturn(value)).toBe(value);
     expect(new URL(buildLoginHref(value), 'https://store.test').searchParams.get('next')).toBe(value);
+  });
+  it.each(['/blog/p/abc123', `/blog/p/${'a'.repeat(64)}`])('读者登录回跳保留文章详情：%s', value => {
+    expect(normalizeLoginReturn(value)).toBe(value);
+    expect(new URL(buildLoginHref(value), 'https://store.test').searchParams.get('next')).toBe(value);
+  });
+  it.each(['/blog/p/', '/blog/p/abc123?next=/admin', '/blog/p/abc/def', `/blog/p/${'a'.repeat(65)}`])('拒绝非法文章回跳：%s', value => {
+    expect(normalizeLoginReturn(value)).toBe('/');
   });
   it('听力练习记录页登录后回到记录本，而不是被退回首面', () => {
     const value = '/study/ielts/listening/records';
@@ -131,6 +138,16 @@ describe('normalizeLoginReturn', () => {
     undefined,
   ])('拒绝非白名单地址：%s', (value) => {
     expect(normalizeLoginReturn(value)).toBe('/');
+  });
+});
+
+describe('buildLocalizedLoginHref', () => {
+  it('保留语言前缀与文章回跳参数', () => {
+    expect(buildLocalizedLoginHref('/zh/blog/p/abc123', 'zh')).toBe('/zh/login?next=%2Fblog%2Fp%2Fabc123');
+    expect(buildLocalizedLoginHref('/en/blog/p/abc123', 'en')).toBe('/en/login?next=%2Fblog%2Fp%2Fabc123');
+  });
+  it('拒绝越权路径并退回首面登录', () => {
+    expect(buildLocalizedLoginHref('/zh/admin', 'zh')).toBe('/zh/login');
   });
 });
 

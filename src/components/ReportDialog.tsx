@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { buildLocalizedLoginHref } from '@/lib/login-return';
 import { useAuth } from './AuthProvider';
 
 type TargetType = 'comment' | 'post';
@@ -29,6 +30,7 @@ export default function ReportDialog({
   onSubmitted,
 }: ReportDialogProps) {
   const t = useTranslations('Report');
+  const locale = useLocale();
   const { user } = useAuth();
   const [reason, setReason] = useState<Reason>('spam');
   const [detail, setDetail] = useState('');
@@ -49,7 +51,7 @@ export default function ReportDialog({
     if (submitting) return;
 
     if (!user) {
-      window.location.href = '/login';
+      window.location.href = buildLocalizedLoginHref(window.location.pathname, locale);
       return;
     }
 

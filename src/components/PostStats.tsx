@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { buildLocalizedLoginHref } from '@/lib/login-return';
 import { useAuth } from './AuthProvider';
 import { runCancellableTask } from '@/lib/cancellable-task';
 
@@ -81,7 +82,7 @@ export default function PostStats({
 
   const handleLike = useCallback(async () => {
     if (!user) {
-      window.location.href = '/login';
+      window.location.href = buildLocalizedLoginHref(window.location.pathname, locale);
       return;
     }
 
@@ -116,11 +117,11 @@ export default function PostStats({
       // Keep animation visible for a moment
       setTimeout(() => setLikeAnimating(false), 300);
     }
-  }, [user, targetId, liked]);
+  }, [user, targetId, liked, locale]);
 
   const handleFavorite = useCallback(async () => {
     if (!user) {
-      window.location.href = '/login';
+      window.location.href = buildLocalizedLoginHref(window.location.pathname, locale);
       return;
     }
 
@@ -152,7 +153,7 @@ export default function PostStats({
     } finally {
       setTimeout(() => setFavoriteAnimating(false), 300);
     }
-  }, [user, targetId, favorited]);
+  }, [user, targetId, favorited, locale]);
 
   const fmt = (n: number) =>
     new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'zh-CN').format(n);

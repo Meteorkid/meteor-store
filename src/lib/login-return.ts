@@ -38,6 +38,11 @@ export function normalizeLoginReturn(value: string | null | undefined): string {
   const daily = normalizeDailyReturn(value);
   if (daily) return daily;
 
+  // 读者在文章详情页点赞/收藏/举报时需要登录；把文章路径带回登录页，
+  // 登录后能回到原文章，而不是掉到首页。
+  const postMatch = /^\/blog\/p\/[A-Za-z0-9_-]{1,64}$/.exec(value);
+  if (postMatch?.[0] === value) return value;
+
   const ieltsMatch = /^\/study\/ielts\/[a-z0-9-]{3,60}$/.exec(value);
   if (ieltsMatch?.[0] === value) return value;
 
@@ -64,4 +69,11 @@ export function normalizeLoginReturn(value: string | null | undefined): string {
 export function buildLoginHref(returnTo: string): string {
   const next = normalizeLoginReturn(returnTo);
   return next === '/' ? '/login' : `/login?next=${encodeURIComponent(next)}`;
+}
+
+/** 保留当前语言前缀；回跳目标仍由 normalizeLoginReturn 白名单校验。 */
+export function buildLocalizedLoginHref(pathname: string, locale: string): string {
+  const prefix = `/${locale}`;
+  const returnTo = pathname.startsWith(prefix) ? pathname.slice(prefix.length) || '/' : pathname;
+  return `${prefix}${buildLoginHref(returnTo)}`;
 }
