@@ -97,8 +97,18 @@ describe('buildOpenGraphMetadata', () => {
       path: '/en/blog/p/abc',
       locale: 'en',
       type: 'article',
+      publishedTime: '2026-01-02T03:04:05.000Z',
+      modifiedTime: '2026-02-03T04:05:06.000Z',
+      authors: ['Meteor'],
     });
-    expect(result.openGraph).toEqual(expect.objectContaining({ type: 'article', locale: 'en_US', url: `${SITE_URL}/en/blog/p/abc` }));
+    expect(result.openGraph).toEqual(expect.objectContaining({
+      type: 'article',
+      locale: 'en_US',
+      url: `${SITE_URL}/en/blog/p/abc`,
+      publishedTime: '2026-01-02T03:04:05.000Z',
+      modifiedTime: '2026-02-03T04:05:06.000Z',
+      authors: ['Meteor'],
+    }));
     expect(result.openGraph?.images).toEqual([expect.objectContaining({ url: `${SITE_URL}/og-image.png` })]);
   });
 });

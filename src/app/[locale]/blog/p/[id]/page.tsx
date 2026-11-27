@@ -69,6 +69,9 @@ export async function generateMetadata({ params }: UserPostPageProps): Promise<M
       path: `/${sourceLocale}/blog/p/${post.id}`,
       locale: sourceLocale,
       type: 'article',
+      publishedTime: post.publishedAt ?? post.createdAt,
+      modifiedTime: post.updatedAt,
+      authors: post.authorName ? [post.authorName] : undefined,
     }),
     // 作者预览非 published 文章时不索引
     robots: post.status === 'published' ? undefined : { index: false, follow: false },

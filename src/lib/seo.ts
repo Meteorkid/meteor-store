@@ -95,6 +95,12 @@ export function buildOpenGraphMetadata(input: {
   imageAlt?: string;
   imageWidth?: number;
   imageHeight?: number;
+  /** 文章首次公开发布时间（ISO 字符串），仅 type=article 时输出 */
+  publishedTime?: string;
+  /** 文章最后更新时间（ISO 字符串），仅 type=article 时输出 */
+  modifiedTime?: string;
+  /** 文章作者展示名，仅 type=article 时输出 */
+  authors?: string[];
 }): Pick<Metadata, 'openGraph' | 'twitter'> {
   const imageUrl = input.image ? new URL(input.image, SITE_URL).toString() : `${SITE_URL}/og-image.png`;
   const locale = input.locale === 'en' ? 'en_US' : 'zh_CN';
@@ -105,7 +111,15 @@ export function buildOpenGraphMetadata(input: {
     images: [{ url: imageUrl, width: input.imageWidth ?? 1200, height: input.imageHeight ?? 630, alt: input.imageAlt ?? input.title }],
   };
   const openGraph = input.type === 'article'
-    ? { ...common, type: 'article' as const, locale, siteName: 'Meteor Store' }
+    ? {
+      ...common,
+      type: 'article' as const,
+      locale,
+      siteName: 'Meteor Store',
+      ...(input.publishedTime ? { publishedTime: input.publishedTime } : {}),
+      ...(input.modifiedTime ? { modifiedTime: input.modifiedTime } : {}),
+      ...(input.authors?.length ? { authors: input.authors } : {}),
+    }
     : { ...common, type: 'website' as const, locale, siteName: 'Meteor Store' };
   return {
     openGraph,
