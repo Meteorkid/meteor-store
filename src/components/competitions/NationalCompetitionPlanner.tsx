@@ -98,12 +98,12 @@ export default function NationalCompetitionPlanner({ locale, year, years, nowIso
 
           <form method="get" action={`/${locale}/competitions`} className="mt-8 rounded-2xl border border-white/10 bg-white/[0.025] p-4">
             <input type="hidden" name="year" value={year} />
-            <div className="grid gap-3 md:grid-cols-[minmax(200px,1fr)_180px_160px_190px_auto]">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-[minmax(200px,1fr)_180px_160px_190px_auto]">
               <label className="t-footnote text-white/60">{copy.search}<input name="q" type="search" defaultValue={filters.query} maxLength={100} className={inputClass} /></label>
               <label className="t-footnote text-white/60">{copy.field}<select name="field" defaultValue={filters.field} className={inputClass}><option value="">{copy.allFields}</option>{fields.map((field) => <option key={field} value={field}>{field}</option>)}</select></label>
               <label className="t-footnote text-white/60">{copy.status}<select name="status" defaultValue={filters.status} className={inputClass}><option value="all">{copy.allStatuses}</option>{Object.entries(statusLabel).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
               <label className="t-footnote text-white/60">{copy.sort}<select name="sort" defaultValue={filters.sort} className={inputClass}><option value="soon">{copy.sortSoon}</option><option value="source">{copy.sortSource}</option></select></label>
-              <button type="submit" className="min-h-11 self-end rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500">{copy.submit}</button>
+              <button type="submit" className="min-h-11 self-end rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 md:col-span-2 lg:col-span-1">{copy.submit}</button>
             </div>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
               <p className="t-footnote text-white/60">{copy.monthNotice}</p>
