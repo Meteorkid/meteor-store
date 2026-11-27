@@ -74,7 +74,8 @@ function NebulaHeroSection({ productCount, webAppCount, freeCount, helpCount }: 
         </div>
         <div className={styles.content}>
           <div className={styles.copy}>
-            <p className={styles.eyebrow} aria-label={english ? 'Independent creations' : '独立创造'}>
+            <p className={styles.eyebrow}>
+              <span className="sr-only">{english ? 'Independent creations' : '独立创造'}</span>
               <span className={styles.eyebrowLine} aria-hidden="true" />
               <CelestialText className={styles.eyebrowFull} text="INDEPENDENT CREATIONS" spacing={14} weight={7} decorative />
               <CelestialText className={styles.eyebrowShort} text="INDEPENDENT" spacing={14} weight={7} decorative />
@@ -86,7 +87,8 @@ function NebulaHeroSection({ productCount, webAppCount, freeCount, helpCount }: 
                 <CelestialText className={styles.englishTitleSecond} text="IS NEAR" spacing={10} weight={3.2} decorative />
               </> : <CelestialText className={styles.titleText} text="星光不远" spacing={10} weight={3.2} decorative />}
             </h1>
-            <p className={styles.description} aria-label={english ? 'Let your thoughts glow' : '让想念发光'}>
+            <p className={styles.description}>
+              <span className="sr-only">{english ? 'Let your thoughts glow' : '让想念发光'}</span>
               <CelestialText className={english ? styles.englishDescription : styles.descriptionText} text={english ? 'LET YOUR THOUGHTS GLOW' : '让想念发光'} spacing={english ? 8 : 17} weight={4.8} decorative />
             </p>
             <p className="sr-only">{english ? 'Independent tools, applications, writing and learning resources from Meteor Store.' : 'Meteor Store 的独立工具、应用、文字与学习资源。'}</p>
@@ -113,7 +115,8 @@ function NebulaHeroSection({ productCount, webAppCount, freeCount, helpCount }: 
             </button>
           </div>
           <div className={styles.heroFooter}>
-            <span aria-label={english ? 'A light is never alone' : '每一束光，都有人回应'}>
+            <span>
+              <span className="sr-only">{english ? 'A light is never alone' : '每一束光，都有人回应'}</span>
               <CelestialText className={styles.footerFull} text="A LIGHT IS NEVER ALONE" spacing={11} weight={7} decorative />
               <CelestialText className={styles.footerShort} text="WITH YOU" spacing={11} weight={7} decorative />
             </span>
@@ -169,8 +172,8 @@ function NebulaHeroSection({ productCount, webAppCount, freeCount, helpCount }: 
           </div>
         </div>
       </section>
-      <div className={styles.stats} aria-label={english ? 'Catalogue facts' : '目录统计'}>
-        {stats.map(stat => <div className={styles.stat} key={stat.text} aria-label={`${stat.label}: ${stat.value}`}>
+      <div className={styles.stats} role="group" aria-label={english ? 'Catalogue facts' : '目录统计'}>
+        {stats.map(stat => <div className={styles.stat} key={stat.text} role="group" aria-label={`${stat.label}: ${stat.value}`}>
           <CelestialText className={styles.statValue} text={String(stat.value)} spacing={4} weight={4} decorative />
           <CelestialText className={styles.statLabel} text={stat.text} spacing={8} weight={6} decorative />
         </div>)}

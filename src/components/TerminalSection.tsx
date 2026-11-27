@@ -324,10 +324,10 @@ export default function TerminalSection() {
           </div>
         </div>
 
-        <p className="text-center text-white/25 text-xs mt-6 font-mono space-x-3">
+        <p className="text-center text-white/60 text-xs mt-6 font-mono space-x-3">
           <span>{t('hint')}</span>
-          <span className="text-purple-400/30">↑↓ 历史</span>
-          <span className="text-purple-400/30">Tab 补全</span>
+          <span className="text-purple-300/70">↑↓ 历史</span>
+          <span className="text-purple-300/70">Tab 补全</span>
         </p>
       </div>
     </section>

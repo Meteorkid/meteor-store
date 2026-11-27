@@ -174,7 +174,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
         <div className="mb-8 flex justify-center">
           <a
             href="/offline.html"
-            aria-label={t('playAwayLabel')}
+            aria-label={`${t('playAway')}，${t('playAwayLabel')}`}
             className="t-footnote group inline-flex items-center gap-1.5 text-white/60 transition-colors hover:text-white/85"
           >
             <svg viewBox="0 0 16 16" aria-hidden className="h-3 w-3 opacity-70 transition-opacity group-hover:opacity-100">

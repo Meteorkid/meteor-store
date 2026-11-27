@@ -82,7 +82,7 @@ export default function AdvancedProductCard({ product, freeLifetimeClaim = false
           </h3>
 
           {/* Tagline */}
-          <p className="text-sm text-white/40 mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-sm text-white/60 mb-4 line-clamp-2 leading-relaxed">
             {product.tagline}
           </p>
 
@@ -95,13 +95,13 @@ export default function AdvancedProductCard({ product, freeLifetimeClaim = false
                 ) : (
                   <>
                     <span className="text-xl font-bold text-white">¥{minPrice}</span>
-                    <span className="text-xs text-white/30">{t('from')}</span>
+                    <span className="text-xs text-white/60">{t('from')}</span>
                   </>
                 )}
               </div>
             )}
 
-            <span className="text-xs text-white/30 group-hover:text-primary transition-colors flex items-center gap-1">
+            <span className="text-xs text-white/60 group-hover:text-primary transition-colors flex items-center gap-1">
               {t('details')}
               <svg
                 className="w-3 h-3 group-hover:translate-x-0.5 transition-transform"
