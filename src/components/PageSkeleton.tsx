@@ -6,6 +6,7 @@ export default function PageSkeleton() {
       {/* 星空底纹：静态星点，衬在骨架之下 */}
       <div
         aria-hidden="true"
+        data-ambient
         className="pointer-events-none fixed inset-0 opacity-40"
         style={{
           backgroundImage:
@@ -17,17 +18,17 @@ export default function PageSkeleton() {
         }}
       />
       {/* Header skeleton */}
-      <div className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-xl" data-transparency-surface="panel">
+      <div className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-xl" data-site-header data-transparency-surface="panel">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-secondary animate-pulse" />
               <div className="w-32 h-6 rounded bg-secondary animate-pulse" />
             </div>
-            <div className="flex items-center gap-6">
-              <div className="w-12 h-4 rounded bg-secondary animate-pulse" />
-              <div className="w-12 h-4 rounded bg-secondary animate-pulse" />
-              <div className="w-20 h-10 rounded-lg bg-secondary animate-pulse" />
+            <div className="flex items-center gap-3 sm:gap-6">
+              <div className="hidden h-4 w-12 rounded bg-secondary animate-pulse sm:block" />
+              <div className="hidden h-4 w-12 rounded bg-secondary animate-pulse sm:block" />
+              <div className="h-10 w-16 rounded-lg bg-secondary animate-pulse sm:w-20" />
             </div>
           </div>
         </div>
@@ -38,9 +39,9 @@ export default function PageSkeleton() {
         <div className="relative container mx-auto px-4 py-32">
           <div className="text-center max-w-5xl mx-auto">
             <div className="w-24 h-8 rounded-full bg-secondary animate-pulse mx-auto mb-8" />
-            <div className="w-96 h-16 rounded bg-secondary animate-pulse mx-auto mb-6" />
-            <div className="w-80 h-8 rounded bg-secondary animate-pulse mx-auto mb-6" />
-            <div className="w-96 h-4 rounded bg-secondary animate-pulse mx-auto mb-12" />
+            <div className="mx-auto mb-6 h-16 w-full max-w-96 rounded bg-secondary animate-pulse" />
+            <div className="mx-auto mb-6 h-8 w-full max-w-80 rounded bg-secondary animate-pulse" />
+            <div className="mx-auto mb-12 h-4 w-full max-w-96 rounded bg-secondary animate-pulse" />
             <div className="flex gap-4 justify-center">
               <div className="w-32 h-12 rounded-lg bg-secondary animate-pulse" />
               <div className="w-32 h-12 rounded-lg bg-secondary animate-pulse" />
