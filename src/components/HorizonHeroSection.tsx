@@ -1,12 +1,40 @@
 'use client';
 
-import { useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import dynamic from 'next/dynamic';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useReducedMotion } from '@/lib/motion';
-import { BlackHoleViewport } from './BlackHole';
 import HeroCanvas from './HeroCanvas';
 import styles from './HorizonHeroSection.module.css';
+
+// Three.js 只在用户实际选用「黑洞视界」主题时才需要。
+// 之前这里静态 import BlackHoleViewport，导致默认星云首页也会下载整个
+// three + @react-three/fiber 运行时（约 900KB）；改为动态导入后，
+// 默认主题的首页不再加载这块代码。
+const BlackHoleViewport = dynamic(
+  () => import('./BlackHole').then(module => module.BlackHoleViewport),
+  {
+    loading: () => <BlackHoleFallback />,
+  },
+);
+
+/** Three.js 加载完成前先用静态渐变占住同一块正方形，避免布局跳动。 */
+function BlackHoleFallback() {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0"
+      style={{
+        background: [
+          'radial-gradient(circle closest-side, #000 64%, #ffd27a 65%, #ff8a2a 66%, #ff8a2a50 70%, transparent 86%) center/100% 95% no-repeat',
+          'radial-gradient(ellipse 46% 11% at 50% 53%, #ffd27a 8%, #ff8a2a 37%, #9a351564 77%, transparent 100%)',
+          '#050508',
+        ].join(', '),
+      }}
+      aria-hidden="true"
+    />
+  );
+}
 
 interface HorizonHeroSectionProps {
   productCount: number;
@@ -32,7 +60,15 @@ export default function HorizonHeroSection({ productCount, webAppCount, freeCoun
   const [autoOrbit, setAutoOrbit] = useState(true);
   const [glow, setGlow] = useState(1.22);
   const [spin, setSpin] = useState(1);
+  const [blackHoleReady, setBlackHoleReady] = useState(false);
   const drag = useRef<{ id: number; x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    // 让静态首帧先渲染；下一帧再挂 Three.js，避免默认星云主题被
+    // 这段动态导入拖进首屏执行链。
+    const frame = window.requestAnimationFrame(() => setBlackHoleReady(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   function moveCamera(horizontal: number, vertical: number) {
     setPreset(null);
@@ -92,7 +128,13 @@ export default function HorizonHeroSection({ productCount, webAppCount, freeCoun
           onLostPointerCapture={endDrag}
           onKeyDown={moveWithKeyboard}
         >
-          <BlackHoleViewport {...camera} doppler={doppler} glow={glow} spin={spin} autoOrbit={autoOrbit && !reducedMotion} />
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true" data-black-hole-viewport>
+            {blackHoleReady && !reducedMotion ? (
+              <BlackHoleViewport {...camera} doppler={doppler} glow={glow} spin={spin} autoOrbit={autoOrbit} />
+            ) : (
+              <BlackHoleFallback />
+            )}
+          </div>
         </div>
         <HeroCanvas className={styles.particles} />
 
