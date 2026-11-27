@@ -342,10 +342,10 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
           <aside className="space-y-5">
             <section className="glass rounded-2xl p-5">
               <h2 className="t-title-4 text-white">{t('factsTitle')}</h2>
-              <dl className="mt-4 divide-y divide-white/[0.07]">
+              <div className="mt-4 divide-y divide-white/[0.07]">
                 {item.startsAt && <CompactFact label={t('startLabel')} value={formatContestStart(item.startsAt, pathfinderLocale)} />}
                 {facts.map((fact) => <CompactFact key={fact.label} label={fact.label} value={fact.value} />)}
-              </dl>
+              </div>
               {hasContestStarted(item) && <p className="mt-4 t-footnote text-white/70">{t('alreadyStarted')}</p>}
               {deadline.state === 'expired' && <p className="mt-4 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs text-red-200">{t('expired')}</p>}
             </section>
@@ -394,9 +394,9 @@ export default async function PathfinderItemPage({ params }: { params: Promise<{
 }
 
 function FactRow({ label, value }: { label: string; value: string }) {
-  return <div className="grid grid-cols-1 gap-1 border-b border-white/[0.07] py-4 last:border-b-0 sm:grid-cols-[180px_minmax(0,1fr)]"><dt className="text-sm text-white/60">{label}</dt><dd className="text-sm text-white/80">{value}</dd></div>;
+  return <dl className="grid grid-cols-1 gap-1 border-b border-white/[0.07] py-4 last:border-b-0 sm:grid-cols-[180px_minmax(0,1fr)]"><dt className="text-sm text-white/60">{label}</dt><dd className="text-sm text-white/80">{value}</dd></dl>;
 }
 
 function CompactFact({ label, value }: { label: string; value: string }) {
-  return <div className="flex items-start justify-between gap-4 py-3"><dt className="t-footnote text-white/60">{label}</dt><dd className="text-right t-footnote text-white/80">{value}</dd></div>;
+  return <dl className="flex items-start justify-between gap-4 py-3"><dt className="t-footnote text-white/60">{label}</dt><dd className="text-right t-footnote text-white/80">{value}</dd></dl>;
 }

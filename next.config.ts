@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
    * 让 Next 在发送 shell 前把 title/description 一起写进 head。
    * 只影响这些 UA，普通浏览器仍走流式 metadata。
    */
-  htmlLimitedBots: /bot\b|crawler|spider|Lighthouse|facebookexternalhit/i,
+  htmlLimitedBots: /bot\b|crawler|spider|Lighthouse|HeadlessChrome|facebookexternalhit/i,
   // 单worker内仍会并行生成页面；限制为1页，配合构建池预算给线上PG保留连接余量。
   experimental: { cpus: 1, staticGenerationMaxConcurrency: 1 },
   /*
