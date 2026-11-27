@@ -223,9 +223,11 @@ describe('页脚的游戏入口', () => {
     expect(footer).not.toMatch(/<Link[^>]*href=["']\/offline\.html/);
   });
 
-  it('给读屏用户说明这是什么', () => {
-    // 可见文案是句闲笔，不说破用途；aria-label 补上真实用途
-    expect(footer).toMatch(/aria-label=\{t\('playAwayLabel'\)\}/);
+  it('给读屏用户说明这是什么，同时保留可见文案', () => {
+    // 可见文案是句闲笔，不说破用途；aria-label 补上真实用途。
+    // 但 accessible name 必须包含可见文字（WCAG 2.5.3），否则读屏用户
+    // 听到的「打开小游戏」和屏幕上看到的「站点运行中」对不上。
+    expect(footer).toMatch(/aria-label=\{`\$\{t\('playAway'\)\}，\$\{t\('playAwayLabel'\)\}`\}/);
   });
 
   it('对比度不低于全站基线', () => {
