@@ -14,7 +14,7 @@ export const test12Part4: ListeningLesson = {
   title: { zh: '动物伪装', en: 'Animal camouflage' },
   summary: {
     zh: '一场关于动物如何躲避视线的讲座：伪装帮助动物融入周边环境，既躲避天敌也便于接近猎物；讲解保护色与背景匹配、拟态复制受保护物种、破坏性花纹打散身体轮廓，以及静止行为与表面纹理对伪装的配合。',
-    en: 'A lecture on how animals avoid being seen: camouflage helps an animal blend into its surroundings, whether escaping predators or approaching prey. It covers concealing coloration and background matching, mimicry of protected species, disruptive patterns that break the outline, and the behavioural and surface features that complete the disguise.',
+    en: 'A lecture on how animals avoid being seen: camouflage helps an animal blend into its surroundings, whether escaping predators or approaching prey. It covers concealing colouration and background matching, mimicry of protected species, disruptive patterns that break the outline, and the behavioural and surface features that complete the disguise.',
   },
   accent: { zh: '讲师为美式口音，语速平稳，关键术语会重复一遍。', en: 'The lecturer speaks with an American accent at a steady pace, repeating the key terms.' },
   speechRate: '+8%',
@@ -37,7 +37,7 @@ export const test12Part4: ListeningLesson = {
         },
         {
           number: 32,
-          stem: 'How does concealing coloration work?',
+          stem: 'How does concealing colouration work?',
           options: [
             { key: 'A', text: 'By copying the shape of another harmless species.' },
             { key: 'B', text: 'By blending the animal’s colours with the background.' },
@@ -69,7 +69,7 @@ export const test12Part4: ListeningLesson = {
       instruction: 'Complete the notes below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.',
       wordLimit: 'NO MORE THAN TWO WORDS AND/OR A NUMBER',
       rows: [
-        { lead: 'Concealing coloration depends on a close match between the animal’s colour and its', cells: [[{ blank: 35 }, { text: '.' }]] },
+        { lead: 'Concealing colouration depends on a close match between the animal’s colour and its', cells: [[{ blank: 35 }, { text: '.' }]] },
         { lead: 'In mimicry, a harmless species may resemble a', cells: [[{ blank: 36 }, { text: ' one that predators avoid.' }]] },
         { lead: 'Disruptive patterns use bold stripes or patches to break up the body', cells: [[{ blank: 37 }, { text: '.' }]] },
         { lead: 'Camouflage also relies on the animal’s', cells: [[{ blank: 38 }, { text: ': it must stay still and choose a suitable spot.' }]] },
@@ -89,15 +89,15 @@ export const test12Part4: ListeningLesson = {
     {
       number: 32, accepted: ['B'], evidence: 4,
       explanation: {
-        zh: '定位句 4：The simplest method is concealing coloration, which works by blending the animal’s colours with the background。保护色靠颜色与背景融合，对应 B。A 的复制另一物种是拟态，C 的打散花纹是破坏性花纹。',
-        en: 'Sentence 4: "The simplest method is concealing coloration, which works by blending the animal’s colours with the background". Concealing coloration blends colours with the background, matching B. Copying another species in A is mimicry, and splitting patches in C is disruptive colouration.',
+        zh: '定位句 4：The simplest method is concealing colouration, which works by blending the animal’s colours with the background。保护色靠颜色与背景融合，对应 B。A 的复制另一物种是拟态，C 的打散花纹是破坏性花纹。',
+        en: 'Sentence 4: "The simplest method is concealing colouration, which works by blending the animal’s colours with the background". Concealing colouration blends colours with the background, matching B. Copying another species in A is mimicry, and splitting patches in C is disruptive colouration.',
       },
     },
     {
       number: 33, accepted: ['B'], evidence: 5,
       explanation: {
         zh: '定位句 5：mimicry, where a species copies the appearance of another one that predators leave alone。拟态是复制另一物种的外形以求自保，对应 B。A 的随季节变色是保护色，C 的静止不动是行为配合。',
-        en: 'Sentence 5: "mimicry, where a species copies the appearance of another one that predators leave alone". Mimicry copies another species for protection, matching B. Seasonal colour change in A is concealing coloration, and staying still in C is behavioural support.',
+        en: 'Sentence 5: "mimicry, where a species copies the appearance of another one that predators leave alone". Mimicry copies another species for protection, matching B. Seasonal colour change in A is concealing colouration, and staying still in C is behavioural support.',
       },
     },
     {
@@ -111,7 +111,7 @@ export const test12Part4: ListeningLesson = {
       number: 35, accepted: ['background'], evidence: 10,
       explanation: {
         zh: '定位句 10：This match depends on a close agreement between the animal’s colour and its background。保护色要与背景高度吻合，填 background；outline 在同句指轮廓，不是颜色匹配对象。',
-        en: 'Sentence 10: "This match depends on a close agreement between the animal’s colour and its background". Concealing coloration matches the background; outline in the same sentence means the silhouette, not the colour match.',
+        en: 'Sentence 10: "This match depends on a close agreement between the animal’s colour and its background". Concealing colouration matches the background; outline in the same sentence means the silhouette, not the colour match.',
       },
     },
     {
@@ -155,11 +155,11 @@ export const test12Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'This lecture is about how animals avoid being seen, a survival trick we call camouflage.' },
     { speaker: 'lecturer', text: 'Its main purpose is to help an animal blend into its surroundings, whether it is hiding from a predator or creeping up on prey.' },
     { speaker: 'lecturer', text: 'We will look at three main methods, and then at the behavioural steps that make any colouring work.' },
-    { speaker: 'lecturer', text: 'The broad picture first. The simplest method is concealing coloration, which works by blending the animal’s colours with the background around it.' },
+    { speaker: 'lecturer', text: 'The broad picture first. The simplest method is concealing colouration, which works by blending the animal’s colours with the background around it.' },
     { speaker: 'lecturer', text: 'A second method is mimicry, where a species copies the appearance of another one that predators leave alone.' },
     { speaker: 'lecturer', text: 'The third is disruptive colouration, which uses bold shapes to break the body into pieces that are hard to read as one animal.' },
     { speaker: 'lecturer', text: 'Beyond colour itself, animals also choose where to rest and how to move, and these behaviours complete the disguise.' },
-    { speaker: 'lecturer', text: 'Let us start with concealing coloration, the most familiar form.' },
+    { speaker: 'lecturer', text: 'Let us start with concealing colouration, the most familiar form.' },
     { speaker: 'lecturer', text: 'A rabbit in a dry field and a deer under open trees both wear colours that sit close to the ground and the bark around them.' },
     { speaker: 'lecturer', text: 'This match depends on a close agreement between the animal’s colour and its background, so that the outline does not stand out.' },
     { speaker: 'lecturer', text: 'In open grassland, pale coats reflect the dry grass; in a dense forest, darker browns merge with the shadow.' },
@@ -191,7 +191,7 @@ export const test12Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'Some experiments use models placed on different backgrounds to see which ones predators attack first.' },
     { speaker: 'lecturer', text: 'The results show that pattern matters as much as colour; a plain model on the wrong background is attacked far more often.' },
     { speaker: 'lecturer', text: 'Let me pull the main ideas together.' },
-    { speaker: 'lecturer', text: 'Concealing coloration matches the animal to its background, season by season.' },
+    { speaker: 'lecturer', text: 'Concealing colouration matches the animal to its background, season by season.' },
     { speaker: 'lecturer', text: 'Mimicry copies a protected species or a plant part to send the wrong signal.' },
     { speaker: 'lecturer', text: 'Disruptive patterns split the body outline with strong stripes and patches.' },
     { speaker: 'lecturer', text: 'Behaviour and texture complete the disguise, because colour alone cannot hide a moving animal.' },
@@ -212,9 +212,9 @@ export const test12Part4: ListeningLesson = {
     {
       term: 'concealing', phonetic: '/kənˈsiːlɪŋ/', partOfSpeech: 'adj.', sentenceIndex: 4,
       meaning: { zh: '隐蔽的，遮蔽的', en: 'hiding something from view' },
-      usage: { zh: 'concealing coloration 是保护色的学术说法；动词 conceal。', en: 'Concealing coloration is the academic term; the verb is conceal.' },
-      collocations: ['concealing coloration', 'concealing features'],
-      example: { en: 'Concealing coloration blends the animal into its habitat.', zh: '保护色让动物融入栖息地。' },
+      usage: { zh: 'concealing colouration 是保护色的学术说法；动词 conceal。', en: 'Concealing colouration is the academic term; the verb is conceal.' },
+      collocations: ['concealing colouration', 'concealing features'],
+      example: { en: 'Concealing colouration blends the animal into its habitat.', zh: '保护色让动物融入栖息地。' },
       listening: { zh: '重音在第二音节 /ˈsiː/；开头 /kən/ 很弱。', en: 'Stress the second syllable; the opening /kən/ is weak.' },
     },
     {
@@ -322,7 +322,7 @@ export const test12Part4: ListeningLesson = {
       title: { zh: '三种方法先在概览段分清', en: 'Separate the three methods in the overview' },
       body: {
         zh: '31 到 34 题在开场概览段：保护色是颜色配背景，拟态是复制物种，破坏性花纹是打散轮廓。听到三个方法名时在选项旁标注对应关系，细节段展开时不必再回头辨析。',
-        en: 'Items 31 to 34 sit in the overview: concealing coloration matches the background, mimicry copies a species, disruptive patterns split the outline. Mark the match beside each option when the three names appear, and do not rework it in the detail section.'
+        en: 'Items 31 to 34 sit in the overview: concealing colouration matches the background, mimicry copies a species, disruptive patterns split the outline. Mark the match beside each option when the three names appear, and do not rework it in the detail section.'
       },
     },
     {

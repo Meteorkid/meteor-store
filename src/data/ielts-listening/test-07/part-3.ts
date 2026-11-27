@@ -137,8 +137,8 @@ export const test07Part3: ListeningLesson = {
     {
       number: 27, accepted: ['C'], evidence: 38,
       explanation: {
-        zh: '定位句 38：A few instructions looked long for four year olds, and tired children would perform badly。动笔前要核对任务是否符合儿童年龄段，对应 C。A 的样本量准则在句 61 被降为次要，B 的家长知情在讨论中没有出现。',
-        en: 'Sentence 38: "A few instructions looked long for four year olds, and tired children would perform badly". The response should check whether the tasks suit the age group, matching C. Sample size guidelines are secondary in sentence 61, and informing parents of the aim never comes up.',
+        zh: '定位句 38：A few instructions looked long for four-year-olds, and tired children would perform badly。动笔前要核对任务是否符合儿童年龄段，对应 C。A 的样本量准则在句 61 被降为次要，B 的家长知情在讨论中没有出现。',
+        en: 'Sentence 38: "A few instructions looked long for four-year-olds, and tired children would perform badly". The response should check whether the tasks suit the age group, matching C. Sample size guidelines are secondary in sentence 61, and informing parents of the aim never comes up.',
       },
     },
     {
@@ -166,7 +166,7 @@ export const test07Part3: ListeningLesson = {
   transcript: [
     { speaker: 'tutor', text: 'Right, let’s settle in. Have you both read the paper on bilingual children that I sent round on Monday?' },
     { speaker: 'neerja', text: 'I have. It compares children who hear two languages at home with those who hear only one.' },
-    { speaker: 'aria', text: 'Me too. The sample was four and a half year olds from two primary classes, tested during the school day.' },
+    { speaker: 'aria', text: 'Me too. The sample was four-and-a-half-year-olds from two primary classes, tested during the school day.' },
     { speaker: 'neerja', text: 'It looked neat on the surface, but the methods raised several issues I would change.' },
     { speaker: 'tutor', text: 'That’s the right instinct. Before the findings, each of you should name one limitation that stood out.' },
     { speaker: 'tutor', text: 'Neerja, would you like to start?' },
@@ -182,7 +182,7 @@ export const test07Part3: ListeningLesson = {
     { speaker: 'tutor', text: 'You cannot tell from such a group whether the result would hold somewhere very different.' },
     { speaker: 'neerja', text: 'I’d add one more. The children were all between four and five, so the study says nothing about older bilinguals.' },
     { speaker: 'neerja', text: 'A child of eight faces very different demands at school, and the age range here was too narrow for any wider claim.' },
-    { speaker: 'aria', text: 'The age point is a good one. You can’t generalise from four year olds to teenagers.' },
+    { speaker: 'aria', text: 'The age point is a good one. You can’t generalise from four-year-olds to teenagers.' },
     { speaker: 'tutor', text: 'Did anyone notice how the testing sessions were arranged?' },
     { speaker: 'neerja', text: 'Each child was tested in the morning, one after another, in a small room off the main hall.' },
     { speaker: 'aria', text: 'The door stayed open, though, and you could hear other children playing outside between tasks.' },
@@ -202,8 +202,8 @@ export const test07Part3: ListeningLesson = {
     { speaker: 'tutor', text: 'Right. Before we draft our response to the paper, what do we need to check in the methods?' },
     { speaker: 'tutor', text: 'Neerja, you flagged the parental reports. Is there anything else we should verify first?' },
     { speaker: 'neerja', text: 'We should check whether the tasks actually match the children’s age group.' },
-    { speaker: 'neerja', text: 'A few instructions looked long for four year olds, and tired children would perform badly whatever language they spoke.' },
-    { speaker: 'tutor', text: 'Good point. A task that suits a six year old will simply confuse a four year old.' },
+    { speaker: 'neerja', text: 'A few instructions looked long for four-year-olds, and tired children would perform badly whatever language they spoke.' },
+    { speaker: 'tutor', text: 'Good point. A task that suits a six-year-old will simply confuse a four-year-old.' },
     { speaker: 'tutor', text: 'Anything else about the materials?' },
     { speaker: 'neerja', text: 'The vocabulary task used pictures of household objects, which some children may not have seen at home.' },
     { speaker: 'aria', text: 'That ties back to the sample point. A wider sample would show whether the pictures are fair.' },

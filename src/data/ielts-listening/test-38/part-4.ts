@@ -100,8 +100,8 @@ export const test38Part4: ListeningLesson = {
     {
       number: 33, accepted: ['barley'], evidence: 13,
       explanation: {
-        zh: '定位句 13：Barley was the main crop in many early river valleys, because it stood fairly dry periods。主要灌溉作物是大麦 barley；句 14 的小麦、椰枣和蔬菜是小块地次栽作物。',
-        en: 'Sentence 13: "Barley was the main crop in many early river valleys, because it stood fairly dry periods". The main crop is barley. Wheat, dates and vegetables in sentence 14 fill smaller plots.',
+        zh: '定位句 13：Barley was the main crop in many early river valleys, because it withstood fairly dry periods。主要灌溉作物是大麦 barley；句 14 的小麦、椰枣和蔬菜是小块地次栽作物。',
+        en: 'Sentence 13: "Barley was the main crop in many early river valleys, because it withstood fairly dry periods". The main crop is barley. Wheat, dates and vegetables in sentence 14 fill smaller plots.',
       },
     },
     {
@@ -168,7 +168,7 @@ export const test38Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'In several regions, water rights were inherited like land, and passed from parent to child within the village.' },
     { speaker: 'lecturer', text: 'Records also showed which plots were fed by the main canal and which depended on rainfall alone.' },
     { speaker: 'lecturer', text: 'The crops chosen for irrigated land had to repay the work of digging and maintaining the ditches.' },
-    { speaker: 'lecturer', text: 'Barley was the main crop in many early river valleys, because it stood fairly dry periods and could be stored through the season.' },
+    { speaker: 'lecturer', text: 'Barley was the main crop in many early river valleys, because it withstood fairly dry periods and could be stored through the season.' },
     { speaker: 'lecturer', text: 'Wheat, dates and vegetables filled smaller plots near the village, where the water was easiest to control.' },
     { speaker: 'lecturer', text: 'Surplus grain meant families did not rely on one year’s rain, and fewer people had to leave during dry spells.' },
     { speaker: 'lecturer', text: 'With steady water supply, irrigation let small farming settlements grow into cities, where craft workers and rulers could live apart from the fields.' },

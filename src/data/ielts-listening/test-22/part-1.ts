@@ -71,7 +71,7 @@ export const test22Part1: ListeningLesson = {
           stem: 'What does the annual fee cover?',
           options: [
             { key: 'A', text: 'all printing of submitted photographs' },
-            { key: 'B', text: 'entry to the annual members exhibition' },
+            { key: 'B', text: 'entry to the annual members’ exhibition' },
             { key: 'C', text: 'travel to every outdoor shoot' },
           ],
         },
@@ -147,8 +147,8 @@ export const test22Part1: ListeningLesson = {
     {
       number: 9, accepted: ['B'], evidence: 35,
       explanation: {
-        zh: '定位句 35：the fee covers entry to the annual members exhibition, which hangs in the town gallery each spring。会费包含年度会员展览名额，对应 B。A 的打印费在句 37 单列，C 的差旅在同句被归为另付。',
-        en: 'Sentence 35: "the fee covers entry to the annual members exhibition, which hangs in the town gallery each spring". The fee covers exhibition entry, matching B. Printing in sentence 37 is listed separately, and travel is paid on top in the same sentence.',
+        zh: '定位句 35：the fee covers entry to the annual members’ exhibition, which hangs in the town gallery each spring。会费包含年度会员展览名额，对应 B。A 的打印费在句 37 单列，C 的差旅在同句被归为另付。',
+        en: 'Sentence 35: "the fee covers entry to the annual members’ exhibition, which hangs in the town gallery each spring". The fee covers exhibition entry, matching B. Printing in sentence 37 is listed separately, and travel is paid on top in the same sentence.',
       },
     },
     {
@@ -195,7 +195,7 @@ export const test22Part1: ListeningLesson = {
     { speaker: 'applicant', text: 'What happens on the outdoor shoots, apart from walking around with a camera?' },
     { speaker: 'adviser', text: 'A tutor walks around the route with the group, stopping to show a composition or a lighting trick, and offers individual advice as people need it.' },
     { speaker: 'applicant', text: 'That sounds more helpful than a lecture in a hall.' },
-    { speaker: 'adviser', text: 'Now the exhibition side. Your printing stays your own, but the fee covers entry to the annual members exhibition, which hangs in the town gallery each spring.' },
+    { speaker: 'adviser', text: 'Now the exhibition side. Your printing stays your own, but the fee covers entry to the annual members’ exhibition, which hangs in the town gallery each spring.' },
     { speaker: 'applicant', text: 'Right, so the exhibition entry is included, but printing is on top.' },
     { speaker: 'adviser', text: 'That is the short version. Now, about the equipment on the first shoot.' },
     { speaker: 'applicant', text: 'I have read that beginners should buy a tripod straight away.' },
@@ -258,8 +258,8 @@ export const test22Part1: ListeningLesson = {
       term: 'exhibition', phonetic: '/ˌeksɪˈbɪʃn/', partOfSpeech: 'n.', sentenceIndex: 35,
       meaning: { zh: '展览，作品展', en: 'a public showing of members’ photographs' },
       usage: { zh: '可数名词；the annual exhibition、hang in the gallery。动词 exhibit。', en: 'Countable: the annual exhibition. The verb is exhibit.' },
-      collocations: ['the annual exhibition', 'members exhibition', 'hang in the gallery'],
-      example: { en: 'The members exhibition hangs in the town gallery each spring.', zh: '会员作品展每年春天在镇画廊展出。' },
+      collocations: ['the annual exhibition', 'members’ exhibition', 'hang in the gallery'],
+      example: { en: 'The members’ exhibition hangs in the town gallery each spring.', zh: '会员作品展每年春天在镇画廊展出。' },
       listening: { zh: '四个音节，重音在第三音节 /ˈbɪʃ/。', en: 'Four syllables with stress on the third.' },
     },
     {

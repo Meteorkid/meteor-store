@@ -92,8 +92,8 @@ export const test35Part4: ListeningLesson = {
     {
       number: 32, accepted: ['Red Sea'], evidence: 3,
       explanation: {
-        zh: '定位句 3：Early traders carried beans across the Red Sea, bringing them to the markets of the Arabian peninsula。豆类经红海转运，填 Red Sea；阿拉伯半岛是到达的市场，不是渡海海域。',
-        en: 'Sentence 3: "Early traders carried beans across the Red Sea, bringing them to the markets of the Arabian peninsula". Beans crossed the Red Sea, so fill Red Sea. The peninsula was the destination market, not the water crossed.',
+        zh: '定位句 3：Early traders carried beans across the Red Sea, bringing them to the markets of the Arabian Peninsula。豆类经红海转运，填 Red Sea；阿拉伯半岛是到达的市场，不是渡海海域。',
+        en: 'Sentence 3: "Early traders carried beans across the Red Sea, bringing them to the markets of the Arabian Peninsula". Beans crossed the Red Sea, so fill Red Sea. The peninsula was the destination market, not the water crossed.',
       },
     },
     {
@@ -157,12 +157,12 @@ export const test35Part4: ListeningLesson = {
     { speaker: 'lecturer', text: 'More than two billion cups of coffee are drunk around the world every day, and its history reaches back many centuries.' },
     { speaker: 'lecturer', text: 'Coffee first grew wild in the highlands of Ethiopia, where local people noticed the effect of the red berries.' },
     { speaker: 'lecturer', text: 'The beans inside those berries were later dried and carried by traders moving north and east.' },
-    { speaker: 'lecturer', text: 'Early traders carried beans across the Red Sea, bringing them to the markets of the Arabian peninsula.' },
+    { speaker: 'lecturer', text: 'Early traders carried beans across the Red Sea, bringing them to the markets of the Arabian Peninsula.' },
     { speaker: 'lecturer', text: 'There, farmers began to grow coffee in shaded gardens near the coast.' },
     { speaker: 'lecturer', text: 'The drink itself was prepared by boiling roasted beans in water, often with spices added.' },
     { speaker: 'lecturer', text: 'Roasting turns the beans dark and fragrant, releasing oils that carry the familiar aroma.' },
     { speaker: 'lecturer', text: 'Before roasting, the green beans taste plain and grassy, so the heat is essential to the flavour.' },
-    { speaker: 'lecturer', text: 'From the Arabian peninsula, coffee reached Egypt, Syria and the cities of the Ottoman empire.' },
+    { speaker: 'lecturer', text: 'From the Arabian Peninsula, coffee reached Egypt, Syria and the cities of the Ottoman Empire.' },
     { speaker: 'lecturer', text: 'Early coffee houses opened as places where people met over a cup.' },
     { speaker: 'lecturer', text: 'In those rooms, customers talked about trade, news and the latest ideas.' },
     { speaker: 'lecturer', text: 'Early coffee houses were therefore places for conversation and business, not just eating and drinking.' },
@@ -229,8 +229,8 @@ export const test35Part4: ListeningLesson = {
     {
       term: 'peninsula', phonetic: '/pəˈnɪnsjələ/', partOfSpeech: 'n.', sentenceIndex: 3,
       meaning: { zh: '半岛', en: 'the land mass surrounded partly by sea, here Arabia' },
-      usage: { zh: '可数名词；the Arabian peninsula、on the peninsula。', en: 'Countable: the Arabian peninsula, on the peninsula.' },
-      collocations: ['the Arabian peninsula', 'on the peninsula', 'a coastal peninsula'],
+      usage: { zh: '可数名词；the Arabian Peninsula、on the peninsula。', en: 'Countable: the Arabian Peninsula, on the peninsula.' },
+      collocations: ['the Arabian Peninsula', 'on the peninsula', 'a coastal peninsula'],
       example: { en: 'Beans reached the markets of the peninsula.', zh: '豆类抵达半岛市场。' },
       listening: { zh: '四个音节，重音在第二音节 /ˈnɪn/。', en: 'Four syllables with stress on the second.' },
     },

@@ -162,7 +162,7 @@ export const test01Part1: ListeningLesson = {
     { speaker: 'receptionist', text: 'Thank you. The current course is fully booked, I’m afraid, but the next one starts on the twelfth of May.' },
     { speaker: 'caller', text: 'The twelfth of May. That’s a Tuesday, isn’t it?' },
     { speaker: 'receptionist', text: 'No, it’s a Thursday. The course runs for six weeks, and all the classes are on Sunday afternoons, from two until five.' },
-    { speaker: 'caller', text: 'Sunday afternoons works well for me. How much does it cost?' },
+    { speaker: 'caller', text: 'Sunday afternoons work well for me. How much does it cost?' },
     { speaker: 'receptionist', text: 'It’s ninety-five pounds, and that covers all the clay and the glazes you’ll use.' },
     { speaker: 'caller', text: 'So I don’t need to buy my own clay?' },
     { speaker: 'receptionist', text: 'No, everything like that is provided. You will need an apron, though, because it does get rather messy.' },
