@@ -10,10 +10,7 @@ import * as redisModule from '../redis';
 
 describe('注册 CAPTCHA', () => {
   beforeEach(() => {
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-    delete process.env.UPSTASH_REDIS_KV_REST_API_URL;
-    delete process.env.UPSTASH_REDIS_KV_REST_API_TOKEN;
+    delete process.env.REDIS_URL;
     process.env.JWT_SECRET = 'test-secret-with-enough-entropy';
     __resetCaptchaStateForTests();
     vi.spyOn(Math, 'random').mockReturnValue(0.5);

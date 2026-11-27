@@ -126,7 +126,7 @@ export function runCommand(rawInput: string): CommandResult {
         '    │ OS       │ Next.js 16 · Vercel    │',
         '    │ Shell    │ 阿里云 2G 轻量 · PM2    │',
         '    │ DB       │ Neon Postgres · Drizzle │',
-        '    │ Cache    │ Upstash Redis           │',
+        '    │ Cache    │ 本机 Redis                │',
         '    │ Monitor  │ Sentry                  │',
         '    │ Payment  │ 支付宝                   │',
         '    │ Lang     │ TypeScript · React 19    │',

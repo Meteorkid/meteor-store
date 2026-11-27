@@ -9,7 +9,7 @@ const HeartbeatSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  // 在线心跳只用于展示人数，不值得为它消耗 Upstash 命令；单实例进程内限流即可。
+  // 在线心跳只用于展示人数，不值得为它写 Redis；单实例进程内限流即可。
   const { limited } = await rateLimit(`online-heartbeat:${ip}`, 30, 60_000, {
     store: 'memory',
   });
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  // Redis 挂了 heartbeat 内部已静默降级，这里照样返回成功
+  // 在线人数是进程内 Map，不依赖 Redis，这里直接记录即可
   await heartbeat(parsed.data.visitorId);
   return NextResponse.json({ ok: true });
 }

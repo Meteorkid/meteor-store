@@ -12,7 +12,7 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
 
 当前迁移序列中间还包含 `0038_add_orders_plan_id.sql`。它会为现有 `orders` 表增加可空的 `plan_id`，并回填能确定套餐的 Tollow 订单；这不是 Pathfinder 变更。运行全量迁移前必须单独评估该影响，不能把 `pnpm db:migrate` 描述为完全不触碰现有业务数据。
 
-公开页面通常可在数据库不可用时回退到仓库内 50 条静态可信种子；静态紧急下架记录另存 Upstash Redis。生产环境若数据库和 Redis 同时不可用会安全关闭目录，而不是让已下架内容复活。同步和后台审核依赖新表，因此迁移前调用会明确失败。
+公开页面通常可在数据库不可用时回退到仓库内 50 条静态可信种子；静态紧急下架记录另存本机 Redis。生产环境若数据库和 Redis 同时不可用会安全关闭目录，而不是让已下架内容复活。同步和后台审核依赖新表，因此迁移前调用会明确失败。
 
 ## 上线步骤
 
@@ -20,7 +20,7 @@ Pathfinder 本身由迁移 `0037_glossy_grey_gargoyle.sql` 与 `0039_pathfinder_
 2. 停止 Pathfinder 定时同步；其他站点功能可继续运行。
 3. 使用生产 `DATABASE_URL` 执行 `pnpm db:migrate`，确认 `0037`、`0038` 和 `0039` 依次成功。
 4. 部署新应用并完成 `/zh/pathfinder`、`/en/pathfinder` 的静态种子冒烟检查。
-5. 确认 Upstash Redis 的可写连接变量已配置；支持标准 `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`，也兼容项目现有的 `UPSTASH_REDIS_KV_REST_API_URL` / `UPSTASH_REDIS_KV_REST_API_TOKEN`。它同时承担跨实例限流和静态下架保护。
+5. 确认生产 `.env.production` 的 `REDIS_URL` 指向本机 Redis（`redis://:password@127.0.0.1:6379/0`），并且 `redis-cli` 可正常 `PING`。它同时承担跨重启限流和静态下架保护。
 6. 配置至少 32 字节随机值 `PATHFINDER_CRON_SECRET`；服务端会拒绝更短的误配置。
 7. 可选配置只读 `GITHUB_TOKEN`，提高 GitHub Search API 额度；不要授予写权限。
 8. 手动调用一次 `POST /api/cron/pathfinder-sync`，先在请求体中只传一个官方 RSS 来源：

@@ -124,9 +124,7 @@ async function storeChallenge(token: string, targetX: number): Promise<boolean> 
   const redis = getRedis();
   if (redis) {
     try {
-      const result = await redis.set(`captcha:challenge:${token}`, String(targetX), {
-        ex: CAPTCHA_EXPIRY,
-      });
+      const result = await redis.set(`captcha:challenge:${token}`, String(targetX), 'EX', CAPTCHA_EXPIRY);
       return result === 'OK';
     } catch (error) {
       console.error('captcha challenge store failed (Redis):', error);
@@ -157,7 +155,7 @@ async function consumeChallengeTarget(token: string): Promise<number | null> {
   const redis = getRedis();
   if (redis) {
     try {
-      const value = await redis.getdel<string | number>(`captcha:challenge:${token}`);
+      const value = await redis.getdel(`captcha:challenge:${token}`);
       const targetX = Number(value);
       return value === null || !Number.isFinite(targetX) ? null : targetX;
     } catch (error) {
@@ -196,10 +194,13 @@ async function tryConsumeProofJti(jti: string): Promise<boolean> {
   const redis = getRedis();
   if (redis) {
     try {
-      const result = await redis.set(`captcha:proof:${jti}`, '1', {
-        ex: CAPTCHA_EXPIRY + 60,
-        nx: true,
-      });
+      const result = await redis.set(
+        `captcha:proof:${jti}`,
+        '1',
+        'EX',
+        CAPTCHA_EXPIRY + 60,
+        'NX',
+      );
       return result === 'OK';
     } catch (error) {
       console.error('captcha proof consume failed (Redis):', error);

@@ -141,8 +141,8 @@ ssh server "cd /var/www/meteor-store && mv .next.rollback .next && pm2 restart m
 
 ### 日常运维
 - **错误监控**：Sentry Dashboard 每日查看
-- **限流监控**：Upstash Redis 用量
-- **数据库**：Neon 控制台查看慢查询、连接数
+- **限流监控**：服务器本机 Redis（`redis-cli INFO` / 内存占用）
+- **数据库**：本机 PostgreSQL 慢查询与连接数
 - **备份**：Neon 自动备份，确认最近备份可用
 
 ### 告警

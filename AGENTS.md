@@ -4,7 +4,7 @@
 
 - **项目名称**: Meteor Store
 - **技术栈**: Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS 4
-- **数据**: 自建 PostgreSQL 18（与应用同机，只监听 127.0.0.1）+ Drizzle ORM；限流用 Upstash Redis；错误监控用 Sentry
+- **数据**: 自建 PostgreSQL 18（与应用同机，只监听 127.0.0.1）+ Drizzle ORM；限流、CAPTCHA、Pathfinder 下架记录用同机 Redis（只监听 127.0.0.1）；错误监控用 Sentry
 - **组成**: 三个子系统 —— 内容（博客/文档/开源展示）、商业（产品/支付/授权码）、身份（注册登录）
 
 ## 可用 Skills
@@ -900,7 +900,7 @@ Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户�
 
 ### 其他
 
-- 限流数据在 Upstash Redis，`Ratelimit` 带进程内 `ephemeralCache`：调限流时**光清 Redis 不够，必须重启进程**
+- 限流数据在本机 Redis（`REDIS_URL`），直接读写，没有 SDK 的进程内 `ephemeralCache`。删限流 key 即时生效，不需要重启进程；Redis 没配时才退回进程内 Map
 - 密钥不进仓库；`NEXT_PUBLIC_` 前缀的变量会被内联进客户端包，只放公开值（如 Sentry DSN）
 - 改 `NEXT_PUBLIC_*` 后**必须重新构建**才生效，不是重启
 - **CSP 由 proxy 动态生成**（[src/proxy.ts](file:///Users/meteor/github/meteor-store/src/proxy.ts)），不要回到 `next.config.ts` 写静态 CSP。
@@ -908,8 +908,8 @@ Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户�
   img-src 会从 `R2_PUBLIC_BASE` 自动注入域名白名单，新加图片源域名时改 proxy，别在响应头里覆盖
 - **改密踢会话**靠 `users.token_version`：会话 JWT 携带签发时的版本号，`getSession` 比对当前数据库值，
   不一致即视为过期。改密递增该字段；改昵称/头像**不要**递增——会把其他设备无辜踢下线
-- CAPTCHA 答案与防重放状态走 Redis（`src/lib/captcha.ts`）：挑战用 GETDEL 原子认领，
-  proof 用 SET NX 原子消费；Vercel 多实例下不能依赖进程内 Map
+- CAPTCHA 答案与防重放状态走本机 Redis（`src/lib/captcha.ts`）：挑战用 GETDEL 原子认领，
+  proof 用 SET NX 原子消费。Redis 未配置的开发和测试环境退回进程内 Map；生产必须配置。
 - **React 19 `react-hooks/refs` 规则**：不要在渲染期间写 ref（`ref.current = value`），
   会触发 ESLint error。写 ref 必须放进 `useEffect`。EasterEggs 和 MeteorShower 的 `tRef` 已修
 - **Hook 调用顺序**：`useCallback`/`useMemo`/`useEffect` 等所有 Hook 必须在任何 `if (...) return` 之前调用，

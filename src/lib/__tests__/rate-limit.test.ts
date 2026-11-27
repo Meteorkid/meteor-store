@@ -1,19 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const mockLimit = vi.fn();
-const slidingWindowMock = vi.fn((limit: number, window: string) => ({ limit, window }));
-
-vi.mock('@upstash/redis', () => ({
-  Redis: class MockRedis {},
+const redisState = vi.hoisted(() => ({
+  client: null as null | { eval: ReturnType<typeof vi.fn> },
 }));
 
-vi.mock('@upstash/ratelimit', () => {
-  class MockRatelimit {
-    static slidingWindow = slidingWindowMock;
-    limit = mockLimit;
-  }
-  return { Ratelimit: MockRatelimit };
-});
+vi.mock('../redis', () => ({
+  getRedis: () => redisState.client,
+}));
 
 async function importRateLimit() {
   return await import('../rate-limit');
@@ -23,8 +16,8 @@ describe('rateLimit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    redisState.client = null;
+    delete process.env.REDIS_URL;
   });
 
   afterEach(() => {
@@ -47,7 +40,6 @@ describe('rateLimit', () => {
     await rateLimit('login:email:overflow@example.com', 1, 900_000, options);
     expect((await rateLimit('login:email:target@example.com', 1, 900_000, options)).limited).toBe(true);
     expect((await rateLimit('login:email:another@example.com', 1, 900_000, options)).limited).toBe(true);
-    expect(mockLimit).not.toHaveBeenCalled();
   });
 
   it('full memory retains existing counts, rejects new keys, and releases expired capacity', async () => {
@@ -76,7 +68,7 @@ describe('rateLimit', () => {
     const result = await rateLimit('key', 10, 60_000);
 
     expect(result.limited).toBe(false);
-    expect(mockLimit).not.toHaveBeenCalled();
+    expect(result.remaining).toBe(10);
   });
 
   it('uses a per-instance fallback limit when requested and Redis is not configured', async () => {
@@ -92,66 +84,69 @@ describe('rateLimit', () => {
     expect(third.limited).toBe(true);
   });
 
-  it('creates a distinct limiter per (limit, windowMs) combination instead of sharing one instance', async () => {
-    process.env.UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
-    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
-    mockLimit.mockResolvedValue({ success: true, remaining: 4, reset: Date.now() });
+  it('uses the Redis sliding-window script with the requested key and limits', async () => {
+    const evalMock = vi.fn().mockResolvedValue([1, 4, 1_700_000_060_000]);
+    redisState.client = { eval: evalMock };
 
     const { rateLimit } = await importRateLimit();
-    await rateLimit('ip1', 10, 60_000);
-    await rateLimit('ip2', 5, 60_000);
+    const result = await rateLimit('ip1', 10, 60_000);
 
-    // 若限流器被单例共享，slidingWindow 只会以第一次的参数被调用一次；
-    // 修复后应分别以各自的 limit 值被调用
-    const calledLimits = slidingWindowMock.mock.calls.map(([limit]) => limit);
-    expect(calledLimits).toContain(10);
-    expect(calledLimits).toContain(5);
+    expect(evalMock).toHaveBeenCalledWith(
+      expect.any(String),
+      1,
+      'ip1',
+      '10',
+      '60000',
+      expect.any(String),
+    );
+    expect(result).toEqual({ limited: false, remaining: 4, resetAt: 1_700_000_060_000 });
   });
 
-  it('reuses the cached limiter instance for the same (limit, windowMs) combination', async () => {
-    process.env.UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
-    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
-    mockLimit.mockResolvedValue({ success: true, remaining: 9, reset: Date.now() });
-
-    const { rateLimit } = await importRateLimit();
-    await rateLimit('ip1', 10, 60_000);
-    await rateLimit('ip2', 10, 60_000);
-
-    const callsWithLimit10 = slidingWindowMock.mock.calls.filter(([limit]) => limit === 10);
-    expect(callsWithLimit10).toHaveLength(1);
-  });
-
-  it('reports limited=true when the underlying limiter rejects the request', async () => {
-    process.env.UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
-    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
-    mockLimit.mockResolvedValue({ success: false, remaining: 0, reset: Date.now() + 1000 });
+  it('reports limited=true when the sliding window rejects the request', async () => {
+    const evalMock = vi.fn().mockResolvedValue([0, 0, 1_700_000_001_000]);
+    redisState.client = { eval: evalMock };
 
     const { rateLimit } = await importRateLimit();
     const result = await rateLimit('ip', 5, 60_000);
 
-    expect(result.limited).toBe(true);
+    expect(result).toEqual({ limited: true, remaining: 0, resetAt: 1_700_000_001_000 });
   });
 
   it('fails open on Redis errors by default', async () => {
-    process.env.UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
-    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
-    mockLimit.mockRejectedValue(new Error('network error'));
+    const evalMock = vi.fn().mockRejectedValue(new Error('network error'));
+    redisState.client = { eval: evalMock };
 
     const { rateLimit } = await importRateLimit();
     const result = await rateLimit('ip', 10, 60_000);
 
     expect(result.limited).toBe(false);
+    expect(result.remaining).toBe(10);
   });
 
   it('fails closed on Redis errors when failClosed is requested', async () => {
-    process.env.UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
-    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
-    mockLimit.mockRejectedValue(new Error('network error'));
+    const evalMock = vi.fn().mockRejectedValue(new Error('network error'));
+    redisState.client = { eval: evalMock };
 
     const { rateLimit } = await importRateLimit();
     const result = await rateLimit('ip', 10, 60_000, { failClosed: true });
 
     expect(result.limited).toBe(true);
+    expect(result.remaining).toBe(0);
+  });
+
+  it('falls back to memory when Redis fails and the caller requests it', async () => {
+    const evalMock = vi.fn().mockRejectedValue(new Error('network error'));
+    redisState.client = { eval: evalMock };
+
+    const { rateLimit } = await importRateLimit();
+    const key = `redis-error-memory-${Date.now()}`;
+    const first = await rateLimit(key, 2, 60_000, { fallback: 'memory' });
+    const second = await rateLimit(key, 2, 60_000, { fallback: 'memory' });
+    const third = await rateLimit(key, 2, 60_000, { fallback: 'memory' });
+
+    expect(first.limited).toBe(false);
+    expect(second.limited).toBe(false);
+    expect(third.limited).toBe(true);
   });
 });
 

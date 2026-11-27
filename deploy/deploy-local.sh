@@ -64,6 +64,7 @@ echo "==> 1. 建立到生产库的 SSH 隧道（构建期静态产物必须读�
 #   生产库只监听服务器 127.0.0.1:5432，本地连不到，所以通过 SSH 隧道借用它。
 #   隧道只读、只活到本次构建结束，连接串不落盘（仅在进程环境里）。
 TUNNEL_PORT="${TUNNEL_PORT:-15432}"
+REDIS_TUNNEL_PORT="${REDIS_TUNNEL_PORT:-16379}"
 PROD_DB_URL="$(ssh "${SSH_OPTS[@]}" "$SERVER" \
   'cd /var/www/meteor-store && set -a && . ./.env.production >/dev/null 2>&1 && set +a && printf %s "$DATABASE_URL"')"
 if [[ -z "$PROD_DB_URL" ]]; then
@@ -75,12 +76,29 @@ if [[ "$PROD_DB_URL" != *"@127.0.0.1:5432"* ]]; then
   exit 1
 fi
 BUILD_DATABASE_URL="${PROD_DB_URL/@127.0.0.1:5432/@127.0.0.1:$TUNNEL_PORT}"
+# Pathfinder 的静态下架记录在构建期也会读 Redis；不能让构建机去连生产
+# 127.0.0.1:6379，否则 tombstone 读不到会被当成存储不可用。
+PROD_REDIS_URL="$(ssh "${SSH_OPTS[@]}" "$SERVER" \
+  'cd /var/www/meteor-store && set -a && . ./.env.production >/dev/null 2>&1 && set +a && printf %s "$REDIS_URL"')"
+if [[ -z "$PROD_REDIS_URL" ]]; then
+  echo "ERROR: 未能从服务器 .env.production 读到 REDIS_URL" >&2
+  exit 1
+fi
+if [[ "$PROD_REDIS_URL" != *"127.0.0.1:6379"* ]]; then
+  echo "ERROR: 生产 REDIS_URL 不是本机 127.0.0.1:6379，无法安全改写端口，请人工确认" >&2
+  exit 1
+fi
+BUILD_REDIS_URL="${PROD_REDIS_URL/127.0.0.1:6379/127.0.0.1:$REDIS_TUNNEL_PORT}"
 NEXT_BACKUP=""
 # 只清理自己建的隧道：若复用了手工开的排障隧道，部署结束不该把它一并杀掉。
 TUNNEL_OWNED=0
+REDIS_TUNNEL_OWNED=0
 cleanup_tunnel() {
   if [[ "${TUNNEL_OWNED}" == "1" ]]; then
     pkill -f "ssh .*-L ${TUNNEL_PORT}:127.0.0.1:5432" 2>/dev/null || true
+  fi
+  if [[ "${REDIS_TUNNEL_OWNED}" == "1" ]]; then
+    pkill -f "ssh .*-L ${REDIS_TUNNEL_PORT}:127.0.0.1:6379" 2>/dev/null || true
   fi
   # 旧产物成功替换后就没用了；构建失败时也一起清掉，避免 .next.bak-* 堆积
   # （历史上曾累积 8.4G / 17 个目录）。
@@ -104,11 +122,24 @@ else
   TUNNEL_OWNED=1
   echo "   隧道就绪：127.0.0.1:${TUNNEL_PORT} -> 生产库"
 fi
+# Redis 同样在服务器回环地址上；隧道只给构建期 Pathfinder tombstone 读取使用。
+if (exec 3<>"/dev/tcp/127.0.0.1/${REDIS_TUNNEL_PORT}") 2>/dev/null; then
+  exec 3>&- 2>/dev/null || true
+  echo "   复用已存在的隧道：127.0.0.1:${REDIS_TUNNEL_PORT} -> 生产 Redis"
+else
+  ssh "${SSH_OPTS[@]}" -f -N -o ExitOnForwardFailure=yes \
+    -o ServerAliveInterval=15 -o ServerAliveCountMax=4 -o TCPKeepAlive=yes \
+    -L "${REDIS_TUNNEL_PORT}:127.0.0.1:6379" "$SERVER"
+  REDIS_TUNNEL_OWNED=1
+  echo "   隧道就绪：127.0.0.1:${REDIS_TUNNEL_PORT} -> 生产 Redis"
+fi
 
 echo "==> 2. 本地生产构建（NEXT_PUBLIC_* 与线上一致，见 .env.production）"
 export NODE_ENV=production
 # 显式导出会压过 .env.local 里的 Neon 地址：Next 只填充未定义的变量。
 export DATABASE_URL="$BUILD_DATABASE_URL"
+# 构建期也要能读到生产 Redis 的静态下架记录；连接串不落盘，只活在本次构建进程里。
+export REDIS_URL="$BUILD_REDIS_URL"
 # 先整体挪走旧产物，不要在原地清理：本会话的沙箱删除守卫会在 next build
 # 清理 .next/turbopack 时报 SAFE_DELETE_BULK_CONFIRM_REQUIRED 并直接中止构建，
 # 那是环境限制，不是代码问题。挪走后 Turbopack 从空目录开始，不触发批量删除。
@@ -120,6 +151,7 @@ fi
 
 SKIP_TYPE_CHECK=1 bash deploy/build-verified.sh
 unset DATABASE_URL
+unset REDIS_URL
 
 echo "==> 3. 打包 .next（排除 .next/dev 开发缓存，避免产物膨胀到数百 MB）"
 rm -f "$TAR"

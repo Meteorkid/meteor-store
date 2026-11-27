@@ -17,7 +17,7 @@ export async function readStaticPathfinderTombstones(): Promise<StaticTombstoneS
   }
 
   try {
-    const ids = await redis.smembers<string[]>(STATIC_TOMBSTONE_KEY);
+    const ids = await redis.smembers(STATIC_TOMBSTONE_KEY);
     for (const id of ids) localTombstones.add(id);
     return { ids: [...new Set([...localTombstones, ...ids])], available: true };
   } catch (error) {

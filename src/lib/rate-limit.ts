@@ -1,34 +1,48 @@
-// 基于 Redis 的速率限制器（适用于 Vercel Serverless）
-// 使用 @upstash/ratelimit + @upstash/redis，支持分布式限流
+// 基于本机 Redis 的滑动窗口速率限制器。
+// 客户端从 ./redis 取；生产环境是 127.0.0.1 上的 redis-server，不再使用 Upstash REST。
 
-import { Ratelimit } from '@upstash/ratelimit';
+import { randomUUID } from 'node:crypto';
 import { isIP } from 'node:net';
 import { getRedis } from './redis';
 
-// 按 (limit, windowMs) 组合缓存 Ratelimit 实例，
-// 否则所有调用方共享同一限流器会导致各路由声明的阈值互相覆盖失效
-const limiters = new Map<string, Ratelimit>();
+// 每个限流键用一个 sorted set 保存窗口内的请求时间戳。
+// 脚本在 Redis 内原子完成「清理过期成员 → 计数 → 写入/拒绝」，避免并发竞态。
+// TIME 由 Redis 提供，多个应用进程即使时钟有偏差也按同一时间轴计算。
+const SLIDING_WINDOW_SCRIPT = `
+local key = KEYS[1]
+local limit = tonumber(ARGV[1])
+local window = tonumber(ARGV[2])
+local member = ARGV[3]
+
+local now_parts = redis.call('TIME')
+local now_ms = tonumber(now_parts[1]) * 1000 + math.floor(tonumber(now_parts[2]) / 1000)
+
+redis.call('ZREMRANGEBYSCORE', key, 0, now_ms - window)
+local count = redis.call('ZCARD', key)
+
+local allowed = 0
+local remaining = 0
+local reset_at = now_ms + window
+
+if count < limit then
+  redis.call('ZADD', key, now_ms, member)
+  redis.call('PEXPIRE', key, window)
+  allowed = 1
+  remaining = limit - count - 1
+  if count > 0 then
+    local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
+    reset_at = tonumber(oldest[2]) + window
+  end
+else
+  local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
+  reset_at = tonumber(oldest[2]) + window
+end
+
+return { allowed, remaining, reset_at }
+`;
+
 const memoryWindows = new Map<string, { count: number; resetAt: number }>();
-
-function getLimiter(limit: number, windowMs: number): Ratelimit | null {
-  const redisClient = getRedis();
-  if (!redisClient) {
-    console.warn('UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not configured, rate limiting disabled');
-    return null;
-  }
-
-  const cacheKey = `${limit}:${windowMs}`;
-  let limiter = limiters.get(cacheKey);
-  if (!limiter) {
-    limiter = new Ratelimit({
-      redis: redisClient,
-      limiter: Ratelimit.slidingWindow(limit, `${windowMs} ms`),
-      ephemeralCache: new Map(),
-    });
-    limiters.set(cacheKey, limiter);
-  }
-  return limiter;
-}
+let warnedMissingRedis = false;
 
 /**
  * 检查是否超过速率限制
@@ -51,31 +65,46 @@ export async function rateLimit(
 ): Promise<{ limited: boolean; remaining: number; resetAt: number }> {
   if (options.store === 'memory') return memoryRateLimit(key, limit, windowMs);
 
-  const limiterInstance = getLimiter(limit, windowMs);
-
-  // Redis 未配置时按调用方要求使用进程内降级限流，或保持既有不限制行为。
-  if (!limiterInstance) {
+  const redis = getRedis();
+  if (!redis) {
+    if (!warnedMissingRedis) {
+      warnedMissingRedis = true;
+      console.warn('REDIS_URL not configured, rate limiting uses the requested fallback');
+    }
     if (options.fallback === 'memory') return memoryRateLimit(key, limit, windowMs);
     return { limited: false, remaining: limit, resetAt: Date.now() + windowMs };
   }
 
-  try {
-    const result = await limiterInstance.limit(key);
+  const normalizedLimit = Math.max(1, Math.trunc(limit));
+  const normalizedWindow = Math.max(1, Math.trunc(windowMs));
+  const member = `${Date.now()}-${randomUUID()}`;
 
-    return {
-      limited: !result.success,
-      remaining: result.remaining,
-      resetAt: result.reset,
-    };
+  try {
+    const raw = await redis.eval(
+      SLIDING_WINDOW_SCRIPT,
+      1,
+      key,
+      String(normalizedLimit),
+      String(normalizedWindow),
+      member,
+    );
+    if (!Array.isArray(raw) || raw.length < 3) throw new Error('Unexpected rate limit response');
+    const allowed = Number(raw[0]);
+    const remaining = Number(raw[1]);
+    const resetAt = Number(raw[2]);
+    if (!Number.isFinite(allowed) || !Number.isFinite(remaining) || !Number.isFinite(resetAt)) {
+      throw new Error('Invalid rate limit response');
+    }
+    return { limited: allowed !== 1, remaining: Math.max(0, remaining), resetAt };
   } catch (error) {
     console.error('Rate limit error:', error);
     if (options.failClosed) {
       // 敏感接口：Redis 异常时拒绝请求，避免限流失效期间被刷单/刷量
-      return { limited: true, remaining: 0, resetAt: Date.now() + windowMs };
+      return { limited: true, remaining: 0, resetAt: Date.now() + normalizedWindow };
     }
-    if (options.fallback === 'memory') return memoryRateLimit(key, limit, windowMs);
+    if (options.fallback === 'memory') return memoryRateLimit(key, normalizedLimit, normalizedWindow);
     // 低风险接口：Redis 出错时降级为不限制，避免影响正常请求
-    return { limited: false, remaining: limit, resetAt: Date.now() + windowMs };
+    return { limited: false, remaining: normalizedLimit, resetAt: Date.now() + normalizedWindow };
   }
 }
 
