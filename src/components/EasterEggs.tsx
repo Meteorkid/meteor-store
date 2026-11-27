@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { isHomepagePath } from '@/lib/homepage-path';
 import { useTranslations } from 'next-intl';
 import { createKonamiMatcher, createWordMatcher, isLateNight, useReducedMotion } from '@/lib/motion';
 
@@ -94,7 +95,7 @@ const KONAMI_TOAST_KEYS = {
 export default function EasterEggs() {
   const router = useRouter();
   const pathname = usePathname();
-  const homepage = /^\/(?:zh|en)?\/?$/.test(pathname);
+  const homepage = isHomepagePath(pathname);
   const reducedMotion = useReducedMotion();
   const t = useTranslations('EasterEggs');
   const routerRef = useRef(router);

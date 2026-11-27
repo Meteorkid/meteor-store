@@ -12,13 +12,14 @@ import HelpPanel from '@/components/help/HelpPanel';
 import LearningFocusMode from '@/components/LearningFocusMode';
 import { useOptionalSiteTheme } from '@/components/theme/ThemeProvider';
 import { isFullscreenExperiencePath } from '@/lib/fullscreen-experience';
+import { isHomepagePath } from '@/lib/homepage-path';
 
 /** 商城视觉层与浮层；全屏体验页只保留传入的应用内容。 */
 export default function ExperienceAwareChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const fullscreenExperience = isFullscreenExperiencePath(pathname);
   const helpExperience = /^\/(?:zh|en)?\/docs(?:\/|$)/.test(pathname);
-  const homepage = /^\/(?:zh|en)?\/?$/.test(pathname);
+  const homepage = isHomepagePath(pathname);
   const theme = useOptionalSiteTheme()?.theme;
   const orbitHomepage = theme === 'orbit' && homepage;
   const [focusMode, setFocusMode] = useState(false);
