@@ -1,11 +1,24 @@
 'use client';
 
 import { useEffect, useSyncExternalStore } from 'react';
-import zhMessages from '../../messages/zh.json';
-import enMessages from '../../messages/en.json';
 // global-error 会替换根布局，拿不到 [locale]/layout.tsx 里的那次 import，
 // 不显式引一次的话下面的 Tailwind 类全是空转，只剩 UA 默认样式撑着
 import './globals.css';
+
+// 这里故意不 import messages/*.json：global-error 会进入每个页面的客户端
+// 运行时，整包中文 + 英文文案约 240KB，只为这三句话不值。
+const COPY = {
+  zh: {
+    title: '应用出错了',
+    description: '抱歉，应用遇到了严重错误。请尝试刷新页面。',
+    reload: '重新加载',
+  },
+  en: {
+    title: 'Application Error',
+    description: 'Sorry, the application encountered a serious error. Please try refreshing the page.',
+    reload: 'Reload',
+  },
+} as const;
 
 function subscribePathname(notify: () => void): () => void {
   if (typeof window === 'undefined') return () => {};
@@ -30,13 +43,11 @@ export default function GlobalError({
   reset: () => void;
 }) {
   const locale = useSyncExternalStore(subscribePathname, readLocale, readLocaleServer);
-  const messages = locale === 'en' ? enMessages : zhMessages;
+  const t = COPY[locale];
 
   useEffect(() => {
     console.error('Global error:', error);
   }, [error]);
-
-  const t = messages.GlobalError;
 
   return (
     // global-error 会替换掉根布局，拿不到 [locale]/layout 的 viewport 声明，
