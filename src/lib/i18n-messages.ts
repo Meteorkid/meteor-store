@@ -46,6 +46,7 @@ export const HOMEPAGE_MESSAGE_NAMESPACES = [
   'PricingPage',
   'PricingSection',
   'ProductDemo',
+  'ProductDetailPage',
   'ProductShowcase',
   'ProductsPage',
   'Report',
