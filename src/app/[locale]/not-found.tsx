@@ -62,11 +62,11 @@ export default function NotFound() {
           </Link>
         </div>
         <div className="mt-12">
-          <p className="t-footnote text-white/45 mb-3">{t('gameIntro')}</p>
+          <p className="t-footnote text-white/60 mb-3">{t('gameIntro')}</p>
           <MeteorRunnerGame />
         </div>
 
-        <p className="text-white/25 text-xs mt-10">
+        <p className="text-white/60 text-xs mt-10">
           {t('hint')}
         </p>
       </div>

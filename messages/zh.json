@@ -87,9 +87,7 @@
   },
   "HomePage": {
     "title": "Meteor Store — 开发者工具与 AI 应用",
-    "description": "精心打造的开发者工具矩阵：智能爬虫框架、AI 记忆系统、3D 解剖图谱、设计系统、状态管理库。开源驱动，持续维护更新。",
-    "heroTitle": "开发者工具矩阵",
-    "heroSubtitle": "精心打造的开发者工具，开源驱动，持续维护更新",
+    "description": "一条认真打磨的 macOS AI 工具线：XIsland 让你随时接管多个 AI 编码代理，XNook 把网页读成可检索的笔记。免费工具、实验作品与写作也在这里。",
     "cta": "浏览产品",
     "coreAdvantages": "核心优势",
     "coreAdvantagesSubtitle": "我们致力于提供最优质的开发者工具和 AI 应用"

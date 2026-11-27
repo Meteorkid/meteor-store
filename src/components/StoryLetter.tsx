@@ -231,7 +231,7 @@ export default function StoryLetter() {
         </a>
       </div>
 
-      <p className="scroll-animate mt-8 text-center text-white/20 text-xs">
+      <p className="scroll-animate mt-8 text-center text-white/60 text-xs">
         {t('doubleClickHint')}
       </p>
     </article>
