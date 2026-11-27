@@ -184,10 +184,11 @@ export default function PostStats({
       <button
         type="button"
         onClick={handleLike}
-        className={`flex items-center gap-1.5 text-sm transition-colors ${
+        className={`flex min-h-6 items-center gap-1.5 text-sm transition-colors ${
           liked ? 'text-red-400' : 'text-white/50'
         } hover:text-red-400 cursor-pointer`}
-        aria-label={liked ? t('unlike') : t('like')}
+        aria-pressed={liked}
+        aria-label={`${liked ? t('unlike') : t('like')} ${fmt(likeCount)}`}
       >
         <svg
           width="16"
@@ -211,10 +212,11 @@ export default function PostStats({
       <button
         type="button"
         onClick={handleFavorite}
-        className={`flex items-center gap-1.5 text-sm transition-colors ${
+        className={`flex min-h-6 items-center gap-1.5 text-sm transition-colors ${
           favorited ? 'text-amber-300' : 'text-white/50'
         } hover:text-amber-300 cursor-pointer`}
-        aria-label={favorited ? t('unfavorite') : t('favorite')}
+        aria-pressed={favorited}
+        aria-label={`${favorited ? t('unfavorite') : t('favorite')} ${fmt(favoriteCount)}`}
       >
         <svg
           width="16"

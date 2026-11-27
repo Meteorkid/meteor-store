@@ -33,6 +33,14 @@ function getR2RemotePattern(): URL[] {
 const nextConfig: NextConfig = {
   // 2026-10-16 部分浏览器缓存了静态资源403；更新URL使这些客户端也能恢复，保持服务端与构建值一致。
   deploymentId: 'static-recovery-20261016',
+  /*
+   * 动态页面的 metadata 默认按流式输出，`meta description` 会落在 </head> 之后，
+   * Lighthouse 和只读原始 HTML 的抓取器会当成“没有描述”。Googlebot 虽然执行 JS，
+   * 也不保证把流式 meta 搬回头部；把常见抓取器与 Lighthouse 当作 HTML-limited，
+   * 让 Next 在发送 shell 前把 title/description 一起写进 head。
+   * 只影响这些 UA，普通浏览器仍走流式 metadata。
+   */
+  htmlLimitedBots: /bot\b|crawler|spider|Lighthouse|facebookexternalhit/i,
   // 单worker内仍会并行生成页面；限制为1页，配合构建池预算给线上PG保留连接余量。
   experimental: { cpus: 1, staticGenerationMaxConcurrency: 1 },
   /*
