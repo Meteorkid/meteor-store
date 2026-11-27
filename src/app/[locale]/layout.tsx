@@ -252,11 +252,13 @@ export default async function LocaleLayout({
       <body className="min-h-full flex flex-col bg-black text-white">
         <NextIntlClientProvider messages={messages}>
           {/* 屏幕阅读器用户的悄悄话：视觉上不存在，只有读屏软件会朗读 */}
-          <p className="sr-only">
-            {locale === "zh"
-              ? "你好呀，正在用屏幕阅读器的朋友。这个网站的每个按钮和图片我都认真标注过，希望你逛得顺畅。有任何不方便的地方，页脚有我的邮箱，说了我就改。—— 店主"
-              : "Hey there, friend using a screen reader. I've carefully labeled every button and image on this site. Hope you have a smooth experience. If anything is inconvenient, my email is in the footer — just let me know and I'll fix it. — Store Owner"}
-          </p>
+          <aside className="sr-only" aria-label={locale === "zh" ? "店主给屏幕阅读器用户的留言" : "A note from the store owner for screen reader users"}>
+            <p>
+              {locale === "zh"
+                ? "你好呀，正在用屏幕阅读器的朋友。这个网站的每个按钮和图片我都认真标注过，希望你逛得顺畅。有任何不方便的地方，页脚有我的邮箱，说了我就改。—— 店主"
+                : "Hey there, friend using a screen reader. I've carefully labeled every button and image on this site. Hope you have a smooth experience. If anything is inconvenient, my email is in the footer — just let me know and I'll fix it. — Store Owner"}
+            </p>
+          </aside>
           <Suspense>
             <ScrollAnimateInit />
           </Suspense>

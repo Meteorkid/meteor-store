@@ -1,4 +1,4 @@
-import { Children, isValidElement } from 'react';
+import { isValidElement } from 'react';
 import type { AnchorHTMLAttributes } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
@@ -129,7 +129,12 @@ describe('首页星光首屏', () => {
 
   it.each(['zh', 'en'] as const)('首页向行星轨道传入完整的 %s 产品目录', async locale => {
     const page = await Home({ params: Promise.resolve({ locale }) });
-    const hero = Children.toArray(page.props.children).find(child => isValidElement(child) && child.type === HeroSection);
+    const flatten = (node: unknown): unknown[] => {
+      if (Array.isArray(node)) return node.flatMap(flatten);
+      if (isValidElement<{ children?: unknown }>(node)) return [node, ...flatten(node.props.children)];
+      return [];
+    };
+    const hero = flatten(page.props.children).find(child => isValidElement(child) && child.type === HeroSection);
     expect(isValidElement<{ orbitProducts: readonly OrbitProduct[] }>(hero) && hero.props.orbitProducts).toEqual(
       products.map(({ id, name, tagline }) => ({ id, name: name[locale], tagline: tagline[locale] })),
     );

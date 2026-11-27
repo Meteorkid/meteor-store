@@ -47,19 +47,21 @@ export default async function PricingPage({
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      <SectionMasthead
-        eyebrow={t('eyebrow')}
-        title={t('title')}
-        description={t('description', { count: productLineIds.length })}
-      />
-
-      <main className="mx-auto w-full max-w-7xl px-4 py-12 md:py-16">
-        <PricingSection
-          productCount={productLineIds.length}
-          freeLicenseOffers={currentFreeLicenseOffers(locale === 'en' ? 'en' : 'zh')}
-          cosmic
-          showHeader={false}
+      <main id="main-content">
+        <SectionMasthead
+          eyebrow={t('eyebrow')}
+          title={t('title')}
+          description={t('description', { count: productLineIds.length })}
         />
+
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 md:py-16">
+          <PricingSection
+            productCount={productLineIds.length}
+            freeLicenseOffers={currentFreeLicenseOffers(locale === 'en' ? 'en' : 'zh')}
+            cosmic
+            showHeader={false}
+          />
+        </div>
       </main>
       <Footer />
     </div>

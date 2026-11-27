@@ -78,7 +78,7 @@ export default function ProductDemo() {
               onClick={() => setActiveDemo(index)}
               className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeDemo === index
-                  ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
                   : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
               }`}
             >

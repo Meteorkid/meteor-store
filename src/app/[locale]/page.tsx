@@ -54,7 +54,7 @@ export default async function Home({
     <div className={`${styles.home} min-h-screen text-foreground`}>
       <Header variant="celestial" />
 
-
+      <main id="main-content">
       {/* Hero Section */}
       {/* Hero 的四个数字由服务端从真实数据算出：产品总数、可在浏览器直接打开的数量、
           完全免费的数量、帮助文档篇数。全部可核实，且随目录自动变化——
@@ -98,10 +98,11 @@ export default async function Home({
       {/* CTA Section */}
       <CTASection />
 
-      <Footer showSocial />
-
       {/* Back to top button */}
       <BackToTop />
+      </main>
+
+      <Footer showSocial />
     </div>
   );
 }

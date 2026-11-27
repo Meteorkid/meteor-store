@@ -9,7 +9,7 @@ export default function NotFound() {
   const t = useTranslations('NotFoundPage');
 
   return (
-    <div className="relative min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 py-16 overflow-x-hidden">
+    <main id="main-content" className="relative min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 py-16 overflow-x-hidden">
       {/* 镜面万花筒背景 */}
       <KaleidoscopeCanvas />
 
@@ -47,7 +47,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -70,6 +70,6 @@ export default function NotFound() {
           {t('hint')}
         </p>
       </div>
-    </div>
+    </main>
   );
 }
