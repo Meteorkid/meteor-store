@@ -901,6 +901,7 @@ Codex、Claude Code 等本地工具通过 `/api/v1/blog/*` 管理**当前用户�
 ### 其他
 
 - 限流数据在本机 Redis（`REDIS_URL`），直接读写，没有 SDK 的进程内 `ephemeralCache`。删限流 key 即时生效，不需要重启进程；Redis 没配时才退回进程内 Map
+- 生产 Redis 是服务器本机 `redis-server`（`/etc/redis.conf`）：只监听 `127.0.0.1`/`::1`，开启 `requirepass` 和 AOF；应用只读 `REDIS_URL`。`deploy-local.sh` 会另开一条 SSH 隧道，让构建期 Pathfinder tombstone 读到同一份数据。
 - 密钥不进仓库；`NEXT_PUBLIC_` 前缀的变量会被内联进客户端包，只放公开值（如 Sentry DSN）
 - 改 `NEXT_PUBLIC_*` 后**必须重新构建**才生效，不是重启
 - **CSP 由 proxy 动态生成**（[src/proxy.ts](file:///Users/meteor/github/meteor-store/src/proxy.ts)），不要回到 `next.config.ts` 写静态 CSP。
