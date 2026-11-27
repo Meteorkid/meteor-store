@@ -92,7 +92,7 @@ function SpanBar({ span, date, copy, onSelectRound }: {
   return <button type="button" onClick={event => onSelectRound(span.rounds[0].id, event.currentTarget)} aria-haspopup="dialog"
     aria-label={`${label} · ${copy.timelineShowRounds}${openStart ? `（${copy.calendarSpanOpenEnded}）` : ''}`} title={label}
     data-calendar-span-round-id={span.rounds[0].id}
-    className="block w-full focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-violet-100">
+    className="flex h-6 w-full items-center focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-violet-100">
     {bar}
   </button>;
 }
@@ -112,7 +112,7 @@ function CalendarCell({ cell, copy, openDate, onToggle, lanes, onSelectRound }: 
   const bars = laneCount > 0 && <div className="-mx-px mt-1 space-y-0.5">
     {Array.from({ length: laneCount }, (_, lane) => {
       const span = cell.spans.find(item => (lanes.get(item.key) ?? 0) === lane);
-      return <div key={lane} className="h-2.5">{span && <SpanBar span={span} date={cell.date} copy={copy} onSelectRound={cell.inMonth ? onSelectRound : undefined} />}</div>;
+      return <div key={lane} className="flex h-6 items-center">{span && <SpanBar span={span} date={cell.date} copy={copy} onSelectRound={cell.inMonth ? onSelectRound : undefined} />}</div>;
     })}
   </div>;
   // 相邻月的补位格也要画条：否则申请期在月界处被硬切断，会被读成「窗口到此结束」。
@@ -223,7 +223,6 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onSel
         <ul className="mt-2 grid gap-2 sm:grid-cols-2">
           {spanRows.map(span => <li key={span.key} data-calendar-round-id={span.rounds[0].id} className="rounded-lg border border-white/10 t-footnote">
             <button type="button" onClick={event => onSelectRound(span.rounds[0].id, event.currentTarget)} aria-haspopup="dialog"
-              aria-label={`${span.university} · ${span.programme} · ${span.rounds[0].details.roundName} · ${span.rounds[0].details.intakeLabel} · ${copy.timelineShowRounds}`}
               className="flex min-h-11 w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left focus-visible:outline-2 focus-visible:outline-violet-300">
             <span aria-hidden className="mt-1 h-2.5 w-6 shrink-0 rounded-sm" style={{
               background: `hsl(${mastersCalendarHue(span)} 70% 52% / ${span.past ? 0.4 : 0.75})`,
@@ -248,7 +247,7 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onSel
       {view.weeks.length === 0 ? <div className="rounded-xl border border-white/10 px-6 py-10 text-center">
         <p className="t-title-4 text-white">{copy.calendarEmptyMonth}</p>
         <p className="mt-3 t-footnote text-white/60">{copy.calendarEmptyMonthHint}</p>
-      </div> : <div className="overflow-hidden rounded-2xl border border-white/10">
+      </div> : <div className="overflow-hidden rounded-2xl border border-white/10" role="grid" aria-label={formatMastersMonth(current, locale)}>
         <div className="grid grid-cols-7 border-b border-white/10 bg-white/[0.03]" role="row">
           {weekdays.map(day => <div key={day} role="columnheader" className="px-2 py-2 text-center t-footnote text-white/60">{day}</div>)}
         </div>
@@ -265,7 +264,6 @@ export default function MastersCalendar({ year, rounds, now, locale, copy, onSel
         {openCell.spans.length > 0 && <ul className="mt-3 flex flex-wrap gap-2">
           {openCell.spans.map(span => <li key={span.key} className="rounded-lg border border-white/10 t-footnote text-white/80">
             <button type="button" onClick={event => onSelectRound(span.rounds[0].id, event.currentTarget)} aria-haspopup="dialog"
-              aria-label={`${span.university} · ${span.programme} · ${span.rounds[0].details.roundName} · ${span.rounds[0].details.intakeLabel} · ${copy.timelineShowRounds}`}
               className="inline-flex min-h-11 flex-wrap items-center gap-2 rounded-lg px-2.5 py-1 text-left focus-visible:outline-2 focus-visible:outline-violet-300">
             <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: `hsl(${mastersCalendarHue(span)} 70% 52% / ${span.past ? 0.4 : 0.75})` }} />
             {span.university} · {span.programme} · {span.rounds[0].details.roundName} · {span.rounds[0].details.intakeLabel}

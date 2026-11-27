@@ -76,7 +76,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
 
           {/* Products */}
           <div>
-            <h3 className="text-foreground font-semibold mb-4">{t('products')}</h3>
+            <h2 className="text-foreground font-semibold mb-4">{t('products')}</h2>
             <ul className="space-y-3">
               {productLinks.map((link) => (
                 <li key={link.name}>
@@ -90,7 +90,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
 
           {/* Resources */}
           <div>
-            <h3 className="text-foreground font-semibold mb-4">{t('resources')}</h3>
+            <h2 className="text-foreground font-semibold mb-4">{t('resources')}</h2>
             <ul className="space-y-3">
               {resourceLinks.map((link) => (
                 <li key={link.key}>
@@ -116,7 +116,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
           {/* Company */}
           {SHOW_PRICING && (
           <div>
-            <h3 className="text-foreground font-semibold mb-4">{t('company')}</h3>
+            <h2 className="text-foreground font-semibold mb-4">{t('company')}</h2>
             <ul className="space-y-3">
               {companyLinks.map((link) => (
                 <li key={link.key}>

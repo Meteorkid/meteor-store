@@ -391,12 +391,12 @@ export default function AuthForm({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={mode === 'register' ? t('passwordPlaceholderRegister') : t('passwordPlaceholderLogin')}
-              className={`${inputClass} pr-10`}
+              className={`${inputClass} pr-12`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-300"
+              className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-gray-500 transition-colors hover:text-gray-300"
               aria-label={showPassword ? t('hidePassword') : t('showPassword')}
             >
               <EyeIcon open={showPassword} />
@@ -425,12 +425,12 @@ export default function AuthForm({
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder={t('confirmPasswordPlaceholder')}
-                className={`${inputClass} pr-10`}
+                className={`${inputClass} pr-12`}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-300"
+                className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-gray-500 transition-colors hover:text-gray-300"
                 aria-label={showConfirm ? t('hidePassword') : t('showPassword')}
               >
                 <EyeIcon open={showConfirm} />
