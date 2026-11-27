@@ -61,6 +61,17 @@ describe('雅思听力音频清单', () => {
     }
   });
 
+  it('每篇录音末句后保留至少 1.5 秒收尾静音', () => {
+    for (const lesson of listeningLessons) {
+      const entry = manifest[lesson.slug];
+      expect(entry, lesson.slug).toBeDefined();
+      if (!entry) continue;
+
+      const tail = entry.durationSec - entry.cues.at(-1)![1];
+      expect(tail, lesson.slug).toBeGreaterThanOrEqual(1.5);
+    }
+  });
+
   it('运行时目录能解析全部 52 套 208 篇，并保留可用音频', () => {
     const tests = listListeningTests();
     expect(tests).toHaveLength(52);
