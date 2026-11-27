@@ -5,11 +5,11 @@
  *
  * 用法：node --experimental-strip-types --no-warnings scripts/ielts/verify-audio.mts --only test-07-part-1,test-07-part-2
  */
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
-import { defaultWorkdir, parseOnly, repoRoot } from './common.mjs';
+import { parseOnly, repoRoot } from './common.mjs';
 import type { ListeningLesson } from '../../src/lib/ielts-listening/types.ts';
 
 const { values } = parseArgs({ options: { only: { type: 'string' } } });

@@ -48,7 +48,6 @@ async function main() {
 
       const slug = file.replace('.md', '');
       const id = newPostId();
-      const now = new Date().toISOString();
       const publishedAt = `${frontmatter.date}T00:00:00.000Z`;
       const eventDate = frontmatter.eventDate ?? frontmatter.date;
       const tags = (frontmatter.tags ?? []).map((t) => t.trim());

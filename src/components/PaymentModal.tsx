@@ -140,6 +140,8 @@ export default function PaymentModal({
         if (epoch !== requestEpoch.current.value) return;
         if (data.status === 'paid') {
           stopPolling();
+          // 支付完成后必须整页刷新：订单与会话状态刚写入，客户端路由会拿到旧缓存。
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination
           window.location.href = `/${locale}/orders/${orderIdToPoll}`;
         } else if (data.status === 'failed') {
           stopPolling();

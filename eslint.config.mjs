@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
       // 这是给浏览器直接加载的普通脚本，沿用 IIFE 内的 this 绑定，
       // 不能因为 lint 风格把它改成箭头函数而改变运行语义。
       "@typescript-eslint/no-this-alias": "off",
+      // 独立小游戏保留浏览器事件回调的通用参数签名，不参与应用构建。
+      "@typescript-eslint/no-unused-vars": "off",
     },
   },
   // Override default ignores of eslint-config-next.

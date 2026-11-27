@@ -52,13 +52,6 @@ function allStaticExtensionLists(): string[][] {
     (match) => match[1].split('|'));
 }
 
-/** 通用规则（图片/样式/文本）的后缀名单：不含大体积二进制的那一条。 */
-function genericExtensions(): string[] {
-  const lists = allStaticExtensionLists();
-  const generic = lists.find((list) => list.includes('png'));
-  if (!generic) throw new Error('未找到 public/ 通用静态资源的 location 规则');
-  return generic;
-}
 
 /** 重资源规则（大体积二进制）的后缀名单。 */
 function heavyExtensions(): string[] {

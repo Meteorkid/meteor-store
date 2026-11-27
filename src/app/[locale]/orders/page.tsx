@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: t('metaTitle'), robots: { index: false, follow: false } };
 }
 
-function formatDate(iso: string, _locale: string): string {
+function formatDate(iso: string): string {
   return formatDotDate(iso) || iso;
 }
 
@@ -103,7 +103,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ locale:
                     <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-xs text-white/50">
                       <span>{statusLabels[order.status] ?? order.status}</span>
                       <span>{t('delivery')}: {deliveryLabels[order.deliveryStatus] ?? order.deliveryStatus}</span>
-                      <span>{formatDate(order.createdAt, locale)}</span>
+                      <span>{formatDate(order.createdAt)}</span>
                     </div>
                   </Link>
                 );

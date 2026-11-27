@@ -23,7 +23,7 @@ const DailyNotificationPanel = dynamic(() => import('@/components/daily/DailyNot
   loading: () => <div className="px-4 py-6" aria-busy="true"><span className="block h-3 w-32 rounded bg-white/10" /></div>,
 });
 
-const formatDate = (value: string, _locale: string): string => formatDotDate(value);
+const formatDate = (value: string): string => formatDotDate(value);
 
 export default function NotificationBell() {
   const t = useTranslations('NotificationBell');
@@ -198,7 +198,7 @@ export default function NotificationBell() {
               {monitoring.snapshot && <>
                 <p className="mt-1 t-footnote text-white/70">{monitoringCopy.status[monitoring.snapshot.status]}</p>
                 {monitoring.snapshot.events.slice(0, 3).map(event => <p key={event.id} className="mt-2 t-footnote text-white/70">
-                  {monitoringCopy[event.kind]} · {formatDate(event.at, locale)}
+                  {monitoringCopy[event.kind]} · {formatDate(event.at)}
                 </p>)}
               </>}
             </section>}
@@ -255,7 +255,7 @@ export default function NotificationBell() {
                 {items.map((a) => {
                   const title = pickAnnouncementText(a.titleZh, a.titleEn, locale);
                   const body = pickAnnouncementText(a.bodyZh, a.bodyEn, locale);
-                  const date = formatDate(announcementTimestamp(a), locale);
+                  const date = formatDate(announcementTimestamp(a));
                   return (
                     <li key={a.id} className="min-w-0 px-4 py-3 [overflow-wrap:anywhere]">
                       {title && (

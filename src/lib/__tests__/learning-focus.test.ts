@@ -64,7 +64,6 @@ describe('内容页专注模式路由', () => {
   it('首屏内联脚本可解析，并在存储开启时正确标记语言前缀后的路径', () => {
     const script = buildFocusModeBootstrapScript();
     const dataset: Record<string, string> = {};
-    // eslint-disable-next-line no-new-func
     const run = new Function('location', 'localStorage', 'document', script) as (
       location: { pathname: string },
       storage: { getItem: (key: string) => string | null },

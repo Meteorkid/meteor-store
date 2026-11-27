@@ -161,7 +161,7 @@ export default async function HelpArticlePage({ params }: HelpArticlePageProps) 
                       <ConstellationDot />
                     </span>
                     <time dateTime={article.updatedAt} className="tabular-nums text-white/50">
-                      {formatHelpDate(article.updatedAt, currentLocale)}
+                      {formatHelpDate(article.updatedAt)}
                     </time>
                   </div>
 
@@ -316,7 +316,7 @@ function kindLabel(kind: string, locale: Locale): string {
   return map[kind]?.[locale] ?? kind;
 }
 
-function formatHelpDate(date: string, _locale: Locale): string {
+function formatHelpDate(date: string): string {
   // 帮助文章的日期只表达哪一天，不按时区换算；统一成编辑部格式 2026.11.05。
   return date.slice(0, 10).replace(/-/g, '.');
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { runCancellableTask } from '@/lib/cancellable-task';
 import { formatDotDate } from '@/lib/date-format';
@@ -22,7 +22,6 @@ interface Comment {
 function timeAgo(
   iso: string,
   t: ReturnType<typeof useTranslations>,
-  locale: string
 ): string {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60_000);
@@ -67,7 +66,6 @@ function CommentItem({
   children?: React.ReactNode;
 }) {
   const t = useTranslations('Comment');
-  const locale = useLocale();
   return (
     <div className={depth > 0 ? 'ml-10 border-l border-white/[0.06] pl-4' : ''}>
       <div className="flex gap-3 py-3">
@@ -75,7 +73,7 @@ function CommentItem({
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-medium text-white/90">{comment.authorName}</span>
-            <span className="t-footnote text-white/40">{timeAgo(comment.createdAt, t, locale)}</span>
+            <span className="t-footnote text-white/40">{timeAgo(comment.createdAt, t)}</span>
           </div>
           <p className="mt-1 text-[0.9375rem] leading-relaxed text-white/70 whitespace-pre-wrap break-words">
             {comment.content}

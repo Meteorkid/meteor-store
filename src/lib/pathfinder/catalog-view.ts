@@ -542,6 +542,8 @@ export function sortByRecency(items: readonly PathfinderCatalogItem[]) {
 }
 
 export function formatDate(value: string | null, locale: PathfinderLocale) {
+  // 日期统一按 Asia/Shanghai 输出；locale 预留给将来本地化格式，当前不影响结果。
+  void locale;
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
