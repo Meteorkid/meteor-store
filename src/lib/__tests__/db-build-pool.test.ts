@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getDatabasePoolSize } from '../db/pool-size';
+import { getDatabaseConnectionTimeoutMs, getDatabasePoolSize } from '../db/pool-size';
 
 const { poolOptions, select } = vi.hoisted(() => ({
   poolOptions: vi.fn(),
@@ -54,6 +54,13 @@ describe('构建数据库连接预算', () => {
     const { db } = await import('../db');
     expect(() => db.select()).toThrow('METEOR_BUILD_DB_POOL_SIZE');
     expect(poolOptions).not.toHaveBeenCalled();
+  });
+
+  it('构建期可放宽连接排队超时，普通运行保持 10 秒', async () => {
+    expect(getDatabaseConnectionTimeoutMs(undefined)).toBe(10_000);
+    expect(getDatabaseConnectionTimeoutMs('30000')).toBe(30_000);
+    expect(() => getDatabaseConnectionTimeoutMs('4999')).toThrow('METEOR_BUILD_DB_CONNECT_TIMEOUT_MS');
+    expect(() => getDatabaseConnectionTimeoutMs('60001')).toThrow('METEOR_BUILD_DB_CONNECT_TIMEOUT_MS');
   });
 
   it('一构建worker只并行生成一页', async () => {

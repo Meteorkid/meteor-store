@@ -5,6 +5,17 @@ import { assertDuoCastZip } from './zip-artifact.ts';
 import type { ReleaseAsset } from './types';
 
 const MAX_BYTES = 128 * 1024 * 1024;
+const MIN_DOWNLOAD_TIMEOUT_MS = 10 * 60_000;
+const SLOW_DOWNLOAD_BYTES_PER_SECOND = 16 * 1024;
+const DOWNLOAD_CONNECT_BUDGET_MS = 30_000;
+export const ARTIFACT_STORAGE_TIMEOUT_MS = 5 * 60_000;
+
+export function artifactDownloadTimeoutMs(bytes: number): number {
+  const boundedBytes = Number.isFinite(bytes) ? Math.min(bytes, MAX_BYTES) : 0;
+  // 大包按生产机到 GitHub 的慢速线路分配时间，小包沿用原来时限。
+  const transferMs = Math.ceil(boundedBytes * 1000 / SLOW_DOWNLOAD_BYTES_PER_SECOND);
+  return Math.max(MIN_DOWNLOAD_TIMEOUT_MS, transferMs + DOWNLOAD_CONNECT_BUDGET_MS);
+}
 
 function contentTypeFor(fileName: string): string {
   const lower = fileName.toLowerCase();
@@ -33,7 +44,7 @@ export function assertArtifact(body: Uint8Array, asset: ReleaseAsset): void {
 
 export async function downloadArtifact(asset: ReleaseAsset, signal?: AbortSignal): Promise<Buffer> {
   if (!Number.isSafeInteger(asset.bytes) || asset.bytes < 1 || asset.bytes > MAX_BYTES) throw new Error('安装包超出大小限制');
-  const timeout = AbortSignal.timeout(600_000);
+  const timeout = AbortSignal.timeout(artifactDownloadTimeoutMs(asset.bytes));
   const abortSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
   let url = asset.url;
   for (let redirect = 0; redirect < 5; redirect++) {
@@ -87,7 +98,7 @@ export async function uploadVerifiedArtifact(key: string, body: Buffer, asset: R
 
 export async function putAndVerify(client: Pick<S3Client, 'send'>, bucket: string, key: string, body: Buffer, asset: ReleaseAsset, signal?: AbortSignal): Promise<void> {
   assertArtifact(body, asset);
-  const timeout = AbortSignal.timeout(300_000);
+  const timeout = AbortSignal.timeout(ARTIFACT_STORAGE_TIMEOUT_MS);
   const abortSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
   try {
     await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, IfNoneMatch: '*',

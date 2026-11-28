@@ -24,7 +24,7 @@ function store(retrieved: Buffer = body, existing = false) {
   });
   return { send, client: { send } as unknown as Pick<S3Client, 'send'> };
 }
-function slowDownload(duration: number) {
+function slowDownload(duration: number, downloadBody = body) {
   vi.useFakeTimers();
   // 原生 AbortSignal.timeout 不受 fake timers 控制，保留真实信号传递并替换计时来源。
   vi.spyOn(AbortSignal, 'timeout').mockImplementation(delay => {
@@ -38,7 +38,7 @@ function slowDownload(duration: number) {
     requestSignal = signal;
     const timer = setTimeout(() => {
       signal.removeEventListener('abort', abort);
-      resolve(new Response(body));
+      resolve(new Response(new Uint8Array(downloadBody)));
     }, duration);
     const abort = () => { clearTimeout(timer); reject(signal.reason); };
     if (signal.aborted) abort();
@@ -157,6 +157,17 @@ describe('安装包边界与私有存储校验', () => {
     const result = downloadArtifact(asset).then(value => ({ value }), error => ({ error }));
     await vi.advanceTimersByTimeAsync(6 * 60_000);
     expect(await result).toEqual({ value: body });
+    expect(requestSignal()?.aborted).toBe(false);
+  });
+  it('按安装包大小给慢速线路足够的下载时间', async () => {
+    const largeBody = Buffer.alloc(12 * 1024 * 1024);
+    largeBody.write('koly', largeBody.length - 512);
+    const largeAsset = { ...asset, bytes: largeBody.length, sha256: createHash('sha256').update(largeBody).digest('hex') };
+    const duration = 12 * 60_000;
+    const requestSignal = slowDownload(duration, largeBody);
+    const result = downloadArtifact(largeAsset).then(value => value.length, error => error.name);
+    await vi.advanceTimersByTimeAsync(duration);
+    expect(await result).toBe(largeBody.length);
     expect(requestSignal()?.aborted).toBe(false);
   });
   it('下载超过10分钟时通过合并后的请求信号中止', async () => {

@@ -43,7 +43,7 @@ const dependencies = () => ({
   upload: vi.fn(async () => undefined),
 });
 beforeEach(async () => { directory = await mkdtemp(path.join(os.tmpdir(), 'update-worker-')); vi.stubEnv('PRODUCT_UPDATES_DIR', directory); });
-afterEach(async () => { vi.unstubAllEnvs(); await rm(directory, { recursive: true, force: true }); });
+afterEach(async () => { vi.restoreAllMocks(); vi.unstubAllEnvs(); await rm(directory, { recursive: true, force: true }); });
 
 describe('产品更新后台任务（隔离安装包与存储）', () => {
   it('先上传并回读确认，再切换目录，保留权限和稳定文件ID', async () => {
@@ -62,7 +62,29 @@ describe('产品更新后台任务（隔离安装包与存储）', () => {
     const catalog = await readCurrentCatalog();
     expect(catalog.catalog.downloads.xisland).toBeUndefined();
     expect(catalog.catalog.downloads.xnook.dmg.version).toBe('2.1.0');
-    expect((await readStateFile<JobRecord>('job'))?.job.status).toBe('partial');
+    expect((await readStateFile<JobRecord>('job'))?.job).toMatchObject({
+      status: 'partial',
+      rows: [{ status: 'failed', message: '私有存储上传或回读校验失败，此产品保留原下载' }, { status: 'synced' }],
+    });
+  });
+  it('任务时限覆盖 Statux 两个大包的下载与存储时限', async () => {
+    const statux = row('statux');
+    statux.assets = [
+      { ...statux.assets[0], fileId: 'macos-arm64', name: 'statux-darwin-arm64', bytes: 91_356_162 },
+      { ...statux.assets[0], fileId: 'macos-x64', name: 'statux-darwin-x64', bytes: 100_430_128, architecture: 'macos-x64' },
+    ];
+    const record = await queue([statux, row('xnook')]);
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    const deps = dependencies();
+    deps.download.mockRejectedValueOnce(new DOMException('fixture download timeout', 'TimeoutError'));
+
+    await runProductUpdateJob(record.job.id, deps);
+
+    const statuxTransferMs = Math.ceil((91_356_162 + 100_430_128) / (16 * 1024) * 1000);
+    expect(timeout.mock.calls[0]?.[0]).toBeGreaterThan(statuxTransferMs + 2 * 5 * 60_000 + 15 * 60_000);
+    expect((await readStateFile<JobRecord>('job'))?.job.rows[0]).toMatchObject({
+      status: 'failed', message: '下载安装包超时，此产品保留原下载',
+    });
   });
   it('DuoCast ZIP 下载校验后上传固定对象并切换下载目录', async () => {
     const record = await queue([row('duocast')]); const deps = dependencies();
@@ -84,13 +106,16 @@ describe('产品更新后台任务（隔离安装包与存储）', () => {
     await runProductUpdateJob(record.job.id, deps);
     expect(deps.upload).not.toHaveBeenCalled();
     expect(await readdir(directory)).not.toContain('catalog.json');
-    expect((await readStateFile<JobRecord>('job'))?.job.status).toBe('failed');
+    expect((await readStateFile<JobRecord>('job'))?.job).toMatchObject({
+      status: 'failed', rows: [{ status: 'failed', message: '下载安装包或校验文件失败，此产品保留原下载' }],
+    });
   });
   it('来源复核失败保留旧下载，错误不泄漏原始签名参数', async () => {
     const record = await queue(); const deps = dependencies(); deps.verifyRow.mockRejectedValue(new Error('https://secret?token=PRIVATE'));
     await runProductUpdateJob(record.job.id, deps);
     expect(deps.download).not.toHaveBeenCalled();
     expect(await readFile(path.join(directory, 'job.json'), 'utf8')).not.toContain('PRIVATE');
+    expect((await readStateFile<JobRecord>('job'))?.job.rows[0].message).toBe('官方发布复核失败，此产品保留原下载');
     expect((await readCurrentCatalog()).catalog.downloads).toEqual({});
   });
   it('启动前目录变更拒绝任务', async () => {

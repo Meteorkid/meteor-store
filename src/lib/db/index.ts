@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { getDatabasePoolSize } from './pool-size';
+import { getDatabaseConnectionTimeoutMs, getDatabasePoolSize } from './pool-size';
 import { orders, licenseKeys, paymentRefundAttempts, softwareLicenseCodes, softwareLicenseDevices, softwareLicenseTrials, feedbacks, users, personalAccessTokens, blogImages, topicProposals, posts, postTags, comments, pageViews, likes, postFavorites, passReminders, announcements, tollowBookProgress, tollowPracticeSessions, tollowTextFavorites, pathfinderSources, pathfinderItems, pathfinderItemTags, studyCourses, studyDeadlines, studyProblems, xiaohongshuNotes } from './schema';
 
 type DrizzleDB = ReturnType<typeof drizzle>;
@@ -40,7 +40,7 @@ function getDb(): DrizzleDB {
       connectionString: url,
       max: getDatabasePoolSize(process.env.METEOR_BUILD_DB_POOL_SIZE),
       idleTimeoutMillis: 30_000,
-      connectionTimeoutMillis: 10_000,
+      connectionTimeoutMillis: getDatabaseConnectionTimeoutMs(process.env.METEOR_BUILD_DB_CONNECT_TIMEOUT_MS),
     });
     // 池里的空闲连接被服务端切断时，pg 会在池上抛错。不监听的话
     // 这是个未捕获异常，会直接带崩整个 Node 进程
