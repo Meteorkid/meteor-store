@@ -5,7 +5,7 @@ import { getAdminPageSession } from '@/lib/admin-session';
 import { isAdminSession } from '@/lib/admin';
 import { readMonitoringSnapshot } from '@/lib/monitoring';
 import { readRecheckSnapshot } from '@/lib/task-monitoring';
-import { monitoringText } from '@/lib/monitoring-types';
+import { monitoringText } from '@/lib/monitoring-text';
 import MonitoringPanel from './MonitoringPanel';
 
 export const dynamic = 'force-dynamic';

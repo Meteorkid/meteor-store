@@ -4,7 +4,8 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { useLocale } from 'next-intl';
 import { useAuth } from '@/components/AuthProvider';
 import { EMPTY_MONITORING_STATE, getMonitoringState, hasUnreadMonitoring, markMonitoringRead, subscribeMonitoring, watchMonitoring } from '@/lib/monitoring-client';
-import { monitoringText, type MonitoringSnapshot } from '@/lib/monitoring-types';
+import type { MonitoringSnapshot } from '@/lib/monitoring-types';
+import { monitoringText } from '@/lib/monitoring-text';
 import type { RecheckSnapshot } from '@/lib/task-monitoring-types';
 import RecheckTaskPanel from './RecheckTaskPanel';
 

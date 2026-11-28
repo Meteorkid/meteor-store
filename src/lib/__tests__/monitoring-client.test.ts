@@ -11,7 +11,8 @@ const snapshot = {
 const task = { taskId: 'pathfinder-recheck', status: 'partial', lastAttemptAt: '2026-10-22T00:00:00.000Z', finishedAt: '2026-10-22T00:00:00.000Z', lastSuccessAt: null, dataUpdatedAt: null, consecutiveAnomalies: 1,
   result: { checked: 2, skipped: 0, verified: 1, failed: 1, doomed: 0, archived: 0, reason: null, failures: [{ id: 'pf_public', reason: 'http', httpStatus: 403 }] } };
 const response = (userId = 'a', monitoring = snapshot) => Response.json({ userId, monitoring, task });
-const flush = () => new Promise<void>(resolve => setImmediate(resolve));
+// zod 解析器改为按需动态导入，响应处理要等动态模块和后续微任务完成。
+const flush = async () => { await vi.dynamicImportSettled(); for (let i = 0; i < 4; i += 1) await new Promise<void>(resolve => setImmediate(resolve)); };
 
 beforeEach(async () => {
   vi.resetModules();

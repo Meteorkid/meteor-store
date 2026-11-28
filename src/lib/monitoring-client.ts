@@ -1,7 +1,7 @@
 'use client';
 
-import { parseMonitoringResponse, type MonitoringSnapshot } from './monitoring-types';
-import { parseTaskMonitoringResponse, type RecheckSnapshot } from './task-monitoring-types';
+import type { MonitoringSnapshot } from './monitoring-types';
+import type { RecheckSnapshot } from './task-monitoring-types';
 
 interface MonitoringState { snapshot: MonitoringSnapshot | null; task: RecheckSnapshot | null; readEventId: string; failed: boolean }
 export const EMPTY_MONITORING_STATE: MonitoringState = { snapshot: null, task: null, readEventId: '', failed: false };
@@ -46,6 +46,11 @@ export function ensureMonitoring(userId: string) {
     .then(async response => {
       if (!response.ok) throw new Error('Monitoring unavailable');
       const payload: unknown = await response.json();
+      // zod 只在这个管理员面板真正拉取监控时加载，不进入全站首屏共享 chunk。
+      const [{ parseMonitoringResponse }, { parseTaskMonitoringResponse }] = await Promise.all([
+        import('./monitoring-types'),
+        import('./task-monitoring-types'),
+      ]);
       const snapshot = parseMonitoringResponse(payload, userId);
       const task = parseTaskMonitoringResponse(payload, userId);
       if (!current() || controller.signal.aborted) return;

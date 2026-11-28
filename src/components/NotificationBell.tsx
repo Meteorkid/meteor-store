@@ -12,7 +12,7 @@ import { EMPTY_REMINDER_STATE, ensureDailyReminder, getReminderState, markDailyR
 import { EMPTY_MASTERS_NOTICES, ensureMastersNotices, getMastersNoticeState, markMastersRead, subscribeMastersNotices } from '@/lib/masters/notice-client';
 import { EMPTY_PHD_NOTICES, ensurePhdNotices, getPhdNoticeState, markPhdRead, subscribePhdNotices } from '@/lib/phd/notice-client';
 import { EMPTY_MONITORING_STATE, getMonitoringState, hasUnreadMonitoring, markMonitoringRead, subscribeMonitoring, watchMonitoring } from '@/lib/monitoring-client';
-import { monitoringText } from '@/lib/monitoring-types';
+import { monitoringText } from '@/lib/monitoring-text';
 import StudyReminderSection from '@/components/study/StudyReminderSection';
 import styles from './NotificationBell.module.css';
 
