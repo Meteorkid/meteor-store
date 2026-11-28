@@ -27,11 +27,6 @@
   cursor: grab;
 }
 
-/* 首屏自己的粒子层：盖住黑洞底色，但不盖住底部控制坞。 */
-.particles {
-  z-index: 0;
-}
-
 .scene:active { cursor: grabbing; }
 
 .dock {

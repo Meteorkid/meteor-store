@@ -78,6 +78,7 @@ describe('首页星光首屏', () => {
     const html = render('zh');
     expect(html).toContain('data-classic-hero');
     expect(html).toContain('headingLine1');
+    expect(html).toContain('data-ambient="particles"');
     expect(html).not.toContain('data-sky-people');
   });
 
@@ -87,6 +88,8 @@ describe('首页星光首屏', () => {
     expect(html).toContain('data-horizon-hero');
     expect(html).toMatch(/data-horizon-dock="true"[^>]*>[\s\S]*?目录统计[\s\S]*?观测控制/);
     expect(html).toContain('越过视界');
+    // 黑洞封面只保留黑洞与底部控制坞；通用粒子留到内页，避免盖住事件视界。
+    expect(html).not.toContain('data-ambient="particles"');
     expect(html).toContain('href="/zh/products"');
     expect(html).toContain('href="/zh/study"');
     expect(html).toContain('href="/zh/docs"');

@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useReducedMotion } from '@/lib/motion';
-import HeroCanvas from './HeroCanvas';
 import styles from './HorizonHeroSection.module.css';
 
 // Three.js 只在用户实际选用「黑洞视界」主题时才需要。
@@ -136,8 +135,6 @@ export default function HorizonHeroSection({ productCount, webAppCount, freeCoun
             )}
           </div>
         </div>
-        <HeroCanvas className={styles.particles} />
-
         <div className={styles.dock} data-horizon-dock data-transparency-surface="panel">
           <div className={styles.information}>
             <div className={styles.copy}>
