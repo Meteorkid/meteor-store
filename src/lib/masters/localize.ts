@@ -34,6 +34,20 @@ const INTAKE_EN: Record<string, string> = {
   '2027年8月入学': 'August 2027 intake',
 };
 
+const STUDY_MODE_EN: Record<string, string> = {
+  '全日制，1年': 'Full-time, 1 year',
+  '全日制，标准学制1年': 'Full-time, standard duration 1 year',
+  '国际学生全日制，1年或1.5年（依入学资格）': 'Full-time for international students, 1 or 1.5 years (depending on qualifications)',
+  '全日制，通常2年（最长4年）': 'Full-time, normally 2 years (maximum 4 years)',
+  '待核验（本申请页未注明修读模式及学制）': 'Not verified (study mode and duration are not stated on this application page)',
+};
+
+const DEADLINE_TEXT_EN: Record<string, string> = {
+  国际申请截止: 'International application deadline',
+  项目申请截止: 'Programme application deadline',
+  国际学生截止: 'International student deadline',
+};
+
 const CHINESE_NUMBERS: Record<string, number> = {
   一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 十: 10,
 };
@@ -42,6 +56,8 @@ function englishRoundName(name: string): string {
   if (name === '主轮') return 'Main round';
   if (name === '补录') return 'Supplementary round';
   if (name === '提前批') return 'Early round';
+  const monthMatch = /^(\d{1,2})月入学申请期$/.exec(name);
+  if (monthMatch) return `${monthMatch[1]} intake application period`;
   const match = /^第([0-9]+|[一二三四五六七八九十]+)轮$/.exec(name);
   if (!match) return name;
   const value = /^[0-9]+$/.test(match[1])
@@ -67,7 +83,9 @@ export function localizeMastersRound(round: MastersRound, locale: string): Maste
       programme: englishProgramme(round.details.programme),
       subject: SUBJECT_EN[round.details.subject] ?? round.details.subject,
       intakeLabel: INTAKE_EN[round.details.intakeLabel] ?? round.details.intakeLabel,
+      studyMode: STUDY_MODE_EN[round.details.studyMode] ?? round.details.studyMode,
       roundName: englishRoundName(round.details.roundName),
+      deadlineText: DEADLINE_TEXT_EN[round.details.deadlineText] ?? round.details.deadlineText,
     },
   };
 }

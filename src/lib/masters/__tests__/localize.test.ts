@@ -24,6 +24,8 @@ describe('硕士项目英文展示', () => {
     expect(en.details.subject).toBe('Computer Science');
     expect(en.details.intakeLabel).toBe('Fall 2027 (September 2027)');
     expect(en.details.roundName).toBe('Round 2');
+    expect(en.details.studyMode).toBe('Full-time, 1 year');
+    expect(en.details.deadlineText).toBe('International application deadline');
     expect(en.details.openingNote).toBe(round.details.openingNote);
     expect(en.details.sourceNote).toBe(round.details.sourceNote);
   });
@@ -36,5 +38,6 @@ describe('硕士项目英文展示', () => {
     const base = { ...round, details: { ...round.details } };
     expect(localizeMastersRound({ ...base, details: { ...base.details, roundName: '主轮' } }, 'en').details.roundName).toBe('Main round');
     expect(localizeMastersRound({ ...base, details: { ...base.details, roundName: '第三轮' } }, 'en').details.roundName).toBe('Round 3');
+    expect(localizeMastersRound({ ...base, details: { ...base.details, roundName: '8月入学申请期' } }, 'en').details.roundName).toBe('8 intake application period');
   });
 });

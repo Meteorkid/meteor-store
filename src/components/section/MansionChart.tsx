@@ -63,7 +63,7 @@ export default function MansionChart({ locale, lineCount, labCount, copy }: Mans
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="t-eyebrow" style={active ? { color: `rgb(${symbol.rgb} / 0.95)` } : undefined}>
-                        {symbol.label[locale]}
+                        {symbol.shortLabel[locale]}
                       </p>
                       <p className="mt-1 text-xs text-white/60">{role}</p>
                     </div>
@@ -83,8 +83,8 @@ export default function MansionChart({ locale, lineCount, labCount, copy }: Mans
                       return (
                         <span
                           key={mansion}
-                          title={reserved ? copy.reserved : `${symbol.label[locale]} · ${name}${copy.mansionSuffix}`}
-                          className={`grid aspect-square place-items-center rounded-md border text-[11px] sm:text-xs ${
+                          title={reserved ? copy.reserved : `${symbol.shortLabel[locale]} · ${name}${copy.mansionSuffix}`}
+                          className={`grid aspect-square place-items-center rounded-md border px-0.5 text-center leading-tight ${locale === 'en' ? 'break-words text-[8px] tracking-tight sm:text-[9px]' : 'text-[11px] sm:text-xs'} ${
                             reserved
                               ? 'border-dashed border-white/10 text-white/30'
                               : active
@@ -106,10 +106,10 @@ export default function MansionChart({ locale, lineCount, labCount, copy }: Mans
                   )}
 
                   {symbolId === 'blackTortoise' && labCount > 7 && (
-                    <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-dashed border-white/15 px-2.5 py-1 text-[11px] text-white/55">
+                    <p className="mt-2 inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-dashed border-white/15 px-2.5 py-1 text-[11px] leading-4 text-white/55">
                       <span aria-hidden="true" className="h-1 w-1 rounded-full bg-[rgb(94_129_172)]" />
                       {copy.guestStar} · +{labCount - 7}
-                      <span className="text-white/35">｜{copy.guestNote}</span>
+                      <span className="text-white/35">{locale === 'en' ? '·' : '｜'} {copy.guestNote}</span>
                     </p>
                   )}
                 </div>

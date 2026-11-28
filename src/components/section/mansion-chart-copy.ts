@@ -54,6 +54,6 @@ export const mansionChartCopy: Record<Locale, MansionChartCopy> = {
     reserved: 'Reserved for future work',
     swipeHint: 'Swipe sideways to see all four symbols.',
     guestStar: 'Guest star',
-    guestNote: 'beyond the seven mansions',
+    guestNote: 'outside the seven',
   },
 };
