@@ -1,4 +1,5 @@
 import { LocalizedProduct } from '@/data/products';
+import { MANSION_NAMES } from '@/data/celestial';
 import { SHOW_PRICING } from '@/lib/constants';
 import ProductVisual from '@/components/ProductVisual';
 import TransitionLink from '@/components/TransitionLink';
@@ -24,6 +25,8 @@ interface ProductCardProps {
   mansionTotal?: number;
   /** 该宿所属四象的配色，形如 "94 234 212" */
   mansionRgb?: string;
+  /** English pages use the standard mansion translation in the badge and tooltip. */
+  locale?: 'zh' | 'en';
 }
 
 export default async function ProductCard({
@@ -35,6 +38,7 @@ export default async function ProductCard({
   mansionPosition,
   mansionTotal = 7,
   mansionRgb,
+  locale = 'zh',
 }: ProductCardProps) {
   const t = await getTranslations('ProductsPage');
   const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map(p => p.price)) : 0;
@@ -53,9 +57,11 @@ export default async function ProductCard({
         <span
           className="absolute right-5 top-5 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/65 px-2.5 py-1.5 text-white shadow-lg shadow-black/20 backdrop-blur-md"
           style={{ borderColor: `rgb(${mansionRgb} / 0.32)` }}
-          title={mansionLabel
-            ? `${mansionSymbol ? `${mansionSymbol} · ` : ''}${mansionLabel}；星区标记，不是等级`
-            : `${mansionSymbol ? `${mansionSymbol} · ` : ''}${mansion}宿${mansionPosition ? `（第 ${mansionPosition} 宿 / 共 ${mansionTotal} 宿）` : ''}；星区标记，不是等级`}
+          title={locale === 'en'
+            ? `${mansionSymbol ? `${mansionSymbol} · ` : ''}${mansionLabel ?? (mansion ? MANSION_NAMES[mansion]?.en ?? mansion : 'Mansion')}${mansionPosition ? ` (${mansionPosition} of ${mansionTotal} mansions)` : ''}; a celestial marker, not a tier`
+            : mansionLabel
+              ? `${mansionSymbol ? `${mansionSymbol} · ` : ''}${mansionLabel}；星区标记，不是等级`
+              : `${mansionSymbol ? `${mansionSymbol} · ` : ''}${mansion}宿${mansionPosition ? `（第 ${mansionPosition} 宿 / 共 ${mansionTotal} 宿）` : ''}；星区标记，不是等级`}
         >
           <span
             aria-hidden="true"
@@ -63,7 +69,7 @@ export default async function ProductCard({
             style={{ background: `rgb(${mansionRgb})`, boxShadow: `0 0 8px rgb(${mansionRgb} / 0.6)` }}
           />
           {mansionSymbol && <span className="text-[10px] text-white/55">{mansionSymbol}</span>}
-          <span className="text-[12px] font-semibold" style={{ color: `rgb(${mansionRgb})` }}>{mansionLabel ?? `${mansion}宿`}</span>
+          <span className="text-[12px] font-semibold" style={{ color: `rgb(${mansionRgb})` }}>{mansionLabel ?? (locale === 'en' && mansion ? MANSION_NAMES[mansion]?.en ?? mansion : `${mansion}宿`)}</span>
         </span>
       )}
 

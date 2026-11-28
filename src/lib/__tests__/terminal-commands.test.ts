@@ -10,6 +10,23 @@ describe('runCommand', () => {
 
   // 黑洞是首页唯一没有文字说明的入口：它下面原本有标题和按钮，删掉之后
   // 触屏上没有任何可发现性，这条彩蛋提示是它仅有的线索，别在整理文案时删掉
+  it('英文 help 不回落成中文', () => {
+    const result = runCommand('help', 'en');
+    expect(result.lines[0]).toBe('Available commands:');
+    expect(result.lines.join('\n')).not.toMatch(/[\u4e00-\u9fff]/);
+  });
+
+  it('英文终端的所有可见输出都不回落成中文', () => {
+    const commands = [
+      'help', 'story', 'author', 'whoami', 'ls', 'cat secret.txt', 'free', 'meteor',
+      'sudo give-me-discount', 'sudo rm -rf /', 'vim', 'coffee', 'ping', 'exit', '42',
+      'hug', 'goodnight', 'emo', 'date', 'neofetch', 'konami', 'easter', 'not-a-command',
+    ];
+    for (const command of commands) {
+      expect(runCommand(command, 'en').lines.join('\n'), command).not.toMatch(/[\u4e00-\u9fff]/);
+    }
+  });
+
   it('easter 指南里写明黑洞可点', () => {
     const { lines } = runCommand('easter');
     expect(lines.join('\n')).toContain('黑洞');

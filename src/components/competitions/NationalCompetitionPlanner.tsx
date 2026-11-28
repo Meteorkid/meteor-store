@@ -7,7 +7,7 @@ import {
   filterNationalCompetitions,
   scheduleForYear,
 } from '@/lib/national-competitions';
-import { competitionCalendarText, type CompetitionCalendarCopy } from './text';
+import { competitionCalendarText, competitionFieldLabel, type CompetitionCalendarCopy } from './text';
 
 interface Props {
   locale: 'zh' | 'en';
@@ -100,7 +100,7 @@ export default function NationalCompetitionPlanner({ locale, year, years, nowIso
             <input type="hidden" name="year" value={year} />
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-[minmax(200px,1fr)_180px_160px_190px_auto]">
               <label className="t-footnote text-white/60">{copy.search}<input name="q" type="search" defaultValue={filters.query} maxLength={100} className={inputClass} /></label>
-              <label className="t-footnote text-white/60">{copy.field}<select name="field" defaultValue={filters.field} className={inputClass}><option value="">{copy.allFields}</option>{fields.map((field) => <option key={field} value={field}>{field}</option>)}</select></label>
+              <label className="t-footnote text-white/60">{copy.field}<select name="field" defaultValue={filters.field} className={inputClass}><option value="">{copy.allFields}</option>{fields.map((field) => <option key={field} value={field}>{competitionFieldLabel(field, locale)}</option>)}</select></label>
               <label className="t-footnote text-white/60">{copy.status}<select name="status" defaultValue={filters.status} className={inputClass}><option value="all">{copy.allStatuses}</option>{Object.entries(statusLabel).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
               <label className="t-footnote text-white/60">{copy.sort}<select name="sort" defaultValue={filters.sort} className={inputClass}><option value="soon">{copy.sortSoon}</option><option value="source">{copy.sortSource}</option></select></label>
               <button type="submit" className="min-h-11 self-end rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 md:col-span-2 lg:col-span-1">{copy.submit}</button>
@@ -130,7 +130,7 @@ export default function NationalCompetitionPlanner({ locale, year, years, nowIso
                         const status = competitionStatus(schedule, now);
                         return <tr key={competition.id} className="align-top hover:bg-white/[0.025]">
                           <td className="px-4 py-4 font-mono text-xs text-white/35">{String(competition.order).padStart(2, '0')}</td>
-                          <td className="max-w-md px-4 py-4"><p className="font-semibold leading-6 text-white">{competition.name}</p><p className="mt-1 t-footnote text-white/60">{competition.field}</p></td>
+                          <td className="max-w-md px-4 py-4"><p className="font-semibold leading-6 text-white">{competition.name}</p><p className="mt-1 t-footnote text-white/60">{competitionFieldLabel(competition.field, locale)}</p></td>
                           <td className="px-4 py-4"><span className="whitespace-nowrap rounded-full border border-violet-300/20 bg-violet-300/[0.08] px-2.5 py-1 text-xs text-violet-100">{copy.levelA}</span></td>
                           <td className="min-w-48 px-4 py-4"><DateWindow schedule={schedule} copy={copy} /><StatusBadge status={status} label={statusLabel[status]} /></td>
                           <td className="max-w-xs px-4 py-4 text-xs leading-5 text-white/60">{competition.organizer || '—'}</td>
@@ -147,7 +147,7 @@ export default function NationalCompetitionPlanner({ locale, year, years, nowIso
                     return <li key={competition.id} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
                       <div className="flex items-start justify-between gap-3"><span className="font-mono text-xs text-white/35">{copy.number} {String(competition.order).padStart(2, '0')}</span><span className="rounded-full border border-violet-300/20 px-2.5 py-1 text-[11px] text-violet-100">{copy.levelA}</span></div>
                       <h3 className="mt-3 t-title-4 leading-6 text-white">{competition.name}</h3>
-                      <p className="mt-1 t-footnote text-white/60">{competition.field}</p>
+                      <p className="mt-1 t-footnote text-white/60">{competitionFieldLabel(competition.field, locale)}</p>
                       <div className="mt-3"><DateWindow schedule={schedule} copy={copy} /><StatusBadge status={status} label={statusLabel[status]} /></div>
                       {competition.organizer && <p className="mt-3 border-t border-white/10 pt-3 t-footnote leading-5 text-white/60">{competition.organizer}</p>}
                       <div className="mt-3"><OfficialLink competition={competition} label={copy.official} missing={copy.noOfficial} /></div>

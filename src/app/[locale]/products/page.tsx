@@ -133,7 +133,7 @@ export default async function ProductsPage({ params }: Props) {
           />
           <div className="mx-auto w-full max-w-7xl px-4">
             <SectionHeading
-              symbol={`${dragon.label[locale as Locale]} · ${line.length} 件`}
+              symbol={`${dragon.label[locale as Locale]} · ${line.length} ${locale === 'en' ? 'items' : '件'}`}
               rgb={dragon.rgb}
               title={t('lineTitle')}
               note={t('lineNote')}
@@ -151,6 +151,7 @@ export default async function ProductsPage({ params }: Props) {
                   mansionPosition={i + 1}
                   mansionTotal={dragonMansions.length}
                   mansionRgb={dragon.rgb}
+                  locale={locale as Locale}
                 />
               ))}
             </div>
@@ -169,6 +170,7 @@ export default async function ProductsPage({ params }: Props) {
                       mansionPosition={position + 1}
                       mansionTotal={dragonMansions.length}
                       mansionRgb={dragon.rgb}
+                      locale={locale as Locale}
                     />
                   );
                 })}
@@ -203,7 +205,7 @@ export default async function ProductsPage({ params }: Props) {
           <CelestialField seed="lab-black-tortoise" rgb={tortoise.rgb} className="products-atlas-field" />
           <div className="mx-auto w-full max-w-7xl px-4">
             <SectionHeading
-              symbol={`${tortoise.label[locale as Locale]} · ${lab.length} 件`}
+              symbol={`${tortoise.label[locale as Locale]} · ${lab.length} ${locale === 'en' ? 'items' : '件'}`}
               rgb={tortoise.rgb}
               title={t('labTitle')}
               note={t('labNote')}
@@ -221,6 +223,7 @@ export default async function ProductsPage({ params }: Props) {
                     mansionPosition={mansion ? i + 1 : undefined}
                     mansionTotal={mansion ? tortoiseMansions.length : undefined}
                     mansionRgb={tortoise.rgb}
+                    locale={locale as Locale}
                   />
                 );
               })}

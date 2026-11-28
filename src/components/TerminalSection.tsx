@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { runCommand, QUICK_COMMANDS, ALL_COMMANDS } from '@/lib/terminal-commands';
 import { triggerMeteorBurst } from './EasterEggs';
 import { useReducedMotion } from '@/lib/motion';
@@ -14,14 +14,24 @@ interface HistoryEntry {
 
 const PROMPT = 'meteor@store:~$';
 
-const BANNER = [
-  '    ✦       ☄        ✦',
-  '  ✦    ✦  Meteor Store  ✦    ✦',
-  '    ✦   店主终端 v2.0   ✦',
-  '        ─────────────',
-  '  help   查看命令    easter   发现彩蛋',
-  '',
-];
+const BANNERS = {
+  zh: [
+    '    ✦       ☄        ✦',
+    '  ✦    ✦  Meteor Store  ✦    ✦',
+    '    ✦   店主终端 v2.0   ✦',
+    '        ─────────────',
+    '  help   查看命令    easter   发现彩蛋',
+    '',
+  ],
+  en: [
+    '    ✦       ☄        ✦',
+    '  ✦    ✦  Meteor Store  ✦    ✦',
+    '    ✦   Owner’s Terminal v2.0  ✦',
+    '        ─────────────',
+    '  help   commands    easter   secrets',
+    '',
+  ],
+} as const;
 
 // 自动演示历史上限：循环演示不清屏、向下追加，超限裁掉最旧条目防止无限增长
 const MAX_DEMO_ENTRIES = 20;
@@ -32,6 +42,8 @@ const MAX_DEMO_ENTRIES = 20;
  */
 export default function TerminalSection() {
   const router = useRouter();
+  const locale = useLocale() === 'en' ? 'en' : 'zh';
+  const banner = BANNERS[locale];
   const t = useTranslations('TerminalSection');
   const reducedMotion = useReducedMotion();
 
@@ -53,7 +65,7 @@ export default function TerminalSection() {
   if (reducedMotion !== prevReduced) {
     setPrevReduced(reducedMotion);
     if (reducedMotion && !interactive) {
-      setHistory([{ input: 'help', output: runCommand('help').lines }]);
+      setHistory([{ input: 'help', output: runCommand('help', locale).lines }]);
       setDemoTyped('');
       setBannerVisible(false);
     }
@@ -77,7 +89,7 @@ export default function TerminalSection() {
         timer = setTimeout(typeNext, 100 + Math.random() * 70);
       } else {
         setHistory(h => {
-          const next = [...h, { input: demo, output: runCommand(demo).lines }];
+          const next = [...h, { input: demo, output: runCommand(demo, locale).lines }];
           return next.length > MAX_DEMO_ENTRIES ? next.slice(-MAX_DEMO_ENTRIES) : next;
         });
         setDemoTyped('');
@@ -90,7 +102,7 @@ export default function TerminalSection() {
     };
     timer = setTimeout(typeNext, 800);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [interactive, reducedMotion]);
+  }, [interactive, reducedMotion, locale]);
 
   // 滚动到底
   useEffect(() => {
@@ -129,7 +141,7 @@ export default function TerminalSection() {
     if (!raw.trim()) return;
     cmdHistory.current.push(raw);
     historyIdx.current = cmdHistory.current.length;
-    const result = runCommand(raw);
+    const result = runCommand(raw, locale);
     if (result.action === 'clear') {
       setHistory([]);
       setInput('');
@@ -145,7 +157,7 @@ export default function TerminalSection() {
     if (result.action === 'navigate-story') {
       navigateTimer.current = setTimeout(() => router.push('/story'), 1400);
     }
-  }, [history.length, typeOutput, router]);
+  }, [history.length, typeOutput, router, locale]);
 
   const activate = () => {
     if (!interactive) {
@@ -244,7 +256,7 @@ export default function TerminalSection() {
             {/* ASCII Banner */}
             {bannerVisible && interactive && history.length === 0 && (
               <div className="text-purple-300/60 whitespace-pre-wrap mb-2">
-                {BANNER.map((line, i) => (
+                {banner.map((line, i) => (
                   <div key={i}>{line}</div>
                 ))}
               </div>
@@ -326,8 +338,8 @@ export default function TerminalSection() {
 
         <p className="text-center text-white/60 text-xs mt-6 font-mono space-x-3">
           <span>{t('hint')}</span>
-          <span className="text-purple-300/70">↑↓ 历史</span>
-          <span className="text-purple-300/70">Tab 补全</span>
+          <span className="text-purple-300/70">{locale === 'en' ? '↑↓ history' : '↑↓ 历史'}</span>
+          <span className="text-purple-300/70">{locale === 'en' ? 'Tab completion' : 'Tab 补全'}</span>
         </p>
       </div>
     </section>

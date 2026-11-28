@@ -1,9 +1,9 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { LocalizedProduct } from '@/data/products';
-import { SHOW_PRICING, categoryColors, categoryLabels } from '@/lib/constants';
+import { SHOW_PRICING, categoryColors, categoryLabels, categoryLabelsEn } from '@/lib/constants';
 import ProductVisual from './ProductVisual';
 import TransitionLink from './TransitionLink';
 
@@ -13,6 +13,7 @@ interface AdvancedProductCardProps {
 }
 
 export default function AdvancedProductCard({ product, freeLifetimeClaim = false }: AdvancedProductCardProps) {
+  const locale = useLocale();
   const t = useTranslations('ProductsPage');
   const cardRef = useRef<HTMLDivElement>(null);
   const minPrice = SHOW_PRICING ? Math.min(...product.pricing.map((p) => p.price)) : 0;
@@ -73,7 +74,7 @@ export default function AdvancedProductCard({ product, freeLifetimeClaim = false
               categoryColors[product.category] || 'text-white/60 bg-white/5'
             }`}
           >
-            {categoryLabels[product.category] || product.category}
+            {(locale === 'en' ? categoryLabelsEn : categoryLabels)[product.category] || product.category}
           </div>
 
           {/* Title */}

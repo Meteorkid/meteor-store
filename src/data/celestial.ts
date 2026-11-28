@@ -27,6 +27,38 @@ export const FOUR_SYMBOLS: Record<FourSymbolId, { label: CelestialLabel; shortLa
   },
 };
 
+/** English names follow the standard translation of the twenty-eight lunar mansions. */
+export const MANSION_NAMES: Record<string, { en: string; shortEn: string }> = {
+  角: { en: 'Horn', shortEn: 'Horn' },
+  亢: { en: 'Neck', shortEn: 'Neck' },
+  氐: { en: 'Root', shortEn: 'Root' },
+  房: { en: 'Room', shortEn: 'Room' },
+  心: { en: 'Heart', shortEn: 'Heart' },
+  尾: { en: 'Tail', shortEn: 'Tail' },
+  箕: { en: 'Winnowing Basket', shortEn: 'Basket' },
+  井: { en: 'Well', shortEn: 'Well' },
+  鬼: { en: 'Ghost', shortEn: 'Ghost' },
+  柳: { en: 'Willow', shortEn: 'Willow' },
+  星: { en: 'Star', shortEn: 'Star' },
+  张: { en: 'Extended Net', shortEn: 'Net' },
+  翼: { en: 'Wings', shortEn: 'Wings' },
+  轸: { en: 'Chariot', shortEn: 'Chariot' },
+  奎: { en: 'Legs', shortEn: 'Legs' },
+  娄: { en: 'Bond', shortEn: 'Bond' },
+  胃: { en: 'Stomach', shortEn: 'Stomach' },
+  昴: { en: 'Hairy Head', shortEn: 'Hairy' },
+  毕: { en: 'Net', shortEn: 'Net' },
+  觜: { en: 'Turtle Beak', shortEn: 'Beak' },
+  参: { en: 'Three Stars', shortEn: 'Three' },
+  斗: { en: 'Dipper', shortEn: 'Dipper' },
+  牛: { en: 'Ox', shortEn: 'Ox' },
+  女: { en: 'Girl', shortEn: 'Girl' },
+  虚: { en: 'Emptiness', shortEn: 'Void' },
+  危: { en: 'Rooftop', shortEn: 'Rooftop' },
+  室: { en: 'Encampment', shortEn: 'Camp' },
+  壁: { en: 'Wall', shortEn: 'Wall' },
+};
+
 export const MANSION_GROUPS: Array<{
   symbolId: FourSymbolId;
   mansions: readonly string[];

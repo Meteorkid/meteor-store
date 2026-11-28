@@ -20,7 +20,7 @@ const crawler = new Crawler({
 });
 
 const results = await crawler.run();
-console.log(\`爬取 \${results.length} 条数据\`);`,
+console.log(\`Crawled \${results.length} records\`);`,
     featureKeys: ['demo1Feature1', 'demo1Feature2', 'demo1Feature3', 'demo1Feature4'],
   },
   {

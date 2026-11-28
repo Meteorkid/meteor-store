@@ -1,15 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { SHOW_PRICING } from '@/lib/constants';
 import { localizeFaqs } from '@/data/faqs';
 import type { Locale } from '@/i18n/routing';
 
 
-
-// 备案期间隐藏销售相关 FAQ
-const localizedFaqs = localizeFaqs('zh' as Locale, SHOW_PRICING);
 
 function FAQItem({ faq, isOpen, onToggle }: {
   faq: { question: string; answer: string };
@@ -66,6 +63,9 @@ function FAQItem({ faq, isOpen, onToggle }: {
 
 export default function FAQSection() {
   const t = useTranslations('FAQSection');
+  const locale = useLocale() as Locale;
+  // 备案期间隐藏销售相关 FAQ；必须按当前语言取文案，不能固定 zh。
+  const localizedFaqs = localizeFaqs(locale, SHOW_PRICING);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (

@@ -1,4 +1,4 @@
-import { FOUR_SYMBOLS, MANSION_GROUPS, type FourSymbolId } from '@/data/celestial';
+import { FOUR_SYMBOLS, MANSION_GROUPS, MANSION_NAMES, type FourSymbolId } from '@/data/celestial';
 import type { Locale } from '@/i18n/routing';
 import type { MansionChartCopy } from './mansion-chart-copy';
 
@@ -79,10 +79,11 @@ export default function MansionChart({ locale, lineCount, labCount, copy }: Mans
                   <div className="mt-4 grid grid-cols-7 gap-1">
                     {group.mansions.map((mansion, index) => {
                       const reserved = active && index >= used;
+                      const name = locale === 'en' ? MANSION_NAMES[mansion]?.en ?? mansion : mansion;
                       return (
                         <span
                           key={mansion}
-                          title={reserved ? copy.reserved : `${symbol.label[locale]} · ${mansion}${copy.mansionSuffix}`}
+                          title={reserved ? copy.reserved : `${symbol.label[locale]} · ${name}${copy.mansionSuffix}`}
                           className={`grid aspect-square place-items-center rounded-md border text-[11px] sm:text-xs ${
                             reserved
                               ? 'border-dashed border-white/10 text-white/30'
@@ -92,7 +93,7 @@ export default function MansionChart({ locale, lineCount, labCount, copy }: Mans
                           }`}
                           style={active && !reserved ? { background: `rgb(${symbol.rgb} / 0.06)` } : undefined}
                         >
-                          {mansion}
+                          {locale === 'en' ? MANSION_NAMES[mansion]?.shortEn ?? name : mansion}
                         </span>
                       );
                     })}

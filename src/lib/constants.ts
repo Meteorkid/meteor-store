@@ -79,3 +79,10 @@ export const categoryLabels: Record<string, string> = {
   design: '设计工具',
   utility: '实用工具',
 };
+
+export const categoryLabelsEn: Record<string, string> = {
+  developer: 'Developer tools',
+  ai: 'AI tools',
+  design: 'Design tools',
+  utility: 'Utilities',
+};

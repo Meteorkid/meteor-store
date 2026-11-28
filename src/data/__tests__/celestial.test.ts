@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FOUR_SYMBOLS, MANSION_GROUPS, SEVEN_LUMINARIES } from '../celestial';
+import { FOUR_SYMBOLS, MANSION_GROUPS, MANSION_NAMES, SEVEN_LUMINARIES } from '../celestial';
 
 describe('中国星象数据', () => {
   it('二十八宿按四象分成四组七宿，且不重复', () => {
@@ -9,6 +9,16 @@ describe('中国星象数据', () => {
     const mansions = MANSION_GROUPS.flatMap((group) => group.mansions);
     expect(mansions).toHaveLength(28);
     expect(new Set(mansions).size).toBe(28);
+  });
+
+  it('英文站为每一宿提供不重复的英文名', () => {
+    const mansions = MANSION_GROUPS.flatMap((group) => group.mansions);
+    const englishNames = mansions.map((mansion) => MANSION_NAMES[mansion]?.en);
+    englishNames.forEach((name) => {
+      expect(name).toBeTruthy();
+      expect(name).not.toMatch(/[\u4e00-\u9fff]/);
+    });
+    expect(new Set(englishNames).size).toBe(28);
   });
 
   it('四象都有双语标签与边框色', () => {

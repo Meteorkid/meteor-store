@@ -102,3 +102,21 @@ export const competitionCalendarText = {
 } as const;
 
 export type CompetitionCalendarCopy = (typeof competitionCalendarText)['zh' | 'en'];
+
+export const competitionFieldLabels: Record<string, string> = {
+  电子信息类: 'Electronic & Information',
+  法学类: 'Law',
+  机器人类: 'Robotics',
+  计算机类: 'Computer Science',
+  经管类: 'Business & Management',
+  理学类: 'Natural Sciences',
+  其他工学类: 'Other Engineering',
+  师范教育: 'Teacher Education',
+  体育类: 'Sports',
+  艺术类: 'Arts',
+  语言类: 'Languages',
+};
+
+export function competitionFieldLabel(field: string, locale: 'zh' | 'en'): string {
+  return locale === 'en' ? competitionFieldLabels[field] ?? field : field;
+}
