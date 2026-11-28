@@ -45,9 +45,21 @@ function rehypeScrollableTables() {
       parent.children[index] = {
         type: 'element',
         tagName: 'div',
-        properties: { className: ['markdown-table-scroll'] },
+        properties: { className: ['markdown-table-scroll'], tabIndex: 0 },
         children: [node],
       };
+    });
+  };
+}
+
+/**
+ * 代码块横向滚动时也必须能用键盘进入，否则键盘用户看不到被裁掉的代码行。
+ * 宽表格的滚动容器由 rehypeScrollableTables 单独加 tabIndex。
+ */
+function rehypeFocusableCodeBlocks() {
+  return (tree: Root) => {
+    visit(tree, 'element', (node: Element) => {
+      if (node.tagName === 'pre') node.properties.tabIndex = 0;
     });
   };
 }
@@ -95,6 +107,7 @@ const processor = unified()
   })
   .use(rehypeSanitize, schema)
   .use(rehypeScrollableTables)
+  .use(rehypeFocusableCodeBlocks)
   // sanitize 之后改写图片 src，让原生 <img> 走 next/image 优化端点
   .use(rehypeNextImage)
   .use(rehypeStringify);

@@ -22,6 +22,7 @@ describe('markdownToHtml', () => {
     it('代码块保留语言标记，内容被转义', () => {
       const html = markdownToHtml('```html\n<div>&</div>\n```');
       expect(html).toContain('class="language-html"');
+      expect(html).toContain('<pre tabindex="0">');
       expect(html).not.toContain('<div>&</div>');
       expect(html).toContain('#x3C;div'); // < 已转义
     });
@@ -30,7 +31,7 @@ describe('markdownToHtml', () => {
   describe('GFM 扩展（旧的手写解析器不支持）', () => {
     it('表格', () => {
       const html = markdownToHtml('| A | B |\n|---|---|\n| 1 | 2 |');
-      expect(html).toContain('<div class="markdown-table-scroll"><table>');
+      expect(html).toContain('<div class="markdown-table-scroll" tabindex="0"><table>');
       expect(html).toContain('<th>A</th>');
       expect(html).toContain('<td>1</td>');
     });

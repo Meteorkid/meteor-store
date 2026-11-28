@@ -77,6 +77,10 @@ const APPLICANT_GROUP_EN: Record<string, string> = {
     'Applicants, including international applicants; this record covers the Information Security stream',
   '该项目一般申请者；具体身份资格与入学考试按招生处要求':
     'General applicants for this programme; specific eligibility and entrance exam requirements follow the admissions office',
+  'MIMT一般申请，含国际申请者；CEMS选项另有交换安排':
+    'MIMT general applicants, including international applicants; the CEMS option has a separate exchange arrangement',
+  'MComp with Specialisations申请者，含国际申请者；本记录为信息安全方向':
+    'MComp with Specialisations applicants, including international applicants; this record covers the Information Security stream',
 };
 
 const OPENING_NOTE_EN: Record<string, string> = {
@@ -88,6 +92,8 @@ const OPENING_NOTE_EN: Record<string, string> = {
   '官方项目页明确当前入学季申请已开放。':
     'The official programme page confirms applications for the current intake are open.',
   '官方项目页未披露具体申请开放日。':
+    'The official programme page does not disclose a specific opening date.',
+  '官方项目页未披露具体开放日。':
     'The official programme page does not disclose a specific opening date.',
   '本次官方项目页未给出具体开放日。':
     'The official programme page did not give a specific opening date this time.',
