@@ -108,7 +108,7 @@ export default function StarMap({ posts }: StarMapProps) {
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="h-auto w-full"
-        role="img"
+        role="group"
         aria-label={t('aria')}
       >
         <MansionFrame locale={locale} />

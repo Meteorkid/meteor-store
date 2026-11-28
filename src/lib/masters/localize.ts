@@ -67,6 +67,16 @@ const APPLICANT_GROUP_EN: Record<string, string> = {
     'Applicants to this DPhil programme, including overseas applicants; some scholarships require a separate application',
   '仅International Griffith Pathway：近十年在Griffith完成或正在完成Honours、Masters或Graduate Diploma，含至少40学分研究内容':
     'International Griffith Pathway only: completed or currently completing Honours, Masters or Graduate Diploma at Griffith within the last ten years, including at least 40 credit points of research',
+  '一般申请，含国际申请者；CEMS选项另有交换安排':
+    'General applicants, including international applicants; the CEMS option has a separate exchange arrangement',
+  '国际申请者，含拟持学生签证赴澳者；非本地学生截止':
+    'International applicants, including those intending to study in Australia on a student visa; deadline for non-local students',
+  '申请 General Stream 且不选择 Delta X Fellowship 的申请者，含非本地申请者':
+    'Applicants to the General Stream who do not choose the Delta X Fellowship, including non-local applicants',
+  '申请者，含国际申请者；本记录为信息安全方向':
+    'Applicants, including international applicants; this record covers the Information Security stream',
+  '该项目一般申请者；具体身份资格与入学考试按招生处要求':
+    'General applicants for this programme; specific eligibility and entrance exam requirements follow the admissions office',
 };
 
 const OPENING_NOTE_EN: Record<string, string> = {
@@ -75,6 +85,14 @@ const OPENING_NOTE_EN: Record<string, string> = {
     'The current official application notice confirms the opening date: 2026-08-01.',
   '研究生院明确本轮申请开放日：2026-09-01。补录须有剩余名额。':
     'The graduate school confirms this round opened on 2026-09-01. Supplementary rounds require places to remain.',
+  '官方项目页明确当前入学季申请已开放。':
+    'The official programme page confirms applications for the current intake are open.',
+  '官方项目页未披露具体申请开放日。':
+    'The official programme page does not disclose a specific opening date.',
+  '本次官方项目页未给出具体开放日。':
+    'The official programme page did not give a specific opening date this time.',
+  '官方申请表开放日：2026-10-01。':
+    'The official application form opened on 2026-10-01.',
 };
 
 const DEADLINE_TEXT_EN: Record<string, string> = {

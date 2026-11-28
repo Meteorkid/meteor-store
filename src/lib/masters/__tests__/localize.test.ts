@@ -26,7 +26,7 @@ describe('硕士项目英文展示', () => {
     expect(en.details.roundName).toBe('Round 2');
     expect(en.details.studyMode).toBe('Full-time, 1 year');
     expect(en.details.deadlineText).toBe('International application deadline');
-    expect(en.details.openingNote).toBe(round.details.openingNote);
+    expect(en.details.openingNote).toBe('The official programme page confirms applications for the current intake are open.');
     expect(en.details.sourceNote).toBe(round.details.sourceNote);
   });
 
