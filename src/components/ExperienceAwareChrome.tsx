@@ -44,7 +44,7 @@ export default function ExperienceAwareChrome({ children }: { children: ReactNod
           <SpotlightSearch />
           {!focusMode && <FilmGrain />}
           {!helpExperience && !orbitHomepage && !focusMode && <MeteorShower />}
-          {/* 首页由各主题首屏自带视觉；通用粒子只服务内页，避免和首屏重复渲染。 */}
+          {/* 首页首屏由各主题自带视觉；首页首屏以下的粒子由 HomeBelowHeroParticles 接管。 */}
           {!helpExperience && !homepage && !focusMode && <HeroCanvas />}
         </>
       )}

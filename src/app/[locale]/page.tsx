@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
+import HomeBelowHeroParticles from '@/components/home/HomeBelowHeroParticles';
 import ProductShowcase from '@/components/ProductShowcase';
 import FourRegions from '@/components/home/FourRegions';
 import ProductDemo from '@/components/ProductDemo';
@@ -66,6 +67,9 @@ export default async function Home({
         helpCount={localizeHelpArticles(language).length}
         orbitProducts={orbitProducts}
       />
+
+      {/* 首屏保持纯净；非经典主题滚过首屏后再开启全站粒子。 */}
+      <HomeBelowHeroParticles />
 
       {/* 四象分野：把站内四个方向做成一张可读的星图，而不是四张营销卡 */}
       <FourRegions locale={language} />
