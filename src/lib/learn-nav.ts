@@ -1,5 +1,5 @@
 export type LearnPrimaryKey = 'discover' | 'workbench' | 'listening' | 'directions' | 'plan' | 'applications' | 'saved';
-export type LearnSecondaryKey = 'opportunities' | 'topics' | 'weekly' | 'courses' | 'algorithms' | 'writing' | 'vocabulary' | 'masters' | 'phd';
+export type LearnSecondaryKey = 'opportunities' | 'topics' | 'weekly' | 'courses' | 'algorithms' | 'writing' | 'vocabulary';
 
 export const LEARN_PRIMARY: readonly { key: LearnPrimaryKey; href: string }[] = [
   { key: 'discover', href: '/pathfinder' },
@@ -35,10 +35,7 @@ const SECONDARY: Record<LearnPrimaryKey, readonly { key: LearnSecondaryKey; href
     { key: 'writing', href: '/study/ielts' },
     { key: 'vocabulary', href: '/study/vocabulary' },
   ],
-  applications: [
-    { key: 'masters', href: '/masters' },
-    { key: 'phd', href: '/phd' },
-  ],
+  applications: [],
   listening: [],
   directions: [],
   plan: [],
@@ -66,9 +63,5 @@ export function learnSecondaryActive(pathname: string, key: LearnSecondaryKey): 
       return /^\/study\/ielts(?:\/|$)/.test(pathname) && !/^\/study\/ielts\/listening(?:\/|$)/.test(pathname);
     case 'vocabulary':
       return /^\/study\/vocabulary(?:\/|$)/.test(pathname);
-    case 'masters':
-      return /^\/masters(?:\/|$)/.test(pathname);
-    case 'phd':
-      return /^\/phd(?:\/|$)/.test(pathname);
   }
 }

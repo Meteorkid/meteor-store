@@ -2017,7 +2017,6 @@
     "navigation": {
       "ariaLabel": "学习与机会导航",
       "secondaryAria": "发现与学习工作台的下一级分类",
-      "learn": "学习与机会",
       "discover": "发现",
       "workbench": "学习工作台",
       "listening": "雅思听力",
@@ -2032,7 +2031,6 @@
       "algorithms": "算法训练",
       "writing": "雅思写作",
       "vocabulary": "生词本",
-      "masters": "硕士申请",
       "phd": "博士申请"
     },
     "discover": {

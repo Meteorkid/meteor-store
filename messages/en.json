@@ -2017,7 +2017,6 @@
     "navigation": {
       "ariaLabel": "Learn & explore navigation",
       "secondaryAria": "Discover and workbench categories",
-      "learn": "Learn & explore",
       "discover": "Discover",
       "workbench": "Workbench",
       "listening": "IELTS listening",
@@ -2032,7 +2031,6 @@
       "algorithms": "Algorithm practice",
       "writing": "IELTS writing",
       "vocabulary": "Vocabulary",
-      "masters": "Master’s",
       "phd": "PhD"
     },
     "discover": {

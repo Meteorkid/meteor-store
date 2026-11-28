@@ -21,14 +21,6 @@ export default function LearnSubnav() {
     <nav aria-label={t('ariaLabel')} data-study-subnav className="border-b border-white/10 bg-black/60 backdrop-blur-md">
       <div className="mx-auto w-full max-w-7xl px-4">
         <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <Link
-            href="/pathfinder"
-            className="mr-1 inline-flex min-h-12 shrink-0 items-center gap-2 px-2.5 t-eyebrow text-white/55 transition-colors hover:text-white/85"
-          >
-            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_10px_var(--site-accent)]" />
-            {t('learn')}
-          </Link>
-          <span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 bg-white/10" />
           {LEARN_PRIMARY.map(item => {
             const active = primary === item.key;
             return (
@@ -60,7 +52,7 @@ export default function LearnSubnav() {
                     key={item.key}
                     href={item.href}
                     aria-current={active ? 'page' : undefined}
-                    className={`inline-flex min-h-9 shrink-0 items-center rounded-full px-3 t-footnote transition-colors ${
+                    className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-3 t-footnote transition-colors ${
                       active
                         ? 'bg-white/10 font-semibold text-white'
                         : 'text-white/55 hover:bg-white/[0.05] hover:text-white/80'

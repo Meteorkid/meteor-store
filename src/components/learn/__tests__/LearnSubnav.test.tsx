@@ -47,13 +47,12 @@ describe('学习与机会统一栏目条', () => {
     expect(html).not.toContain('aria-current="page"');
   });
 
-  it('申请日历同时提供硕士与博士入口', () => {
+  it('申请日历只保留一级入口，不与日历页内部的硕士/博士 Tab 重复', () => {
     const html = render('/masters');
     expect(html).toContain('href="/masters"');
-    expect(html).toContain('href="/phd"');
-    expect(html).toContain('aria-label="secondaryAria"');
-    expect((html.match(/aria-current="true"/g) ?? [])).toHaveLength(1);
-    expect((html.match(/aria-current="page"/g) ?? [])).toHaveLength(1);
+    expect(html).toContain('aria-current="true"');
+    expect(html).not.toContain('aria-label="secondaryAria"');
+    expect(html).not.toContain('href="/phd"');
   });
 
   it('一级导航包含七个有区别的目的地', () => {

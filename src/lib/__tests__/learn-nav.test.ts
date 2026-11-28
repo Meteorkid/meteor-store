@@ -37,10 +37,9 @@ describe('学习与机会栏目归位', () => {
   it('详情页归属对应二级栏目', () => {
     expect(learnSecondaryActive('/pathfinder/items/item-1', 'opportunities')).toBe(true);
     expect(learnSecondaryActive('/pathfinder/organizations/acme', 'topics')).toBe(true);
-    expect(learnSecondaryActive('/masters?year=2027', 'masters')).toBe(false);
   });
 
-  it('申请日历有硕士与博士两级入口', () => {
-    expect(learnSecondaryFor('applications').map(item => item.key)).toEqual(['masters', 'phd']);
+  it('申请日历不再生成与页面内部 Tab 重复的二级条目', () => {
+    expect(learnSecondaryFor('applications')).toEqual([]);
   });
 });
