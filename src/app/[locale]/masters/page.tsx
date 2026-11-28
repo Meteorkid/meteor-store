@@ -3,6 +3,7 @@ import { buildOpenGraphMetadata } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
+import LearnSubnav from '@/components/learn/LearnSubnav';
 import Footer from '@/components/Footer';
 import MastersHub from '@/components/masters/MastersHub';
 import { mastersText } from '@/components/masters/text';
@@ -49,6 +50,7 @@ export default async function MastersPage({ params, searchParams }: {
 
   return <div className="min-h-screen bg-black text-white">
     <Header />
+    <LearnSubnav />
     <main className="container mx-auto px-4 pb-12 pt-10 sm:pb-16 sm:pt-14">
       <MastersHub year={year} nowIso={now.toISOString()} userId={session?.userId ?? null}
         rounds={rounds}

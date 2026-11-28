@@ -7,6 +7,7 @@ vi.mock('@/lib/masters/service', () => ({ listMastersRounds: mocks.listMastersRo
 vi.mock('next/navigation', () => ({ notFound: () => { throw new Error('NOT_FOUND'); } }));
 vi.mock('next-intl/server', () => ({ setRequestLocale: vi.fn() }));
 vi.mock('@/components/Header', () => ({ default: () => null }));
+vi.mock('@/components/learn/LearnSubnav', () => ({ default: () => null }));
 vi.mock('@/components/Footer', () => ({ default: () => null }));
 vi.mock('@/components/masters/MastersHub', () => ({ default: (props: Record<string, unknown>) => <pre>{JSON.stringify(props)}</pre> }));
 

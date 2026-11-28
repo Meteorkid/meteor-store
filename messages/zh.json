@@ -2015,14 +2015,25 @@
   },
   "PathfinderHub": {
     "navigation": {
-      "ariaLabel": "Pathfinder 导航",
+      "ariaLabel": "学习与机会导航",
+      "secondaryAria": "发现与学习工作台的下一级分类",
+      "learn": "学习与机会",
       "discover": "发现",
-      "opportunities": "机会库",
-      "directions": "方向",
-      "plan": "我的路径",
+      "workbench": "学习工作台",
+      "listening": "雅思听力",
+      "directions": "学习方向",
+      "plan": "学习计划",
+      "applications": "申请日历",
       "saved": "我的收藏",
+      "opportunities": "机会库",
       "topics": "主题与机构",
-      "weekly": "本周"
+      "weekly": "本周",
+      "courses": "课程与 GPA",
+      "algorithms": "算法训练",
+      "writing": "雅思写作",
+      "vocabulary": "生词本",
+      "masters": "硕士申请",
+      "phd": "博士申请"
     },
     "discover": {
       "metaTitle": "Meteor Pathfinder · 可信学习与机会导航",

@@ -2015,14 +2015,25 @@
   },
   "PathfinderHub": {
     "navigation": {
-      "ariaLabel": "Pathfinder navigation",
+      "ariaLabel": "Learn & explore navigation",
+      "secondaryAria": "Discover and workbench categories",
+      "learn": "Learn & explore",
       "discover": "Discover",
-      "opportunities": "Opportunities",
-      "directions": "Directions",
-      "plan": "My path",
+      "workbench": "Workbench",
+      "listening": "IELTS listening",
+      "directions": "Learning directions",
+      "plan": "Study plan",
+      "applications": "Application calendar",
       "saved": "Saved",
-      "topics": "Topics",
-      "weekly": "This week"
+      "opportunities": "Opportunities",
+      "topics": "Topics & organizations",
+      "weekly": "This week",
+      "courses": "Courses & GPA",
+      "algorithms": "Algorithm practice",
+      "writing": "IELTS writing",
+      "vocabulary": "Vocabulary",
+      "masters": "Master’s",
+      "phd": "PhD"
     },
     "discover": {
       "metaTitle": "Meteor Pathfinder · Trusted learning and opportunity guide",

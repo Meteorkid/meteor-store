@@ -1,12 +1,12 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import PathfinderSubnav from '@/components/pathfinder/PathfinderSubnav';
+import LearnSubnav from '@/components/learn/LearnSubnav';
 
 export default function PathfinderLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      <PathfinderSubnav />
+      <LearnSubnav />
       <div className="relative isolate overflow-hidden">
         <div
           aria-hidden="true"
