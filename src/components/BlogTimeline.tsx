@@ -248,7 +248,7 @@ export default function BlogTimeline({ posts, anchorsRef }: BlogTimelineProps) {
             ref={handleRef}
             type="button"
             role="slider"
-            aria-label="时间轴"
+            aria-label={locale === 'en' ? 'Timeline' : '时间轴'}
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.round(p * 100)}

@@ -149,7 +149,7 @@ export default function Footer({ showSocial = false }: FooterProps) {
         </div>
 
         {/* 店灯：一盏极简的灯，衬在版权行上方 */}
-        <div aria-label="店灯——仍有人在" role="img" className="mx-auto mb-6 flex w-full justify-center">
+        <div aria-label={locale === 'en' ? 'Shop lamp — someone is still here' : '店灯——仍有人在'} role="img" className="mx-auto mb-6 flex w-full justify-center">
           <svg viewBox="0 0 24 36" className="h-8 w-auto opacity-25" fill="none">
             {/* 灯座 */}
             <rect x="8" y="30" width="8" height="3" rx="1" fill="rgba(255,255,255,0.5)" />

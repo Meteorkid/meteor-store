@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import MastersHub from '@/components/masters/MastersHub';
 import { mastersText } from '@/components/masters/text';
 import { getSession } from '@/lib/auth';
+import { localizeMastersRounds } from '@/lib/masters/localize';
 import { defaultMastersYear } from '@/lib/masters/types';
 import { getMastersRoundsByIds, getMastersWatches, listMastersRounds } from '@/lib/masters/service';
 
@@ -42,13 +43,16 @@ export default async function MastersPage({ params, searchParams }: {
   const [watchedRoundsResult] = await Promise.allSettled([
     watches.length ? getMastersRoundsByIds(watches.map(watch => watch.roundId)) : Promise.resolve([]),
   ]);
+  const typedLocale = locale === 'en' ? 'en' : 'zh';
+  const rounds = roundsResult.status === 'fulfilled' ? localizeMastersRounds(roundsResult.value, typedLocale) : [];
+  const watchedRounds = watchedRoundsResult.status === 'fulfilled' ? localizeMastersRounds(watchedRoundsResult.value, typedLocale) : [];
 
   return <div className="min-h-screen bg-black text-white">
     <Header />
     <main className="container mx-auto px-4 pb-12 pt-10 sm:pb-16 sm:pt-14">
       <MastersHub year={year} nowIso={now.toISOString()} userId={session?.userId ?? null}
-        rounds={roundsResult.status === 'fulfilled' ? roundsResult.value : []}
-        initialWatches={watches} watchedRounds={watchedRoundsResult.status === 'fulfilled' ? watchedRoundsResult.value : []}
+        rounds={rounds}
+        initialWatches={watches} watchedRounds={watchedRounds}
         loadFailed={roundsResult.status === 'rejected'} watchesFailed={watchesResult.status === 'rejected' || watchedRoundsResult.status === 'rejected'} />
     </main>
     <Footer />
