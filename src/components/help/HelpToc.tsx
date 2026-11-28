@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { useLocale } from 'next-intl';
 import { ConstellationDot } from './HelpDecorations';
 import type { HelpHeading } from '@/lib/help-markdown';
 
@@ -15,6 +16,8 @@ export default function HelpToc({
   headings: HelpHeading[];
   variant?: 'sidebar' | 'collapsible';
 }) {
+  const locale = useLocale();
+  const tocLabel = locale === 'en' ? 'Contents' : '目录';
   const [activeId, setActiveId] = useState<string>('');
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -60,7 +63,7 @@ export default function HelpToc({
     return (
       <details className="mb-6 lg:hidden" open>
         <summary className="t-footnote mb-3 cursor-pointer text-white/40 outline-none hover:text-white/60">
-          目录
+          {tocLabel}
         </summary>
         <nav className="relative border-l border-white/[0.06] pl-3">
           {headings.map((heading) => {
@@ -103,7 +106,7 @@ export default function HelpToc({
     <div>
       <div className="mb-4 flex items-center gap-2">
         <ConstellationDot active />
-        <p className="t-eyebrow text-white/35">目录</p>
+        <p className="t-eyebrow text-white/35">{tocLabel}</p>
       </div>
       <nav className="relative">
         {/* 竖连线 */}

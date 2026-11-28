@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { getBlogPosts, toSummary, type BlogPost } from './blog';
 import { buildTagIndex, normalizeTag, type TagSummary } from './blog-tags';
+import { localizedBlogTag } from '@/lib/blog-tag-labels';
 import { getPublishedUserPosts } from '@/lib/posts';
 import type { BlogSectionId } from './blog-sections';
 import { type Locale } from '@/i18n/routing';
@@ -124,7 +125,9 @@ export async function getSectionCounts(locale: Locale): Promise<Record<string, n
  * 计数规则（同篇去重、展示写法取最常见的那种）复用 buildTagIndex。
  */
 export async function getFeedTags(locale: Locale): Promise<TagSummary[]> {
-  return buildTagIndex(await getFeedPosts(locale));
+  const tags = buildTagIndex(await getFeedPosts(locale));
+  if (locale !== 'en') return tags;
+  return tags.map((tag) => ({ ...tag, label: localizedBlogTag(tag.label, locale) }));
 }
 
 export async function findFeedTag(locale: Locale, input: string): Promise<TagSummary | undefined> {

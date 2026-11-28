@@ -1,4 +1,5 @@
 import type { PathfinderCatalogItem } from './catalog-types';
+import { localizedTopicName } from './ingestion/topics';
 import {
   catalogDeadlineTimestamp,
   diversifyByOrganization,
@@ -93,7 +94,8 @@ export function collectDirectory(
       if (organizationSlugs?.has(slug)) continue;
       const bucket = bySlug.get(slug) ?? { count: 0, labels: new Map<string, number>() };
       bucket.count += 1;
-      bucket.labels.set(raw, (bucket.labels.get(raw) ?? 0) + 1);
+      const label = kind === 'topic' ? localizedTopicName(raw, locale) : raw;
+      bucket.labels.set(label, (bucket.labels.get(label) ?? 0) + 1);
       bySlug.set(slug, bucket);
     }
   }

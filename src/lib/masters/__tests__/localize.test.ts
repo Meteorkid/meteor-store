@@ -39,5 +39,8 @@ describe('硕士项目英文展示', () => {
     expect(localizeMastersRound({ ...base, details: { ...base.details, roundName: '主轮' } }, 'en').details.roundName).toBe('Main round');
     expect(localizeMastersRound({ ...base, details: { ...base.details, roundName: '第三轮' } }, 'en').details.roundName).toBe('Round 3');
     expect(localizeMastersRound({ ...base, details: { ...base.details, roundName: '8月入学申请期' } }, 'en').details.roundName).toBe('8 intake application period');
+    expect(localizeMastersRound({ ...base, details: { ...base.details, roundName: '补录轮' } }, 'en').details.roundName).toBe('Supplementary round');
+    expect(localizeMastersRound({ ...base, details: { ...base.details, roundName: '国际申请截止' } }, 'en').details.roundName).toBe('International application deadline');
+    expect(localizeMastersRound({ ...base, details: { ...base.details, roundName: '项目申请截止' } }, 'en').details.roundName).toBe('Programme application deadline');
   });
 });

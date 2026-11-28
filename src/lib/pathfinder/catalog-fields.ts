@@ -1,4 +1,5 @@
 import type { PathfinderCatalogItem, PathfinderItemType } from './catalog-types';
+import { localizedTopicName } from './ingestion/topics';
 import {
   formatCatalogCost,
   formatDate,
@@ -64,7 +65,10 @@ export function catalogMetaFields(
       // 具体 issue 的 organization 存的就是 owner/repo，技能标签往往为空，
       // 这时用 issue 自己的标签（bug、documentation…）说明这是什么类型的活
       const detail = isActionableTask(item) && item.tags.skill.length === 0
-        ? item.tags.topic.filter((tag) => !tag.includes('/')).slice(0, 2)
+        ? item.tags.topic
+            .filter((tag) => !tag.includes('/'))
+            .slice(0, 2)
+            .map((tag) => localizedTopicName(tag, locale))
         : item.tags.skill.slice(0, 2);
       return [organization, costWarning, hours, ...detail].filter(isText);
     }

@@ -67,6 +67,50 @@ const TOPIC_VOCABULARY: ReadonlyArray<readonly [string, RegExp]> = [
 ];
 
 /**
+ * 英文页面使用的主题展示名。
+ *
+ * 主题词表本身保留中文规范名：它是识别词表、数据库标签和关注键的唯一来源。
+ * 英文页只在展示层换词，不能改 `tags.topic` 的存储值，否则同一个主题在中英文
+ * 页面会变成两个不同的关注对象。
+ */
+const TOPIC_LABELS_EN: Record<string, string> = {
+  Agent: 'Agent',
+  RAG: 'RAG',
+  多模态: 'Multimodal',
+  图像生成: 'Image generation',
+  语音: 'Speech',
+  具身智能: 'Embodied AI',
+  强化学习: 'Reinforcement learning',
+  训练与微调: 'Training & fine-tuning',
+  推理部署: 'Inference & deployment',
+  分布式: 'Distributed systems',
+  评测: 'Evaluation & benchmarks',
+  安全与对齐: 'Safety & alignment',
+  可解释性: 'Interpretability',
+  自然语言处理: 'Natural language processing',
+  计算机视觉: 'Computer vision',
+  推荐与检索: 'Recommendation & retrieval',
+  数据工程: 'Data engineering',
+  前端: 'Frontend',
+  后端: 'Backend',
+  数据库: 'Databases',
+  类型系统: 'Type systems',
+  编译器: 'Compilers',
+  测试: 'Testing',
+  性能优化: 'Performance',
+  开发者工具: 'Developer tools',
+  文档: 'Documentation',
+  云与基础设施: 'Cloud & infrastructure',
+  大模型: 'Large language models',
+  机器学习: 'Machine learning',
+};
+
+/** 主题展示名：存储与筛选继续用中文规范名，英文页只换显示文本。 */
+export function localizedTopicName(name: string, locale: 'zh' | 'en'): string {
+  return locale === 'en' ? TOPIC_LABELS_EN[name] ?? name : name;
+}
+
+/**
  * 一个条目最多挂几个主题。
  *
  * 上限的理由是展示：条目挂太多主题，每个主题页都会塞满同一批条目，导航就

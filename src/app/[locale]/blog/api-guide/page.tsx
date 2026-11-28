@@ -5,6 +5,7 @@ import { setRequestLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogApiGuideCopyButton from '@/components/BlogApiGuideCopyButton';
+import SourceLanguageNote from '@/components/SourceLanguageNote';
 import { markdownToHtml } from '@/lib/markdown';
 import { buildOpenGraphMetadata } from '@/lib/seo';
 
@@ -69,6 +70,8 @@ export default async function ApiGuidePage({
               </a>
             </div>
           </header>
+
+          <SourceLanguageNote locale={locale} sourceLanguage="zh" />
 
           <article
             className="prose prose-invert prose-violet max-w-none

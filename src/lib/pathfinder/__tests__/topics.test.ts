@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allTopicNames, inferTopics, MAX_TOPICS_PER_ITEM, topicsForItem } from '../ingestion/topics';
+import { allTopicNames, inferTopics, localizedTopicName, MAX_TOPICS_PER_ITEM, topicsForItem } from '../ingestion/topics';
 
 /**
  * 用例里的噪声标签全部取自生产库实测值（103 种标签 / 595 次挂载中的 54 种是噪声），
@@ -25,6 +25,12 @@ describe('主题只从受控词表产生', () => {
     for (const org of ['AI', 'OpenAI', 'Google DeepMind', 'GitHub', 'Databricks']) {
       expect(topicsForItem({ labels: [org] })).not.toContain(org);
     }
+  });
+
+  it('每个主题都有不含中文的英文展示名', () => {
+    const english = allTopicNames().map((name) => localizedTopicName(name, 'en'));
+    expect(new Set(english).size).toBe(english.length);
+    for (const label of english) expect(label).not.toMatch(/[\u4e00-\u9fff]/);
   });
 
   it('产出的主题一定在词表内', () => {

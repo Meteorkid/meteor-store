@@ -28,7 +28,7 @@ export default function TagDirectory({ tags }: TagDirectoryProps) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return tags;
-    return tags.filter((tag) => tag.key.includes(q));
+    return tags.filter((tag) => tag.key.includes(q) || tag.label.toLowerCase().includes(q));
   }, [tags, query]);
 
   const toggleTag = (tag: TagSummary) => {

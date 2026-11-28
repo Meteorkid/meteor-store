@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { FeedPostSummary } from '@/data/blog-feed';
-import { FOUR_SYMBOLS, MANSION_GROUPS } from '@/data/celestial';
+import { FOUR_SYMBOLS, MANSION_GROUPS, MANSION_NAMES } from '@/data/celestial';
 import type { Locale } from '@/i18n/routing';
 import { useOptionalSiteTheme } from './theme/ThemeProvider';
 
@@ -161,6 +161,7 @@ export default function StarMap({ posts }: StarMapProps) {
 /** 二十八宿外缘：四组七宿只提供文化方位感，不参与文章导航。 */
 function MansionFrame({ locale }: { locale: Locale }) {
   const [east, south, west, north] = MANSION_GROUPS;
+  const mansionName = (mansion: string) => locale === 'en' ? MANSION_NAMES[mansion]?.en ?? mansion : mansion;
   const width = FRAME.right - FRAME.left;
   const height = FRAME.bottom - FRAME.top;
   const horizontalX = (index: number) => FRAME.left + ((index + 0.5) / 7) * width;
@@ -191,7 +192,7 @@ function MansionFrame({ locale }: { locale: Locale }) {
           <g key={`east-${mansion}`}>
             <line x1={x} y1={FRAME.top} x2={x} y2={FRAME.top + 8} stroke={color(east.symbolId, 0.52)} />
             <text x={x} y={FRAME.top - 12} textAnchor="middle" fill={color(east.symbolId, 0.72)} fontSize="12">
-              {mansion}
+              {mansionName(mansion)}
             </text>
           </g>
         );
@@ -213,7 +214,7 @@ function MansionFrame({ locale }: { locale: Locale }) {
           <g key={`south-${mansion}`}>
             <line x1={FRAME.right - 8} y1={y} x2={FRAME.right} y2={y} stroke={color(south.symbolId, 0.52)} />
             <text x={FRAME.right + 14} y={y + 4} fill={color(south.symbolId, 0.72)} fontSize="12">
-              {mansion}
+              {mansionName(mansion)}
             </text>
           </g>
         );
@@ -228,7 +229,7 @@ function MansionFrame({ locale }: { locale: Locale }) {
           <g key={`west-${mansion}`}>
             <line x1={x} y1={FRAME.bottom - 8} x2={x} y2={FRAME.bottom} stroke={color(west.symbolId, 0.52)} />
             <text x={x} y={FRAME.bottom + 24} textAnchor="middle" fill={color(west.symbolId, 0.72)} fontSize="12">
-              {mansion}
+              {mansionName(mansion)}
             </text>
           </g>
         );
@@ -250,7 +251,7 @@ function MansionFrame({ locale }: { locale: Locale }) {
           <g key={`north-${mansion}`}>
             <line x1={FRAME.left} y1={y} x2={FRAME.left + 8} y2={y} stroke={color(north.symbolId, 0.52)} />
             <text x={FRAME.left - 14} y={y + 4} textAnchor="end" fill={color(north.symbolId, 0.72)} fontSize="12">
-              {mansion}
+              {mansionName(mansion)}
             </text>
           </g>
         );

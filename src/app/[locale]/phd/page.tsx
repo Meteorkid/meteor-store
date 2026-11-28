@@ -9,6 +9,7 @@ import { phdText } from '@/components/masters/text';
 import { getSession } from '@/lib/auth';
 import { defaultMastersYear } from '@/lib/masters/types';
 import { getPhdRoundsByIds, getPhdWatches, listPhdRounds } from '@/lib/phd/service';
+import { localizeMastersRounds } from '@/lib/masters/localize';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,12 +44,15 @@ export default async function PhdPage({ params, searchParams }: {
     watches.length ? getPhdRoundsByIds(watches.map(watch => watch.roundId)) : Promise.resolve([]),
   ]);
 
+  const rounds = localizeMastersRounds(roundsResult.status === 'fulfilled' ? roundsResult.value : [], locale);
+  const watchedRounds = localizeMastersRounds(watchedRoundsResult.status === 'fulfilled' ? watchedRoundsResult.value : [], locale);
+
   return <div className="min-h-screen bg-black text-white">
     <Header />
     <main className="container mx-auto px-4 pb-12 pt-10 sm:pb-16 sm:pt-14">
       <MastersHub kind="phd" year={year} nowIso={now.toISOString()} userId={session?.userId ?? null}
-        rounds={roundsResult.status === 'fulfilled' ? roundsResult.value : []}
-        initialWatches={watches} watchedRounds={watchedRoundsResult.status === 'fulfilled' ? watchedRoundsResult.value : []}
+        rounds={rounds}
+        initialWatches={watches} watchedRounds={watchedRounds}
         loadFailed={roundsResult.status === 'rejected'} watchesFailed={watchesResult.status === 'rejected' || watchedRoundsResult.status === 'rejected'} />
     </main>
     <Footer />
