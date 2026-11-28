@@ -27,6 +27,31 @@ function row(productId = 'xisland'): ProductUpdateRow {
     message: '', sourceUrl: `https://github.com/Meteorkid/${repository}/releases/tag/v2.1.0`, publishedAt: new Date().toISOString(), releaseId: 42, tag: 'v2.1.0',
     assets: [{ fileId, name: fileName, url: `https://github.com/Meteorkid/${repository}/releases/download/v2.1.0/${fileName}`, bytes, sha256, architecture: 'macos-arm64', assetId: 1 }] };
 }
+function statuxRow(): { release: ProductUpdateRow; binaries: Buffer[] } {
+  const architectures = ['macos-arm64', 'macos-x64'] as const;
+  const binaries = architectures.map((_, index) => {
+    const binary = Buffer.alloc(32);
+    binary.writeUInt32LE(0xfeedfacf);
+    binary.writeUInt32LE(index === 0 ? 0x0100000c : 0x01000007, 4);
+    return binary;
+  });
+  const releaseUrl = 'https://github.com/Meteorkid/statux/releases';
+  return {
+    binaries,
+    release: {
+      ...row(), productId: 'statux', name: 'Statux', currentVersion: '0.4.3', latestVersion: '0.6.0',
+      tag: 'v0.6.0', sourceUrl: `${releaseUrl}/tag/v0.6.0`,
+      assets: architectures.map((architecture, index) => {
+        const name = `statux-darwin-${architecture.slice('macos-'.length)}`;
+        return {
+          fileId: architecture, architecture, name, assetId: index + 1,
+          url: `${releaseUrl}/download/v0.6.0/${name}`, bytes: binaries[index].length,
+          sha256: createHash('sha256').update(binaries[index]).digest('hex'),
+        };
+      }),
+    },
+  };
+}
 async function queue(rows = [row()]): Promise<JobRecord> {
   const record: JobRecord = {
     check: { id: randomUUID(), checkedAt: new Date().toISOString(), baseRevision: (await readCurrentCatalog()).revision, rows },
@@ -68,12 +93,10 @@ describe('产品更新后台任务（隔离安装包与存储）', () => {
     });
   });
   it('任务时限覆盖 Statux 两个大包的下载与存储时限', async () => {
-    const statux = row('statux');
-    statux.assets = [
-      { ...statux.assets[0], fileId: 'macos-arm64', name: 'statux-darwin-arm64', bytes: 91_356_162 },
-      { ...statux.assets[0], fileId: 'macos-x64', name: 'statux-darwin-x64', bytes: 100_430_128, architecture: 'macos-x64' },
-    ];
-    const record = await queue([statux, row('xnook')]);
+    const { release } = statuxRow();
+    release.assets[0].bytes = 91_356_162;
+    release.assets[1].bytes = 100_430_128;
+    const record = await queue([release, row('xnook')]);
     const timeout = vi.spyOn(AbortSignal, 'timeout');
     const deps = dependencies();
     deps.download.mockRejectedValueOnce(new DOMException('fixture download timeout', 'TimeoutError'));
@@ -85,6 +108,21 @@ describe('产品更新后台任务（隔离安装包与存储）', () => {
     expect((await readStateFile<JobRecord>('job'))?.job.rows[0]).toMatchObject({
       status: 'failed', message: '下载安装包超时，此产品保留原下载',
     });
+  });
+  it('Statux 的 Intel 包失败时，已上传的 Apple 芯片包也不切换到新版本', async () => {
+    const { release, binaries } = statuxRow();
+    const record = await queue([release]);
+    const deps = dependencies();
+    deps.download.mockResolvedValueOnce(binaries[0]).mockRejectedValueOnce(new Error('fixture download failed'));
+
+    await runProductUpdateJob(record.job.id, deps);
+
+    expect(deps.upload).toHaveBeenCalledTimes(1);
+    expect(deps.upload.mock.calls[0]).toEqual([
+      'releases/statux/0.6.0/statux-darwin-arm64', binaries[0], release.assets[0], expect.any(AbortSignal),
+    ]);
+    const { current } = await readCurrentCatalog();
+    expect(current.find(product => product.productId === 'statux')?.downloads.map(download => download.version)).toEqual(['0.4.3', '0.4.3']);
   });
   it('DuoCast ZIP 下载校验后上传固定对象并切换下载目录', async () => {
     const record = await queue([row('duocast')]); const deps = dependencies();

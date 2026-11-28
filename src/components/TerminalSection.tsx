@@ -248,8 +248,9 @@ export default function TerminalSection() {
           {/* 终端主体 */}
           <div
             ref={bodyRef}
-            className="p-4 h-80 overflow-y-auto font-mono text-sm leading-relaxed"
+            className="p-4 h-80 overflow-y-auto font-mono text-sm leading-relaxed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-300/70"
             role="log"
+            tabIndex={0}
             aria-live="polite"
             aria-label={t('outputLabel')}
           >
