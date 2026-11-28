@@ -79,6 +79,16 @@ describe('renderHelpMarkdown', () => {
     expect(html).not.toMatch(/\/docs.*↗/);
   });
 
+  it('代码块与宽表格可用键盘滚动', async () => {
+    const { html } = await renderHelpMarkdown({
+      content: '```bash\ncurl example.com\n```\n\n| A | B |\n|---|---|\n| 1 | 2 |',
+      slug: 'test',
+    });
+
+    expect(html).toContain('<pre tabindex="0">');
+    expect(html).toContain('<div class="markdown-table-scroll" tabindex="0"><table>');
+  });
+
   it('XSS 攻击向量被清除', async () => {
     const { html } = await renderHelpMarkdown({
       content: '<script>alert(1)</script>\n\n正常段落',

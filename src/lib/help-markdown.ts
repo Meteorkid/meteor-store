@@ -88,6 +88,22 @@ export function extractHeadings(html: string): HelpHeading[] {
   return headings;
 }
 
+/** 宽表格与宽代码块要能用键盘滚动，否则键盘用户看不到被裁掉的内容。 */
+function rehypeHelpScrollableBlocks() {
+  return (tree: Root) => {
+    visit(tree, 'element', (node: Element, index, parent) => {
+      if (node.tagName === 'pre') node.properties = { ...node.properties, tabIndex: 0 };
+      if (node.tagName !== 'table' || index === undefined || !parent) return;
+      parent.children[index] = {
+        type: 'element',
+        tagName: 'div',
+        properties: { className: ['markdown-table-scroll'], tabIndex: 0 },
+        children: [node],
+      };
+    });
+  };
+}
+
 function rehypeHelpExternalLinks() {
   return (tree: Root) => {
     visit(tree, 'element', (node: Element) => {
@@ -149,6 +165,7 @@ export function renderHelpMarkdown(
     })
     .use(rehypeSanitize, helpSchema)
     .use(rehypeHelpHeadings)
+    .use(rehypeHelpScrollableBlocks)
     .use(rehypeHelpImages, slug)
     .use(rehypeHelpExternalLinks)
     .use(rehypeStringify)
